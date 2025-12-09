@@ -50,7 +50,7 @@
 - Have Bob verify and co‑sign the refund before any funds are committed.
 - Fund the multisig on‑chain after the refund is secured.
 - Make off‑chain payments by updating a “latest commitment” transaction that splits funds; Alice signs and sends it to Bob.
-- Bob can complete the signature and broadcast the most recent commitment at any time to settle on‑chain.
+- Bob can complete the signature and broadcast the most recent commitment at any time before the timeout to settle on‑chain.
 
 # Lesson 7: Transaction Malleability (Pre‑SegWit) and the Fix
 
