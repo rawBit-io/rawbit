@@ -3,7 +3,7 @@
   "schemaVersion": 1,
   "nodes": [
     {
-      "id": "group_46sph9t",
+      "id": "group_participants",
       "type": "shadcnGroup",
       "position": {
         "x": 0,
@@ -11,171 +11,171 @@
       },
       "data": {
         "isGroup": true,
-        "width": 2110,
-        "height": 1610,
-        "title": "SIGNERS",
+        "width": 2320,
+        "height": 1350,
+        "title": "PARTICIPANTS",
         "fontSize": 44,
         "borderColor": "#22c55e",
         "dirty": false,
-        "comment": "Generate keypair, derive x-only pubkey and Taproot-tweaked keys."
+        "comment": "Generate keypairs for all three participants"
       },
-      "width": 2110,
-      "height": 1610,
+      "width": 2320,
+      "height": 1350,
       "dragHandle": "[data-drag-handle]"
     },
     {
-      "id": "group_1wwih0b",
+      "id": "group_multisig_script",
       "type": "shadcnGroup",
       "position": {
-        "x": 2810,
+        "x": 3170,
         "y": 0
       },
       "data": {
         "isGroup": true,
-        "width": 2560,
-        "height": 4328,
-        "title": "SCRIPT",
+        "width": 3910,
+        "height": 2742,
+        "title": "MULTISIG SCRIPT",
         "fontSize": 44,
         "borderColor": "#6366f1",
         "dirty": false,
-        "comment": "Build NUMS internal key, construct OP_CHECKSIGADD script, build taptree."
+        "comment": "Build NUMS internal key and OP_CHECKSIGADD threshold script, commit to taptree"
       },
-      "width": 2560,
-      "height": 4328,
+      "width": 3910,
+      "height": 2742,
       "dragHandle": "[data-drag-handle]"
     },
     {
-      "id": "group_i12g5rj",
+      "id": "group_sighash_locking",
       "type": "shadcnGroup",
       "position": {
-        "x": 6070,
+        "x": 7880,
         "y": 0
       },
       "data": {
         "isGroup": true,
-        "width": 2920,
-        "height": 4424,
-        "title": "PREIMAGE",
+        "width": 4320,
+        "height": 3114,
+        "title": "KEY-PATH SIGHASH",
         "fontSize": 44,
         "borderColor": "#f97316",
         "dirty": false,
-        "comment": "Build BIP341 sighash preimage committing to all inputs and outputs."
+        "comment": "Build the BIP341 sighash \u2014 what all signers commit to"
       },
-      "width": 2920,
-      "height": 4424,
+      "width": 4320,
+      "height": 3114,
       "dragHandle": "[data-drag-handle]"
     },
     {
-      "id": "group_foyd2x6",
+      "id": "group_funding_tx",
       "type": "shadcnGroup",
       "position": {
-        "x": 9690,
+        "x": 13000,
         "y": 0
       },
       "data": {
         "isGroup": true,
-        "width": 2410,
-        "height": 4498,
-        "title": "TRANSACTION",
+        "width": 3020,
+        "height": 4104,
+        "title": "FUNDING TX",
         "fontSize": 44,
         "borderColor": "#a855f7",
         "dirty": false,
-        "comment": "Assemble key-path witness, build raw transaction, verify and get TXID."
+        "comment": "Assemble and sign the funding transaction that locks coins to the multisig address"
       },
-      "width": 2410,
-      "height": 4498,
+      "width": 3020,
+      "height": 4104,
       "dragHandle": "[data-drag-handle]"
     },
     {
-      "id": "group_ms31n8f",
+      "id": "group_signers_spending",
       "type": "shadcnGroup",
       "position": {
         "x": 0,
-        "y": 6098
+        "y": 4900
       },
       "data": {
         "isGroup": true,
-        "width": 1450,
-        "height": 1280,
+        "width": 1840,
+        "height": 1020,
         "title": "SIGNERS",
         "fontSize": 44,
         "borderColor": "#22c55e",
         "dirty": false,
-        "comment": "Spending keypair and tweaked private key for script-path spend."
+        "comment": "Collect signatures from Bob and Charlie. Alice is absent \u2014 empty byte vector, not OP_0"
       },
-      "width": 1450,
-      "height": 1280,
+      "width": 1840,
+      "height": 1020,
       "dragHandle": "[data-drag-handle]"
     },
     {
-      "id": "group_sragsmk",
+      "id": "group_script_witness",
       "type": "shadcnGroup",
       "position": {
-        "x": 2150,
-        "y": 6098
+        "x": 2640,
+        "y": 4900
       },
       "data": {
         "isGroup": true,
-        "width": 1780,
-        "height": 2954,
-        "title": "SCRIPT",
+        "width": 1840,
+        "height": 2914,
+        "title": "SCRIPT-PATH WITNESS",
         "fontSize": 44,
         "borderColor": "#6366f1",
         "dirty": false,
-        "comment": "Build control block and script-path witness for spending."
+        "comment": "Build the control block and script-path witness proving which script leaf is being spent"
       },
-      "width": 1780,
-      "height": 2954,
+      "width": 1840,
+      "height": 2914,
       "dragHandle": "[data-drag-handle]"
     },
     {
-      "id": "group_z2udbva",
+      "id": "group_sighash_spending",
       "type": "shadcnGroup",
       "position": {
-        "x": 4630,
-        "y": 6098
+        "x": 5280,
+        "y": 4900
       },
       "data": {
         "isGroup": true,
-        "width": 2890,
-        "height": 4264,
-        "title": "PREIMAGE",
+        "width": 4770,
+        "height": 4120,
+        "title": "SCRIPT-PATH SIGHASH",
         "fontSize": 44,
         "borderColor": "#f97316",
         "dirty": false,
-        "comment": "Build BIP341 sighash preimage for script-path spend."
+        "comment": "Build the BIP341 sighash \u2014 what all signers commit to"
       },
-      "width": 2890,
-      "height": 4264,
+      "width": 4770,
+      "height": 4120,
       "dragHandle": "[data-drag-handle]"
     },
     {
-      "id": "group_jzqbk3m",
+      "id": "group_spending_tx",
       "type": "shadcnGroup",
       "position": {
-        "x": 8220,
-        "y": 6098
+        "x": 10850,
+        "y": 4900
       },
       "data": {
         "isGroup": true,
-        "width": 2890,
-        "height": 4964,
-        "title": "TRANSACTION",
+        "width": 3100,
+        "height": 2930,
+        "title": "SPENDING TX",
         "fontSize": 44,
         "borderColor": "#a855f7",
         "dirty": false,
-        "comment": "Assemble script-path witness, build raw transaction, verify and get TXID."
+        "comment": "Assemble the spending transaction and verify it is valid"
       },
-      "width": 2890,
-      "height": 4964,
+      "width": 3100,
+      "height": 2930,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "node_9PbQ7IpU",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 120
+        "x": 200,
+        "y": 200
       },
       "data": {
         "functionName": "random_256",
@@ -188,15 +188,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_46sph9t",
+      "parentId": "group_participants",
       "extent": "parent"
     },
     {
       "id": "node_KAZyd8uI",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 450
+        "x": 200,
+        "y": 530
       },
       "data": {
         "functionName": "even_y_private_key",
@@ -223,15 +223,15 @@
         "comment": "If the pubkey from this private key has odd Y (prefix 03),\nwe replace d with d' = n \u2212 d so the corresponding pubkey has even Y.",
         "borderColor": "#22c55e"
       },
-      "parentId": "group_46sph9t",
+      "parentId": "group_participants",
       "extent": "parent"
     },
     {
       "id": "node_w95i7cWf",
       "type": "calculation",
       "position": {
-        "x": 930,
-        "y": 120
+        "x": 1010,
+        "y": 200
       },
       "data": {
         "functionName": "xonly_pubkey",
@@ -256,15 +256,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_46sph9t",
+      "parentId": "group_participants",
       "extent": "parent"
     },
     {
       "id": "node_qYXmMlZ7",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 120
+        "x": 3820,
+        "y": 200
       },
       "data": {
         "functionName": "identity",
@@ -293,15 +293,15 @@
         "comment": "RBF enabled (< 0xfffffffe)",
         "error": false
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_9kxF1WuT",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 2884
+        "x": 750,
+        "y": 2964
       },
       "data": {
         "functionName": "reverse_bytes_4",
@@ -328,15 +328,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_oUqqMLh1",
       "type": "calculation",
       "position": {
-        "x": 450,
-        "y": 2764
+        "x": 530,
+        "y": 2844
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -353,15 +353,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_FZ9oWjOJ",
       "type": "calculation",
       "position": {
-        "x": 450,
-        "y": 796
+        "x": 200,
+        "y": 876
       },
       "data": {
         "functionName": "identity",
@@ -390,15 +390,15 @@
         "comment": "",
         "error": false
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_A7m1VurO",
       "type": "calculation",
       "position": {
-        "x": 450,
-        "y": 1364
+        "x": 200,
+        "y": 1444
       },
       "data": {
         "functionName": "satoshi_to_8_le",
@@ -415,15 +415,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_VnwVYVNv",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 670
+        "x": 1490,
+        "y": 750
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -450,15 +450,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_1wwih0b",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_LLO15hMt",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 560
+        "x": 3820,
+        "y": 640
       },
       "data": {
         "functionName": "identity",
@@ -487,15 +487,15 @@
         "comment": "",
         "error": false
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_gdG32TV6",
       "type": "calculation",
       "position": {
-        "x": 600,
-        "y": 120
+        "x": 1230,
+        "y": 200
       },
       "data": {
         "functionName": "identity",
@@ -522,15 +522,15 @@
         "borderColor": "#eab308",
         "error": false
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_Y8ygxDnf",
       "type": "calculation",
       "position": {
-        "x": 600,
-        "y": 560
+        "x": 1230,
+        "y": 640
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -546,15 +546,15 @@
         "borderColor": "#eab308",
         "error": false
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_Zz1yl2TN",
       "type": "calculation",
       "position": {
-        "x": 600,
-        "y": 3754
+        "x": 1230,
+        "y": 3834
       },
       "data": {
         "functionName": "identity",
@@ -581,15 +581,15 @@
         "borderColor": "#eab308",
         "error": false
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_kPprEMFT",
       "type": "calculation",
       "position": {
-        "x": 1080,
-        "y": 120
+        "x": 1710,
+        "y": 200
       },
       "data": {
         "functionName": "identity",
@@ -616,15 +616,15 @@
         "borderColor": "#eab308",
         "error": false
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_sohn5esk",
       "type": "calculation",
       "position": {
-        "x": 1080,
-        "y": 560
+        "x": 1710,
+        "y": 640
       },
       "data": {
         "functionName": "identity",
@@ -654,15 +654,15 @@
         },
         "error": false
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_BW7DCs2L",
       "type": "calculation",
       "position": {
-        "x": 1080,
-        "y": 2884
+        "x": 1710,
+        "y": 2964
       },
       "data": {
         "functionName": "encode_varint",
@@ -678,15 +678,15 @@
         "borderColor": "#eab308",
         "error": false
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_X75bgQmU",
       "type": "calculation",
       "position": {
-        "x": 1080,
-        "y": 3754
+        "x": 1710,
+        "y": 3834
       },
       "data": {
         "functionName": "identity",
@@ -713,15 +713,15 @@
         "title": "Output Count",
         "error": false
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_32UX22QJ",
       "type": "calculation",
       "position": {
-        "x": 1410,
-        "y": 120
+        "x": 2040,
+        "y": 200
       },
       "data": {
         "functionName": "encode_varint",
@@ -737,15 +737,15 @@
         "borderColor": "#eab308",
         "error": false
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_0d7XluIl",
       "type": "calculation",
       "position": {
-        "x": 1410,
-        "y": 3754
+        "x": 2040,
+        "y": 3834
       },
       "data": {
         "functionName": "double_sha256_hex",
@@ -771,15 +771,15 @@
         "borderColor": "#a855f7",
         "error": false
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_869ITUOa",
       "type": "calculation",
       "position": {
-        "x": 1890,
-        "y": 120
+        "x": 2520,
+        "y": 200
       },
       "data": {
         "functionName": "reverse_txid_bytes",
@@ -795,15 +795,15 @@
         "borderColor": "#a855f7",
         "error": false
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_B1r8Otnt",
       "type": "calculation",
       "position": {
-        "x": 780,
-        "y": 796
+        "x": 860,
+        "y": 876
       },
       "data": {
         "functionName": "concat_all",
@@ -863,15 +863,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_Th2BmmVn",
       "type": "calculation",
       "position": {
-        "x": 780,
-        "y": 2764
+        "x": 860,
+        "y": 2844
       },
       "data": {
         "functionName": "concat_all",
@@ -923,15 +923,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_ynwHfJSf",
       "type": "calculation",
       "position": {
-        "x": 1260,
-        "y": 120
+        "x": 1340,
+        "y": 200
       },
       "data": {
         "functionName": "concat_all",
@@ -1000,15 +1000,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_Dvdngj38",
       "type": "calculation",
       "position": {
-        "x": 1410,
-        "y": 560
+        "x": 2040,
+        "y": 640
       },
       "data": {
         "functionName": "concat_all",
@@ -1209,15 +1209,15 @@
         "borderColor": "#a855f7",
         "error": false
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_xnLAVgZ6",
       "type": "calculation",
       "position": {
-        "x": 450,
-        "y": 2170
+        "x": 530,
+        "y": 2250
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -1233,15 +1233,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_IsdiIfIS",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 120
+        "x": 200,
+        "y": 200
       },
       "data": {
         "functionName": "identity",
@@ -1270,15 +1270,15 @@
         "comment": "Prev TXID \u2192 faucet or explorer",
         "borderColor": "#22c55e"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_z4WNy5po",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 796
+        "x": 200,
+        "y": 876
       },
       "data": {
         "functionName": "identity",
@@ -1305,15 +1305,15 @@
         "title": "Output Index (vout)",
         "error": false
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_Rm5CoGRm",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 1364
+        "x": 200,
+        "y": 1444
       },
       "data": {
         "functionName": "identity",
@@ -1342,15 +1342,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_741JmRNv",
       "type": "calculation",
       "position": {
-        "x": 450,
-        "y": 120
+        "x": 530,
+        "y": 200
       },
       "data": {
         "functionName": "random_256",
@@ -1363,15 +1363,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_46sph9t",
+      "parentId": "group_participants",
       "extent": "parent"
     },
     {
       "id": "node_pGJHBh2x",
       "type": "calculation",
       "position": {
-        "x": 450,
-        "y": 450
+        "x": 530,
+        "y": 530
       },
       "data": {
         "functionName": "even_y_private_key",
@@ -1398,15 +1398,15 @@
         "comment": "",
         "borderColor": "#22c55e"
       },
-      "parentId": "group_46sph9t",
+      "parentId": "group_participants",
       "extent": "parent"
     },
     {
       "id": "node_LEYodLx2",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 1000
+        "x": 200,
+        "y": 1080
       },
       "data": {
         "functionName": "xonly_pubkey",
@@ -1433,15 +1433,15 @@
         "comment": "",
         "borderColor": "#22c55e"
       },
-      "parentId": "group_46sph9t",
+      "parentId": "group_participants",
       "extent": "parent"
     },
     {
       "id": "node_En17Foy0",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 2764
+        "x": 200,
+        "y": 2844
       },
       "data": {
         "functionName": "reverse_txid_bytes",
@@ -1457,15 +1457,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_8SURSnfL",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 2170
+        "x": 200,
+        "y": 2250
       },
       "data": {
         "functionName": "identity",
@@ -1494,15 +1494,15 @@
         "comment": "Input amount (satoshis) from previous TX",
         "error": false
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_XmVXwCTQ",
       "type": "calculation",
       "position": {
-        "x": 450,
-        "y": 120
+        "x": 530,
+        "y": 200
       },
       "data": {
         "functionName": "satoshi_to_8_le",
@@ -1519,15 +1519,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_R09gIYuG",
       "type": "calculation",
       "position": {
-        "x": 1260,
-        "y": 796
+        "x": 1340,
+        "y": 876
       },
       "data": {
         "functionName": "identity",
@@ -1554,15 +1554,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_GY91Ehdp",
       "type": "calculation",
       "position": {
-        "x": 1260,
-        "y": 1364
+        "x": 1340,
+        "y": 1444
       },
       "data": {
         "functionName": "identity",
@@ -1589,15 +1589,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_xfB4ufhP",
       "type": "calculation",
       "position": {
-        "x": 1740,
-        "y": 796
+        "x": 1820,
+        "y": 876
       },
       "data": {
         "functionName": "sha256_hex",
@@ -1622,15 +1622,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_4oJVTb66",
       "type": "calculation",
       "position": {
-        "x": 780,
-        "y": 1364
+        "x": 860,
+        "y": 1444
       },
       "data": {
         "functionName": "concat_all",
@@ -1681,15 +1681,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_QudowjmH",
       "type": "calculation",
       "position": {
-        "x": 1740,
-        "y": 1364
+        "x": 1820,
+        "y": 1444
       },
       "data": {
         "functionName": "sha256_hex",
@@ -1714,15 +1714,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_6y911m30",
       "type": "calculation",
       "position": {
-        "x": 1740,
-        "y": 2170
+        "x": 1820,
+        "y": 2250
       },
       "data": {
         "functionName": "sha256_hex",
@@ -1747,15 +1747,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_fg750uW1",
       "type": "calculation",
       "position": {
-        "x": 1740,
-        "y": 2764
+        "x": 1820,
+        "y": 2844
       },
       "data": {
         "functionName": "sha256_hex",
@@ -1780,15 +1780,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_8aTeSnaz",
       "type": "calculation",
       "position": {
-        "x": 2070,
-        "y": 1364
+        "x": 2150,
+        "y": 1444
       },
       "data": {
         "functionName": "sha256_hex",
@@ -1813,15 +1813,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_D1fzjbDk",
       "type": "calculation",
       "position": {
-        "x": 2070,
-        "y": 2170
+        "x": 2150,
+        "y": 2250
       },
       "data": {
         "functionName": "identity",
@@ -1850,15 +1850,15 @@
         "comment": "Key Path Spend (funding TX)",
         "borderColor": "#22c55e"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_65Dc6Vnc",
       "type": "calculation",
       "position": {
-        "x": 2400,
-        "y": 120
+        "x": 2480,
+        "y": 200
       },
       "data": {
         "functionName": "identity",
@@ -1885,15 +1885,15 @@
         "error": false,
         "borderColor": "#eab308"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_1TiPfKlO",
       "type": "calculation",
       "position": {
-        "x": 2400,
-        "y": 796
+        "x": 2480,
+        "y": 876
       },
       "data": {
         "functionName": "sha256_hex",
@@ -1918,15 +1918,15 @@
         "error": false,
         "borderColor": "#eab308"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_Mx4nbigd",
       "type": "calculation",
       "position": {
-        "x": 2070,
-        "y": 2764
+        "x": 2150,
+        "y": 2844
       },
       "data": {
         "functionName": "text_to_hex",
@@ -1952,15 +1952,15 @@
         "error": false,
         "borderColor": "#eab308"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_NWo4jqOn",
       "type": "calculation",
       "position": {
-        "x": 2400,
-        "y": 2170
+        "x": 2480,
+        "y": 2250
       },
       "data": {
         "functionName": "sha256_hex",
@@ -1985,15 +1985,15 @@
         "error": false,
         "borderColor": "#eab308"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_KlkyBptz",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 3754
+        "x": 750,
+        "y": 3834
       },
       "data": {
         "functionName": "schnorr_sign_bip340",
@@ -2042,15 +2042,15 @@
         },
         "borderColor": "#eab308"
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_Xhq5lC7C",
       "type": "calculation",
       "position": {
-        "x": 600,
-        "y": 2884
+        "x": 1230,
+        "y": 2964
       },
       "data": {
         "functionName": "concat_all",
@@ -2097,15 +2097,15 @@
         "error": false,
         "borderColor": "#eab308"
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_TO9tpFgF",
       "type": "calculation",
       "position": {
-        "x": 1410,
-        "y": 2884
+        "x": 2040,
+        "y": 2964
       },
       "data": {
         "functionName": "script_verification",
@@ -2300,15 +2300,15 @@
           ]
         }
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_ZvH9ZZuw",
       "type": "calculation",
       "position": {
-        "x": 1260,
-        "y": 1000
+        "x": 1010,
+        "y": 1080
       },
       "data": {
         "functionName": "p2tr_address_from_xonly",
@@ -2338,15 +2338,15 @@
         "comment": "Fund this testnet address https://coinfaucet.eu/en/btc-testnet/",
         "borderColor": "#22c55e"
       },
-      "parentId": "group_46sph9t",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_Ah3CUObm",
       "type": "calculation",
       "position": {
-        "x": 2400,
-        "y": 1364
+        "x": 2480,
+        "y": 1444
       },
       "data": {
         "functionName": "concat_all",
@@ -2401,15 +2401,15 @@
         "error": false,
         "borderColor": "#eab308"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_nxuzlwvO",
       "type": "calculation",
       "position": {
-        "x": 2070,
-        "y": 796
+        "x": 2150,
+        "y": 876
       },
       "data": {
         "functionName": "identity",
@@ -2438,15 +2438,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_cEuWrsla",
       "type": "calculation",
       "position": {
-        "x": 2070,
-        "y": 120
+        "x": 2150,
+        "y": 200
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -2462,15 +2462,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_AqYAQEk5",
       "type": "calculation",
       "position": {
-        "x": 1260,
-        "y": 2764
+        "x": 1340,
+        "y": 2844
       },
       "data": {
         "functionName": "concat_all",
@@ -2585,15 +2585,15 @@
         },
         "borderColor": "#22c55e"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_hrk9TW7D",
       "type": "calculation",
       "position": {
-        "x": 780,
-        "y": 120
+        "x": 860,
+        "y": 200
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -2608,15 +2608,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_Lg7qaF1w",
       "type": "opCodeNode",
       "position": {
-        "x": 120,
-        "y": 1586
+        "x": 1490,
+        "y": 1666
       },
       "data": {
         "functionName": "op_code_select",
@@ -2636,15 +2636,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_1wwih0b",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_QDQ24k0S",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 120
+        "x": 1490,
+        "y": 200
       },
       "data": {
         "functionName": "tagged_hash",
@@ -2681,15 +2681,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_1wwih0b",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_AWGkoehc",
       "type": "calculation",
       "position": {
-        "x": 1080,
-        "y": 1586
+        "x": 2450,
+        "y": 1666
       },
       "data": {
         "functionName": "concat_all",
@@ -2744,15 +2744,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_1wwih0b",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_2HN9AFgD",
       "type": "calculation",
       "position": {
-        "x": 1080,
-        "y": 670
+        "x": 2450,
+        "y": 750
       },
       "data": {
         "functionName": "identity",
@@ -2779,15 +2779,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_1wwih0b",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_wgIqkewV",
       "type": "calculation",
       "position": {
-        "x": 1080,
-        "y": 2392
+        "x": 2450,
+        "y": 2472
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -2802,15 +2802,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_1wwih0b",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_2Pb9acyz",
       "type": "calculation",
       "position": {
-        "x": 1080,
-        "y": 120
+        "x": 2450,
+        "y": 200
       },
       "data": {
         "functionName": "identity",
@@ -2837,15 +2837,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_1wwih0b",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_uky7xL1V",
       "type": "calculation",
       "position": {
-        "x": 1560,
-        "y": 120
+        "x": 2930,
+        "y": 200
       },
       "data": {
         "functionName": "taproot_tree_builder",
@@ -2939,15 +2939,15 @@
         "borderColor": "#22c55e",
         "outputLayout": "taproot_tree_builder"
       },
-      "parentId": "group_1wwih0b",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_0wPq7MDB",
       "type": "opCodeNode",
       "position": {
-        "x": 1560,
-        "y": 2392
+        "x": 2930,
+        "y": 2472
       },
       "data": {
         "functionName": "op_code_select",
@@ -2967,15 +2967,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_1wwih0b",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_e8zSmKXN",
       "type": "calculation",
       "position": {
-        "x": 2040,
-        "y": 670
+        "x": 3410,
+        "y": 750
       },
       "data": {
         "functionName": "concat_all",
@@ -3032,15 +3032,15 @@
         "comment": "OP_1 <x-only pubkey>",
         "error": false
       },
-      "parentId": "group_1wwih0b",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_MQYSaoPp",
       "type": "calculation",
       "position": {
-        "x": 2040,
-        "y": 120
+        "x": 3410,
+        "y": 200
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -3067,15 +3067,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_1wwih0b",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_HgQ5X6jS",
       "type": "calculation",
       "position": {
-        "x": 1890,
-        "y": 560
+        "x": 2520,
+        "y": 640
       },
       "data": {
         "functionName": "concat_all",
@@ -3276,15 +3276,15 @@
         "error": false,
         "borderColor": "#a855f7"
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_VAFbclYv",
       "type": "calculation",
       "position": {
-        "x": 1890,
-        "y": 2884
+        "x": 2520,
+        "y": 2964
       },
       "data": {
         "functionName": "double_sha256_hex",
@@ -3310,15 +3310,15 @@
         "borderColor": "#a855f7",
         "error": false
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_eQmsFLeo",
       "type": "calculation",
       "position": {
-        "x": 1890,
-        "y": 3754
+        "x": 2520,
+        "y": 3834
       },
       "data": {
         "functionName": "reverse_txid_bytes",
@@ -3334,15 +3334,15 @@
         "borderColor": "#a855f7",
         "error": false
       },
-      "parentId": "group_foyd2x6",
+      "parentId": "group_funding_tx",
       "extent": "parent"
     },
     {
       "id": "node_1OYoX3dF",
       "type": "calculation",
       "position": {
-        "x": 1560,
-        "y": 1586
+        "x": 2930,
+        "y": 1666
       },
       "data": {
         "functionName": "taproot_tweak_xonly_pubkey",
@@ -3405,15 +3405,15 @@
         "borderColor": "#22c55e",
         "outputLayout": "taproot_tweak_xonly_pubkey"
       },
-      "parentId": "group_1wwih0b",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_7xNvgOA9",
       "type": "calculation",
       "position": {
-        "x": 780,
-        "y": 2170
+        "x": 860,
+        "y": 2250
       },
       "data": {
         "functionName": "concat_all",
@@ -3472,15 +3472,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_w2uwASAC",
       "type": "calculation",
       "position": {
-        "x": 450,
-        "y": 1000
+        "x": 200,
+        "y": 1080
       },
       "data": {
         "functionName": "taproot_tweak_xonly_pubkey",
@@ -3542,15 +3542,15 @@
         "borderColor": "#22c55e",
         "outputLayout": "taproot_tweak_xonly_pubkey"
       },
-      "parentId": "group_46sph9t",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_02wNQ9BN",
       "type": "calculation",
       "position": {
-        "x": 1260,
-        "y": 450
+        "x": 1010,
+        "y": 530
       },
       "data": {
         "functionName": "taproot_tweaked_privkey",
@@ -3588,15 +3588,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_46sph9t",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_JsPROnIF",
       "type": "calculation",
       "position": {
-        "x": 600,
-        "y": 2392
+        "x": 1970,
+        "y": 2472
       },
       "data": {
         "functionName": "concat_all",
@@ -3665,15 +3665,15 @@
         "comment": "<alice_pubkey> OP_CHECKSIG <bob_pubkey> OP_CHECKSIGADD <charlie_pubkey> OP_CHECKSIGADD 2 OP_NUMEQUAL",
         "error": false
       },
-      "parentId": "group_1wwih0b",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_Fze0PM8E",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 2392
+        "x": 1490,
+        "y": 2472
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -3700,15 +3700,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_1wwih0b",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_jZs4oXnR",
       "type": "calculation",
       "position": {
-        "x": 930,
-        "y": 1000
+        "x": 1010,
+        "y": 1080
       },
       "data": {
         "functionName": "random_256",
@@ -3721,15 +3721,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_46sph9t",
+      "parentId": "group_participants",
       "extent": "parent"
     },
     {
       "id": "node_sX9fRynx",
       "type": "calculation",
       "position": {
-        "x": 1260,
-        "y": 120
+        "x": 1340,
+        "y": 200
       },
       "data": {
         "functionName": "even_y_private_key",
@@ -3756,15 +3756,15 @@
         "comment": "",
         "borderColor": "#22c55e"
       },
-      "parentId": "group_46sph9t",
+      "parentId": "group_participants",
       "extent": "parent"
     },
     {
       "id": "node_LHhLlB5R",
       "type": "calculation",
       "position": {
-        "x": 930,
-        "y": 450
+        "x": 1010,
+        "y": 530
       },
       "data": {
         "functionName": "xonly_pubkey",
@@ -3791,15 +3791,15 @@
         "comment": "",
         "borderColor": "#22c55e"
       },
-      "parentId": "group_46sph9t",
+      "parentId": "group_participants",
       "extent": "parent"
     },
     {
       "id": "node_w9vzSvQB",
       "type": "opCodeNode",
       "position": {
-        "x": 600,
-        "y": 120
+        "x": 1970,
+        "y": 200
       },
       "data": {
         "functionName": "op_code_select",
@@ -3819,15 +3819,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_1wwih0b",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_k9Lcn0Q7",
       "type": "calculation",
       "position": {
-        "x": 600,
-        "y": 670
+        "x": 1970,
+        "y": 750
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -3854,15 +3854,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_1wwih0b",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_VB7d03j6",
       "type": "calculation",
       "position": {
-        "x": 1740,
-        "y": 450
+        "x": 1820,
+        "y": 530
       },
       "data": {
         "functionName": "random_256",
@@ -3875,15 +3875,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_46sph9t",
+      "parentId": "group_participants",
       "extent": "parent"
     },
     {
       "id": "node_576IsLEv",
       "type": "calculation",
       "position": {
-        "x": 1740,
-        "y": 1000
+        "x": 1820,
+        "y": 1080
       },
       "data": {
         "functionName": "even_y_private_key",
@@ -3910,15 +3910,15 @@
         "comment": "",
         "borderColor": "#22c55e"
       },
-      "parentId": "group_46sph9t",
+      "parentId": "group_participants",
       "extent": "parent"
     },
     {
       "id": "node_mxaV6It4",
       "type": "calculation",
       "position": {
-        "x": 1740,
-        "y": 120
+        "x": 1820,
+        "y": 200
       },
       "data": {
         "functionName": "xonly_pubkey",
@@ -3945,15 +3945,15 @@
         "comment": "",
         "borderColor": "#22c55e"
       },
-      "parentId": "group_46sph9t",
+      "parentId": "group_participants",
       "extent": "parent"
     },
     {
       "id": "node_XceXEPeA",
       "type": "opCodeNode",
       "position": {
-        "x": 600,
-        "y": 1586
+        "x": 1970,
+        "y": 1666
       },
       "data": {
         "functionName": "op_code_select",
@@ -3975,15 +3975,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_1wwih0b",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
       "id": "node_DRkax0Qc",
       "type": "calculation",
       "position": {
-        "x": 1560,
-        "y": 670
+        "x": 2930,
+        "y": 750
       },
       "data": {
         "functionName": "identity",
@@ -4011,7 +4011,7 @@
         "showComment": true,
         "comment": "BIP341 NUMS \nUnspendable internal key: lift_x(SHA256(uncompressed_G)). No known private key."
       },
-      "parentId": "group_1wwih0b",
+      "parentId": "group_multisig_script",
       "extent": "parent"
     },
     {
@@ -4066,8 +4066,8 @@
       "id": "node_B5jWn1Wy",
       "type": "calculation",
       "position": {
-        "x": 600,
-        "y": 120
+        "x": 4270,
+        "y": 200
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -4084,15 +4084,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_Vym8uL5C",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 2580
+        "x": 200,
+        "y": 2660
       },
       "data": {
         "functionName": "identity",
@@ -4121,15 +4121,15 @@
         "comment": "",
         "error": false
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_spending_tx",
       "extent": "parent"
     },
     {
       "id": "node_SHgIWa4Y",
       "type": "calculation",
       "position": {
-        "x": 600,
-        "y": 1334
+        "x": 680,
+        "y": 1414
       },
       "data": {
         "functionName": "satoshi_to_8_le",
@@ -4146,15 +4146,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_spending_tx",
       "extent": "parent"
     },
     {
       "id": "node_AntDxwp1",
       "type": "opCodeNode",
       "position": {
-        "x": 120,
-        "y": 120
+        "x": 200,
+        "y": 200
       },
       "data": {
         "functionName": "op_code_select",
@@ -4174,15 +4174,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_spending_tx",
       "extent": "parent"
     },
     {
       "id": "node_6g7sVO0a",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 1664
+        "x": 200,
+        "y": 1744
       },
       "data": {
         "functionName": "concat_all",
@@ -4239,15 +4239,15 @@
         "comment": "OP_1 <x-only pubkey>",
         "error": false
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_spending_tx",
       "extent": "parent"
     },
     {
       "id": "node_j0gOIO3c",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 1334
+        "x": 200,
+        "y": 1414
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -4274,15 +4274,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_spending_tx",
       "extent": "parent"
     },
     {
       "id": "node_uSiz3sJA",
       "type": "calculation",
       "position": {
-        "x": 600,
-        "y": 1664
+        "x": 4270,
+        "y": 1744
       },
       "data": {
         "functionName": "identity",
@@ -4311,15 +4311,15 @@
         "comment": "",
         "error": false
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_IQlRKIFx",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 1720
+        "x": 200,
+        "y": 1800
       },
       "data": {
         "functionName": "concat_all",
@@ -4379,15 +4379,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_jqmLWMVE",
       "type": "calculation",
       "position": {
-        "x": 1080,
-        "y": 3770
+        "x": 1160,
+        "y": 3850
       },
       "data": {
         "functionName": "concat_all",
@@ -4439,15 +4439,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_RjzaI05F",
       "type": "calculation",
       "position": {
-        "x": 1560,
-        "y": 3094
+        "x": 1640,
+        "y": 3174
       },
       "data": {
         "functionName": "concat_all",
@@ -4516,15 +4516,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_DrHA0ACG",
       "type": "calculation",
       "position": {
-        "x": 2040,
-        "y": 120
+        "x": 2120,
+        "y": 200
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -4540,15 +4540,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_2KemooX4",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 120
+        "x": 200,
+        "y": 200
       },
       "data": {
         "functionName": "identity",
@@ -4575,15 +4575,15 @@
         "title": "Output Index (vout)",
         "error": false
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_IlvZXl8V",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 670
+        "x": 200,
+        "y": 750
       },
       "data": {
         "functionName": "random_256",
@@ -4596,15 +4596,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_ms31n8f",
+      "parentId": "group_signers_spending",
       "extent": "parent"
     },
     {
       "id": "node_KSUcPBjL",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 120
+        "x": 200,
+        "y": 200
       },
       "data": {
         "functionName": "even_y_private_key",
@@ -4631,15 +4631,15 @@
         "comment": "If the pubkey from this private key has odd Y (prefix 03),\nwe replace d with d' = n \u2212 d so the corresponding pubkey has even Y.",
         "borderColor": "#22c55e"
       },
-      "parentId": "group_ms31n8f",
+      "parentId": "group_signers_spending",
       "extent": "parent"
     },
     {
       "id": "node_g7Ow0MfU",
       "type": "calculation",
       "position": {
-        "x": 450,
-        "y": 120
+        "x": 530,
+        "y": 200
       },
       "data": {
         "functionName": "xonly_pubkey",
@@ -4664,15 +4664,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_ms31n8f",
+      "parentId": "group_signers_spending",
       "extent": "parent"
     },
     {
       "id": "node_AyChytW7",
       "type": "calculation",
       "position": {
-        "x": 600,
-        "y": 3770
+        "x": 680,
+        "y": 3850
       },
       "data": {
         "functionName": "satoshi_to_8_le",
@@ -4689,15 +4689,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_FwHuFA1H",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 2288
+        "x": 200,
+        "y": 2368
       },
       "data": {
         "functionName": "identity",
@@ -4724,15 +4724,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_d5IlolZw",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 3094
+        "x": 200,
+        "y": 3174
       },
       "data": {
         "functionName": "identity",
@@ -4759,15 +4759,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_HxFw6WnV",
       "type": "calculation",
       "position": {
-        "x": 600,
-        "y": 2288
+        "x": 680,
+        "y": 2368
       },
       "data": {
         "functionName": "sha256_hex",
@@ -4792,15 +4792,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_910QTAk6",
       "type": "calculation",
       "position": {
-        "x": 600,
-        "y": 3094
+        "x": 680,
+        "y": 3174
       },
       "data": {
         "functionName": "concat_all",
@@ -4851,15 +4851,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_IlNt7e2B",
       "type": "calculation",
       "position": {
-        "x": 1080,
-        "y": 120
+        "x": 1160,
+        "y": 200
       },
       "data": {
         "functionName": "sha256_hex",
@@ -4884,15 +4884,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_4EqAFknw",
       "type": "calculation",
       "position": {
-        "x": 1080,
-        "y": 1720
+        "x": 1160,
+        "y": 1800
       },
       "data": {
         "functionName": "sha256_hex",
@@ -4917,15 +4917,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_faqfHJUB",
       "type": "calculation",
       "position": {
-        "x": 1560,
-        "y": 120
+        "x": 1640,
+        "y": 200
       },
       "data": {
         "functionName": "sha256_hex",
@@ -4950,15 +4950,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_bbO5eq6v",
       "type": "calculation",
       "position": {
-        "x": 1560,
-        "y": 3770
+        "x": 1640,
+        "y": 3850
       },
       "data": {
         "functionName": "sha256_hex",
@@ -4983,15 +4983,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_66Lm9bdq",
       "type": "calculation",
       "position": {
-        "x": 2040,
-        "y": 1720
+        "x": 2120,
+        "y": 1800
       },
       "data": {
         "functionName": "identity",
@@ -5020,15 +5020,15 @@
         "comment": "Script Path Spend",
         "borderColor": "#22c55e"
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_MDbhd185",
       "type": "calculation",
       "position": {
-        "x": 1560,
-        "y": 2288
+        "x": 1640,
+        "y": 2368
       },
       "data": {
         "functionName": "identity",
@@ -5057,15 +5057,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_SyHd55X0",
       "type": "calculation",
       "position": {
-        "x": 1560,
-        "y": 1720
+        "x": 1640,
+        "y": 1800
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -5081,15 +5081,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_KytevzLt",
       "type": "calculation",
       "position": {
-        "x": 600,
-        "y": 120
+        "x": 680,
+        "y": 200
       },
       "data": {
         "functionName": "concat_all",
@@ -5204,15 +5204,15 @@
         },
         "borderColor": "#22c55e"
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_SEmdeWlM",
       "type": "calculation",
       "position": {
-        "x": 1080,
-        "y": 3094
+        "x": 1160,
+        "y": 3174
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -5227,15 +5227,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_F0NFkA1T",
       "type": "calculation",
       "position": {
-        "x": 930,
-        "y": 120
+        "x": 1010,
+        "y": 200
       },
       "data": {
         "functionName": "taproot_tweaked_privkey",
@@ -5273,15 +5273,15 @@
         "error": false,
         "borderColor": "#22c55e"
       },
-      "parentId": "group_ms31n8f",
+      "parentId": "group_signers_spending",
       "extent": "parent"
     },
     {
       "id": "node_cdGqKV9K",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 120
+        "x": 200,
+        "y": 200
       },
       "data": {
         "functionName": "identity",
@@ -5308,15 +5308,15 @@
         "borderColor": "#eab308",
         "error": false
       },
-      "parentId": "group_sragsmk",
+      "parentId": "group_script_witness",
       "extent": "parent"
     },
     {
       "id": "node_vejzTaS3",
       "type": "calculation",
       "position": {
-        "x": 450,
-        "y": 120
+        "x": 530,
+        "y": 200
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -5332,15 +5332,15 @@
         "borderColor": "#eab308",
         "error": false
       },
-      "parentId": "group_sragsmk",
+      "parentId": "group_script_witness",
       "extent": "parent"
     },
     {
       "id": "node_VY9qlZm2",
       "type": "calculation",
       "position": {
-        "x": 2370,
-        "y": 120
+        "x": 2450,
+        "y": 200
       },
       "data": {
         "functionName": "identity",
@@ -5367,15 +5367,15 @@
         "error": false,
         "borderColor": "#eab308"
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_6Q1PowCl",
       "type": "calculation",
       "position": {
-        "x": 2370,
-        "y": 1720
+        "x": 2450,
+        "y": 1800
       },
       "data": {
         "functionName": "sha256_hex",
@@ -5400,15 +5400,15 @@
         "error": false,
         "borderColor": "#eab308"
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_63AXgZP2",
       "type": "calculation",
       "position": {
-        "x": 2040,
-        "y": 3770
+        "x": 2120,
+        "y": 3850
       },
       "data": {
         "functionName": "text_to_hex",
@@ -5434,15 +5434,15 @@
         "error": false,
         "borderColor": "#eab308"
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_MWPGW7Ft",
       "type": "calculation",
       "position": {
-        "x": 2370,
-        "y": 3770
+        "x": 2450,
+        "y": 3850
       },
       "data": {
         "functionName": "sha256_hex",
@@ -5467,15 +5467,15 @@
         "error": false,
         "borderColor": "#eab308"
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_bX4dnmgp",
       "type": "calculation",
       "position": {
-        "x": 600,
-        "y": 2580
+        "x": 1340,
+        "y": 750
       },
       "data": {
         "functionName": "schnorr_sign_bip340",
@@ -5524,15 +5524,15 @@
         },
         "borderColor": "#eab308"
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_signers_spending",
       "extent": "parent"
     },
     {
       "id": "node_EuSwoIna",
       "type": "calculation",
       "position": {
-        "x": 2370,
-        "y": 2288
+        "x": 2450,
+        "y": 2368
       },
       "data": {
         "functionName": "concat_all",
@@ -5587,15 +5587,15 @@
         "error": false,
         "borderColor": "#eab308"
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_r2k4MWaS",
       "type": "calculation",
       "position": {
-        "x": 1080,
-        "y": 1334
+        "x": 1160,
+        "y": 1414
       },
       "data": {
         "functionName": "identity",
@@ -5622,15 +5622,15 @@
         "borderColor": "#eab308",
         "error": false
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_spending_tx",
       "extent": "parent"
     },
     {
       "id": "node_XDWprwqF",
       "type": "calculation",
       "position": {
-        "x": 1080,
-        "y": 1664
+        "x": 1160,
+        "y": 1744
       },
       "data": {
         "functionName": "identity",
@@ -5657,15 +5657,15 @@
         "borderColor": "#eab308",
         "error": false
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_spending_tx",
       "extent": "parent"
     },
     {
       "id": "node_d5T5Abke",
       "type": "calculation",
       "position": {
-        "x": 1080,
-        "y": 2580
+        "x": 1160,
+        "y": 2660
       },
       "data": {
         "functionName": "identity",
@@ -5695,15 +5695,15 @@
         },
         "error": false
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_spending_tx",
       "extent": "parent"
     },
     {
       "id": "node_2FGSKbIy",
       "type": "calculation",
       "position": {
-        "x": 1560,
-        "y": 120
+        "x": 1640,
+        "y": 200
       },
       "data": {
         "functionName": "encode_varint",
@@ -5719,15 +5719,15 @@
         "borderColor": "#eab308",
         "error": false
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_spending_tx",
       "extent": "parent"
     },
     {
       "id": "node_olxBc6l2",
       "type": "calculation",
       "position": {
-        "x": 1560,
-        "y": 1334
+        "x": 1640,
+        "y": 1414
       },
       "data": {
         "functionName": "identity",
@@ -5754,15 +5754,15 @@
         "title": "Output Count",
         "error": false
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_spending_tx",
       "extent": "parent"
     },
     {
       "id": "node_hMETq847",
       "type": "calculation",
       "position": {
-        "x": 1560,
-        "y": 1664
+        "x": 1640,
+        "y": 1744
       },
       "data": {
         "functionName": "encode_varint",
@@ -5778,15 +5778,15 @@
         "borderColor": "#eab308",
         "error": false
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_spending_tx",
       "extent": "parent"
     },
     {
       "id": "node_j8KiY1og",
       "type": "calculation",
       "position": {
-        "x": 2040,
-        "y": 1334
+        "x": 2120,
+        "y": 1414
       },
       "data": {
         "functionName": "double_sha256_hex",
@@ -5812,15 +5812,15 @@
         "borderColor": "#a855f7",
         "error": false
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_spending_tx",
       "extent": "parent"
     },
     {
       "id": "node_wixzkbXl",
       "type": "calculation",
       "position": {
-        "x": 2040,
-        "y": 1664
+        "x": 2120,
+        "y": 1744
       },
       "data": {
         "functionName": "reverse_txid_bytes",
@@ -5836,15 +5836,15 @@
         "borderColor": "#a855f7",
         "error": false
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_spending_tx",
       "extent": "parent"
     },
     {
       "id": "node_z2iEYScl",
       "type": "calculation",
       "position": {
-        "x": 1560,
-        "y": 2580
+        "x": 1640,
+        "y": 2660
       },
       "data": {
         "functionName": "concat_all",
@@ -6045,15 +6045,15 @@
         "borderColor": "#a855f7",
         "error": false
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_spending_tx",
       "extent": "parent"
     },
     {
       "id": "node_KfX3PTyG",
       "type": "calculation",
       "position": {
-        "x": 2040,
-        "y": 120
+        "x": 2120,
+        "y": 200
       },
       "data": {
         "functionName": "script_verification",
@@ -6389,15 +6389,15 @@
           "witnessScript": "20511d06fa7b7f585c5ff3491164886eeb83019f45245945dfb99abb575506f98eac2087a098dc86149f902edb3efd34a372f57f1476c2e2c8c0228fcf43fd8e8e8c56ba2038b75ab412e766a7b1c2ba038970bd6ae49c37e36d7c605b05a98b39e3c1ed88ba529c"
         }
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_spending_tx",
       "extent": "parent"
     },
     {
       "id": "node_LPweDTUs",
       "type": "calculation",
       "position": {
-        "x": 2040,
-        "y": 2580
+        "x": 2120,
+        "y": 2660
       },
       "data": {
         "functionName": "concat_all",
@@ -6598,15 +6598,15 @@
         "borderColor": "#a855f7",
         "error": false
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_spending_tx",
       "extent": "parent"
     },
     {
       "id": "node_5raHz9NC",
       "type": "calculation",
       "position": {
-        "x": 2520,
-        "y": 120
+        "x": 2600,
+        "y": 200
       },
       "data": {
         "functionName": "double_sha256_hex",
@@ -6632,15 +6632,15 @@
         "borderColor": "#a855f7",
         "error": false
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_spending_tx",
       "extent": "parent"
     },
     {
       "id": "node_ycGhD5fO",
       "type": "calculation",
       "position": {
-        "x": 2520,
-        "y": 1334
+        "x": 2600,
+        "y": 1414
       },
       "data": {
         "functionName": "reverse_txid_bytes",
@@ -6656,15 +6656,15 @@
         "borderColor": "#a855f7",
         "error": false
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_spending_tx",
       "extent": "parent"
     },
     {
       "id": "node_F0t3pUUa",
       "type": "calculation",
       "position": {
-        "x": 2370,
-        "y": 3094
+        "x": 2450,
+        "y": 3174
       },
       "data": {
         "functionName": "concat_all",
@@ -6716,15 +6716,15 @@
         "dirty": false,
         "error": false
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_eH6YZN8q",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 1880
+        "x": 200,
+        "y": 1960
       },
       "data": {
         "functionName": "encode_varint",
@@ -6738,15 +6738,15 @@
         "dirty": false,
         "error": false
       },
-      "parentId": "group_sragsmk",
+      "parentId": "group_script_witness",
       "extent": "parent"
     },
     {
       "id": "node_CK6P3qUd",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 2564
+        "x": 200,
+        "y": 2644
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -6762,15 +6762,15 @@
         "borderColor": "#eab308",
         "error": false
       },
-      "parentId": "group_sragsmk",
+      "parentId": "group_script_witness",
       "extent": "parent"
     },
     {
       "id": "node_31y19IxN",
       "type": "calculation",
       "position": {
-        "x": 780,
-        "y": 2564
+        "x": 860,
+        "y": 2644
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -6786,15 +6786,15 @@
         "borderColor": "#eab308",
         "error": false
       },
-      "parentId": "group_sragsmk",
+      "parentId": "group_script_witness",
       "extent": "parent"
     },
     {
       "id": "node_Taou4jEb",
       "type": "calculation",
       "position": {
-        "x": 780,
-        "y": 1880
+        "x": 860,
+        "y": 1960
       },
       "data": {
         "functionName": "concat_all",
@@ -6841,15 +6841,15 @@
         "error": false,
         "borderColor": "#eab308"
       },
-      "parentId": "group_sragsmk",
+      "parentId": "group_script_witness",
       "extent": "parent"
     },
     {
       "id": "node_lpzJ7dS4",
       "type": "calculation",
       "position": {
-        "x": 1080,
-        "y": 2288
+        "x": 1160,
+        "y": 2368
       },
       "data": {
         "functionName": "concat_all",
@@ -6907,15 +6907,15 @@
         "dirty": false,
         "error": false
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_efiszUYK",
       "type": "calculation",
       "position": {
-        "x": 450,
-        "y": 670
+        "x": 530,
+        "y": 750
       },
       "data": {
         "functionName": "taproot_tweak_xonly_pubkey",
@@ -6978,15 +6978,15 @@
         "borderColor": "#22c55e",
         "outputLayout": "taproot_tweak_xonly_pubkey"
       },
-      "parentId": "group_ms31n8f",
+      "parentId": "group_signers_spending",
       "extent": "parent"
     },
     {
       "id": "node_daA7PjdS",
       "type": "calculation",
       "position": {
-        "x": 2040,
-        "y": 3094
+        "x": 2120,
+        "y": 3174
       },
       "data": {
         "functionName": "identity",
@@ -7015,15 +7015,15 @@
         "comment": "",
         "error": false
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_CnnOyZrS",
       "type": "calculation",
       "position": {
-        "x": 2040,
-        "y": 2288
+        "x": 2120,
+        "y": 2368
       },
       "data": {
         "functionName": "reverse_bytes_4",
@@ -7050,15 +7050,15 @@
         "borderColor": "#22c55e",
         "error": false
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_62Xr0tlN",
       "type": "calculation",
       "position": {
-        "x": 1080,
-        "y": 120
+        "x": 1340,
+        "y": 200
       },
       "data": {
         "functionName": "schnorr_sign_bip340",
@@ -7107,15 +7107,15 @@
         },
         "borderColor": "#eab308"
       },
-      "parentId": "group_jzqbk3m",
+      "parentId": "group_signers_spending",
       "extent": "parent"
     },
     {
       "id": "node_mrZsNWfJ",
       "type": "calculation",
       "position": {
-        "x": 450,
-        "y": 2564
+        "x": 530,
+        "y": 2644
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -7131,15 +7131,15 @@
         "borderColor": "#eab308",
         "error": false
       },
-      "parentId": "group_sragsmk",
+      "parentId": "group_script_witness",
       "extent": "parent"
     },
     {
       "id": "node_X34deIHS",
       "type": "calculation",
       "position": {
-        "x": 450,
-        "y": 1880
+        "x": 530,
+        "y": 1960
       },
       "data": {
         "functionName": "identity",
@@ -7165,15 +7165,15 @@
         "dirty": false,
         "error": false
       },
-      "parentId": "group_sragsmk",
+      "parentId": "group_script_witness",
       "extent": "parent"
     },
     {
       "id": "node_7vfTGeer",
       "type": "calculation",
       "position": {
-        "x": 780,
-        "y": 120
+        "x": 860,
+        "y": 200
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -7189,15 +7189,15 @@
         "borderColor": "#eab308",
         "error": false
       },
-      "parentId": "group_sragsmk",
+      "parentId": "group_script_witness",
       "extent": "parent"
     },
     {
       "id": "node_2kSz1lBt",
       "type": "calculation",
       "position": {
-        "x": 1260,
-        "y": 120
+        "x": 1340,
+        "y": 200
       },
       "data": {
         "functionName": "concat_all",
@@ -7299,7 +7299,7 @@
         "error": false,
         "borderColor": "#eab308"
       },
-      "parentId": "group_sragsmk",
+      "parentId": "group_script_witness",
       "extent": "parent"
     },
     {
@@ -7354,8 +7354,8 @@
       "id": "node_t1Yy2yZP",
       "type": "calculation",
       "position": {
-        "x": 1260,
-        "y": 2170
+        "x": 1340,
+        "y": 2250
       },
       "data": {
         "functionName": "identity",
@@ -7382,15 +7382,15 @@
         "title": "Transaction Version",
         "error": false
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_tmiAcVLz",
       "type": "calculation",
       "position": {
-        "x": 1740,
-        "y": 120
+        "x": 1820,
+        "y": 200
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -7407,15 +7407,15 @@
         "borderColor": "#14b8a6",
         "error": false
       },
-      "parentId": "group_i12g5rj",
+      "parentId": "group_sighash_locking",
       "extent": "parent"
     },
     {
       "id": "node_1alUQLR0",
       "type": "calculation",
       "position": {
-        "x": 120,
-        "y": 3770
+        "x": 200,
+        "y": 3850
       },
       "data": {
         "functionName": "identity",
@@ -7442,15 +7442,15 @@
         "title": "Transaction Version",
         "error": false
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     },
     {
       "id": "node_aajsH5pq",
       "type": "calculation",
       "position": {
-        "x": 600,
-        "y": 1720
+        "x": 680,
+        "y": 1800
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -7467,7 +7467,7 @@
         "borderColor": "#14b8a6",
         "error": false
       },
-      "parentId": "group_z2udbva",
+      "parentId": "group_sighash_spending",
       "extent": "parent"
     }
   ],
