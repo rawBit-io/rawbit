@@ -71,6 +71,11 @@ from calc_functions.calc_func import (
     address_to_scriptpubkey,
     bip67_sort_pubkeys,
     check_result,
+    coinbase_script_height,
+    block_subsidy_satoshis,
+    merkle_root_from_txids,
+    encode_nbits,
+    meets_target,
 )
 from calc_functions.function_specs import FUNCTION_SPECS
 from config import (
@@ -151,6 +156,11 @@ CALC_FUNCTIONS = {
     "address_to_scriptpubkey": address_to_scriptpubkey,
     "bip67_sort_pubkeys": bip67_sort_pubkeys,
     "check_result": check_result,
+    "coinbase_script_height": coinbase_script_height,
+    "block_subsidy_satoshis": block_subsidy_satoshis,
+    "merkle_root_from_txids": merkle_root_from_txids,
+    "encode_nbits": encode_nbits,
+    "meets_target": meets_target,
 }
 
 _NO_ERROR_FUNCTIONS = {"random_256"}

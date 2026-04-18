@@ -3061,6 +3061,137 @@ def bip67_sort_pubkeys(vals: list) -> str:
     # Return original positions in sorted order
     return ",".join(str(idx) for _, idx in items)
 
+def _encode_minimal_le(n: int) -> bytes:
+    """Encode integer as minimal signed little-endian bytes (CScriptNum encoding)."""
+    if n == 0:
+        return b'\x00'
+    result = []
+    neg = n < 0
+    absn = abs(n)
+    while absn > 0:
+        result.append(absn & 0xff)
+        absn >>= 8
+    if result[-1] & 0x80:
+        result.append(0x80 if neg else 0x00)
+    elif neg:
+        result[-1] |= 0x80
+    return bytes(result)
+
+
+def coinbase_script_height(val: str) -> str:
+    """
+    Encode a block height as the minimal-push serialized script prefix
+    required by BIP34.
+
+    val: decimal block height as a string (e.g., "840000")
+    Returns: hex-encoded minimal push of that height,
+             e.g., "0340d10c" (OP_PUSHBYTES_3 followed by height in minimal LE)
+    """
+    height = int(val)
+    if height < 0:
+        raise ValueError("block height must be non-negative")
+    height_bytes = _encode_minimal_le(height)
+    push_op = bytes([len(height_bytes)])
+    return (push_op + height_bytes).hex()
+
+
+def block_subsidy_satoshis(val: str) -> str:
+    """
+    Compute the block reward in satoshis for a given block height,
+    applying the halving schedule.
+
+    val: decimal block height as a string
+    Returns: decimal satoshi reward as a string (e.g., "312500000" at height 840000)
+    """
+    height = int(val)
+    INITIAL_SUBSIDY_SATS = 50 * 100_000_000  # 5_000_000_000
+    HALVING_INTERVAL = 210_000
+    halvings = height // HALVING_INTERVAL
+    if halvings >= 64:
+        return "0"
+    return str(INITIAL_SUBSIDY_SATS >> halvings)
+
+
+def merkle_root_from_txids(vals: list) -> str:
+    """
+    Compute the Merkle root from an ordered list of TXIDs.
+
+    vals: ordered list of TXID hex strings in display format (big-endian)
+    Returns: Merkle root in display format (big-endian hex)
+    """
+    if not vals or all(v.strip() == "" for v in vals):
+        raise ValueError("at least one TXID is required")
+
+    def _dsha256(data: bytes) -> bytes:
+        return hashlib.sha256(hashlib.sha256(data).digest()).digest()
+
+    # Convert display TXIDs (big-endian) to internal byte order (little-endian)
+    hashes = [bytes.fromhex(txid)[::-1] for txid in vals]
+
+    while len(hashes) > 1:
+        if len(hashes) % 2 == 1:
+            hashes.append(hashes[-1])  # BIP rule: duplicate last if odd
+        hashes = [
+            _dsha256(hashes[i] + hashes[i + 1])
+            for i in range(0, len(hashes), 2)
+        ]
+
+    # Return root in display byte order (big-endian)
+    return hashes[0][::-1].hex()
+
+
+def encode_nbits(val: str) -> str:
+    """
+    Convert a 256-bit difficulty target (64-char hex) to Bitcoin's compact
+    nBits 4-byte representation (little-endian hex as stored in the block header).
+
+    val: 64-character hex string representing the full 256-bit target
+    Returns: 4-byte little-endian nBits hex
+
+    Example:
+        target = "00000000ffff0000000000000000000000000000000000000000000000000000"
+        → nBits = "ffff001d"
+    """
+    target_int = int(val, 16)
+    if target_int == 0:
+        return "00000000"
+
+    nbytes = (target_int.bit_length() + 7) // 8
+    
+    if nbytes >= 3:
+        coef = target_int >> (8 * (nbytes - 3))
+    else:
+        coef = target_int << (8 * (3 - nbytes))
+    if coef & 0x800000:
+        coef >>= 8
+        nbytes += 1
+    # Compact: exponent byte || 3-byte coefficient, stored as LE 4-byte field
+    compact = (nbytes << 24) | (coef & 0xFFFFFF)
+    return compact.to_bytes(4, "little").hex()
+
+
+def meets_target(vals: list) -> str:
+    """
+    Check whether a block hash satisfies the difficulty target encoded in nBits.
+
+    vals[0]: block hash as 64-char hex (big-endian display format)
+    vals[1]: nBits as 4-byte little-endian hex
+    Returns: "TRUE" if hash <= target, else "FALSE - hash > target"
+    """
+    block_hash_int = int(vals[0], 16)
+
+    nbits_bytes = bytes.fromhex(vals[1])
+    compact = int.from_bytes(nbits_bytes, "little")
+    exponent = (compact >> 24) & 0xFF
+    coefficient = compact & 0x00FFFFFF
+    target_int = coefficient * (2 ** (8 * (exponent - 3)))
+
+    if block_hash_int <= target_int:
+        return "TRUE"
+    else:
+        return f"FALSE - hash {vals[0][:16]}... > target"
+
+
 def check_result(vals: list[str]) -> str:
     """
     Check that ALL non-empty inputs evaluate to 'true' (case-insensitive).

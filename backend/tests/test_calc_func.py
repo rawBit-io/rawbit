@@ -1193,3 +1193,102 @@ def test_hex_byte_length_matches_python(hex_string: str):
     cleaned = "".join(hex_string.split())
     expected = len(cleaned) // 2
     assert calc.hex_byte_length(hex_string) == expected
+
+
+# ── coinbase_script_height ──
+
+def test_coinbase_script_height_zero():
+    """Height 0 → 0x01 0x00 (push 1 byte: 0x00)."""
+    assert calc.coinbase_script_height("0") == "0100"
+
+def test_coinbase_script_height_small():
+    """Height 16 → 0x01 0x10 (push 1 byte: 0x10)."""
+    assert calc.coinbase_script_height("16") == "0110"
+
+def test_coinbase_script_height_bip34():
+    """Height 227835 (first BIP34 block) → 03fb7903."""
+    assert calc.coinbase_script_height("227835") == "03fb7903"
+
+def test_coinbase_script_height_840000():
+    """Height 840000 (4th halving) → 0340d10c."""
+    assert calc.coinbase_script_height("840000") == "0340d10c"
+
+def test_coinbase_script_height_negative():
+    """Negative height raises ValueError."""
+    with pytest.raises(ValueError):
+        calc.coinbase_script_height("-1")
+
+
+# ── block_subsidy_satoshis ──
+
+def test_subsidy_genesis():
+    assert calc.block_subsidy_satoshis("0") == "5000000000"
+
+def test_subsidy_first_halving():
+    assert calc.block_subsidy_satoshis("210000") == "2500000000"
+
+def test_subsidy_second_halving():
+    assert calc.block_subsidy_satoshis("420000") == "1250000000"
+
+def test_subsidy_fourth_halving():
+    assert calc.block_subsidy_satoshis("840000") == "312500000"
+
+def test_subsidy_past_64_halvings():
+    assert calc.block_subsidy_satoshis("13440000") == "0"
+
+
+# ── merkle_root_from_txids ──
+
+def test_merkle_root_single_txid():
+    """Single TXID: Merkle root equals the TXID itself."""
+    coinbase = "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"
+    assert calc.merkle_root_from_txids([coinbase]) == coinbase
+
+def test_merkle_root_two_txids_block_170():
+    """Block 170: 2 TXIDs, known Merkle root."""
+    txids = [
+        "b1fea52486ce0c62bb442b530a3f0132b826c74e473d1f2c220bfa78111c5082",
+        "f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16",
+    ]
+    expected = "7dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff"
+    assert calc.merkle_root_from_txids(txids) == expected
+
+def test_merkle_root_odd_count_duplicates_last():
+    """Odd count: last TXID is duplicated before pairing."""
+    txids = [
+        "b1fea52486ce0c62bb442b530a3f0132b826c74e473d1f2c220bfa78111c5082",
+        "f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16",
+        "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b",
+    ]
+    result = calc.merkle_root_from_txids(txids)
+    assert len(result) == 64  # valid 32-byte hex
+    # Running twice should be deterministic
+    assert calc.merkle_root_from_txids(txids) == result
+
+
+# ── encode_nbits ──
+
+def test_encode_nbits_genesis():
+    """Genesis block target → nBits ffff001d."""
+    target = "00000000ffff0000000000000000000000000000000000000000000000000000"
+    assert calc.encode_nbits(target) == "ffff001d"
+
+def test_encode_nbits_zero():
+    """Zero target → 00000000."""
+    target = "0" * 64
+    assert calc.encode_nbits(target) == "00000000"
+
+# ── meets_target ──
+
+def test_meets_target_genesis_true():
+    """Genesis block hash meets its own target."""
+    block_hash = "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"
+    nbits = "ffff001d"
+    assert calc.meets_target([block_hash, nbits]) == "TRUE"
+
+def test_meets_target_high_hash_false():
+    """A hash that is too large should fail the target check."""
+    high_hash = "00000001" + "0" * 56  # larger than genesis target
+    nbits = "ffff001d"
+    result = calc.meets_target([high_hash, nbits])
+    assert result.startswith("FALSE")

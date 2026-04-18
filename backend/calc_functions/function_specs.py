@@ -379,5 +379,40 @@ FUNCTION_SPECS = {
     "params": { "vals": { "type": "any", "required": True } }
 },
 
+"coinbase_script_height": {
+    "paramExtraction": "single_val",
+    "params": {
+        "val": {"type": "string", "required": True}
+    }
+},
+
+"block_subsidy_satoshis": {
+    "paramExtraction": "single_val",
+    "params": {
+        "val": {"type": "string", "required": True}
+    }
+},
+
+"merkle_root_from_txids": {
+    "paramExtraction": "multi_val",
+    "params": {
+        "vals": {"type": "any", "required": True}
+    }
+},
+
+"encode_nbits": {
+    "paramExtraction": "single_val",
+    "params": {
+        "val": {"type": "string", "required": True}
+    }
+},
+
+"meets_target": {
+    "paramExtraction": "multi_val",
+    "params": {
+        "vals": {"type": "any", "required": True}
+    }
+},
+
 
 }
