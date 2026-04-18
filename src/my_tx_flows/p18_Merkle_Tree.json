@@ -1,0 +1,204 @@
+{
+  "name": "p18_Merkle_Tree",
+  "schemaVersion": 1,
+  "nodes": [
+    {
+      "id": "node_txid0",
+      "type": "calculation",
+      "position": { "x": 100, "y": 100 },
+      "data": {
+        "functionName": "identity",
+        "showField": true,
+        "numInputs": 0,
+        "value": "b1fea52486ce0c62bb442b530a3f0132b826c74e473d1f2c220bfa78111c5082",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "TXID 0 (Coinbase, display/BE)",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "TXID (big-endian):", "rows": 2 }]
+        },
+        "borderColor": "#3b82f6"
+      }
+    },
+    {
+      "id": "node_txid1",
+      "type": "calculation",
+      "position": { "x": 100, "y": 700 },
+      "data": {
+        "functionName": "identity",
+        "showField": true,
+        "numInputs": 0,
+        "value": "f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "TXID 1 (Satoshi→Hal, display/BE)",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "TXID (big-endian):", "rows": 2 }]
+        },
+        "borderColor": "#3b82f6"
+      }
+    },
+    {
+      "id": "node_rev0",
+      "type": "calculation",
+      "position": { "x": 800, "y": 100 },
+      "data": {
+        "functionName": "reverse_txid_bytes",
+        "showField": true,
+        "numInputs": 1,
+        "value": "",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "TXID 0 Internal (LE)",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "TXID (display):", "rows": 2 }]
+        },
+        "borderColor": "#f59e0b"
+      }
+    },
+    {
+      "id": "node_rev1",
+      "type": "calculation",
+      "position": { "x": 800, "y": 700 },
+      "data": {
+        "functionName": "reverse_txid_bytes",
+        "showField": true,
+        "numInputs": 1,
+        "value": "",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "TXID 1 Internal (LE)",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "TXID (display):", "rows": 2 }]
+        },
+        "borderColor": "#f59e0b"
+      }
+    },
+    {
+      "id": "node_concat_pair",
+      "type": "calculation",
+      "position": { "x": 1500, "y": 400 },
+      "data": {
+        "functionName": "concat_all",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": {
+          "vals": { "0": "", "1": "" }
+        },
+        "dirty": true,
+        "version": 1,
+        "result": "",
+        "error": false,
+        "title": "Concat LE(TXID0) + LE(TXID1)",
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "LE TXID 0:", "rows": 2 },
+            { "index": 1, "label": "LE TXID 1:", "rows": 2 }
+          ]
+        },
+        "borderColor": "#8b5cf6"
+      }
+    },
+    {
+      "id": "node_hash_pair",
+      "type": "calculation",
+      "position": { "x": 2200, "y": 400 },
+      "data": {
+        "functionName": "double_sha256_hex",
+        "showField": true,
+        "numInputs": 1,
+        "value": "",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "dSHA256(concat)",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "CONCAT HEX:", "rows": 3 }]
+        },
+        "borderColor": "#f59e0b"
+      }
+    },
+    {
+      "id": "node_merkle_root",
+      "type": "calculation",
+      "position": { "x": 2900, "y": 400 },
+      "data": {
+        "functionName": "reverse_txid_bytes",
+        "showField": true,
+        "numInputs": 1,
+        "value": "",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "Merkle Root",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "HASH (internal):", "rows": 2 }]
+        },
+        "borderColor": "#10b981"
+      }
+    },
+    {
+      "id": "node_info",
+      "type": "textInfo",
+      "position": { "x": 1500, "y": 100 },
+      "data": {
+        "text": "Merkle Tree — Block 170 (2 TXIDs)\n\nExpected Merkle root: 7dac2c5666815c17a3b36427de37bb9d2e2c5ccec3f8633eb91a4205cb4c10ff\n\nStep by step:\n  1. TXID₀ and TXID₁ are in display format (big-endian)\n  2. reverse_txid_bytes converts each to internal byte order (little-endian)\n  3. concat_all joins them: LE(TXID₀) + LE(TXID₁)\n  4. double_sha256_hex hashes the concatenation\n  5. reverse_txid_bytes flips the result back to display format → Merkle Root",
+        "fontSize": 14
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "node_txid0",
+      "target": "node_rev0",
+      "targetHandle": "input-0",
+      "id": "edge_txid0_to_rev0"
+    },
+    {
+      "source": "node_txid1",
+      "target": "node_rev1",
+      "targetHandle": "input-0",
+      "id": "edge_txid1_to_rev1"
+    },
+    {
+      "source": "node_rev0",
+      "target": "node_concat_pair",
+      "targetHandle": "input-0",
+      "id": "edge_rev0_to_concat"
+    },
+    {
+      "source": "node_rev1",
+      "target": "node_concat_pair",
+      "targetHandle": "input-1",
+      "id": "edge_rev1_to_concat"
+    },
+    {
+      "source": "node_concat_pair",
+      "target": "node_hash_pair",
+      "targetHandle": "input-0",
+      "id": "edge_concat_to_hash"
+    },
+    {
+      "source": "node_hash_pair",
+      "target": "node_merkle_root",
+      "targetHandle": "input-0",
+      "id": "edge_hash_to_merkle_root"
+    }
+  ]
+}

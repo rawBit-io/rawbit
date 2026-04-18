@@ -19,6 +19,10 @@ import Taproot_Intro from "@/my_tx_flows/p11_Taproot_intro.json";
 import Taproot_Script from "@/my_tx_flows/p12_Taproot_script.json";
 import Taproot_MultiSig from "@/my_tx_flows/p13_Taproot_MultiSig.json";
 import MuSig2 from "@/my_tx_flows/p14_MuSig2.json";
+import TXID_Computation from "@/my_tx_flows/p15_TXID_Computation.json";
+import Coinbase_Transaction from "@/my_tx_flows/p16_Coinbase_Transaction.json";
+import Merkle_Tree from "@/my_tx_flows/p18_Merkle_Tree.json";
+import Block_Header_PoW from "@/my_tx_flows/p19_Block_Header_PoW.json";
 
 // Then build the array, casting each import to FlowData:
 export const customFlows = [
@@ -92,5 +96,25 @@ export const customFlows = [
     id: "flow-14",
     label: "MuSig2",
     data: MuSig2 as unknown as FlowData,
+  },
+  {
+    id: "flow-15",
+    label: "Computing a TXID",
+    data: TXID_Computation as unknown as FlowData,
+  },
+  {
+    id: "flow-16",
+    label: "Coinbase Transaction",
+    data: Coinbase_Transaction as unknown as FlowData,
+  },
+  {
+    id: "flow-18",
+    label: "Merkle Tree",
+    data: Merkle_Tree as unknown as FlowData,
+  },
+  {
+    id: "flow-19",
+    label: "Block Header & Proof-of-Work",
+    data: Block_Header_PoW as unknown as FlowData,
   },
 ];

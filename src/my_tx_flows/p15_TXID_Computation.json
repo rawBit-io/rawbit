@@ -1,0 +1,119 @@
+{
+  "name": "p15_TXID_Computation",
+  "schemaVersion": 1,
+  "nodes": [
+    {
+      "id": "node_rawtx1",
+      "type": "calculation",
+      "position": { "x": 100, "y": 300 },
+      "data": {
+        "functionName": "identity",
+        "showField": true,
+        "numInputs": 0,
+        "value": "0100000001c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd3704000000004847304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d0901ffffffff0200ca9a3b00000000434104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac00286bee0000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac00000000",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "Raw Transaction (hex)",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "RAW TX HEX:", "rows": 6 }]
+        },
+        "borderColor": "#3b82f6"
+      }
+    },
+    {
+      "id": "node_dsha01",
+      "type": "calculation",
+      "position": { "x": 600, "y": 300 },
+      "data": {
+        "functionName": "double_sha256_hex",
+        "showField": true,
+        "numInputs": 1,
+        "value": "",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "Double SHA-256",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "HEX DATA:", "rows": 3 }]
+        },
+        "borderColor": "#f59e0b"
+      }
+    },
+    {
+      "id": "node_revtx1",
+      "type": "calculation",
+      "position": { "x": 1100, "y": 300 },
+      "data": {
+        "functionName": "reverse_txid_bytes",
+        "showField": true,
+        "numInputs": 1,
+        "value": "",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "Reverse Byte Order",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "HASH (internal order):", "rows": 3 }]
+        },
+        "borderColor": "#10b981"
+      }
+    },
+    {
+      "id": "node_txid01",
+      "type": "calculation",
+      "position": { "x": 1600, "y": 300 },
+      "data": {
+        "functionName": "identity",
+        "showField": true,
+        "numInputs": 1,
+        "value": "",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "TXID (display format)",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "TXID:", "rows": 3 }]
+        },
+        "borderColor": "#8b5cf6"
+      }
+    },
+    {
+      "id": "node_info01",
+      "type": "textInfo",
+      "position": { "x": 100, "y": 700 },
+      "data": {
+        "text": "A TXID is computed by:\n1. Take the raw serialized transaction (hex)\n2. Apply double SHA-256 (hash the hash)\n3. Reverse the byte order for display\n\nBlock explorers show TXIDs in big-endian (reversed) format.\nInternally, Bitcoin uses little-endian byte order.",
+        "fontSize": 14
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "node_rawtx1",
+      "target": "node_dsha01",
+      "targetHandle": "input-0",
+      "id": "edge_rawtx_to_dsha"
+    },
+    {
+      "source": "node_dsha01",
+      "target": "node_revtx1",
+      "targetHandle": "input-0",
+      "id": "edge_dsha_to_rev"
+    },
+    {
+      "source": "node_revtx1",
+      "target": "node_txid01",
+      "targetHandle": "input-0",
+      "id": "edge_rev_to_txid"
+    }
+  ]
+}

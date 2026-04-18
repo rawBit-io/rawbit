@@ -1,0 +1,409 @@
+{
+  "name": "p19_Block_Header_PoW",
+  "schemaVersion": 1,
+  "nodes": [
+    {
+      "id": "node_info_header",
+      "type": "textInfo",
+      "position": { "x": 1700, "y": 200 },
+      "data": {
+        "text": "Block Header & Proof-of-Work — Genesis Block (Block 0)\n\nA Bitcoin block header is exactly 80 bytes, composed of 6 fields:\n  1. Version (4B LE) — block version rules\n  2. Previous Block Hash (32B) — links to the previous block\n  3. Merkle Root (32B) — commits to all transactions\n  4. Timestamp (4B LE) — seconds since Unix epoch\n  5. nBits (4B LE) — compact difficulty target\n  6. Nonce (4B LE) — the field miners iterate to find a valid hash\n\nMining = hashing the 80-byte header repeatedly with different nonces until\nthe resulting double-SHA256 hash is ≤ the target. Try changing the Nonce\nnode below and watch the hash and meets_target result update.",
+        "fontSize": 14
+      }
+    },
+    {
+      "id": "node_version",
+      "type": "calculation",
+      "position": { "x": 100, "y": 200 },
+      "data": {
+        "functionName": "identity",
+        "showField": true,
+        "numInputs": 0,
+        "value": "01000000",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "Version (4B LE)",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "Version:", "rows": 1 }]
+        },
+        "borderColor": "#3b82f6"
+      }
+    },
+    {
+      "id": "node_prev_hash",
+      "type": "calculation",
+      "position": { "x": 100, "y": 600 },
+      "data": {
+        "functionName": "identity",
+        "showField": true,
+        "numInputs": 0,
+        "value": "0000000000000000000000000000000000000000000000000000000000000000",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "Prev Block Hash (32B) — all zeros (genesis)",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "Prev Hash:", "rows": 2 }]
+        },
+        "borderColor": "#3b82f6"
+      }
+    },
+    {
+      "id": "node_merkle_root",
+      "type": "calculation",
+      "position": { "x": 100, "y": 1000 },
+      "data": {
+        "functionName": "identity",
+        "showField": true,
+        "numInputs": 0,
+        "value": "3ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "Merkle Root (32B, internal LE)",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "Merkle Root:", "rows": 2 }]
+        },
+        "borderColor": "#3b82f6"
+      }
+    },
+    {
+      "id": "node_timestamp",
+      "type": "calculation",
+      "position": { "x": 100, "y": 1400 },
+      "data": {
+        "functionName": "identity",
+        "showField": true,
+        "numInputs": 0,
+        "value": "29ab5f49",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "Timestamp (4B LE) — 2009-01-03 18:15:05 UTC",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "Timestamp:", "rows": 1 }]
+        },
+        "borderColor": "#3b82f6"
+      }
+    },
+    {
+      "id": "node_nbits",
+      "type": "calculation",
+      "position": { "x": 100, "y": 1800 },
+      "data": {
+        "functionName": "identity",
+        "showField": true,
+        "numInputs": 0,
+        "value": "ffff001d",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "nBits (4B LE) — compact target",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "nBits:", "rows": 1 }]
+        },
+        "borderColor": "#3b82f6"
+      }
+    },
+    {
+      "id": "node_nonce",
+      "type": "calculation",
+      "position": { "x": 100, "y": 2200 },
+      "data": {
+        "functionName": "identity",
+        "showField": true,
+        "numInputs": 0,
+        "value": "1dac2b7c",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "Nonce (4B LE) — change me to experiment!",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "Nonce:", "rows": 1 }]
+        },
+        "borderColor": "#f59e0b"
+      }
+    },
+    {
+      "id": "node_concat_header",
+      "type": "calculation",
+      "position": { "x": 900, "y": 1200 },
+      "data": {
+        "functionName": "concat_all",
+        "paramExtraction": "multi_val",
+        "numInputs": 6,
+        "inputs": {
+          "vals": {
+            "0": "",
+            "100": "",
+            "200": "",
+            "300": "",
+            "400": "",
+            "500": ""
+          }
+        },
+        "dirty": true,
+        "version": 1,
+        "result": "",
+        "error": false,
+        "title": "80-Byte Block Header (concat_all)",
+        "inputStructure": {
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": false,
+              "fields": [
+                { "index": 0,   "label": "Version (4B LE):",        "rows": 1 },
+                { "index": 100, "label": "Prev Block Hash (32B):",   "rows": 2 },
+                { "index": 200, "label": "Merkle Root (32B):",       "rows": 2 },
+                { "index": 300, "label": "Timestamp (4B LE):",       "rows": 1 },
+                { "index": 400, "label": "nBits (4B LE):",           "rows": 1 },
+                { "index": 500, "label": "Nonce (4B LE):",           "rows": 1 }
+              ],
+              "maxInstances": 1,
+              "minInstances": 1,
+              "title": "Block Header Fields (80 bytes)"
+            }
+          ],
+          "ungrouped": [],
+          "afterGroups": []
+        },
+        "groupInstanceKeys": { "Block Header Fields (80 bytes)": [0] },
+        "borderColor": "#8b5cf6",
+        "showComment": true,
+        "comment": "version | prevHash | merkleRoot | timestamp | nBits | nonce"
+      }
+    },
+    {
+      "id": "node_dsha256",
+      "type": "calculation",
+      "position": { "x": 1700, "y": 1200 },
+      "data": {
+        "functionName": "double_sha256_hex",
+        "showField": true,
+        "numInputs": 1,
+        "value": "",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "Double-SHA256 (raw LE bytes)",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "80-byte header hex:", "rows": 3 }]
+        }
+      }
+    },
+    {
+      "id": "node_reverse",
+      "type": "calculation",
+      "position": { "x": 2450, "y": 1200 },
+      "data": {
+        "functionName": "reverse_txid_bytes",
+        "showField": true,
+        "numInputs": 1,
+        "value": "",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "Reverse Bytes → Display Order",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "Hash (internal LE):", "rows": 2 }]
+        }
+      }
+    },
+    {
+      "id": "node_block_hash",
+      "type": "calculation",
+      "position": { "x": 3200, "y": 1200 },
+      "data": {
+        "functionName": "identity",
+        "showField": true,
+        "numInputs": 1,
+        "value": "",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "Block Hash (display format)",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "Block hash:", "rows": 2 }]
+        },
+        "borderColor": "#10b981"
+      }
+    },
+    {
+      "id": "node_info_pow",
+      "type": "textInfo",
+      "position": { "x": 3200, "y": 650 },
+      "data": {
+        "text": "Proof-of-Work\n\nThe block hash (a 256-bit integer) must be ≤ the target.\n\ngenesis hash:  0x000000000019d668...\ngenesis target: 0x00000000ffff0000...\n\nhash < target → valid block ✓\n\nBecause SHA-256 behaves like a random oracle, a miner\nmust try ~2^32 nonces before finding one that satisfies\nthe genesis difficulty. Modern difficulty requires ~2^70.",
+        "fontSize": 14
+      }
+    },
+    {
+      "id": "node_meets_target",
+      "type": "calculation",
+      "position": { "x": 3900, "y": 1800 },
+      "data": {
+        "functionName": "meets_target",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": { "vals": {} },
+        "dirty": true,
+        "version": 1,
+        "result": "",
+        "error": false,
+        "title": "Meets Target? (hash ≤ target)",
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "Block hash (hex):", "rows": 2 },
+            { "index": 1, "label": "nBits (4B LE):",    "rows": 1 }
+          ]
+        },
+        "borderColor": "#10b981"
+      }
+    },
+    {
+      "id": "node_info_nbits",
+      "type": "textInfo",
+      "position": { "x": 100, "y": 2700 },
+      "data": {
+        "text": "nBits Compact Encoding\n\nnBits encodes the difficulty target in 4 bytes (stored LE in the header):\n  byte[3] = exponent  (byte length of the full target)\n  bytes[0-2] = coefficient (top 3 significant bytes)\n\nFull target = coefficient × 2^(8 × (exponent − 3))\n\nGenesis nBits = 0x1d00ffff (stored as ffff001d in LE):\n  exponent    = 0x1d = 29\n  coefficient = 0x00ffff\n  target = 0x00ffff × 2^(8×26)\n         = 0x00000000ffff0000000000000000000000000000000000000000000000000000\n\nThe encode_nbits node below converts that full target back to ffff001d.",
+        "fontSize": 14
+      }
+    },
+    {
+      "id": "node_target_hex",
+      "type": "calculation",
+      "position": { "x": 100, "y": 3200 },
+      "data": {
+        "functionName": "identity",
+        "showField": true,
+        "numInputs": 0,
+        "value": "00000000ffff0000000000000000000000000000000000000000000000000000",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "Full 256-bit Target (genesis)",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "Target (64-char hex):", "rows": 2 }]
+        },
+        "borderColor": "#f59e0b"
+      }
+    },
+    {
+      "id": "node_encode_nbits",
+      "type": "calculation",
+      "position": { "x": 900, "y": 3200 },
+      "data": {
+        "functionName": "encode_nbits",
+        "showField": true,
+        "numInputs": 1,
+        "value": "",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "encode_nbits → compact nBits (4B LE)",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "Target (64-char hex):", "rows": 2 }]
+        },
+        "borderColor": "#f59e0b"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_version_header",
+      "source": "node_version",
+      "target": "node_concat_header",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "e_prev_header",
+      "source": "node_prev_hash",
+      "target": "node_concat_header",
+      "targetHandle": "input-100"
+    },
+    {
+      "id": "e_merkle_header",
+      "source": "node_merkle_root",
+      "target": "node_concat_header",
+      "targetHandle": "input-200"
+    },
+    {
+      "id": "e_ts_header",
+      "source": "node_timestamp",
+      "target": "node_concat_header",
+      "targetHandle": "input-300"
+    },
+    {
+      "id": "e_nbits_header",
+      "source": "node_nbits",
+      "target": "node_concat_header",
+      "targetHandle": "input-400"
+    },
+    {
+      "id": "e_nonce_header",
+      "source": "node_nonce",
+      "target": "node_concat_header",
+      "targetHandle": "input-500"
+    },
+    {
+      "id": "e_header_dsha",
+      "source": "node_concat_header",
+      "target": "node_dsha256",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "e_dsha_reverse",
+      "source": "node_dsha256",
+      "target": "node_reverse",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "e_reverse_blockhash",
+      "source": "node_reverse",
+      "target": "node_block_hash",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "e_blockhash_meets",
+      "source": "node_block_hash",
+      "target": "node_meets_target",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "e_nbits_meets",
+      "source": "node_nbits",
+      "target": "node_meets_target",
+      "targetHandle": "input-1"
+    },
+    {
+      "id": "e_target_encode",
+      "source": "node_target_hex",
+      "target": "node_encode_nbits",
+      "targetHandle": "input-0"
+    }
+  ]
+}

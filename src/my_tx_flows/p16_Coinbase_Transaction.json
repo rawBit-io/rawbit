@@ -1,0 +1,242 @@
+{
+  "name": "p16_Coinbase_Transaction",
+  "schemaVersion": 1,
+  "nodes": [
+    {
+      "id": "node_height01",
+      "type": "calculation",
+      "position": { "x": 100, "y": 100 },
+      "data": {
+        "functionName": "identity",
+        "showField": true,
+        "numInputs": 0,
+        "value": "840000",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "Block Height",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "HEIGHT (decimal):", "rows": 1 }]
+        },
+        "borderColor": "#3b82f6"
+      }
+    },
+    {
+      "id": "node_csh01",
+      "type": "calculation",
+      "position": { "x": 700, "y": -100 },
+      "data": {
+        "functionName": "coinbase_script_height",
+        "showField": true,
+        "numInputs": 1,
+        "value": "",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "BIP34 Height Push (coinbase_script_height)",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "BLOCK HEIGHT:", "rows": 1 }]
+        },
+        "borderColor": "#f59e0b"
+      }
+    },
+    {
+      "id": "node_subsidy01",
+      "type": "calculation",
+      "position": { "x": 700, "y": 350 },
+      "data": {
+        "functionName": "block_subsidy_satoshis",
+        "showField": true,
+        "numInputs": 1,
+        "value": "",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "Block Subsidy (satoshis)",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "BLOCK HEIGHT:", "rows": 1 }]
+        },
+        "borderColor": "#10b981"
+      }
+    },
+    {
+      "id": "node_sat8le01",
+      "type": "calculation",
+      "position": { "x": 1300, "y": 220 },
+      "data": {
+        "functionName": "satoshi_to_8_le",
+        "showField": true,
+        "numInputs": 1,
+        "value": "",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "Subsidy → 8-byte LE (satoshi_to_8_le)",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "SATOSHIS:", "rows": 1 }]
+        },
+        "borderColor": "#10b981"
+      }
+    },
+    {
+      "id": "node_concat01",
+      "type": "calculation",
+      "position": { "x": 1900, "y": 600 },
+      "data": {
+        "functionName": "concat_all",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": {
+          "vals": {
+            "0": "01000000",
+            "100": "01",
+            "200": "0000000000000000000000000000000000000000000000000000000000000000",
+            "300": "ffffffff",
+            "400": "05",
+            "500": "0340d10c00",
+            "600": "ffffffff",
+            "700": "01",
+            "800": "",
+            "900": "1976a914000000000000000000000000000000000000000088ac",
+            "1000": "00000000"
+          }
+        },
+        "dirty": true,
+        "version": 1,
+        "result": "",
+        "error": false,
+        "title": "Coinbase Raw TX (concat_all)",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [
+                {
+                  "index": 0,
+                  "label": "Value:",
+                  "placeholder": "<multi-line input>",
+                  "rows": 3
+                }
+              ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": {
+          "INPUTS[]": 11
+        },
+        "groupInstanceKeys": {
+          "INPUTS[]": [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+        },
+        "totalInputs": 11,
+        "unwiredCount": 10,
+        "borderColor": "#8b5cf6",
+        "showComment": true,
+        "comment": "version | inputCount | prevHash | prevIdx | scriptSigLen | scriptSig | sequence | outputCount | value(8LE) | scriptPubKey | locktime"
+      }
+    },
+    {
+      "id": "node_dsha01",
+      "type": "calculation",
+      "position": { "x": 2600, "y": 600 },
+      "data": {
+        "functionName": "double_sha256_hex",
+        "showField": true,
+        "numInputs": 1,
+        "value": "",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "Double SHA-256",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "RAW TX HEX:", "rows": 3 }]
+        },
+        "borderColor": "#f59e0b"
+      }
+    },
+    {
+      "id": "node_rev01",
+      "type": "calculation",
+      "position": { "x": 3200, "y": 600 },
+      "data": {
+        "functionName": "reverse_txid_bytes",
+        "showField": true,
+        "numInputs": 1,
+        "value": "",
+        "dirty": true,
+        "version": 1,
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false,
+        "title": "Coinbase TXID",
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "HASH (internal order):", "rows": 3 }]
+        },
+        "borderColor": "#8b5cf6"
+      }
+    },
+    {
+      "id": "node_info01",
+      "type": "textInfo",
+      "position": { "x": 100, "y": 500 },
+      "data": {
+        "text": "Coinbase Transaction (Block 840000 — 4th Halving)\n\nSection A (top): Block height feeds into:\n  • coinbase_script_height → BIP34 height push bytes (0340d10c)\n  • block_subsidy_satoshis → 312500000 sats (3.125 BTC)\n  • satoshi_to_8_le → 8-byte little-endian value field\n\nSection B: concat_all assembles the raw coinbase TX:\n  version(4) | inputCount(1) | prevHash(32) | prevIdx(4)\n  | scriptSigLen(1) | scriptSig(5) | sequence(4)\n  | outputCount(1) | value(8) | scriptPubKey(26) | locktime(4)\n\nSection C: double SHA-256 → reverse bytes → Coinbase TXID",
+        "fontSize": 14
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "node_height01",
+      "target": "node_csh01",
+      "targetHandle": "input-0",
+      "id": "edge_height_to_csh"
+    },
+    {
+      "source": "node_height01",
+      "target": "node_subsidy01",
+      "targetHandle": "input-0",
+      "id": "edge_height_to_subsidy"
+    },
+    {
+      "source": "node_subsidy01",
+      "target": "node_sat8le01",
+      "targetHandle": "input-0",
+      "id": "edge_subsidy_to_sat8le"
+    },
+    {
+      "source": "node_sat8le01",
+      "target": "node_concat01",
+      "targetHandle": "input-800",
+      "id": "edge_sat8le_to_concat"
+    },
+    {
+      "source": "node_concat01",
+      "target": "node_dsha01",
+      "targetHandle": "input-0",
+      "id": "edge_concat_to_dsha"
+    },
+    {
+      "source": "node_dsha01",
+      "target": "node_rev01",
+      "targetHandle": "input-0",
+      "id": "edge_dsha_to_rev"
+    }
+  ]
+}
