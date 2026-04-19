@@ -1,0 +1,566 @@
+{
+  "name": "flow-p15-lightning",
+  "schemaVersion": 1,
+  "nodes": [
+    {
+      "id": "group-funding",
+      "type": "shadcnGroup",
+      "position": { "x": 0, "y": 0 },
+      "data": {
+        "isGroup": true,
+        "width": 1400,
+        "height": 950,
+        "title": "STEP 1: Lock Funds Together",
+        "fontSize": 44,
+        "borderColor": "#22c55e",
+        "dirty": false,
+        "comment": "Alice and Bob create a shared 2-of-2 control. Neither can spend alone."
+      },
+      "width": 1400,
+      "height": 950,
+      "dragHandle": "[data-drag-handle]"
+    },
+    {
+      "id": "group-htlc",
+      "type": "shadcnGroup",
+      "position": { "x": 1500, "y": 0 },
+      "data": {
+        "isGroup": true,
+        "width": 1700,
+        "height": 1050,
+        "title": "STEP 2: Create the Two-Door Puzzle",
+        "fontSize": 44,
+        "borderColor": "#f97316",
+        "dirty": false,
+        "comment": "Funds can be unlocked either with a secret or after time passes."
+      },
+      "width": 1700,
+      "height": 1050,
+      "dragHandle": "[data-drag-handle]"
+    },
+    {
+      "id": "group-success",
+      "type": "shadcnGroup",
+      "position": { "x": 3300, "y": -550 },
+      "data": {
+        "isGroup": true,
+        "width": 1300,
+        "height": 850,
+        "title": "STEP 3A: Reveal Secret (Success)",
+        "fontSize": 44,
+        "borderColor": "#6366f1",
+        "dirty": false,
+        "comment": "Receiver reveals the preimage and claims funds instantly."
+      },
+      "width": 1300,
+      "height": 850,
+      "dragHandle": "[data-drag-handle]"
+    },
+    {
+      "id": "group-timeout",
+      "type": "shadcnGroup",
+      "position": { "x": 3300, "y": 550 },
+      "data": {
+        "isGroup": true,
+        "width": 1300,
+        "height": 850,
+        "title": "STEP 3B: Wait & Reclaim (Timeout)",
+        "fontSize": 44,
+        "borderColor": "#ef4444",
+        "dirty": false,
+        "comment": "If no secret is revealed, sender reclaims funds after timeout."
+      },
+      "width": 1300,
+      "height": 850,
+      "dragHandle": "[data-drag-handle]"
+    },
+    {
+      "id": "text-funding",
+      "type": "shadcnTextInfo",
+      "position": { "x": 30, "y": 50 },
+      "data": {
+        "content": "## Step 1: Open a Payment Channel\n\nAlice and Bob want to send payments instantly — without touching the blockchain every time.\n\nThey lock funds into a shared 2-of-2 multisig. Neither can spend alone.\n\n👉 The private keys auto-generate above. Watch the public keys derive from them.\n\nThese public keys form a shared vault — both signatures are required to spend.\n\n→ Next: how do you safely send a payment across a network without trust?",
+        "fontSize": 36,
+        "width": 550,
+        "height": 600,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 550,
+      "height": 600,
+      "parentId": "group-funding",
+      "extent": "parent"
+    },
+    {
+      "id": "text-htlc",
+      "type": "shadcnTextInfo",
+      "position": { "x": 30, "y": 50 },
+      "data": {
+        "content": "## Step 2: Route a Payment Without Trust (HTLC)\n\nAlice is not paying Bob directly — the payment may pass through intermediaries.\n\nTo make this safe, Bitcoin uses a contract with two possible outcomes:\n\n**Door A (Success):** Reveal the secret preimage → funds released instantly  \n**Door B (Timeout):** Wait until block height passes → sender reclaims funds  \n\n👉 Try it:\n- Enter a hex value as Preimage (e.g. 68656c6c6f)\n- Enter a future block height (e.g. 900000)\n\nWatch the hash compute and the HTLC script assemble.\n\nThis guarantees: every hop either gets paid or no one does.\n\n→ Next: how the contract is actually spent.",
+        "fontSize": 36,
+        "width": 550,
+        "height": 700,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 550,
+      "height": 700,
+      "parentId": "group-htlc",
+      "extent": "parent"
+    },
+    {
+      "id": "text-success",
+      "type": "shadcnTextInfo",
+      "position": { "x": 30, "y": 50 },
+      "data": {
+        "content": "## Step 3A: Success Path — Reveal the Secret\n\nThe receiver knows the preimage and reveals it to unlock the funds.\n\n👉 Enter the SAME preimage used in Step 2.\n\nThe Success Spend Script assembles — this satisfies the hash condition.\n\nNo waiting. No ambiguity. Payment completes instantly.\n\nIn Lightning, this secret propagates backward across the route — settling all hops atomically.",
+        "fontSize": 36,
+        "width": 500,
+        "height": 500,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 500,
+      "height": 500,
+      "parentId": "group-success",
+      "extent": "parent"
+    },
+    {
+      "id": "text-timeout",
+      "type": "shadcnTextInfo",
+      "position": { "x": 30, "y": 50 },
+      "data": {
+        "content": "## Step 3B: Timeout Path — Reclaim Funds\n\nIf the secret is never revealed, the contract expires.\n\n👉 Enter the SAME block height from Step 2.\n\nOnce the block height is reached, the refund path unlocks.\n\nThe Timeout Spend Script assembles — returning funds safely.\n\nNo trust required. Bitcoin enforces the rules.",
+        "fontSize": 36,
+        "width": 500,
+        "height": 500,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 500,
+      "height": 500,
+      "parentId": "group-timeout",
+      "extent": "parent"
+    },
+    {
+      "id": "node-alice-priv",
+      "type": "calculation",
+      "position": { "x": 620, "y": 150 },
+      "data": {
+        "functionName": "random_256",
+        "title": "Alice Private Key",
+        "hasRegenerate": true,
+        "dirty": false,
+        "numInputs": 0,
+        "groupInstances": {},
+        "result": "",
+        "error": false
+      },
+      "parentId": "group-funding",
+      "extent": "parent"
+    },
+    {
+      "id": "node-alice-pub",
+      "type": "calculation",
+      "position": { "x": 1000, "y": 150 },
+      "data": {
+        "functionName": "public_key_from_private_key",
+        "paramExtraction": "single_val",
+        "title": "Alice Public Key",
+        "hasRegenerate": false,
+        "numInputs": 1,
+        "showField": false,
+        "dirty": false,
+        "groupInstances": {},
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false
+      },
+      "parentId": "group-funding",
+      "extent": "parent"
+    },
+    {
+      "id": "node-bob-priv",
+      "type": "calculation",
+      "position": { "x": 620, "y": 550 },
+      "data": {
+        "functionName": "random_256",
+        "title": "Bob Private Key",
+        "hasRegenerate": true,
+        "dirty": false,
+        "numInputs": 0,
+        "groupInstances": {},
+        "result": "",
+        "error": false
+      },
+      "parentId": "group-funding",
+      "extent": "parent"
+    },
+    {
+      "id": "node-bob-pub",
+      "type": "calculation",
+      "position": { "x": 1000, "y": 550 },
+      "data": {
+        "functionName": "public_key_from_private_key",
+        "paramExtraction": "single_val",
+        "title": "Bob Public Key",
+        "hasRegenerate": false,
+        "numInputs": 1,
+        "showField": false,
+        "dirty": false,
+        "groupInstances": {},
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false
+      },
+      "parentId": "group-funding",
+      "extent": "parent"
+    },
+    {
+      "id": "node-preimage",
+      "type": "calculation",
+      "position": { "x": 620, "y": 150 },
+      "data": {
+        "functionName": "identity",
+        "title": "Preimage (The Secret)",
+        "showField": true,
+        "numInputs": 0,
+        "value": "0000000000000000000000000000000000000000000000000000000000000001",
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "0000000000000000000000000000000000000000000000000000000000000001" },
+        "result": "0000000000000000000000000000000000000000000000000000000000000001",
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "INPUT VALUE:", "rows": 1 }
+          ]
+        },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-htlc",
+      "extent": "parent"
+    },
+    {
+      "id": "node-hash",
+      "type": "calculation",
+      "position": { "x": 1000, "y": 150 },
+      "data": {
+        "functionName": "hash160_hex",
+        "title": "Hash of Secret",
+        "paramExtraction": "single_val",
+        "showField": false,
+        "numInputs": 1,
+        "dirty": false,
+        "inputs": { "val": "" },
+        "result": "",
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "INPUT HEX:", "rows": 2 }
+          ]
+        },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-htlc",
+      "extent": "parent"
+    },
+    {
+      "id": "node-blockheight",
+      "type": "calculation",
+      "position": { "x": 620, "y": 550 },
+      "data": {
+        "functionName": "identity",
+        "title": "CLTV Block Height",
+        "showField": true,
+        "numInputs": 0,
+        "value": "900000",
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "900000" },
+        "result": "900000",
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "INPUT VALUE:", "rows": 1 }
+          ]
+        },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-htlc",
+      "extent": "parent"
+    },
+    {
+      "id": "node-scriptheight",
+      "type": "calculation",
+      "position": { "x": 1000, "y": 550 },
+      "data": {
+        "functionName": "int_to_script_bytes",
+        "paramExtraction": "single_val",
+        "title": "Block Height as Script Bytes",
+        "showField": false,
+        "numInputs": 1,
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "" },
+        "result": "",
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "Integer value:", "placeholder": "e.g. 4404774", "rows": 1 }
+          ]
+        },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-htlc",
+      "extent": "parent"
+    },
+    {
+      "id": "node-htlcscript",
+      "type": "calculation",
+      "position": { "x": 1350, "y": 350 },
+      "data": {
+        "functionName": "concat_all",
+        "title": "HTLC Locking Script",
+        "paramExtraction": "multi_val",
+        "numInputs": 4,
+        "inputs": { "vals": { "0": "", "100": "", "200": "", "300": "" } },
+        "dirty": false,
+        "version": 0,
+        "result": "",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [
+                { "index": 0, "label": "Value:", "placeholder": "<multi-line input>", "rows": 3 }
+              ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": { "INPUTS[]": 4 },
+        "groupInstanceKeys": { "INPUTS[]": [0, 100, 200, 300] },
+        "error": false
+      },
+      "parentId": "group-htlc",
+      "extent": "parent"
+    },
+    {
+      "id": "node-reveal",
+      "type": "calculation",
+      "position": { "x": 580, "y": 200 },
+      "data": {
+        "functionName": "identity",
+        "title": "Reveal Preimage",
+        "showField": true,
+        "numInputs": 0,
+        "value": "",
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "" },
+        "result": "",
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "INPUT VALUE:", "rows": 1 }
+          ]
+        },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-success",
+      "extent": "parent"
+    },
+    {
+      "id": "node-success-script",
+      "type": "calculation",
+      "position": { "x": 900, "y": 200 },
+      "data": {
+        "functionName": "concat_all",
+        "title": "Success Spend Script",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": { "vals": { "0": "", "100": "" } },
+        "dirty": false,
+        "version": 0,
+        "result": "",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [
+                { "index": 0, "label": "Value:", "placeholder": "<multi-line input>", "rows": 3 }
+              ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": { "INPUTS[]": 2 },
+        "groupInstanceKeys": { "INPUTS[]": [0, 100] },
+        "error": false
+      },
+      "parentId": "group-success",
+      "extent": "parent"
+    },
+    {
+      "id": "node-currentblock",
+      "type": "calculation",
+      "position": { "x": 580, "y": 200 },
+      "data": {
+        "functionName": "identity",
+        "title": "Current Block Height",
+        "showField": true,
+        "numInputs": 0,
+        "value": "",
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "" },
+        "result": "",
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "INPUT VALUE:", "rows": 1 }
+          ]
+        },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-timeout",
+      "extent": "parent"
+    },
+    {
+      "id": "node-timeout-script",
+      "type": "calculation",
+      "position": { "x": 900, "y": 200 },
+      "data": {
+        "functionName": "concat_all",
+        "title": "Timeout Spend Script",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": { "vals": { "0": "", "100": "" } },
+        "dirty": false,
+        "version": 0,
+        "result": "",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [
+                { "index": 0, "label": "Value:", "placeholder": "<multi-line input>", "rows": 3 }
+              ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": { "INPUTS[]": 2 },
+        "groupInstanceKeys": { "INPUTS[]": [0, 100] },
+        "error": false
+      },
+      "parentId": "group-timeout",
+      "extent": "parent"
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-alice-priv-pub",
+      "source": "node-alice-priv",
+      "target": "node-alice-pub",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "source": "node-bob-priv",
+      "target": "node-bob-pub",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "edge-bob-priv-pub"
+    },
+    {
+      "id": "edge-alice-pub-htlc",
+      "source": "node-alice-pub",
+      "target": "node-htlcscript",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge-bob-pub-htlc",
+      "source": "node-bob-pub",
+      "target": "node-htlcscript",
+      "targetHandle": "input-100",
+      "selected": false
+    },
+    {
+      "source": "node-preimage",
+      "target": "node-hash",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "edge-preimage-hash"
+    },
+    {
+      "id": "edge-hash-htlc",
+      "source": "node-hash",
+      "target": "node-htlcscript",
+      "targetHandle": "input-200",
+      "selected": false
+    },
+    {
+      "source": "node-blockheight",
+      "target": "node-scriptheight",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "edge-blockheight-scriptheight"
+    },
+    {
+      "id": "edge-scriptheight-htlc",
+      "source": "node-scriptheight",
+      "target": "node-htlcscript",
+      "targetHandle": "input-300",
+      "selected": false
+    },
+    {
+      "id": "edge-htlc-success",
+      "source": "node-htlcscript",
+      "target": "node-success-script",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge-htlc-timeout",
+      "source": "node-htlcscript",
+      "target": "node-timeout-script",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge-reveal-success",
+      "source": "node-reveal",
+      "target": "node-success-script",
+      "targetHandle": "input-100",
+      "selected": false
+    },
+    {
+      "id": "edge-currentblock-timeout",
+      "source": "node-currentblock",
+      "target": "node-timeout-script",
+      "targetHandle": "input-100",
+      "selected": false
+    }
+  ]
+}
