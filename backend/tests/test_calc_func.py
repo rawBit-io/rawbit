@@ -846,6 +846,10 @@ def test_compare_equal_and_numeric_parsers():
     assert calc._parse_numeric_exact("0x10") == 16
     assert calc._parse_numeric_exact("10") == 10
     assert calc._parse_numeric_exact("1.5") == Decimal("1.5")
+    assert calc._parse_numeric_exact("1e6") == Decimal("1e6")
+    assert calc._parse_numeric_exact("1e8") == Decimal("1e8")
+    assert calc._parse_numeric_exact("2.5e3") == Decimal("2.5e3")
+    assert calc._parse_numeric_exact("deadbeef") == 0xDEADBEEF
     with pytest.raises(ValueError):
         calc._parse_numeric_exact("")
 
@@ -858,6 +862,8 @@ def test_compare_equal_and_numeric_parsers():
 def test_compare_numbers_and_math_operations():
     assert calc.compare_numbers(["10", "<", "20"]) == "true"
     assert calc.compare_numbers(["10", ">", "20"]) == "false"
+    assert calc.compare_numbers(["1e8", ">", "1000000"]) == "true"
+    assert calc.compare_numbers(["1e6", "<=", "1000000"]) == "true"
     with pytest.raises(ValueError):
         calc.compare_numbers(["10", "!=", "20"])
 
@@ -865,6 +871,8 @@ def test_compare_numbers_and_math_operations():
     assert calc.math_operation(["10", "-", "5"]) == "5"
     assert calc.math_operation(["10", "*", "5"]) == "50"
     assert calc.math_operation(["3", "/", "2"]) == "1.5"
+    assert calc.math_operation(["1e8", "+", "1"]) == "100000001"
+    assert calc.math_operation(["1e6", "*", "2"]) == "2000000"
     with pytest.raises(ValueError):
         calc.math_operation(["1", "/", "0"])
 

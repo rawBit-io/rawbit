@@ -2760,22 +2760,27 @@ def _parse_numeric_exact(raw: str):
     if not s:
         raise ValueError("empty number")
 
-    # hex?
-    if s.lower().startswith("0x") or (
-        all(c in "0123456789abcdefABCDEF" for c in s)
-        and any(c in "abcdefABCDEF" for c in s)
-    ):
+    # explicit hex prefix – always hex
+    if s.lower().startswith("0x"):
         return int(s, 16)
 
     # plain integer?
     if _INT_DEC_RE.fullmatch(s):
         return int(s, 10)
 
-    # decimal/exp → Decimal
+    # decimal / fraction / scientific-notation → Decimal
     try:
         return Decimal(s)
     except InvalidOperation:
-        raise ValueError(f"'{raw}' is not a valid number")
+        pass
+
+    # ambiguous hex (digits + a-f only, no 0x prefix)
+    if all(c in "0123456789abcdefABCDEF" for c in s) and any(
+        c in "abcdefABCDEF" for c in s
+    ):
+        return int(s, 16)
+
+    raise ValueError(f"'{raw}' is not a valid number")
 
 def _coerce_for_op(a, b):
     """Promote to Decimal if either is Decimal; keep ints otherwise."""
