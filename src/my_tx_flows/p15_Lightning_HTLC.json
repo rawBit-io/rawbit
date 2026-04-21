@@ -3,149 +3,184 @@
   "schemaVersion": 1,
   "nodes": [
     {
-      "id": "group-funding",
+      "id": "group-htlc-construct",
       "type": "shadcnGroup",
       "position": { "x": 0, "y": 0 },
       "data": {
         "isGroup": true,
-        "width": 1400,
-        "height": 950,
-        "title": "STEP 1: Lock Funds Together",
+        "width": 3200,
+        "height": 1600,
+        "title": "STEP 1: HTLC Script Construction",
         "fontSize": 44,
         "borderColor": "#22c55e",
         "dirty": false,
-        "comment": "Alice and Bob create a shared 2-of-2 control. Neither can spend alone."
+        "comment": "Build the HTLC locking script and derive the P2WSH address to fund."
       },
-      "width": 1400,
-      "height": 950,
+      "width": 3200,
+      "height": 1600,
       "dragHandle": "[data-drag-handle]"
     },
     {
-      "id": "group-htlc",
+      "id": "group-extract-funding",
       "type": "shadcnGroup",
-      "position": { "x": 1500, "y": 0 },
+      "position": { "x": 3400, "y": 0 },
       "data": {
         "isGroup": true,
-        "width": 1700,
-        "height": 1050,
-        "title": "STEP 2: Create the Two-Door Puzzle",
+        "width": 2000,
+        "height": 1000,
+        "title": "STEP 2: Paste & Extract Funding TX",
+        "fontSize": 44,
+        "borderColor": "#3b82f6",
+        "dirty": false,
+        "comment": "Paste the raw funding tx hex. Extract txid and UTXO details."
+      },
+      "width": 2000,
+      "height": 1000,
+      "dragHandle": "[data-drag-handle]"
+    },
+    {
+      "id": "group-build-tx",
+      "type": "shadcnGroup",
+      "position": { "x": 5600, "y": 0 },
+      "data": {
+        "isGroup": true,
+        "width": 2600,
+        "height": 1600,
+        "title": "STEP 3: Build Unsigned Spending TX",
         "fontSize": 44,
         "borderColor": "#f97316",
         "dirty": false,
-        "comment": "Funds can be unlocked either with a secret or after time passes."
+        "comment": "Assemble the unsigned tx body used for BIP143 sighash computation."
       },
-      "width": 1700,
-      "height": 1050,
+      "width": 2600,
+      "height": 1600,
       "dragHandle": "[data-drag-handle]"
     },
     {
-      "id": "group-success",
+      "id": "group-sign-witness",
       "type": "shadcnGroup",
-      "position": { "x": 3300, "y": -550 },
+      "position": { "x": 8400, "y": 0 },
       "data": {
         "isGroup": true,
-        "width": 1300,
-        "height": 850,
-        "title": "STEP 3A: Reveal Secret (Success)",
+        "width": 3200,
+        "height": 2100,
+        "title": "STEP 4: Sign & Assemble Witness TX",
         "fontSize": 44,
         "borderColor": "#6366f1",
         "dirty": false,
-        "comment": "Receiver reveals the preimage and claims funds instantly."
+        "comment": "Compute BIP143 sighash, sign, build witness stack, produce final segwit tx."
       },
-      "width": 1300,
-      "height": 850,
+      "width": 3200,
+      "height": 2100,
       "dragHandle": "[data-drag-handle]"
     },
     {
-      "id": "group-timeout",
+      "id": "group-verify",
       "type": "shadcnGroup",
-      "position": { "x": 3300, "y": 550 },
+      "position": { "x": 11800, "y": 0 },
       "data": {
         "isGroup": true,
-        "width": 1300,
-        "height": 850,
-        "title": "STEP 3B: Wait & Reclaim (Timeout)",
+        "width": 1600,
+        "height": 1000,
+        "title": "STEP 5: Verify & Broadcast",
         "fontSize": 44,
         "borderColor": "#ef4444",
         "dirty": false,
-        "comment": "If no secret is revealed, sender reclaims funds after timeout."
+        "comment": "Verify the script locally. Broadcast with bitcoin-cli -testnet sendrawtransaction."
       },
-      "width": 1300,
-      "height": 850,
+      "width": 1600,
+      "height": 1000,
       "dragHandle": "[data-drag-handle]"
     },
     {
-      "id": "text-funding",
+      "id": "text-g1",
       "type": "shadcnTextInfo",
       "position": { "x": 30, "y": 50 },
       "data": {
-        "content": "## Step 1: Open a Payment Channel\n\nAlice and Bob want to send payments instantly — without touching the blockchain every time.\n\nThey lock funds into a shared 2-of-2 multisig. Neither can spend alone.\n\n👉 The private keys auto-generate above. Watch the public keys derive from them.\n\nThese public keys form a shared vault — both signatures are required to spend.\n\n→ Next: how do you safely send a payment across a network without trust?",
-        "fontSize": 36,
-        "width": 550,
-        "height": 600,
-        "title": "Text Info Node",
-        "dirty": false
-      },
-      "width": 550,
-      "height": 600,
-      "parentId": "group-funding",
-      "extent": "parent"
-    },
-    {
-      "id": "text-htlc",
-      "type": "shadcnTextInfo",
-      "position": { "x": 30, "y": 50 },
-      "data": {
-        "content": "## Step 2: Route a Payment Without Trust (HTLC)\n\nAlice is not paying Bob directly — the payment may pass through intermediaries.\n\nTo make this safe, Bitcoin uses a contract with two possible outcomes:\n\n**Door A (Success):** Reveal the secret preimage → funds released instantly  \n**Door B (Timeout):** Wait until block height passes → sender reclaims funds  \n\n👉 Try it:\n- Enter a hex value as Preimage (e.g. 68656c6c6f)\n- Enter a future block height (e.g. 900000)\n\nWatch the hash compute and the HTLC script assemble.\n\nThis guarantees: every hop either gets paid or no one does.\n\n→ Next: how the contract is actually spent.",
-        "fontSize": 36,
-        "width": 550,
+        "content": "## Step 1: Build the HTLC Locking Script\n\nA Hash Time-Locked Contract has two unlock paths:\n\n**Door A (Success):** Reveal the preimage that SHA256-hashes to the payment hash → Bob claims funds.\n\n**Door B (Timeout):** Wait until the agreed block height passes → Alice reclaims funds.\n\n👉 Keys auto-generate. Enter a preimage hex (e.g. `68656c6c6f`) and a future block height (e.g. `900000`).\n\nWatch the opcodes and push-data nodes assemble the full locking script.\n\nThe SHA256 of that script becomes the P2WSH address — fund it on testnet3.",
+        "fontSize": 34,
+        "width": 540,
         "height": 700,
         "title": "Text Info Node",
         "dirty": false
       },
-      "width": 550,
+      "width": 540,
       "height": 700,
-      "parentId": "group-htlc",
+      "parentId": "group-htlc-construct",
       "extent": "parent"
     },
     {
-      "id": "text-success",
+      "id": "text-g2",
       "type": "shadcnTextInfo",
       "position": { "x": 30, "y": 50 },
       "data": {
-        "content": "## Step 3A: Success Path — Reveal the Secret\n\nThe receiver knows the preimage and reveals it to unlock the funds.\n\n👉 Enter the SAME preimage used in Step 2.\n\nThe Success Spend Script assembles — this satisfies the hash condition.\n\nNo waiting. No ambiguity. Payment completes instantly.\n\nIn Lightning, this secret propagates backward across the route — settling all hops atomically.",
-        "fontSize": 36,
-        "width": 500,
-        "height": 500,
+        "content": "## Step 2: Paste Your Funding TX\n\nAfter sending funds to the P2WSH address from Step 1, paste the raw transaction hex here.\n\n👉 Get it from a testnet explorer or:\n`bitcoin-cli -testnet getrawtransaction <txid>`\n\nThe nodes extract:\n- **txid** → reversed for the spending tx input\n- **vout.value** → the UTXO amount\n- **vout.scriptPubKey** → the P2WSH output script",
+        "fontSize": 34,
+        "width": 540,
+        "height": 600,
         "title": "Text Info Node",
         "dirty": false
       },
-      "width": 500,
-      "height": 500,
-      "parentId": "group-success",
+      "width": 540,
+      "height": 600,
+      "parentId": "group-extract-funding",
       "extent": "parent"
     },
     {
-      "id": "text-timeout",
+      "id": "text-g3",
       "type": "shadcnTextInfo",
       "position": { "x": 30, "y": 50 },
       "data": {
-        "content": "## Step 3B: Timeout Path — Reclaim Funds\n\nIf the secret is never revealed, the contract expires.\n\n👉 Enter the SAME block height from Step 2.\n\nOnce the block height is reached, the refund path unlocks.\n\nThe Timeout Spend Script assembles — returning funds safely.\n\nNo trust required. Bitcoin enforces the rules.",
-        "fontSize": 36,
-        "width": 500,
-        "height": 500,
+        "content": "## Step 3: Assemble the Unsigned Spending TX\n\nBuild the base transaction body (no witness yet). This structure is used to compute the BIP143 sighash in Step 4.\n\n👉 Paste a testnet recipient address.\n👉 Enter output amount in satoshis (leave room for fees).\n\nThe scriptSig is empty (`00`) — P2WSH moves all data to the witness.\n\nThe output = amount (8 bytes LE) + scriptPubKey length varint + scriptPubKey.",
+        "fontSize": 34,
+        "width": 540,
+        "height": 700,
         "title": "Text Info Node",
         "dirty": false
       },
-      "width": 500,
-      "height": 500,
-      "parentId": "group-timeout",
+      "width": 540,
+      "height": 700,
+      "parentId": "group-build-tx",
+      "extent": "parent"
+    },
+    {
+      "id": "text-g4",
+      "type": "shadcnTextInfo",
+      "position": { "x": 30, "y": 50 },
+      "data": {
+        "content": "## Step 4: BIP143 Sighash + Sign + Witness\n\n**BIP143** is the SegWit sighash algorithm. It hashes specific components, fixing quadratic hashing and tx malleability.\n\nComponents:\n- **hashPrevouts**: DSHA256(outpoint)\n- **hashSequence**: DSHA256(sequence)\n- **hashOutputs**: DSHA256(outputs)\n- **scriptCode**: varint(len) + witness script\n\nPreimage → DSHA256 → sighash → signed with Bob's key.\n\n**Witness stack** (success path):\n`count | sig | preimage | OP_TRUE | witness_script`\n\nEach item has a varint length prefix. Final segwit tx uses `0001` marker after version.",
+        "fontSize": 34,
+        "width": 540,
+        "height": 900,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 540,
+      "height": 900,
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "text-g5",
+      "type": "shadcnTextInfo",
+      "position": { "x": 30, "y": 50 },
+      "data": {
+        "content": "## Step 5: Verify & Broadcast\n\nLocal script verification proves correctness before broadcasting.\n\nIf result shows **TRUE** — script executes correctly.\n\n**To broadcast:**\n`bitcoin-cli -testnet sendrawtransaction <hex>`\n\nBroadcast may fail if:\n- UTXO already spent\n- CLTV locktime not reached (timeout path)\n- Relay policy rejects non-standard scripts\n\nThe extracted txid is the final malleability-fixed transaction ID.",
+        "fontSize": 34,
+        "width": 540,
+        "height": 650,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 540,
+      "height": 650,
+      "parentId": "group-verify",
       "extent": "parent"
     },
     {
       "id": "node-alice-priv",
       "type": "calculation",
-      "position": { "x": 620, "y": 150 },
+      "position": { "x": 620, "y": 100 },
       "data": {
         "functionName": "random_256",
         "title": "Alice Private Key",
@@ -156,17 +191,17 @@
         "result": "",
         "error": false
       },
-      "parentId": "group-funding",
+      "parentId": "group-htlc-construct",
       "extent": "parent"
     },
     {
       "id": "node-alice-pub",
       "type": "calculation",
-      "position": { "x": 1000, "y": 150 },
+      "position": { "x": 970, "y": 100 },
       "data": {
         "functionName": "public_key_from_private_key",
-        "paramExtraction": "single_val",
         "title": "Alice Public Key",
+        "paramExtraction": "single_val",
         "hasRegenerate": false,
         "numInputs": 1,
         "showField": false,
@@ -176,13 +211,13 @@
         "result": "",
         "error": false
       },
-      "parentId": "group-funding",
+      "parentId": "group-htlc-construct",
       "extent": "parent"
     },
     {
       "id": "node-bob-priv",
       "type": "calculation",
-      "position": { "x": 620, "y": 550 },
+      "position": { "x": 620, "y": 380 },
       "data": {
         "functionName": "random_256",
         "title": "Bob Private Key",
@@ -193,17 +228,17 @@
         "result": "",
         "error": false
       },
-      "parentId": "group-funding",
+      "parentId": "group-htlc-construct",
       "extent": "parent"
     },
     {
       "id": "node-bob-pub",
       "type": "calculation",
-      "position": { "x": 1000, "y": 550 },
+      "position": { "x": 970, "y": 380 },
       "data": {
         "functionName": "public_key_from_private_key",
-        "paramExtraction": "single_val",
         "title": "Bob Public Key",
+        "paramExtraction": "single_val",
         "hasRegenerate": false,
         "numInputs": 1,
         "showField": false,
@@ -213,23 +248,23 @@
         "result": "",
         "error": false
       },
-      "parentId": "group-funding",
+      "parentId": "group-htlc-construct",
       "extent": "parent"
     },
     {
       "id": "node-preimage",
       "type": "calculation",
-      "position": { "x": 620, "y": 150 },
+      "position": { "x": 620, "y": 680 },
       "data": {
         "functionName": "identity",
         "title": "Preimage (The Secret)",
         "showField": true,
         "numInputs": 0,
-        "value": "0000000000000000000000000000000000000000000000000000000000000001",
+        "value": "68656c6c6f",
         "dirty": false,
         "version": 0,
-        "inputs": { "val": "0000000000000000000000000000000000000000000000000000000000000001" },
-        "result": "0000000000000000000000000000000000000000000000000000000000000001",
+        "inputs": { "val": "68656c6c6f" },
+        "result": "68656c6c6f",
         "inputStructure": {
           "ungrouped": [
             { "index": 0, "label": "INPUT VALUE:", "rows": 1 }
@@ -238,16 +273,16 @@
         "groupInstances": {},
         "error": false
       },
-      "parentId": "group-htlc",
+      "parentId": "group-htlc-construct",
       "extent": "parent"
     },
     {
-      "id": "node-hash",
+      "id": "node-sha256",
       "type": "calculation",
-      "position": { "x": 1000, "y": 150 },
+      "position": { "x": 970, "y": 680 },
       "data": {
-        "functionName": "hash160_hex",
-        "title": "Hash of Secret",
+        "functionName": "sha256_hex",
+        "title": "SHA256 of Preimage",
         "paramExtraction": "single_val",
         "showField": false,
         "numInputs": 1,
@@ -262,13 +297,13 @@
         "groupInstances": {},
         "error": false
       },
-      "parentId": "group-htlc",
+      "parentId": "group-htlc-construct",
       "extent": "parent"
     },
     {
       "id": "node-blockheight",
       "type": "calculation",
-      "position": { "x": 620, "y": 550 },
+      "position": { "x": 620, "y": 980 },
       "data": {
         "functionName": "identity",
         "title": "CLTV Block Height",
@@ -287,17 +322,17 @@
         "groupInstances": {},
         "error": false
       },
-      "parentId": "group-htlc",
+      "parentId": "group-htlc-construct",
       "extent": "parent"
     },
     {
       "id": "node-scriptheight",
       "type": "calculation",
-      "position": { "x": 1000, "y": 550 },
+      "position": { "x": 970, "y": 980 },
       "data": {
         "functionName": "int_to_script_bytes",
-        "paramExtraction": "single_val",
         "title": "Block Height as Script Bytes",
+        "paramExtraction": "single_val",
         "showField": false,
         "numInputs": 1,
         "dirty": false,
@@ -306,25 +341,296 @@
         "result": "",
         "inputStructure": {
           "ungrouped": [
-            { "index": 0, "label": "Integer value:", "placeholder": "e.g. 4404774", "rows": 1 }
+            { "index": 0, "label": "Integer value:", "placeholder": "e.g. 900000", "rows": 1 }
           ]
         },
         "groupInstances": {},
         "error": false
       },
-      "parentId": "group-htlc",
+      "parentId": "group-htlc-construct",
+      "extent": "parent"
+    },
+    {
+      "id": "push-alice-pub",
+      "type": "calculation",
+      "position": { "x": 1320, "y": 100 },
+      "data": {
+        "functionName": "encode_script_push_data",
+        "title": "Push Alice Pubkey",
+        "paramExtraction": "single_val",
+        "showField": false,
+        "numInputs": 1,
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "" },
+        "result": "",
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "Hex Data:", "placeholder": "Enter hex data to calculate push opcode", "rows": 2 }
+          ]
+        },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-htlc-construct",
+      "extent": "parent"
+    },
+    {
+      "id": "push-bob-pub",
+      "type": "calculation",
+      "position": { "x": 1320, "y": 380 },
+      "data": {
+        "functionName": "encode_script_push_data",
+        "title": "Push Bob Pubkey",
+        "paramExtraction": "single_val",
+        "showField": false,
+        "numInputs": 1,
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "" },
+        "result": "",
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "Hex Data:", "placeholder": "Enter hex data to calculate push opcode", "rows": 2 }
+          ]
+        },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-htlc-construct",
+      "extent": "parent"
+    },
+    {
+      "id": "push-hash",
+      "type": "calculation",
+      "position": { "x": 1320, "y": 680 },
+      "data": {
+        "functionName": "encode_script_push_data",
+        "title": "Push Payment Hash",
+        "paramExtraction": "single_val",
+        "showField": false,
+        "numInputs": 1,
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "" },
+        "result": "",
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "Hex Data:", "placeholder": "Enter hex data to calculate push opcode", "rows": 2 }
+          ]
+        },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-htlc-construct",
+      "extent": "parent"
+    },
+    {
+      "id": "push-cltv",
+      "type": "calculation",
+      "position": { "x": 1320, "y": 980 },
+      "data": {
+        "functionName": "encode_script_push_data",
+        "title": "Push CLTV Bytes",
+        "paramExtraction": "single_val",
+        "showField": false,
+        "numInputs": 1,
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "" },
+        "result": "",
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "Hex Data:", "placeholder": "Enter hex data to calculate push opcode", "rows": 2 }
+          ]
+        },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-htlc-construct",
+      "extent": "parent"
+    },
+    {
+      "id": "op-if",
+      "type": "calculation",
+      "position": { "x": 1700, "y": 100 },
+      "data": {
+        "functionName": "op_code_select",
+        "title": "OP_IF",
+        "paramExtraction": "single_val",
+        "inputs": { "val": "63" },
+        "result": "63",
+        "value": "63",
+        "opSequenceNames": ["OP_IF"],
+        "dirty": false,
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-htlc-construct",
+      "extent": "parent"
+    },
+    {
+      "id": "op-sha256-op",
+      "type": "calculation",
+      "position": { "x": 1700, "y": 320 },
+      "data": {
+        "functionName": "op_code_select",
+        "title": "OP_SHA256",
+        "paramExtraction": "single_val",
+        "inputs": { "val": "a8" },
+        "result": "a8",
+        "value": "a8",
+        "opSequenceNames": ["OP_SHA256"],
+        "dirty": false,
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-htlc-construct",
+      "extent": "parent"
+    },
+    {
+      "id": "op-equalverify",
+      "type": "calculation",
+      "position": { "x": 1700, "y": 520 },
+      "data": {
+        "functionName": "op_code_select",
+        "title": "OP_EQUALVERIFY",
+        "paramExtraction": "single_val",
+        "inputs": { "val": "88" },
+        "result": "88",
+        "value": "88",
+        "opSequenceNames": ["OP_EQUALVERIFY"],
+        "dirty": false,
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-htlc-construct",
+      "extent": "parent"
+    },
+    {
+      "id": "op-checksig-a",
+      "type": "calculation",
+      "position": { "x": 1700, "y": 720 },
+      "data": {
+        "functionName": "op_code_select",
+        "title": "OP_CHECKSIG (Bob)",
+        "paramExtraction": "single_val",
+        "inputs": { "val": "ac" },
+        "result": "ac",
+        "value": "ac",
+        "opSequenceNames": ["OP_CHECKSIG"],
+        "dirty": false,
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-htlc-construct",
+      "extent": "parent"
+    },
+    {
+      "id": "op-else",
+      "type": "calculation",
+      "position": { "x": 1700, "y": 920 },
+      "data": {
+        "functionName": "op_code_select",
+        "title": "OP_ELSE",
+        "paramExtraction": "single_val",
+        "inputs": { "val": "67" },
+        "result": "67",
+        "value": "67",
+        "opSequenceNames": ["OP_ELSE"],
+        "dirty": false,
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-htlc-construct",
+      "extent": "parent"
+    },
+    {
+      "id": "op-cltv",
+      "type": "calculation",
+      "position": { "x": 1900, "y": 920 },
+      "data": {
+        "functionName": "op_code_select",
+        "title": "OP_CHECKLOCKTIMEVERIFY",
+        "paramExtraction": "single_val",
+        "inputs": { "val": "b1" },
+        "result": "b1",
+        "value": "b1",
+        "opSequenceNames": ["OP_CHECKLOCKTIMEVERIFY"],
+        "dirty": false,
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-htlc-construct",
+      "extent": "parent"
+    },
+    {
+      "id": "op-drop",
+      "type": "calculation",
+      "position": { "x": 2100, "y": 920 },
+      "data": {
+        "functionName": "op_code_select",
+        "title": "OP_DROP",
+        "paramExtraction": "single_val",
+        "inputs": { "val": "75" },
+        "result": "75",
+        "value": "75",
+        "opSequenceNames": ["OP_DROP"],
+        "dirty": false,
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-htlc-construct",
+      "extent": "parent"
+    },
+    {
+      "id": "op-checksig-b",
+      "type": "calculation",
+      "position": { "x": 1700, "y": 1150 },
+      "data": {
+        "functionName": "op_code_select",
+        "title": "OP_CHECKSIG (Alice)",
+        "paramExtraction": "single_val",
+        "inputs": { "val": "ac" },
+        "result": "ac",
+        "value": "ac",
+        "opSequenceNames": ["OP_CHECKSIG"],
+        "dirty": false,
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-htlc-construct",
+      "extent": "parent"
+    },
+    {
+      "id": "op-endif",
+      "type": "calculation",
+      "position": { "x": 1700, "y": 1350 },
+      "data": {
+        "functionName": "op_code_select",
+        "title": "OP_ENDIF",
+        "paramExtraction": "single_val",
+        "inputs": { "val": "68" },
+        "result": "68",
+        "value": "68",
+        "opSequenceNames": ["OP_ENDIF"],
+        "dirty": false,
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-htlc-construct",
       "extent": "parent"
     },
     {
       "id": "node-htlcscript",
       "type": "calculation",
-      "position": { "x": 1350, "y": 350 },
+      "position": { "x": 2400, "y": 680 },
       "data": {
         "functionName": "concat_all",
         "title": "HTLC Locking Script",
         "paramExtraction": "multi_val",
-        "numInputs": 4,
-        "inputs": { "vals": { "0": "", "100": "", "200": "", "300": "" } },
+        "numInputs": 13,
+        "inputs": { "vals": { "0": "", "100": "", "200": "", "300": "", "400": "", "500": "", "600": "", "700": "", "800": "", "900": "", "1000": "", "1100": "", "1200": "" } },
         "dirty": false,
         "version": 0,
         "result": "",
@@ -335,9 +641,7 @@
               "baseIndex": 0,
               "expandable": true,
               "fieldCountToAdd": 1,
-              "fields": [
-                { "index": 0, "label": "Value:", "placeholder": "<multi-line input>", "rows": 3 }
-              ],
+              "fields": [ { "index": 0, "label": "Value:", "placeholder": "<multi-line input>", "rows": 3 } ],
               "maxInstances": 25,
               "minInstances": 1,
               "title": "INPUTS[]"
@@ -345,20 +649,64 @@
           ],
           "ungrouped": []
         },
-        "groupInstances": { "INPUTS[]": 4 },
-        "groupInstanceKeys": { "INPUTS[]": [0, 100, 200, 300] },
+        "groupInstances": { "INPUTS[]": 13 },
+        "groupInstanceKeys": { "INPUTS[]": [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200] },
         "error": false
       },
-      "parentId": "group-htlc",
+      "parentId": "group-htlc-construct",
       "extent": "parent"
     },
     {
-      "id": "node-reveal",
+      "id": "node-sha256-script",
       "type": "calculation",
-      "position": { "x": 580, "y": 200 },
+      "position": { "x": 2750, "y": 680 },
+      "data": {
+        "functionName": "sha256_hex",
+        "title": "SHA256 of Script",
+        "paramExtraction": "single_val",
+        "showField": false,
+        "numInputs": 1,
+        "dirty": false,
+        "inputs": { "val": "" },
+        "result": "",
+        "inputStructure": {
+          "ungrouped": [ { "index": 0, "label": "INPUT HEX:", "rows": 2 } ]
+        },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-htlc-construct",
+      "extent": "parent"
+    },
+    {
+      "id": "node-p2wsh",
+      "type": "calculation",
+      "position": { "x": 2750, "y": 950 },
+      "data": {
+        "functionName": "sha256_to_p2wsh_address",
+        "title": "P2WSH Address (testnet)",
+        "numInputs": 1,
+        "networkDependent": true,
+        "selectedNetwork": "testnet",
+        "dirty": false,
+        "inputs": { "val": "", "selectedNetwork": "testnet" },
+        "result": "",
+        "inputStructure": {
+          "ungrouped": [ { "index": 0, "label": "SHA256 (32B hex):", "rows": 2 } ]
+        },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-htlc-construct",
+      "extent": "parent"
+    },
+    {
+      "id": "node-funding-tx",
+      "type": "calculation",
+      "position": { "x": 620, "y": 100 },
       "data": {
         "functionName": "identity",
-        "title": "Reveal Preimage",
+        "title": "Funding TX Hex",
         "showField": true,
         "numInputs": 0,
         "value": "",
@@ -367,23 +715,429 @@
         "inputs": { "val": "" },
         "result": "",
         "inputStructure": {
-          "ungrouped": [
-            { "index": 0, "label": "INPUT VALUE:", "rows": 1 }
-          ]
+          "ungrouped": [ { "index": 0, "label": "Raw TX (hex):", "rows": 4 } ]
         },
         "groupInstances": {},
         "error": false
       },
-      "parentId": "group-success",
+      "parentId": "group-extract-funding",
       "extent": "parent"
     },
     {
-      "id": "node-success-script",
+      "id": "node-extract-txid",
       "type": "calculation",
-      "position": { "x": 900, "y": 200 },
+      "position": { "x": 1100, "y": 100 },
+      "data": {
+        "functionName": "extract_tx_field",
+        "title": "Extract: txid",
+        "paramExtraction": "multi_val",
+        "numInputs": 3,
+        "dirty": false,
+        "inputs": { "vals": { "0": "", "1": "txid" } },
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "Raw TX (hex):", "placeholder": "<transaction hex>", "rows": 4 },
+            { "index": 1, "label": "Field name:", "options": ["version","locktime","txid","input_count","output_count","vin.txid","vin.vout","vin.scriptSig","vin.sequence","vout.value","vout.scriptPubKey","raw_no_witness"], "unconnectable": true },
+            { "index": 2, "label": "Index (opt):", "placeholder": "0", "rows": 1, "unconnectable": true }
+          ]
+        },
+        "groupInstances": {},
+        "result": "",
+        "error": false
+      },
+      "parentId": "group-extract-funding",
+      "extent": "parent"
+    },
+    {
+      "id": "node-reverse-txid",
+      "type": "calculation",
+      "position": { "x": 1500, "y": 100 },
+      "data": {
+        "functionName": "reverse_txid_bytes",
+        "title": "TXID Reversed (LE)",
+        "paramExtraction": "single_val",
+        "numInputs": 1,
+        "showField": false,
+        "dirty": false,
+        "groupInstances": {},
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false
+      },
+      "parentId": "group-extract-funding",
+      "extent": "parent"
+    },
+    {
+      "id": "node-extract-value",
+      "type": "calculation",
+      "position": { "x": 1100, "y": 450 },
+      "data": {
+        "functionName": "extract_tx_field",
+        "title": "Extract: vout.value",
+        "paramExtraction": "multi_val",
+        "numInputs": 3,
+        "dirty": false,
+        "inputs": { "vals": { "0": "", "1": "vout.value" } },
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "Raw TX (hex):", "placeholder": "<transaction hex>", "rows": 4 },
+            { "index": 1, "label": "Field name:", "options": ["version","locktime","txid","input_count","output_count","vin.txid","vin.vout","vin.scriptSig","vin.sequence","vout.value","vout.scriptPubKey","raw_no_witness"], "unconnectable": true },
+            { "index": 2, "label": "Index (opt):", "placeholder": "0", "rows": 1, "unconnectable": true }
+          ]
+        },
+        "groupInstances": {},
+        "result": "",
+        "error": false
+      },
+      "parentId": "group-extract-funding",
+      "extent": "parent"
+    },
+    {
+      "id": "node-extract-spk",
+      "type": "calculation",
+      "position": { "x": 1100, "y": 750 },
+      "data": {
+        "functionName": "extract_tx_field",
+        "title": "Extract: vout.scriptPubKey",
+        "paramExtraction": "multi_val",
+        "numInputs": 3,
+        "dirty": false,
+        "inputs": { "vals": { "0": "", "1": "vout.scriptPubKey" } },
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "Raw TX (hex):", "placeholder": "<transaction hex>", "rows": 4 },
+            { "index": 1, "label": "Field name:", "options": ["version","locktime","txid","input_count","output_count","vin.txid","vin.vout","vin.scriptSig","vin.sequence","vout.value","vout.scriptPubKey","raw_no_witness"], "unconnectable": true },
+            { "index": 2, "label": "Index (opt):", "placeholder": "0", "rows": 1, "unconnectable": true }
+          ]
+        },
+        "groupInstances": {},
+        "result": "",
+        "error": false
+      },
+      "parentId": "group-extract-funding",
+      "extent": "parent"
+    },
+    {
+      "id": "node-tx-version",
+      "type": "calculation",
+      "position": { "x": 630, "y": 100 },
+      "data": {
+        "functionName": "identity",
+        "title": "Version (02000000)",
+        "showField": true,
+        "numInputs": 0,
+        "value": "02000000",
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "02000000" },
+        "result": "02000000",
+        "inputStructure": { "ungrouped": [ { "index": 0, "label": "INPUT VALUE:", "rows": 1 } ] },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-build-tx",
+      "extent": "parent"
+    },
+    {
+      "id": "node-vin-count",
+      "type": "calculation",
+      "position": { "x": 1030, "y": 100 },
+    "data": {
+      "functionName": "identity",
+      "title": "Input Count VarInt",
+      "showField": false,
+      "numInputs": 0,
+      "value": "01",
+      "dirty": false,
+      "version": 0,
+      "inputs": { "val": "01" },
+      "result": "01",
+      "groupInstances": {},
+      "error": false
+    },
+      "parentId": "group-build-tx",
+      "extent": "parent"
+    },
+    {
+      "id": "node-vout-index",
+      "type": "calculation",
+      "position": { "x": 630, "y": 300 },
+      "data": {
+        "functionName": "identity",
+        "title": "UTXO Output Index (LE4)",
+        "showField": true,
+        "numInputs": 0,
+        "value": "00000000",
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "00000000" },
+        "result": "00000000",
+        "inputStructure": { "ungrouped": [ { "index": 0, "label": "INPUT VALUE:", "rows": 1 } ] },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-build-tx",
+      "extent": "parent"
+    },
+    {
+      "id": "node-scriptsig-empty",
+      "type": "calculation",
+      "position": { "x": 630, "y": 500 },
+      "data": {
+        "functionName": "identity",
+        "title": "ScriptSig empty (00)",
+        "showField": true,
+        "numInputs": 0,
+        "value": "00",
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "00" },
+        "result": "00",
+        "inputStructure": { "ungrouped": [ { "index": 0, "label": "INPUT VALUE:", "rows": 1 } ] },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-build-tx",
+      "extent": "parent"
+    },
+    {
+      "id": "node-sequence",
+      "type": "calculation",
+      "position": { "x": 630, "y": 700 },
+      "data": {
+        "functionName": "identity",
+        "title": "Sequence (ffffffff)",
+        "showField": true,
+        "numInputs": 0,
+        "value": "ffffffff",
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "ffffffff" },
+        "result": "ffffffff",
+        "inputStructure": { "ungrouped": [ { "index": 0, "label": "INPUT VALUE:", "rows": 1 } ] },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-build-tx",
+      "extent": "parent"
+    },
+    {
+      "id": "node-vout-count",
+      "type": "calculation",
+      "position": { "x": 1030, "y": 700 },
+    "data": {
+      "functionName": "identity",
+      "title": "Input Count VarInt",
+      "showField": false,
+      "numInputs": 0,
+      "value": "01",
+      "dirty": false,
+      "version": 0,
+      "inputs": { "val": "01" },
+      "result": "01",
+      "groupInstances": {},
+      "error": false
+    },
+      "parentId": "group-build-tx",
+      "extent": "parent"
+    },
+    {
+      "id": "node-locktime",
+      "type": "calculation",
+      "position": { "x": 630, "y": 900 },
+      "data": {
+        "functionName": "identity",
+        "title": "Locktime (00000000)",
+        "showField": true,
+        "numInputs": 0,
+        "value": "00000000",
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "00000000" },
+        "result": "00000000",
+        "inputStructure": { "ungrouped": [ { "index": 0, "label": "INPUT VALUE:", "rows": 1 } ] },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-build-tx",
+      "extent": "parent"
+    },
+    {
+      "id": "node-recipient",
+      "type": "calculation",
+      "position": { "x": 630, "y": 1100 },
+      "data": {
+        "functionName": "identity",
+        "title": "Recipient Address",
+        "showField": true,
+        "numInputs": 0,
+        "value": "",
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "" },
+        "result": "",
+        "inputStructure": { "ungrouped": [ { "index": 0, "label": "Testnet address:", "rows": 2 } ] },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-build-tx",
+      "extent": "parent"
+    },
+    {
+      "id": "node-addr-spk",
+      "type": "calculation",
+      "position": { "x": 1030, "y": 1100 },
+      "data": {
+        "functionName": "address_to_scriptpubkey",
+        "title": "Address to ScriptPubKey",
+        "paramExtraction": "single_val",
+        "numInputs": 1,
+        "showField": false,
+        "dirty": false,
+        "inputs": { "val": "" },
+        "result": "",
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-build-tx",
+      "extent": "parent"
+    },
+    {
+      "id": "node-amount",
+      "type": "calculation",
+      "position": { "x": 630, "y": 1350 },
+      "data": {
+        "functionName": "identity",
+        "title": "Output Amount (satoshis)",
+        "showField": true,
+        "numInputs": 0,
+        "value": "110000",
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "110000" },
+        "result": "110000",
+        "inputStructure": { "ungrouped": [ { "index": 0, "label": "Satoshis:", "rows": 1 } ] },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-build-tx",
+      "extent": "parent"
+    },
+    {
+      "id": "node-amount-le",
+      "type": "calculation",
+      "position": { "x": 1030, "y": 1350 },
+      "data": {
+        "functionName": "satoshi_to_8_le",
+        "title": "Satoshi to LE-8",
+        "paramExtraction": "single_val",
+        "numInputs": 1,
+        "showField": false,
+        "dirty": false,
+        "groupInstances": {},
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false
+      },
+      "parentId": "group-build-tx",
+      "extent": "parent"
+    },
+    {
+      "id": "node-spk-varint",
+      "type": "calculation",
+      "position": { "x": 1400, "y": 1100 },
+      "data": {
+        "functionName": "varint_encoded_byte_length",
+        "title": "ScriptPubKey Length",
+        "paramExtraction": "single_val",
+        "numInputs": 1,
+        "showField": false,
+        "dirty": false,
+        "groupInstances": {},
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false
+      },
+      "parentId": "group-build-tx",
+      "extent": "parent"
+    },
+    {
+      "id": "node-output-encoded",
+      "type": "calculation",
+      "position": { "x": 1800, "y": 1200 },
       "data": {
         "functionName": "concat_all",
-        "title": "Success Spend Script",
+        "title": "Encoded Output",
+        "paramExtraction": "multi_val",
+        "numInputs": 3,
+        "inputs": { "vals": { "0": "", "100": "", "200": "" } },
+        "dirty": false,
+        "version": 0,
+        "result": "",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [ { "index": 0, "label": "Value:", "placeholder": "<multi-line input>", "rows": 3 } ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": { "INPUTS[]": 3 },
+        "groupInstanceKeys": { "INPUTS[]": [0, 100, 200] },
+        "error": false
+      },
+      "parentId": "group-build-tx",
+      "extent": "parent"
+    },
+    {
+      "id": "node-raw-tx-base",
+      "type": "calculation",
+      "position": { "x": 2100, "y": 600 },
+      "data": {
+        "functionName": "concat_all",
+        "title": "Unsigned TX Base",
+        "paramExtraction": "multi_val",
+        "numInputs": 9,
+        "inputs": { "vals": { "0": "", "100": "", "200": "", "300": "", "400": "", "500": "", "600": "", "700": "", "800": "" } },
+        "dirty": false,
+        "version": 0,
+        "result": "",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [ { "index": 0, "label": "Value:", "placeholder": "<multi-line input>", "rows": 3 } ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": { "INPUTS[]": 9 },
+        "groupInstanceKeys": { "INPUTS[]": [0, 100, 200, 300, 400, 500, 600, 700, 800] },
+        "error": false
+      },
+      "parentId": "group-build-tx",
+      "extent": "parent"
+    },
+    {
+      "id": "node-prevouts-concat",
+      "type": "calculation",
+      "position": { "x": 620, "y": 100 },
+      "data": {
+        "functionName": "concat_all",
+        "title": "Prevouts Raw (txid+vout)",
         "paramExtraction": "multi_val",
         "numInputs": 2,
         "inputs": { "vals": { "0": "", "100": "" } },
@@ -397,9 +1151,7 @@
               "baseIndex": 0,
               "expandable": true,
               "fieldCountToAdd": 1,
-              "fields": [
-                { "index": 0, "label": "Value:", "placeholder": "<multi-line input>", "rows": 3 }
-              ],
+              "fields": [ { "index": 0, "label": "Value:", "placeholder": "<multi-line input>", "rows": 3 } ],
               "maxInstances": 25,
               "minInstances": 1,
               "title": "INPUTS[]"
@@ -411,41 +1163,148 @@
         "groupInstanceKeys": { "INPUTS[]": [0, 100] },
         "error": false
       },
-      "parentId": "group-success",
+      "parentId": "group-sign-witness",
       "extent": "parent"
     },
     {
-      "id": "node-currentblock",
+      "id": "node-hashprevouts",
       "type": "calculation",
-      "position": { "x": 580, "y": 200 },
+      "position": { "x": 970, "y": 100 },
       "data": {
-        "functionName": "identity",
-        "title": "Current Block Height",
-        "showField": true,
-        "numInputs": 0,
-        "value": "",
+        "functionName": "double_sha256_hex",
+        "title": "hashPrevouts",
+        "paramExtraction": "single_val",
+        "numInputs": 1,
+        "showField": false,
         "dirty": false,
-        "version": 0,
         "inputs": { "val": "" },
         "result": "",
-        "inputStructure": {
-          "ungrouped": [
-            { "index": 0, "label": "INPUT VALUE:", "rows": 1 }
-          ]
-        },
         "groupInstances": {},
         "error": false
       },
-      "parentId": "group-timeout",
+      "parentId": "group-sign-witness",
       "extent": "parent"
     },
     {
-      "id": "node-timeout-script",
+      "id": "node-g4-sequence",
       "type": "calculation",
-      "position": { "x": 900, "y": 200 },
+      "position": { "x": 620, "y": 350 },
+      "data": {
+        "functionName": "identity",
+        "title": "Sequence for hashSeq",
+        "showField": true,
+        "numInputs": 0,
+        "value": "ffffffff",
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "ffffffff" },
+        "result": "ffffffff",
+        "inputStructure": { "ungrouped": [ { "index": 0, "label": "INPUT VALUE:", "rows": 1 } ] },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-hashseq",
+      "type": "calculation",
+      "position": { "x": 970, "y": 350 },
+      "data": {
+        "functionName": "double_sha256_hex",
+        "title": "hashSequence",
+        "paramExtraction": "single_val",
+        "numInputs": 1,
+        "showField": false,
+        "dirty": false,
+        "inputs": { "val": "" },
+        "result": "",
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-hashoutputs-input",
+      "type": "calculation",
+      "position": { "x": 620, "y": 600 },
       "data": {
         "functionName": "concat_all",
-        "title": "Timeout Spend Script",
+        "title": "Outputs Raw",
+        "paramExtraction": "multi_val",
+        "numInputs": 3,
+        "inputs": { "vals": { "0": "", "100": "", "200": "" } },
+        "dirty": false,
+        "version": 0,
+        "result": "",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [ { "index": 0, "label": "Value:", "placeholder": "<multi-line input>", "rows": 3 } ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": { "INPUTS[]": 3 },
+        "groupInstanceKeys": { "INPUTS[]": [0, 100, 200] },
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-hashoutputs",
+      "type": "calculation",
+      "position": { "x": 970, "y": 600 },
+      "data": {
+        "functionName": "double_sha256_hex",
+        "title": "hashOutputs",
+        "paramExtraction": "single_val",
+        "numInputs": 1,
+        "showField": false,
+        "dirty": false,
+        "inputs": { "val": "" },
+        "result": "",
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-scriptcode-varint",
+      "type": "calculation",
+      "position": { "x": 620, "y": 850 },
+      "data": {
+        "functionName": "varint_encoded_byte_length",
+        "title": "Script Length VarInt",
+        "paramExtraction": "single_val",
+        "numInputs": 1,
+        "showField": false,
+        "dirty": false,
+        "groupInstances": {},
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-scriptcode",
+      "type": "calculation",
+      "position": { "x": 970, "y": 850 },
+      "data": {
+        "functionName": "concat_all",
+        "title": "scriptCode (varint+script)",
         "paramExtraction": "multi_val",
         "numInputs": 2,
         "inputs": { "vals": { "0": "", "100": "" } },
@@ -459,9 +1318,7 @@
               "baseIndex": 0,
               "expandable": true,
               "fieldCountToAdd": 1,
-              "fields": [
-                { "index": 0, "label": "Value:", "placeholder": "<multi-line input>", "rows": 3 }
-              ],
+              "fields": [ { "index": 0, "label": "Value:", "placeholder": "<multi-line input>", "rows": 3 } ],
               "maxInstances": 25,
               "minInstances": 1,
               "title": "INPUTS[]"
@@ -473,94 +1330,663 @@
         "groupInstanceKeys": { "INPUTS[]": [0, 100] },
         "error": false
       },
-      "parentId": "group-timeout",
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-g4-version",
+      "type": "calculation",
+      "position": { "x": 620, "y": 1100 },
+      "data": {
+        "functionName": "identity",
+        "title": "nVersion (02000000)",
+        "showField": true,
+        "numInputs": 0,
+        "value": "02000000",
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "02000000" },
+        "result": "02000000",
+        "inputStructure": { "ungrouped": [ { "index": 0, "label": "INPUT VALUE:", "rows": 1 } ] },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-g4-locktime",
+      "type": "calculation",
+      "position": { "x": 620, "y": 1300 },
+      "data": {
+        "functionName": "identity",
+        "title": "nLocktime (00000000)",
+        "showField": true,
+        "numInputs": 0,
+        "value": "00000000",
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "00000000" },
+        "result": "00000000",
+        "inputStructure": { "ungrouped": [ { "index": 0, "label": "INPUT VALUE:", "rows": 1 } ] },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-sighash-type",
+      "type": "calculation",
+      "position": { "x": 970, "y": 1100 },
+      "data": {
+        "functionName": "identity",
+        "title": "nHashType (01000000)",
+        "showField": true,
+        "numInputs": 0,
+        "value": "01000000",
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "01000000" },
+        "result": "01000000",
+        "inputStructure": { "ungrouped": [ { "index": 0, "label": "INPUT VALUE:", "rows": 1 } ] },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-bip143-preimage",
+      "type": "calculation",
+      "position": { "x": 1350, "y": 600 },
+      "data": {
+        "functionName": "concat_all",
+        "title": "BIP143 Preimage",
+        "paramExtraction": "multi_val",
+        "numInputs": 11,
+        "inputs": { "vals": { "0": "", "100": "", "200": "", "300": "", "400": "", "500": "", "600": "", "700": "", "800": "", "900": "", "1000": "" } },
+        "dirty": false,
+        "version": 0,
+        "result": "",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [ { "index": 0, "label": "Value:", "placeholder": "<multi-line input>", "rows": 3 } ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": { "INPUTS[]": 11 },
+        "groupInstanceKeys": { "INPUTS[]": [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000] },
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-sighash",
+      "type": "calculation",
+      "position": { "x": 1750, "y": 600 },
+      "data": {
+        "functionName": "double_sha256_hex",
+        "title": "Sighash (DSHA256)",
+        "paramExtraction": "single_val",
+        "numInputs": 1,
+        "showField": false,
+        "dirty": false,
+        "inputs": { "val": "" },
+        "result": "",
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-sign",
+      "type": "calculation",
+      "position": { "x": 2100, "y": 600 },
+      "data": {
+        "functionName": "sign_as_bitcoin_core_low_r",
+        "title": "Sign TX (Bob, Low-R)",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "dirty": false,
+        "inputs": { "vals": { "0": "", "1": "" } },
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "Private Key (32 bytes hex):", "rows": 2 },
+            { "index": 1, "label": "Message Hash (32 bytes hex):", "rows": 2 }
+          ]
+        },
+        "groupInstances": {},
+        "result": "",
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-sighash-byte",
+      "type": "calculation",
+      "position": { "x": 620, "y": 1550 },
+      "data": {
+        "functionName": "identity",
+        "title": "SIGHASH_ALL byte (01)",
+        "showField": true,
+        "numInputs": 0,
+        "value": "01",
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "01" },
+        "result": "01",
+        "inputStructure": { "ungrouped": [ { "index": 0, "label": "INPUT VALUE:", "rows": 1 } ] },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-sig-complete",
+      "type": "calculation",
+      "position": { "x": 970, "y": 1550 },
+      "data": {
+        "functionName": "concat_all",
+        "title": "Sig + Sighash Type",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": { "vals": { "0": "", "100": "" } },
+        "dirty": false,
+        "version": 0,
+        "result": "",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [ { "index": 0, "label": "Value:", "placeholder": "<multi-line input>", "rows": 3 } ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": { "INPUTS[]": 2 },
+        "groupInstanceKeys": { "INPUTS[]": [0, 100] },
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-sig-len",
+      "type": "calculation",
+      "position": { "x": 1350, "y": 1550 },
+      "data": {
+        "functionName": "varint_encoded_byte_length",
+        "title": "Sig Item Length",
+        "paramExtraction": "single_val",
+        "numInputs": 1,
+        "showField": false,
+        "dirty": false,
+        "groupInstances": {},
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-sig-item",
+      "type": "calculation",
+      "position": { "x": 1700, "y": 1550 },
+      "data": {
+        "functionName": "concat_all",
+        "title": "Witness Item: Sig",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": { "vals": { "0": "", "100": "" } },
+        "dirty": false,
+        "version": 0,
+        "result": "",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [ { "index": 0, "label": "Value:", "placeholder": "<multi-line input>", "rows": 3 } ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": { "INPUTS[]": 2 },
+        "groupInstanceKeys": { "INPUTS[]": [0, 100] },
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-preimage-len",
+      "type": "calculation",
+      "position": { "x": 620, "y": 1750 },
+      "data": {
+        "functionName": "varint_encoded_byte_length",
+        "title": "Preimage Length",
+        "paramExtraction": "single_val",
+        "numInputs": 1,
+        "showField": false,
+        "dirty": false,
+        "groupInstances": {},
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-preimage-item",
+      "type": "calculation",
+      "position": { "x": 970, "y": 1750 },
+      "data": {
+        "functionName": "concat_all",
+        "title": "Witness Item: Preimage",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": { "vals": { "0": "", "100": "" } },
+        "dirty": false,
+        "version": 0,
+        "result": "",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [ { "index": 0, "label": "Value:", "placeholder": "<multi-line input>", "rows": 3 } ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": { "INPUTS[]": 2 },
+        "groupInstanceKeys": { "INPUTS[]": [0, 100] },
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-op-true-item",
+      "type": "calculation",
+      "position": { "x": 620, "y": 1950 },
+      "data": {
+        "functionName": "identity",
+        "title": "Witness Item: OP_TRUE (0101)",
+        "showField": true,
+        "numInputs": 0,
+        "value": "0101",
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "0101" },
+        "result": "0101",
+        "inputStructure": { "ungrouped": [ { "index": 0, "label": "INPUT VALUE:", "rows": 1 } ] },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-script-len",
+      "type": "calculation",
+      "position": { "x": 970, "y": 1950 },
+      "data": {
+        "functionName": "varint_encoded_byte_length",
+        "title": "Witness Script Length",
+        "paramExtraction": "single_val",
+        "numInputs": 1,
+        "showField": false,
+        "dirty": false,
+        "groupInstances": {},
+        "inputs": { "val": "" },
+        "result": "",
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-script-item",
+      "type": "calculation",
+      "position": { "x": 1350, "y": 1950 },
+      "data": {
+        "functionName": "concat_all",
+        "title": "Witness Item: Script",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": { "vals": { "0": "", "100": "" } },
+        "dirty": false,
+        "version": 0,
+        "result": "",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [ { "index": 0, "label": "Value:", "placeholder": "<multi-line input>", "rows": 3 } ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": { "INPUTS[]": 2 },
+        "groupInstanceKeys": { "INPUTS[]": [0, 100] },
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-witness-count",
+      "type": "calculation",
+      "position": { "x": 1700, "y": 1950 },
+      "data": {
+        "functionName": "identity",
+        "title": "Witness Item Count (04)",
+        "showField": true,
+        "numInputs": 0,
+        "value": "04",
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "04" },
+        "result": "04",
+        "inputStructure": { "ungrouped": [ { "index": 0, "label": "INPUT VALUE:", "rows": 1 } ] },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-witness-stack",
+      "type": "calculation",
+      "position": { "x": 2100, "y": 1750 },
+      "data": {
+        "functionName": "concat_all",
+        "title": "Witness Stack",
+        "paramExtraction": "multi_val",
+        "numInputs": 5,
+        "inputs": { "vals": { "0": "", "100": "", "200": "", "300": "", "400": "" } },
+        "dirty": false,
+        "version": 0,
+        "result": "",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [ { "index": 0, "label": "Value:", "placeholder": "<multi-line input>", "rows": 3 } ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": { "INPUTS[]": 5 },
+        "groupInstanceKeys": { "INPUTS[]": [0, 100, 200, 300, 400] },
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-segwit-marker",
+      "type": "calculation",
+      "position": { "x": 2100, "y": 1300 },
+      "data": {
+        "functionName": "identity",
+        "title": "SegWit Marker+Flag (0001)",
+        "showField": true,
+        "numInputs": 0,
+        "value": "0001",
+        "dirty": false,
+        "version": 0,
+        "inputs": { "val": "0001" },
+        "result": "0001",
+        "inputStructure": { "ungrouped": [ { "index": 0, "label": "INPUT VALUE:", "rows": 1 } ] },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-final-tx",
+      "type": "calculation",
+      "position": { "x": 2600, "y": 1200 },
+      "data": {
+        "functionName": "concat_all",
+        "title": "Final Signed TX (SegWit)",
+        "paramExtraction": "multi_val",
+        "numInputs": 11,
+        "inputs": { "vals": { "0": "", "100": "", "200": "", "300": "", "400": "", "500": "", "600": "", "700": "", "800": "", "900": "", "1000": "" } },
+        "dirty": false,
+        "version": 0,
+        "result": "",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [ { "index": 0, "label": "Value:", "placeholder": "<multi-line input>", "rows": 3 } ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": { "INPUTS[]": 11 },
+        "groupInstanceKeys": { "INPUTS[]": [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000] },
+        "error": false
+      },
+      "parentId": "group-sign-witness",
+      "extent": "parent"
+    },
+    {
+      "id": "node-verify",
+      "type": "calculation",
+      "position": { "x": 650, "y": 200 },
+      "data": {
+        "functionName": "script_verification",
+        "title": "Verify Script",
+        "paramExtraction": "multi_val",
+        "numInputs": 6,
+        "dirty": false,
+        "inputs": {
+          "vals": {
+            "0": "__EMPTY__",
+            "1": "",
+            "2": "",
+            "3": "0",
+            "5": "110000"
+          }
+        },
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [],
+          "ungrouped": [
+            { "allowEmptyBlank": true, "index": 0, "label": "scriptSig_hex", "placeholder": "Hex-encoded scriptSig", "rows": 3 },
+            { "index": 1, "label": "scriptPubKey_hex", "placeholder": "Hex-encoded scriptPubKey", "rows": 3 },
+            { "index": 2, "label": "tx_hex", "placeholder": "Hex-encoded Transaction", "rows": 3 },
+            { "index": 3, "label": "input_index_to_verify", "placeholder": "0", "rows": 1, "unconnectable": true },
+            { "index": 4, "label": "exclude_flags", "placeholder": "e.g., WITNESS,CLEANSTACK", "rows": 1, "unconnectable": true },
+            { "allowEmptyBlank": true, "index": 5, "label": "spent_amount_sats", "placeholder": "Amount in satoshis (for SegWit/Taproot)", "rows": 1 }
+          ]
+        },
+        "groupInstances": {},
+        "result": "",
+        "error": false
+      },
+      "parentId": "group-verify",
+      "extent": "parent"
+    },
+    {
+      "id": "node-final-txid",
+      "type": "calculation",
+      "position": { "x": 650, "y": 700 },
+      "data": {
+        "functionName": "extract_tx_field",
+        "title": "Extract Final TXID",
+        "paramExtraction": "multi_val",
+        "numInputs": 3,
+        "dirty": false,
+        "inputs": { "vals": { "0": "", "1": "txid" } },
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "Raw TX (hex):", "placeholder": "<transaction hex>", "rows": 4 },
+            { "index": 1, "label": "Field name:", "options": ["version","locktime","txid","input_count","output_count","vin.txid","vin.vout","vin.scriptSig","vin.sequence","vout.value","vout.scriptPubKey","raw_no_witness"], "unconnectable": true },
+            { "index": 2, "label": "Index (opt):", "placeholder": "0", "rows": 1, "unconnectable": true }
+          ]
+        },
+        "groupInstances": {},
+        "result": "",
+        "error": false
+      },
+      "parentId": "group-verify",
       "extent": "parent"
     }
   ],
   "edges": [
-    {
-      "id": "edge-alice-priv-pub",
-      "source": "node-alice-priv",
-      "target": "node-alice-pub",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "source": "node-bob-priv",
-      "target": "node-bob-pub",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "edge-bob-priv-pub"
-    },
-    {
-      "id": "edge-alice-pub-htlc",
-      "source": "node-alice-pub",
-      "target": "node-htlcscript",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "id": "edge-bob-pub-htlc",
-      "source": "node-bob-pub",
-      "target": "node-htlcscript",
-      "targetHandle": "input-100",
-      "selected": false
-    },
-    {
-      "source": "node-preimage",
-      "target": "node-hash",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "edge-preimage-hash"
-    },
-    {
-      "id": "edge-hash-htlc",
-      "source": "node-hash",
-      "target": "node-htlcscript",
-      "targetHandle": "input-200",
-      "selected": false
-    },
-    {
-      "source": "node-blockheight",
-      "target": "node-scriptheight",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "edge-blockheight-scriptheight"
-    },
-    {
-      "id": "edge-scriptheight-htlc",
-      "source": "node-scriptheight",
-      "target": "node-htlcscript",
-      "targetHandle": "input-300",
-      "selected": false
-    },
-    {
-      "id": "edge-htlc-success",
-      "source": "node-htlcscript",
-      "target": "node-success-script",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "id": "edge-htlc-timeout",
-      "source": "node-htlcscript",
-      "target": "node-timeout-script",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "id": "edge-reveal-success",
-      "source": "node-reveal",
-      "target": "node-success-script",
-      "targetHandle": "input-100",
-      "selected": false
-    },
-    {
-      "id": "edge-currentblock-timeout",
-      "source": "node-currentblock",
-      "target": "node-timeout-script",
-      "targetHandle": "input-100",
-      "selected": false
-    }
+    { "id": "e-alice-priv-pub", "source": "node-alice-priv", "target": "node-alice-pub", "targetHandle": "input-0", "selected": false },
+    { "id": "e-bob-priv-pub", "source": "node-bob-priv", "target": "node-bob-pub", "targetHandle": "input-0", "selected": false },
+    { "id": "e-alice-pub-push", "source": "node-alice-pub", "target": "push-alice-pub", "targetHandle": "input-0", "selected": false },
+    { "id": "e-bob-pub-push", "source": "node-bob-pub", "target": "push-bob-pub", "targetHandle": "input-0", "selected": false },
+    { "id": "e-preimage-sha256", "source": "node-preimage", "target": "node-sha256", "targetHandle": "input-0", "selected": false },
+    { "id": "e-sha256-push-hash", "source": "node-sha256", "target": "push-hash", "targetHandle": "input-0", "selected": false },
+    { "id": "e-blockheight-scriptheight", "source": "node-blockheight", "target": "node-scriptheight", "targetHandle": "input-0", "selected": false },
+    { "id": "e-scriptheight-push-cltv", "source": "node-scriptheight", "target": "push-cltv", "targetHandle": "input-0", "selected": false },
+    { "id": "e-opif-htlc", "source": "op-if", "target": "node-htlcscript", "targetHandle": "input-0", "selected": false },
+    { "id": "e-opsha256-htlc", "source": "op-sha256-op", "target": "node-htlcscript", "targetHandle": "input-100", "selected": false },
+    { "id": "e-pushhash-htlc", "source": "push-hash", "target": "node-htlcscript", "targetHandle": "input-200", "selected": false },
+    { "id": "e-opequalverify-htlc", "source": "op-equalverify", "target": "node-htlcscript", "targetHandle": "input-300", "selected": false },
+    { "id": "e-pushbob-htlc", "source": "push-bob-pub", "target": "node-htlcscript", "targetHandle": "input-400", "selected": false },
+    { "id": "e-opchecksig-a-htlc", "source": "op-checksig-a", "target": "node-htlcscript", "targetHandle": "input-500", "selected": false },
+    { "id": "e-opelse-htlc", "source": "op-else", "target": "node-htlcscript", "targetHandle": "input-600", "selected": false },
+    { "id": "e-pushcltv-htlc", "source": "push-cltv", "target": "node-htlcscript", "targetHandle": "input-700", "selected": false },
+    { "id": "e-opcltv-htlc", "source": "op-cltv", "target": "node-htlcscript", "targetHandle": "input-800", "selected": false },
+    { "id": "e-opdrop-htlc", "source": "op-drop", "target": "node-htlcscript", "targetHandle": "input-900", "selected": false },
+    { "id": "e-pushalice-htlc", "source": "push-alice-pub", "target": "node-htlcscript", "targetHandle": "input-1000", "selected": false },
+    { "id": "e-opchecksig-b-htlc", "source": "op-checksig-b", "target": "node-htlcscript", "targetHandle": "input-1100", "selected": false },
+    { "id": "e-opendif-htlc", "source": "op-endif", "target": "node-htlcscript", "targetHandle": "input-1200", "selected": false },
+    { "id": "e-htlc-sha256script", "source": "node-htlcscript", "target": "node-sha256-script", "targetHandle": "input-0", "selected": false },
+    { "id": "e-sha256script-p2wsh", "source": "node-sha256-script", "target": "node-p2wsh", "targetHandle": "input-0", "selected": false },
+    { "id": "e-fundingtx-extracttxid", "source": "node-funding-tx", "target": "node-extract-txid", "targetHandle": "input-0", "selected": false },
+    { "id": "e-fundingtx-extractvalue", "source": "node-funding-tx", "target": "node-extract-value", "targetHandle": "input-0", "selected": false },
+    { "id": "e-fundingtx-extractspk", "source": "node-funding-tx", "target": "node-extract-spk", "targetHandle": "input-0", "selected": false },
+    { "id": "e-extracttxid-reverse", "source": "node-extract-txid", "target": "node-reverse-txid", "targetHandle": "input-0", "selected": false },
+    { "id": "e-recipient-addrspk", "source": "node-recipient", "target": "node-addr-spk", "targetHandle": "input-0", "selected": false },
+    { "id": "e-amount-amountle", "source": "node-amount", "target": "node-amount-le", "targetHandle": "input-0", "selected": false },
+    { "id": "e-addrspk-spkvarint", "source": "node-addr-spk", "target": "node-spk-varint", "targetHandle": "input-0", "selected": false },
+    { "id": "e-amountle-outputenc-0", "source": "node-amount-le", "target": "node-output-encoded", "targetHandle": "input-0", "selected": false },
+    { "id": "e-spkvarint-outputenc-100", "source": "node-spk-varint", "target": "node-output-encoded", "targetHandle": "input-100", "selected": false },
+    { "id": "e-addrspk-outputenc-200", "source": "node-addr-spk", "target": "node-output-encoded", "targetHandle": "input-200", "selected": false },
+    { "id": "e-version-rawtx-0", "source": "node-tx-version", "target": "node-raw-tx-base", "targetHandle": "input-0", "selected": false },
+    { "id": "e-vincount-rawtx-100", "source": "node-vin-count", "target": "node-raw-tx-base", "targetHandle": "input-100", "selected": false },
+    { "id": "e-reverseid-rawtx-200", "source": "node-reverse-txid", "target": "node-raw-tx-base", "targetHandle": "input-200", "selected": false },
+    { "id": "e-voutindex-rawtx-300", "source": "node-vout-index", "target": "node-raw-tx-base", "targetHandle": "input-300", "selected": false },
+    { "id": "e-scriptsig-rawtx-400", "source": "node-scriptsig-empty", "target": "node-raw-tx-base", "targetHandle": "input-400", "selected": false },
+    { "id": "e-sequence-rawtx-500", "source": "node-sequence", "target": "node-raw-tx-base", "targetHandle": "input-500", "selected": false },
+    { "id": "e-voutcount-rawtx-600", "source": "node-vout-count", "target": "node-raw-tx-base", "targetHandle": "input-600", "selected": false },
+    { "id": "e-outputenc-rawtx-700", "source": "node-output-encoded", "target": "node-raw-tx-base", "targetHandle": "input-700", "selected": false },
+    { "id": "e-locktime-rawtx-800", "source": "node-locktime", "target": "node-raw-tx-base", "targetHandle": "input-800", "selected": false },
+    { "id": "e-reverseid-prevouts-0", "source": "node-reverse-txid", "target": "node-prevouts-concat", "targetHandle": "input-0", "selected": false },
+    { "id": "e-voutindex-prevouts-100", "source": "node-vout-index", "target": "node-prevouts-concat", "targetHandle": "input-100", "selected": false },
+    { "id": "e-prevouts-hashprevouts", "source": "node-prevouts-concat", "target": "node-hashprevouts", "targetHandle": "input-0", "selected": false },
+    { "id": "e-g4seq-hashseq", "source": "node-g4-sequence", "target": "node-hashseq", "targetHandle": "input-0", "selected": false },
+    { "id": "e-amountle-hashout-0", "source": "node-amount-le", "target": "node-hashoutputs-input", "targetHandle": "input-0", "selected": false },
+    { "id": "e-spkvarint-hashout-100", "source": "node-spk-varint", "target": "node-hashoutputs-input", "targetHandle": "input-100", "selected": false },
+    { "id": "e-addrspk-hashout-200", "source": "node-addr-spk", "target": "node-hashoutputs-input", "targetHandle": "input-200", "selected": false },
+    { "id": "e-hashout-dsha256", "source": "node-hashoutputs-input", "target": "node-hashoutputs", "targetHandle": "input-0", "selected": false },
+    { "id": "e-htlc-scriptcodevarint", "source": "node-htlcscript", "target": "node-scriptcode-varint", "targetHandle": "input-0", "selected": false },
+    { "id": "e-scriptcodevarint-scriptcode-0", "source": "node-scriptcode-varint", "target": "node-scriptcode", "targetHandle": "input-0", "selected": false },
+    { "id": "e-htlc-scriptcode-100", "source": "node-htlcscript", "target": "node-scriptcode", "targetHandle": "input-100", "selected": false },
+    { "id": "e-g4version-bip143-0", "source": "node-g4-version", "target": "node-bip143-preimage", "targetHandle": "input-0", "selected": false },
+    { "id": "e-hashprevouts-bip143-100", "source": "node-hashprevouts", "target": "node-bip143-preimage", "targetHandle": "input-100", "selected": false },
+    { "id": "e-hashseq-bip143-200", "source": "node-hashseq", "target": "node-bip143-preimage", "targetHandle": "input-200", "selected": false },
+    { "id": "e-reverseid-bip143-300", "source": "node-reverse-txid", "target": "node-bip143-preimage", "targetHandle": "input-300", "selected": false },
+    { "id": "e-voutindex-bip143-400", "source": "node-vout-index", "target": "node-bip143-preimage", "targetHandle": "input-400", "selected": false },
+    { "id": "e-scriptcode-bip143-500", "source": "node-scriptcode", "target": "node-bip143-preimage", "targetHandle": "input-500", "selected": false },
+    { "id": "e-amountle-bip143-600", "source": "node-amount-le", "target": "node-bip143-preimage", "targetHandle": "input-600", "selected": false },
+    { "id": "e-g4seq-bip143-700", "source": "node-g4-sequence", "target": "node-bip143-preimage", "targetHandle": "input-700", "selected": false },
+    { "id": "e-hashoutputs-bip143-800", "source": "node-hashoutputs", "target": "node-bip143-preimage", "targetHandle": "input-800", "selected": false },
+    { "id": "e-g4locktime-bip143-900", "source": "node-g4-locktime", "target": "node-bip143-preimage", "targetHandle": "input-900", "selected": false },
+    { "id": "e-sighashtype-bip143-1000", "source": "node-sighash-type", "target": "node-bip143-preimage", "targetHandle": "input-1000", "selected": false },
+    { "id": "e-bip143-sighash", "source": "node-bip143-preimage", "target": "node-sighash", "targetHandle": "input-0", "selected": false },
+    { "id": "e-bobpriv-sign-0", "source": "node-bob-priv", "target": "node-sign", "targetHandle": "input-0", "selected": false },
+    { "id": "e-sighash-sign-1", "source": "node-sighash", "target": "node-sign", "targetHandle": "input-1", "selected": false },
+    { "id": "e-sign-sigcomplete-0", "source": "node-sign", "target": "node-sig-complete", "targetHandle": "input-0", "selected": false },
+    { "id": "e-sigbyte-sigcomplete-100", "source": "node-sighash-byte", "target": "node-sig-complete", "targetHandle": "input-100", "selected": false },
+    { "id": "e-sigcomplete-siglen", "source": "node-sig-complete", "target": "node-sig-len", "targetHandle": "input-0", "selected": false },
+    { "id": "e-siglen-sigitem-0", "source": "node-sig-len", "target": "node-sig-item", "targetHandle": "input-0", "selected": false },
+    { "id": "e-sigcomplete-sigitem-100", "source": "node-sig-complete", "target": "node-sig-item", "targetHandle": "input-100", "selected": false },
+    { "id": "e-preimage-preimagelen", "source": "node-preimage", "target": "node-preimage-len", "targetHandle": "input-0", "selected": false },
+    { "id": "e-preimagelen-preimageitem-0", "source": "node-preimage-len", "target": "node-preimage-item", "targetHandle": "input-0", "selected": false },
+    { "id": "e-preimage-preimageitem-100", "source": "node-preimage", "target": "node-preimage-item", "targetHandle": "input-100", "selected": false },
+    { "id": "e-htlc-scriptlen", "source": "node-htlcscript", "target": "node-script-len", "targetHandle": "input-0", "selected": false },
+    { "id": "e-scriptlen-scriptitem-0", "source": "node-script-len", "target": "node-script-item", "targetHandle": "input-0", "selected": false },
+    { "id": "e-htlc-scriptitem-100", "source": "node-htlcscript", "target": "node-script-item", "targetHandle": "input-100", "selected": false },
+    { "id": "e-witnesscount-stack-0", "source": "node-witness-count", "target": "node-witness-stack", "targetHandle": "input-0", "selected": false },
+    { "id": "e-sigitem-stack-100", "source": "node-sig-item", "target": "node-witness-stack", "targetHandle": "input-100", "selected": false },
+    { "id": "e-preimageitem-stack-200", "source": "node-preimage-item", "target": "node-witness-stack", "targetHandle": "input-200", "selected": false },
+    { "id": "e-optrueitem-stack-300", "source": "node-op-true-item", "target": "node-witness-stack", "targetHandle": "input-300", "selected": false },
+    { "id": "e-scriptitem-stack-400", "source": "node-script-item", "target": "node-witness-stack", "targetHandle": "input-400", "selected": false },
+    { "id": "e-g4version-finaltx-0", "source": "node-g4-version", "target": "node-final-tx", "targetHandle": "input-0", "selected": false },
+    { "id": "e-segwitmarker-finaltx-100", "source": "node-segwit-marker", "target": "node-final-tx", "targetHandle": "input-100", "selected": false },
+    { "id": "e-vincount-finaltx-200", "source": "node-vin-count", "target": "node-final-tx", "targetHandle": "input-200", "selected": false },
+    { "id": "e-reverseid-finaltx-300", "source": "node-reverse-txid", "target": "node-final-tx", "targetHandle": "input-300", "selected": false },
+    { "id": "e-voutindex-finaltx-400", "source": "node-vout-index", "target": "node-final-tx", "targetHandle": "input-400", "selected": false },
+    { "id": "e-scriptsig-finaltx-500", "source": "node-scriptsig-empty", "target": "node-final-tx", "targetHandle": "input-500", "selected": false },
+    { "id": "e-g4seq-finaltx-600", "source": "node-g4-sequence", "target": "node-final-tx", "targetHandle": "input-600", "selected": false },
+    { "id": "e-voutcount-finaltx-700", "source": "node-vout-count", "target": "node-final-tx", "targetHandle": "input-700", "selected": false },
+    { "id": "e-outputenc-finaltx-800", "source": "node-output-encoded", "target": "node-final-tx", "targetHandle": "input-800", "selected": false },
+    { "id": "e-witnessstack-finaltx-900", "source": "node-witness-stack", "target": "node-final-tx", "targetHandle": "input-900", "selected": false },
+    { "id": "e-g4locktime-finaltx-1000", "source": "node-g4-locktime", "target": "node-final-tx", "targetHandle": "input-1000", "selected": false },
+    { "id": "e-addrspk-verify-1", "source": "node-addr-spk", "target": "node-verify", "targetHandle": "input-1", "selected": false },
+    { "id": "e-finaltx-verify-2", "source": "node-final-tx", "target": "node-verify", "targetHandle": "input-2", "selected": false },
+    { "id": "e-amount-verify-5", "source": "node-amount", "target": "node-verify", "targetHandle": "input-5", "selected": false },
+    { "id": "e-finaltx-txid", "source": "node-final-tx", "target": "node-final-txid", "targetHandle": "input-0", "selected": false }
   ]
 }
