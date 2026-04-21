@@ -629,8 +629,8 @@
         "functionName": "concat_all",
         "title": "HTLC Locking Script",
         "paramExtraction": "multi_val",
-        "numInputs": 13,
-        "inputs": { "vals": { "0": "", "100": "", "200": "", "300": "", "400": "", "500": "", "600": "", "700": "", "800": "", "900": "", "1000": "", "1100": "", "1200": "" } },
+        "numInputs": 17,
+        "inputs": { "vals": { "0": "", "100": "", "200": "", "300": "", "400": "", "500": "", "600": "", "700": "", "800": "", "900": "", "1000": "", "1100": "", "1200": "", "1300": "", "1400": "", "1500": "", "1600": "" } },
         "dirty": false,
         "version": 0,
         "result": "",
@@ -649,8 +649,8 @@
           ],
           "ungrouped": []
         },
-        "groupInstances": { "INPUTS[]": 13 },
-        "groupInstanceKeys": { "INPUTS[]": [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200] },
+        "groupInstances": { "INPUTS[]": 17 },
+        "groupInstanceKeys": { "INPUTS[]": [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600] },
         "error": false
       },
       "parentId": "group-htlc-construct",
@@ -1841,7 +1841,7 @@
             "1": "",
             "2": "",
             "3": "0",
-            "5": "110000"
+            "5": "160076"
           }
         },
         "inputStructure": {
@@ -1911,6 +1911,10 @@
     { "id": "e-pushalice-htlc", "source": "push-alice-pub", "target": "node-htlcscript", "targetHandle": "input-1000", "selected": false },
     { "id": "e-opchecksig-b-htlc", "source": "op-checksig-b", "target": "node-htlcscript", "targetHandle": "input-1100", "selected": false },
     { "id": "e-opendif-htlc", "source": "op-endif", "target": "node-htlcscript", "targetHandle": "input-1200", "selected": false },
+    { "id": "e-alicepub-htlc-1300", "source": "node-alice-pub", "target": "node-htlcscript", "targetHandle": "input-1300", "selected": false },
+    { "id": "e-bobpub-htlc-1400", "source": "node-bob-pub", "target": "node-htlcscript", "targetHandle": "input-1400", "selected": false },
+    { "id": "e-sha256-htlc-1500", "source": "node-sha256", "target": "node-htlcscript", "targetHandle": "input-1500", "selected": false },
+    { "id": "e-scriptheight-htlc-1600", "source": "node-scriptheight", "target": "node-htlcscript", "targetHandle": "input-1600", "selected": false },
     { "id": "e-htlc-sha256script", "source": "node-htlcscript", "target": "node-sha256-script", "targetHandle": "input-0", "selected": false },
     { "id": "e-sha256script-p2wsh", "source": "node-sha256-script", "target": "node-p2wsh", "targetHandle": "input-0", "selected": false },
     { "id": "e-fundingtx-extracttxid", "source": "node-funding-tx", "target": "node-extract-txid", "targetHandle": "input-0", "selected": false },
@@ -1984,7 +1988,7 @@
     { "id": "e-outputenc-finaltx-800", "source": "node-output-encoded", "target": "node-final-tx", "targetHandle": "input-800", "selected": false },
     { "id": "e-witnessstack-finaltx-900", "source": "node-witness-stack", "target": "node-final-tx", "targetHandle": "input-900", "selected": false },
     { "id": "e-g4locktime-finaltx-1000", "source": "node-g4-locktime", "target": "node-final-tx", "targetHandle": "input-1000", "selected": false },
-    { "id": "e-addrspk-verify-1", "source": "node-addr-spk", "target": "node-verify", "targetHandle": "input-1", "selected": false },
+    { "id": "e-addrspk-verify-1", "source": "node-extract-spk", "target": "node-verify", "targetHandle": "input-1", "selected": false },
     { "id": "e-finaltx-verify-2", "source": "node-final-tx", "target": "node-verify", "targetHandle": "input-2", "selected": false },
     { "id": "e-amount-verify-5", "source": "node-amount", "target": "node-verify", "targetHandle": "input-5", "selected": false },
     { "id": "e-finaltx-txid", "source": "node-final-tx", "target": "node-final-txid", "targetHandle": "input-0", "selected": false }
