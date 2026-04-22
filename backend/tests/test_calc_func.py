@@ -876,6 +876,44 @@ def test_compare_numbers_and_math_operations():
     with pytest.raises(ValueError):
         calc.math_operation(["1", "/", "0"])
 
+@pytest.mark.parametrize("raw", [
+    "1e", "e10", "1E", "E10", "1e1e",
+    "0b10", "0B10",
+    # special Decimal values that must be rejected
+    "NaN", "nan", "Infinity", "-Infinity", "sNaN",
+    # underscore-separated numeric literals
+    "_10", "1__0", "1_",
+    # trailing dots – looks like a decimal but the fractional part is absent
+    "123.", "0.",
+    # malformed scientific notation: trailing dot before the exponent
+    "1.e6", "0.e3",
+])
+def test_parse_numeric_exact_rejects_malformed(raw):
+    with pytest.raises(ValueError):
+        calc._parse_numeric_exact(raw)
+
+
+@pytest.mark.parametrize("raw,expected", [
+    ("fe1",   0xfe1),
+    ("a1e4",  0xa1e4),
+    ("b3e2f", 0xb3e2f),
+    (".5e3",  Decimal(".5e3")),
+    ("+1e6",  Decimal("+1e6")),
+    ("-0.5",  Decimal("-0.5")),
+    ("0e0",   Decimal("0e0")),
+    ("0X1F",  0x1F),
+    ("0xDEAD", 0xDEAD),
+])
+def test_parse_numeric_exact_accepts_valid(raw, expected):
+    assert calc._parse_numeric_exact(raw) == expected
+
+
+def test_parse_numeric_exact_malformed_propagates_to_api():
+    with pytest.raises(ValueError):
+        calc.compare_numbers(["1e", "<", "31"])
+    with pytest.raises(ValueError):
+        calc.math_operation(["e10", "+", "1"])
+
 
 def test_hash160_and_sha256_address_helpers():
     p2pkh = calc.hash160_to_p2pkh_address(GENESIS_HASH160)

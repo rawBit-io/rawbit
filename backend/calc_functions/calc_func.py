@@ -19,6 +19,13 @@ from decimal import Decimal, InvalidOperation, getcontext
 getcontext().prec = 50  # plenty for money math
 
 _INT_DEC_RE = re.compile(r'^[+-]?\d+$', re.ASCII)
+_STRICT_DECIMAL_RE = re.compile(
+    r'^[+-]?(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?$', re.ASCII
+)
+
+_LOOKS_LIKE_SCI_RE = re.compile(
+    r'(^[+-]?\d+\.?\d*[eE])|(^[eE]\d+)', re.ASCII
+)
 
 _CURVE_ORDER = SECP256k1.order
 _CURVE_GEN = SECP256k1.generator
@@ -29,6 +36,28 @@ from bitcointx.core.script import CScript
 from bitcointx.core.scripteval import (
     VerifyScriptWithTrace 
 )
+
+# Wire bitcointx to the secp256k1 library bundled with the secp256k1 Python
+# package.  bitcointx.util._secp256k1_library_path defaults to None, which
+# causes ctypes.util.find_library('secp256k1') to fail on systems where the
+# shared library is not installed system-wide (e.g. macOS + pip-only install).
+# The secp256k1 package bundles its own compiled extension that ctypes can
+# load directly, so we point bitcointx at it before any verification call.
+try:
+    import bitcointx.util as _btx_util
+    if _btx_util._secp256k1_library_path is None:
+        import os as _os
+        _secp256k1_pkg = _os.path.dirname(secp256k1.__file__)
+        for _candidate in _os.listdir(_secp256k1_pkg):
+            if _candidate.startswith('_libsecp256k1') and (
+                _candidate.endswith('.so') or _candidate.endswith('.dylib')
+            ):
+                _btx_util._secp256k1_library_path = _os.path.join(
+                    _secp256k1_pkg, _candidate
+                )
+                break
+except Exception:
+    pass  # non-fatal: verification will fail with a clear error if still missing
 
 from bitcointx.core.scripteval import (
     # flag constants
@@ -2032,8 +2061,10 @@ def script_verification(vals: list) -> str:
     amount_supplied = bool(amount_raw)
     if amount_supplied:
         try:
+            # Bitcoin amounts are always whole satoshis; reject any non-integer
+            # string (fractions, scientific notation) to prevent silent truncation
+            # that would produce a wrong sighash.
             amount_param = int(amount_raw)
-            # Validate amount is non-negative
             if amount_param < 0:
                 raise ValueError("Amount must be non-negative")
         except ValueError as e:
@@ -2755,7 +2786,11 @@ def _parse_numeric_exact(raw: str):
       - decimal ints: '144', '+10', '-7'
       - hex: '0x90', '90' with A–F present (e.g. 'deadbeef')
       - decimal with fraction/exp: '12.5', '1e6', '0.1'
+    Raises ValueError for any input that does not fit a supported format
+    exactly, including NaN, Infinity, underscores, binary literals, trailing
+    dots, and malformed scientific-notation strings.
     """
+    print("DEBUG parsing:", raw)
     s = str(raw).strip()
     if not s:
         raise ValueError("empty number")
@@ -2764,19 +2799,22 @@ def _parse_numeric_exact(raw: str):
     if s.lower().startswith("0x"):
         return int(s, 16)
 
-    # plain integer?
+    if s.lower().startswith("0b"):
+        raise ValueError(f"'{raw}' is not a valid number")
+
+    # plain integer
     if _INT_DEC_RE.fullmatch(s):
         return int(s, 10)
 
     # decimal / fraction / scientific-notation → Decimal
-    try:
+    if _STRICT_DECIMAL_RE.fullmatch(s):
         return Decimal(s)
-    except InvalidOperation:
-        pass
 
-    # ambiguous hex (digits + a-f only, no 0x prefix)
-    if all(c in "0123456789abcdefABCDEF" for c in s) and any(
-        c in "abcdefABCDEF" for c in s
+    # Ambiguous hex: all hex digits, at least one a–f letter, no recognised
+    if (
+        all(c in "0123456789abcdefABCDEF" for c in s)
+        and any(c in "abcdefABCDEF" for c in s)
+        and not _LOOKS_LIKE_SCI_RE.search(s)
     ):
         return int(s, 16)
 
