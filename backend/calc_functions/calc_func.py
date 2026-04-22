@@ -37,12 +37,6 @@ from bitcointx.core.scripteval import (
     VerifyScriptWithTrace 
 )
 
-# Wire bitcointx to the secp256k1 library bundled with the secp256k1 Python
-# package.  bitcointx.util._secp256k1_library_path defaults to None, which
-# causes ctypes.util.find_library('secp256k1') to fail on systems where the
-# shared library is not installed system-wide (e.g. macOS + pip-only install).
-# The secp256k1 package bundles its own compiled extension that ctypes can
-# load directly, so we point bitcointx at it before any verification call.
 try:
     import bitcointx.util as _btx_util
     if _btx_util._secp256k1_library_path is None:
@@ -57,7 +51,7 @@ try:
                 )
                 break
 except Exception:
-    pass  # non-fatal: verification will fail with a clear error if still missing
+    pass
 
 from bitcointx.core.scripteval import (
     # flag constants
@@ -2062,8 +2056,6 @@ def script_verification(vals: list) -> str:
     if amount_supplied:
         try:
             # Bitcoin amounts are always whole satoshis; reject any non-integer
-            # string (fractions, scientific notation) to prevent silent truncation
-            # that would produce a wrong sighash.
             amount_param = int(amount_raw)
             if amount_param < 0:
                 raise ValueError("Amount must be non-negative")
