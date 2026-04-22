@@ -2782,7 +2782,6 @@ def _parse_numeric_exact(raw: str):
     exactly, including NaN, Infinity, underscores, binary literals, trailing
     dots, and malformed scientific-notation strings.
     """
-    print("DEBUG parsing:", raw)
     s = str(raw).strip()
     if not s:
         raise ValueError("empty number")
