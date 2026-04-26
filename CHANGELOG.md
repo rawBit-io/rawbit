@@ -153,3 +153,12 @@ and the project aims to adhere to [Semantic Versioning](https://semver.org/spec/
 - Verify Script debug steps are now preserved when loading history snapshots across tab switches and when importing templates that require ID remapping on collision.
 - Tab switching now persists selection-only graph updates, preventing pasted-node deselection state from being lost when moving between tabs.
 - Opcode node UI surfaces now follow skin styling tokens consistently (borders/text/search/list panels), improving visual consistency across themes.
+
+## [0.4.8] - 2026-04-26
+
+### Fixed
+
+- Shared links now open isolated `share_<id>` tabs and persist imported graphs immediately.
+- Safari/WebKit shared-link edge rendering is hardened across repeated shared URL loads.
+- Shared-link URLs are cleared after a successful import, preventing browser reload from importing the same shared flow again.
+- Codebase audit fixes for tab storage, validation, calculation races, and release/test coverage.

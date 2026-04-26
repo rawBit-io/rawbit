@@ -41,14 +41,31 @@ vi.mock("react-syntax-highlighter", () => ({
 
 import NodeCodeDialog from "../NodeCodeDialog";
 
+function jsonResponse(body: unknown, init: ResponseInit = {}): Response {
+  return {
+    ok: init.status === undefined ? true : init.status >= 200 && init.status < 300,
+    status: init.status ?? 200,
+    headers: new Headers({ "content-type": "application/json" }),
+    json: async () => body,
+  } as Response;
+}
+
+function deferredResponse() {
+  let resolve!: (value: Response) => void;
+  const promise = new Promise<Response>((res) => {
+    resolve = res;
+  });
+  return { promise, resolve };
+}
+
 describe("NodeCodeDialog", () => {
   const originalFetch = global.fetch;
 
   beforeEach(() => {
     syntaxPropsSpy.mockClear();
-    global.fetch = vi.fn().mockResolvedValue({
-      json: async () => ({ code: "def sample():\n    return 'ok'" }),
-    } as Response);
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue(jsonResponse({ code: "def sample():\n    return 'ok'" }));
   });
 
   afterEach(() => {
@@ -67,7 +84,11 @@ describe("NodeCodeDialog", () => {
 
     await waitFor(() =>
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining("/code?functionName=public_key_from_private_key")
+        expect.stringContaining("/code?functionName=public_key_from_private_key"),
+        expect.objectContaining({
+          headers: { accept: "application/json" },
+          signal: expect.any(AbortSignal),
+        })
       )
     );
 
@@ -81,5 +102,44 @@ describe("NodeCodeDialog", () => {
 
     expect(lastCall.wrapLongLines).toBe(false);
     expect(lastCall.customStyle?.whiteSpace).toBe("pre");
+  });
+
+  it("shows backend errors for unsuccessful responses", async () => {
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue(jsonResponse({ error: "Function not found" }, { status: 404 }));
+
+    render(
+      <NodeCodeDialog open onClose={vi.fn()} functionName="missing_function" />
+    );
+
+    expect(await screen.findByText("Error: Function not found")).toBeInTheDocument();
+  });
+
+  it("ignores stale responses after the requested function changes", async () => {
+    const first = deferredResponse();
+    const second = deferredResponse();
+    global.fetch = vi
+      .fn()
+      .mockReturnValueOnce(first.promise)
+      .mockReturnValueOnce(second.promise);
+
+    const { rerender } = render(
+      <NodeCodeDialog open onClose={vi.fn()} functionName="first_function" />
+    );
+
+    rerender(
+      <NodeCodeDialog open onClose={vi.fn()} functionName="second_function" />
+    );
+
+    first.resolve(jsonResponse({ code: "def first(): pass" }));
+    second.resolve(jsonResponse({ code: "def second(): pass" }));
+
+    await waitFor(() =>
+      expect(screen.getByTestId("syntax-code")).toHaveTextContent(
+        "def second(): pass"
+      )
+    );
+    expect(screen.queryByText("def first(): pass")).not.toBeInTheDocument();
   });
 });

@@ -47,6 +47,7 @@ export function useGlobalCalculationLogic({
   const versionRef = useRef<number>(0); // optimistic concurrency
   const prevDirtyRef = useRef<boolean>(false);
   const onStatusChangeRef = useRef(onStatusChange);
+  const effectRunRef = useRef(0);
   onStatusChangeRef.current = onStatusChange; // keep fresh
 
   /* helper: merge backend + local errors */
@@ -70,6 +71,10 @@ export function useGlobalCalculationLogic({
 
   /* watch nodes/edges every render */
   useEffect(() => {
+    const runId = ++effectRunRef.current;
+    let cancelled = false;
+    const isCurrentRun = () => !cancelled && runId === effectRunRef.current;
+
     const dirtyNodes = nodes.filter(
       (n) => n.data?.dirty && isCalculableNode(n)
     );
@@ -77,7 +82,14 @@ export function useGlobalCalculationLogic({
     log("debounce", `dirtyNodes? ${anyDirty}`);
 
     if (!anyDirty) {
-      if (prevDirtyRef.current) prevDirtyRef.current = false;
+      if (prevDirtyRef.current) {
+        const mergedErrors = buildErrorArray([], nodes);
+        onStatusChangeRef.current?.(
+          mergedErrors.length ? "ERROR" : "OK",
+          mergedErrors
+        );
+        prevDirtyRef.current = false;
+      }
       return;
     }
 
@@ -89,6 +101,7 @@ export function useGlobalCalculationLogic({
     if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
 
     timeoutRef.current = window.setTimeout(async () => {
+      if (!isCurrentRun()) return;
       log("debounce", "Debounce elapsed, preparing partial recalc…");
       const myVersion = ++versionRef.current;
 
@@ -100,6 +113,7 @@ export function useGlobalCalculationLogic({
         subgraphOptions
       );
       if (affectedNodes.length === 0) {
+        if (!isCurrentRun()) return;
         const mergedErrors = buildErrorArray([], nodes);
         onStatusChangeRef.current?.(
           mergedErrors.length ? "ERROR" : "OK",
@@ -116,6 +130,7 @@ export function useGlobalCalculationLogic({
       );
       if (hasCycle) {
         log("debounce", "Cycle detected → mark subgraph as error");
+        if (!isCurrentRun()) return;
         const affectedIds = new Set(affectedNodes.map((n) => n.id));
         setNodes((nds) =>
           nds.map((n) =>
@@ -145,6 +160,8 @@ export function useGlobalCalculationLogic({
           version,
           errors: backendErrors = [],
         } = await recalculateGraph(affectedNodes, affectedEdges, myVersion);
+
+        if (!isCurrentRun()) return;
 
         /* stale response? ignore */
         if (version !== versionRef.current) {
@@ -176,6 +193,8 @@ export function useGlobalCalculationLogic({
         );
         prevDirtyRef.current = false;
       } catch (err: unknown) {
+        if (!isCurrentRun()) return;
+
         /* network / unexpected error → mark dirty nodes as error */
         log("debounce", "Unknown error in recalc", { err });
         const isAbort =
@@ -218,6 +237,7 @@ export function useGlobalCalculationLogic({
 
     /* cleanup if deps change or component unmounts */
     return () => {
+      cancelled = true;
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
     };
   }, [nodes, edges, setNodes, debounceMs]);

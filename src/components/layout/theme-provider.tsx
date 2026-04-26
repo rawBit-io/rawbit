@@ -19,7 +19,15 @@ const VALID_SKINS: readonly Skin[] = [
   "midnight",
 ];
 
+const VALID_THEMES: readonly Theme[] = ["dark", "light", "system"];
 const DEFAULT_SKIN: Skin = "paper";
+
+function normalizeTheme(value: string | null, fallback: Theme): Theme {
+  if (value && VALID_THEMES.includes(value as Theme)) {
+    return value as Theme;
+  }
+  return fallback;
+}
 
 function normalizeSkin(value: string | null): Skin {
   if (value === "default") {
@@ -31,6 +39,22 @@ function normalizeSkin(value: string | null): Skin {
   return DEFAULT_SKIN;
 }
 
+function safeStorageGet(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeStorageSet(key: string, value: string): void {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Storage can be disabled by browser settings; keep in-memory state usable.
+  }
+}
+
 // This script will run before your React app mounts
 // to prevent theme flashing
 const setInitialTheme = (
@@ -39,10 +63,27 @@ const setInitialTheme = (
   skinStorageKey: string
 ) => {
   const validSkins = JSON.stringify(VALID_SKINS);
+  const validThemes = JSON.stringify(VALID_THEMES);
   const defaultSkin = DEFAULT_SKIN;
+  const storageKeyJson = JSON.stringify(storageKey);
+  const skinStorageKeyJson = JSON.stringify(skinStorageKey);
+  const defaultThemeJson = JSON.stringify(defaultTheme);
+  const defaultSkinJson = JSON.stringify(defaultSkin);
   // This function will be converted to a string and injected into a script tag
   return `(function() {
-    const getStoredTheme = () => localStorage.getItem('${storageKey}');
+    var storageKey = ${storageKeyJson};
+    var skinStorageKey = ${skinStorageKeyJson};
+    var defaultTheme = ${defaultThemeJson};
+    var defaultSkin = ${defaultSkinJson};
+    var validThemes = ${validThemes};
+    var validSkins = ${validSkins};
+    const getStoredTheme = () => {
+      try {
+        return localStorage.getItem(storageKey);
+      } catch (_) {
+        return null;
+      }
+    };
     const getSystemTheme = () => {
       if (typeof window.matchMedia !== 'function') {
         return 'light';
@@ -51,17 +92,21 @@ const setInitialTheme = (
     };
 
     const storedTheme = getStoredTheme();
-    const theme = storedTheme ? storedTheme : '${defaultTheme}';
+    const theme = validThemes.includes(storedTheme) ? storedTheme : defaultTheme;
     const resolvedTheme = theme === 'system' ? getSystemTheme() : theme;
 
     document.documentElement.classList.add(resolvedTheme);
 
-    var validSkins = ${validSkins};
-    var rawSkin = localStorage.getItem('${skinStorageKey}');
+    var rawSkin = null;
+    try {
+      rawSkin = localStorage.getItem(skinStorageKey);
+    } catch (_) {}
     var migratedSkin = rawSkin === 'default' ? 'shadcn' : rawSkin;
-    var skin = validSkins.includes(migratedSkin) ? migratedSkin : '${defaultSkin}';
+    var skin = validSkins.includes(migratedSkin) ? migratedSkin : defaultSkin;
     if (skin !== rawSkin) {
-      localStorage.setItem('${skinStorageKey}', skin);
+      try {
+        localStorage.setItem(skinStorageKey, skin);
+      } catch (_) {}
     }
     document.documentElement.dataset.skin = skin;
   })();`;
@@ -75,10 +120,10 @@ export function ThemeProvider({
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
+    () => normalizeTheme(safeStorageGet(storageKey), defaultTheme)
   );
   const [skin, setSkin] = useState<Skin>(() =>
-    normalizeSkin(localStorage.getItem(skinStorageKey))
+    normalizeSkin(safeStorageGet(skinStorageKey))
   );
   const [mounted, setMounted] = useState(false);
 
@@ -127,13 +172,13 @@ export function ThemeProvider({
   const value: ThemeProviderState = {
     theme,
     setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme);
+      safeStorageSet(storageKey, theme);
       setTheme(theme);
     },
     skin,
     setSkin: (skin: Skin) => {
       const normalizedSkin = normalizeSkin(skin);
-      localStorage.setItem(skinStorageKey, normalizedSkin);
+      safeStorageSet(skinStorageKey, normalizedSkin);
       setSkin(normalizedSkin);
     },
   };

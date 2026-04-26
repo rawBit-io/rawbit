@@ -63,11 +63,19 @@ function createEmptyArchive(): FlowTabArchive {
   return { nodes: [], edges: [] };
 }
 
+function filterEdgesForNodes(nodes: FlowNode[], edges: Edge[]): Edge[] {
+  const nodeIds = new Set(nodes.map((node) => node.id));
+  return edges.filter(
+    (edge) => nodeIds.has(edge.source) && nodeIds.has(edge.target)
+  );
+}
+
 function normalizeArchive(value: unknown): FlowTabArchive {
   if (!value || typeof value !== "object") return createEmptyArchive();
   const maybe = value as Partial<FlowTabArchive>;
   const nodes = Array.isArray(maybe.nodes) ? (maybe.nodes as FlowNode[]) : [];
-  const edges = Array.isArray(maybe.edges) ? (maybe.edges as Edge[]) : [];
+  const rawEdges = Array.isArray(maybe.edges) ? (maybe.edges as Edge[]) : [];
+  const edges = filterEdgesForNodes(nodes, rawEdges);
   const scriptSteps = sanitizeScriptSteps(maybe.scriptSteps);
   const protocolDiagramLayout = sanitizeProtocolDiagramLayout(
     maybe.protocolDiagramLayout
@@ -170,6 +178,38 @@ function getArchiveStorageKey(tabId: string): string {
 interface HydratedTabsState {
   tabs: FlowTab[];
   archive: Map<string, FlowTabArchiveEntry>;
+}
+
+function hydrateArchiveBackedTabs(): HydratedTabsState | null {
+  if (typeof window === "undefined") return null;
+
+  const archive = new Map<string, FlowTabArchiveEntry>();
+  const tabs: FlowTab[] = [];
+
+  try {
+    for (let index = 0; index < window.localStorage.length; index += 1) {
+      const key = window.localStorage.key(index);
+      if (!key?.startsWith(TAB_ARCHIVE_KEY_PREFIX)) continue;
+      const tabId = key.slice(TAB_ARCHIVE_KEY_PREFIX.length);
+      if (!tabId) continue;
+      const compressed = window.localStorage.getItem(key);
+      if (!compressed) continue;
+
+      tabs.push({
+        id: tabId,
+        title: normalizeTabTitle(`Recovered ${tabId}`),
+        version: 0,
+      });
+      archive.set(tabId, { compressed });
+    }
+  } catch (error) {
+    console.warn("Failed to enumerate tab archive storage", error);
+    return null;
+  }
+
+  if (tabs.length === 0) return null;
+  tabs.sort((a, b) => a.id.localeCompare(b.id));
+  return { tabs, archive };
 }
 
 function hydrateTabs(): HydratedTabsState {
@@ -337,25 +377,35 @@ function hydrateTabs(): HydratedTabsState {
     return { tabs, archive };
   } catch (error) {
     console.warn("Failed to hydrate tabs from storage", error);
+    const recovered = hydrateArchiveBackedTabs();
+    if (recovered) return recovered;
     return fallback;
   }
 }
 
 function hydrateActiveTab(tabs: FlowTab[]): string {
   if (typeof window === "undefined") return tabs[0]?.id ?? DEFAULT_TAB.id;
-  const stored = window.localStorage.getItem(ACTIVE_TAB_STORAGE_KEY);
-  if (stored && tabs.some((t) => t.id === stored)) {
-    return stored;
+  try {
+    const stored = window.localStorage.getItem(ACTIVE_TAB_STORAGE_KEY);
+    if (stored && tabs.some((t) => t.id === stored)) {
+      return stored;
+    }
+  } catch (error) {
+    console.warn("Failed to hydrate active tab from storage", error);
   }
   return tabs[0]?.id ?? DEFAULT_TAB.id;
 }
 
 function hydrateCounter(tabs: FlowTab[]): number {
   if (typeof window === "undefined") return tabs.length || 1;
-  const stored = window.localStorage.getItem(TAB_COUNTER_STORAGE_KEY);
-  const parsed = stored ? Number.parseInt(stored, 10) : Number.NaN;
-  if (Number.isFinite(parsed) && parsed >= tabs.length) {
-    return parsed;
+  try {
+    const stored = window.localStorage.getItem(TAB_COUNTER_STORAGE_KEY);
+    const parsed = stored ? Number.parseInt(stored, 10) : Number.NaN;
+    if (Number.isFinite(parsed) && parsed >= tabs.length) {
+      return parsed;
+    }
+  } catch (error) {
+    console.warn("Failed to hydrate tab counter from storage", error);
   }
   return tabs.length || 1;
 }
@@ -386,6 +436,12 @@ interface CloseDialogState {
 
 interface SaveTabDataOptions {
   force?: boolean;
+  immediate?: boolean;
+  data?: {
+    nodes: FlowNode[];
+    edges: Edge[];
+    protocolDiagramLayout?: ProtocolDiagramLayout;
+  };
 }
 
 export interface UseTabsResult {
@@ -578,22 +634,36 @@ export function useTabs({
     (tabId: string, options?: SaveTabDataOptions) => {
       if (!initialHydrationDoneRef.current) return;
       const idx = getTabIndex(tabId);
-      if (idx < 0) return;
+      const hasExplicitData = Boolean(options?.data);
+      if (idx < 0 && !hasExplicitData) return;
       const force = options?.force === true;
 
-      const currentNodes = getNodes();
-      const currentEdges = getEdges();
+      const currentNodes = options?.data?.nodes ?? getNodes();
+      const rawCurrentEdges = options?.data?.edges ?? getEdges();
+      const currentEdges = filterEdgesForNodes(currentNodes, rawCurrentEdges);
+      if (currentEdges.length !== rawCurrentEdges.length) {
+        console.warn(
+          "Skipped dangling edges while persisting tab archive",
+          {
+            tabId,
+            skippedEdges: rawCurrentEdges.length - currentEdges.length,
+          }
+        );
+      }
       const groupIds = collectGroupNodeIds(currentNodes);
       const entry = ensureArchiveEntry(tabId);
       const currentLayout = sanitizeProtocolDiagramLayout(
-        getProtocolDiagramLayout?.(),
+        options?.data
+          ? options.data.protocolDiagramLayout
+          : getProtocolDiagramLayout?.(),
         groupIds
       );
       const layoutChanged = !protocolDiagramLayoutEquals(
         entry.raw?.protocolDiagramLayout,
         currentLayout
       );
-      if (!force && tabs[idx].version === graphRevRef.current && !layoutChanged) {
+      const tabVersion = idx >= 0 ? tabs[idx].version : undefined;
+      if (!force && tabVersion === graphRevRef.current && !layoutChanged) {
         return;
       }
 
@@ -609,13 +679,24 @@ export function useTabs({
         protocolDiagramLayout: currentLayout,
       };
       archiveRef.current.set(tabId, entry);
-      compressTabArchive(tabId, entry.raw);
+      if (options?.immediate) {
+        const compressed =
+          encodeArchiveRaw(entry.raw) ?? encodeStoragePayload(entry.raw);
+        entry.pendingRequestId = undefined;
+        entry.compressed = compressed;
+        archiveRef.current.set(tabId, entry);
+        persistTabCompressed(tabId, compressed);
+      } else {
+        compressTabArchive(tabId, entry.raw);
+      }
 
       setTabs((prev) => {
-        if (prev[idx].version === graphRevRef.current) return prev;
+        const currentIndex = prev.findIndex((tab) => tab.id === tabId);
+        if (currentIndex < 0) return prev;
+        if (prev[currentIndex].version === graphRevRef.current) return prev;
         const copy = [...prev];
-        copy[idx] = {
-          ...copy[idx],
+        copy[currentIndex] = {
+          ...copy[currentIndex],
           version: graphRevRef.current,
         };
         return copy;
@@ -630,6 +711,7 @@ export function useTabs({
       getProtocolDiagramLayout,
       getTabIndex,
       graphRevRef,
+      persistTabCompressed,
       tabs,
     ]
   );
@@ -649,11 +731,44 @@ export function useTabs({
     [getFlowInstance]
   );
 
+  const captureCurrentViewport = useCallback(
+    (tabId: string) => {
+      const instance = getFlowInstance();
+      if (!instance) return;
+      const viewport = instance.getViewport();
+      if (
+        !viewport ||
+        typeof viewport.x !== "number" ||
+        typeof viewport.y !== "number" ||
+        typeof viewport.zoom !== "number"
+      ) {
+        return;
+      }
+
+      setTabs((prev) =>
+        prev.map((tab) =>
+          tab.id === tabId
+            ? {
+                ...tab,
+                transform: {
+                  x: viewport.x,
+                  y: viewport.y,
+                  zoom: viewport.zoom,
+                },
+              }
+            : tab
+        )
+      );
+    },
+    [getFlowInstance]
+  );
+
   const selectTab = useCallback(
     (tabId: string) => {
       if (tabId === activeTabId) return;
       skipLoadRef.current = true;
       const previousTabId = activeTabId;
+      captureCurrentViewport(previousTabId);
       saveTabData(previousTabId, { force: true });
       if (previousTabId !== tabId) {
         const previousEntry = archiveRef.current.get(previousTabId);
@@ -691,6 +806,7 @@ export function useTabs({
       activeTabId,
       baseSetEdges,
       baseSetNodes,
+      captureCurrentViewport,
       clone,
       ensureArchiveRaw,
       graphRevRef,
@@ -706,6 +822,7 @@ export function useTabs({
 
   const addTab = useCallback((): string => {
     skipLoadRef.current = true;
+    captureCurrentViewport(activeTabId);
     saveTabData(activeTabId, { force: true });
 
     const newIndex = tabCounter + 1;
@@ -744,6 +861,7 @@ export function useTabs({
     activeTabId,
     baseSetEdges,
     baseSetNodes,
+    captureCurrentViewport,
     graphRevRef,
     initializeTabHistory,
     refreshBanner,

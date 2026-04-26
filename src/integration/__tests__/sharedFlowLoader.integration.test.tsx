@@ -107,6 +107,8 @@ interface SharedLoaderHarnessProps {
   initialNodes?: FlowNode[];
   initialEdges?: Edge[];
   activeTabId?: string;
+  replaceGraph?: boolean;
+  ensureImportTab?: boolean;
   onReady?: (handles: SharedLoaderHarnessHandles) => void;
 }
 
@@ -114,10 +116,13 @@ function SharedLoaderHarness({
   initialNodes = [],
   initialEdges = [],
   activeTabId = "tab-1",
+  replaceGraph = false,
+  ensureImportTab = false,
   onReady,
 }: SharedLoaderHarnessProps) {
   const [nodes, setNodes] = useState<FlowNode[]>(() => initialNodes);
   const [edges, setEdges] = useState<Edge[]>(() => initialEdges);
+  const [currentActiveTabId, setCurrentActiveTabId] = useState(activeTabId);
 
   const nodesRef = useRef(nodes);
   const edgesRef = useRef(edges);
@@ -153,9 +158,36 @@ function SharedLoaderHarness({
     []
   );
 
+  const replaceGraphHandler = useMemo(() => {
+    if (!replaceGraph) return undefined;
+    return ({
+      nodes: nextNodes,
+      edges: nextEdges,
+    }: {
+      nodes: FlowNode[];
+      edges: Edge[];
+    }) => {
+      setNodes(nextNodes);
+      setEdges(nextEdges);
+    };
+  }, [replaceGraph]);
+
+  const ensureShareImportTab = useCallback(async () => {
+    if (!ensureImportTab) return null;
+    const nextTabId = "tab-shared-import";
+    setNodes([]);
+    setEdges([]);
+    setCurrentActiveTabId(nextTabId);
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => resolve());
+    });
+    return nextTabId;
+  }, [ensureImportTab]);
+
   useSharedFlowLoader({
     getNodes: () => nodes,
     getEdges: () => edges,
+    replaceGraph: replaceGraphHandler,
     onNodesChange: (changes) => {
       setNodes((prev) => applyNodeChanges(prev, changes));
     },
@@ -169,11 +201,12 @@ function SharedLoaderHarness({
       setTabTooltip.current(_tabId, tooltip);
     },
     renameTab: handleRenameTab,
-    activeTabId,
+    activeTabId: currentActiveTabId,
     setInfoDialog: (state) => {
       setInfoDialogSpy.current(state);
     },
     flowInstanceRef,
+    ensureShareImportTab,
   });
 
   useEffect(() => {
@@ -315,7 +348,7 @@ describe("Shared flow loader integration", () => {
     expect(snapshot.fitViewCallCount).toBe(1);
     expect(snapshot.tooltip).toBe("Shared: import-me");
     expect(loadSharedMock).toHaveBeenCalledTimes(1);
-    expect(handles.renameTab).toHaveBeenCalledWith("tab-1", "shared-import", {
+    expect(handles.renameTab).toHaveBeenCalledWith("tab-1", "share_import_me", {
       onlyIfEmpty: true,
     });
     expect(handles.renameTab).toHaveBeenCalledTimes(1);
@@ -452,6 +485,81 @@ describe("Shared flow loader integration", () => {
 
     expect(original?.selected).toBe(false);
     expect(imported?.selected).toBe(true);
+  });
+
+  it("can replace the target graph instead of appending into it", async () => {
+    const existingNode: FlowNode = {
+      id: "existing",
+      type: "calculation",
+      position: { x: 0, y: 0 },
+      data: { functionName: "identity" },
+      selected: true,
+    };
+
+    const { getHandles } = await renderSharedLoaderHarness({
+      initialNodes: [existingNode],
+      replaceGraph: true,
+    });
+    const handles = getHandles();
+
+    await waitFor(() => expect(handles.scheduleSnapshot).toHaveBeenCalled());
+
+    const { nodes } = handles.getSnapshot();
+    expect(nodes.map((node) => node.id)).toEqual(["import-a"]);
+    expect(nodes[0]?.selected).toBe(false);
+  });
+
+  it("keeps one in-flight load when creating a share import tab", async () => {
+    const existingNode: FlowNode = {
+      id: "existing",
+      type: "calculation",
+      position: { x: 0, y: 0 },
+      data: { functionName: "identity" },
+    };
+
+    const { getHandles } = await renderSharedLoaderHarness({
+      initialNodes: [existingNode],
+      replaceGraph: true,
+      ensureImportTab: true,
+    });
+    const handles = getHandles();
+
+    await waitFor(() => expect(handles.scheduleSnapshot).toHaveBeenCalled());
+
+    expect(loadSharedMock).toHaveBeenCalledTimes(1);
+    expect(handles.getSnapshot().nodes.map((node) => node.id)).toEqual([
+      "import-a",
+    ]);
+    expect(handles.setTabTooltip).toHaveBeenCalledWith(
+      "tab-shared-import",
+      "Shared: import-me"
+    );
+    expect(handles.renameTab).toHaveBeenCalledWith(
+      "tab-shared-import",
+      "share_import_me",
+      { onlyIfEmpty: true }
+    );
+  });
+
+  it("creates a share import tab even when the current tab is empty", async () => {
+    const { getHandles } = await renderSharedLoaderHarness({
+      replaceGraph: true,
+      ensureImportTab: true,
+    });
+    const handles = getHandles();
+
+    await waitFor(() => expect(handles.scheduleSnapshot).toHaveBeenCalled());
+
+    expect(loadSharedMock).toHaveBeenCalledTimes(1);
+    expect(handles.setTabTooltip).toHaveBeenCalledWith(
+      "tab-shared-import",
+      "Shared: import-me"
+    );
+    expect(handles.renameTab).toHaveBeenCalledWith(
+      "tab-shared-import",
+      "share_import_me",
+      { onlyIfEmpty: true }
+    );
   });
 
   it("filters dangling edges that reference missing nodes", async () => {

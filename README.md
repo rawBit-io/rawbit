@@ -75,6 +75,8 @@ rawBit is **not** a wallet, broadcaster, or custody tool. Keep real funds out of
 
 > ⚠️ **Educational use only.** rawBit can assemble mainnet-valid transactions, but you **should not** broadcast them or handle real funds with this tool. Use **testnet** or **regtest** for anything you intend to send.
 
+> 🌐 **Hosted [rawBit](https://rawbit.io) currently needs to send calculation data to the backend.** Users who require "nothing leaves my machine" should use the [local install](#quick-start-local).
+
 ---
 
 ## Prerequisites

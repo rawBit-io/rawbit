@@ -174,6 +174,15 @@ describe("loadShared", () => {
     stubShareBase("https://share.local");
   });
 
+  it("throws when share base is not configured", async () => {
+    vi.stubEnv("VITE_SHARE_BASE_URL", "");
+    const { loadShared } = await import("../share");
+
+    await expect(loadShared("flow-1")).rejects.toThrow(
+      "VITE_SHARE_BASE_URL is not set"
+    );
+  });
+
   it("fetches shared payloads by id", async () => {
     const { loadShared } = await import("../share");
     seedSharedFlow("flow-1", {

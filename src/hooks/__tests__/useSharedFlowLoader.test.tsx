@@ -156,6 +156,22 @@ describe("useSharedFlowLoader", () => {
       duration: 350,
     });
     expect(setInfoDialog).not.toHaveBeenCalled();
+    expect(window.location.search).toBe("");
+  });
+
+  it("removes only shared-link params from the URL after successful import", async () => {
+    window.history.replaceState(
+      null,
+      "",
+      "?s=test-shared&share=legacy&keep=1#section"
+    );
+
+    renderLoader();
+
+    await waitFor(() => expect(onNodesChangeMock).toHaveBeenCalled());
+
+    expect(window.location.search).toBe("?keep=1");
+    expect(window.location.hash).toBe("#section");
   });
 
   it("renames the tab when shared flow loads into an empty workspace", async () => {
@@ -164,7 +180,7 @@ describe("useSharedFlowLoader", () => {
 
     await waitFor(() => expect(renameTab).toHaveBeenCalled());
 
-    expect(renameTab).toHaveBeenCalledWith("tab-1", "test-flow", {
+    expect(renameTab).toHaveBeenCalledWith("tab-1", "share_test_shared", {
       onlyIfEmpty: true,
     });
   });
@@ -193,6 +209,7 @@ describe("useSharedFlowLoader", () => {
       open: true,
       message: "Could not load shared flow: boom",
     }));
+    expect(window.location.search).toBe("?s=test-shared");
   });
 
   it("rejects shared payloads without nodes arrays", async () => {

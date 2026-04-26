@@ -50,6 +50,14 @@ function resolveApiBase(): { baseUrl: string; forcedLocal: boolean } {
   }
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object";
+}
+
+function errorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
+}
+
 interface NodeCodeDialogProps {
   open: boolean;
   onClose: () => void;
@@ -90,26 +98,66 @@ export function NodeCodeDialog({
   // Fetch code from the backend
   useEffect(() => {
     if (!open || !functionName) return;
+    const controller = new AbortController();
+    let active = true;
+
     setLoading(true);
     setError("");
     setCode("");
     const api = resolveApiBase();
 
-    fetch(`${api.baseUrl}/code?functionName=${encodeURIComponent(functionName)}`)
-      .then((res) => res.json())
-      .then((resp) => {
-        setLoading(false);
-        if (resp.error) {
+    const loadCode = async () => {
+      try {
+        const res = await fetch(
+          `${api.baseUrl}/code?functionName=${encodeURIComponent(functionName)}`,
+          {
+            headers: { accept: "application/json" },
+            signal: controller.signal,
+          }
+        );
+        const contentType = res.headers.get("content-type") || "";
+        const resp = contentType.includes("application/json")
+          ? await res.json()
+          : null;
+
+        if (!active) return;
+
+        if (!res.ok) {
+          const backendError =
+            isRecord(resp) && typeof resp.error === "string"
+              ? resp.error
+              : `Request failed (${res.status})`;
+          setError(backendError);
+          setCode("");
+          return;
+        }
+
+        if (isRecord(resp) && typeof resp.error === "string") {
           setError(resp.error);
           setCode("");
-        } else {
-          setCode(resp.code || "");
+          return;
         }
-      })
-      .catch((err) => {
-        setLoading(false);
-        setError(String(err));
-      });
+
+        setCode(
+          isRecord(resp) && typeof resp.code === "string" ? resp.code : ""
+        );
+      } catch (err) {
+        if (!active || controller.signal.aborted) return;
+        setError(errorMessage(err));
+        setCode("");
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadCode();
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
   }, [open, functionName]);
 
   // Copy-to-clipboard

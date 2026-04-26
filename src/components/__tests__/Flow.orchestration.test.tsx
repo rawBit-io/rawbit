@@ -8,6 +8,7 @@ import type { Edge, ReactFlowInstance, Viewport } from "@xyflow/react";
 
 import Flow from "@/components/Flow";
 import type { NodePorts } from "@/components/dialog/ConnectDialog";
+import { useSharedFlowLoader } from "@/hooks/useSharedFlowLoader";
 
 type FileImportCallbacks = {
   onTooltip?: (filename?: string) => void;
@@ -51,6 +52,14 @@ const mockNodesState: { current: FlowNode[] } = {
 };
 const mockEdgesState: { current: Edge[] } = {
   current: [],
+};
+
+const tabsState: {
+  current: Array<{ id: string; title: string; tooltip?: string }>;
+  activeTabId: string;
+} = {
+  current: [{ id: "tab-1", title: "Flow 1" }],
+  activeTabId: "tab-1",
 };
 
 const fileImportOptions: { current?: FileImportCallbacks } = {};
@@ -206,8 +215,8 @@ vi.mock("@/hooks/useTheme", () => ({
 
 vi.mock("@/hooks/useTabs", () => ({
   useTabs: () => ({
-    tabs: [{ id: "tab-1", title: "Flow 1" }],
-    activeTabId: "tab-1",
+    tabs: tabsState.current,
+    activeTabId: tabsState.activeTabId,
     skipLoadRef,
     initialHydrationDone: true,
     closeDialog: { open: false, tabId: null },
@@ -388,6 +397,8 @@ beforeEach(() => {
   flowCanvasProps.current = null;
   mockNodesState.current = [];
   mockEdgesState.current = [];
+  tabsState.current = [{ id: "tab-1", title: "Flow 1" }];
+  tabsState.activeTabId = "tab-1";
   store.nodes = [];
   store.edges = [];
   vi.clearAllMocks();
@@ -473,6 +484,72 @@ describe("Flow autosave scheduling", () => {
     expect(cancelRafSpy).toHaveBeenCalled();
     expect(clearTimeoutSpy).toHaveBeenCalled();
     clearTimeoutSpy.mockRestore();
+  });
+});
+
+describe("Flow shared import fitting", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("keeps retrying shared-flow fit above Safari edge-culling zoom", () => {
+    const useSharedFlowLoaderMock = vi.mocked(useSharedFlowLoader);
+    mockNodesState.current = [
+      {
+        id: "node-a",
+        type: "calculation",
+        position: { x: 0, y: 0 },
+        data: { functionName: "identity" },
+      } as FlowNode,
+    ];
+    mockEdgesState.current = [
+      { id: "edge-a", source: "node-a", target: "node-b" } as Edge,
+    ];
+
+    renderFlow();
+
+    const sharedLoaderOptions = useSharedFlowLoaderMock.mock.calls.at(-1)?.[0] as
+      | { fitView?: () => void }
+      | undefined;
+    expect(sharedLoaderOptions?.fitView).toBeDefined();
+
+    const fitViewMock = reactFlowInstanceMock.fitView as unknown as ReturnType<
+      typeof vi.fn
+    >;
+    fitViewMock.mockClear();
+
+    act(() => {
+      sharedLoaderOptions?.fitView?.();
+      vi.runOnlyPendingTimers();
+    });
+
+    expect(fitViewMock.mock.calls.length).toBeGreaterThan(1);
+    expect(
+      fitViewMock.mock.calls.every(
+        ([options]) =>
+          (options as { minZoom?: number } | undefined)?.minZoom === 0.2
+      )
+    ).toBe(true);
+  });
+
+  it("renders all elements for shared tabs to avoid Safari edge culling", () => {
+    tabsState.current = [
+      { id: "tab-1", title: "share_test_shared", tooltip: "Shared: test-shared" },
+    ];
+
+    renderFlow();
+
+    expect(flowCanvasProps.current?.onlyRenderVisibleElements).toBe(false);
+  });
+
+  it("keeps visible-element rendering enabled for normal tabs", () => {
+    renderFlow();
+
+    expect(flowCanvasProps.current?.onlyRenderVisibleElements).toBe(true);
   });
 });
 

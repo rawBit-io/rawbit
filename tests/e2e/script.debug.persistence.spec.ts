@@ -78,12 +78,12 @@ test.describe('Script debug persistence', () => {
     const initialData = (await initialShareResponse.then((res) => res.json())) as FlowData;
 
     await assertScriptStepsVisible(page, initialData);
+    await expect(page).toHaveURL((url) => {
+      return !url.searchParams.has('s') && !url.searchParams.has('share');
+    });
 
-    const reloadShareResponse = waitForSharedResponse(page, shareId);
     await page.reload({ waitUntil: 'domcontentloaded' });
-    const reloadData = (await reloadShareResponse.then((res) => res.json())) as FlowData;
-
-    await assertScriptStepsVisible(page, reloadData);
+    await assertScriptStepsVisible(page, initialData);
 
     await page.unroute('**/s/' + shareId);
     await page.unroute('**/bulk_calculate');
