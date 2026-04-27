@@ -1,5 +1,5 @@
-# Builds an "educational" code view by prepending helper code when referenced
-# by the function.
+# Builds an "educational" code view by prepending helper code and constants
+# when referenced by the function.
 
 from __future__ import annotations
 
@@ -45,10 +45,23 @@ _BECH32_HELPERS = [
     "_bech32_decode",
     "_hrp_for_network",
 ]
+_BIP39_HELPERS = [
+    "_bip39_mnemonic_to_entropy",
+    "_hmac_sha512",
+    "_pbkdf2_hmac_sha512",
+]
+_BIP39_SYMBOLS = [
+    "_BIP39_ENGLISH_WORDLIST",
+    "_BIP39_ENGLISH_INDEX",
+    *_BIP39_HELPERS,
+]
 
 # Regex that detects usage of any helper name in the function source
 _HELPER_PATTERN = re.compile(
     r"\b(" + "|".join(map(re.escape, _BASE58_HELPERS + _BECH32_HELPERS)) + r")\b"
+)
+_BIP39_PATTERN = re.compile(
+    r"\b(" + "|".join(map(re.escape, _BIP39_SYMBOLS)) + r")\b"
 )
 
 _MAX_HELPER_EXPANSION_DEPTH = 8
@@ -91,6 +104,25 @@ def _bech32_bundle() -> str:
         if src:
             parts.append(src)
     return "\n\n".join(parts).strip()
+
+
+def _bip39_wordlist_bundle() -> str:
+    words = getattr(calc_ops, "_BIP39_ENGLISH_WORDLIST", [])
+    if not words:
+        return ""
+
+    parts = [
+        "# BIP39 English wordlist: indexes 0..2047, one 11-bit value per word.",
+        "_BIP39_ENGLISH_WORDLIST = [",
+    ]
+    parts.extend(f'    "{word}",' for word in words)
+    parts.append("]")
+    parts.append(
+        "_BIP39_ENGLISH_INDEX = {"
+        "word: index for index, word in enumerate(_BIP39_ENGLISH_WORDLIST)"
+        "}"
+    )
+    return "\n".join(parts).strip()
 
 
 def _extract_called_names(source: str) -> list[str]:
@@ -182,8 +214,9 @@ def _collect_local_helpers(func_source: str) -> list[tuple[str, str]]:
 
 def expand_function_source(_func_obj: SourceObject, func_source: str) -> str:
     """
-    If the given function's source mentions Base58/Bech32 helpers,
-    return an expanded block with helper code prepended.
+    If the given function's source mentions known educational helper bundles
+    such as Base58, Bech32, or BIP39, return an expanded block with helper code
+    and constants prepended.
     Otherwise return the original source unchanged.
     """
     source = func_source or ""
@@ -199,6 +232,9 @@ def expand_function_source(_func_obj: SourceObject, func_source: str) -> str:
     uses_bech32 = bool(direct_uses.intersection(_BECH32_HELPERS)) or bool(
         helper_name_set.intersection(_BECH32_HELPERS)
     )
+    uses_bip39 = bool(_BIP39_PATTERN.search(source)) or bool(
+        helper_name_set.intersection(_BIP39_SYMBOLS)
+    )
 
     # Keep existing Base58/Bech32 bundle behavior (includes constants),
     # but avoid duplicate helper definitions in generic helper block.
@@ -210,7 +246,7 @@ def expand_function_source(_func_obj: SourceObject, func_source: str) -> str:
             continue
         generic_helpers.append(src)
 
-    if not uses_base58 and not uses_bech32 and not generic_helpers:
+    if not uses_base58 and not uses_bech32 and not uses_bip39 and not generic_helpers:
         return func_source
 
     blocks = [
@@ -226,6 +262,11 @@ def expand_function_source(_func_obj: SourceObject, func_source: str) -> str:
         b32 = _bech32_bundle()
         if b32:
             blocks.append("# --- Bech32 / Bech32m helpers ---\n" + b32)
+
+    if uses_bip39:
+        bip39_words = _bip39_wordlist_bundle()
+        if bip39_words:
+            blocks.append("# --- BIP39 English wordlist ---\n" + bip39_words)
 
     if generic_helpers:
         blocks.append("# --- Local helper functions ---\n" + "\n\n".join(generic_helpers))

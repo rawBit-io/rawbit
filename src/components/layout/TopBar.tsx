@@ -689,7 +689,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
             <DropdownMenuContent align="end" side="bottom">
               <DropdownMenuItem asChild>
                 <a
-                  href="https://discord.gg/5vRnYSZc"
+                  href="https://discord.gg/HPSYkT9tq"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2"

@@ -162,3 +162,24 @@ and the project aims to adhere to [Semantic Versioning](https://semver.org/spec/
 - Safari/WebKit shared-link edge rendering is hardened across repeated shared URL loads.
 - Shared-link URLs are cleared after a successful import, preventing browser reload from importing the same shared flow again.
 - Codebase audit fixes for tab storage, validation, calculation races, and release/test coverage.
+
+## [0.4.9] - 2026-04-27
+
+### Added
+
+- Added **Trezor Signing Flow** to the lesson/sidebar flow catalog.
+- Added **Summer of Bitcoin 2026 PoC** to the lesson/sidebar flow catalog.
+- Added manual Trezor/BIP39/BIP32/RFC6979 signing node support used by the Trezor lesson.
+- Added initial Trezor signing support for normal Bitcoin/testnet single-sig transactions. The included lesson demonstrates legacy P2PKH signing; the params builder can also prepare common BIP44/49/84/86 single-sig inputs, standard address/change outputs, and multiple inputs/outputs. Not included yet: multisig signing, coinjoin/external inputs, OP_RETURN outputs, PSBT workflows, and advanced/custom Trezor request types.
+- Added advanced tab-close actions for closing all tabs, closing all except the current tab, and resetting the workspace.
+
+### Changed
+
+- Reorganized the sidebar taxonomy into clearer node groups and curriculum-style flow lesson sections.
+- Updated the current Discord community invite in the app and contributor-facing docs.
+
+### Fixed
+
+- Fixed Safari/WebKit shared-link edge loss by preserving all ResizeObserver batches and remeasuring imported nodes after shared-flow load.
+- Hardened shared-link tab recovery so stale closed-tab metadata cannot resurrect empty tabs.
+- Restored large-flow responsiveness by keeping React Flow visible-element rendering enabled and limiting shared-link repair work to real divergence cases.

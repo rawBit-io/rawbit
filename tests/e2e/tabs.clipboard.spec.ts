@@ -160,7 +160,7 @@ test.describe('Clipboard and tabs workflows', () => {
     await closeFlow2.click();
     const closeDialog = page.getByRole('dialog', { name: 'Close Tab' });
     await expect(closeDialog).toBeVisible();
-    await closeDialog.getByRole('button', { name: 'Close' }).first().click();
+    await closeDialog.locator('button').filter({ hasText: /^Close$/ }).first().click();
     await expect(flow2TabAfterReload).toHaveCount(0);
     await expect(page.locator('[role="tab"]')).toHaveCount(1);
     await expect(tabByIndex(page, 0)).toBeVisible();
@@ -405,7 +405,7 @@ test.describe('Clipboard and tabs workflows', () => {
     await expect(closeDialog).toBeHidden();
 
     await activeClose.click();
-    await closeDialog.getByRole('button', { name: 'Close' }).first().click();
+    await closeDialog.locator('button').filter({ hasText: /^Close$/ }).first().click();
     await expect(flow2Tab).toHaveCount(0);
 
     const flow1Tab = tabByIndex(page, 0);

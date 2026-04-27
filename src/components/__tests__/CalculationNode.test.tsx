@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { act, render, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import CalculationNode from "@/components/nodes/CalculationNode";
@@ -6,6 +6,26 @@ import type { FlowNode } from "@/types";
 import { buildFlowNode, buildNodeProps } from "@/test-utils/types";
 
 let calcViewMock: ReturnType<typeof vi.fn>;
+const reactFlowMock = vi.hoisted(() => ({
+  setNodes: vi.fn(),
+  setEdges: vi.fn(),
+  getEdges: vi.fn(() => []),
+  storeState: { edges: [] as unknown[], nodes: [] as unknown[] },
+}));
+const derivedMock = vi.hoisted(() => ({
+  value: {
+    isMultiVal: false,
+    nodeWidth: 200,
+    minHeight: 150,
+    connectionStatus: "ok",
+    wiredHandles: new Set(["input-1"]),
+  },
+}));
+const trezorMock = vi.hoisted(() => ({
+  getTrezorAddress: vi.fn(),
+  signTrezorTransaction: vi.fn(),
+  parseTrezorBoolean: vi.fn((value: string) => value === "true"),
+}));
 
 vi.mock("@/components/nodes/calculation/CalculationNodeView", () => ({
   CalculationNodeView: (props: Record<string, unknown>) => {
@@ -15,9 +35,13 @@ vi.mock("@/components/nodes/calculation/CalculationNodeView", () => ({
 }));
 
 vi.mock("@xyflow/react", () => ({
-  useReactFlow: () => ({ setNodes: vi.fn(), setEdges: vi.fn() }),
+  useReactFlow: () => ({
+    setNodes: reactFlowMock.setNodes,
+    setEdges: reactFlowMock.setEdges,
+    getEdges: reactFlowMock.getEdges,
+  }),
   useStore: (selector: (state: { edges: unknown[]; nodes: unknown[] }) => unknown) =>
-    selector({ edges: [], nodes: [] }),
+    selector(reactFlowMock.storeState),
 }));
 
 vi.mock("@/hooks/useSnapshotSchedulerContext", () => ({
@@ -42,13 +66,7 @@ vi.mock("@/hooks/useCalculation", () => ({
 }));
 
 vi.mock("@/hooks/nodes/useCalcNodeDerived", () => ({
-  useCalcNodeDerived: () => ({
-    isMultiVal: false,
-    nodeWidth: 200,
-    minHeight: 150,
-    connectionStatus: "ok",
-    wiredHandles: new Set(["input-1"]),
-  }),
+  useCalcNodeDerived: () => derivedMock.value,
 }));
 
 vi.mock("@/hooks/nodes/useCalcNodeMutations", () => ({
@@ -67,9 +85,26 @@ vi.mock("@/lib/share/scriptStepsCache", () => ({
   getScriptSteps: () => ({ trace: [1] }),
 }));
 
+vi.mock("@/lib/trezor/connect", () => trezorMock);
+
 describe("CalculationNode", () => {
   beforeEach(() => {
     calcViewMock = vi.fn();
+    reactFlowMock.setNodes.mockReset();
+    reactFlowMock.setEdges.mockReset();
+    reactFlowMock.getEdges.mockReset();
+    reactFlowMock.getEdges.mockReturnValue([]);
+    reactFlowMock.storeState = { edges: [], nodes: [] };
+    trezorMock.getTrezorAddress.mockReset();
+    trezorMock.signTrezorTransaction.mockReset();
+    trezorMock.parseTrezorBoolean.mockClear();
+    derivedMock.value = {
+      isMultiVal: false,
+      nodeWidth: 200,
+      minHeight: 150,
+      connectionStatus: "ok",
+      wiredHandles: new Set(["input-1"]),
+    };
   });
 
   it("passes derived props to view", () => {
@@ -97,5 +132,259 @@ describe("CalculationNode", () => {
     expect((props.singleValue as { value: string }).value).toBe("hello");
     expect(props.error).toBe(false);
     expect(props.comment).toBe("note");
+  });
+
+  it("clears stale Trezor results when connected inputs change", async () => {
+    derivedMock.value = {
+      ...derivedMock.value,
+      isMultiVal: true,
+      wiredHandles: new Set(["input-0"]),
+    };
+
+    const node: FlowNode = buildFlowNode({
+      id: "trezor-1",
+      data: {
+        functionName: "trezor_get_address",
+        hardwareAction: "trezor_get_address",
+        result: "old-address",
+        hardwareInputSnapshot: JSON.stringify([
+          [0, "m/44'/1'/0'/0/0"],
+          [1, "testnet"],
+          [2, "SPENDADDRESS"],
+          [3, "true"],
+        ]),
+        inputs: {
+          vals: {
+            0: "m/44'/1'/0'/0/0",
+            1: "testnet",
+            2: "SPENDADDRESS",
+            3: "true",
+          },
+        },
+        inputStructure: {
+          ungrouped: [
+            { index: 0, label: "Derivation Path:" },
+            { index: 1, label: "Coin:" },
+            { index: 2, label: "Script Type:" },
+            { index: 3, label: "Show On Trezor:" },
+          ],
+        },
+      },
+    });
+    const source: FlowNode = buildFlowNode({
+      id: "path-source",
+      data: { result: "m/44'/1'/0'/0/1" },
+    });
+    reactFlowMock.storeState = {
+      nodes: [node, source],
+      edges: [
+        {
+          source: "path-source",
+          target: "trezor-1",
+          sourceHandle: "",
+          targetHandle: "input-0",
+        },
+      ],
+    };
+
+    render(<CalculationNode {...buildNodeProps(node)} />);
+
+    await waitFor(() => expect(reactFlowMock.setNodes).toHaveBeenCalled());
+    const updateNodes = reactFlowMock.setNodes.mock.calls.at(-1)?.[0] as (
+      nodes: FlowNode[]
+    ) => FlowNode[];
+    const updated = updateNodes([node])[0];
+
+    expect(updated.data.result).toBe("");
+    expect(updated.data.outputValues).toBeUndefined();
+    expect(updated.data.hardwareInputSnapshot).toBeUndefined();
+    expect(updated.data.hardwareStatusText).toBe(
+      "Inputs changed. Press Get Address again."
+    );
+  });
+
+  it("clears legacy Trezor results that do not have an input snapshot", async () => {
+    derivedMock.value = {
+      ...derivedMock.value,
+      isMultiVal: true,
+      wiredHandles: new Set(["input-0"]),
+    };
+
+    const node: FlowNode = buildFlowNode({
+      id: "trezor-legacy",
+      data: {
+        functionName: "trezor_get_address",
+        hardwareAction: "trezor_get_address",
+        result: "legacy-address",
+        inputs: {
+          vals: {
+            0: "m/44'/1'/0'/0/0",
+            1: "testnet",
+            2: "SPENDADDRESS",
+            3: "true",
+          },
+        },
+        inputStructure: {
+          ungrouped: [
+            { index: 0, label: "Derivation Path:" },
+            { index: 1, label: "Coin:" },
+            { index: 2, label: "Script Type:" },
+            { index: 3, label: "Show On Trezor:" },
+          ],
+        },
+      },
+    });
+    reactFlowMock.storeState = {
+      nodes: [node],
+      edges: [],
+    };
+
+    render(<CalculationNode {...buildNodeProps(node)} />);
+
+    await waitFor(() => expect(reactFlowMock.setNodes).toHaveBeenCalled());
+    const updateNodes = reactFlowMock.setNodes.mock.calls.at(-1)?.[0] as (
+      nodes: FlowNode[]
+    ) => FlowNode[];
+    const updated = updateNodes([node])[0];
+
+    expect(updated.data.result).toBe("");
+    expect(updated.data.hardwareStatusText).toBe(
+      "Inputs changed. Press Get Address again."
+    );
+  });
+
+  it("does not fall back to saved editable values when wired Trezor input is missing", async () => {
+    derivedMock.value = {
+      ...derivedMock.value,
+      isMultiVal: true,
+      wiredHandles: new Set(["input-0"]),
+    };
+
+    const node: FlowNode = buildFlowNode({
+      id: "trezor-1",
+      data: {
+        functionName: "trezor_get_address",
+        hardwareAction: "trezor_get_address",
+        inputs: {
+          vals: {
+            0: "m/44'/1'/0'/0/0",
+            1: "testnet",
+            2: "SPENDADDRESS",
+            3: "true",
+          },
+        },
+        inputStructure: {
+          ungrouped: [
+            { index: 0, label: "Derivation Path:" },
+            { index: 1, label: "Coin:" },
+            { index: 2, label: "Script Type:" },
+            { index: 3, label: "Show On Trezor:" },
+          ],
+        },
+      },
+    });
+    const source: FlowNode = buildFlowNode({
+      id: "path-source",
+      data: {},
+    });
+    reactFlowMock.storeState = {
+      nodes: [node, source],
+      edges: [
+        {
+          source: "path-source",
+          target: "trezor-1",
+          sourceHandle: "",
+          targetHandle: "input-0",
+        },
+      ],
+    };
+
+    render(<CalculationNode {...buildNodeProps(node)} />);
+
+    const props = calcViewMock.mock.calls.at(-1)?.[0] as {
+      onHardwareAction: () => Promise<void>;
+    };
+    await act(async () => {
+      await props.onHardwareAction();
+    });
+
+    expect(trezorMock.getTrezorAddress).not.toHaveBeenCalled();
+    const updateNodes = reactFlowMock.setNodes.mock.calls.at(-1)?.[0] as (
+      nodes: FlowNode[]
+    ) => FlowNode[];
+    const updated = updateNodes([node])[0];
+
+    expect(updated.data.hardwareStatus).toBe("error");
+    expect(updated.data.hardwareStatusText).toBe("Derivation path is required");
+    expect(updated.data.result).toBe("");
+  });
+
+  it("blocks Trezor signing when the connected params node is in error", async () => {
+    derivedMock.value = {
+      ...derivedMock.value,
+      isMultiVal: true,
+      wiredHandles: new Set(["input-0"]),
+    };
+
+    const node: FlowNode = buildFlowNode({
+      id: "trezor-sign",
+      data: {
+        functionName: "trezor_sign_transaction",
+        hardwareAction: "trezor_sign_transaction",
+        inputs: {
+          vals: {
+            0: "",
+          },
+        },
+        inputStructure: {
+          ungrouped: [
+            {
+              index: 0,
+              label: "signTransaction Params JSON:",
+            },
+          ],
+        },
+      },
+    });
+    const paramsSource: FlowNode = buildFlowNode({
+      id: "params-source",
+      data: {
+        result: '{"coin":"testnet","inputs":[],"outputs":[]}',
+        error: true,
+        extendedError: "Calculation failed: previous raw transaction is required",
+      },
+    });
+    reactFlowMock.storeState = {
+      nodes: [node, paramsSource],
+      edges: [
+        {
+          source: "params-source",
+          target: "trezor-sign",
+          sourceHandle: "",
+          targetHandle: "input-0",
+        },
+      ],
+    };
+
+    render(<CalculationNode {...buildNodeProps(node)} />);
+
+    const props = calcViewMock.mock.calls.at(-1)?.[0] as {
+      onHardwareAction: () => Promise<void>;
+    };
+    await act(async () => {
+      await props.onHardwareAction();
+    });
+
+    expect(trezorMock.signTrezorTransaction).not.toHaveBeenCalled();
+    const updateNodes = reactFlowMock.setNodes.mock.calls.at(-1)?.[0] as (
+      nodes: FlowNode[]
+    ) => FlowNode[];
+    const updated = updateNodes([node])[0];
+
+    expect(updated.data.hardwareStatus).toBe("error");
+    expect(updated.data.hardwareStatusText).toBe(
+      "Calculation failed: previous raw transaction is required"
+    );
+    expect(updated.data.result).toBe("");
   });
 });

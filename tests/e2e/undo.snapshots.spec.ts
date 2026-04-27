@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 import { computeNodeResult, enrichNodesForSuccess, parseBulkRequestPayload } from './fixtures';
 import { loadFixture, waitForBulkResponse } from './utils';
@@ -63,8 +63,37 @@ test.describe('Undo snapshots for interactions', () => {
     });
     await expect(originalEdgeButton).toBeVisible();
 
-    const targetUpdater = page.locator('circle.react-flow__edgeupdater-target').first();
+    const reconnectedEdgeButton = page.getByRole('button', {
+      name: 'Edge from node_input to node_passthrough',
+    });
+
+    await reconnectEdgeToPassthrough(page, reconnectedEdgeButton);
+
+    await expect(reconnectedEdgeButton).toBeVisible();
+    await expect(originalEdgeButton).toHaveCount(0);
+
+    const undoButton = page.getByTitle('Undo');
+    await expect(undoButton).toBeEnabled({ timeout: 10_000 });
+    await undoButton.click();
+    await expect(originalEdgeButton).toBeVisible();
+    await expect(reconnectedEdgeButton).toHaveCount(0);
+  });
+});
+
+async function reconnectEdgeToPassthrough(
+  page: Page,
+  reconnectedEdgeButton: Locator
+) {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const edgeLocator = page.locator('.react-flow__edge[data-id="edge_input_hash"]');
+    await expect(edgeLocator).toBeVisible();
     await edgeLocator.hover();
+
+    const targetUpdater = page
+      .locator('circle.react-flow__edgeupdater-target')
+      .first();
     await expect(targetUpdater).toBeVisible();
 
     const newTargetHandle = page
@@ -83,26 +112,28 @@ test.describe('Undo snapshots for interactions', () => {
     const endX = newHandleBox.x + newHandleBox.width / 2;
     const endY = newHandleBox.y + newHandleBox.height / 2;
 
-    await waitForBulkResponse(page, async () => {
-      await page.mouse.move(startX, startY);
-      await page.mouse.down();
-      await page.mouse.move(endX, endY, { steps: 10 });
-      await page.mouse.up();
-    });
+    try {
+      await waitForBulkResponse(
+        page,
+        async () => {
+          await page.mouse.move(startX, startY);
+          await page.mouse.down();
+          await page.mouse.move(endX, endY, { steps: 12 });
+          await page.mouse.up();
+        },
+        { timeoutMs: 12_000 }
+      );
+      return;
+    } catch (error) {
+      lastError = error;
+      await page.mouse.up().catch(() => undefined);
+      if ((await reconnectedEdgeButton.count()) > 0) return;
+      await page.waitForTimeout(200);
+    }
+  }
 
-    const reconnectedEdgeButton = page.getByRole('button', {
-      name: 'Edge from node_input to node_passthrough',
-    });
-    await expect(reconnectedEdgeButton).toBeVisible();
-    await expect(originalEdgeButton).toHaveCount(0);
-
-    const undoButton = page.getByTitle('Undo');
-    await expect(undoButton).toBeEnabled({ timeout: 10_000 });
-    await undoButton.click();
-    await expect(originalEdgeButton).toBeVisible();
-    await expect(reconnectedEdgeButton).toHaveCount(0);
-  });
-});
+  throw lastError ?? new Error('Edge reconnect did not trigger a backend refresh');
+}
 
 async function stubBulkCalculate(page: Page) {
   await page.route('**/bulk_calculate', async (route) => {

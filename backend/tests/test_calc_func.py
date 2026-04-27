@@ -6,6 +6,7 @@ from decimal import Decimal
 
 import pytest
 from ecdsa import SigningKey
+from ecdsa.util import sigencode_der_canonize
 
 pytest.importorskip("hypothesis")
 from hypothesis import given, strategies as st
@@ -37,6 +38,16 @@ SAMPLE_TX_HEX = (
     "ffffffff01e803000000000000015100000000"
 )
 GENESIS_HASH160 = "62e907b15cbf27d5425399ebf6f0fb50ebb88f18"
+PREVIOUS_RAW_TX = (
+    "02000000000101d507b1bbe380ffdb19e008044763322ef974a5def6323e867c8344fbdd44ba0401000000"
+    "00fdffffff0214e30100000000001976a914e9d2d6d73db62c723c4287e5e834ab9135c2998588ace388eb"
+    "a4000000001976a914276b47b67aec2db91331c9c3299caa9b4398c48188ac0247304402201fc2aef6b3"
+    "6785ffdeb35ac71487d8c1d7378a2b01e25568ec2c49adb7600a97022024fa274727801d799eec818a"
+    "e70128f17ed3bd959ae9c4345653b55a7d1bdfd5012102f11acd891cc230c38c004038a037bd2139ee"
+    "74aaaf38875b7b09ee73f6c6c02416040200"
+)
+PREVIOUS_TXID = "91d3b05d5112933301b0ce9a5a731b854f28b5a00d2205a631034983e970f7b1"
+PREVIOUS_TXID_REVERSED = "b1f770e983490331a605220da0b5284f851b735a9aceb001339312515db0d391"
 
 
 def build_sample_tx_hex() -> str:
@@ -157,6 +168,236 @@ def test_random_256_properties():
     assert len(priv) == 64
     value = int(priv, 16)
     assert 1 <= value < 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
+
+
+def test_entropy_to_bip39_mnemonic_known_vectors():
+    assert calc.entropy_to_bip39_mnemonic("00" * 16) == (
+        "abandon abandon abandon abandon abandon abandon abandon abandon "
+        "abandon abandon abandon about"
+    )
+    assert calc.entropy_to_bip39_mnemonic("00000000000000000000000000000001") == (
+        "abandon abandon abandon abandon abandon abandon abandon abandon "
+        "abandon abandon abandon actual"
+    )
+    assert calc.entropy_to_bip39_mnemonic("00" * 32) == (
+        "abandon abandon abandon abandon abandon abandon abandon abandon "
+        "abandon abandon abandon abandon abandon abandon abandon abandon "
+        "abandon abandon abandon abandon abandon abandon abandon art"
+    )
+
+
+def test_entropy_to_bip39_mnemonic_rejects_invalid_entropy():
+    with pytest.raises(ValueError, match="BIP39 entropy must be"):
+        calc.entropy_to_bip39_mnemonic("00" * 15)
+    with pytest.raises(ValueError, match="not valid hexadecimal"):
+        calc.entropy_to_bip39_mnemonic("zz" * 16)
+
+
+def test_bip39_mnemonic_to_seed_known_vector():
+    mnemonic = (
+        "abandon abandon abandon abandon abandon abandon abandon abandon "
+        "abandon abandon abandon about"
+    )
+    assert calc.bip39_mnemonic_to_seed([mnemonic, "TREZOR"]) == (
+        "c55257c360c07c72029aebc1b53c05ed0362ada38ead3e3e9efa3708e5349553"
+        "1f09a6987599d18264c1e1c92f2cf141630c7a3c4ab7c81b2f001698e7463b04"
+    )
+
+
+def test_bip39_mnemonic_to_seed_defaults_to_empty_passphrase():
+    mnemonic = (
+        "abandon abandon abandon abandon abandon abandon abandon abandon "
+        "abandon abandon abandon about"
+    )
+    assert calc.bip39_mnemonic_to_seed([mnemonic]) == calc.bip39_mnemonic_to_seed(
+        [mnemonic, ""]
+    )
+
+
+def test_bip39_mnemonic_to_seed_rejects_invalid_mnemonic():
+    with pytest.raises(ValueError, match="Mnemonic is required"):
+        calc.bip39_mnemonic_to_seed([""])
+    with pytest.raises(ValueError, match="Invalid BIP39 mnemonic"):
+        calc.bip39_mnemonic_to_seed(["abandon " * 12])
+
+
+def _xprv_private_key(xprv: str) -> str:
+    payload = calc._b58check_decode(xprv)  # type: ignore[attr-defined]
+    assert len(payload) == 78
+    private_key_data = payload[45:]
+    assert private_key_data[0] == 0
+    return private_key_data[1:].hex()
+
+
+def test_bip32_derive_private_key_matches_official_vectors():
+    seed = "000102030405060708090a0b0c0d0e0f"
+    vectors = {
+        "m": "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqji"
+        "ChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi",
+        "m/0'": "xprv9uHRZZhk6KAJC1avXpDAp4MDc3sQKNxDiPvvkX8Br5ngLNv1"
+        "TxvUxt4cV1rGL5hj6KCesnDYUhd7oWgT11eZG7XnxHrnYeSvkzY7d2bhkJ7",
+        "m/0'/1": "xprv9wTYmMFdV23N2TdNG573QoEsfRrWKQgWeibmLntzniatZv"
+        "R9BmLnvSxqu53Kw1UmYPxLgboyZQaXwTCg8MSY3H2EU4pWcQDnRnrVA1xe8fs",
+        "m/0'/1/2'": "xprv9z4pot5VBttmtdRTWfWQmoH1taj2axGVzFqSb8C9xax"
+        "KymcFzXBDptWmT7FwuEzG3ryjH4ktypQSAewRiNMjANTtpgP4mLTj34bhnZX7UiM",
+    }
+    for path, xprv in vectors.items():
+        assert calc.bip32_derive_private_key([seed, path]) == _xprv_private_key(xprv)
+
+
+def test_bip32_derive_private_key_accepts_hardened_suffixes():
+    seed = "000102030405060708090a0b0c0d0e0f"
+    expected = calc.bip32_derive_private_key([seed, "m/0'"])
+    assert calc.bip32_derive_private_key([seed, "m/0h"]) == expected
+    assert calc.bip32_derive_private_key([seed, "m/0H"]) == expected
+
+
+def test_bip32_derive_private_key_rejects_invalid_inputs():
+    with pytest.raises(ValueError, match="BIP32 seed must be"):
+        calc.bip32_derive_private_key(["00" * 15, "m"])
+    with pytest.raises(ValueError, match="must start with m/"):
+        calc.bip32_derive_private_key(["00" * 16, "44'/1'/0'/0/0"])
+    with pytest.raises(ValueError, match="Invalid BIP32 path component"):
+        calc.bip32_derive_private_key(["00" * 16, "m/not-a-number"])
+    with pytest.raises(ValueError, match="less than 2\\^31"):
+        calc.bip32_derive_private_key(["00" * 16, "m/2147483648"])
+
+
+def _trezor_params_vals(**overrides):
+    vals = {
+        "0": "testnet",
+        "1": "2",
+        "2": "0",
+        "1000": "m/44'/1'/0'/0/1",
+        "1010": PREVIOUS_TXID,
+        "1020": "0",
+        "1030": "123668",
+        "1040": "fffffffd",
+        "1050": "AUTO",
+        "3000": "mtAoaTyXBeksZbMtwk6yG5M1xCYUDpNNU9",
+        "3010": "123000",
+        "3020": "AUTO",
+        "5000": PREVIOUS_RAW_TX,
+    }
+    vals.update(overrides)
+    return vals
+
+
+def test_build_trezor_sign_transaction_params_uses_dynamic_groups():
+    params = json.loads(calc.build_trezor_sign_transaction_params(_trezor_params_vals()))
+
+    assert params["coin"] == "testnet"
+    assert params["version"] == 2
+    assert params["locktime"] == 0
+    assert params["inputs"] == [
+        {
+            "address_n": [2147483692, 2147483649, 2147483648, 0, 1],
+            "prev_hash": PREVIOUS_TXID,
+            "prev_index": 0,
+            "amount": 123668,
+            "sequence": 4294967293,
+            "script_type": "SPENDADDRESS",
+        }
+    ]
+    assert params["outputs"] == [
+        {
+            "address": "mtAoaTyXBeksZbMtwk6yG5M1xCYUDpNNU9",
+            "amount": 123000,
+            "script_type": "PAYTOADDRESS",
+        }
+    ]
+    assert params["refTxs"][0]["hash"] == PREVIOUS_TXID
+    assert params["refTxs"][0]["version"] == 2
+    assert params["refTxs"][0]["lock_time"] == 132118
+    assert params["refTxs"][0]["inputs"][0]["script_sig"] == ""
+    assert params["refTxs"][0]["bin_outputs"][0] == {
+        "amount": 123668,
+        "script_pubkey": "76a914e9d2d6d73db62c723c4287e5e834ab9135c2998588ac",
+    }
+
+
+def test_build_trezor_sign_transaction_params_supports_multiple_groups():
+    params = json.loads(
+        calc.build_trezor_sign_transaction_params(
+            _trezor_params_vals(
+                **{
+                    "1100": "m/84'/1'/0'/0/0",
+                    "1110": PREVIOUS_TXID,
+                    "1120": "1",
+                    "1130": "2766899427",
+                    "1140": "4294967295",
+                    "1150": "AUTO",
+                    "3100": "m/84'/1'/0'/1/0",
+                    "3110": "2766800000",
+                    "3120": "AUTO",
+                }
+            )
+        )
+    )
+
+    assert [tx_input["script_type"] for tx_input in params["inputs"]] == [
+        "SPENDADDRESS",
+        "SPENDWITNESS",
+    ]
+    assert params["outputs"][1] == {
+        "address_n": [2147483732, 2147483649, 2147483648, 1, 0],
+        "amount": 2766800000,
+        "script_type": "PAYTOWITNESS",
+    }
+    assert [ref_tx["hash"] for ref_tx in params["refTxs"]] == [PREVIOUS_TXID]
+
+
+def test_build_trezor_sign_transaction_params_parses_sequence_formats():
+    cases = {
+        "1": 1,
+        "10": 10,
+        "fffffffd": 4294967293,
+        "fffffffe": 4294967294,
+        "ffffffff": 4294967295,
+    }
+
+    for raw_sequence, expected in cases.items():
+        params = json.loads(
+            calc.build_trezor_sign_transaction_params(
+                _trezor_params_vals(**{"1040": raw_sequence})
+            )
+        )
+        assert params["inputs"][0]["sequence"] == expected
+
+
+def test_build_trezor_sign_transaction_params_rejects_reversed_sequence_bytes():
+    with pytest.raises(ValueError, match="leading zeroes"):
+        calc.build_trezor_sign_transaction_params(
+            _trezor_params_vals(**{"1040": "01000000"})
+        )
+
+    with pytest.raises(ValueError, match="do not use serialized little-endian bytes"):
+        calc.build_trezor_sign_transaction_params(
+            _trezor_params_vals(**{"1040": "fdffffff"})
+        )
+
+    with pytest.raises(ValueError, match="must be decimal or 8-character display-order hex"):
+        calc.build_trezor_sign_transaction_params(
+            _trezor_params_vals(**{"1040": "le:fdffffff"})
+        )
+
+    with pytest.raises(ValueError, match="must be decimal or 8-character display-order hex"):
+        calc.build_trezor_sign_transaction_params(
+            _trezor_params_vals(**{"1040": "0xfffffffd"})
+        )
+
+
+def test_build_trezor_sign_transaction_params_rejects_bad_refs():
+    with pytest.raises(ValueError, match="amount does not match previous raw transaction"):
+        calc.build_trezor_sign_transaction_params(_trezor_params_vals(**{"1030": "123000"}))
+
+    with pytest.raises(ValueError, match="appears byte-reversed"):
+        calc.build_trezor_sign_transaction_params(
+            _trezor_params_vals(**{"1010": PREVIOUS_TXID_REVERSED})
+        )
+
+    with pytest.raises(ValueError, match=r"input\[0\] derivation path is required"):
+        calc.build_trezor_sign_transaction_params(_trezor_params_vals(**{"1000": ""}))
 
 
 def test_public_key_from_private_key_known_vector():
@@ -698,6 +939,39 @@ def test_sign_and_verify_low_r_signature():
         signature,
     ])
     assert result == "true"
+
+
+def test_sign_tx_rfc6979_matches_deterministic_ecdsa_without_low_r_grinding():
+    sk = SigningKey.from_string(bytes.fromhex(SAMPLE_PRIV_KEY), curve=calc.SECP256k1)
+    expected = sk.sign_digest_deterministic(
+        bytes.fromhex(SAMPLE_MSG_HASH),
+        hashfunc=hashlib.sha256,
+        sigencode=sigencode_der_canonize,
+    ).hex()
+
+    signature = calc.sign_tx_rfc6979([SAMPLE_PRIV_KEY, SAMPLE_MSG_HASH])
+    public_key = calc.public_key_from_private_key(SAMPLE_PRIV_KEY)
+
+    assert signature == expected
+    assert calc.verify_signature([public_key, SAMPLE_MSG_HASH, signature]) == "true"
+
+
+def test_sign_tx_rfc6979_does_not_grind_to_low_r():
+    msg = "c92b3e85d7598dd8e016e41a85a5b084145f6445a3e91a98601f80de9c6fab7c"
+    rfc6979_signature = calc.sign_tx_rfc6979([SAMPLE_PRIV_KEY, msg])
+    low_r_signature = calc.sign_as_bitcoin_core_low_r([SAMPLE_PRIV_KEY, msg])
+    public_key = calc.public_key_from_private_key(SAMPLE_PRIV_KEY)
+
+    assert rfc6979_signature != low_r_signature
+    assert calc.verify_signature([public_key, msg, rfc6979_signature]) == "true"
+    assert calc.verify_signature([public_key, msg, low_r_signature]) == "true"
+
+
+def test_sign_tx_rfc6979_rejects_invalid_inputs():
+    with pytest.raises(ValueError, match="Need"):
+        calc.sign_tx_rfc6979([SAMPLE_PRIV_KEY])
+    with pytest.raises(ValueError, match="must be 32 bytes each"):
+        calc.sign_tx_rfc6979([SAMPLE_PRIV_KEY, "00" * 31])
 
 
 def test_write_low_r_and_serialize_helpers():

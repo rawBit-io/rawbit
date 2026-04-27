@@ -21,6 +21,34 @@ FUNCTION_SPECS = {
         "params": {}
     },
 
+    "entropy_to_bip39_mnemonic": {
+        "paramExtraction": "single_val",
+        "params": {
+            "val": {"type": "string", "required": True}
+        }
+    },
+
+    "bip39_mnemonic_to_seed": {
+        "paramExtraction": "multi_val",
+        "params": {
+            "vals": {"type": "any", "required": True}
+        }
+    },
+
+    "bip32_derive_private_key": {
+        "paramExtraction": "multi_val",
+        "params": {
+            "vals": {"type": "any", "required": True}
+        }
+    },
+
+    "build_trezor_sign_transaction_params": {
+        "paramExtraction": "multi_val_indexed",
+        "params": {
+            "vals": {"type": "any", "required": True}
+        }
+    },
+
     "tagged_hash": {
         "paramExtraction": "multi_val",
         "params": {
@@ -209,6 +237,12 @@ FUNCTION_SPECS = {
                 "required": True
         }
     }
+    },
+    "sign_tx_rfc6979": {
+        "paramExtraction": "multi_val",
+        "params": {
+            "vals": {"type": "any", "required": True}
+        }
     },
     "hash160_hex": {
         "paramExtraction": "single_val",

@@ -47,6 +47,7 @@ const DEFAULT_ALLOWED_NODE_TYPES = new Set<string>([
   "shadcnGroup",
   "shadcnTextInfo",
   "opCodeNode",
+  "trezorAction",
 ]);
 
 const HANDLE_PLACEHOLDER = "__DEFAULT_HANDLE__";

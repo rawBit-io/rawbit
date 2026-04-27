@@ -6,7 +6,9 @@ import struct
 import binascii
 import json
 import secrets
+import unicodedata
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Union, List, Sequence
 
 from ecdsa import SigningKey, SECP256k1, ellipticcurve
@@ -14,16 +16,18 @@ import secp256k1
 
 import re
 _WS_RE = re.compile(r"\s+")
+_HEX_RE = re.compile(r"^[0-9a-fA-F]+$")
 
 from decimal import Decimal, InvalidOperation, getcontext
 getcontext().prec = 50  # plenty for money math
 
 _INT_DEC_RE = re.compile(r'^[+-]?\d+$', re.ASCII)
+_UINT_DEC_NO_LEADING_ZERO_RE = re.compile(r"^(0|[1-9]\d*)$", re.ASCII)
 
 _CURVE_ORDER = SECP256k1.order
 _CURVE_GEN = SECP256k1.generator
 _CURVE_P = SECP256k1.curve.p()
-
+_BIP32_HARDENED = 0x80000000
 from bitcointx.core import CTransaction, CTxOut, b2x
 from bitcointx.core.script import CScript
 from bitcointx.core.scripteval import (
@@ -213,6 +217,87 @@ _SECP256K1_VERIFY = None
 _INIT_LOCK = threading.Lock()
 _SIGN_LOCK = threading.Lock()
 _VERIFY_LOCK = threading.Lock()
+
+
+def _load_bip39_english_wordlist() -> list[str]:
+    path = Path(__file__).resolve().parent / "data" / "bip39_english.txt"
+    words = path.read_text(encoding="utf-8").splitlines()
+    if len(words) != 2048:
+        raise RuntimeError("BIP39 English wordlist must contain exactly 2048 words")
+    if len(set(words)) != 2048:
+        raise RuntimeError("BIP39 English wordlist contains duplicate words")
+    return words
+
+
+_BIP39_ENGLISH_WORDLIST = _load_bip39_english_wordlist()
+_BIP39_ENGLISH_INDEX = {word: index for index, word in enumerate(_BIP39_ENGLISH_WORDLIST)}
+
+
+def _hmac_sha512(key: bytes, message: bytes) -> bytes:
+    """
+    Manual HMAC-SHA512.
+
+    HMAC works by hashing the message twice with two different padded versions
+    of the key:
+
+      inner = SHA512((key XOR ipad) || message)
+      outer = SHA512((key XOR opad) || inner)
+
+    SHA512 has a 128-byte block size. Long keys are first compressed with one
+    SHA512 hash, then short keys are padded with zero bytes to one block.
+    """
+    block_size = 128
+    if len(key) > block_size:
+        key = hashlib.sha512(key).digest()
+    key = key.ljust(block_size, b"\x00")
+
+    inner_pad = bytes(byte ^ 0x36 for byte in key)
+    outer_pad = bytes(byte ^ 0x5C for byte in key)
+    inner_hash = hashlib.sha512(inner_pad + message).digest()
+    return hashlib.sha512(outer_pad + inner_hash).digest()
+
+
+def _pbkdf2_hmac_sha512(
+    password: bytes,
+    salt: bytes,
+    iterations: int,
+    derived_key_length: int,
+) -> bytes:
+    """
+    Manual PBKDF2-HMAC-SHA512.
+
+    PBKDF2 derives output in 64-byte SHA512-sized blocks. For each block:
+
+      U1 = HMAC(password, salt || block_number)
+      U2 = HMAC(password, U1)
+      ...
+      Uc = HMAC(password, Uc-1)
+
+    The final block is U1 XOR U2 XOR ... XOR Uc.
+    BIP39 sets c = 2048 and asks for 64 output bytes.
+    """
+    if iterations <= 0:
+        raise ValueError("PBKDF2 iterations must be positive")
+    if derived_key_length <= 0:
+        raise ValueError("PBKDF2 derived key length must be positive")
+
+    hlen = 64
+    blocks_needed = (derived_key_length + hlen - 1) // hlen
+    derived = bytearray()
+
+    for block_number in range(1, blocks_needed + 1):
+        u = _hmac_sha512(password, salt + block_number.to_bytes(4, "big"))
+        block = bytearray(u)
+
+        for _ in range(1, iterations):
+            u = _hmac_sha512(password, u)
+            for i, byte in enumerate(u):
+                block[i] ^= byte
+
+        derived.extend(block)
+
+    return bytes(derived[:derived_key_length])
+
 
 def _get_sign_ctx():
     global _SECP256K1_SIGN
@@ -1648,6 +1733,599 @@ def random_256() -> str:
             return key_bytes.hex()
 
 
+def entropy_to_bip39_mnemonic(val: str) -> str:
+    """
+    Convert BIP39 entropy hex into an English mnemonic.
+
+    BIP39 accepts entropy lengths of 128, 160, 192, 224, or 256 bits.
+    A 32-byte entropy input produces a 24-word mnemonic.
+    """
+    entropy = _bytes_from_even_hex(val, name="entropy")
+    if len(entropy) not in (16, 20, 24, 28, 32):
+        raise ValueError(
+            "BIP39 entropy must be 16, 20, 24, 28, or 32 bytes "
+            f"(got {len(entropy)})"
+        )
+
+    entropy_bit_len = len(entropy) * 8
+    checksum_bit_len = entropy_bit_len // 32
+    checksum = hashlib.sha256(entropy).digest()
+
+    entropy_bits = f"{int.from_bytes(entropy, 'big'):0{entropy_bit_len}b}"
+    checksum_bits = f"{checksum[0]:08b}"[:checksum_bit_len]
+    mnemonic_bits = entropy_bits + checksum_bits
+
+    words = [
+        _BIP39_ENGLISH_WORDLIST[int(mnemonic_bits[offset : offset + 11], 2)]
+        for offset in range(0, len(mnemonic_bits), 11)
+    ]
+    return " ".join(words)
+
+
+def _bip39_mnemonic_to_entropy(mnemonic: str) -> bytes:
+    words = mnemonic.split()
+    if len(words) not in (12, 15, 18, 21, 24):
+        raise ValueError("BIP39 mnemonic must contain 12, 15, 18, 21, or 24 words")
+
+    bits = ""
+    for word in words:
+        index = _BIP39_ENGLISH_INDEX.get(word)
+        if index is None:
+            raise ValueError(f"Unknown BIP39 word: {word!r}")
+        bits += f"{index:011b}"
+
+    checksum_bit_len = len(words) // 3
+    entropy_bit_len = len(bits) - checksum_bit_len
+    entropy_bits = bits[:entropy_bit_len]
+    checksum_bits = bits[entropy_bit_len:]
+
+    entropy = int(entropy_bits, 2).to_bytes(entropy_bit_len // 8, "big")
+    expected_checksum = f"{hashlib.sha256(entropy).digest()[0]:08b}"[:checksum_bit_len]
+    if checksum_bits != expected_checksum:
+        raise ValueError("Invalid BIP39 mnemonic checksum")
+    return entropy
+
+
+def bip39_mnemonic_to_seed(vals: list[str]) -> str:
+    """
+    Derive the 64-byte BIP39 seed from an English mnemonic.
+
+    vals[0]: mnemonic words
+    vals[1]: optional passphrase
+
+    BIP39 uses PBKDF2-HMAC-SHA512 with 2048 rounds and salt
+    "mnemonic" + passphrase, with both strings NFKD-normalized.
+    """
+    if not vals:
+        raise ValueError("Need [mnemonic, passphrase?]")
+
+    mnemonic = " ".join(str(vals[0]).strip().split())
+    if not mnemonic:
+        raise ValueError("Mnemonic is required")
+    try:
+        _bip39_mnemonic_to_entropy(mnemonic)
+    except ValueError as exc:
+        raise ValueError(f"Invalid BIP39 mnemonic or checksum: {exc}") from exc
+
+    passphrase = "" if len(vals) < 2 or vals[1] is None else str(vals[1])
+    password = unicodedata.normalize("NFKD", mnemonic).encode("utf-8")
+    salt = unicodedata.normalize("NFKD", "mnemonic" + passphrase).encode("utf-8")
+    return _pbkdf2_hmac_sha512(password, salt, 2048, 64).hex()
+
+
+def _parse_bip32_path(path: str) -> list[int]:
+    path = str(path).strip()
+    if path in ("", "m", "M"):
+        return []
+    if not path.startswith(("m/", "M/")):
+        raise ValueError("BIP32 path must start with m/")
+
+    out: list[int] = []
+    for raw_part in path[2:].split("/"):
+        part = raw_part.strip()
+        if not part:
+            raise ValueError("BIP32 path contains an empty component")
+
+        hardened = part[-1:] in ("'", "h", "H")
+        if hardened:
+            part = part[:-1]
+        if not part.isdigit():
+            raise ValueError(f"Invalid BIP32 path component: {raw_part!r}")
+
+        index = int(part, 10)
+        if index >= _BIP32_HARDENED:
+            raise ValueError("BIP32 path index must be less than 2^31")
+        out.append(index + (_BIP32_HARDENED if hardened else 0))
+    return out
+
+
+def _bip32_master_from_seed(seed: bytes) -> tuple[int, bytes]:
+    if not (16 <= len(seed) <= 64):
+        raise ValueError(f"BIP32 seed must be 16 to 64 bytes (got {len(seed)})")
+    digest = _hmac_sha512(b"Bitcoin seed", seed)
+    priv_int = int.from_bytes(digest[:32], "big")
+    if not 1 <= priv_int < _CURVE_ORDER:
+        raise ValueError("Invalid BIP32 master key derived from seed")
+    return priv_int, digest[32:]
+
+
+def _bip32_ckd_priv(parent_priv: int, parent_chain_code: bytes, index: int) -> tuple[int, bytes]:
+    if index >= _BIP32_HARDENED:
+        data = b"\x00" + _int_to_32(parent_priv) + index.to_bytes(4, "big")
+    else:
+        data = _point_to_compressed(_CURVE_GEN * parent_priv) + index.to_bytes(4, "big")
+
+    digest = _hmac_sha512(parent_chain_code, data)
+    left_int = int.from_bytes(digest[:32], "big")
+    child_priv = (left_int + parent_priv) % _CURVE_ORDER
+    if left_int >= _CURVE_ORDER or child_priv == 0:
+        raise ValueError("Invalid BIP32 child key derived at this path")
+    return child_priv, digest[32:]
+
+
+def bip32_derive_private_key(vals: list[str]) -> str:
+    """
+    Derive a BIP32 child private key from a seed and path.
+
+    vals[0]: seed hex, typically the 64-byte BIP39 seed
+    vals[1]: derivation path, e.g. m/44'/1'/0'/0/0
+    """
+    if len(vals) < 2:
+        raise ValueError("Need [seedHex, path]")
+
+    seed = _bytes_from_even_hex(vals[0], name="BIP32 seed")
+    path = str(vals[1]).strip()
+    priv_int, chain_code = _bip32_master_from_seed(seed)
+    for index in _parse_bip32_path(path):
+        priv_int, chain_code = _bip32_ckd_priv(priv_int, chain_code, index)
+    return _int_to_32(priv_int).hex()
+
+
+_TREZOR_GROUP_STRIDE = 100
+_TREZOR_UINT32_MAX = 0xFFFFFFFF
+_TREZOR_INPUT_SCRIPT_TYPES = {
+    "SPENDADDRESS",
+    "SPENDWITNESS",
+    "SPENDP2SHWITNESS",
+    "SPENDTAPROOT",
+}
+_TREZOR_OUTPUT_SCRIPT_TYPES = {
+    "PAYTOADDRESS",
+    "PAYTOWITNESS",
+    "PAYTOP2SHWITNESS",
+    "PAYTOTAPROOT",
+}
+
+
+def _trezor_raw_value(vals: Any, index: int) -> str:
+    if isinstance(vals, dict):
+        raw = vals.get(str(index), vals.get(index, ""))
+    elif isinstance(vals, list):
+        raw = vals[index] if index < len(vals) else ""
+    else:
+        raw = ""
+    if raw in ("__EMPTY__", "__NULL__", None):
+        return ""
+    return str(raw)
+
+
+def _trezor_group_bases(
+    vals: Any,
+    *,
+    start: int,
+    end: int,
+    field_offsets: set[int],
+) -> list[int]:
+    if not isinstance(vals, dict):
+        return []
+
+    bases: set[int] = set()
+    for key in vals:
+        try:
+            index = int(key)
+        except Exception:
+            continue
+        if index < start or index >= end:
+            continue
+        for offset in field_offsets:
+            base = index - offset
+            if base >= start and base < end and (base - start) % _TREZOR_GROUP_STRIDE == 0:
+                bases.add(base)
+    return sorted(bases)
+
+
+def _parse_trezor_uint(
+    val: Any,
+    *,
+    name: str,
+    max_value: int,
+    required: bool = True,
+) -> int | None:
+    raw = "" if val is None else str(val).strip()
+    if not raw:
+        if required:
+            raise ValueError(f"{name} is required")
+        return None
+    compact = _WS_RE.sub("", raw)
+    if not _INT_DEC_RE.match(compact):
+        raise ValueError(f"{name} must be a decimal integer")
+    parsed = int(compact, 10)
+    if not 0 <= parsed <= max_value:
+        raise ValueError(f"{name} must be between 0 and {max_value}")
+    return parsed
+
+
+def _parse_trezor_sequence(val: Any, *, name: str = "sequence") -> int:
+    raw = "" if val is None else str(val).strip()
+    if not raw:
+        return _TREZOR_UINT32_MAX
+    compact = _WS_RE.sub("", raw)
+    lower = compact.lower()
+    format_hint = (
+        f"{name} must be decimal or 8-character display-order hex "
+        "such as ffffffff or fffffffd"
+    )
+
+    if lower.startswith(("le:", "0x")):
+        raise ValueError(format_hint)
+
+    if _INT_DEC_RE.match(compact):
+        if not _UINT_DEC_NO_LEADING_ZERO_RE.match(compact):
+            raise ValueError(
+                f"{name} decimal form must not use leading zeroes; "
+                "use display-order hex such as fffffffd for common policy values"
+            )
+        parsed = int(compact, 10)
+        if not 0 <= parsed <= _TREZOR_UINT32_MAX:
+            raise ValueError(f"{name} must be between 0 and {_TREZOR_UINT32_MAX}")
+        return parsed
+
+    if _HEX_RE.match(compact):
+        if len(compact) != 8:
+            raise ValueError(f"{name} hex must be exactly 8 characters")
+        if not lower.startswith("ffff"):
+            raise ValueError(
+                f"{name} hex must be display-order policy hex like fffffffd; "
+                "use decimal for custom sequence values and do not use serialized little-endian bytes"
+            )
+        return int(lower, 16)
+    raise ValueError(format_hint)
+
+
+def _looks_like_bip32_path(raw: Any) -> bool:
+    value = "" if raw is None else str(raw).strip()
+    return value in ("m", "M") or value.startswith(("m/", "M/"))
+
+
+def _parse_trezor_path_address_n(path: str, *, name: str = "Derivation path") -> list[int]:
+    value = str(path).strip()
+    if not value:
+        raise ValueError(f"{name} is required")
+    return [int(index) for index in _parse_bip32_path(value)]
+
+
+def _trezor_path_purpose(address_n: list[int]) -> int | None:
+    if not address_n:
+        return None
+    first = address_n[0]
+    if first < _BIP32_HARDENED:
+        return None
+    return first - _BIP32_HARDENED
+
+
+def _infer_trezor_input_script_type(address_n: list[int]) -> str:
+    purpose = _trezor_path_purpose(address_n)
+    if purpose == 49:
+        return "SPENDP2SHWITNESS"
+    if purpose == 84:
+        return "SPENDWITNESS"
+    if purpose == 86:
+        return "SPENDTAPROOT"
+    return "SPENDADDRESS"
+
+
+def _infer_trezor_output_script_type(address_n: list[int]) -> str:
+    purpose = _trezor_path_purpose(address_n)
+    if purpose == 49:
+        return "PAYTOP2SHWITNESS"
+    if purpose == 84:
+        return "PAYTOWITNESS"
+    if purpose == 86:
+        return "PAYTOTAPROOT"
+    return "PAYTOADDRESS"
+
+
+def _trezor_script_type(
+    raw: Any,
+    *,
+    inferred: str,
+    allowed: set[str],
+    name: str,
+) -> str:
+    value = "" if raw is None else str(raw).strip().upper()
+    if not value or value == "AUTO":
+        return inferred
+    if value not in allowed:
+        raise ValueError(f"{name} must be one of: AUTO, {', '.join(sorted(allowed))}")
+    return value
+
+
+def _clean_required_trezor_hex(raw: Any, *, name: str, byte_len: int | None = None) -> str:
+    value = _WS_RE.sub("", "" if raw is None else str(raw).strip()).lower()
+    if not value:
+        raise ValueError(f"{name} is required")
+    data = _bytes_from_even_hex(value, name=name)
+    if byte_len is not None and len(data) != byte_len:
+        raise ValueError(f"{name} must be exactly {byte_len} bytes")
+    return data.hex()
+
+
+def _reverse_hex_bytes(hex_value: str) -> str:
+    return bytes.fromhex(hex_value)[::-1].hex()
+
+
+class _TrezorTxReader:
+    def __init__(self, data: bytes):
+        self.data = data
+        self.offset = 0
+
+    @property
+    def remaining(self) -> int:
+        return len(self.data) - self.offset
+
+    def peek(self, index: int = 0) -> int:
+        return self.data[self.offset + index]
+
+    def read(self, length: int) -> bytes:
+        if length < 0 or self.offset + length > len(self.data):
+            raise ValueError("previous raw transaction ended unexpectedly")
+        out = self.data[self.offset : self.offset + length]
+        self.offset += length
+        return out
+
+    def read_u32_le(self) -> int:
+        return int.from_bytes(self.read(4), "little")
+
+    def read_u64_le(self) -> int:
+        return int.from_bytes(self.read(8), "little")
+
+    def read_varint(self) -> int:
+        first = self.read(1)[0]
+        if first < 0xFD:
+            return first
+        if first == 0xFD:
+            return int.from_bytes(self.read(2), "little")
+        if first == 0xFE:
+            return self.read_u32_le()
+        value = self.read_u64_le()
+        if value > 2**53 - 1:
+            raise ValueError("CompactSize value is too large")
+        return value
+
+
+def _parse_previous_raw_transaction(raw_tx_hex: Any) -> dict[str, Any]:
+    raw_hex = _clean_required_trezor_hex(raw_tx_hex, name="previous raw transaction")
+    raw = bytes.fromhex(raw_hex)
+    reader = _TrezorTxReader(raw)
+    version = reader.read_u32_le()
+
+    has_witness = False
+    if reader.remaining >= 2 and reader.peek(0) == 0x00 and reader.peek(1) != 0x00:
+        reader.read(2)
+        has_witness = True
+
+    input_output_start = reader.offset
+    input_count = reader.read_varint()
+    inputs: list[dict[str, Any]] = []
+    for input_number in range(input_count):
+        prev_hash = reader.read(32)[::-1].hex()
+        prev_index = reader.read_u32_le()
+        script_len = reader.read_varint()
+        script_sig = reader.read(script_len).hex()
+        sequence = reader.read_u32_le()
+        tx_input: dict[str, Any] = {
+            "prev_hash": prev_hash,
+            "prev_index": prev_index,
+            "sequence": sequence,
+            "script_sig": script_sig,
+        }
+        inputs.append(tx_input)
+
+    output_count = reader.read_varint()
+    bin_outputs: list[dict[str, Any]] = []
+    for output_number in range(output_count):
+        amount = reader.read_u64_le()
+        script_len = reader.read_varint()
+        script_pubkey = reader.read(script_len).hex()
+        bin_outputs.append({"amount": amount, "script_pubkey": script_pubkey})
+
+    input_output_end = reader.offset
+    if has_witness:
+        for input_number in range(input_count):
+            item_count = reader.read_varint()
+            for item_number in range(item_count):
+                item_len = reader.read_varint()
+                reader.read(item_len)
+
+    locktime_start = reader.offset
+    lock_time = reader.read_u32_le()
+    if reader.remaining:
+        raise ValueError("previous raw transaction has trailing bytes")
+
+    if has_witness:
+        raw_no_witness = (
+            raw[:4] + raw[input_output_start:input_output_end] + raw[locktime_start:locktime_start + 4]
+        )
+    else:
+        raw_no_witness = raw
+    txid = hashlib.sha256(hashlib.sha256(raw_no_witness).digest()).digest()[::-1].hex()
+
+    return {
+        "hash": txid,
+        "version": version,
+        "lock_time": lock_time,
+        "inputs": inputs,
+        "bin_outputs": bin_outputs,
+    }
+
+
+def _build_trezor_input(vals: Any, base: int, input_number: int, refs_by_hash: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    address_n = _parse_trezor_path_address_n(
+        _trezor_raw_value(vals, base),
+        name=f"input[{input_number}] derivation path",
+    )
+    prev_hash = _clean_required_trezor_hex(
+        _trezor_raw_value(vals, base + 10),
+        name=f"input[{input_number}] previous txid",
+        byte_len=32,
+    )
+    prev_index = _parse_trezor_uint(
+        _trezor_raw_value(vals, base + 20),
+        name=f"input[{input_number}] previous output index",
+        max_value=_TREZOR_UINT32_MAX,
+    )
+    amount = _parse_trezor_uint(
+        _trezor_raw_value(vals, base + 30),
+        name=f"input[{input_number}] amount",
+        max_value=2**64 - 1,
+    )
+    sequence = _parse_trezor_sequence(
+        _trezor_raw_value(vals, base + 40),
+        name=f"input[{input_number}] sequence",
+    )
+    script_type = _trezor_script_type(
+        _trezor_raw_value(vals, base + 50),
+        inferred=_infer_trezor_input_script_type(address_n),
+        allowed=_TREZOR_INPUT_SCRIPT_TYPES,
+        name=f"input[{input_number}] script type",
+    )
+
+    ref_tx = refs_by_hash.get(prev_hash)
+    reversed_ref_tx = refs_by_hash.get(_reverse_hex_bytes(prev_hash))
+    if ref_tx:
+        outputs = ref_tx.get("bin_outputs", [])
+        if prev_index is None or prev_index >= len(outputs):
+            raise ValueError(
+                f"input[{input_number}] previous output index is out of range for previous raw transaction"
+            )
+        if outputs[prev_index]["amount"] != amount:
+            raise ValueError(
+                f"input[{input_number}] amount does not match previous raw transaction output amount"
+            )
+    elif script_type != "SPENDTAPROOT":
+        if reversed_ref_tx:
+            raise ValueError(
+                f"input[{input_number}] previous txid appears byte-reversed; use display-order txid {reversed_ref_tx['hash']}"
+            )
+        raise ValueError(f"previous raw transaction for input[{input_number}] is required")
+
+    return {
+        "address_n": address_n,
+        "prev_hash": prev_hash,
+        "prev_index": prev_index,
+        "amount": amount,
+        "sequence": sequence,
+        "script_type": script_type,
+    }
+
+
+def _build_trezor_output(vals: Any, base: int, output_number: int) -> dict[str, Any]:
+    destination = _trezor_raw_value(vals, base).strip()
+    if not destination:
+        raise ValueError(f"output[{output_number}] destination is required")
+    amount = _parse_trezor_uint(
+        _trezor_raw_value(vals, base + 10),
+        name=f"output[{output_number}] amount",
+        max_value=2**64 - 1,
+    )
+
+    if not _looks_like_bip32_path(destination):
+        requested = _trezor_raw_value(vals, base + 20).strip().upper()
+        if requested and requested not in ("AUTO", "PAYTOADDRESS"):
+            raise ValueError(f"output[{output_number}] address outputs must use AUTO or PAYTOADDRESS")
+        return {
+            "address": destination,
+            "amount": amount,
+            "script_type": "PAYTOADDRESS",
+        }
+
+    address_n = _parse_trezor_path_address_n(
+        destination,
+        name=f"output[{output_number}] change path",
+    )
+    return {
+        "address_n": address_n,
+        "amount": amount,
+        "script_type": _trezor_script_type(
+            _trezor_raw_value(vals, base + 20),
+            inferred=_infer_trezor_output_script_type(address_n),
+            allowed=_TREZOR_OUTPUT_SCRIPT_TYPES,
+            name=f"output[{output_number}] script type",
+        ),
+    }
+
+
+def build_trezor_sign_transaction_params(vals: Any) -> str:
+    """
+    Build the exact Trezor Connect signTransaction params JSON.
+
+    This node intentionally uses dynamic INPUTS[] / OUTPUTS[] groups as the
+    source of truth. There are no editable count fields.
+    """
+    if not isinstance(vals, dict):
+        raise ValueError("Trezor signTransaction params builder requires indexed inputs")
+
+    coin = _trezor_raw_value(vals, 0).strip() or "testnet"
+    version = _parse_trezor_uint(_trezor_raw_value(vals, 1), name="version", max_value=_TREZOR_UINT32_MAX)
+    locktime = _parse_trezor_uint(_trezor_raw_value(vals, 2), name="locktime", max_value=_TREZOR_UINT32_MAX)
+
+    input_bases = _trezor_group_bases(
+        vals,
+        start=1000,
+        end=3000,
+        field_offsets={0, 10, 20, 30, 40, 50},
+    )
+    output_bases = _trezor_group_bases(
+        vals,
+        start=3000,
+        end=5000,
+        field_offsets={0, 10, 20},
+    )
+    raw_tx_bases = _trezor_group_bases(vals, start=5000, end=7000, field_offsets={0})
+
+    if not input_bases:
+        raise ValueError("INPUTS[] must contain at least one item")
+    if not output_bases:
+        raise ValueError("OUTPUTS[] must contain at least one item")
+
+    ref_txs: list[dict[str, Any]] = []
+    refs_by_hash: dict[str, dict[str, Any]] = {}
+    for base in raw_tx_bases:
+        raw_tx = _trezor_raw_value(vals, base).strip()
+        if not raw_tx:
+            continue
+        ref_tx = _parse_previous_raw_transaction(raw_tx)
+        if ref_tx["hash"] not in refs_by_hash:
+            refs_by_hash[ref_tx["hash"]] = ref_tx
+            ref_txs.append(ref_tx)
+
+    params = {
+        "coin": coin,
+        "version": version,
+        "locktime": locktime,
+        "inputs": [
+            _build_trezor_input(vals, base, input_number, refs_by_hash)
+            for input_number, base in enumerate(input_bases)
+        ],
+        "outputs": [
+            _build_trezor_output(vals, base, output_number)
+            for output_number, base in enumerate(output_bases)
+        ],
+        "refTxs": ref_txs,
+    }
+    return json.dumps(params, indent=2)
+
+
 # --------------------------------------------------------------------------------
 # Public Key from Private Key (elliptic curve + compression)
 # --------------------------------------------------------------------------------
@@ -1809,6 +2487,41 @@ def sign_as_bitcoin_core_low_r(vals: list[str]) -> str:
         
         # If we get here, we couldn't find low-R in reasonable attempts
         # Return the last signature anyway (it's valid, just not low-R)
+        return _serialize_der(ctx, sig)
+
+
+def sign_tx_rfc6979(vals: list[str]) -> str:
+    """
+    Return a DER-encoded ECDSA signature using one RFC6979 nonce.
+
+    This intentionally does not perform Bitcoin Core-style low-R grinding.
+    The signature is still normalized to low-S before DER serialization.
+    """
+    if len(vals) < 2:
+        raise ValueError("Need [privateKeyHex, messageHashHex]")
+
+    priv_bytes = _bytes_from_even_hex(vals[0].strip(), name="private key")
+    msg_bytes = _bytes_from_even_hex(vals[1].strip(), name="message hash")
+
+    if len(priv_bytes) != 32 or len(msg_bytes) != 32:
+        raise ValueError("Private key and message hash must be 32 bytes each")
+
+    ctx = _get_sign_ctx()
+
+    with _SIGN_LOCK:
+        priv_c = secp256k1.ffi.new("unsigned char[32]", priv_bytes)
+        msg_c = secp256k1.ffi.new("unsigned char[32]", msg_bytes)
+        sig = secp256k1.ffi.new("secp256k1_ecdsa_signature *")
+        rfc6979 = secp256k1.ffi.addressof(
+            secp256k1.lib, "secp256k1_nonce_function_rfc6979"
+        )
+
+        if secp256k1.lib.secp256k1_ecdsa_sign(
+            ctx, sig, msg_c, priv_c, rfc6979, secp256k1.ffi.NULL
+        ) != 1:
+            raise RuntimeError("ECDSA sign failed")
+
+        secp256k1.lib.secp256k1_ecdsa_signature_normalize(ctx, sig, sig)
         return _serialize_der(ctx, sig)
 # Helper methods
 def _write_le32(byte_array, val):

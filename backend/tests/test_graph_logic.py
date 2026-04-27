@@ -110,6 +110,53 @@ def test_build_multi_val_params_precedence(monkeypatch):
     }
 
 
+def test_build_multi_val_indexed_params_keeps_visible_indices():
+    source_node = {"id": "src", "data": {"result": "from-edge"}}
+    target_node = {
+        "id": "dst",
+        "data": {
+            "functionName": "build_trezor_sign_transaction_params",
+            "inputStructure": {
+                "ungrouped": [{"index": 0}],
+                "groups": [
+                    {
+                        "title": "INPUTS[]",
+                        "baseIndex": 1000,
+                        "fields": [{"index": 0}, {"index": 10}],
+                    }
+                ],
+            },
+            "groupInstanceKeys": {"INPUTS[]": [1000]},
+            "inputs": {
+                "vals": {
+                    "0": "testnet",
+                    "1010": "manual",
+                }
+            },
+        },
+    }
+    nodes = {"src": source_node, "dst": target_node}
+    edges = [{"source": "src", "target": "dst", "targetHandle": "dst-1000"}]
+
+    params = graph_logic.build_multi_val_indexed_params(
+        target_node,
+        edges,
+        nodes,
+        lambda nid: nodes[nid]["data"].get("result"),
+    )
+
+    assert params["vals"] == {
+        "0": "testnet",
+        "1000": "from-edge",
+        "1010": "manual",
+    }
+    assert params["_sparseVals"] == {
+        "0": "testnet",
+        "1000": "from-edge",
+        "1010": "manual",
+    }
+
+
 def test_bulk_calculate_logic_musig2_nonce_gen_message_null_sentinel():
     rand = "0f" * 32
     signer_pubkey = "02f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9"
@@ -516,6 +563,140 @@ def test_bulk_calculate_logic_happy_path():
     assert updated["dst"]["data"]["result"] == "abcmanual"
     assert updated["dst"]["data"]["inputs"] == {"vals": {"0": "abc", "1": "manual"}}
     assert updated["dst"]["data"].get("dirty") is False
+
+
+def test_bulk_calculate_logic_skips_trezor_action_nodes_but_uses_their_result():
+    nodes = [
+        {
+            "id": "trezor",
+            "type": "trezorAction",
+            "data": {
+                "functionName": "trezor_get_address",
+                "result": "tb1qdummyaddress",
+                "dirty": False,
+            },
+        },
+        {
+            "id": "cmp",
+            "type": "calculation",
+            "data": {
+                "functionName": "compare_equal",
+                "dirty": True,
+                "inputStructure": {"ungrouped": [{"index": 0}, {"index": 1}]},
+                "inputs": {"vals": {"1": "tb1qdummyaddress"}},
+            },
+        },
+    ]
+    edges = [
+        {
+            "source": "trezor",
+            "target": "cmp",
+            "sourceHandle": "",
+            "targetHandle": "input-0",
+        }
+    ]
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic(copy.deepcopy(nodes), edges)
+    updated = {node["id"]: node for node in updated_nodes}
+
+    assert errors == []
+    assert updated["trezor"]["data"]["result"] == "tb1qdummyaddress"
+    assert updated["trezor"]["data"].get("dirty") is False
+    assert updated["cmp"]["data"]["result"] == "true"
+    assert updated["cmp"]["data"]["inputs"] == {
+        "vals": {"0": "tb1qdummyaddress", "1": "tb1qdummyaddress"}
+    }
+
+
+def test_bulk_calculate_logic_preserves_trezor_action_error_state():
+    nodes = [
+        {
+            "id": "trezor",
+            "type": "trezorAction",
+            "data": {
+                "functionName": "trezor_sign_transaction",
+                "result": "",
+                "dirty": True,
+                "error": True,
+                "extendedError": "Trezor rejected signing",
+                "hardwareStatus": "error",
+                "hardwareStatusText": "Trezor rejected signing",
+            },
+        }
+    ]
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic(copy.deepcopy(nodes), [])
+    updated = {node["id"]: node for node in updated_nodes}
+
+    assert errors == []
+    assert updated["trezor"]["data"]["dirty"] is False
+    assert updated["trezor"]["data"]["error"] is True
+    assert updated["trezor"]["data"]["extendedError"] == "Trezor rejected signing"
+    assert updated["trezor"]["data"]["hardwareStatus"] == "error"
+
+
+def test_bulk_calculate_logic_clears_stale_trezor_params_result_on_error():
+    nodes = [
+        {
+            "id": "params",
+            "type": "calculation",
+            "data": {
+                "functionName": "build_trezor_sign_transaction_params",
+                "dirty": True,
+                "result": '{"coin":"testnet","inputs":[{"stale":true}],"outputs":[]}',
+                "inputStructure": {
+                    "ungrouped": [{"index": 0}, {"index": 1}, {"index": 2}],
+                    "groups": [
+                        {
+                            "title": "INPUTS[]",
+                            "baseIndex": 1000,
+                            "fields": [
+                                {"index": 0},
+                                {"index": 10},
+                                {"index": 20},
+                                {"index": 30},
+                                {"index": 40},
+                                {"index": 50},
+                            ],
+                        },
+                        {
+                            "title": "OUTPUTS[]",
+                            "baseIndex": 3000,
+                            "fields": [{"index": 0}, {"index": 10}, {"index": 20}],
+                        },
+                    ],
+                },
+                "groupInstanceKeys": {
+                    "INPUTS[]": [1000],
+                    "OUTPUTS[]": [3000],
+                },
+                "inputs": {
+                    "vals": {
+                        "0": "testnet",
+                        "1": "2",
+                        "2": "0",
+                        "1000": "",
+                        "1010": "00" * 32,
+                        "1020": "0",
+                        "1030": "1",
+                        "1040": "ffffffff",
+                        "1050": "AUTO",
+                        "3000": "mtAoaTyXBeksZbMtwk6yG5M1xCYUDpNNU9",
+                        "3010": "1",
+                        "3020": "AUTO",
+                    }
+                },
+            },
+        }
+    ]
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic(copy.deepcopy(nodes), [])
+    updated = {node["id"]: node for node in updated_nodes}
+
+    assert errors
+    assert updated["params"]["data"]["result"] == ""
+    assert updated["params"]["data"]["error"] is True
+    assert "input[0] derivation path is required" in updated["params"]["data"]["extendedError"]
 
 
 def test_bulk_calculate_logic_handles_unknown_source_edges():

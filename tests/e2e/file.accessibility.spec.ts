@@ -134,6 +134,8 @@ test.describe('Keyboard navigation & accessibility', () => {
     const initialCount = await nodesLocator.count();
 
     await marqueeSelect(page, ['node_input', 'node_hash']);
+    await expect(page.locator('.react-flow__node.selected')).toHaveCount(2);
+    await blurActiveElement(page);
 
     const modifier = process.platform === 'darwin' ? 'Meta' : 'Control';
 
@@ -149,11 +151,14 @@ test.describe('Keyboard navigation & accessibility', () => {
     await expect.poll(async () => nodesLocator.count()).toBe(initialCount);
 
     await marqueeSelect(page, ['node_input', 'node_hash']);
+    await expect(page.locator('.react-flow__node.selected')).toHaveCount(2);
+    await blurActiveElement(page);
 
     const groupNode = page.locator('.react-flow__node-shadcnGroup');
     await page.keyboard.press(`${modifier}+g`);
     await expect(groupNode).toHaveCount(1, { timeout: 10_000 });
     await groupNode.first().click({ position: { x: 20, y: 20 } });
+    await blurActiveElement(page);
 
     await page.keyboard.press(`${modifier}+u`);
     await expect(groupNode).toHaveCount(0, { timeout: 10_000 });
@@ -218,6 +223,14 @@ async function tabUntilTitle(
   throw new Error(
     `Unable to focus element with title "${expectedTitle}" after ${maxSteps} presses of ${key}`,
   );
+}
+
+async function blurActiveElement(page: Page) {
+  await page.evaluate(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  });
 }
 
 async function marqueeSelect(page: Page, nodeIds: string[]) {

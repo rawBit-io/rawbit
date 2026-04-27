@@ -38,6 +38,10 @@ export interface FlowTab {
 }
 
 const MAX_TAB_TITLE_LENGTH = 40;
+const DEFAULT_VIEWPORT = { x: 0, y: 0, zoom: 1 };
+const IDENTITY_TRANSFORM_EPSILON = 0.0001;
+const RESTORE_FIT_MIN_ZOOM = 0.2;
+const RESTORE_FIT_RETRIES = [0, 80, 220] as const;
 
 const normalizeTabTitle = (raw: string): string => {
   const collapsed = raw.replace(/\s+/g, " ").trim();
@@ -51,6 +55,52 @@ interface FlowTabArchive {
   edges: Edge[];
   scriptSteps?: ScriptStepsEntry[];
   protocolDiagramLayout?: ProtocolDiagramLayout;
+}
+
+function isIdentityTransform(transform?: FlowTab["transform"]): boolean {
+  if (!transform) return false;
+  return (
+    Math.abs(transform.x) <= IDENTITY_TRANSFORM_EPSILON &&
+    Math.abs(transform.y) <= IDENTITY_TRANSFORM_EPSILON &&
+    Math.abs(transform.zoom - 1) <= IDENTITY_TRANSFORM_EPSILON
+  );
+}
+
+function shouldFitArchiveOnRestore(
+  tab: FlowTab | undefined,
+  archive: FlowTabArchive
+): boolean {
+  const hasGraph = archive.nodes.length > 0 || archive.edges.length > 0;
+  if (!hasGraph) return false;
+  if (!tab?.transform) return true;
+  if (!isIdentityTransform(tab.transform)) return false;
+  if (typeof window === "undefined") return false;
+
+  const viewportWidth = Math.max(window.innerWidth || 0, 1);
+  const viewportHeight = Math.max(window.innerHeight || 0, 1);
+  const margin = 200;
+  const requiredVisibleNodes = Math.min(2, archive.nodes.length);
+  let visibleNodes = 0;
+
+  for (const node of archive.nodes) {
+    const x = node.position?.x;
+    const y = node.position?.y;
+    if (
+      typeof x === "number" &&
+      typeof y === "number" &&
+      Number.isFinite(x) &&
+      Number.isFinite(y) &&
+      x >= -margin &&
+      y >= -margin &&
+      x <= viewportWidth + margin &&
+      y <= viewportHeight + margin
+    ) {
+      visibleNodes += 1;
+      if (visibleNodes >= requiredVisibleNodes) return false;
+    }
+  }
+
+  return visibleNodes === 0 || archive.nodes.length > 1 || archive.edges.length > 0;
 }
 
 interface FlowTabArchiveEntry {
@@ -126,6 +176,7 @@ const TAB_COUNTER_STORAGE_KEY = "rawbit.flow.tabCounter";
 interface TabsPersistState {
   disabled: boolean;
   lastPayloadSize: number;
+  lastPayload?: string;
 }
 
 function isQuotaExceededError(error: unknown): boolean {
@@ -330,10 +381,12 @@ function hydrateTabs(): HydratedTabsState {
       }
     }
 
-    if (tabs.length === 0) {
+    const hasStoredTabs = tabs.length > 0;
+    if (!hasStoredTabs) {
       tabs = [DEFAULT_TAB];
     }
 
+    const hydratedTabs: FlowTab[] = [];
     for (const tab of tabs) {
       const storageKey = getArchiveStorageKey(tab.id);
       let entry: FlowTabArchiveEntry | undefined;
@@ -359,11 +412,17 @@ function hydrateTabs(): HydratedTabsState {
       }
 
       if (!entry) {
-        entry = {
-          compressed: encodeArchiveRaw(createEmptyArchive()),
-        };
+        const allowEmptyFallback =
+          !hasStoredTabs || (tabs.length === 1 && tab.id === DEFAULT_TAB.id);
+        if (!allowEmptyFallback) continue;
+        entry = fallbackEntry;
       }
+      hydratedTabs.push(tab);
       archive.set(tab.id, entry);
+    }
+
+    if (hydratedTabs.length === 0) {
+      return fallback;
     }
 
     if (legacyArchive.size > 0) {
@@ -374,7 +433,7 @@ function hydrateTabs(): HydratedTabsState {
       }
     }
 
-    return { tabs, archive };
+    return { tabs: hydratedTabs, archive };
   } catch (error) {
     console.warn("Failed to hydrate tabs from storage", error);
     const recovered = hydrateArchiveBackedTabs();
@@ -456,6 +515,8 @@ export interface UseTabsResult {
   requestCloseTab: (tabId: string) => void;
   confirmCloseTab: () => void;
   cancelCloseTab: () => void;
+  closeAllTabs: () => void;
+  closeOtherTabs: () => void;
   setTabTransform: (tabId: string, transform: FlowTab["transform"]) => void;
   setTabTooltip: (tabId: string, tooltip: string) => void;
   renameTab: (
@@ -517,6 +578,43 @@ export function useTabs({
   }, []);
 
   const archivePersistDisabledRef = useRef(false);
+  const metaPersistStateRef = useRef<TabsPersistState>({
+    disabled: false,
+    lastPayloadSize: 0,
+  });
+
+  const persistTabsMetadata = useCallback((nextTabs: FlowTab[]) => {
+    if (typeof window === "undefined") return;
+    const payload = encodeStoragePayload({
+      version: 2,
+      tabs: nextTabs,
+    });
+    const payloadSize = payload.length;
+    const { disabled, lastPayload, lastPayloadSize } =
+      metaPersistStateRef.current;
+    if (payload === lastPayload) {
+      return;
+    }
+    if (disabled && payloadSize >= lastPayloadSize) {
+      return;
+    }
+    try {
+      window.localStorage.setItem(TABS_STORAGE_KEY, payload);
+      metaPersistStateRef.current = {
+        disabled: false,
+        lastPayload: payload,
+        lastPayloadSize: payloadSize,
+      };
+    } catch (error) {
+      console.warn("Failed to persist tabs", error);
+      const quotaExceeded = isQuotaExceededError(error);
+      metaPersistStateRef.current = {
+        disabled: quotaExceeded,
+        lastPayload,
+        lastPayloadSize: payloadSize,
+      };
+    }
+  }, []);
 
   const persistTabCompressed = useCallback(
     (tabId: string, compressed?: string) => {
@@ -717,16 +815,53 @@ export function useTabs({
   );
 
   const runViewportRestore = useCallback(
-    (tab?: FlowTab) => {
-      const instance = getFlowInstance();
-      if (!instance) return;
-      requestAnimationFrame(() => {
-        if (!tab?.transform) {
-          instance.setViewport({ x: 0, y: 0, zoom: 1 }, { duration: 0 });
-        } else {
-          instance.setViewport(tab.transform, { duration: 0 });
+    (tab?: FlowTab, archive?: FlowTabArchive) => {
+      const shouldFit = archive
+        ? shouldFitArchiveOnRestore(tab, archive)
+        : false;
+
+      const apply = (attempt = 0) => {
+        const instance = getFlowInstance();
+        if (!instance) {
+          if (typeof window !== "undefined" && attempt < 8) {
+            window.requestAnimationFrame(() => apply(attempt + 1));
+          }
+          return;
         }
-      });
+
+        if (shouldFit) {
+          const fitView = (instance as Partial<ReactFlowInstance>).fitView;
+          if (typeof fitView === "function") {
+            const runFit = () => {
+              fitView.call(instance, {
+                padding: 0.2,
+                minZoom: RESTORE_FIT_MIN_ZOOM,
+                maxZoom: 2,
+                duration: 0,
+              });
+            };
+
+            runFit();
+            if (typeof window !== "undefined") {
+              RESTORE_FIT_RETRIES.forEach((delay) => {
+                window.setTimeout(runFit, delay);
+              });
+            }
+            return;
+          }
+        }
+
+        instance.setViewport(tab?.transform ?? DEFAULT_VIEWPORT, {
+          duration: 0,
+        });
+      };
+
+      if (typeof window === "undefined") {
+        apply();
+        return;
+      }
+
+      window.requestAnimationFrame(() => apply());
     },
     [getFlowInstance]
   );
@@ -800,7 +935,7 @@ export function useTabs({
         initializeTabHistory(tabId, [], []);
       }
 
-      runViewportRestore(nextTab);
+      runViewportRestore(nextTab, nextArchive);
     },
     [
       activeTabId,
@@ -855,7 +990,7 @@ export function useTabs({
     setActiveTabId(newId);
     setActiveTabCtx(newId);
 
-    runViewportRestore(newTab);
+    runViewportRestore(newTab, emptyRaw);
     return newId;
   }, [
     activeTabId,
@@ -873,6 +1008,24 @@ export function useTabs({
     tabCounter,
   ]);
 
+  const discardTabData = useCallback(
+    (tabIds: string[]) => {
+      const ids = new Set(tabIds);
+      archiveWorkerPendingRef.current.forEach((value, requestId) => {
+        if (ids.has(value.tabId)) {
+          archiveWorkerPendingRef.current.delete(requestId);
+        }
+      });
+
+      ids.forEach((tabId) => {
+        archiveRef.current.delete(tabId);
+        removeTabArchive(tabId);
+        removeTabHistory(tabId);
+      });
+    },
+    [removeTabArchive, removeTabHistory]
+  );
+
   const requestCloseTab = useCallback(
     (tabId: string) => {
       setCloseDialog({ tabId, open: true });
@@ -884,6 +1037,118 @@ export function useTabs({
     setCloseDialog({ tabId: null, open: false });
   }, []);
 
+  const closeAllTabs = useCallback(() => {
+    const tabIds = tabs.map((tab) => tab.id);
+    const nextTab: FlowTab = {
+      ...DEFAULT_TAB,
+      transform: DEFAULT_VIEWPORT,
+    };
+    const emptyRaw = createEmptyArchive();
+    const emptyCompressed =
+      encodeArchiveRaw(emptyRaw) ?? encodeStoragePayload(emptyRaw);
+
+    setCloseDialog({ tabId: null, open: false });
+    discardTabData(tabIds);
+    archiveRef.current.clear();
+    archiveRef.current.set(nextTab.id, {
+      raw: emptyRaw,
+      compressed: emptyCompressed,
+    });
+    persistTabCompressed(nextTab.id, emptyCompressed);
+
+    skipLoadRef.current = true;
+    restoreScriptSteps([]);
+    baseSetNodes([]);
+    baseSetEdges([]);
+    setProtocolDiagramLayout?.(undefined);
+    graphRevRef.current = 0;
+    initializeTabHistory(nextTab.id, [], []);
+    refreshBanner([], nextTab.id);
+    setActiveTabId(nextTab.id);
+    setActiveTabCtx(nextTab.id);
+    setTabCounter(1);
+    setTabs([nextTab]);
+    persistTabsMetadata([nextTab]);
+    runViewportRestore(nextTab, emptyRaw);
+  }, [
+    baseSetEdges,
+    baseSetNodes,
+    discardTabData,
+    graphRevRef,
+    initializeTabHistory,
+    persistTabCompressed,
+    persistTabsMetadata,
+    refreshBanner,
+    runViewportRestore,
+    setProtocolDiagramLayout,
+    setActiveTabCtx,
+    tabs,
+  ]);
+
+  const closeOtherTabs = useCallback(() => {
+    const keepTabId = closeDialog.tabId ?? activeTabId;
+    const keepTab = tabs.find((tab) => tab.id === keepTabId);
+    if (!keepTab) {
+      setCloseDialog({ tabId: null, open: false });
+      return;
+    }
+
+    const removedTabIds = tabs
+      .filter((tab) => tab.id !== keepTabId)
+      .map((tab) => tab.id);
+
+    setCloseDialog({ tabId: null, open: false });
+    if (removedTabIds.length === 0) {
+      return;
+    }
+
+    if (keepTabId === activeTabId) {
+      saveTabData(keepTabId, { force: true, immediate: true });
+    }
+
+    const keepArchive = ensureArchiveRaw(keepTabId);
+    const nextTab =
+      keepTabId === activeTabId
+        ? { ...keepTab, version: graphRevRef.current }
+        : keepTab;
+
+    discardTabData(removedTabIds);
+
+    if (keepTabId !== activeTabId) {
+      skipLoadRef.current = true;
+      setActiveTabId(keepTabId);
+      setActiveTabCtx(keepTabId);
+      restoreScriptSteps(keepArchive.scriptSteps ?? []);
+      baseSetNodes(clone(keepArchive.nodes));
+      baseSetEdges(clone(keepArchive.edges));
+      setProtocolDiagramLayout?.(
+        sanitizeProtocolDiagramLayout(keepArchive.protocolDiagramLayout)
+      );
+      graphRevRef.current = nextTab.version;
+      refreshBanner(keepArchive.nodes, keepTabId);
+      runViewportRestore(nextTab, keepArchive);
+    }
+
+    setTabs([nextTab]);
+    persistTabsMetadata([nextTab]);
+  }, [
+    activeTabId,
+    baseSetEdges,
+    baseSetNodes,
+    clone,
+    closeDialog.tabId,
+    discardTabData,
+    ensureArchiveRaw,
+    graphRevRef,
+    persistTabsMetadata,
+    refreshBanner,
+    runViewportRestore,
+    saveTabData,
+    setProtocolDiagramLayout,
+    setActiveTabCtx,
+    tabs,
+  ]);
+
   const confirmCloseTab = useCallback(() => {
     const tabId = closeDialog.tabId;
     if (!tabId) {
@@ -894,13 +1159,7 @@ export function useTabs({
     setCloseDialog({ tabId: null, open: false });
     const remaining = tabs.filter((t) => t.id !== tabId);
 
-    archiveRef.current.delete(tabId);
-    archiveWorkerPendingRef.current.forEach((value, requestId) => {
-      if (value.tabId === tabId) {
-        archiveWorkerPendingRef.current.delete(requestId);
-      }
-    });
-    removeTabArchive(tabId);
+    discardTabData([tabId]);
 
     if (tabId === activeTabId) {
       const next = remaining[0];
@@ -917,7 +1176,7 @@ export function useTabs({
         );
         graphRevRef.current = next.version;
         refreshBanner(nextArchive.nodes, next.id);
-        runViewportRestore(next);
+        runViewportRestore(next, nextArchive);
       } else {
         restoreScriptSteps([]);
         setProtocolDiagramLayout?.(undefined);
@@ -925,7 +1184,7 @@ export function useTabs({
     }
 
     setTabs(remaining);
-    removeTabHistory(tabId);
+    persistTabsMetadata(remaining);
   }, [
     activeTabId,
     baseSetEdges,
@@ -935,8 +1194,8 @@ export function useTabs({
     closeDialog.tabId,
     graphRevRef,
     refreshBanner,
-    removeTabArchive,
-    removeTabHistory,
+    discardTabData,
+    persistTabsMetadata,
     runViewportRestore,
     setProtocolDiagramLayout,
     setActiveTabCtx,
@@ -1004,10 +1263,6 @@ export function useTabs({
   }, []);
 
   const hasHydratedInitialTab = useRef(false);
-  const metaPersistStateRef = useRef<TabsPersistState>({
-    disabled: false,
-    lastPayloadSize: 0,
-  });
   const archiveWorkerRef = useRef<Worker | null>(null);
 
   useEffect(() => {
@@ -1096,6 +1351,7 @@ export function useTabs({
       clone(archiveData.nodes),
       clone(archiveData.edges)
     );
+    runViewportRestore(active, archiveData);
 
     const finalizeHydration = () => {
       initialHydrationDoneRef.current = true;
@@ -1118,36 +1374,14 @@ export function useTabs({
     graphRevRef,
     initializeTabHistory,
     refreshBanner,
+    runViewportRestore,
     setProtocolDiagramLayout,
     tabs,
   ]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const payload = encodeStoragePayload({
-      version: 2,
-      tabs,
-    });
-    const payloadSize = payload.length;
-    const { disabled, lastPayloadSize } = metaPersistStateRef.current;
-    if (disabled && payloadSize >= lastPayloadSize) {
-      return;
-    }
-    try {
-      window.localStorage.setItem(TABS_STORAGE_KEY, payload);
-      metaPersistStateRef.current = {
-        disabled: false,
-        lastPayloadSize: payloadSize,
-      };
-    } catch (error) {
-      console.warn("Failed to persist tabs", error);
-      const quotaExceeded = isQuotaExceededError(error);
-      metaPersistStateRef.current = {
-        disabled: quotaExceeded,
-        lastPayloadSize: payloadSize,
-      };
-    }
-  }, [tabs]);
+    persistTabsMetadata(tabs);
+  }, [persistTabsMetadata, tabs]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -1182,6 +1416,8 @@ export function useTabs({
       requestCloseTab,
       confirmCloseTab,
       cancelCloseTab,
+      closeAllTabs,
+      closeOtherTabs,
       setTabTransform,
       setTabTooltip,
       renameTab,
@@ -1201,6 +1437,8 @@ export function useTabs({
       requestCloseTab,
       confirmCloseTab,
       cancelCloseTab,
+      closeAllTabs,
+      closeOtherTabs,
       setTabTransform,
       setTabTooltip,
       renameTab,

@@ -40,6 +40,7 @@ import {
   MoreHorizontal,
   RefreshCw,
   Trash2,
+  Usb,
 } from "lucide-react";
 
 import { ConnectionStatusBadge } from "./fields/ConnectionStatusBadge";
@@ -49,7 +50,11 @@ import { SelectField } from "./fields/SelectField";
 import { TerminalField } from "./fields/TerminalField";
 import { FieldSection } from "./sections/FieldSection";
 import { GroupSection } from "./sections/GroupSection";
-import { SENTINEL_EMPTY, SENTINEL_NULL } from "@/lib/nodes/constants";
+import {
+  SENTINEL_EMPTY,
+  SENTINEL_FORCE00,
+  SENTINEL_NULL,
+} from "@/lib/nodes/constants";
 import { canGrowGroup } from "@/lib/nodes/fieldUtils";
 import { INSTANCE_STRIDE, cn, getVal } from "@/lib/utils";
 import type {
@@ -103,6 +108,8 @@ interface CalculationNodeViewProps {
   result: unknown;
   error: boolean;
   hasRegenerate: boolean;
+  hardwareAction?: string;
+  onHardwareAction?: () => void;
   showComment: boolean;
   comment: string;
   script: ScriptData;
@@ -292,6 +299,8 @@ export function CalculationNodeView({
   result,
   error,
   hasRegenerate,
+  hardwareAction,
+  onHardwareAction,
   showComment,
   comment,
   script,
@@ -348,6 +357,18 @@ export function CalculationNodeView({
         : [{ label: "out", handleId: "" }],
     [data.outputPorts]
   );
+  const isHardwareAction = typeof hardwareAction === "string" && hardwareAction !== "";
+  const hardwareBusy = data.hardwareStatus === "running";
+  const hardwareActionLabel =
+    typeof data.hardwareActionLabel === "string" && data.hardwareActionLabel
+      ? data.hardwareActionLabel
+      : hardwareAction === "trezor_get_address"
+      ? "Get Address"
+      : hardwareAction === "trezor_sign_transaction"
+      ? "Sign"
+      : "Run";
+  const hardwareStatusText =
+    typeof data.hardwareStatusText === "string" ? data.hardwareStatusText : "";
   const taprootTree = data.taprootTree as
     | {
         leafCount?: number;
@@ -433,12 +454,17 @@ export function CalculationNodeView({
       upstreamValue === undefined || upstreamValue === null
         ? ""
         : String(upstreamValue);
+    const isSentinelOverride =
+      rawValue === SENTINEL_EMPTY ||
+      rawValue === SENTINEL_NULL ||
+      rawValue === SENTINEL_FORCE00;
     const hasRawValue = rawValue !== "" && rawValue !== undefined;
     const hasUpstreamValue = upstreamValueString !== "";
-    const displayValue =
-      !hasRawValue && connected && hasUpstreamValue
-        ? upstreamValueString
-        : rawValue;
+    const displayValue = isSentinelOverride
+      ? rawValue
+      : connected
+      ? upstreamValueString
+      : rawValue;
 
     const placeholder = connected
       ? rawValue === SENTINEL_EMPTY
@@ -865,7 +891,28 @@ export function CalculationNodeView({
             </TooltipProvider>
           )}
 
-          {hasRegenerate && (
+          {isHardwareAction && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="nodrag flex h-8 items-center gap-1.5 px-2 text-xs"
+              disabled={hardwareBusy}
+              onPointerDownCapture={(event) => event.stopPropagation()}
+              onClick={(event) => {
+                event.stopPropagation();
+                onHardwareAction?.();
+              }}
+            >
+              {hardwareBusy ? (
+                <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Usb className="h-3.5 w-3.5" />
+              )}
+              <span>{hardwareActionLabel}</span>
+            </Button>
+          )}
+
+          {hasRegenerate && !isHardwareAction && (
             <Button variant="ghost" size="icon" onClick={mut.handleRegenerate}>
               <RefreshCw className="h-5 w-5" />
             </Button>
@@ -888,7 +935,7 @@ export function CalculationNodeView({
                 onPointerDown={(event) => event.stopPropagation()}
                 onWheelCapture={(event) => event.stopPropagation()}
               >
-                {data.functionName && (
+                {data.functionName && !data.hideCode && (
                   <DropdownMenuItem onSelect={() => setShowCode(true)}>
                     <span className="flex items-center gap-2">
                       <FileCode className="h-4 w-4" /> Show Code
@@ -1216,6 +1263,12 @@ export function CalculationNodeView({
             >
               View Script Steps
             </Button>
+          ) : null}
+
+          {isHardwareAction && hardwareStatusText ? (
+            <div className="mt-3 rounded border border-border bg-muted/40 px-2 py-1 text-xs text-muted-foreground">
+              {hardwareStatusText}
+            </div>
           ) : null}
         </div>
 

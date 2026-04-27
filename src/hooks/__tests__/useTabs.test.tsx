@@ -21,11 +21,14 @@ const TAB_ARCHIVE_PREFIX = "rawbit.flow.tab.";
 const encodeStored = (value: unknown) =>
   `lzjson:${compressToUTF16(JSON.stringify(value))}`;
 
+const decodeStoredPayload = <T,>(stored: string): T =>
+  JSON.parse(decompressFromUTF16(stored.slice("lzjson:".length)) ?? "{}") as T;
+
 const decodeStoredArchive = (stored: string) =>
-  JSON.parse(decompressFromUTF16(stored.slice("lzjson:".length)) ?? "{}") as {
+  decodeStoredPayload<{
     nodes?: FlowNode[];
     edges?: Edge[];
-  };
+  }>(stored);
 
 describe("useTabs", () => {
   let nodesState: FlowNode[];
@@ -40,6 +43,7 @@ describe("useTabs", () => {
   let getFlowInstance: () => ReactFlowInstance | null;
   let viewportState: { x: number; y: number; zoom: number };
   let setViewport: ReturnType<typeof vi.fn>;
+  let fitView: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     nodesState = [makeNode("existing")];
@@ -58,9 +62,11 @@ describe("useTabs", () => {
     setActiveTabCtx = vi.fn();
     viewportState = { x: 0, y: 0, zoom: 1 };
     setViewport = vi.fn();
+    fitView = vi.fn();
     getFlowInstance = () => ({
       getViewport: vi.fn(() => viewportState),
       setViewport,
+      fitView,
     } as unknown as ReactFlowInstance);
   });
 
@@ -190,6 +196,107 @@ describe("useTabs", () => {
       ([, tabId]) => tabId === "tab-1"
     );
     expect(sawTabOne).toBe(true);
+  });
+
+  it("persists closed tab metadata immediately and removes its archive", () => {
+    const { result } = renderTabs();
+
+    act(() => {
+      result.current.addTab();
+    });
+    act(() => {
+      result.current.requestCloseTab("tab-2");
+    });
+    act(() => {
+      result.current.confirmCloseTab();
+    });
+
+    const metaRaw = window.localStorage.getItem(TABS_STORAGE_KEY);
+    expect(metaRaw).toBeTruthy();
+    const meta = decodeStoredPayload<{ tabs: Array<{ id: string }> }>(
+      metaRaw as string
+    );
+    expect(meta.tabs.map((tab) => tab.id)).toEqual(["tab-1"]);
+    expect(
+      window.localStorage.getItem(`${TAB_ARCHIVE_PREFIX}tab-2`)
+    ).toBeNull();
+  });
+
+  it("closes all tabs into a fresh empty workspace tab", async () => {
+    const { result } = renderTabs();
+
+    await waitFor(() => expect(result.current.initialHydrationDone).toBe(true));
+
+    act(() => {
+      result.current.addTab();
+    });
+    act(() => {
+      nodesState = [makeNode("dirty")];
+      edgesState = [];
+      graphRevRef.current = 5;
+      result.current.closeAllTabs();
+    });
+
+    expect(result.current.tabs.map((tab) => tab.id)).toEqual(["tab-1"]);
+    expect(result.current.activeTabId).toBe("tab-1");
+    expect(nodesState).toEqual([]);
+    expect(edgesState).toEqual([]);
+    expect(result.current.tabCounter).toBe(1);
+    expect(
+      window.localStorage.getItem(`${TAB_ARCHIVE_PREFIX}tab-2`)
+    ).toBeNull();
+
+    const metaRaw = window.localStorage.getItem(TABS_STORAGE_KEY);
+    expect(metaRaw).toBeTruthy();
+    const meta = decodeStoredPayload<{ tabs: Array<{ id: string }> }>(
+      metaRaw as string
+    );
+    expect(meta.tabs.map((tab) => tab.id)).toEqual(["tab-1"]);
+    expect(initializeTabHistory).toHaveBeenCalledWith("tab-1", [], []);
+  });
+
+  it("closes all tabs except the tab selected in the close dialog", async () => {
+    const keptNode = makeNode("kept-node");
+    const { result } = renderTabs();
+
+    await waitFor(() => expect(result.current.initialHydrationDone).toBe(true));
+
+    act(() => {
+      result.current.addTab();
+    });
+    act(() => {
+      nodesState = [keptNode];
+      edgesState = [];
+      graphRevRef.current = 2;
+    });
+    act(() => {
+      result.current.addTab();
+    });
+    act(() => {
+      result.current.requestCloseTab("tab-2");
+    });
+    act(() => {
+      result.current.closeOtherTabs();
+    });
+
+    expect(result.current.tabs.map((tab) => tab.id)).toEqual(["tab-2"]);
+    expect(result.current.activeTabId).toBe("tab-2");
+    expect(nodesState.map((node) => node.id)).toEqual(["kept-node"]);
+    expect(
+      window.localStorage.getItem(`${TAB_ARCHIVE_PREFIX}tab-1`)
+    ).toBeNull();
+    expect(
+      window.localStorage.getItem(`${TAB_ARCHIVE_PREFIX}tab-3`)
+    ).toBeNull();
+    expect(removeTabHistory).toHaveBeenCalledWith("tab-1");
+    expect(removeTabHistory).toHaveBeenCalledWith("tab-3");
+
+    const metaRaw = window.localStorage.getItem(TABS_STORAGE_KEY);
+    expect(metaRaw).toBeTruthy();
+    const meta = decodeStoredPayload<{ tabs: Array<{ id: string }> }>(
+      metaRaw as string
+    );
+    expect(meta.tabs.map((tab) => tab.id)).toEqual(["tab-2"]);
   });
 
   it("updates tooltip and transform", () => {
@@ -436,6 +543,56 @@ describe("useTabs", () => {
     );
   });
 
+  it("fits an offscreen identity-viewport archive on initial hydration", async () => {
+    const offscreenA = buildFlowNode({
+      id: "offscreen-a",
+      type: "calculation",
+      position: { x: 24_000, y: 3_000 },
+      data: { functionName: "identity" },
+    });
+    const offscreenB = buildFlowNode({
+      id: "offscreen-b",
+      type: "calculation",
+      position: { x: 24_600, y: 3_200 },
+      data: { functionName: "identity" },
+    });
+
+    window.localStorage.setItem(
+      TABS_STORAGE_KEY,
+      encodeStored({
+        version: 2,
+        tabs: [
+          {
+            id: "tab-large",
+            title: "Large flow",
+            version: 3,
+            transform: { x: 0, y: 0, zoom: 1 },
+          },
+        ],
+      })
+    );
+    window.localStorage.setItem(
+      `${TAB_ARCHIVE_PREFIX}tab-large`,
+      encodeStored({
+        nodes: [offscreenA, offscreenB],
+        edges: [{ id: "edge-large", source: "offscreen-a", target: "offscreen-b" }],
+      })
+    );
+    window.localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, "tab-large");
+
+    const { result } = renderTabs();
+
+    await waitFor(() => expect(result.current.initialHydrationDone).toBe(true));
+    await waitFor(() =>
+      expect(fitView).toHaveBeenCalledWith(
+        expect.objectContaining({
+          minZoom: 0.2,
+          duration: 0,
+        })
+      )
+    );
+  });
+
   it("recovers archive-backed tabs when tab metadata is corrupted", () => {
     window.localStorage.setItem(TABS_STORAGE_KEY, "not-json");
     window.localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, "tab-77");
@@ -458,6 +615,38 @@ describe("useTabs", () => {
       expect.arrayContaining([expect.objectContaining({ id: "recovered" })]),
       "tab-77"
     );
+  });
+
+  it("ignores stale tab metadata when its archive has already been removed", async () => {
+    const liveNode = makeNode("live-node");
+    window.localStorage.setItem(
+      TABS_STORAGE_KEY,
+      encodeStored({
+        version: 2,
+        tabs: [
+          { id: "tab-1", title: "Live tab", version: 1 },
+          { id: "tab-closed", title: "Closed tab", version: 9 },
+        ],
+      })
+    );
+    window.localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, "tab-closed");
+    window.localStorage.setItem(
+      `${TAB_ARCHIVE_PREFIX}tab-1`,
+      encodeStored({ nodes: [liveNode], edges: [] })
+    );
+
+    const { result } = renderTabs();
+
+    expect(result.current.tabs.map((tab) => tab.id)).toEqual(["tab-1"]);
+    expect(result.current.activeTabId).toBe("tab-1");
+    await waitFor(() => {
+      const metaRaw = window.localStorage.getItem(TABS_STORAGE_KEY);
+      expect(metaRaw).toBeTruthy();
+      const meta = decodeStoredPayload<{ tabs: Array<{ id: string }> }>(
+        metaRaw as string
+      );
+      expect(meta.tabs.map((tab) => tab.id)).toEqual(["tab-1"]);
+    });
   });
 
   it("hydrates corrupted tab archives as empty graphs", () => {

@@ -63,6 +63,6 @@ test.describe('Sidebar palette', () => {
     await delay(50);
 
     await expect(resultsBanner).toHaveCount(0);
-    await expect(page.getByText('Input/Data', { exact: true })).toBeVisible();
+    await expect(page.getByText('Canvas & Inputs', { exact: true })).toBeVisible();
   });
 });

@@ -142,4 +142,38 @@ describe("NodeCodeDialog", () => {
     );
     expect(screen.queryByText("def first(): pass")).not.toBeInTheDocument();
   });
+
+  it("renders large code prefixes as plain text and highlights the tail", async () => {
+    const largeCode = Array.from(
+      { length: 501 },
+      (_, index) => `line_${index}`
+    ).join("\n");
+    global.fetch = vi.fn().mockResolvedValue(jsonResponse({ code: largeCode }));
+
+    render(
+      <NodeCodeDialog
+        open
+        onClose={vi.fn()}
+        functionName="entropy_to_bip39_mnemonic"
+      />
+    );
+
+    await waitFor(() =>
+      expect(screen.getByTestId("plain-code")).toBeInTheDocument()
+    );
+
+    await waitFor(() =>
+      expect(screen.getByTestId("syntax-code")).toBeInTheDocument()
+    );
+
+    expect(screen.getByTestId("plain-code")).toHaveTextContent("line_300");
+    expect(screen.getByTestId("plain-code")).not.toHaveTextContent("line_301");
+    expect(screen.getByTestId("syntax-code")).toHaveTextContent("line_301");
+    expect(screen.getByTestId("syntax-code")).toHaveTextContent("line_500");
+
+    const lastCall = syntaxPropsSpy.mock.calls.at(-1)?.[0] as {
+      startingLineNumber?: number;
+    };
+    expect(lastCall.startingLineNumber).toBe(302);
+  });
 });

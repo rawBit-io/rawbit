@@ -10,6 +10,7 @@ import {
   useReactFlow,
   useStore,
   useStoreApi,
+  useUpdateNodeInternals,
   type Edge,
   type OnInit,
   type ReactFlowInstance,
@@ -89,10 +90,12 @@ const COLORABLE_NODE_TYPES = new Set([
   "shadcnGroup",
   "shadcnTextInfo",
   "opCodeNode",
+  "trezorAction",
 ]);
 
 const nodeTypes = {
   calculation: CalculationNode,
+  trezorAction: CalculationNode,
   shadcnGroup: ShadcnGroupNode,
   shadcnTextInfo: TextInfoNode,
   opCodeNode: OpCodeNode,
@@ -134,14 +137,14 @@ type EdgeDarkOpacity = {
   midnight: number;
 };
 const EDGE_DARK_OPACITY_DEFAULTS = {
-  default: 0.5,
-  paper: 0.55,
-  midnight: 0.45,
+  default: 0.35,
+  paper: 0.25,
+  midnight: 0.25,
 };
 const EDGE_LIGHT_OPACITY_DEFAULTS = {
-  default: 0.63,
-  paper: 0.63,
-  midnight: 0.5,
+  default: 0.55,
+  paper: 0.6,
+  midnight: 0.6,
 };
 const SHARED_IMPORT_FIT_MIN_ZOOM = 0.2;
 
@@ -173,6 +176,18 @@ function edgeIdsMatch(currentEdges: Edge[], expectedEdges: Edge[]) {
     if (currentEdges[index]?.id !== expectedEdges[index]?.id) return false;
   }
   return true;
+}
+
+function nodesNeedMeasurement(nodesToInspect: FlowNode[]) {
+  return nodesToInspect.some((node) => {
+    const measured = node.measured;
+    return (
+      typeof measured?.width !== "number" ||
+      typeof measured?.height !== "number" ||
+      measured.width <= 0 ||
+      measured.height <= 0
+    );
+  });
 }
 
 function cloneEdgesForRender(edgesToClone: Edge[]) {
@@ -227,9 +242,6 @@ function FlowContent() {
   const [calcStateByTab, setCalcStateByTab] = useState<
     Record<string, TabCalculationState>
   >({});
-  const [sharedRenderAllTabIds, setSharedRenderAllTabIds] = useState<
-    Set<string>
-  >(() => new Set());
   const [connectOpen, setConnectOpen] = useState(false);
   const [showMiniMap, setShowMiniMap] = useState(false);
   const [isSelectionLocked, setIsSelectionLocked] = useState(false);
@@ -481,8 +493,14 @@ function FlowContent() {
     initializeTabHistory,
     removeTabHistory,
   } = useUndoRedo();
-  const { getNodes, getEdges } = useReactFlow<FlowNode>();
+  const {
+    getNodes,
+    getEdges,
+    setNodes: rfSetNodes,
+    setEdges: rfSetEdges,
+  } = useReactFlow<FlowNode>();
   const storeApi = useStoreApi<FlowNode>();
+  const updateNodeInternals = useUpdateNodeInternals();
   const hasCopiedNodesRef = useRef(hasCopiedNodes);
   useEffect(() => {
     hasCopiedNodesRef.current = hasCopiedNodes;
@@ -730,6 +748,8 @@ function FlowContent() {
     requestCloseTab,
     confirmCloseTab,
     cancelCloseTab,
+    closeAllTabs,
+    closeOtherTabs,
     setTabTransform,
     setTabTooltip,
     renameTab,
@@ -759,31 +779,67 @@ function FlowContent() {
 
     const currentNodes = nodesRef.current;
     const currentEdges = edgesRef.current;
-    if (
-      graphIdsMatch(
-        currentNodes,
-        currentEdges,
-        pending.nodes,
-        pending.edges
-      )
-    ) {
+    const parentMatches = graphIdsMatch(
+      currentNodes,
+      currentEdges,
+      pending.nodes,
+      pending.edges
+    );
+
+    // The React Flow internal store can lag behind parent state — most often
+    // when a Safari layout pass splits the ResizeObserver batch and leaves
+    // nodes unmeasured, which makes EdgeWrapper render null for every edge.
+    // If parent state is correct but the store is missing nodes/edges, force-
+    // sync the store and re-trigger node measurement instead of bailing out.
+    const storeState = storeApi.getState();
+    const storeNodes = storeState.nodes as FlowNode[];
+    const storeEdges = storeState.edges;
+    const storeNodesStale =
+      storeNodes.length !== pending.nodes.length ||
+      !storeNodes.every((node, index) => node.id === pending.nodes[index]?.id);
+    const storeEdgesStale = !edgeIdsMatch(storeEdges, pending.edges);
+    const storeNeedsResync = storeNodesStale || storeEdgesStale;
+
+    if (parentMatches && !storeNeedsResync) {
       pendingSharedGraphRef.current = null;
       return;
     }
 
-    setNodes(() => pending.nodes);
-    setEdges(() => cloneEdgesForRender(pending.edges));
-    setProtocolDiagramLayout(pending.protocolDiagramLayout);
-    saveTabData(pending.tabId, {
-      force: true,
-      immediate: true,
-      data: {
-        nodes: pending.nodes,
-        edges: pending.edges,
-        protocolDiagramLayout: pending.protocolDiagramLayout,
-      },
-    });
-  }, [saveTabData, setEdges, setNodes, setProtocolDiagramLayout]);
+    if (!parentMatches) {
+      setNodes(() => pending.nodes);
+      setEdges(() => cloneEdgesForRender(pending.edges));
+      setProtocolDiagramLayout(pending.protocolDiagramLayout);
+      saveTabData(pending.tabId, {
+        force: true,
+        immediate: true,
+        data: {
+          nodes: pending.nodes,
+          edges: pending.edges,
+          protocolDiagramLayout: pending.protocolDiagramLayout,
+        },
+      });
+    }
+
+    if (storeNeedsResync) {
+      if (storeNodesStale) {
+        rfSetNodes(pending.nodes);
+      }
+      if (storeEdgesStale) {
+        rfSetEdges(cloneEdgesForRender(pending.edges));
+      }
+      const ids = pending.nodes.map((node) => node.id);
+      if (ids.length > 0) updateNodeInternals(ids);
+    }
+  }, [
+    rfSetEdges,
+    rfSetNodes,
+    saveTabData,
+    setEdges,
+    setNodes,
+    setProtocolDiagramLayout,
+    storeApi,
+    updateNodeInternals,
+  ]);
 
   const saveTabDataGuardingSharedImport = useCallback(
     (tabId: string) => {
@@ -800,11 +856,43 @@ function FlowContent() {
   );
 
   const scheduleSharedEdgeRenderRefresh = useCallback(
-    (tabId: string, expectedEdges: Edge[]) => {
+    (tabId: string, expectedNodes: FlowNode[], expectedEdges: Edge[]) => {
       if (typeof window === "undefined" || expectedEdges.length === 0) return;
 
       const refreshEdges = () => {
         if (activeTabIdRef.current !== tabId) return;
+
+        // First, repair the React Flow internal store if it's behind parent
+        // state — this is the actual failure mode for the Safari edge bug.
+        const storeState = storeApi.getState();
+        const storeNodes = storeState.nodes as FlowNode[];
+        const storeEdges = storeState.edges;
+        const storeNodesStale =
+          storeNodes.length !== expectedNodes.length ||
+          !storeNodes.every(
+            (node, index) => node.id === expectedNodes[index]?.id
+          );
+        const storeEdgesStale = !edgeIdsMatch(storeEdges, expectedEdges);
+        const storeNodesUnmeasured =
+          storeNodes.length === expectedNodes.length &&
+          nodesNeedMeasurement(storeNodes);
+        const storeNeedsRepair =
+          storeNodesStale || storeEdgesStale || storeNodesUnmeasured;
+        if (!storeNeedsRepair) return;
+
+        if (storeNodesStale) {
+          rfSetNodes(expectedNodes);
+        }
+        if (storeEdgesStale) {
+          rfSetEdges(cloneEdgesForRender(expectedEdges));
+        }
+        if (storeNodesStale || storeNodesUnmeasured) {
+          const ids = expectedNodes.map((node) => node.id);
+          if (ids.length > 0) updateNodeInternals(ids);
+        }
+
+        // Then re-clone parent edges to nudge the controlled prop sync once
+        // more (preserves the original render-refresh behaviour).
         setEdges((currentEdges) => {
           if (!edgeIdsMatch(currentEdges, expectedEdges)) {
             return currentEdges;
@@ -822,7 +910,7 @@ function FlowContent() {
         sharedGraphRepairTimeoutsRef.current.push(timeoutId);
       }
     },
-    [setEdges]
+    [rfSetEdges, rfSetNodes, setEdges, storeApi, updateNodeInternals]
   );
 
   useAutoRefreshVersion({
@@ -830,15 +918,6 @@ function FlowContent() {
     saveTabData: saveTabDataGuardingSharedImport,
     disableVersionPolling: import.meta.env.MODE === "test",
   });
-
-  const activeTabMeta = useMemo(
-    () => tabs.find((tab) => tab.id === activeTabId),
-    [activeTabId, tabs]
-  );
-  const renderAllCanvasElements =
-    sharedRenderAllTabIds.has(activeTabId) ||
-    activeTabMeta?.title.startsWith("share_") ||
-    activeTabMeta?.tooltip?.startsWith("Shared:");
 
   useEffect(() => {
     activeTabIdRef.current = activeTabId;
@@ -1134,8 +1213,8 @@ function FlowContent() {
     setInfoDialog,
     closeInfoDialog,
   } = useShareFlow({
-    getNodes,
-    getEdges,
+    getNodes: getSavedNodes,
+    getEdges: getSavedEdges,
     getProtocolDiagramLayout: () => protocolDiagramLayout,
   });
 
@@ -1198,12 +1277,6 @@ function FlowContent() {
       tabId?: string;
     }) => {
       const targetTabId = tabId ?? activeTabIdRef.current ?? activeTabId;
-      setSharedRenderAllTabIds((prev) => {
-        if (prev.has(targetTabId)) return prev;
-        const next = new Set(prev);
-        next.add(targetTabId);
-        return next;
-      });
 
       setNodes(() => nextNodes);
       setEdges(() => cloneEdgesForRender(nextEdges));
@@ -1229,6 +1302,17 @@ function FlowContent() {
       });
 
       if (typeof window !== "undefined") {
+        // Force React Flow to re-measure every imported node on the next
+        // frame. Without this, a dropped Safari ResizeObserver batch can
+        // leave nodes unmeasured, which causes EdgeWrapper to render null
+        // for every edge connected to those nodes.
+        const nodeIds = nextNodes.map((node) => node.id);
+        if (nodeIds.length > 0) {
+          requestAnimationFrame(() => {
+            updateNodeInternals(nodeIds);
+          });
+        }
+
         requestAnimationFrame(() => {
           requestAnimationFrame(reapplyPendingSharedGraph);
         });
@@ -1239,7 +1323,7 @@ function FlowContent() {
           );
           sharedGraphRepairTimeoutsRef.current.push(timeoutId);
         }
-        scheduleSharedEdgeRenderRefresh(targetTabId, nextEdges);
+        scheduleSharedEdgeRenderRefresh(targetTabId, nextNodes, nextEdges);
       }
     },
     [
@@ -1251,6 +1335,7 @@ function FlowContent() {
       setEdges,
       setNodes,
       setProtocolDiagramLayout,
+      updateNodeInternals,
     ]
   );
 
@@ -1280,8 +1365,8 @@ function FlowContent() {
     openFileDialog,
     handleFileSelect,
   } = useFileOperations(nodes, edges, rawOnNodesChange, rawOnEdgesChange, {
-    getNodes,
-    getEdges,
+    getNodes: getSavedNodes,
+    getEdges: getSavedEdges,
     scheduleSnapshot,
     fitView: fitImportedFlow,
     onTooltip: handleImportTooltip,
@@ -1787,8 +1872,8 @@ function FlowContent() {
 
   useSharedFlowLoader({
     enabled: initialHydrationDone,
-    getNodes,
-    getEdges,
+    getNodes: getSavedNodes,
+    getEdges: getSavedEdges,
     fitView: fitSharedImportedFlow,
     getProtocolDiagramLayout: () => protocolDiagramLayout,
     setProtocolDiagramLayout,
@@ -2236,7 +2321,7 @@ function FlowContent() {
                 onMoveEnd={onMoveEnd}
                 isSelectionModeActive={isSelectionMode}
                 isReadOnly={isMobileReadOnly}
-                onlyRenderVisibleElements={!renderAllCanvasElements}
+                onlyRenderVisibleElements
               />
               {isMobileReadOnly && (
                 <div className="pointer-events-none absolute inset-x-0 top-4 mx-auto w-11/12 max-w-md">
@@ -2521,8 +2606,11 @@ function FlowContent() {
           {/* dialogs */}
           <FlowDialogLayer
             closeDialog={closeDialog}
+            tabCount={tabs.length}
             onConfirmTabClose={handleConfirmTabClose}
             onCancelTabClose={cancelCloseTab}
+            onCloseAllTabs={closeAllTabs}
+            onCloseOtherTabs={closeOtherTabs}
             showSaveConfirmation={showSaveConfirmation}
             saveConfirmationMessage={saveConfirmationMessage}
             onConfirmSave={handleConfirmSimplifiedSave}

@@ -6,6 +6,7 @@ import {
   KeyRound,
   CheckCircle2,
   ArrowRightLeft,
+  Hash,
   Search,
   X,
 } from "lucide-react";
@@ -22,7 +23,10 @@ import type { NodeTemplate } from "@/types";
 import { allSidebarNodes } from "@/components/sidebar-nodes";
 
 // Import your array of custom flows
-import { customFlows } from "@/my_tx_flows/customFlows";
+import {
+  customFlows,
+  type CustomFlowTemplate,
+} from "@/my_tx_flows/customFlows";
 
 export interface SidebarProps {
   isOpen: boolean;
@@ -75,50 +79,159 @@ function setSidebarDragPreview(
 // Basic category definitions for your sidebar
 const categories = [
   {
-    id: "input-data",
-    label: "Input/Data",
+    id: "canvas-inputs",
+    label: "Canvas & Inputs",
     icon: Edit,
-    nodeFilter: (node: NodeTemplate) => node.category === "Input/Data",
+    nodeFilter: (node: NodeTemplate) => node.category === "Canvas & Inputs",
   },
   {
-    id: "data-formatting",
-    label: "Data Formatting",
+    id: "encoding-script-data",
+    label: "Encoding & Script Data",
     icon: ArrowRightLeft,
-    nodeFilter: (node: NodeTemplate) => node.category === "Data Formatting",
+    nodeFilter: (node: NodeTemplate) =>
+      node.category === "Encoding & Script Data",
   },
   {
-    id: "tx-templates",
-    label: "Transaction Templates",
+    id: "transactions",
+    label: "Transactions",
     icon: FileCode,
-    nodeFilter: (node: NodeTemplate) =>
-      node.category === "Transaction Templates",
-  },
-  {
-    id: "crypto",
-    label: "Cryptographic Operations",
-    icon: Shield,
-    nodeFilter: (node: NodeTemplate) =>
-      node.category === "Cryptographic Operations",
+    nodeFilter: (node: NodeTemplate) => node.category === "Transactions",
   },
   {
     id: "keys-addresses",
-    label: "Key & Address",
+    label: "Keys & Addresses",
     icon: KeyRound,
-    nodeFilter: (node: NodeTemplate) => node.category === "Key & Address",
+    nodeFilter: (node: NodeTemplate) => node.category === "Keys & Addresses",
   },
   {
-    id: "utility",
-    label: "Utility",
+    id: "hashes",
+    label: "Hashes",
+    icon: Hash,
+    nodeFilter: (node: NodeTemplate) => node.category === "Hashes",
+  },
+  {
+    id: "signing-verification",
+    label: "Signing & Verification",
+    icon: Shield,
+    nodeFilter: (node: NodeTemplate) =>
+      node.category === "Signing & Verification",
+  },
+  {
+    id: "logic-checks",
+    label: "Logic & Checks",
     icon: CheckCircle2,
-    nodeFilter: (node: NodeTemplate) => node.category === "Utility",
+    nodeFilter: (node: NodeTemplate) => node.category === "Logic & Checks",
   },
 ];
+
+const MIN_NODES_FOR_SUBGROUPS = 5;
+
+const flowSections = [
+  { id: "legacy-foundations", label: "Legacy Foundations" },
+  {
+    id: "scripts-timelocks-commitments",
+    label: "Scripts, Timelocks & Commitments",
+  },
+  { id: "channels", label: "Channels" },
+  { id: "segwit", label: "SegWit" },
+  { id: "taproot-schnorr-musig", label: "Taproot, Schnorr & MuSig" },
+  { id: "wallet-signing-labs", label: "Wallet & Signing Labs" },
+  { id: "contributor-challenges", label: "Contributor / Challenge Flows" },
+];
+
+const searchCorrections: Record<string, string[]> = {
+  un: ["uint", "unsigned"],
+  unit: ["uint"],
+  int: ["uint", "varint", "integer"],
+  byte: ["bytes"],
+  address: ["addr"],
+  pubkey: ["public key", "pub key"],
+  privkey: ["private key", "priv key"],
+  transaction: ["tx"],
+  sig: ["sign", "signature"],
+  op: ["opcode", "Opcode"],
+  len: ["length"],
+  var: ["varint"],
+  seq: ["sequence"],
+  scr: ["script"],
+};
+
+function matchesSidebarSearch(searchableText: string, rawQuery: string) {
+  const query = rawQuery.toLowerCase().trim();
+  if (!query) return false;
+
+  const text = searchableText.toLowerCase();
+  if (text.includes(query)) return true;
+
+  for (const [typo, corrections] of Object.entries(searchCorrections)) {
+    if (
+      query.startsWith(typo) &&
+      corrections.some((correction) => text.includes(correction.toLowerCase()))
+    ) {
+      return true;
+    }
+  }
+
+  const queryWords = query.split(/\s+/).filter(Boolean);
+  if (queryWords.length > 1) {
+    return queryWords.every((word) => text.includes(word));
+  }
+
+  return false;
+}
+
+function groupNodesBySubcategory(nodes: NodeTemplate[]) {
+  const groups = new Map<string, NodeTemplate[]>();
+  nodes.forEach((node) => {
+    const label = node.subcategory?.trim() || "General";
+    groups.set(label, [...(groups.get(label) ?? []), node]);
+  });
+  return Array.from(groups, ([label, items]) => ({ label, items }));
+}
+
+function getNodeDisplayGroups(nodes: NodeTemplate[]) {
+  const groups = groupNodesBySubcategory(nodes);
+  const namedGroups = groups.filter((group) => group.label !== "General");
+
+  if (nodes.length < MIN_NODES_FOR_SUBGROUPS || namedGroups.length === 0) {
+    return { subcategoryGroups: [], flatNodes: nodes };
+  }
+
+  return { subcategoryGroups: groups, flatNodes: [] };
+}
+
+function formatNodeCategory(node: NodeTemplate) {
+  if (!node.subcategory || node.subcategory === "General") {
+    return node.category;
+  }
+  return `${node.category} / ${node.subcategory}`;
+}
+
+function formatFlowLabel(flow: CustomFlowTemplate) {
+  return flow.lessonNo ? `${flow.lessonNo}. ${flow.label}` : flow.label;
+}
+
+function getFlowSearchText(flow: CustomFlowTemplate) {
+  return [
+    flow.id,
+    flow.label,
+    flow.level,
+    flow.lessonNo ? String(flow.lessonNo) : "",
+    flow.lessonNo ? `lesson ${flow.lessonNo}` : "",
+    flow.lessonNo ? `lesson ${flow.lessonNo} ${flow.label}` : "",
+    ...flow.tags,
+  ].join(" ");
+}
 
 // Use the existing SidebarProps from your code
 export function Sidebar({ isOpen }: SidebarProps) {
   const [openCategories, setOpenCategories] = useState<string[]>([
-    "input-data",
+    "canvas-inputs",
   ]);
+  const [openSubcategories, setOpenSubcategories] = useState<
+    Record<string, string[]>
+  >({});
+  const [openFlowSections, setOpenFlowSections] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const envBadge =
     (import.meta.env.VITE_ENV_LABEL &&
@@ -139,53 +252,45 @@ export function Sidebar({ isOpen }: SidebarProps) {
         node.functionName,
         node.nodeData.title || "",
         node.category || "",
+        node.subcategory || "",
         // Also include the label without special characters
         node.label.replace(/[→←\-_\s]/g, ""),
-      ]
-        .join(" ")
-        .toLowerCase();
+      ].join(" ");
 
-      // Basic partial match - this will find "Un" in "Uint32"
-      if (searchableText.includes(query)) return true;
-
-      // Handle common typos/variations
-      const typoMap: { [key: string]: string[] } = {
-        un: ["uint", "unsigned"],
-        unit: ["uint"],
-        int: ["uint", "varint", "integer"],
-        byte: ["bytes"],
-        address: ["addr"],
-        pubkey: ["public key", "pub key"],
-        privkey: ["private key", "priv key"],
-        transaction: ["tx"],
-        sig: ["sign", "signature"],
-        op: ["opcode", "Opcode"],
-        len: ["length"],
-        var: ["varint"],
-        seq: ["sequence"],
-        scr: ["script"],
-      };
-
-      // Check if query matches any typo variations
-      for (const [typo, corrections] of Object.entries(typoMap)) {
-        if (query.startsWith(typo)) {
-          for (const correction of corrections) {
-            if (searchableText.includes(correction)) {
-              return true;
-            }
-          }
-        }
-      }
-
-      // Split query into words and check if all words are present
-      const queryWords = query.split(/\s+/);
-      if (queryWords.length > 1) {
-        return queryWords.every((word) => searchableText.includes(word));
-      }
-
-      return false;
+      return matchesSidebarSearch(searchableText, query);
     });
   }, [searchQuery]);
+
+  const filteredFlows = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    return customFlows.filter((flow) =>
+      matchesSidebarSearch(getFlowSearchText(flow), searchQuery)
+    );
+  }, [searchQuery]);
+
+  const totalSearchResults = filteredNodes.length + filteredFlows.length;
+
+  const groupedFlows = useMemo(() => {
+    const groups = new Map<string, typeof customFlows>();
+    customFlows.forEach((flow) => {
+      const section = flow.section || "other-flows";
+      groups.set(section, [...(groups.get(section) ?? []), flow]);
+    });
+
+    const ordered = flowSections
+      .map((section) => ({
+        ...section,
+        items: groups.get(section.id) ?? [],
+      }))
+      .filter((section) => section.items.length > 0);
+
+    const otherFlows = groups.get("other-flows") ?? [];
+    if (otherFlows.length) {
+      ordered.push({ id: "other-flows", label: "Other Flows", items: otherFlows });
+    }
+
+    return ordered;
+  }, []);
 
   // Standard drag logic for normal single nodes
   const onDragStart = (event: React.DragEvent, node: NodeTemplate) => {
@@ -202,7 +307,82 @@ export function Sidebar({ isOpen }: SidebarProps) {
     setSidebarDragPreview(event.dataTransfer, event.currentTarget);
   };
 
+  const onFlowDragStart = (
+    event: React.DragEvent,
+    flow: CustomFlowTemplate
+  ) => {
+    const dragObj = {
+      type: "calculation",
+      functionName: "flow_template",
+      nodeData: {
+        flowData: flow.data,
+        flowLabel: flow.label,
+      },
+    };
+    event.dataTransfer.setData("application/reactflow", JSON.stringify(dragObj));
+    event.dataTransfer.effectAllowed = "move";
+    setSidebarDragPreview(event.dataTransfer, event.currentTarget);
+  };
+
   const clearSearch = () => setSearchQuery("");
+
+  const renderNodeCard = (node: NodeTemplate, className?: string) => (
+    <div
+      key={`${node.functionName}-${node.label}`}
+      draggable
+      onDragStart={(e) => onDragStart(e, node)}
+      className={cn(
+        "flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors",
+        className
+      )}
+    >
+      <div className="flex flex-col">
+        <span className="text-sm font-medium">{node.label}</span>
+        {node.description && (
+          <span className="text-xs text-muted-foreground">
+            {node.description}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderSearchNodeCard = (node: NodeTemplate) => (
+    <div
+      key={`${node.functionName}-${node.label}`}
+      draggable
+      onDragStart={(e) => onDragStart(e, node)}
+      className="flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors"
+    >
+      <div className="flex flex-col">
+        <span className="text-sm font-medium">{node.label}</span>
+        {node.description && (
+          <span className="text-xs text-muted-foreground">
+            {node.description}
+          </span>
+        )}
+        <span className="text-xs text-muted-foreground mt-1">
+          Category: {formatNodeCategory(node)}
+        </span>
+      </div>
+    </div>
+  );
+
+  const renderFlowCard = (flow: CustomFlowTemplate) => (
+    <div
+      key={flow.id}
+      draggable
+      onDragStart={(event) => onFlowDragStart(event, flow)}
+      className="flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors"
+    >
+      <div className="flex flex-col">
+        <span className="text-sm font-medium">{formatFlowLabel(flow)}</span>
+        <span className="text-xs text-muted-foreground mt-1">
+          Drag to place entire subgraph
+        </span>
+      </div>
+    </div>
+  );
 
   // Expand/collapse logic for categories
   const handleCategoryChange = (value: string) => {
@@ -212,6 +392,13 @@ export function Sidebar({ isOpen }: SidebarProps) {
       }
       return [...prev, value];
     });
+  };
+
+  const handleSubcategoryChange = (categoryId: string, value: string[]) => {
+    setOpenSubcategories((prev) => ({
+      ...prev,
+      [categoryId]: value,
+    }));
   };
 
   return (
@@ -282,36 +469,36 @@ export function Sidebar({ isOpen }: SidebarProps) {
         {/* If searching, show filtered results instead of categories */}
         {searchQuery ? (
           <div className="space-y-2">
-            {filteredNodes.length > 0 ? (
+            {totalSearchResults > 0 ? (
               <>
                 <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                  Found {filteredNodes.length} result
-                  {filteredNodes.length !== 1 ? "s" : ""}
+                  Found {totalSearchResults} result
+                  {totalSearchResults !== 1 ? "s" : ""}
                 </div>
-                {filteredNodes.map((node) => (
-                  <div
-                    key={`${node.functionName}-${node.label}`}
-                    draggable
-                    onDragStart={(e) => onDragStart(e, node)}
-                    className="flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors"
-                  >
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium">{node.label}</span>
-                      {node.description && (
-                        <span className="text-xs text-muted-foreground">
-                          {node.description}
-                        </span>
-                      )}
-                      <span className="text-xs text-muted-foreground mt-1">
-                        Category: {node.category}
-                      </span>
-                    </div>
+                {filteredNodes.length > 0 && (
+                  <div className="space-y-2">
+                    {filteredFlows.length > 0 && (
+                      <div className="px-2 py-1 text-xs font-medium uppercase text-muted-foreground">
+                        Nodes
+                      </div>
+                    )}
+                    {filteredNodes.map((node) => renderSearchNodeCard(node))}
                   </div>
-                ))}
+                )}
+                {filteredFlows.length > 0 && (
+                  <div className="space-y-2">
+                    {filteredNodes.length > 0 && (
+                      <div className="px-2 py-1 text-xs font-medium uppercase text-muted-foreground">
+                        Lessons
+                      </div>
+                    )}
+                    {filteredFlows.map((flow) => renderFlowCard(flow))}
+                  </div>
+                )}
               </>
             ) : (
               <div className="p-4 text-sm text-muted-foreground rounded-md bg-muted/50 text-center">
-                No matching nodes found
+                No matching nodes or lessons found
               </div>
             )}
           </div>
@@ -326,6 +513,9 @@ export function Sidebar({ isOpen }: SidebarProps) {
             {/* 1) Standard categories */}
             {categories.map((cat) => {
               const catNodes = allSidebarNodes.filter(cat.nodeFilter);
+              const { subcategoryGroups, flatNodes } =
+                getNodeDisplayGroups(catNodes);
+              const useSubgroups = subcategoryGroups.length > 0;
               const CatIcon = cat.icon;
 
               return (
@@ -350,26 +540,37 @@ export function Sidebar({ isOpen }: SidebarProps) {
                   </AccordionTrigger>
                   <AccordionContent className="pt-1 pb-0 px-1">
                     {catNodes.length > 0 ? (
-                      <div className="space-y-2 py-1">
-                        {catNodes.map((node) => (
-                          <div
-                            key={`${node.functionName}-${node.label}`}
-                            draggable
-                            onDragStart={(e) => onDragStart(e, node)}
-                            className="ml-4 flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors"
+                      <div className="ml-4 space-y-2 py-1">
+                        {flatNodes.map((node) => renderNodeCard(node))}
+                        {useSubgroups && (
+                          <Accordion
+                            type="multiple"
+                            value={openSubcategories[cat.id] ?? []}
+                            onValueChange={(value) =>
+                              handleSubcategoryChange(cat.id, value)
+                            }
+                            className="space-y-1"
                           >
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium">
-                                {node.label}
-                              </span>
-                              {node.description && (
-                                <span className="text-xs text-muted-foreground">
-                                  {node.description}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        ))}
+                            {subcategoryGroups.map((group) => (
+                              <AccordionItem
+                                key={`${cat.id}-${group.label}`}
+                                value={group.label}
+                                className="border-none"
+                              >
+                                <AccordionTrigger className="py-2 px-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:no-underline">
+                                  {group.label}
+                                </AccordionTrigger>
+                                <AccordionContent className="pt-1 pb-1">
+                                  <div className="space-y-2">
+                                    {group.items.map((node) =>
+                                      renderNodeCard(node)
+                                    )}
+                                  </div>
+                                </AccordionContent>
+                              </AccordionItem>
+                            ))}
+                          </Accordion>
+                        )}
                       </div>
                     ) : (
                       <div className="ml-4 p-3 text-sm text-muted-foreground rounded-md bg-muted/50">
@@ -403,43 +604,29 @@ export function Sidebar({ isOpen }: SidebarProps) {
               </AccordionTrigger>
               <AccordionContent className="pt-1 pb-0 px-1">
                 {customFlows.length > 0 ? (
-                  <div className="space-y-2 py-1">
-                    {customFlows.map((flow) => (
-                      <div
-                        key={flow.id}
-                        draggable
-                        onDragStart={(event) => {
-                          const dragObj = {
-                            type: "calculation",
-                            functionName: "flow_template",
-                            nodeData: {
-                              flowData: flow.data,
-                              flowLabel: flow.label,
-                            },
-                          };
-                          event.dataTransfer.setData(
-                            "application/reactflow",
-                            JSON.stringify(dragObj)
-                          );
-                          event.dataTransfer.effectAllowed = "move";
-                          setSidebarDragPreview(
-                            event.dataTransfer,
-                            event.currentTarget
-                          );
-                        }}
-                        className="ml-4 flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors"
+                  <Accordion
+                    type="multiple"
+                    value={openFlowSections}
+                    onValueChange={setOpenFlowSections}
+                    className="ml-4 space-y-1 py-1"
+                  >
+                    {groupedFlows.map((section) => (
+                      <AccordionItem
+                        key={section.id}
+                        value={section.id}
+                        className="border-none"
                       >
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium">
-                            {flow.label}
-                          </span>
-                          <span className="text-xs text-muted-foreground mt-1">
-                            Drag to place entire subgraph
-                          </span>
-                        </div>
-                      </div>
+                        <AccordionTrigger className="py-2 px-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:no-underline">
+                          {section.label}
+                        </AccordionTrigger>
+                        <AccordionContent className="pt-1 pb-1">
+                          <div className="space-y-2">
+                            {section.items.map((flow) => renderFlowCard(flow))}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
                     ))}
-                  </div>
+                  </Accordion>
                 ) : (
                   <div className="ml-4 p-3 text-sm text-muted-foreground rounded-md bg-muted/50">
                     No custom flows found

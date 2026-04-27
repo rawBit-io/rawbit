@@ -4,12 +4,13 @@ import type { NodeTemplate } from "@/types";
 
 /**
  * Node templates organized by categories:
- * - Input/Data
- * - Data Formatting
- * - Transaction Templates
- * - Cryptographic Operations
- * - Key & Address
- * - Utility
+ * - Canvas & Inputs
+ * - Encoding & Script Data
+ * - Transactions
+ * - Keys & Addresses
+ * - Hashes
+ * - Signing & Verification
+ * - Logic & Checks
  */
 export const allSidebarNodes: NodeTemplate[] = [
   // ------------------------------------------------------------------
@@ -18,8 +19,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "identity",
     label: "Identity",
-    category: "Input/Data",
-    subcategory: "",
+    category: "Canvas & Inputs",
+    subcategory: "General",
     description: "Simple data entry node to accept raw user input",
     type: "calculation",
     nodeData: {
@@ -41,8 +42,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "shadcn_group_node",
     label: "Group Node",
-    category: "Input/Data",
-    subcategory: "",
+    category: "Canvas & Inputs",
+    subcategory: "General",
     description: "Container to group multiple nodes (no nesting).",
     type: "shadcnGroup",
     nodeData: {
@@ -56,8 +57,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "shadcn_text_info",
     label: "Text Info Node",
-    category: "Input/Data",
-    subcategory: "",
+    category: "Canvas & Inputs",
+    subcategory: "General",
     description: "Displays markdown text with adjustable font size",
     type: "shadcnTextInfo",
     nodeData: {
@@ -71,8 +72,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "concat_all",
     label: "Concat",
-    category: "Input/Data",
-    subcategory: "",
+    category: "Canvas & Inputs",
+    subcategory: "General",
     description: "Concatenate multiple elements (general purpose)",
     type: "calculation",
     nodeData: {
@@ -119,8 +120,8 @@ export const allSidebarNodes: NodeTemplate[] = [
     type: "opCodeNode",
     functionName: "op_code_select",
     label: "Opcode Sequence",
-    category: "Data Formatting",
-    subcategory: "",
+    category: "Encoding & Script Data",
+    subcategory: "Script Opcodes",
     description: "Build a sequence of Opcodes and output the final hex.",
     nodeData: {
       functionName: "identity",
@@ -137,8 +138,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "uint32_to_little_endian_4_bytes",
     label: "Uint32 → LE-4",
-    category: "Data Formatting",
-    subcategory: "",
+    category: "Encoding & Script Data",
+    subcategory: "Bytes, Integers & Pushdata",
     description:
       "Convert uint32 to 4-byte LE hex (version, locktime, vout, sequence)",
     type: "calculation",
@@ -157,8 +158,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "encode_varint",
     label: "Int → VarInt",
-    category: "Data Formatting",
-    subcategory: "",
+    category: "Encoding & Script Data",
+    subcategory: "Bytes, Integers & Pushdata",
     description: "Creates variable-length integer for Bitcoin protocol",
     type: "calculation",
     nodeData: {
@@ -174,8 +175,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "satoshi_to_8_le",
     label: "Satoshi → LE-8",
-    category: "Data Formatting",
-    subcategory: "",
+    category: "Encoding & Script Data",
+    subcategory: "Bytes, Integers & Pushdata",
     description: "Convert a satoshi value to 8-byte little-endian",
     type: "calculation",
     nodeData: {
@@ -193,8 +194,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "reverse_txid_bytes",
     label: "TXID → Reversed",
-    category: "Data Formatting",
-    subcategory: "",
+    category: "Encoding & Script Data",
+    subcategory: "Bytes, Integers & Pushdata",
     description: "Reverses byte order of transaction IDs",
     type: "calculation",
     nodeData: {
@@ -210,8 +211,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "varint_encoded_byte_length",
     label: "Data → VarInt Length",
-    category: "Data Formatting",
-    subcategory: "",
+    category: "Encoding & Script Data",
+    subcategory: "Bytes, Integers & Pushdata",
     description: "Length of hex as VarInt",
     type: "calculation",
     nodeData: {
@@ -227,8 +228,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "encode_script_push_data",
     label: "Data → Push Opcode",
-    category: "Data Formatting",
-    subcategory: "",
+    category: "Encoding & Script Data",
+    subcategory: "Bytes, Integers & Pushdata",
     description:
       "Get Bitcoin Script push opcode for hex data (returns only the opcode)",
     type: "calculation",
@@ -257,8 +258,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "int_to_script_bytes",
     label: "Int → ScriptBytes",
-    category: "Data Formatting",
-    subcategory: "",
+    category: "Encoding & Script Data",
+    subcategory: "Bytes, Integers & Pushdata",
     description:
       "Unsigned integer → minimal little-endian hex (no push-opcode). " +
       "Use for CSV, CLTV, arithmetic opcodes, etc.",
@@ -288,8 +289,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "text_to_hex",
     label: "Text → Hex",
-    category: "Data Formatting",
-    subcategory: "",
+    category: "Encoding & Script Data",
+    subcategory: "Bytes, Integers & Pushdata",
     description:
       "Convert UTF-8 text to hex encoding (e.g., '2009' → '32303039')",
     type: "calculation",
@@ -318,8 +319,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "blocks_to_sequence_number", // Changed
     label: "Blocks → Relative Lock", // Changed
-    category: "Data Formatting",
-    subcategory: "",
+    category: "Encoding & Script Data",
+    subcategory: "Locktime & Sequence Encoding",
     description: "Block-based relative lock value for nSequence/CSV",
     type: "calculation",
     nodeData: {
@@ -351,8 +352,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "concat_all",
     label: "TX Template legacy",
-    category: "Transaction Templates",
-    subcategory: "",
+    category: "Transactions",
+    subcategory: "Full Transactions",
     description:
       "Example specialised concat node with fields for version, input count, etc.",
     type: "calculation",
@@ -495,8 +496,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "concat_all",
     label: "TX Template",
-    category: "Transaction Templates",
-    subcategory: "",
+    category: "Transactions",
+    subcategory: "Full Transactions",
     description:
       "Assembles any Bitcoin transaction: legacy, SegWit, or mixed. For SegWit/mixed, include marker+flag and witnesses. Legacy inputs need '00' witness.",
     type: "calculation",
@@ -680,8 +681,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "concat_all",
     label: "P2WPKH Witness",
-    category: "Transaction Templates",
-    subcategory: "SegWit",
+    category: "Transactions",
+    subcategory: "Witnesses & Control Blocks",
     description: "Witness data for P2WPKH input (signature + pubkey)",
     type: "calculation",
     nodeData: {
@@ -741,8 +742,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "concat_all",
     label: "P2WSH Witness",
-    category: "Transaction Templates",
-    subcategory: "SegWit",
+    category: "Transactions",
+    subcategory: "Witnesses & Control Blocks",
     description: "Witness data for P2WSH input (flexible for any script type)",
     type: "calculation",
     nodeData: {
@@ -805,8 +806,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "concat_all",
     label: "P2TR Witness (Key-Path)",
-    category: "Transaction Templates",
-    subcategory: "Taproot",
+    category: "Transactions",
+    subcategory: "Witnesses & Control Blocks",
     description:
       "Witness for Taproot key-path spend (item_count, sig_length, signature)",
     type: "calculation",
@@ -848,8 +849,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "concat_all",
     label: "Taproot Control Block",
-    category: "Transaction Templates",
-    subcategory: "Taproot",
+    category: "Transactions",
+    subcategory: "Witnesses & Control Blocks",
     description:
       "Build the control block for a script-path spend (parity byte + internal key + optional merkle path).",
     type: "calculation",
@@ -891,8 +892,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "concat_all",
     label: "P2TR Witness (Script-Path)",
-    category: "Transaction Templates",
-    subcategory: "Taproot",
+    category: "Transactions",
+    subcategory: "Witnesses & Control Blocks",
     description:
       "Witness for Taproot script-path spend (stack items + script + control block)",
     type: "calculation",
@@ -975,8 +976,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "concat_all",
     label: "Data to Sign (SegWit)",
-    category: "Transaction Templates",
-    subcategory: "Components",
+    category: "Transactions",
+    subcategory: "Preimages",
     description:
       "Builds BIP143 signing message for ONE SegWit input (without SIGHASH - add separately)",
     type: "calculation",
@@ -1074,8 +1075,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "concat_all",
     label: "Data to Sign (Taproot)",
-    category: "Transaction Templates",
-    subcategory: "Components",
+    category: "Transactions",
+    subcategory: "Preimages",
     description:
       "Builds Taproot key-path SigMsg (epoch 0x00, SIGHASH_DEFAULT) for one input; run TapSighash tagged hash on the result",
     type: "calculation",
@@ -1182,8 +1183,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "hash160_hex",
     label: "Data → HASH160",
-    category: "Cryptographic Operations",
-    subcategory: "",
+    category: "Hashes",
+    subcategory: "General",
     description: "Performs RIPEMD160(SHA256) on input hex",
     type: "calculation",
     nodeData: {
@@ -1204,8 +1205,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "double_sha256_hex",
     label: "Data → SHA-256d",
-    category: "Cryptographic Operations",
-    subcategory: "",
+    category: "Hashes",
+    subcategory: "General",
     description: "SHA256(SHA256()) on input hex",
     type: "calculation",
     nodeData: {
@@ -1226,8 +1227,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "sha256_hex",
     label: "Data → SHA-256",
-    category: "Cryptographic Operations",
-    subcategory: "",
+    category: "Hashes",
+    subcategory: "General",
     description: "Compute a single SHA-256 of hex-encoded data",
     type: "calculation",
     nodeData: {
@@ -1248,8 +1249,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "sign_as_bitcoin_core_low_r",
     label: "Sign TX (Low-R)",
-    category: "Cryptographic Operations",
-    subcategory: "",
+    category: "Signing & Verification",
+    subcategory: "ECDSA",
     description: "ECDSA signature with low-R style, like Bitcoin Core",
     type: "calculation",
     nodeData: {
@@ -1282,10 +1283,47 @@ export const allSidebarNodes: NodeTemplate[] = [
     },
   },
   {
+    functionName: "sign_tx_rfc6979",
+    label: "Sign TX (RFC6979)",
+    category: "Signing & Verification",
+    subcategory: "ECDSA",
+    description:
+      "ECDSA signature with deterministic RFC6979 nonce and low-S normalization, without low-R grinding.",
+    type: "calculation",
+    nodeData: {
+      functionName: "sign_tx_rfc6979",
+      title: "Sign TX (RFC6979 / Trezor-style)",
+      paramExtraction: "multi_val",
+      numInputs: 2,
+
+      inputs: {
+        vals: ["", ""],
+      },
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "Private Key (32 bytes hex):",
+            placeholder: "<privkey hex>",
+            rows: 2,
+          },
+          {
+            index: 1,
+            label: "Message Hash (32 bytes hex):",
+            placeholder: "<32-byte hash>",
+            rows: 2,
+          },
+        ],
+      },
+      groupInstances: {},
+      result: "",
+    },
+  },
+  {
     functionName: "tagged_hash",
     label: "Tagged Hash",
-    category: "Cryptographic Operations",
-    subcategory: "",
+    category: "Hashes",
+    subcategory: "General",
     description: "Compute tagged_hash(tag, data) used by BIP340/341/342",
     type: "calculation",
     nodeData: {
@@ -1317,8 +1355,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "taproot_tree_builder",
     label: "Taproot Tree Builder",
-    category: "Cryptographic Operations",
-    subcategory: "Taproot",
+    category: "Transactions",
+    subcategory: "Builders",
     description:
       "Build a Taproot taptree root from leaf hashes (left-to-right pairing). Also outputs per-leaf paths and tree structure.",
     type: "calculation",
@@ -1371,8 +1409,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "schnorr_sign_bip340",
     label: "Schnorr Sign (BIP340)",
-    category: "Cryptographic Operations",
-    subcategory: "",
+    category: "Signing & Verification",
+    subcategory: "Schnorr",
     description:
       "Create a 64-byte BIP340 Schnorr signature (Taproot key-path). Uses deterministic nonce if Aux Rand is empty.",
     type: "calculation",
@@ -1415,8 +1453,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "schnorr_verify_bip340",
     label: "Schnorr Verify (BIP340)",
-    category: "Cryptographic Operations",
-    subcategory: "",
+    category: "Signing & Verification",
+    subcategory: "Schnorr",
     description: "Verify a 64-byte BIP340 Schnorr signature",
     type: "calculation",
     nodeData: {
@@ -1454,8 +1492,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "schnorr_batch_verify_demo",
     label: "Schnorr Batch Demo",
-    category: "Cryptographic Operations",
-    subcategory: "",
+    category: "Signing & Verification",
+    subcategory: "Schnorr",
     description: "Illustrate batch verify combination of multiple BIP340 sigs",
     type: "calculation",
     nodeData: {
@@ -1510,8 +1548,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "random_256",
     label: "Random 32 Bytes",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Keys & Addresses",
+    subcategory: "Entropy & HD Wallets",
     description:
       "Generates random 256-bit (32 bytes) entropy suitable for a Bitcoin private key / secret key",
     type: "calculation",
@@ -1527,10 +1565,112 @@ export const allSidebarNodes: NodeTemplate[] = [
     },
   },
   {
+    functionName: "entropy_to_bip39_mnemonic",
+    label: "Entropy → BIP39 Mnemonic",
+    category: "Keys & Addresses",
+    subcategory: "Entropy & HD Wallets",
+    description:
+      "Converts BIP39 entropy hex into English mnemonic words. 32 bytes produces 24 words.",
+    type: "calculation",
+    nodeData: {
+      functionName: "entropy_to_bip39_mnemonic",
+      title: "Entropy → BIP39 Mnemonic",
+      hasRegenerate: false,
+      forceRegenerate: false,
+      numInputs: 1,
+      inputs: { val: "" },
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "Entropy Hex:",
+            placeholder: "16, 20, 24, 28, or 32 bytes hex",
+            rows: 3,
+          },
+        ],
+      },
+      groupInstances: {},
+      result: "",
+    },
+  },
+  {
+    functionName: "bip39_mnemonic_to_seed",
+    label: "BIP39 Mnemonic → Seed",
+    category: "Keys & Addresses",
+    subcategory: "Entropy & HD Wallets",
+    description:
+      "Derives the 64-byte BIP39 seed with PBKDF2-HMAC-SHA512. Optional passphrase defaults to empty.",
+    type: "calculation",
+    nodeData: {
+      functionName: "bip39_mnemonic_to_seed",
+      title: "BIP39 Mnemonic → Seed",
+      paramExtraction: "multi_val",
+      hasRegenerate: false,
+      forceRegenerate: false,
+      numInputs: 2,
+      inputs: { vals: ["", ""] },
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "Mnemonic Words:",
+            placeholder: "12, 15, 18, 21, or 24 BIP39 words",
+            rows: 4,
+          },
+          {
+            index: 1,
+            label: "Passphrase (optional):",
+            placeholder: "<blank by default>",
+            rows: 1,
+            allowEmptyBlank: true,
+          },
+        ],
+      },
+      groupInstances: {},
+      result: "",
+    },
+  },
+  {
+    functionName: "bip32_derive_private_key",
+    label: "BIP32 Derive Private Key",
+    category: "Keys & Addresses",
+    subcategory: "Entropy & HD Wallets",
+    description:
+      "Derives a BIP32 child private key from a seed and path, e.g. m/44'/1'/0'/0/0.",
+    type: "calculation",
+    nodeData: {
+      functionName: "bip32_derive_private_key",
+      title: "BIP32 Derive Private Key",
+      paramExtraction: "multi_val",
+      hasRegenerate: false,
+      forceRegenerate: false,
+      numInputs: 2,
+      inputs: { vals: ["", "m/44'/1'/0'/0/0"] },
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "Seed Hex:",
+            placeholder: "16 to 64 bytes hex; typically 64-byte BIP39 seed",
+            rows: 4,
+          },
+          {
+            index: 1,
+            label: "Derivation Path:",
+            placeholder: "m/44'/1'/0'/0/0",
+            rows: 1,
+          },
+        ],
+      },
+      groupInstances: {},
+      result: "",
+    },
+  },
+  {
     functionName: "public_key_from_private_key",
     label: "PrivKey → PubKey",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Keys & Addresses",
+    subcategory: "Key Conversion & Tweaks",
     description: "Derives compressed public key from private key",
     type: "calculation",
     nodeData: {
@@ -1548,8 +1688,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "xonly_pubkey",
     label: "Even-Y PrivKey → X-only PubKey",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Keys & Addresses",
+    subcategory: "Key Conversion & Tweaks",
     description:
       "Derive x-only public key (Taproot/Schnorr). Input should already be even-Y (use Even-Y PrivKey first).",
     type: "calculation",
@@ -1575,8 +1715,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "even_y_private_key",
     label: "PrivKey → Even-Y PrivKey",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Keys & Addresses",
+    subcategory: "Key Conversion & Tweaks",
     description:
       "Adjust secret so corresponding x-only pubkey has even Y (Taproot tweak helper).",
     type: "calculation",
@@ -1602,8 +1742,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "xonly_pubkey_from_private_key",
     label: "PrivKey → X-only PubKey",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Keys & Addresses",
+    subcategory: "Key Conversion & Tweaks",
     description:
       "Derive x-only pubkey, parity bit, and parity-adjusted secret for Taproot/Schnorr",
     type: "calculation",
@@ -1629,8 +1769,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "p2tr_address_from_xonly",
     label: "X-only → P2TR Address",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Keys & Addresses",
+    subcategory: "Address & ScriptPubKey",
     description: "Build Taproot bech32m address from x-only pubkey",
     type: "calculation",
     nodeData: {
@@ -1657,8 +1797,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "taproot_tweaked_privkey",
     label: "Taproot Tweak (PrivKey → q')",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Keys & Addresses",
+    subcategory: "Key Conversion & Tweaks",
     description:
       "Compute tweaked (even-Y) private key for Taproot key-path signing",
     type: "calculation",
@@ -1692,8 +1832,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "taproot_tweak_xonly_pubkey",
     label: "Taproot Tweak (X-only → Q)",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Keys & Addresses",
+    subcategory: "Key Conversion & Tweaks",
     description:
       "Verifier-side TapTweak using internal x-only pubkey to get output Q and parity byte",
     type: "calculation",
@@ -1748,8 +1888,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "musig2_aggregate_pubkeys",
     label: "MuSig2 Aggregate PubKeys",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Signing & Verification",
+    subcategory: "MuSig2",
     description:
       "BIP327 KeyAgg over compressed pubkeys: coefficients + aggregated x-only pubkey",
     type: "calculation",
@@ -1790,8 +1930,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "musig2_nonce_gen",
     label: "MuSig2 Nonce Gen",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Signing & Verification",
+    subcategory: "MuSig2",
     description:
       "Each signer generates a BIP327 nonce pair from secret key, aggregate key context, message, randomness, and signer pubkey",
     type: "calculation",
@@ -1862,8 +2002,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "musig2_nonce_agg",
     label: "MuSig2 Nonce Agg",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Signing & Verification",
+    subcategory: "MuSig2",
     description: "Aggregate pubnonces into aggnonce",
     type: "calculation",
     nodeData: {
@@ -1902,8 +2042,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "musig2_partial_sign",
     label: "MuSig2 Partial Sign",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Signing & Verification",
+    subcategory: "MuSig2",
     description: "Each signer produces a MuSig2 partial signature",
     type: "calculation",
     nodeData: {
@@ -1974,8 +2114,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "musig2_partial_sig_verify",
     label: "MuSig2 Partial Sig Verify",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Signing & Verification",
+    subcategory: "MuSig2",
     description:
       "Verify one signer's MuSig2 partial signature against the shared session context",
     type: "calculation",
@@ -2053,8 +2193,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "musig2_partial_sig_agg",
     label: "MuSig2 Partial Sig Agg",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Signing & Verification",
+    subcategory: "MuSig2",
     description:
       "Combine partial sigs (same count as pubkeys) into a final Schnorr signature",
     type: "calculation",
@@ -2140,8 +2280,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "script_verification",
     label: "Verify Script",
-    category: "Cryptographic Operations",
-    subcategory: "",
+    category: "Signing & Verification",
+    subcategory: "Script Verification",
     description: "Bitcoin script debugger/verifier",
     type: "calculation",
     nodeData: {
@@ -2233,8 +2373,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "hash160_to_p2sh_address",
     label: "HASH160 → P2SH Address",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Keys & Addresses",
+    subcategory: "Address & ScriptPubKey",
     description:
       "Builds a legacy P2SH address from the 20‑byte HASH160 of a redeem script (works for nested‑SegWit too). ",
     type: "calculation",
@@ -2269,8 +2409,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "date_to_unix_timestamp",
     label: "Date → Unix Time",
-    category: "Data Formatting",
-    subcategory: "",
+    category: "Encoding & Script Data",
+    subcategory: "Locktime & Sequence Encoding",
     description: "Convert human-readable date to Unix timestamp for CLTV",
     type: "calculation",
     nodeData: {
@@ -2298,8 +2438,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "reverse_bytes_4",
     label: "4-Byte → Reversed",
-    category: "Data Formatting",
-    subcategory: "",
+    category: "Encoding & Script Data",
+    subcategory: "Bytes, Integers & Pushdata",
     description: "Reverse byte order of 4-byte hex values (sequence, locktime)",
     type: "calculation",
     nodeData: {
@@ -2326,8 +2466,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "hours_to_sequence_number",
     label: "Hours → Relative Lock",
-    category: "Data Formatting",
-    subcategory: "",
+    category: "Encoding & Script Data",
+    subcategory: "Locktime & Sequence Encoding",
     description:
       "Time-based relative lock for nSequence/CSV. Accepts hours (decimals allowed, e.g., 1.5 for 90 minutes)",
     type: "calculation",
@@ -2356,8 +2496,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "opcode_to_value",
     label: "Opcode → Value",
-    category: "Data Formatting",
-    subcategory: "",
+    category: "Encoding & Script Data",
+    subcategory: "Script Opcodes",
     description:
       "Convert numeric opcodes (OP_0 to OP_16, OP_1NEGATE) to their integer values",
     type: "calculation",
@@ -2386,8 +2526,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "encode_sequence_block_flag",
     label: "Sequence → Block Flag",
-    category: "Data Formatting",
-    subcategory: "",
+    category: "Encoding & Script Data",
+    subcategory: "Locktime & Sequence Encoding",
     description: "Prepare sequence value for block-based CSV (no modification)",
     type: "calculation",
     nodeData: {
@@ -2414,8 +2554,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "encode_sequence_time_flag",
     label: "Sequence → Time Flag",
-    category: "Data Formatting",
-    subcategory: "",
+    category: "Encoding & Script Data",
+    subcategory: "Locktime & Sequence Encoding",
     description:
       "Add time-based flag (bit 22) to sequence value for time-based CSV",
     type: "calculation",
@@ -2443,8 +2583,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "verify_signature",
     label: "Verify Signature",
-    category: "Cryptographic Operations",
-    subcategory: "",
+    category: "Signing & Verification",
+    subcategory: "ECDSA",
     description: "ECDSA signature verification (Bitcoin-style DER, secp256k1)",
     type: "calculation",
     nodeData: {
@@ -2486,8 +2626,8 @@ export const allSidebarNodes: NodeTemplate[] = [
     /* ─ TX FIELD EXTRACT ────────────────────────────────────────────── */
     functionName: "extract_tx_field",
     label: "TX Field Extract",
-    category: "Utility",
-    subcategory: "",
+    category: "Transactions",
+    subcategory: "Parsing & Inspection",
     description: "Pull a single value out of a raw Bitcoin transaction",
     type: "calculation", // still rendered by CalculationNode
     nodeData: {
@@ -2545,15 +2685,309 @@ export const allSidebarNodes: NodeTemplate[] = [
       groupInstances: {},
     },
   },
-  /* ------------------------------------------------------------------
-   * Add/replace this entry in sidebar-nodes.ts
-   * → 2-plus inputs, user-expandable like “Concat”
-   * ---------------------------------------------------------------- */
+  {
+    functionName: "trezor_get_address",
+    label: "Trezor Get Address",
+    category: "Signing & Verification",
+    subcategory: "Trezor",
+    description:
+      "Manual browser-side Trezor Connect call that asks the device to display and return an address.",
+    type: "trezorAction",
+    nodeData: {
+      functionName: "trezor_get_address",
+      title: "Trezor Get Address",
+      hideCode: true,
+      hardwareAction: "trezor_get_address",
+      hardwareActionLabel: "Get Address",
+      paramExtraction: "multi_val",
+      numInputs: 4,
+      inputs: { vals: ["", "testnet", "SPENDADDRESS", "true"] },
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "Derivation Path:",
+            placeholder: "m/44'/1'/0'/0/0",
+            rows: 1,
+            comment: "Path must match the rawBit BIP32 derivation path.",
+          },
+          {
+            index: 1,
+            label: "Coin:",
+            placeholder: "testnet",
+            rows: 1,
+            comment: "Trezor Connect coin name/shortcut. Use testnet for this lesson.",
+          },
+          {
+            index: 2,
+            label: "Script Type:",
+            placeholder: "SPENDADDRESS",
+            rows: 1,
+            comment: "Use SPENDADDRESS for legacy P2PKH.",
+          },
+          {
+            index: 3,
+            label: "Show On Trezor:",
+            options: ["true", "false"],
+            comment: "Keep true for classroom address confirmation.",
+          },
+        ],
+      },
+      outputPorts: [
+        {
+          label: "address",
+          handleId: "",
+          handleTop: "50%",
+          showLabel: false,
+        },
+      ],
+      groupInstances: {},
+      result: "",
+      hardwareStatus: "idle",
+      hardwareStatusText: "Press Get Address to ask Trezor to confirm the path.",
+      dirty: false,
+    },
+  },
+  {
+    functionName: "build_trezor_sign_transaction_params",
+    label: "Trezor Sign Params",
+    category: "Signing & Verification",
+    subcategory: "Trezor",
+    description:
+      "Build the structured Trezor Connect signTransaction params JSON from expandable inputs, outputs, and previous raw transactions.",
+    type: "calculation",
+    nodeData: {
+      functionName: "build_trezor_sign_transaction_params",
+      title: "Trezor Sign Params",
+      paramExtraction: "multi_val",
+      numInputs: 13,
+      inputs: {
+        vals: {
+          0: "testnet",
+          1: "1",
+          2: "0",
+          1020: "0",
+          1040: "ffffffff",
+          1050: "AUTO",
+          3020: "AUTO",
+        },
+      },
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "Coin:",
+            placeholder: "testnet",
+            rows: 1,
+            comment: "Trezor Connect coin name/shortcut, for example testnet.",
+          },
+          {
+            index: 1,
+            label: "Version:",
+            placeholder: "1",
+            rows: 1,
+            comment: "Transaction version as a decimal uint32, usually 1 or 2.",
+          },
+          {
+            index: 2,
+            label: "Locktime:",
+            placeholder: "0",
+            rows: 1,
+            comment: "Transaction locktime as a decimal uint32. Use 0 for no locktime.",
+          },
+        ],
+        groups: [
+          {
+            title: "INPUTS[]",
+            baseIndex: 1000,
+            expandable: true,
+            fieldCountToAdd: 6,
+            minInstances: 1,
+            maxInstances: 10,
+            fields: [
+              {
+                index: 0,
+                label: "Derivation Path:",
+                placeholder: "m/44'/1'/0'/0/0",
+                rows: 1,
+                comment:
+                  "BIP32 path for the key Trezor should use to sign this input, e.g. m/44'/1'/0'/0/0.",
+              },
+              {
+                index: 10,
+                label: "Previous TXID (display order):",
+                placeholder: "<32-byte txid>",
+                rows: 2,
+                comment:
+                  "32-byte transaction id as shown by wallets/explorers. Do not reverse the bytes.",
+              },
+              {
+                index: 20,
+                label: "Previous Output Index:",
+                placeholder: "0",
+                rows: 1,
+                comment: "Decimal vout index of the UTXO being spent.",
+              },
+              {
+                index: 30,
+                label: "Input Amount (sats):",
+                placeholder: "146263",
+                rows: 1,
+                comment:
+                  "UTXO amount in satoshis. Must match the selected output in Previous Raw TX Hex.",
+              },
+              {
+                index: 40,
+                label: "Sequence:",
+                placeholder: "ffffffff or fffffffd",
+                rows: 1,
+                comment:
+                  "Trezor expects a uint32 number. Use decimal or display-order hex like fffffffd. Do not reverse it to fdffffff.",
+              },
+              {
+                index: 50,
+                label: "Input Script Type:",
+                options: [
+                  "AUTO",
+                  "SPENDADDRESS",
+                  "SPENDWITNESS",
+                  "SPENDP2SHWITNESS",
+                  "SPENDTAPROOT",
+                ],
+                comment:
+                  "AUTO infers from the path purpose: 44, 49, 84, or 86.",
+              },
+            ],
+          },
+          {
+            title: "OUTPUTS[]",
+            baseIndex: 3000,
+            expandable: true,
+            fieldCountToAdd: 3,
+            minInstances: 1,
+            maxInstances: 20,
+            fields: [
+              {
+                index: 0,
+                label: "Address or Change Path:",
+                placeholder: "<address> or m/44'/1'/0'/1/0",
+                rows: 1,
+                comment:
+                  "Use a destination address for external outputs, or a BIP32 path for Trezor change outputs.",
+              },
+              {
+                index: 10,
+                label: "Amount (sats):",
+                placeholder: "145000",
+                rows: 1,
+                comment: "Output amount in satoshis.",
+              },
+              {
+                index: 20,
+                label: "Output Script Type:",
+                options: [
+                  "AUTO",
+                  "PAYTOADDRESS",
+                  "PAYTOWITNESS",
+                  "PAYTOP2SHWITNESS",
+                  "PAYTOTAPROOT",
+                ],
+                comment:
+                  "AUTO infers script type for change paths. Address outputs use PAYTOADDRESS.",
+              },
+            ],
+          },
+          {
+            title: "PREVIOUS RAW TXS[]",
+            baseIndex: 5000,
+            expandable: true,
+            fieldCountToAdd: 1,
+            minInstances: 1,
+            maxInstances: 20,
+            fields: [
+              {
+                index: 0,
+                label: "Previous Raw TX Hex:",
+                placeholder: "<previous transaction hex>",
+                rows: 5,
+                allowEmptyBlank: true,
+                comment:
+                  "Full raw transaction hex for the transaction that created the UTXO. Order does not need to match INPUTS[].",
+              },
+            ],
+          },
+        ],
+        afterGroups: [],
+      },
+      groupInstances: {
+        "INPUTS[]": 1,
+        "OUTPUTS[]": 1,
+        "PREVIOUS RAW TXS[]": 1,
+      },
+      groupInstanceKeys: {
+        "INPUTS[]": [1000],
+        "OUTPUTS[]": [3000],
+        "PREVIOUS RAW TXS[]": [5000],
+      },
+      result: "",
+      baseHeight: 180,
+      dirty: false,
+    },
+  },
+  {
+    functionName: "trezor_sign_transaction",
+    label: "Trezor Sign",
+    category: "Signing & Verification",
+    subcategory: "Trezor",
+    description:
+      "Browser-side Trezor Connect signing call that accepts prebuilt signTransaction params JSON.",
+    type: "trezorAction",
+    nodeData: {
+      functionName: "trezor_sign_transaction",
+      title: "Trezor Sign",
+      hideCode: true,
+      hardwareAction: "trezor_sign_transaction",
+      hardwareActionLabel: "Sign",
+      paramExtraction: "multi_val",
+      numInputs: 1,
+      inputs: {
+        vals: {
+          0: "",
+        },
+      },
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "signTransaction Params JSON:",
+            placeholder: "Trezor Sign Params output",
+            rows: 8,
+            comment:
+              "This JSON is sent to Trezor Connect when you press Sign.",
+          },
+        ],
+      },
+      outputPorts: [
+        {
+          label: "signed tx",
+          handleId: "",
+          handleTop: "50%",
+          showLabel: false,
+        },
+      ],
+      groupInstances: {},
+      result: "",
+      hardwareStatus: "idle",
+      hardwareStatusText:
+        "Press Sign to send the structured transaction request to Trezor.",
+      dirty: false,
+    },
+  },
   {
     functionName: "compare_equal",
     label: "Compare (==)",
-    category: "Utility",
-    subcategory: "",
+    category: "Logic & Checks",
+    subcategory: "Comparisons",
     description: "Checks that ALL inputs are byte-for-byte identical",
     type: "calculation",
     nodeData: {
@@ -2594,8 +3028,8 @@ export const allSidebarNodes: NodeTemplate[] = [
     /* ─ Compare Numbers ─ */
     functionName: "compare_numbers",
     label: "Compare Numbers",
-    category: "Utility",
-    subcategory: "",
+    category: "Logic & Checks",
+    subcategory: "Comparisons",
     description: "Tests a numeric relation (<, >, ≤, ≥) between two values",
     type: "calculation",
     nodeData: {
@@ -2627,8 +3061,8 @@ export const allSidebarNodes: NodeTemplate[] = [
     /* ─ Math Operation ─ */
     functionName: "math_operation",
     label: "Math Operation",
-    category: "Utility",
-    subcategory: "",
+    category: "Logic & Checks",
+    subcategory: "Math",
     description:
       "Performs basic math operations: add/plus (+), subtract/minus (−), multiply/times (×), or divide (÷) on two values",
     type: "calculation",
@@ -2661,8 +3095,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "concat_all",
     label: "PREVOUTS Builder",
-    category: "Transaction Templates",
-    subcategory: "Components",
+    category: "Transactions",
+    subcategory: "Builders",
     description:
       "Builds concatenated prevouts for transaction signing (all txid+vout pairs)",
     type: "calculation",
@@ -2715,8 +3149,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "concat_all",
     label: "SEQUENCE Builder",
-    category: "Transaction Templates",
-    subcategory: "Components",
+    category: "Transactions",
+    subcategory: "Builders",
     description: "Builds concatenated sequence values for transaction signing",
     type: "calculation",
     nodeData: {
@@ -2761,8 +3195,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "concat_all",
     label: "scriptPubKeys",
-    category: "Transaction Templates",
-    subcategory: "Components",
+    category: "Transactions",
+    subcategory: "Builders",
     description:
       "Builds compact_size(scriptPubKey) || scriptPubKey for each input (Taproot hash_scripts)",
     type: "calculation",
@@ -2814,8 +3248,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "concat_all",
     label: "OUTPOINT Builder",
-    category: "Transaction Templates",
-    subcategory: "Components",
+    category: "Transactions",
+    subcategory: "Builders",
     description:
       "Builds a single outpoint (txid+vout) for BIP143 signing of specific input",
     type: "calculation",
@@ -2857,8 +3291,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "concat_all",
     label: "OUTPUTS Builder",
-    category: "Transaction Templates",
-    subcategory: "Components",
+    category: "Transactions",
+    subcategory: "Builders",
     description:
       "Builds concatenated outputs for transaction (amount+script_length+script)",
     type: "calculation",
@@ -2919,8 +3353,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "concat_all",
     label: "SCRIPTCODE Builder",
-    category: "Transaction Templates",
-    subcategory: "Components",
+    category: "Transactions",
+    subcategory: "Builders",
     description:
       "Builds scriptcode for BIP143 signing. P2WPKH: standard P2PKH script. P2WSH: the witness script",
     type: "calculation",
@@ -2983,8 +3417,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "hash160_to_p2pkh_address",
     label: "HASH160 → P2PKH Address",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Keys & Addresses",
+    subcategory: "Address & ScriptPubKey",
     description: "Creates a Base58 P2PKH address from a 20-byte HASH160",
     type: "calculation",
     nodeData: {
@@ -3016,8 +3450,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "hash160_to_p2wpkh_address",
     label: "HASH160 → P2WPKH Address",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Keys & Addresses",
+    subcategory: "Address & ScriptPubKey",
     description:
       "Creates a bech32 SegWit v0 P2WPKH address from a 20‑byte HASH160",
     type: "calculation",
@@ -3047,8 +3481,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "sha256_to_p2wsh_address",
     label: "SHA256 → P2WSH Address",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Keys & Addresses",
+    subcategory: "Address & ScriptPubKey",
     description:
       "Creates a bech32 SegWit v0 P2WSH address from a 32‑byte SHA‑256 script‑hash",
     type: "calculation",
@@ -3078,8 +3512,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "hex_byte_length",
     label: "Hex → Byte Length",
-    category: "Data Formatting",
-    subcategory: "",
+    category: "Encoding & Script Data",
+    subcategory: "Bytes, Integers & Pushdata",
     description:
       "Returns the number of bytes a hex‑encoded string represents (whitespace ignored).",
     type: "calculation",
@@ -3112,8 +3546,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "address_to_scriptpubkey",
     label: "Address → ScriptPubKey",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Keys & Addresses",
+    subcategory: "Address & ScriptPubKey",
     description:
       "Converts any Bitcoin address to its scriptPubKey. Auto-detects P2PKH, P2SH, P2WPKH, P2WSH, P2TR (Taproot), and future witness versions",
     type: "calculation",
@@ -3141,8 +3575,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "concat_all",
     label: "Taproot Preimage (Base)",
-    category: "Cryptographic Operations",
-    subcategory: "",
+    category: "Transactions",
+    subcategory: "Preimages",
     description:
       "Build Taproot SigMsg fields 0–10 (epoch, sighash_type, version, locktime, hash_*). hash_outputs is optional (NONE/SINGLE).",
     type: "calculation",
@@ -3257,8 +3691,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "concat_all",
     label: "Taproot Preimage (Script Add-on)",
-    category: "Cryptographic Operations",
-    subcategory: "",
+    category: "Transactions",
+    subcategory: "Preimages",
     description:
       "Append script-path fields (tapleaf_hash, key_version, codesep_pos) to the base Taproot preimage",
     type: "calculation",
@@ -3305,8 +3739,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "bip67_sort_pubkeys",
     label: "BIP-67 PubKey Sort",
-    category: "Key & Address",
-    subcategory: "",
+    category: "Keys & Addresses",
+    subcategory: "Multisig Keys",
     description:
       "Sort public keys lexicographically per BIP-67 for deterministic multisig. Shows original positions after sorting (e.g., '2,4,1,3')",
     type: "calculation",
@@ -3354,8 +3788,8 @@ export const allSidebarNodes: NodeTemplate[] = [
   {
     functionName: "check_result",
     label: "Check Result",
-    category: "Utility",
-    subcategory: "",
+    category: "Logic & Checks",
+    subcategory: "Assertions",
     description:
       "Raises an error if ANY input is not 'true'. Use to convert comparison results to errors.",
     type: "calculation",

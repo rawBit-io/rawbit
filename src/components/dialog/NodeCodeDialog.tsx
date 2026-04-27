@@ -22,6 +22,8 @@ import { useTheme } from "@/hooks/useTheme";
 
 const DEFAULT_LOCAL_API = "http://localhost:5007";
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0", "::1", "[::1]"]);
+const HIGHLIGHT_LINE_LIMIT = 500;
+const HIGHLIGHT_TAIL_LINE_COUNT = 200;
 
 function isLocalHost(hostname?: string) {
   if (!hostname) return false;
@@ -73,6 +75,18 @@ export function NodeCodeDialog({
   const [error, setError] = useState("");
   const [code, setCode] = useState("");
   const [copied, setCopied] = useState(false);
+  const codeLines = code ? code.split(/\r\n|\r|\n/) : [];
+  const codeLineCount = codeLines.length;
+  const usePlainCode = codeLineCount > HIGHLIGHT_LINE_LIMIT;
+  const highlightedTailLines = usePlainCode
+    ? codeLines.slice(-HIGHLIGHT_TAIL_LINE_COUNT)
+    : codeLines;
+  const plainPrefixLines = usePlainCode
+    ? codeLines.slice(0, -HIGHLIGHT_TAIL_LINE_COUNT)
+    : [];
+  const highlightedCode = highlightedTailLines.join("\n");
+  const plainPrefixCode = plainPrefixLines.join("\n");
+  const highlightedStartLine = usePlainCode ? plainPrefixLines.length + 1 : 1;
 
   // Use your custom theme (light/dark/system)
   const { theme } = useTheme();
@@ -252,12 +266,25 @@ export function NodeCodeDialog({
             <div className="text-red-500">Error: {error}</div>
           )}
 
-          {/* Syntax highlighter */}
+          {!loading && !error && code && usePlainCode && (
+            <pre
+              data-testid="plain-code"
+              className="m-0 whitespace-pre text-sm"
+              style={{
+                fontFamily:
+                  'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
+              }}
+            >
+              <code>{plainPrefixCode}</code>
+            </pre>
+          )}
+
           {!loading && !error && code && (
             <SyntaxHighlighter
               language="python"
               style={isDarkMode ? oneDark : oneLight}
               showLineNumbers
+              startingLineNumber={highlightedStartLine}
               wrapLongLines={false}
               // Make line numbers unselectable
               lineNumberStyle={{
@@ -280,7 +307,7 @@ export function NodeCodeDialog({
                 },
               }}
             >
-              {code}
+              {highlightedCode}
             </SyntaxHighlighter>
           )}
 
