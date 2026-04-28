@@ -8,6 +8,7 @@ test.describe('Canvas basics', () => {
 
     await loadFixture(page, 'offscreen-flow.json');
     await page.waitForTimeout(500);
+    await page.getByRole('button', { name: 'fit view' }).click();
 
     const farNode = page.locator('[data-id="node_far_target"]');
     await expect(farNode).toBeVisible({ timeout: 10_000 });

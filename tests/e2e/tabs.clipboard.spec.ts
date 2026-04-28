@@ -160,7 +160,7 @@ test.describe('Clipboard and tabs workflows', () => {
     await closeFlow2.click();
     const closeDialog = page.getByRole('dialog', { name: 'Close Tab' });
     await expect(closeDialog).toBeVisible();
-    await closeDialog.getByRole('button', { name: 'Close' }).first().click();
+    await closeDialog.locator('button').filter({ hasText: /^Close$/ }).first().click();
     await expect(flow2TabAfterReload).toHaveCount(0);
     await expect(page.locator('[role="tab"]')).toHaveCount(1);
     await expect(tabByIndex(page, 0)).toBeVisible();
@@ -379,6 +379,8 @@ test.describe('Clipboard and tabs workflows', () => {
 
     const inputNode = page.locator('[data-id="node_input"]');
     await inputNode.click();
+    await expect(page.locator('.react-flow__node.selected')).toHaveCount(1);
+    await expect(inputNode).toHaveClass(/selected/);
 
     await expect(copyButton).toBeEnabled();
     await copyButton.click();
@@ -403,7 +405,7 @@ test.describe('Clipboard and tabs workflows', () => {
     await expect(closeDialog).toBeHidden();
 
     await activeClose.click();
-    await closeDialog.getByRole('button', { name: 'Close' }).first().click();
+    await closeDialog.locator('button').filter({ hasText: /^Close$/ }).first().click();
     await expect(flow2Tab).toHaveCount(0);
 
     const flow1Tab = tabByIndex(page, 0);
@@ -516,7 +518,16 @@ const readBulkPayload = (route: Route) => {
 async function clearSelection(page: Page) {
   const pane = page.locator('.react-flow__pane');
   if (await pane.count()) {
-    await pane.click({ position: { x: 10, y: 10 }, force: true });
+    const box = await pane.boundingBox();
+    if (!box) return;
+    const xOffset = box.width > 48 ? box.width - 24 : box.width / 2;
+    const yOffset =
+      box.height > 104
+        ? Math.min(Math.max(80, box.height / 2), box.height - 24)
+        : box.height / 2;
+    const x = box.x + xOffset;
+    const y = box.y + yOffset;
+    await page.mouse.click(x, y);
   }
 }
 

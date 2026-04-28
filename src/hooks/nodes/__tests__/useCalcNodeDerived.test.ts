@@ -108,6 +108,48 @@ describe("useCalcNodeDerived", () => {
     });
   });
 
+  it("does not count dropdown fields in connection status", async () => {
+    nodes = [
+      makeNode({
+        paramExtraction: "multi_val",
+        inputs: {
+          vals: {
+            0: "connected-value",
+            10: "manual-option",
+            20: SENTINEL_FORCE00,
+            30: SENTINEL_EMPTY,
+          },
+        },
+        inputStructure: {
+          ungrouped: [
+            { label: "Connected", index: 0 },
+            { label: "Dropdown", index: 10, options: ["manual-option"] },
+            { label: "Forced 00", index: 20, allowEmpty00: true },
+            { label: "Empty", index: 30, allowEmptyBlank: true },
+          ],
+        },
+      }),
+    ];
+    data = nodes[0].data as NodeData;
+    storeState.edges = [
+      { id: "e-1", source: "src-1", target: nodeId, targetHandle: "input-0" },
+    ];
+
+    const { result } = renderHook(() => useCalcNodeDerived(nodeId, data, setNodes));
+
+    expect(result.current.visibleInputs).toBe(4);
+    expect(result.current.connectionStatus).toEqual({
+      connected: 3,
+      total: 3,
+      shouldShow: true,
+    });
+
+    await waitFor(() => {
+      expect(nodes[0].data.totalInputs).toBe(3);
+      expect(nodes[0].data.unwiredCount).toBe(0);
+    });
+  });
+
   it("ignores wiring bookkeeping for single-value nodes", async () => {
     nodes = [
       makeNode({

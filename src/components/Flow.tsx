@@ -10,6 +10,7 @@ import {
   useReactFlow,
   useStore,
   useStoreApi,
+  useUpdateNodeInternals,
   type Edge,
   type OnInit,
   type ReactFlowInstance,
@@ -89,10 +90,12 @@ const COLORABLE_NODE_TYPES = new Set([
   "shadcnGroup",
   "shadcnTextInfo",
   "opCodeNode",
+  "trezorAction",
 ]);
 
 const nodeTypes = {
   calculation: CalculationNode,
+  trezorAction: CalculationNode,
   shadcnGroup: ShadcnGroupNode,
   shadcnTextInfo: TextInfoNode,
   opCodeNode: OpCodeNode,
@@ -101,6 +104,14 @@ const nodeTypes = {
 type TabCalculationState = {
   status: CalcStatus;
   errors: CalcError[];
+};
+
+type PendingSharedGraph = {
+  tabId: string;
+  nodes: FlowNode[];
+  edges: Edge[];
+  protocolDiagramLayout?: ProtocolDiagramLayout;
+  expiresAt: number;
 };
 
 const DEFAULT_TAB_CALC_STATE: TabCalculationState = {
@@ -126,15 +137,65 @@ type EdgeDarkOpacity = {
   midnight: number;
 };
 const EDGE_DARK_OPACITY_DEFAULTS = {
-  default: 0.5,
-  paper: 0.55,
-  midnight: 0.45,
+  default: 0.35,
+  paper: 0.25,
+  midnight: 0.25,
 };
 const EDGE_LIGHT_OPACITY_DEFAULTS = {
-  default: 0.63,
-  paper: 0.63,
-  midnight: 0.5,
+  default: 0.55,
+  paper: 0.6,
+  midnight: 0.6,
 };
+const SHARED_IMPORT_FIT_MIN_ZOOM = 0.2;
+
+function graphIdsMatch(
+  currentNodes: FlowNode[],
+  currentEdges: Edge[],
+  expectedNodes: FlowNode[],
+  expectedEdges: Edge[]
+) {
+  if (
+    currentNodes.length !== expectedNodes.length ||
+    currentEdges.length !== expectedEdges.length
+  ) {
+    return false;
+  }
+
+  for (let index = 0; index < expectedNodes.length; index += 1) {
+    if (currentNodes[index]?.id !== expectedNodes[index]?.id) return false;
+  }
+  for (let index = 0; index < expectedEdges.length; index += 1) {
+    if (currentEdges[index]?.id !== expectedEdges[index]?.id) return false;
+  }
+  return true;
+}
+
+function edgeIdsMatch(currentEdges: Edge[], expectedEdges: Edge[]) {
+  if (currentEdges.length !== expectedEdges.length) return false;
+  for (let index = 0; index < expectedEdges.length; index += 1) {
+    if (currentEdges[index]?.id !== expectedEdges[index]?.id) return false;
+  }
+  return true;
+}
+
+function nodesNeedMeasurement(nodesToInspect: FlowNode[]) {
+  return nodesToInspect.some((node) => {
+    const measured = node.measured;
+    return (
+      typeof measured?.width !== "number" ||
+      typeof measured?.height !== "number" ||
+      measured.width <= 0 ||
+      measured.height <= 0
+    );
+  });
+}
+
+function cloneEdgesForRender(edgesToClone: Edge[]) {
+  return edgesToClone.map((edge) => ({
+    ...edge,
+    ...(edge.data ? { data: { ...edge.data } } : {}),
+  }));
+}
 
 function isAutomationEnvironment() {
   if (typeof navigator !== "undefined" && navigator.webdriver) {
@@ -194,6 +255,10 @@ function FlowContent() {
   const isPastingRef = useRef(false);
   const welcomeCompleteRef = useRef(false);
   const pendingExampleFitRef = useRef(false);
+  const pendingFitOptionsRef = useRef<{
+    minZoom?: number;
+    settle?: boolean;
+  }>({});
   const exampleFitRetryTimeoutIdsRef = useRef<number[]>([]);
   const graphRev = useRef(0); // monotonically-increasing revision counter
   const [revTick, setRevTick] = useState(0);
@@ -383,6 +448,13 @@ function FlowContent() {
     getProtocolDiagramLayout: () => protocolDiagramLayout,
     setProtocolDiagramLayout,
   });
+  const nodesRef = useRef(nodes);
+  const edgesRef = useRef(edges);
+  nodesRef.current = nodes;
+  edgesRef.current = edges;
+
+  const getSavedNodes = useCallback(() => nodesRef.current, []);
+  const getSavedEdges = useCallback(() => edgesRef.current, []);
 
   const protocolDiagramModel = useMemo(
     () => buildProtocolDiagramModel({ nodes, edges }),
@@ -421,8 +493,14 @@ function FlowContent() {
     initializeTabHistory,
     removeTabHistory,
   } = useUndoRedo();
-  const { getNodes, getEdges } = useReactFlow<FlowNode>();
+  const {
+    getNodes,
+    getEdges,
+    setNodes: rfSetNodes,
+    setEdges: rfSetEdges,
+  } = useReactFlow<FlowNode>();
   const storeApi = useStoreApi<FlowNode>();
+  const updateNodeInternals = useUpdateNodeInternals();
   const hasCopiedNodesRef = useRef(hasCopiedNodes);
   useEffect(() => {
     hasCopiedNodesRef.current = hasCopiedNodes;
@@ -546,6 +624,16 @@ function FlowContent() {
   const pendingBannerTabRef = useRef<string | null>(null);
   const pendingSaveFrameRef = useRef<number | null>(null);
   const pendingSaveTimeoutRef = useRef<number | null>(null);
+  const pendingSharedGraphRef = useRef<PendingSharedGraph | null>(null);
+  const sharedGraphRepairTimeoutsRef = useRef<number[]>([]);
+
+  const clearSharedGraphRepairTimers = useCallback(() => {
+    if (typeof window === "undefined") return;
+    for (const timeoutId of sharedGraphRepairTimeoutsRef.current) {
+      window.clearTimeout(timeoutId);
+    }
+    sharedGraphRepairTimeoutsRef.current = [];
+  }, []);
 
   const applyCalculationState = useCallback(
     (
@@ -660,13 +748,15 @@ function FlowContent() {
     requestCloseTab,
     confirmCloseTab,
     cancelCloseTab,
+    closeAllTabs,
+    closeOtherTabs,
     setTabTransform,
     setTabTooltip,
     renameTab,
     saveTabData,
   } = useTabs({
-    getNodes,
-    getEdges,
+    getNodes: getSavedNodes,
+    getEdges: getSavedEdges,
     getProtocolDiagramLayout: () => protocolDiagramLayout,
     setProtocolDiagramLayout,
     baseSetNodes,
@@ -679,9 +769,153 @@ function FlowContent() {
     removeTabHistory,
   });
 
+  const reapplyPendingSharedGraph = useCallback(() => {
+    const pending = pendingSharedGraphRef.current;
+    if (!pending) return;
+    if (Date.now() > pending.expiresAt) {
+      pendingSharedGraphRef.current = null;
+      return;
+    }
+
+    const currentNodes = nodesRef.current;
+    const currentEdges = edgesRef.current;
+    const parentMatches = graphIdsMatch(
+      currentNodes,
+      currentEdges,
+      pending.nodes,
+      pending.edges
+    );
+
+    // The React Flow internal store can lag behind parent state — most often
+    // when a Safari layout pass splits the ResizeObserver batch and leaves
+    // nodes unmeasured, which makes EdgeWrapper render null for every edge.
+    // If parent state is correct but the store is missing nodes/edges, force-
+    // sync the store and re-trigger node measurement instead of bailing out.
+    const storeState = storeApi.getState();
+    const storeNodes = storeState.nodes as FlowNode[];
+    const storeEdges = storeState.edges;
+    const storeNodesStale =
+      storeNodes.length !== pending.nodes.length ||
+      !storeNodes.every((node, index) => node.id === pending.nodes[index]?.id);
+    const storeEdgesStale = !edgeIdsMatch(storeEdges, pending.edges);
+    const storeNeedsResync = storeNodesStale || storeEdgesStale;
+
+    if (parentMatches && !storeNeedsResync) {
+      pendingSharedGraphRef.current = null;
+      return;
+    }
+
+    if (!parentMatches) {
+      setNodes(() => pending.nodes);
+      setEdges(() => cloneEdgesForRender(pending.edges));
+      setProtocolDiagramLayout(pending.protocolDiagramLayout);
+      saveTabData(pending.tabId, {
+        force: true,
+        immediate: true,
+        data: {
+          nodes: pending.nodes,
+          edges: pending.edges,
+          protocolDiagramLayout: pending.protocolDiagramLayout,
+        },
+      });
+    }
+
+    if (storeNeedsResync) {
+      if (storeNodesStale) {
+        rfSetNodes(pending.nodes);
+      }
+      if (storeEdgesStale) {
+        rfSetEdges(cloneEdgesForRender(pending.edges));
+      }
+      const ids = pending.nodes.map((node) => node.id);
+      if (ids.length > 0) updateNodeInternals(ids);
+    }
+  }, [
+    rfSetEdges,
+    rfSetNodes,
+    saveTabData,
+    setEdges,
+    setNodes,
+    setProtocolDiagramLayout,
+    storeApi,
+    updateNodeInternals,
+  ]);
+
+  const saveTabDataGuardingSharedImport = useCallback(
+    (tabId: string) => {
+      const pending = pendingSharedGraphRef.current;
+      if (pending?.tabId === tabId) {
+        reapplyPendingSharedGraph();
+        if (pendingSharedGraphRef.current?.tabId === tabId) {
+          return;
+        }
+      }
+      saveTabData(tabId);
+    },
+    [reapplyPendingSharedGraph, saveTabData]
+  );
+
+  const scheduleSharedEdgeRenderRefresh = useCallback(
+    (tabId: string, expectedNodes: FlowNode[], expectedEdges: Edge[]) => {
+      if (typeof window === "undefined" || expectedEdges.length === 0) return;
+
+      const refreshEdges = () => {
+        if (activeTabIdRef.current !== tabId) return;
+
+        // First, repair the React Flow internal store if it's behind parent
+        // state — this is the actual failure mode for the Safari edge bug.
+        const storeState = storeApi.getState();
+        const storeNodes = storeState.nodes as FlowNode[];
+        const storeEdges = storeState.edges;
+        const storeNodesStale =
+          storeNodes.length !== expectedNodes.length ||
+          !storeNodes.every(
+            (node, index) => node.id === expectedNodes[index]?.id
+          );
+        const storeEdgesStale = !edgeIdsMatch(storeEdges, expectedEdges);
+        const storeNodesUnmeasured =
+          storeNodes.length === expectedNodes.length &&
+          nodesNeedMeasurement(storeNodes);
+        const storeNeedsRepair =
+          storeNodesStale || storeEdgesStale || storeNodesUnmeasured;
+        if (!storeNeedsRepair) return;
+
+        if (storeNodesStale) {
+          rfSetNodes(expectedNodes);
+        }
+        if (storeEdgesStale) {
+          rfSetEdges(cloneEdgesForRender(expectedEdges));
+        }
+        if (storeNodesStale || storeNodesUnmeasured) {
+          const ids = expectedNodes.map((node) => node.id);
+          if (ids.length > 0) updateNodeInternals(ids);
+        }
+
+        // Then re-clone parent edges to nudge the controlled prop sync once
+        // more (preserves the original render-refresh behaviour).
+        setEdges((currentEdges) => {
+          if (!edgeIdsMatch(currentEdges, expectedEdges)) {
+            return currentEdges;
+          }
+          return cloneEdgesForRender(currentEdges);
+        });
+      };
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(refreshEdges);
+      });
+
+      for (const delay of [80, 180, 360, 700, 1200, 2000]) {
+        const timeoutId = window.setTimeout(refreshEdges, delay);
+        sharedGraphRepairTimeoutsRef.current.push(timeoutId);
+      }
+    },
+    [rfSetEdges, rfSetNodes, setEdges, storeApi, updateNodeInternals]
+  );
+
   useAutoRefreshVersion({
     tabs,
-    saveTabData,
+    saveTabData: saveTabDataGuardingSharedImport,
     disableVersionPolling: import.meta.env.MODE === "test",
   });
 
@@ -690,19 +924,18 @@ function FlowContent() {
   }, [activeTabId]);
 
   const ensureShareImportTab = useCallback(async () => {
-    const currentTabId = activeTabIdRef.current ?? activeTabId;
-    if (!currentTabId) return null;
-    const existingNodes = getNodes();
-    const existingEdges = getEdges();
-    if (existingNodes.length === 0 && existingEdges.length === 0) {
-      return currentTabId;
-    }
     const newId = addTab();
     await new Promise<void>((resolve) => {
       requestAnimationFrame(() => resolve());
     });
+    if (activeTabIdRef.current !== newId) {
+      selectTab(newId);
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => resolve());
+      });
+    }
     return newId;
-  }, [activeTabId, addTab, getEdges, getNodes]);
+  }, [addTab, selectTab]);
 
   const activeCalcState = calcStateByTab[activeTabId] ?? DEFAULT_TAB_CALC_STATE;
   const calcStatus = activeCalcState.status;
@@ -714,6 +947,7 @@ function FlowContent() {
       ),
     [errorInfo]
   );
+
   const getCalcSnapshot = useCallback(
     () => ({
       status: calcStatus,
@@ -787,44 +1021,57 @@ function FlowContent() {
   }, []);
 
   const fitCurrentGraphIntoView = useCallback(
-    (options?: { allowEmpty?: boolean }) => {
+    (options?: { allowEmpty?: boolean; minZoom?: number }) => {
       const instance = flowInstanceRef.current;
       if (!instance) return false;
       const hasGraph = getNodes().length > 0 || getEdges().length > 0;
       if (!hasGraph && !options?.allowEmpty) return false;
-      instance.fitView({ padding: 0.2, maxZoom: 2, duration: 350 });
+      instance.fitView({
+        padding: 0.2,
+        minZoom: options?.minZoom,
+        maxZoom: 2,
+        duration: 350,
+      });
       return hasGraph;
     },
     [getEdges, getNodes]
   );
 
-  const scheduleExampleFlowFit = useCallback(() => {
-    if (typeof window === "undefined") return;
+  const scheduleExampleFlowFit = useCallback(
+    (options?: { minZoom?: number; settle?: boolean }) => {
+      if (typeof window === "undefined") return;
 
-    clearExampleFitRetryTimers();
-    pendingExampleFitRef.current = true;
-    const retryDelays = [0, 24, 72, 140, 240, 380, 560, 800];
+      clearExampleFitRetryTimers();
+      pendingExampleFitRef.current = true;
+      pendingFitOptionsRef.current = options ?? {};
+      const retryDelays = [0, 24, 72, 140, 240, 380, 560, 800];
 
-    retryDelays.forEach((delay, index) => {
-      const timeoutId = window.setTimeout(() => {
-        if (!pendingExampleFitRef.current) return;
+      retryDelays.forEach((delay, index) => {
+        const timeoutId = window.setTimeout(() => {
+          if (!pendingExampleFitRef.current) return;
 
-        const fittedWithGraph = fitCurrentGraphIntoView({
-          allowEmpty: index === 0,
-        });
-        if (fittedWithGraph) {
-          pendingExampleFitRef.current = false;
-          clearExampleFitRetryTimers();
-          return;
-        }
+          const fittedWithGraph = fitCurrentGraphIntoView({
+            allowEmpty: index === 0,
+            minZoom: options?.minZoom,
+          });
+          if (fittedWithGraph && !options?.settle) {
+            pendingExampleFitRef.current = false;
+            pendingFitOptionsRef.current = {};
+            clearExampleFitRetryTimers();
+            return;
+          }
 
-        if (index === retryDelays.length - 1) {
-          pendingExampleFitRef.current = false;
-        }
-      }, delay);
-      exampleFitRetryTimeoutIdsRef.current.push(timeoutId);
-    });
-  }, [clearExampleFitRetryTimers, fitCurrentGraphIntoView]);
+          if (index === retryDelays.length - 1) {
+            pendingExampleFitRef.current = false;
+            pendingFitOptionsRef.current = {};
+            clearExampleFitRetryTimers();
+          }
+        }, delay);
+        exampleFitRetryTimeoutIdsRef.current.push(timeoutId);
+      });
+    },
+    [clearExampleFitRetryTimers, fitCurrentGraphIntoView]
+  );
 
   const resetToEmptyCanvas = useCallback(() => {
     restoreScriptSteps([]);
@@ -966,8 +1213,8 @@ function FlowContent() {
     setInfoDialog,
     closeInfoDialog,
   } = useShareFlow({
-    getNodes,
-    getEdges,
+    getNodes: getSavedNodes,
+    getEdges: getSavedEdges,
     getProtocolDiagramLayout: () => protocolDiagramLayout,
   });
 
@@ -1000,18 +1247,97 @@ function FlowContent() {
   const fitImportedFlow = useCallback(() => {
     const instance = flowInstanceRef.current;
     if (!instance) return;
-
-    const runFit = () =>
+    const runFit = () => {
       instance.fitView({ padding: 0.2, maxZoom: 2, duration: 350 });
-    // Use a double rAF so the React Flow store has applied imported nodes/edges
+    };
+    // Use a double rAF so the React Flow store has applied imported nodes/edges.
     requestAnimationFrame(() => requestAnimationFrame(runFit));
   }, []);
 
   const fitSharedImportedFlow = useCallback(() => {
-    // Shared-flow loading can race WebKit layout readiness; use the resilient
-    // retry scheduler for this path only.
-    scheduleExampleFlowFit();
+    // Shared-flow loading can race tab creation and React Flow/WebKit edge
+    // culling. Keep fitting briefly, but avoid subpixel zoom levels where
+    // Safari can decide all edge paths are outside the visible set.
+    scheduleExampleFlowFit({
+      minZoom: SHARED_IMPORT_FIT_MIN_ZOOM,
+      settle: true,
+    });
   }, [scheduleExampleFlowFit]);
+
+  const replaceSharedGraph = useCallback(
+    ({
+      nodes: nextNodes,
+      edges: nextEdges,
+      protocolDiagramLayout: nextLayout,
+      tabId,
+    }: {
+      nodes: FlowNode[];
+      edges: Edge[];
+      protocolDiagramLayout?: ProtocolDiagramLayout;
+      tabId?: string;
+    }) => {
+      const targetTabId = tabId ?? activeTabIdRef.current ?? activeTabId;
+
+      setNodes(() => nextNodes);
+      setEdges(() => cloneEdgesForRender(nextEdges));
+      setProtocolDiagramLayout(nextLayout);
+
+      pendingSharedGraphRef.current = {
+        tabId: targetTabId,
+        nodes: nextNodes,
+        edges: nextEdges,
+        protocolDiagramLayout: nextLayout,
+        expiresAt: Date.now() + 5_000,
+      };
+      clearSharedGraphRepairTimers();
+
+      saveTabData(targetTabId, {
+        force: true,
+        immediate: true,
+        data: {
+          nodes: nextNodes,
+          edges: nextEdges,
+          protocolDiagramLayout: nextLayout,
+        },
+      });
+
+      if (typeof window !== "undefined") {
+        // Force React Flow to re-measure every imported node on the next
+        // frame. Without this, a dropped Safari ResizeObserver batch can
+        // leave nodes unmeasured, which causes EdgeWrapper to render null
+        // for every edge connected to those nodes.
+        const nodeIds = nextNodes.map((node) => node.id);
+        if (nodeIds.length > 0) {
+          requestAnimationFrame(() => {
+            updateNodeInternals(nodeIds);
+          });
+        }
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(reapplyPendingSharedGraph);
+        });
+        for (const delay of [120, 360, 900]) {
+          const timeoutId = window.setTimeout(
+            reapplyPendingSharedGraph,
+            delay
+          );
+          sharedGraphRepairTimeoutsRef.current.push(timeoutId);
+        }
+        scheduleSharedEdgeRenderRefresh(targetTabId, nextNodes, nextEdges);
+      }
+    },
+    [
+      activeTabId,
+      clearSharedGraphRepairTimers,
+      reapplyPendingSharedGraph,
+      saveTabData,
+      scheduleSharedEdgeRenderRefresh,
+      setEdges,
+      setNodes,
+      setProtocolDiagramLayout,
+      updateNodeInternals,
+    ]
+  );
 
   const handleImportTooltip = useCallback(
     (filename?: string) => {
@@ -1039,8 +1365,8 @@ function FlowContent() {
     openFileDialog,
     handleFileSelect,
   } = useFileOperations(nodes, edges, rawOnNodesChange, rawOnEdgesChange, {
-    getNodes,
-    getEdges,
+    getNodes: getSavedNodes,
+    getEdges: getSavedEdges,
     scheduleSnapshot,
     fitView: fitImportedFlow,
     onTooltip: handleImportTooltip,
@@ -1316,7 +1642,7 @@ function FlowContent() {
 
       if (typeof window === "undefined") {
         if (!skipLoadRef.current && !loadingUndoRef.current) {
-          saveTabData(activeTabId);
+          saveTabDataGuardingSharedImport(activeTabId);
         }
         return;
       }
@@ -1334,7 +1660,7 @@ function FlowContent() {
             return;
           }
 
-          saveTabData(activeTabId);
+          saveTabDataGuardingSharedImport(activeTabId);
         }, 40);
       });
 
@@ -1350,7 +1676,7 @@ function FlowContent() {
     };
   }, [
     activeTabId,
-    saveTabData,
+    saveTabDataGuardingSharedImport,
     revTick,
     initialHydrationDone,
     skipLoadRef,
@@ -1360,13 +1686,13 @@ function FlowContent() {
   useEffect(() => {
     if (!initialHydrationDone) return;
     if (skipLoadRef.current || loadingUndoRef.current) return;
-    saveTabData(activeTabId);
+    saveTabDataGuardingSharedImport(activeTabId);
   }, [
     activeTabId,
     initialHydrationDone,
     loadingUndoRef,
     protocolDiagramLayout,
-    saveTabData,
+    saveTabDataGuardingSharedImport,
     skipLoadRef,
   ]);
 
@@ -1545,11 +1871,13 @@ function FlowContent() {
   });
 
   useSharedFlowLoader({
-    getNodes,
-    getEdges,
+    enabled: initialHydrationDone,
+    getNodes: getSavedNodes,
+    getEdges: getSavedEdges,
     fitView: fitSharedImportedFlow,
     getProtocolDiagramLayout: () => protocolDiagramLayout,
     setProtocolDiagramLayout,
+    replaceGraph: replaceSharedGraph,
     onNodesChange: rawOnNodesChange,
     onEdgesChange: rawOnEdgesChange,
     scheduleSnapshot,
@@ -1594,7 +1922,7 @@ function FlowContent() {
     onStatusChange: (status, errors) => {
       applyCalculationState(status, errors || []);
       if (status === "OK" && initialHydrationDone) {
-        saveTabData(activeTabId);
+        saveTabDataGuardingSharedImport(activeTabId);
       }
     },
   });
@@ -1617,6 +1945,7 @@ function FlowContent() {
 
     const snap = history[pointer];
     loadingUndoRef.current = true;
+    restoreScriptSteps(snap.scriptSteps ?? []);
 
     // Prevent an "After calc" snapshot right after history loads
     pendingSnapshotRef.current = false;
@@ -1722,6 +2051,7 @@ function FlowContent() {
       flowInstanceRef.current = instance;
       requestAnimationFrame(() => {
         if (
+          !pendingExampleFitRef.current &&
           !hasFitOnInitialLoad &&
           (nodes.length || edges.length) &&
           activeTabId === "tab-1"
@@ -1729,9 +2059,16 @@ function FlowContent() {
           instance.fitView({ padding: 0.2 });
           setHasFitOnInitialLoad(true);
         }
-        if (pendingExampleFitRef.current && fitCurrentGraphIntoView()) {
-          pendingExampleFitRef.current = false;
-          clearExampleFitRetryTimers();
+        if (pendingExampleFitRef.current) {
+          const fitOptions = pendingFitOptionsRef.current;
+          const fittedWithGraph = fitCurrentGraphIntoView({
+            minZoom: fitOptions.minZoom,
+          });
+          if (fittedWithGraph && !fitOptions.settle) {
+            pendingExampleFitRef.current = false;
+            pendingFitOptionsRef.current = {};
+            clearExampleFitRetryTimers();
+          }
         }
         setIsFlowVisible(true);
       });
@@ -1764,9 +2101,11 @@ function FlowContent() {
   useEffect(
     () => () => {
       pendingExampleFitRef.current = false;
+      pendingFitOptionsRef.current = {};
       clearExampleFitRetryTimers();
+      clearSharedGraphRepairTimers();
     },
-    [clearExampleFitRetryTimers]
+    [clearExampleFitRetryTimers, clearSharedGraphRepairTimers]
   );
 
   const onMoveEnd = useCallback(
@@ -1982,6 +2321,7 @@ function FlowContent() {
                 onMoveEnd={onMoveEnd}
                 isSelectionModeActive={isSelectionMode}
                 isReadOnly={isMobileReadOnly}
+                onlyRenderVisibleElements
               />
               {isMobileReadOnly && (
                 <div className="pointer-events-none absolute inset-x-0 top-4 mx-auto w-11/12 max-w-md">
@@ -2266,8 +2606,11 @@ function FlowContent() {
           {/* dialogs */}
           <FlowDialogLayer
             closeDialog={closeDialog}
+            tabCount={tabs.length}
             onConfirmTabClose={handleConfirmTabClose}
             onCancelTabClose={cancelCloseTab}
+            onCloseAllTabs={closeAllTabs}
+            onCloseOtherTabs={closeOtherTabs}
             showSaveConfirmation={showSaveConfirmation}
             saveConfirmationMessage={saveConfirmationMessage}
             onConfirmSave={handleConfirmSimplifiedSave}

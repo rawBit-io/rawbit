@@ -6,7 +6,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
+import type { ReactNode } from "react";
 
 interface ConfirmationDialogProps {
   isOpen: boolean;
@@ -14,6 +15,9 @@ interface ConfirmationDialogProps {
   onConfirm: () => void;
   title: string;
   description: string;
+  children?: ReactNode;
+  footerAction?: ReactNode;
+  confirmVariant?: ButtonProps["variant"];
   confirmText?: string;
   cancelText?: string;
 }
@@ -24,6 +28,9 @@ export function ConfirmationDialog({
   onConfirm,
   title,
   description,
+  children,
+  footerAction,
+  confirmVariant = "default",
   confirmText = "Confirm",
   cancelText = "Cancel",
 }: ConfirmationDialogProps) {
@@ -34,7 +41,10 @@ export function ConfirmationDialog({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
+        {children}
         <DialogFooter>
+          {footerAction && <div className="mr-auto">{footerAction}</div>}
+
           {/* Only show the cancel button if text is provided */}
           {cancelText && (
             <Button variant="outline" onClick={onClose}>
@@ -42,7 +52,7 @@ export function ConfirmationDialog({
             </Button>
           )}
 
-          <Button variant="default" onClick={onConfirm}>
+          <Button variant={confirmVariant} onClick={onConfirm}>
             {confirmText}
           </Button>
         </DialogFooter>

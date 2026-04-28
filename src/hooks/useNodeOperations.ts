@@ -464,8 +464,6 @@ export function useNodeOperations(options: UseNodeOperationsOptions = {}) {
           pos.y
         );
 
-        const sanitizedTranslatedNodes = ingestScriptSteps(translated.nodes);
-
         // ② run the stable-id merge (only rename on conflicts)
         const {
           nodes: sub,
@@ -474,7 +472,7 @@ export function useNodeOperations(options: UseNodeOperationsOptions = {}) {
         } = importWithFreshIds<FlowNode, Edge>({
           currentNodes: rf.getNodes(),
           currentEdges: rf.getEdges(),
-          importNodes: sanitizedTranslatedNodes,
+          importNodes: translated.nodes,
           importEdges: translated.edges,
           dedupeEdges: true,
           renameMode: "collision", // preserve IDs unless there is a collision

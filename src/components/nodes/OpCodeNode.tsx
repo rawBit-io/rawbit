@@ -377,21 +377,21 @@ export default function OpCodeNode({
   return (
     <Card
       className={cn(
-        "transition-all duration-150 ease-in-out bg-card relative shadow-md border flex flex-col",
+        "relative flex flex-col border-2 bg-card font-mono text-primary shadow-md transition-all duration-150 ease-in-out",
         selectedStyles,
         highlightStyles,
-        data.borderColor ? "border-2" : "border",
+        data.borderColor ? "!border-3" : "border-border",
         isExpanded ? "w-[350px]" : "w-[280px]"
       )}
       style={data.borderColor ? { borderColor: data.borderColor } : {}}
     >
       {/* --- Title bar -------------------------------------------------- */}
 
-      <div className="border-b border-border p-2 text-xl flex justify-between items-center gap-2">
-        <div className="flex-1 min-w-0 font-mono">
+      <div className="flex w-full flex-row items-center gap-2 border-b border-border p-2 text-xl">
+        <div className="min-w-0 flex-1 break-words leading-tight">
           {data.title || "Opcode Sequence"}
         </div>
-        <div className="flex items-center space-x-1">
+        <div className="flex shrink-0 items-center space-x-1">
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-6 w-6 p-1">

@@ -113,6 +113,8 @@ export async function shareFlow(
 }
 
 export async function loadShared(id: string): Promise<SharePayload> {
+  if (!SHARE_BASE) throw new Error("VITE_SHARE_BASE_URL is not set");
+
   const res = await fetch(`${SHARE_BASE}/s/${encodeURIComponent(id)}`, {
     method: "GET",
     mode: "cors",

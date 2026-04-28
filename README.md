@@ -6,7 +6,7 @@ _rawBit is a visual, node-based editor for constructing and understanding Bitcoi
 
 ## Flow Examples
 
-rawBit ships with **14 hands-on example lessons** you can load, tweak, and inspect. They progress from legacy to SegWit and Taproot, but each is standalone — start anywhere.
+rawBit ships with **16 hands-on example lessons** you can load, tweak, and inspect. They progress from legacy to SegWit and Taproot, but each is standalone — start anywhere.
 
 - **Lessons 1–2:** P2PKH, P2PK, multisig, and P2SH fundamentals
 - **Lessons 3–4:** Timelocks (nLockTime / nSequence), CLTV/CSV patterns
@@ -19,8 +19,10 @@ rawBit ships with **14 hands-on example lessons** you can load, tweak, and inspe
 - **Lesson 12:** Taproot script-path spend (taptree, control block, tapscript)
 - **Lesson 13:** Taproot script-path multisig (NUMS + `OP_CHECKSIGADD`)
 - **Lesson 14:** MuSig2 multisig (BIP327, aggregated Schnorr)
+- **Lesson 15:** Trezor signing flow (BIP39/BIP32, RFC6979, hardware signing comparison)
+- **Lesson 16:** Summer of Bitcoin 2026 PoC flow
 
-All example transactions were broadcast to **testnet3** and can be verified on explorers.
+Most example transactions were broadcast to **testnet3** and can be verified on explorers.
 
 **Full lesson details:** [docu/l-sum.md](docu/l-sum.md)
 
@@ -74,6 +76,8 @@ Educators, auditors, and protocol-curious developers who want to understand Bitc
 rawBit is **not** a wallet, broadcaster, or custody tool. Keep real funds out of it.
 
 > ⚠️ **Educational use only.** rawBit can assemble mainnet-valid transactions, but you **should not** broadcast them or handle real funds with this tool. Use **testnet** or **regtest** for anything you intend to send.
+
+> 🌐 **Hosted [rawBit](https://rawbit.io) currently needs to send calculation data to the backend.** Users who require "nothing leaves my machine" should use the [local install](#quick-start-local).
 
 ---
 
@@ -212,7 +216,7 @@ spec-mandated internal Sign self-check (`PartialSigVerifyInternal`).
 
 rawBit is a visual lab for Bitcoin transactions. The most useful contributions are **flows and lessons** that help others understand how things work.
 For a broader list of possible contribution directions, see [docu/contribute.md](docu/contribute.md).
-Community discussion: [Discord](https://discord.gg/5vRnYSZc).
+Community discussion: [Discord](https://discord.gg/HPSYkT9tq).
 
 ### What we’re looking for
 

@@ -107,6 +107,22 @@ describe("UndoRedoProvider", () => {
     expect(result.current.history).toEqual([]);
   });
 
+  it("does not restore script steps when only switching active tab context", async () => {
+    const { result } = renderHook(() => useUndoRedo(), { wrapper });
+
+    await act(async () => {
+      result.current.initializeTabHistory("tab-2", [makeNode("x")], edges);
+    });
+
+    restoreScriptSteps.mockClear();
+
+    await act(async () => {
+      result.current.setActiveTab("tab-1");
+    });
+
+    expect(restoreScriptSteps).not.toHaveBeenCalled();
+  });
+
   it("stores calc state metadata with snapshots", async () => {
     const { result } = renderHook(() => useUndoRedo(), { wrapper });
 

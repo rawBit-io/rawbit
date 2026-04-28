@@ -4,9 +4,8 @@
     "noEmit": true,
     "moduleResolution": "bundler",
     "types": ["@playwright/test", "node"],
-    "baseUrl": "..",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["../src/*"]
     }
   },
   "include": [

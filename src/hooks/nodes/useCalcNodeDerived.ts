@@ -83,8 +83,13 @@ export function useCalcNodeDerived(
       );
     };
 
-    const consider = (index: number | undefined, unconnectable?: boolean) => {
-      if (index === undefined || unconnectable) return;
+    const consider = (
+      index: number | undefined,
+      field?: { unconnectable?: boolean; options?: string[] }
+    ) => {
+      if (index === undefined || field?.unconnectable || field?.options?.length) {
+        return;
+      }
       total += 1;
       if (wiredHandles.has(`input-${index}`) || hasSentinelValue(index)) {
         connected += 1;
@@ -92,7 +97,7 @@ export function useCalcNodeDerived(
     };
 
     data.inputStructure?.ungrouped?.forEach((field) =>
-      consider(field.index, field.unconnectable)
+      consider(field.index, field)
     );
 
     data.inputStructure?.groups?.forEach((group) => {
@@ -100,7 +105,7 @@ export function useCalcNodeDerived(
       if (keys?.length) {
         keys.forEach((offset) => {
           group.fields.forEach((field) =>
-            consider(offset + field.index, field.unconnectable)
+            consider(offset + field.index, field)
           );
         });
         return;
@@ -110,17 +115,17 @@ export function useCalcNodeDerived(
       for (let i = 0; i < instanceCount; i += 1) {
         const offset = group.baseIndex + i * INSTANCE_STRIDE;
         group.fields.forEach((field) =>
-          consider(offset + field.index, field.unconnectable)
+          consider(offset + field.index, field)
         );
       }
     });
 
     Object.values(data.inputStructure?.betweenGroups ?? {}).forEach((fields) =>
-      fields.forEach((field) => consider(field.index, field.unconnectable))
+      fields.forEach((field) => consider(field.index, field))
     );
 
     data.inputStructure?.afterGroups?.forEach((field) =>
-      consider(field.index, field.unconnectable)
+      consider(field.index, field)
     );
 
     return { connected, total, shouldShow: true };

@@ -37,11 +37,11 @@ export function OpcodeExpandedView({
   sequenceScrollRef,
 }: OpcodeExpandedViewProps) {
   return (
-    <div className="flex flex-col gap-4 text-sm">
+    <div className="flex flex-col gap-4 text-sm text-primary">
       <div className="relative">
         <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          className="pl-8 h-8 text-xs nodrag"
+          className="h-8 pl-8 text-xs nodrag text-primary placeholder:text-muted-foreground"
           placeholder="Search all Opcodes..."
           value={fullSearch}
           onChange={(event) => onFullSearchChange(event.target.value)}
@@ -53,25 +53,25 @@ export function OpcodeExpandedView({
           Filter by Category {fullSearch && "(applied after search)"}
         </label>
         <ScrollArea
-          className="h-24 border rounded-md nodrag"
+          className="h-24 rounded-md border border-border nodrag"
           ref={categoryScrollRef}
         >
           <div className="p-1">
             <button
               className={cn(
-                "w-full text-left py-1.5 px-2 rounded-sm hover:bg-accent",
+                "w-full rounded-sm px-2 py-1.5 text-left hover:bg-accent",
                 category === "all" && "bg-accent font-semibold"
               )}
               onClick={() => onCategoryChange("all")}
             >
               All
             </button>
-            <div className="h-px bg-muted my-1 mx-2" />
+            <div className="mx-2 my-1 h-px bg-border" />
             {Object.entries(categoryNames).map(([key, name]) => (
               <button
                 key={key}
                 className={cn(
-                  "w-full text-left py-1.5 px-2 rounded-sm hover:bg-accent",
+                  "w-full rounded-sm px-2 py-1.5 text-left hover:bg-accent",
                   category === key && "bg-accent font-semibold"
                 )}
                 onClick={() => onCategoryChange(key as OpCodeCategories)}
@@ -88,7 +88,7 @@ export function OpcodeExpandedView({
           Opcodes List (click to add)
         </label>
         <div
-          className="h-32 border rounded-md nodrag overflow-auto"
+          className="h-32 overflow-auto rounded-md border border-border nodrag"
           ref={opcodeScrollRef}
         >
           <div className="p-1">
@@ -125,7 +125,7 @@ export function OpcodeExpandedView({
           Selected Sequence (click X)
         </label>
         <div
-          className="h-28 border rounded-md nodrag overflow-auto"
+          className="h-28 overflow-auto rounded-md border border-border nodrag"
           ref={sequenceScrollRef}
         >
           {selectedOps.length === 0 ? (

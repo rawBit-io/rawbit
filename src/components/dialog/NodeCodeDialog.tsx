@@ -22,6 +22,8 @@ import { useTheme } from "@/hooks/useTheme";
 
 const DEFAULT_LOCAL_API = "http://localhost:5007";
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0", "::1", "[::1]"]);
+const HIGHLIGHT_LINE_LIMIT = 500;
+const HIGHLIGHT_TAIL_LINE_COUNT = 200;
 
 function isLocalHost(hostname?: string) {
   if (!hostname) return false;
@@ -50,6 +52,14 @@ function resolveApiBase(): { baseUrl: string; forcedLocal: boolean } {
   }
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object";
+}
+
+function errorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
+}
+
 interface NodeCodeDialogProps {
   open: boolean;
   onClose: () => void;
@@ -65,6 +75,18 @@ export function NodeCodeDialog({
   const [error, setError] = useState("");
   const [code, setCode] = useState("");
   const [copied, setCopied] = useState(false);
+  const codeLines = code ? code.split(/\r\n|\r|\n/) : [];
+  const codeLineCount = codeLines.length;
+  const usePlainCode = codeLineCount > HIGHLIGHT_LINE_LIMIT;
+  const highlightedTailLines = usePlainCode
+    ? codeLines.slice(-HIGHLIGHT_TAIL_LINE_COUNT)
+    : codeLines;
+  const plainPrefixLines = usePlainCode
+    ? codeLines.slice(0, -HIGHLIGHT_TAIL_LINE_COUNT)
+    : [];
+  const highlightedCode = highlightedTailLines.join("\n");
+  const plainPrefixCode = plainPrefixLines.join("\n");
+  const highlightedStartLine = usePlainCode ? plainPrefixLines.length + 1 : 1;
 
   // Use your custom theme (light/dark/system)
   const { theme } = useTheme();
@@ -90,26 +112,66 @@ export function NodeCodeDialog({
   // Fetch code from the backend
   useEffect(() => {
     if (!open || !functionName) return;
+    const controller = new AbortController();
+    let active = true;
+
     setLoading(true);
     setError("");
     setCode("");
     const api = resolveApiBase();
 
-    fetch(`${api.baseUrl}/code?functionName=${encodeURIComponent(functionName)}`)
-      .then((res) => res.json())
-      .then((resp) => {
-        setLoading(false);
-        if (resp.error) {
+    const loadCode = async () => {
+      try {
+        const res = await fetch(
+          `${api.baseUrl}/code?functionName=${encodeURIComponent(functionName)}`,
+          {
+            headers: { accept: "application/json" },
+            signal: controller.signal,
+          }
+        );
+        const contentType = res.headers.get("content-type") || "";
+        const resp = contentType.includes("application/json")
+          ? await res.json()
+          : null;
+
+        if (!active) return;
+
+        if (!res.ok) {
+          const backendError =
+            isRecord(resp) && typeof resp.error === "string"
+              ? resp.error
+              : `Request failed (${res.status})`;
+          setError(backendError);
+          setCode("");
+          return;
+        }
+
+        if (isRecord(resp) && typeof resp.error === "string") {
           setError(resp.error);
           setCode("");
-        } else {
-          setCode(resp.code || "");
+          return;
         }
-      })
-      .catch((err) => {
-        setLoading(false);
-        setError(String(err));
-      });
+
+        setCode(
+          isRecord(resp) && typeof resp.code === "string" ? resp.code : ""
+        );
+      } catch (err) {
+        if (!active || controller.signal.aborted) return;
+        setError(errorMessage(err));
+        setCode("");
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadCode();
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
   }, [open, functionName]);
 
   // Copy-to-clipboard
@@ -204,12 +266,25 @@ export function NodeCodeDialog({
             <div className="text-red-500">Error: {error}</div>
           )}
 
-          {/* Syntax highlighter */}
+          {!loading && !error && code && usePlainCode && (
+            <pre
+              data-testid="plain-code"
+              className="m-0 whitespace-pre text-sm"
+              style={{
+                fontFamily:
+                  'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
+              }}
+            >
+              <code>{plainPrefixCode}</code>
+            </pre>
+          )}
+
           {!loading && !error && code && (
             <SyntaxHighlighter
               language="python"
               style={isDarkMode ? oneDark : oneLight}
               showLineNumbers
+              startingLineNumber={highlightedStartLine}
               wrapLongLines={false}
               // Make line numbers unselectable
               lineNumberStyle={{
@@ -232,7 +307,7 @@ export function NodeCodeDialog({
                 },
               }}
             >
-              {code}
+              {highlightedCode}
             </SyntaxHighlighter>
           )}
 

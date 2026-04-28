@@ -4,7 +4,15 @@ import { ReactFlowProvider } from "@xyflow/react";
 import type { Edge, ReactFlowInstance } from "@xyflow/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { FlowNode, ProtocolDiagramLayout } from "@/types";
-import { buildFlowData, buildFlowNode } from "@/test-utils/types";
+import {
+  buildFlowData,
+  buildFlowNode,
+  buildScriptExecutionResult,
+} from "@/test-utils/types";
+import {
+  getScriptSteps,
+  restoreScriptSteps,
+} from "@/lib/share/scriptStepsCache";
 import { useNodeOperations } from "../useNodeOperations";
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -18,6 +26,7 @@ describe("useNodeOperations", () => {
       return 0;
     });
     vi.spyOn(Math, "random").mockReturnValue(0.1);
+    restoreScriptSteps([]);
   });
 
   afterEach(() => {
@@ -97,6 +106,74 @@ const createMockInstance = (
     });
 
     expect(result.current.nodes.some((n) => n.id === "template-node")).toBe(true);
+  });
+
+  it("keeps script steps for remapped ids when dropped template collides", () => {
+    const { result } = renderHook(() => useNodeOperations(), { wrapper });
+    const mockRf = createMockInstance(result);
+
+    act(() => {
+      result.current.onInit(mockRf);
+    });
+
+    act(() => {
+      result.current.setNodes(() => [
+        buildFlowNode({
+          id: "template-node",
+          type: "calculation",
+          position: { x: 0, y: 0 },
+          data: { functionName: "identity" },
+        }),
+      ]);
+    });
+
+    const scriptResult = buildScriptExecutionResult({
+      steps: [],
+      isValid: true,
+    });
+    const flowData = buildFlowData({
+      nodes: [
+        buildFlowNode({
+          id: "template-node",
+          type: "calculation",
+          position: { x: 10, y: 20 },
+          data: {
+            functionName: "script_verification",
+            scriptDebugSteps: scriptResult,
+          },
+        }),
+      ],
+      edges: [],
+    });
+
+    const event = {
+      preventDefault: vi.fn(),
+      dataTransfer: {
+        getData: (type: string) =>
+          type === "application/reactflow"
+            ? JSON.stringify({
+                functionName: "flow_template",
+                nodeData: { flowData },
+              })
+            : "",
+      },
+      clientX: 50,
+      clientY: 60,
+    } as unknown as React.DragEvent<HTMLDivElement>;
+
+    act(() => {
+      result.current.onDrop(event);
+    });
+
+    const importedVerifyNode = result.current.nodes.find(
+      (node) =>
+        node.data?.functionName === "script_verification" &&
+        node.id !== "template-node"
+    );
+
+    expect(importedVerifyNode).toBeDefined();
+    expect(importedVerifyNode?.data?.scriptDebugSteps).toBeUndefined();
+    expect(getScriptSteps(importedVerifyNode!.id)).toEqual(scriptResult);
   });
 
   it("imports protocol diagram layout when dropping flow templates", () => {

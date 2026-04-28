@@ -45,6 +45,7 @@ interface FlowCanvasProps {
   ) => void;
   isSelectionModeActive?: boolean;
   isReadOnly?: boolean;
+  onlyRenderVisibleElements?: boolean;
 }
 
 const MIN_ZOOM = 0.01;
@@ -74,6 +75,7 @@ export function FlowCanvas({
   onMoveEnd,
   isSelectionModeActive = false,
   isReadOnly = false,
+  onlyRenderVisibleElements = true,
 }: FlowCanvasProps) {
   const selectionEnabled = !isReadOnly && isSelectionModeActive;
   const minZoom = isReadOnly ? MOBILE_MIN_ZOOM : MIN_ZOOM;
@@ -91,7 +93,7 @@ export function FlowCanvas({
     <ReactFlow
       className={cn(selectionEnabled ? "cursor-crosshair" : "cursor-grab")}
       style={{ cursor: selectionEnabled ? "crosshair" : undefined }}
-      onlyRenderVisibleElements
+      onlyRenderVisibleElements={onlyRenderVisibleElements}
       nodeTypes={nodeTypes}
       nodes={nodes}
       edges={renderedEdges}

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type {
   Edge,
   EdgeChange,
@@ -9,7 +9,10 @@ import type { FlowData, FlowNode, ProtocolDiagramLayout } from "@/types";
 import { getShareJsonUrl, loadShared } from "@/lib/share";
 import { importWithFreshIds } from "@/lib/idUtils";
 import { validateFlowData } from "@/lib/flow/validate";
-import { ingestScriptSteps } from "@/lib/share/scriptStepsCache";
+import {
+  ingestScriptSteps,
+  restoreScriptSteps,
+} from "@/lib/share/scriptStepsCache";
 import {
   FLOW_SCHEMA_VERSION,
   MAX_FLOW_BYTES,
@@ -30,6 +33,33 @@ import {
 } from "@/lib/protocolDiagram/layoutPersistence";
 
 const SHARE_ALT_LINK_ID = "rawbit-share-json-link";
+
+function readSharedIdFromLocation() {
+  if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(window.location.search);
+  return params.get("s") || params.get("share");
+}
+
+function clearSharedIdFromLocation() {
+  if (typeof window === "undefined") return;
+  if (!window.location.search) return;
+
+  const url = new URL(window.location.href);
+  const hadSharedId = url.searchParams.has("s") || url.searchParams.has("share");
+  if (!hadSharedId) return;
+
+  url.searchParams.delete("s");
+  url.searchParams.delete("share");
+  const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+  window.history.replaceState(window.history.state, document.title, nextUrl);
+}
+
+function formatSharedTabTitle(sharedId: string) {
+  const suffix = sharedId
+    .replace(/[^a-zA-Z0-9_]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+  return `share_${suffix || sharedId}`;
+}
 
 function setAlternateShareJsonLink(href?: string) {
   if (typeof document === "undefined") return;
@@ -58,11 +88,18 @@ function setAlternateShareJsonLink(href?: string) {
 }
 
 interface UseSharedFlowLoaderOptions {
+  enabled?: boolean;
   getNodes: () => FlowNode[];
   getEdges: () => Edge[];
   fitView?: () => void;
   getProtocolDiagramLayout?: () => ProtocolDiagramLayout | undefined;
   setProtocolDiagramLayout?: (layout: ProtocolDiagramLayout | undefined) => void;
+  replaceGraph?: (graph: {
+    nodes: FlowNode[];
+    edges: Edge[];
+    protocolDiagramLayout?: ProtocolDiagramLayout;
+    tabId?: string;
+  }) => void;
   onNodesChange: (changes: NodeChange<FlowNode>[]) => void;
   onEdgesChange: (changes: EdgeChange[]) => void;
   scheduleSnapshot: (label: string, options?: { refresh?: boolean }) => void;
@@ -79,11 +116,13 @@ interface UseSharedFlowLoaderOptions {
 }
 
 export function useSharedFlowLoader({
+  enabled = true,
   getNodes,
   getEdges,
   fitView,
   getProtocolDiagramLayout,
   setProtocolDiagramLayout,
+  replaceGraph,
   onNodesChange,
   onEdgesChange,
   scheduleSnapshot,
@@ -96,10 +135,59 @@ export function useSharedFlowLoader({
 }: UseSharedFlowLoaderOptions) {
   const loadedSharedIdRef = useRef<string | null>(null);
   const loadingSharedIdRef = useRef<string | null>(null);
+  const activeTabIdRef = useRef(activeTabId);
+  const latestOptionsRef = useRef({
+    getNodes,
+    getEdges,
+    fitView,
+    getProtocolDiagramLayout,
+    setProtocolDiagramLayout,
+    replaceGraph,
+    onNodesChange,
+    onEdgesChange,
+    scheduleSnapshot,
+    setTabTooltip,
+    renameTab,
+    setInfoDialog,
+    flowInstanceRef,
+    ensureShareImportTab,
+  });
+  const [sharedId, setSharedId] = useState(readSharedIdFromLocation);
+
+  activeTabIdRef.current = activeTabId;
+  latestOptionsRef.current = {
+    getNodes,
+    getEdges,
+    fitView,
+    getProtocolDiagramLayout,
+    setProtocolDiagramLayout,
+    replaceGraph,
+    onNodesChange,
+    onEdgesChange,
+    scheduleSnapshot,
+    setTabTooltip,
+    renameTab,
+    setInfoDialog,
+    flowInstanceRef,
+    ensureShareImportTab,
+  };
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const sharedId = params.get("s") || params.get("share");
+    if (typeof window === "undefined") return;
+
+    const syncSharedId = () => {
+      setSharedId(readSharedIdFromLocation());
+    };
+
+    window.addEventListener("popstate", syncSharedId);
+    return () => {
+      window.removeEventListener("popstate", syncSharedId);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!enabled) return;
+
     if (!sharedId) {
       setAlternateShareJsonLink();
       return;
@@ -121,6 +209,7 @@ export function useSharedFlowLoader({
     (async () => {
       try {
         const data = await loadShared(sharedId);
+        let options = latestOptionsRef.current;
 
         if (cancelled) return;
 
@@ -129,7 +218,7 @@ export function useSharedFlowLoader({
           if (rawBytes > MAX_FLOW_BYTES) {
             const message = `Shared flow is ${formatBytes(rawBytes)}, over the ${formatBytes(MAX_FLOW_BYTES)} limit.`;
             console.error(message);
-            setInfoDialog({ open: true, message });
+            options.setInfoDialog({ open: true, message });
             return;
           }
         } catch (sizeErr) {
@@ -137,7 +226,7 @@ export function useSharedFlowLoader({
         }
 
         if (!isFlowFileCandidate(data)) {
-          setInfoDialog({
+          options.setInfoDialog({
             open: true,
             message: "Shared flow payload is empty or unreadable.",
           });
@@ -153,7 +242,7 @@ export function useSharedFlowLoader({
             (node) => !isRecord(node) || !isXYPosition(node.position)
           );
         if (looksSimplified) {
-          setInfoDialog({
+          options.setInfoDialog({
             open: true,
             message:
               "Shared flow is a simplified snapshot that omits layout data and can't be loaded; request a full export instead.",
@@ -184,7 +273,7 @@ export function useSharedFlowLoader({
             ? `${firstError.message}${suffix}`
             : "Shared flow failed validation.";
           console.error("Shared flow validation failed", validation.errors);
-          setInfoDialog({
+          options.setInfoDialog({
             open: true,
             message,
           });
@@ -197,23 +286,31 @@ export function useSharedFlowLoader({
 
         const sharedNodes = parsedData.nodes;
         const sharedEdges = parsedData.edges;
+        const shouldReplaceGraph = Boolean(options.replaceGraph);
 
-        let targetTabId = activeTabId;
-        const initialNodes = getNodes();
-        const initialEdges = getEdges();
+        let targetTabId = activeTabIdRef.current;
+        const initialNodes = options.getNodes();
+        const initialEdges = options.getEdges();
         const hadContent = initialNodes.length > 0 || initialEdges.length > 0;
 
-        if (hadContent && ensureShareImportTab) {
-          const ensuredId = await ensureShareImportTab();
+        if (
+          (hadContent || shouldReplaceGraph) &&
+          options.ensureShareImportTab
+        ) {
+          const ensuredId = await options.ensureShareImportTab();
           if (ensuredId) {
             targetTabId = ensuredId;
           }
+          options = latestOptionsRef.current;
         }
 
-        const currentNodes = getNodes();
-        const currentEdges = getEdges();
-        const targetWasEmpty =
-          currentNodes.length === 0 && currentEdges.length === 0;
+        if (cancelled) return;
+
+        const currentNodes = shouldReplaceGraph ? [] : options.getNodes();
+        const currentEdges = shouldReplaceGraph ? [] : options.getEdges();
+        const targetWasEmpty = shouldReplaceGraph
+          ? true
+          : currentNodes.length === 0 && currentEdges.length === 0;
 
         const {
           nodes: mergedNodes,
@@ -231,42 +328,53 @@ export function useSharedFlowLoader({
           renameMode: "collision",
         });
 
+        if (shouldReplaceGraph) {
+          restoreScriptSteps([]);
+        }
+
         const sanitizedNodes = ingestScriptSteps(mergedNodes);
         const importedNodeIds = new Set(sanitizedNodes.map((node) => node.id));
         const safeEdges = mergedEdges.filter(
           (edge) => importedNodeIds.has(edge.source) && importedNodeIds.has(edge.target)
         );
 
-        const deselect = getNodes()
-          .filter((node) => node.selected)
-          .map((node) => ({
-            type: "select" as const,
-            id: node.id,
-            selected: false,
-          }));
-
-        const addNodes = sanitizedNodes.map((node) => {
+        const nextNodes = sanitizedNodes.map((node) => {
           const dragHandle =
             node.type === "shadcnGroup"
               ? node.dragHandle ?? "[data-drag-handle]"
               : node.dragHandle;
 
           return {
+            ...node,
+            selected: shouldReplaceGraph ? false : true,
+            position: node.position ?? { x: 0, y: 0 },
+            data: node.data ?? {},
+            type: node.type ?? "calculation",
+            ...(dragHandle && { dragHandle }),
+          } as FlowNode;
+        });
+
+        const deselect = shouldReplaceGraph
+          ? []
+          : options.getNodes()
+              .filter((node) => node.selected)
+              .map((node) => ({
+                type: "select" as const,
+                id: node.id,
+                selected: false,
+              }));
+
+        const addNodes = nextNodes.map((node) => {
+          return {
             type: "add" as const,
-            item: {
-              ...node,
-              selected: true,
-              position: node.position ?? { x: 0, y: 0 },
-              data: node.data ?? {},
-              type: node.type ?? "calculation",
-              ...(dragHandle && { dragHandle }),
-            } as FlowNode,
+            item: node,
           };
         });
 
-        const addEdges = safeEdges.map((edge) => ({
+        const nextEdges = safeEdges.map((edge) => ({ ...edge }));
+        const addEdges = nextEdges.map((edge) => ({
           type: "add" as const,
-          item: { ...edge },
+          item: edge,
         }));
 
         const sharedLayout = sanitizeProtocolDiagramLayout(
@@ -278,55 +386,60 @@ export function useSharedFlowLoader({
           idMap,
           collectGroupNodeIds(sanitizedNodes)
         );
-        const currentLayout = sanitizeProtocolDiagramLayout(
-          getProtocolDiagramLayout?.()
-        );
-        const mergedLayout = mergeProtocolDiagramLayout(
-          currentLayout,
-          remappedLayout
-        );
-        if (!protocolDiagramLayoutEquals(currentLayout, mergedLayout)) {
-          setProtocolDiagramLayout?.(mergedLayout);
+        const nextLayout = (() => {
+          if (shouldReplaceGraph) return remappedLayout;
+
+          const currentLayout = sanitizeProtocolDiagramLayout(
+            options.getProtocolDiagramLayout?.()
+          );
+          const mergedLayout = mergeProtocolDiagramLayout(
+            currentLayout,
+            remappedLayout
+          );
+          if (!protocolDiagramLayoutEquals(currentLayout, mergedLayout)) {
+            options.setProtocolDiagramLayout?.(mergedLayout);
+          }
+          return mergedLayout;
+        })();
+
+        if (cancelled) return;
+
+        if (options.replaceGraph) {
+          options.replaceGraph({
+            nodes: nextNodes,
+            edges: nextEdges,
+            protocolDiagramLayout: nextLayout,
+            tabId: targetTabId ?? undefined,
+          });
+        } else {
+          options.onNodesChange([...deselect, ...addNodes]);
+          options.onEdgesChange(addEdges);
         }
 
         if (cancelled) return;
 
-        onNodesChange([...deselect, ...addNodes]);
-        onEdgesChange(addEdges);
-
-        if (cancelled) return;
-
-        scheduleSnapshot(`Imported shared flow ${sharedId}`, {
+        options.scheduleSnapshot(`Imported shared flow ${sharedId}`, {
           refresh: true,
         });
 
         if (cancelled) return;
 
         if (targetTabId) {
-          setTabTooltip(targetTabId, `Shared: ${sharedId}`);
+          options.setTabTooltip(targetTabId, `Shared: ${sharedId}`);
         }
         if (targetWasEmpty && targetTabId) {
-          const metaName = (parsedData as { meta?: { name?: unknown } }).meta
-            ?.name;
-          const candidateTitles = [
-            typeof parsedData.name === "string" ? parsedData.name : undefined,
-            typeof metaName === "string" ? metaName : undefined,
-            `Shared ${sharedId}`,
-          ];
-          const desiredTitle =
-            candidateTitles.find(
-              (value): value is string =>
-                typeof value === "string" && value.trim().length > 0
-            ) ?? `Shared ${sharedId}`;
-          renameTab(targetTabId, desiredTitle, { onlyIfEmpty: true });
+          const desiredTitle = formatSharedTabTitle(sharedId);
+          options.renameTab(targetTabId, desiredTitle, { onlyIfEmpty: true });
         }
 
         loadedSharedIdRef.current = sharedId;
+        clearSharedIdFromLocation();
+        setAlternateShareJsonLink();
 
-        if (fitView) {
-          fitView();
+        if (options.fitView) {
+          options.fitView();
         } else {
-          const instance = flowInstanceRef.current;
+          const instance = options.flowInstanceRef.current;
           if (instance) {
             requestAnimationFrame(() => {
               if (cancelled) return;
@@ -341,7 +454,7 @@ export function useSharedFlowLoader({
           typeof (err as { message?: unknown }).message === "string"
             ? (err as { message: string }).message
             : "unknown error";
-        setInfoDialog({
+        latestOptionsRef.current.setInfoDialog({
           open: true,
           message: `Could not load shared flow: ${message}`,
         });
@@ -367,19 +480,7 @@ export function useSharedFlowLoader({
       }
     };
   }, [
-    activeTabId,
-    flowInstanceRef,
-    fitView,
-    getEdges,
-    getNodes,
-    getProtocolDiagramLayout,
-    onEdgesChange,
-    onNodesChange,
-    scheduleSnapshot,
-    setProtocolDiagramLayout,
-    setInfoDialog,
-    setTabTooltip,
-    renameTab,
-    ensureShareImportTab,
+    enabled,
+    sharedId,
   ]);
 }

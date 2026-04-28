@@ -204,7 +204,7 @@ describe("TextInfoNode", () => {
     await waitFor(() => expect(pushStateMock).toHaveBeenCalled());
   });
 
-  it("copies the node id and deletes via the inline menu", async () => {
+  it("copies the node id and deletes via the portaled menu", async () => {
     const clipboardMock = {
       prettyResult: "",
       copyResult: vi.fn(),
@@ -239,11 +239,11 @@ describe("TextInfoNode", () => {
     const menuButton = markdownControls.querySelector("button:not([title])") as HTMLButtonElement;
 
     await user.click(menuButton);
-    await user.click(screen.getByRole("button", { name: /copy id/i }));
+    await user.click(screen.getByRole("menuitem", { name: /copy id/i }));
     expect(clipboardMock.copyId).toHaveBeenCalledTimes(1);
 
     await user.click(menuButton);
-    await user.click(screen.getByRole("button", { name: /delete node/i }));
+    await user.click(screen.getByRole("menuitem", { name: /delete node/i }));
 
     expect(nodesState).toHaveLength(0);
     expect(edgesState).toEqual([]);
@@ -253,7 +253,7 @@ describe("TextInfoNode", () => {
     );
   });
 
-  it("closes the inline menu when clicking outside the node", async () => {
+  it("closes the portaled menu when clicking outside the node", async () => {
     const clipboardMock = {
       prettyResult: "",
       copyResult: vi.fn(),
@@ -288,12 +288,12 @@ describe("TextInfoNode", () => {
     const menuButton = markdownControls.querySelector("button:not([title])") as HTMLButtonElement;
 
     await user.click(menuButton);
-    expect(screen.getByRole("button", { name: /copy id/i })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: /copy id/i })).toBeInTheDocument();
 
     fireEvent.pointerDown(document.body);
 
     await waitFor(() => {
-      expect(screen.queryByRole("button", { name: /copy id/i })).toBeNull();
+      expect(screen.queryByRole("menuitem", { name: /copy id/i })).toBeNull();
     });
   });
 });

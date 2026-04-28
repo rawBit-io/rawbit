@@ -14,6 +14,14 @@ import React, {
 import { NodeProps, useReactFlow, NodeResizer, Edge } from "@xyflow/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Minus, Plus, MoreHorizontal, Copy, Trash2, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mdToHtml } from "@/lib/markdown";
@@ -197,7 +205,6 @@ export default function TextInfoNode({
   /* refs */
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
 
   /* ───────── textarea height helper ───────────────────────── */
   // Keep a ref so updateTextareaFit stays stable (no deps that churn on every
@@ -324,7 +331,7 @@ export default function TextInfoNode({
     [pushState, rf]
   );
 
-  /* ───────── Simple inline menu handlers (no portal) ───────── */
+  /* ───────── Portaled menu handlers ───────────────────────── */
   const handleCopyId = useCallback(() => {
     copyId();
     setShowMenu(false);
@@ -359,28 +366,6 @@ export default function TextInfoNode({
     rf,
     scheduleSnapshot,
   ]);
-
-  /* Close menu when clicking outside */
-  useEffect(() => {
-    const handlePointerDownOutside = (e: PointerEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setShowMenu(false);
-      }
-    };
-    if (showMenu) {
-      document.addEventListener(
-        "pointerdown",
-        handlePointerDownOutside,
-        true
-      );
-      return () =>
-        document.removeEventListener(
-          "pointerdown",
-          handlePointerDownOutside,
-          true
-        );
-    }
-  }, [showMenu]);
 
   /* ───────── Search highlighting effect ───────────────────── */
   useEffect(() => {
@@ -468,43 +453,48 @@ export default function TextInfoNode({
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground">Markdown</span>
 
-          {/* Simple inline menu without portal */}
-          <div className="relative" ref={menuRef}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              onClick={() => setShowMenu(!showMenu)}
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
+          <DropdownMenu modal={false} open={showMenu} onOpenChange={setShowMenu}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-6 w-6">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
 
-            {showMenu && (
-              <div className="absolute right-0 top-8 z-50 min-w-[160px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md">
-                <button
-                  className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
-                  onClick={handleCopyId}
+            <DropdownMenuPortal>
+              <DropdownMenuContent
+                align="end"
+                side="right"
+                avoidCollisions
+                className="z-[100] min-w-[160px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
+                style={{ fontSize: "14px" }}
+                onPointerDown={(event) => event.stopPropagation()}
+                onWheelCapture={(event) => event.stopPropagation()}
+              >
+                <DropdownMenuItem onSelect={handleCopyId}>
+                  <span className="flex items-center gap-2">
+                    {idCopied ? (
+                      <>
+                        <Check className="h-4 w-4" /> Copied ✓
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-4 w-4" /> Copy ID
+                      </>
+                    )}
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onSelect={deleteNode}
                 >
-                  {idCopied ? (
-                    <>
-                      <Check className="h-4 w-4" /> Copied ✓
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-4 w-4" /> Copy ID
-                    </>
-                  )}
-                </button>
-                <div className="my-1 h-px bg-border" />
-                <button
-                  className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-destructive hover:bg-accent"
-                  onClick={deleteNode}
-                >
-                  <Trash2 className="h-4 w-4" /> Delete Node
-                </button>
-              </div>
-            )}
-          </div>
+                  <span className="flex items-center gap-2">
+                    <Trash2 className="h-4 w-4" /> Delete Node
+                  </span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenuPortal>
+          </DropdownMenu>
         </div>
       </div>
 

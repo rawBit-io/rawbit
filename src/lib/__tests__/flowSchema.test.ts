@@ -58,6 +58,71 @@ describe("validateFlowData", () => {
     expect(codes).toEqual(expect.arrayContaining(["NODE_ID_DUPLICATE", "NODE_TYPE_UNKNOWN"]));
   });
 
+  it("flags duplicate edge ids and invalid parent references", () => {
+    const group = {
+      ...makeNode("group"),
+      type: "shadcnGroup",
+      data: { isGroup: true },
+    } as FlowNode;
+    const child = {
+      ...makeNode("child"),
+      parentId: "missing-group",
+    } as FlowNode;
+    const edges: Edge[] = [
+      { id: "dup-edge", source: "child", target: "group" } as Edge,
+      { id: "dup-edge", source: "group", target: "child" } as Edge,
+    ];
+
+    const result = validateFlowData({
+      schemaVersion: FLOW_SCHEMA_VERSION,
+      nodes: [group, child],
+      edges,
+    } as FlowData);
+
+    expect(result.ok).toBe(false);
+    const codes = result.errors.map((err) => err.code);
+    expect(codes).toEqual(
+      expect.arrayContaining(["EDGE_ID_DUPLICATE", "NODE_PARENT_MISSING"])
+    );
+  });
+
+  it("can enforce known calculation function names", () => {
+    const result = validateFlowData(
+      {
+        schemaVersion: FLOW_SCHEMA_VERSION,
+        nodes: [makeNode("calc", { functionName: "not_supported" })],
+        edges: [],
+      } as FlowData,
+      { allowedFunctionNames: new Set(["identity"]) }
+    );
+
+    expect(result.ok).toBe(false);
+    expect(result.errors.some((err) => err.code === "NODE_FUNCTION_UNKNOWN")).toBe(true);
+  });
+
+  it("warns for protocol layout and script steps that reference missing nodes", () => {
+    const result = validateFlowData({
+      schemaVersion: FLOW_SCHEMA_VERSION,
+      nodes: [makeNode("calc")],
+      edges: [],
+      protocolDiagramLayout: {
+        groupOffsets: {
+          "missing-group": { dx: 1, dy: 2 },
+        },
+      },
+      scriptSteps: [["missing-node", null]],
+    } as FlowData & { scriptSteps: [string, null][] });
+
+    expect(result.ok).toBe(true);
+    const codes = result.warnings.map((warning) => warning.code);
+    expect(codes).toEqual(
+      expect.arrayContaining([
+        "PROTOCOL_LAYOUT_GROUP_MISSING",
+        "SCRIPT_STEP_NODE_MISSING",
+      ])
+    );
+  });
+
   it("detects missing target handles and duplicate connections", () => {
     const node = makeNode("calc", {
       numInputs: 1,

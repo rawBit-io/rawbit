@@ -2,7 +2,7 @@
 //  src/contexts/UndoRedoContext.tsx
 // ─────────────────────────────────────────────────────────────
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { FlowNode } from "@/types";
 import type { Edge } from "@xyflow/react";
 import { log } from "@/lib/logConfig";
@@ -248,23 +248,6 @@ export function UndoRedoProvider({ children }: { children: ReactNode }) {
   /* ───────── derived flags ───────── */
   const canUndo = pointer > 0;
   const canRedo = pointer < history.length - 1;
-
-  useEffect(() => {
-    const snap = history[pointer];
-    if (snap) {
-      log(
-        "snapshots",
-        `[restoreScriptSteps] tab=${activeTabId} index=${pointer} label='${snap.label}'`
-      );
-      restoreScriptSteps(snap.scriptSteps);
-    } else {
-      log(
-        "snapshots",
-        `[restoreScriptSteps] tab=${activeTabId} empty pointer=${pointer} history=${history.length}`
-      );
-      restoreScriptSteps([]);
-    }
-  }, [activeTabId, history, pointer]);
 
   /* ───────── context value ───────── */
   const ctxValue: UndoRedoContextValue = {

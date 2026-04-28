@@ -50,3 +50,32 @@ def test_expand_function_source_dedupes_helper_definitions():
     # Bundle helpers should appear exactly once even with generic expansion enabled.
     assert expanded.count("def _b58check_decode") == 1
     assert expanded.count("def _bech32_decode") == 1
+
+
+def test_expand_function_source_includes_bip39_wordlist():
+    func = calc_ops.entropy_to_bip39_mnemonic
+    source = inspect.getsource(func)
+
+    expanded = expand_function_source(func, source)
+
+    assert "BIP39 English wordlist" in expanded
+    assert "_BIP39_ENGLISH_WORDLIST = [" in expanded
+    assert '    "abandon",' in expanded
+    assert '    "zoo",' in expanded
+    assert "_BIP39_ENGLISH_INDEX" in expanded
+    assert "# --- Node function ---" in expanded
+    assert "def entropy_to_bip39_mnemonic" in expanded
+
+
+def test_expand_function_source_includes_manual_bip39_seed_helpers():
+    func = calc_ops.bip39_mnemonic_to_seed
+    source = inspect.getsource(func)
+
+    expanded = expand_function_source(func, source)
+
+    assert "BIP39 English wordlist" in expanded
+    assert "def _bip39_mnemonic_to_entropy" in expanded
+    assert "def _hmac_sha512" in expanded
+    assert "def _pbkdf2_hmac_sha512" in expanded
+    assert "hashlib.pbkdf2_hmac" not in expanded
+    assert "def bip39_mnemonic_to_seed" in expanded

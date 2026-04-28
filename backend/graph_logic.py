@@ -11,6 +11,10 @@ from calc_functions.calc_func import (
     identity,
     concat_all,
     random_256,
+    entropy_to_bip39_mnemonic,
+    bip39_mnemonic_to_seed,
+    bip32_derive_private_key,
+    build_trezor_sign_transaction_params,
   
     public_key_from_private_key,
    
@@ -25,6 +29,7 @@ from calc_functions.calc_func import (
     sha256_hex,
     tagged_hash,
     sign_as_bitcoin_core_low_r,
+    sign_tx_rfc6979,
     hash160_hex,
     varint_encoded_byte_length,
     script_verification,
@@ -91,7 +96,10 @@ CALC_FUNCTIONS = {
     "identity": identity,
     "concat_all": concat_all,
     "random_256": random_256,
-
+    "entropy_to_bip39_mnemonic": entropy_to_bip39_mnemonic,
+    "bip39_mnemonic_to_seed": bip39_mnemonic_to_seed,
+    "bip32_derive_private_key": bip32_derive_private_key,
+    "build_trezor_sign_transaction_params": build_trezor_sign_transaction_params,
     "public_key_from_private_key": public_key_from_private_key,
   
 
@@ -104,6 +112,7 @@ CALC_FUNCTIONS = {
     "double_sha256_hex": double_sha256_hex,
     "tagged_hash": tagged_hash,
     "sign_as_bitcoin_core_low_r": sign_as_bitcoin_core_low_r,
+    "sign_tx_rfc6979": sign_tx_rfc6979,
     "hash160_hex": hash160_hex,
     "varint_encoded_byte_length": varint_encoded_byte_length,
     "script_verification": script_verification,
@@ -493,6 +502,54 @@ def build_multi_val_params(node, edges, _map, get_res):
     return {"vals": ordered, "_sparseVals": sparse_out}
 
 
+def build_multi_val_indexed_params(node, edges, _map, get_res):
+    """
+    Like multi_val, but pass values keyed by their visible input index.
+
+    This is used by grouped builders whose group sizes are represented by
+    input indices, not by editable count fields.
+    """
+    nid = node["id"]
+    sparse_local = _to_sparse(node["data"].get("inputs", {}).get("vals", {}))
+
+    edge_by: dict[int, dict] = {}
+    for e in (e for e in edges if e["target"] == nid):
+        idx = _edge_index(e)
+        if idx is None:
+            raise ValueError(f"Malformed targetHandle '{e.get('targetHandle')}'")
+        if idx in edge_by:
+            raise ValueError(f"Multiple cables connected to input index {idx}")
+        edge_by[idx] = e
+
+    sparse_out: dict[str, str] = {}
+    indexed: dict[str, str] = {}
+
+    for idx in _visible_field_indices(node):
+        explicit = sparse_local.get(str(idx))
+
+        if explicit == SENTINEL_FORCE00:
+            v = "00"
+            sparse_out[str(idx)] = SENTINEL_FORCE00
+        elif explicit == SENTINEL_EMPTY:
+            v = ""
+            sparse_out[str(idx)] = SENTINEL_EMPTY
+        elif explicit == SENTINEL_NULL:
+            v = SENTINEL_NULL
+            sparse_out[str(idx)] = SENTINEL_NULL
+        elif idx in edge_by:
+            edge = edge_by[idx]
+            v = _resolve_upstream(get_res, edge["source"], edge.get("sourceHandle"))
+            sparse_out[str(idx)] = v
+        else:
+            v = explicit or ""
+            if explicit:
+                sparse_out[str(idx)] = explicit
+
+        indexed[str(idx)] = v
+
+    return {"vals": indexed, "_sparseVals": sparse_out}
+
+
 def build_val_with_network_params(node, edges, _map, get_res):
     base = build_single_val_params(node, edges, _map, get_res)
     base["selectedNetwork"] = node["data"].get("selectedNetwork", "regtest")
@@ -520,6 +577,7 @@ PARAM_BUILDERS = {
     "none": build_none_params,
     "single_val": build_single_val_params,
     "multi_val": build_multi_val_params,
+    "multi_val_indexed": build_multi_val_indexed_params,
     "val_with_network": build_val_with_network_params,
     "multi_val_with_network": build_multi_val_with_network_params,
 }
@@ -562,6 +620,16 @@ def bulk_calculate_logic(nodes, edges):
                 _maybe_raise_deadline(deadline_at, timeout_seconds)
 
                 node, data = node_map[nid], node_map[nid]["data"]
+
+                if node.get("type") in {"shadcnGroup", "shadcnTextInfo"}:
+                    data["dirty"] = False
+                    data.pop("error", None)
+                    data.pop("extendedError", None)
+                    continue
+
+                if node.get("type") == "trezorAction":
+                    data["dirty"] = False
+                    continue
 
                 if data.get("_cycle"):
                     continue  # cyclic nodes are skipped
@@ -758,6 +826,9 @@ def bulk_calculate_logic(nodes, edges):
                         data.pop("error", None)
                         data.pop("extendedError", None)
                     else:
+                        if fn_name == "build_trezor_sign_transaction_params":
+                            data["result"] = ""
+                            data.pop("outputValues", None)
                         data.update(
                             {
                                 "error": True,

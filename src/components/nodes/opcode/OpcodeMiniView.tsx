@@ -22,9 +22,9 @@ export function OpcodeMiniView({
   return (
     <>
       <div>
-        <label className="text-xs font-medium">Search OP</label>
+        <label className="text-xs font-medium text-primary">Search OP</label>
         <input
-          className="border rounded px-2 py-1 text-xs bg-background text-foreground nodrag w-full"
+          className="nodrag w-full rounded border border-input bg-background px-2 py-1 text-xs text-primary placeholder:text-muted-foreground"
           type="text"
           value={miniSearch}
           onChange={(event) => onMiniSearchChange(event.target.value)}
@@ -34,7 +34,7 @@ export function OpcodeMiniView({
 
       {miniSearch && (
         <div
-          className="text-xs border rounded h-20 overflow-auto nodrag"
+          className="nodrag h-20 overflow-auto rounded border border-border text-xs"
           onWheelCapture={(event) => event.stopPropagation()}
         >
           {filteredMini.length === 0 ? (
@@ -60,7 +60,7 @@ export function OpcodeMiniView({
       )}
 
       <div
-        className="text-xs border rounded h-16 overflow-auto nodrag"
+        className="nodrag h-16 overflow-auto rounded border border-border text-xs"
         onWheelCapture={(event) => event.stopPropagation()}
       >
         {selectedOps.length === 0 ? (

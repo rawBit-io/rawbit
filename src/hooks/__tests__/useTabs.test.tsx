@@ -18,6 +18,18 @@ const TABS_STORAGE_KEY = "rawbit.flow.tabs";
 const ACTIVE_TAB_STORAGE_KEY = "rawbit.flow.activeTab";
 const TAB_ARCHIVE_PREFIX = "rawbit.flow.tab.";
 
+const encodeStored = (value: unknown) =>
+  `lzjson:${compressToUTF16(JSON.stringify(value))}`;
+
+const decodeStoredPayload = <T,>(stored: string): T =>
+  JSON.parse(decompressFromUTF16(stored.slice("lzjson:".length)) ?? "{}") as T;
+
+const decodeStoredArchive = (stored: string) =>
+  decodeStoredPayload<{
+    nodes?: FlowNode[];
+    edges?: Edge[];
+  }>(stored);
+
 describe("useTabs", () => {
   let nodesState: FlowNode[];
   let edgesState: Edge[];
@@ -29,6 +41,9 @@ describe("useTabs", () => {
   let refreshBanner: ReturnType<typeof vi.fn>;
   let setActiveTabCtx: ReturnType<typeof vi.fn>;
   let getFlowInstance: () => ReactFlowInstance | null;
+  let viewportState: { x: number; y: number; zoom: number };
+  let setViewport: ReturnType<typeof vi.fn>;
+  let fitView: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     nodesState = [makeNode("existing")];
@@ -45,8 +60,13 @@ describe("useTabs", () => {
     removeTabHistory = vi.fn();
     refreshBanner = vi.fn();
     setActiveTabCtx = vi.fn();
+    viewportState = { x: 0, y: 0, zoom: 1 };
+    setViewport = vi.fn();
+    fitView = vi.fn();
     getFlowInstance = () => ({
-      setViewport: vi.fn(),
+      getViewport: vi.fn(() => viewportState),
+      setViewport,
+      fitView,
     } as unknown as ReactFlowInstance);
   });
 
@@ -119,6 +139,42 @@ describe("useTabs", () => {
     expect(sawTabOne).toBe(true);
   });
 
+  it("persists selection-only updates when switching tabs", async () => {
+    const { result } = renderTabs();
+
+    await waitFor(() => expect(result.current.initialHydrationDone).toBe(true));
+
+    const selectedNode = { ...makeNode("persist-node"), selected: true };
+
+    act(() => {
+      nodesState = [selectedNode];
+      graphRevRef.current = 1;
+      result.current.saveTabData("tab-1");
+    });
+
+    await waitFor(() => {
+      const tab = result.current.tabs.find((t) => t.id === "tab-1");
+      expect(tab?.version).toBe(1);
+    });
+
+    act(() => {
+      nodesState = [{ ...selectedNode, selected: false }];
+      result.current.addTab();
+    });
+
+    baseSetNodes.mockClear();
+
+    act(() => {
+      result.current.selectTab("tab-1");
+    });
+
+    const restoredNodes = baseSetNodes.mock.calls.at(-1)?.[0] as
+      | FlowNode[]
+      | undefined;
+    expect(Array.isArray(restoredNodes)).toBe(true);
+    expect(restoredNodes?.[0]?.selected).toBe(false);
+  });
+
   it("requests and confirms close", () => {
     const { result } = renderTabs();
 
@@ -142,6 +198,107 @@ describe("useTabs", () => {
     expect(sawTabOne).toBe(true);
   });
 
+  it("persists closed tab metadata immediately and removes its archive", () => {
+    const { result } = renderTabs();
+
+    act(() => {
+      result.current.addTab();
+    });
+    act(() => {
+      result.current.requestCloseTab("tab-2");
+    });
+    act(() => {
+      result.current.confirmCloseTab();
+    });
+
+    const metaRaw = window.localStorage.getItem(TABS_STORAGE_KEY);
+    expect(metaRaw).toBeTruthy();
+    const meta = decodeStoredPayload<{ tabs: Array<{ id: string }> }>(
+      metaRaw as string
+    );
+    expect(meta.tabs.map((tab) => tab.id)).toEqual(["tab-1"]);
+    expect(
+      window.localStorage.getItem(`${TAB_ARCHIVE_PREFIX}tab-2`)
+    ).toBeNull();
+  });
+
+  it("closes all tabs into a fresh empty workspace tab", async () => {
+    const { result } = renderTabs();
+
+    await waitFor(() => expect(result.current.initialHydrationDone).toBe(true));
+
+    act(() => {
+      result.current.addTab();
+    });
+    act(() => {
+      nodesState = [makeNode("dirty")];
+      edgesState = [];
+      graphRevRef.current = 5;
+      result.current.closeAllTabs();
+    });
+
+    expect(result.current.tabs.map((tab) => tab.id)).toEqual(["tab-1"]);
+    expect(result.current.activeTabId).toBe("tab-1");
+    expect(nodesState).toEqual([]);
+    expect(edgesState).toEqual([]);
+    expect(result.current.tabCounter).toBe(1);
+    expect(
+      window.localStorage.getItem(`${TAB_ARCHIVE_PREFIX}tab-2`)
+    ).toBeNull();
+
+    const metaRaw = window.localStorage.getItem(TABS_STORAGE_KEY);
+    expect(metaRaw).toBeTruthy();
+    const meta = decodeStoredPayload<{ tabs: Array<{ id: string }> }>(
+      metaRaw as string
+    );
+    expect(meta.tabs.map((tab) => tab.id)).toEqual(["tab-1"]);
+    expect(initializeTabHistory).toHaveBeenCalledWith("tab-1", [], []);
+  });
+
+  it("closes all tabs except the tab selected in the close dialog", async () => {
+    const keptNode = makeNode("kept-node");
+    const { result } = renderTabs();
+
+    await waitFor(() => expect(result.current.initialHydrationDone).toBe(true));
+
+    act(() => {
+      result.current.addTab();
+    });
+    act(() => {
+      nodesState = [keptNode];
+      edgesState = [];
+      graphRevRef.current = 2;
+    });
+    act(() => {
+      result.current.addTab();
+    });
+    act(() => {
+      result.current.requestCloseTab("tab-2");
+    });
+    act(() => {
+      result.current.closeOtherTabs();
+    });
+
+    expect(result.current.tabs.map((tab) => tab.id)).toEqual(["tab-2"]);
+    expect(result.current.activeTabId).toBe("tab-2");
+    expect(nodesState.map((node) => node.id)).toEqual(["kept-node"]);
+    expect(
+      window.localStorage.getItem(`${TAB_ARCHIVE_PREFIX}tab-1`)
+    ).toBeNull();
+    expect(
+      window.localStorage.getItem(`${TAB_ARCHIVE_PREFIX}tab-3`)
+    ).toBeNull();
+    expect(removeTabHistory).toHaveBeenCalledWith("tab-1");
+    expect(removeTabHistory).toHaveBeenCalledWith("tab-3");
+
+    const metaRaw = window.localStorage.getItem(TABS_STORAGE_KEY);
+    expect(metaRaw).toBeTruthy();
+    const meta = decodeStoredPayload<{ tabs: Array<{ id: string }> }>(
+      metaRaw as string
+    );
+    expect(meta.tabs.map((tab) => tab.id)).toEqual(["tab-2"]);
+  });
+
   it("updates tooltip and transform", () => {
     const { result } = renderTabs();
 
@@ -153,6 +310,30 @@ describe("useTabs", () => {
     const tab = result.current.tabs.find((t) => t.id === "tab-1");
     expect(tab?.tooltip).toBe("Shared: 123");
     expect(tab?.transform).toEqual({ x: 10, y: 20, zoom: 2 });
+  });
+
+  it("captures the live viewport before leaving a tab", () => {
+    const { result } = renderTabs();
+
+    viewportState = { x: 120, y: -80, zoom: 1.25 };
+
+    act(() => {
+      result.current.addTab();
+    });
+
+    expect(result.current.tabs.find((t) => t.id === "tab-1")?.transform).toEqual(
+      viewportState
+    );
+
+    viewportState = { x: -30, y: 45, zoom: 0.75 };
+
+    act(() => {
+      result.current.selectTab("tab-1");
+    });
+
+    expect(result.current.tabs.find((t) => t.id === "tab-2")?.transform).toEqual(
+      viewportState
+    );
   });
 
   it("renames a tab with trimmed and truncated title", () => {
@@ -265,6 +446,41 @@ describe("useTabs", () => {
     }
   });
 
+  it("persists explicit immediate data for a newly queued tab", async () => {
+    const { result } = renderTabs();
+
+    await waitFor(() => expect(result.current.initialHydrationDone).toBe(true));
+
+    const sharedNode = makeNode("shared-import");
+    let newTabId = "";
+
+    act(() => {
+      newTabId = result.current.addTab();
+      result.current.saveTabData(newTabId, {
+        force: true,
+        immediate: true,
+        data: {
+          nodes: [sharedNode],
+          edges: [],
+        },
+      });
+    });
+
+    const storedValue = window.localStorage.getItem(
+      `${TAB_ARCHIVE_PREFIX}${newTabId}`
+    );
+    expect(storedValue).toBeTruthy();
+    const storedString = storedValue as string;
+    expect(storedString.startsWith("lzjson:")).toBe(true);
+
+    const decoded = JSON.parse(
+      decompressFromUTF16(storedString.slice("lzjson:".length))!
+    );
+    expect(decoded.nodes.map((node: FlowNode) => node.id)).toEqual([
+      "shared-import",
+    ]);
+  });
+
   it("hydrates tabs from legacy compressed storage payload", () => {
     const storedTabs = [
       {
@@ -276,7 +492,7 @@ describe("useTabs", () => {
         transform: { x: 5, y: 10, zoom: 1.5 },
       },
     ];
-    const payload = `lzjson:${compressToUTF16(JSON.stringify(storedTabs))}`;
+    const payload = encodeStored(storedTabs);
     window.localStorage.setItem(TABS_STORAGE_KEY, payload);
     window.localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, "tab-99");
 
@@ -301,16 +517,14 @@ describe("useTabs", () => {
         { id: "tab-50", title: "Stored meta", version: 4, tooltip: "info" },
       ],
     };
-    const singleArchive = `lzjson:${compressToUTF16(
-      JSON.stringify({
-        nodes: [makeNode("archived")],
-        edges: [],
-        scriptSteps: [["archived", null]],
-      })
-    )}`;
+    const singleArchive = encodeStored({
+      nodes: [makeNode("archived")],
+      edges: [],
+      scriptSteps: [["archived", null]],
+    });
     window.localStorage.setItem(
       TABS_STORAGE_KEY,
-      `lzjson:${compressToUTF16(JSON.stringify(metaPayload))}`
+      encodeStored(metaPayload)
     );
     window.localStorage.setItem(
       `${TAB_ARCHIVE_PREFIX}tab-50`,
@@ -327,6 +541,179 @@ describe("useTabs", () => {
       expect.arrayContaining([expect.objectContaining({ id: "archived" })]),
       "tab-50"
     );
+  });
+
+  it("fits an offscreen identity-viewport archive on initial hydration", async () => {
+    const offscreenA = buildFlowNode({
+      id: "offscreen-a",
+      type: "calculation",
+      position: { x: 24_000, y: 3_000 },
+      data: { functionName: "identity" },
+    });
+    const offscreenB = buildFlowNode({
+      id: "offscreen-b",
+      type: "calculation",
+      position: { x: 24_600, y: 3_200 },
+      data: { functionName: "identity" },
+    });
+
+    window.localStorage.setItem(
+      TABS_STORAGE_KEY,
+      encodeStored({
+        version: 2,
+        tabs: [
+          {
+            id: "tab-large",
+            title: "Large flow",
+            version: 3,
+            transform: { x: 0, y: 0, zoom: 1 },
+          },
+        ],
+      })
+    );
+    window.localStorage.setItem(
+      `${TAB_ARCHIVE_PREFIX}tab-large`,
+      encodeStored({
+        nodes: [offscreenA, offscreenB],
+        edges: [{ id: "edge-large", source: "offscreen-a", target: "offscreen-b" }],
+      })
+    );
+    window.localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, "tab-large");
+
+    const { result } = renderTabs();
+
+    await waitFor(() => expect(result.current.initialHydrationDone).toBe(true));
+    await waitFor(() =>
+      expect(fitView).toHaveBeenCalledWith(
+        expect.objectContaining({
+          minZoom: 0.2,
+          duration: 0,
+        })
+      )
+    );
+  });
+
+  it("recovers archive-backed tabs when tab metadata is corrupted", () => {
+    window.localStorage.setItem(TABS_STORAGE_KEY, "not-json");
+    window.localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, "tab-77");
+    window.localStorage.setItem(
+      `${TAB_ARCHIVE_PREFIX}tab-77`,
+      encodeStored({
+        nodes: [makeNode("recovered")],
+        edges: [],
+      })
+    );
+
+    const { result } = renderTabs();
+
+    expect(result.current.tabs.map((tab) => tab.id)).toEqual(["tab-77"]);
+    expect(result.current.activeTabId).toBe("tab-77");
+    expect(baseSetNodes).toHaveBeenCalledWith(
+      expect.arrayContaining([expect.objectContaining({ id: "recovered" })])
+    );
+    expect(refreshBanner).toHaveBeenCalledWith(
+      expect.arrayContaining([expect.objectContaining({ id: "recovered" })]),
+      "tab-77"
+    );
+  });
+
+  it("ignores stale tab metadata when its archive has already been removed", async () => {
+    const liveNode = makeNode("live-node");
+    window.localStorage.setItem(
+      TABS_STORAGE_KEY,
+      encodeStored({
+        version: 2,
+        tabs: [
+          { id: "tab-1", title: "Live tab", version: 1 },
+          { id: "tab-closed", title: "Closed tab", version: 9 },
+        ],
+      })
+    );
+    window.localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, "tab-closed");
+    window.localStorage.setItem(
+      `${TAB_ARCHIVE_PREFIX}tab-1`,
+      encodeStored({ nodes: [liveNode], edges: [] })
+    );
+
+    const { result } = renderTabs();
+
+    expect(result.current.tabs.map((tab) => tab.id)).toEqual(["tab-1"]);
+    expect(result.current.activeTabId).toBe("tab-1");
+    await waitFor(() => {
+      const metaRaw = window.localStorage.getItem(TABS_STORAGE_KEY);
+      expect(metaRaw).toBeTruthy();
+      const meta = decodeStoredPayload<{ tabs: Array<{ id: string }> }>(
+        metaRaw as string
+      );
+      expect(meta.tabs.map((tab) => tab.id)).toEqual(["tab-1"]);
+    });
+  });
+
+  it("hydrates corrupted tab archives as empty graphs", () => {
+    window.localStorage.setItem(
+      TABS_STORAGE_KEY,
+      encodeStored({
+        version: 2,
+        tabs: [{ id: "tab-bad", title: "Bad archive", version: 2 }],
+      })
+    );
+    window.localStorage.setItem(
+      `${TAB_ARCHIVE_PREFIX}tab-bad`,
+      "lzjson:broken"
+    );
+    window.localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, "tab-bad");
+
+    const { result } = renderTabs();
+
+    expect(result.current.tabs.map((tab) => tab.id)).toEqual(["tab-bad"]);
+    expect(result.current.activeTabId).toBe("tab-bad");
+    expect(baseSetNodes).toHaveBeenCalledWith([]);
+    expect(baseSetEdges).toHaveBeenCalledWith([]);
+  });
+
+  it("falls back to the default tab when storage reads are blocked", () => {
+    const getSpy = vi
+      .spyOn(Storage.prototype, "getItem")
+      .mockImplementation(() => {
+        throw new Error("storage blocked");
+      });
+
+    try {
+      const { result } = renderTabs();
+
+      expect(result.current.tabs.map((tab) => tab.id)).toEqual(["tab-1"]);
+      expect(result.current.activeTabId).toBe("tab-1");
+    } finally {
+      getSpy.mockRestore();
+    }
+  });
+
+  it("does not persist dangling edges into tab archives", async () => {
+    const { result } = renderTabs();
+
+    await waitFor(() => expect(result.current.initialHydrationDone).toBe(true));
+
+    nodesState = [makeNode("fresh-node")];
+    edgesState = [
+      {
+        id: "old-edge",
+        source: "old-node",
+        target: "fresh-node",
+      } as Edge,
+    ];
+    graphRevRef.current = 1;
+
+    act(() => {
+      result.current.saveTabData("tab-1", { force: true, immediate: true });
+    });
+
+    const storedValue = window.localStorage.getItem(
+      `${TAB_ARCHIVE_PREFIX}tab-1`
+    );
+    expect(storedValue).toBeTruthy();
+    const decoded = decodeStoredArchive(storedValue as string);
+    expect(decoded.nodes?.map((node) => node.id)).toEqual(["fresh-node"]);
+    expect(decoded.edges).toEqual([]);
   });
 
   it("skips persisting when quota is exceeded and retries after shrink", async () => {

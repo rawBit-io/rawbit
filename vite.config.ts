@@ -18,7 +18,11 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      events: path.resolve(__dirname, "./node_modules/events/events.js"),
     },
+  },
+  optimizeDeps: {
+    include: ["events"],
   },
   server: {
     port: 3041,

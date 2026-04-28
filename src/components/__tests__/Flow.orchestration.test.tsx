@@ -8,6 +8,7 @@ import type { Edge, ReactFlowInstance, Viewport } from "@xyflow/react";
 
 import Flow from "@/components/Flow";
 import type { NodePorts } from "@/components/dialog/ConnectDialog";
+import { useSharedFlowLoader } from "@/hooks/useSharedFlowLoader";
 
 type FileImportCallbacks = {
   onTooltip?: (filename?: string) => void;
@@ -20,6 +21,14 @@ const topBarProps = {
 
 const flowCanvasProps = {
   current: null as Record<string, unknown> | null,
+};
+const shareFlowOptions = {
+  current: null as
+    | {
+        getNodes: () => FlowNode[];
+        getEdges: () => Edge[];
+      }
+    | null,
 };
 
 const getCanvasCallbacks = () =>
@@ -51,6 +60,20 @@ const mockNodesState: { current: FlowNode[] } = {
 };
 const mockEdgesState: { current: Edge[] } = {
   current: [],
+};
+const reactFlowNodesState: { current: FlowNode[] | null } = {
+  current: null,
+};
+const reactFlowEdgesState: { current: Edge[] | null } = {
+  current: null,
+};
+
+const tabsState: {
+  current: Array<{ id: string; title: string; tooltip?: string }>;
+  activeTabId: string;
+} = {
+  current: [{ id: "tab-1", title: "Flow 1" }],
+  activeTabId: "tab-1",
 };
 
 const fileImportOptions: { current?: FileImportCallbacks } = {};
@@ -206,8 +229,8 @@ vi.mock("@/hooks/useTheme", () => ({
 
 vi.mock("@/hooks/useTabs", () => ({
   useTabs: () => ({
-    tabs: [{ id: "tab-1", title: "Flow 1" }],
-    activeTabId: "tab-1",
+    tabs: tabsState.current,
+    activeTabId: tabsState.activeTabId,
     skipLoadRef,
     initialHydrationDone: true,
     closeDialog: { open: false, tabId: null },
@@ -216,6 +239,8 @@ vi.mock("@/hooks/useTabs", () => ({
     requestCloseTab: vi.fn(),
     confirmCloseTab: vi.fn(),
     cancelCloseTab: vi.fn(),
+    closeAllTabs: vi.fn(),
+    closeOtherTabs: vi.fn(),
     setTabTransform: setTabTransformMock,
     setTabTooltip: setTabTooltipMock,
     renameTab: renameTabMock,
@@ -254,19 +279,25 @@ vi.mock("@/hooks/useHighlight", () => ({
 }));
 
 vi.mock("@/hooks/useShareFlow", () => ({
-  useShareFlow: () => ({
-    shareDialogOpen: false,
-    openShareDialog: vi.fn(),
-    closeShareDialog: vi.fn(),
-    shareCreatedId: null,
-    requestShare: vi.fn(),
-    softGateOpen: false,
-    closeSoftGate: vi.fn(),
-    verifyTurnstile: vi.fn(),
-    infoDialog: { open: false, message: "" },
-    setInfoDialog: setInfoDialogMock,
-    closeInfoDialog: vi.fn(),
-  }),
+  useShareFlow: (options: {
+    getNodes: () => FlowNode[];
+    getEdges: () => Edge[];
+  }) => {
+    shareFlowOptions.current = options;
+    return {
+      shareDialogOpen: false,
+      openShareDialog: vi.fn(),
+      closeShareDialog: vi.fn(),
+      shareCreatedId: null,
+      requestShare: vi.fn(),
+      softGateOpen: false,
+      closeSoftGate: vi.fn(),
+      verifyTurnstile: vi.fn(),
+      infoDialog: { open: false, message: "" },
+      setInfoDialog: setInfoDialogMock,
+      closeInfoDialog: vi.fn(),
+    };
+  },
 }));
 
 vi.mock("@/hooks/useColorPalette", () => ({
@@ -368,17 +399,24 @@ vi.mock("@/my_tx_flows/customFlows", () => ({
   ],
 }));
 
+const rfSetNodesMock = vi.fn();
+const rfSetEdgesMock = vi.fn();
+const updateNodeInternalsMock = vi.fn();
+
 vi.mock("@xyflow/react", () => ({
   ReactFlowProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   useReactFlow: () => ({
-    getNodes: () => mockNodesState.current,
-    getEdges: () => mockEdgesState.current,
+    getNodes: () => reactFlowNodesState.current ?? mockNodesState.current,
+    getEdges: () => reactFlowEdgesState.current ?? mockEdgesState.current,
+    setNodes: rfSetNodesMock,
+    setEdges: rfSetEdgesMock,
   }),
   useStore: <T,>(selector: (state: typeof store) => T) => selector(store),
   useStoreApi: () => ({
     getState: () => store,
     subscribe: () => () => undefined,
   }),
+  useUpdateNodeInternals: () => updateNodeInternalsMock,
 }));
 
 const renderFlow = () => render(<Flow />);
@@ -386,8 +424,13 @@ const renderFlow = () => render(<Flow />);
 beforeEach(() => {
   topBarProps.current = null;
   flowCanvasProps.current = null;
+  shareFlowOptions.current = null;
   mockNodesState.current = [];
   mockEdgesState.current = [];
+  reactFlowNodesState.current = null;
+  reactFlowEdgesState.current = null;
+  tabsState.current = [{ id: "tab-1", title: "Flow 1" }];
+  tabsState.activeTabId = "tab-1";
   store.nodes = [];
   store.edges = [];
   vi.clearAllMocks();
@@ -404,6 +447,9 @@ beforeEach(() => {
   connectDialogState.handleApply.mockClear();
   saveLlmExportMock.mockClear();
   saveSimplifiedFlowMock.mockClear();
+  rfSetNodesMock.mockClear();
+  rfSetEdgesMock.mockClear();
+  updateNodeInternalsMock.mockClear();
   saveConfirmationHookCalls.length = 0;
   skipLoadRef.current = false;
   localStorage.clear();
@@ -473,6 +519,241 @@ describe("Flow autosave scheduling", () => {
     expect(cancelRafSpy).toHaveBeenCalled();
     expect(clearTimeoutSpy).toHaveBeenCalled();
     clearTimeoutSpy.mockRestore();
+  });
+});
+
+describe("Flow shared import fitting", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("keeps retrying shared-flow fit above Safari edge-culling zoom", () => {
+    const useSharedFlowLoaderMock = vi.mocked(useSharedFlowLoader);
+    mockNodesState.current = [
+      {
+        id: "node-a",
+        type: "calculation",
+        position: { x: 0, y: 0 },
+        data: { functionName: "identity" },
+      } as FlowNode,
+    ];
+    mockEdgesState.current = [
+      { id: "edge-a", source: "node-a", target: "node-b" } as Edge,
+    ];
+
+    renderFlow();
+
+    const sharedLoaderOptions = useSharedFlowLoaderMock.mock.calls.at(-1)?.[0] as
+      | { fitView?: () => void }
+      | undefined;
+    expect(sharedLoaderOptions?.fitView).toBeDefined();
+
+    const fitViewMock = reactFlowInstanceMock.fitView as unknown as ReturnType<
+      typeof vi.fn
+    >;
+    fitViewMock.mockClear();
+
+    act(() => {
+      sharedLoaderOptions?.fitView?.();
+      vi.runOnlyPendingTimers();
+    });
+
+    expect(fitViewMock.mock.calls.length).toBeGreaterThan(1);
+    expect(
+      fitViewMock.mock.calls.every(
+        ([options]) =>
+          (options as { minZoom?: number } | undefined)?.minZoom === 0.2
+      )
+    ).toBe(true);
+  });
+
+  it("does not use shared tab metadata to control visible-element rendering", () => {
+    tabsState.current = [
+      { id: "tab-1", title: "share_test_shared", tooltip: "Shared: test-shared" },
+    ];
+
+    renderFlow();
+
+    expect(flowCanvasProps.current?.onlyRenderVisibleElements).toBe(true);
+  });
+
+  it("keeps visible-element rendering enabled for large graphs", () => {
+    mockNodesState.current = Array.from({ length: 50 }, (_, index) => ({
+      id: `node-${index}`,
+      type: "calculation",
+      position: { x: index * 300, y: index * 50 },
+      data: { functionName: "identity" },
+    })) as FlowNode[];
+
+    renderFlow();
+
+    expect(flowCanvasProps.current?.onlyRenderVisibleElements).toBe(true);
+  });
+
+  it("keeps visible-element rendering enabled for normal tabs", () => {
+    renderFlow();
+
+    expect(flowCanvasProps.current?.onlyRenderVisibleElements).toBe(true);
+  });
+});
+
+describe("Flow persistence sources", () => {
+  it("shares and loads from canonical React state when React Flow store edges lag", () => {
+    const node = {
+      id: "node-a",
+      type: "calculation",
+      position: { x: 0, y: 0 },
+      data: { functionName: "identity" },
+    } as FlowNode;
+    const edge = {
+      id: "edge-a",
+      source: "node-a",
+      target: "node-b",
+    } as Edge;
+    mockNodesState.current = [node];
+    mockEdgesState.current = [edge];
+    reactFlowNodesState.current = [];
+    reactFlowEdgesState.current = [];
+
+    renderFlow();
+
+    expect(shareFlowOptions.current?.getNodes()).toBe(mockNodesState.current);
+    expect(shareFlowOptions.current?.getEdges()).toBe(mockEdgesState.current);
+
+    const sharedLoaderOptions = vi.mocked(useSharedFlowLoader).mock.calls.at(-1)?.[0] as
+      | {
+          getNodes?: () => FlowNode[];
+          getEdges?: () => Edge[];
+        }
+      | undefined;
+    expect(sharedLoaderOptions?.getNodes?.()).toBe(mockNodesState.current);
+    expect(sharedLoaderOptions?.getEdges?.()).toBe(mockEdgesState.current);
+  });
+
+  it("forces React Flow to re-measure imported nodes when a shared graph replaces the canvas", () => {
+    let rafSpy: MockInstance<Window["requestAnimationFrame"]> | null = null;
+    try {
+      rafSpy = vi
+        .spyOn(window, "requestAnimationFrame")
+        .mockImplementation((cb: FrameRequestCallback) => {
+          cb(0);
+          return 1;
+        });
+
+      renderFlow();
+      updateNodeInternalsMock.mockClear();
+
+      const sharedLoaderOptions = vi.mocked(useSharedFlowLoader).mock.calls.at(-1)?.[0] as
+        | {
+            replaceGraph?: (next: {
+              nodes: FlowNode[];
+              edges: Edge[];
+              tabId?: string;
+            }) => void;
+          }
+        | undefined;
+
+      const importedNodes = [
+        {
+          id: "node-a",
+          type: "calculation",
+          position: { x: 0, y: 0 },
+          data: { functionName: "identity" },
+        } as FlowNode,
+        {
+          id: "node-b",
+          type: "calculation",
+          position: { x: 100, y: 0 },
+          data: { functionName: "identity" },
+        } as FlowNode,
+      ];
+
+      act(() => {
+        sharedLoaderOptions?.replaceGraph?.({
+          nodes: importedNodes,
+          edges: [{ id: "edge-a", source: "node-a", target: "node-b" } as Edge],
+          tabId: "tab-1",
+        });
+      });
+
+      // After import we expect a forced re-measurement of every imported node
+      // so EdgeWrapper can compute positions even when Safari drops a
+      // ResizeObserver batch.
+      expect(updateNodeInternalsMock).toHaveBeenCalledWith([
+        "node-a",
+        "node-b",
+      ]);
+    } finally {
+      rafSpy?.mockRestore();
+    }
+  });
+
+  it("repairs a same-size stale React Flow store during shared import refresh", () => {
+    let rafSpy: MockInstance<Window["requestAnimationFrame"]> | null = null;
+    try {
+      rafSpy = vi
+        .spyOn(window, "requestAnimationFrame")
+        .mockImplementation((cb: FrameRequestCallback) => {
+          cb(0);
+          return 1;
+        });
+
+      store.nodes = [
+        { id: "old-node-a" } as FlowNode,
+        { id: "old-node-b" } as FlowNode,
+      ];
+      store.edges = [
+        { id: "old-edge", source: "old-node-a", target: "old-node-b" } as Edge,
+      ];
+
+      renderFlow();
+      rfSetNodesMock.mockClear();
+      rfSetEdgesMock.mockClear();
+
+      const sharedLoaderOptions = vi.mocked(useSharedFlowLoader).mock.calls.at(-1)?.[0] as
+        | {
+            replaceGraph?: (next: {
+              nodes: FlowNode[];
+              edges: Edge[];
+              tabId?: string;
+            }) => void;
+          }
+        | undefined;
+
+      const importedNodes = [
+        {
+          id: "node-a",
+          type: "calculation",
+          position: { x: 0, y: 0 },
+          data: { functionName: "identity" },
+        } as FlowNode,
+        {
+          id: "node-b",
+          type: "calculation",
+          position: { x: 100, y: 0 },
+          data: { functionName: "identity" },
+        } as FlowNode,
+      ];
+
+      act(() => {
+        sharedLoaderOptions?.replaceGraph?.({
+          nodes: importedNodes,
+          edges: [{ id: "edge-a", source: "node-a", target: "node-b" } as Edge],
+          tabId: "tab-1",
+        });
+      });
+
+      expect(rfSetNodesMock).toHaveBeenCalledWith(importedNodes);
+      expect(rfSetEdgesMock).toHaveBeenCalledWith([
+        expect.objectContaining({ id: "edge-a" }),
+      ]);
+    } finally {
+      rafSpy?.mockRestore();
+    }
   });
 });
 

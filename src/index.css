@@ -299,29 +299,29 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
 
 /* Light-mode non-selected edge visibility tuning. */
 .react-flow__edge:not(.selected) .react-flow__edge-path {
-  opacity: var(--edge-light-opacity-default, 0.63) !important;
+  opacity: var(--edge-light-opacity-default, 0.55) !important;
 }
 
 [data-skin="paper"] .react-flow__edge:not(.selected) .react-flow__edge-path {
-  opacity: var(--edge-light-opacity-paper, 0.63) !important;
+  opacity: var(--edge-light-opacity-paper, 0.6) !important;
 }
 
 [data-skin="midnight"] .react-flow__edge:not(.selected) .react-flow__edge-path {
-  opacity: var(--edge-light-opacity-midnight, 0.5) !important;
+  opacity: var(--edge-light-opacity-midnight, 0.6) !important;
 }
 
 /* Tone down non-selected edges in dark mode across skins. */
 .dark .react-flow__edge:not(.selected) .react-flow__edge-path {
-  opacity: var(--edge-dark-opacity-default, 0.5) !important;
+  opacity: var(--edge-dark-opacity-default, 0.35) !important;
 }
 
 /* Skin-specific dark-mode tuning (slightly less bright than default dark). */
 [data-skin="paper"].dark .react-flow__edge:not(.selected) .react-flow__edge-path {
-  opacity: var(--edge-dark-opacity-paper, 0.55) !important;
+  opacity: var(--edge-dark-opacity-paper, 0.25) !important;
 }
 
 [data-skin="midnight"].dark .react-flow__edge:not(.selected) .react-flow__edge-path {
-  opacity: var(--edge-dark-opacity-midnight, 0.45) !important;
+  opacity: var(--edge-dark-opacity-midnight, 0.25) !important;
 }
 
 /* ===================== Large-drag low-detail mode ===================== */

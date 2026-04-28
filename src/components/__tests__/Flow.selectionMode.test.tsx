@@ -226,6 +226,8 @@ vi.mock("@/hooks/useTabs", () => ({
     requestCloseTab: vi.fn(),
     confirmCloseTab: vi.fn(),
     cancelCloseTab: vi.fn(),
+    closeAllTabs: vi.fn(),
+    closeOtherTabs: vi.fn(),
     setTabTransform: vi.fn(),
     setTabTooltip: setTabTooltipMock,
     renameTab: renameTabMock,
