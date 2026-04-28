@@ -26,6 +26,7 @@ import {
   History,
   X,
   Plus,
+  Minus,
   PanelLeft,
   Palette,
   Square,
@@ -48,7 +49,11 @@ import { Button, type ButtonProps } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTheme } from "@/hooks/useTheme";
-import type { Skin } from "@/contexts/theme";
+import {
+  EDGE_VISIBILITY_STEP,
+  type EdgeVisibilityMode,
+  type Skin,
+} from "@/contexts/theme";
 import { cn } from "@/lib/utils";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
 import type { CalcStatus, CalculationState } from "@/types";
@@ -56,6 +61,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -276,7 +282,14 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
 
   /* ---------------------------------------------------------------------- */
 
-  const { theme, setTheme, skin, setSkin } = useTheme();
+  const {
+    theme,
+    setTheme,
+    skin,
+    setSkin,
+    edgeVisibility,
+    adjustEdgeVisibility,
+  } = useTheme();
   const { undo, redo, canUndo, canRedo } = useUndoRedo();
   const saveSimplifiedHotKeyRef = useRef(false);
   const saveLlmHotKeyRef = useRef(false);
@@ -387,6 +400,14 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
 
   const isGroupDisabled = !(canGroupSelectedNodes?.() ?? false);
   const isUngroupDisabled = !(canUngroupSelectedNodes?.() ?? false);
+  const activeEdgeVisibilityMode: EdgeVisibilityMode =
+    theme === "dark" ||
+    (theme === "system" &&
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ? "dark"
+      : "light";
 
   /* ---------------------------------------------------------------------- */
   /*  UI                                                                    */
@@ -749,6 +770,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
             <DropdownMenuContent
               align="end"
               side="bottom"
+              className="w-52 p-1 font-sans text-sm"
               onCloseAutoFocus={(event) => {
                 event.preventDefault();
                 skinTriggerRef.current?.blur();
@@ -775,6 +797,49 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                   <span>{label}</span>
                 </DropdownMenuItem>
               ))}
+              <DropdownMenuSeparator />
+              <div className="flex h-8 items-center justify-between gap-3 rounded-sm px-2 py-1.5 text-sm">
+                <span className="w-20">Edges</span>
+                <div className="flex items-center gap-0.5">
+                  <button
+                    type="button"
+                    aria-label="Decrease edge visibility"
+                    title="Decrease edge visibility"
+                    className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      adjustEdgeVisibility(
+                        activeEdgeVisibilityMode,
+                        -EDGE_VISIBILITY_STEP
+                      );
+                    }}
+                  >
+                    <Minus className="h-3.5 w-3.5" />
+                  </button>
+                  <span className="w-7 text-center font-mono text-xs text-muted-foreground">
+                    {Math.round(
+                      edgeVisibility[activeEdgeVisibilityMode] * 100
+                    )}
+                  </span>
+                  <button
+                    type="button"
+                    aria-label="Increase edge visibility"
+                    title="Increase edge visibility"
+                    className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      adjustEdgeVisibility(
+                        activeEdgeVisibilityMode,
+                        EDGE_VISIBILITY_STEP
+                      );
+                    }}
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
             </DropdownMenuContent>
           </DropdownMenu>
 

@@ -30,7 +30,7 @@ const allowedNodeTaxonomy = new Map<string, Set<string>>([
   [
     "Transactions",
     new Set([
-      "Full Transactions",
+      "Transaction Templates",
       "Witnesses & Control Blocks",
       "Preimages",
       "Builders",

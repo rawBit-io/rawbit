@@ -22,18 +22,9 @@ rawBit ships with **16 hands-on example lessons** you can load, tweak, and inspe
 - **Lesson 15:** Trezor signing flow (BIP39/BIP32, RFC6979, hardware signing comparison)
 - **Lesson 16:** Summer of Bitcoin 2026 PoC flow
 
-Most example transactions were broadcast to **testnet3** and can be verified on explorers.
+The lesson transactions were broadcast on **testnet3**, so you can inspect them on-chain and compare the raw bytes yourself.
 
-**Full lesson details:** [docu/l-sum.md](docu/l-sum.md)
-
-## What you can do in 5 minutes
-
-1. Load a **SegWit P2WSH** example from the templates sidebar (_Flow Examples_).
-2. Tweak an input amount or locktime and watch the **preimage and witness data** update live.
-3. Open a script node → **step through** opcodes and inspect the stack.
-4. Copy a node’s **Python implementation** from the inspector to discuss/learn.
-
-**More lessons coming:** Lightning HTLCs, Miniscript, CoinJoin, PSBT workflows, and covenant proposals.
+**Lesson notes:** [docu/l-sum.md](docu/l-sum.md) currently covers lessons 1-14; lessons 15-16 are available in the app.
 
 ---
 
@@ -41,29 +32,16 @@ Most example transactions were broadcast to **testnet3** and can be verified on 
 
 ---
 
-## What is rawBit
+## What rawBit does
 
-- **Build raw Bitcoin transactions from scratch—no coding required:** Drag predefined nodes for keys, scripts, and math to build complete Bitcoin transactions.
-- **Compare formats side-by-side:** P2PKH, P2SH-P2WPKH/P2WSH, native SegWit (v0), Taproot (v1).
-- **See how serialization really changes:** Tweak `nSequence`, `nLockTime`, witness vs. non-witness data, and `SIGHASH` types and watch sizes, weight, TXID/WTXID update live.
-- **Trust-but-verify artifacts:** Inspect and copy preimages, scripts, stack traces, weights, and fees; open any node to view the exact Python behind it.
-- **Script debugger:** Step through script execution with stack diffs after each opcode to pinpoint **where** and **why** validation fails.
-- **Share reproducible flows:** Export/share deterministic JSON so others can reproduce your bytes—not just stare at hex.
-
----
-
-## Highlights
-
-- **Visual canvas:** Drag, drop, and wire nodes to build flows.
-- **Instant feedback:** Changes automatically trigger recalculation—see results update as you type.
-- **Script debugger:** Step through a spend path and watch the stack mutate.
-- **Undo/redo history:** Deep per-tab history (incl. script-debug steps).
-- **Templates & clipboard:** Start from curated flows; copy/paste nodes, groups, and edge patterns.
-- **Multi-tab workspace:** Independent flows with saved view transforms.
-- **Networks:** Switch between testnet/mainnet/regtest.
-- **Inspectable logic:** Each calculation node exposes the exact Python it runs.
-- **Save/Load/Share:** Export flows as JSON, reload with fresh IDs, optionally share via a simple endpoint.
-- **Themes:** Light/dark for long sessions.
+- **Build and inspect transactions visually:** Drag predefined nodes for keys, scripts, serialization, signing, and verification onto a canvas.
+- **Compare formats side-by-side:** P2PKH, P2SH, wrapped SegWit, native SegWit v0, and Taproot v1 flows.
+- **Watch bytes change live:** Tweak `nSequence`, `nLockTime`, witness data, and `SIGHASH` types while sizes, weight, TXID/WTXID, preimages, witnesses, and fees update.
+- **Debug scripts step by step:** Inspect stack diffs after each opcode and see where validation fails.
+- **Inspect the implementation:** Open calculation nodes to view the exact Python function used by the backend.
+- **Work with larger lessons:** Use multi-tab history, templates, clipboard, search, minimap, and the protocol flow map.
+- **Export reproducible artifacts:** Save/load full JSON, compact/LLM snapshots, and optional share links. Imports use collision-safe IDs.
+- **Target Bitcoin networks where relevant:** Address and script nodes support mainnet, testnet, and regtest options where the operation needs a network.
 
 ---
 
@@ -84,131 +62,72 @@ rawBit is **not** a wallet, broadcaster, or custody tool. Keep real funds out of
 ## Prerequisites
 
 - Node.js **18+**
-- npm / pnpm / yarn
+- npm
 - Python **3.12+** with `pip` (backend depends on the forked `python-bitcointx`)
-- C compiler toolchain + `libsecp256k1` headers (install via `brew install secp256k1`)
-
-### macOS bootstrap (fresh machine)
-
-```bash
-# Compilers & headers
-xcode-select --install
-
-# Homebrew (installs under /opt/homebrew on Apple Silicon, /usr/local on Intel)
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-eval "$(/opt/homebrew/bin/brew shellenv)"
-
-# Runtime dependencies
-brew install node@20 python@3.12 pkg-config secp256k1
-```
-
-> Replace `/opt/homebrew` with `/usr/local` on Intel Macs. After installation, run `source ~/.zprofile` (or open a new terminal) and verify `node --version`, `npm --version`, and `python3 --version`. If they still point at the system interpreters, append the following to `~/.zprofile` (swap `/opt/homebrew` for `/usr/local` on Intel machines) and reload it:
->
-> ```bash
-> echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-> echo 'export PATH="/opt/homebrew/bin:$PATH"' >> ~/.zprofile            # Homebrew userland
-> echo 'export PATH="/opt/homebrew/opt/node@20/bin:$PATH"' >> ~/.zprofile # Node 20 is keg-only
-> echo 'export PATH="/opt/homebrew/opt/python@3.12/libexec/bin:$PATH"' >> ~/.zprofile
-> source ~/.zprofile
-> ```
->
-> Optional QoL: install [Oh My Zsh](https://ohmyz.sh/) for the branch-aware prompt:
->
-> ```bash
-> sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-> ```
+- C compiler toolchain + `libsecp256k1` headers
 
 ---
 
 ## Quick start (local)
 
 ```bash
+git clone https://github.com/rawBit-io/rawbit
+cd rawbit
+
 # 1) Frontend
 npm install
-npx playwright install        # first run only: downloads browsers
-npm run dev           # Vite dev server → http://localhost:3041/
+npm run dev                    # Vite dev server → http://localhost:3041/
 
 # 2) Backend (new terminal)
 python3 -m venv .myenv
 source .myenv/bin/activate     # Windows: .myenv\Scripts\activate
 pip install -r requirements.txt
 pip install -r requirements-special.txt
-python3 backend/routes.py       # Flask API → http://localhost:5007/
+python3 backend/routes.py      # Flask API → http://localhost:5007/
 ```
 
-Open [http://localhost:3041/](http://localhost:3041/). The UI reads flows from `http://localhost:5007/flows` and sends calculations to `http://localhost:5007/bulk_calculate`.
+Open [http://localhost:3041/](http://localhost:3041/). The frontend bundles lesson flows from `src/my_tx_flows/` and sends calculations to `http://localhost:5007/bulk_calculate`. The backend also exposes `/flows`, `/code`, and `/healthz`.
 
 > The backend uses a forked **python-bitcointx** pinned in `requirements-special.txt`. A virtualenv keeps those bindings isolated.
 
 ### Optional: environment tweaks
 
-The repo ships with a default `.env` that targets the local backend. Override values by editing that file or creating `.env.local` (e.g., to point `VITE_API_BASE_URL` at a remote service).
-
----
-
-## Installation (from source)
-
-```bash
-git clone https://github.com/rawBit-io/rawbit
-cd rawbit
-
-# Frontend
-npm install
-
-# Backend
-python3 -m venv .myenv
-source .myenv/bin/activate     # Windows: .myenv\Scripts\activate
-pip install -r requirements.txt
-pip install -r requirements-special.txt
-```
+Tracked env files provide defaults for the app and tests. For private local overrides, use shell environment variables or an ignored mode-local file such as `.env.development.local`; see `.env.example` for supported keys. Local dev pages force remote API URLs back to `http://localhost:5007` unless `VITE_ALLOW_REMOTE_API=true`.
 
 ---
 
 ## Architecture (at a glance)
 
-- **Frontend:** React + Vite + Tailwind + `@xyflow/react`. Handles the canvas, tabs, panels, templates, clipboard, and per-tab undo/redo.
+- **Frontend:** React + Vite + Tailwind + `@xyflow/react`. Handles the canvas, tabs, panels, templates, clipboard, protocol flow map, search/minimap, and per-tab undo/redo.
 - **Backend:** Flask + Python (with `python-bitcointx`). Evaluates calculation nodes, validates scripts/signatures, enforces a sliding computation-time budget, and exposes `/bulk_calculate`, `/flows`, `/code`, and `/healthz`.
+- **Share service:** Optional Cloudflare Worker in `cloudflare/` for share links (`POST /share`, `GET /s/<id>`).
 
 See `/docu` for the deeper tours:
 
 - `frontend-architecture.md` – provider stack, hooks, canvas/panels/dialogs.
 - `backend-overview.md` – calculation pipeline, budgets, and API surface.
-- `api.md` – endpoints with request/response examples.
 
 ---
 
 ## Testing
 
 ```bash
-# Frontend lint & unit/integration
+# Frontend lint, typecheck & unit/integration
 npm run lint
+npm run typecheck
 npm run test
+
+# E2E (first run only: downloads browsers)
+npx playwright install
+npm run test:e2e
 
 # Backend tests
 source .myenv/bin/activate
-pytest backend/tests
+python -m pytest backend/tests
 
-# MuSig2 BIP327 official vector suite
-pytest backend/tests/test_musig2_bip327_vectors.py
-
-# One command for everything (frontend + E2E + backend)
+# One command for everything (lint + typecheck + frontend + E2E + backend)
 python3 run_all_tests.py        # add --e2e-browsers=all for FF/WebKit too
 ```
-
-The MuSig2 backend path is validated against official BIP327 vectors and includes the
-spec-mandated internal Sign self-check (`PartialSigVerifyInternal`).
-
----
-
-## Roadmap (snapshot)
-
-- Lightning basics
-- CoinJoin basics
-- Cross-chain swaps
-- PSBT
-- OP_CAT & covenant proposals
-- Taproot intro
 
 ---
 
@@ -218,11 +137,15 @@ rawBit is a visual lab for Bitcoin transactions. The most useful contributions a
 For a broader list of possible contribution directions, see [docu/contribute.md](docu/contribute.md).
 Community discussion: [Discord](https://discord.gg/HPSYkT9tq).
 
-### What we’re looking for
+### Flows and lessons
 
-- **Working examples:** HTLCs, multisig, timelocks, fee comparisons
-- **Debugging lessons:** “Why my P2WSH failed” (and the fix)
-- **Proposal demos (experimental):** OP_CAT, CTV sketches
+- Lightning Network
+- CoinJoin
+- PSBT
+- Miniscript
+- Mining and block construction
+- Cross-chain swaps
+- Covenant proposals
 
 Keep flows small and focused on one concept.
 

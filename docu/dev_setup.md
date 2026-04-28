@@ -1,8 +1,36 @@
 # Developer Setup
 
 This guide collects the extra setup steps and tooling notes that make day‑to‑day
-development smoother. Follow the [README Local Setup](../README.md#local-setup)
+development smoother. Follow the [README Quick start](../README.md#quick-start-local)
 to get the app running, then apply the optimizations below.
+
+## Fresh macOS bootstrap
+
+For a brand-new Mac without a toolchain. If you already have Homebrew, Node, and
+Python set up, skip to the README's Quick start.
+
+```bash
+# Compilers & headers
+xcode-select --install
+
+# Homebrew (installs under /opt/homebrew on Apple Silicon, /usr/local on Intel)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# Runtime dependencies
+brew install node@20 python@3.12 pkg-config secp256k1
+```
+
+`node@20` is keg-only on Homebrew, so add it to `PATH` if `node --version`
+doesn't pick it up:
+
+```bash
+echo 'export PATH="/opt/homebrew/opt/node@20/bin:$PATH"' >> ~/.zprofile
+source ~/.zprofile
+```
+
+Replace `/opt/homebrew` with `/usr/local` on Intel Macs.
 
 ## Python Environment Tips
 
@@ -50,16 +78,24 @@ node_modules/.bin/pyright
 
 or rely on the VS Code extension for on-save diagnostics.
 
-## Optional environment file
+## Environment Overrides
 
-Create `.env.local` (or set environment variables manually) to tweak defaults while keeping secrets out of version control:
+Tracked env files provide the defaults used by local development, Playwright,
+and deployment scripts. For private overrides, use shell environment variables
+or an ignored mode-local file such as `.env.development.local`. Do not put
+secrets in tracked env files.
 
 ```bash
-VITE_API_BASE_URL=http://localhost:5007
-# VITE_SHARE_BASE_URL=http://localhost:8787  # only if you run a share service
+# Optional: point local dev at a remote backend.
+VITE_ALLOW_REMOTE_API=true
+VITE_API_BASE_URL=https://api-dev.rawbit.io
+
+# Optional: only needed if you run a share service locally.
+VITE_SHARE_BASE_URL=http://localhost:8787
 ```
 
-See the README’s Local Setup section for the full list of supported environment flags you can copy as a baseline.
+See `.env.example` for the full list of supported environment flags you can copy
+as a baseline.
 
 ## JavaScript Tooling
 
@@ -67,6 +103,7 @@ Vite, ESLint, and Vitest are already configured via `npm install`. Useful
 commands:
 
 - `npm run lint` – type-aware ESLint pass over the frontend.
+- `npm run typecheck` – TypeScript project references for the app, worker, and E2E tests.
 - `npm run test` – frontend unit/integration suite.
 - `npm run test:e2e` – Playwright end-to-end tests (backend must be running).
 
@@ -80,9 +117,9 @@ Backend tests live in `backend/tests`. To run them directly:
 python -m pytest backend/tests
 ```
 
-The helper script `python3 run_all_tests.py` drives both frontend and
-backend suites sequentially and respects the `RUN_ALL_TESTS_*` overrides
-documented in the README.
+The helper script `python3 run_all_tests.py` drives lint, typecheck, frontend,
+E2E, and backend suites sequentially and respects the `RUN_ALL_TESTS_*`
+overrides documented in the README.
 
 ## Logging & Debugging
 

@@ -2,23 +2,37 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import type { MutableRefObject } from "react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-import { TopBar, type TopBarProps, type ExtraTopBarProps } from "@/components/layout/TopBar";
+import {
+  TopBar,
+  type TopBarProps,
+  type ExtraTopBarProps,
+} from "@/components/layout/TopBar";
+import { EDGE_VISIBILITY_STEP } from "@/contexts/theme";
 
 const undoMock = vi.fn();
 const redoMock = vi.fn();
 const setThemeMock = vi.fn<(theme: string) => void>();
 const setSkinMock = vi.fn<(skin: string) => void>();
+const adjustEdgeVisibilityMock = vi.fn<(mode: string, delta: number) => void>();
+let themeMock: "light" | "dark" | "system" = "light";
 
 vi.mock("@/hooks/useUndoRedo", () => ({
-  useUndoRedo: () => ({ undo: undoMock, redo: redoMock, canUndo: false, canRedo: true }),
+  useUndoRedo: () => ({
+    undo: undoMock,
+    redo: redoMock,
+    canUndo: false,
+    canRedo: true,
+  }),
 }));
 
 vi.mock("@/hooks/useTheme", () => ({
   useTheme: () => ({
-    theme: "light",
+    theme: themeMock,
     setTheme: setThemeMock,
     skin: "shadcn",
     setSkin: setSkinMock,
+    edgeVisibility: { light: 0.45, dark: 0.45 },
+    adjustEdgeVisibility: adjustEdgeVisibilityMock,
   }),
 }));
 
@@ -80,6 +94,8 @@ describe("TopBar", () => {
     vi.clearAllMocks();
     setThemeMock.mockClear();
     setSkinMock.mockClear();
+    adjustEdgeVisibilityMock.mockClear();
+    themeMock = "light";
   });
 
   it("disables share and undo buttons based on props", () => {
@@ -121,6 +137,63 @@ describe("TopBar", () => {
 
     expect(setSkinMock).toHaveBeenCalledWith("paper");
     expect(trigger).not.toHaveFocus();
+  });
+
+  it("adjusts the active light edge visibility from the skin menu", () => {
+    render(<TopBar {...baseProps} />);
+
+    const trigger = screen.getByRole("button", { name: "Skin: shadcn" });
+    fireEvent.keyDown(trigger, { key: "Enter" });
+
+    expect(screen.getByText("Edges")).toBeInTheDocument();
+    expect(screen.queryByText("Edge visibility")).not.toBeInTheDocument();
+    expect(screen.queryByText("Light mode")).not.toBeInTheDocument();
+    expect(screen.queryByText("Dark mode")).not.toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Increase edge visibility",
+      })
+    );
+    expect(adjustEdgeVisibilityMock).toHaveBeenCalledWith(
+      "light",
+      EDGE_VISIBILITY_STEP
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Decrease edge visibility",
+      })
+    );
+    expect(adjustEdgeVisibilityMock).toHaveBeenCalledWith(
+      "light",
+      -EDGE_VISIBILITY_STEP
+    );
+    expect(
+      screen.queryByRole("button", { name: "Reset edges" })
+    ).not.toBeInTheDocument();
+  });
+
+  it("adjusts the active dark edge visibility from the skin menu", () => {
+    themeMock = "dark";
+    render(<TopBar {...baseProps} />);
+
+    const trigger = screen.getByRole("button", { name: "Skin: shadcn" });
+    fireEvent.keyDown(trigger, { key: "Enter" });
+
+    expect(screen.getByText("Edges")).toBeInTheDocument();
+    expect(screen.queryByText("Light mode")).not.toBeInTheDocument();
+    expect(screen.queryByText("Dark mode")).not.toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Decrease edge visibility",
+      })
+    );
+    expect(adjustEdgeVisibilityMock).toHaveBeenCalledWith(
+      "dark",
+      -EDGE_VISIBILITY_STEP
+    );
   });
 
   it("opens share dialog handler when enabled", () => {

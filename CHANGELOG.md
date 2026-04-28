@@ -183,3 +183,19 @@ and the project aims to adhere to [Semantic Versioning](https://semver.org/spec/
 - Fixed Safari/WebKit shared-link edge loss by preserving all ResizeObserver batches and remeasuring imported nodes after shared-flow load.
 - Hardened shared-link tab recovery so stale closed-tab metadata cannot resurrect empty tabs.
 - Restored large-flow responsiveness by keeping React Flow visible-element rendering enabled and limiting shared-link repair work to real divergence cases.
+
+## [0.4.10] - 2026-04-28
+
+### Added
+
+- Added edge visibility controls to the skin/theme menu, allowing canvas edges to be tuned independently for light and dark display modes.
+
+### Changed
+
+- Refined the sidebar group/subgroup layout with larger labels, tighter subgroup spacing, aligned dropdown arrows, and clearer subgroup hierarchy.
+- Renamed the Transactions subgroup from “Full Transactions” to “Transaction Templates”.
+
+### Fixed
+
+- Fixed exact numeric parsing for scientific notation such as `1e6`, `1e8`, and `2.5e3`, so these values parse as decimal numbers instead of ambiguous hexadecimal input.
+- Hardened numeric parsing to reject malformed scientific notation, binary-prefixed strings, `NaN`/`Infinity`, and underscore variants before they can propagate into math or comparison operations. Thanks to @rajanarahul93 for the public PR.

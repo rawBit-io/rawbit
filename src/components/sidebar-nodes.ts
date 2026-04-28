@@ -353,7 +353,7 @@ export const allSidebarNodes: NodeTemplate[] = [
     functionName: "concat_all",
     label: "TX Template legacy",
     category: "Transactions",
-    subcategory: "Full Transactions",
+    subcategory: "Transaction Templates",
     description:
       "Example specialised concat node with fields for version, input count, etc.",
     type: "calculation",
@@ -497,7 +497,7 @@ export const allSidebarNodes: NodeTemplate[] = [
     functionName: "concat_all",
     label: "TX Template",
     category: "Transactions",
-    subcategory: "Full Transactions",
+    subcategory: "Transaction Templates",
     description:
       "Assembles any Bitcoin transaction: legacy, SegWit, or mixed. For SegWit/mixed, include marker+flag and witnesses. Legacy inputs need '00' witness.",
     type: "calculation",

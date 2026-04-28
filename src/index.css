@@ -288,6 +288,11 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
 }
 
 /* Diagram-bundle edge highlighting uses React Flow selection state. */
+.react-flow__edge .react-flow__edge-path {
+  stroke-width: 1.4 !important;
+  stroke-linecap: round !important;
+}
+
 .react-flow__edge.selected .react-flow__edge-path {
   stroke: #2563eb !important;
   stroke-width: 2.4 !important;
@@ -297,31 +302,13 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
   stroke: #60a5fa !important;
 }
 
-/* Light-mode non-selected edge visibility tuning. */
+/* Non-selected edge visibility is shared across skins. */
 .react-flow__edge:not(.selected) .react-flow__edge-path {
-  opacity: var(--edge-light-opacity-default, 0.55) !important;
+  opacity: var(--edge-light-opacity, 0.45) !important;
 }
 
-[data-skin="paper"] .react-flow__edge:not(.selected) .react-flow__edge-path {
-  opacity: var(--edge-light-opacity-paper, 0.6) !important;
-}
-
-[data-skin="midnight"] .react-flow__edge:not(.selected) .react-flow__edge-path {
-  opacity: var(--edge-light-opacity-midnight, 0.6) !important;
-}
-
-/* Tone down non-selected edges in dark mode across skins. */
 .dark .react-flow__edge:not(.selected) .react-flow__edge-path {
-  opacity: var(--edge-dark-opacity-default, 0.35) !important;
-}
-
-/* Skin-specific dark-mode tuning (slightly less bright than default dark). */
-[data-skin="paper"].dark .react-flow__edge:not(.selected) .react-flow__edge-path {
-  opacity: var(--edge-dark-opacity-paper, 0.25) !important;
-}
-
-[data-skin="midnight"].dark .react-flow__edge:not(.selected) .react-flow__edge-path {
-  opacity: var(--edge-dark-opacity-midnight, 0.25) !important;
+  opacity: var(--edge-dark-opacity, 0.45) !important;
 }
 
 /* ===================== Large-drag low-detail mode ===================== */
@@ -382,16 +369,6 @@ body[data-large-drag="true"] .rf-node {
 
 [data-skin="paper"] .react-flow__node-shadcnGroup [data-testid="group-fill"] {
   opacity: 0.08 !important;
-}
-
-[data-skin="paper"] .react-flow__edge-path {
-  stroke-width: 1.4 !important;
-  stroke-linecap: round !important;
-}
-
-[data-skin="paper"] .react-flow__edge.selected .react-flow__edge-path {
-  stroke-dasharray: none !important;
-  stroke-width: 2.4 !important;
 }
 
 [data-skin="paper"] .custom-flow-controls .react-flow__controls-button {
@@ -461,14 +438,6 @@ body[data-large-drag="true"] .rf-node {
 
 [data-skin="midnight"] .react-flow__node-shadcnGroup [data-testid="group-fill"] {
   opacity: 0.1 !important;
-}
-
-[data-skin="midnight"] .react-flow__edge-path {
-  stroke-width: 1.8 !important;
-}
-
-[data-skin="midnight"] .react-flow__edge.selected .react-flow__edge-path {
-  stroke-width: 3px !important;
 }
 
 [data-skin="midnight"] .custom-flow-controls .react-flow__controls-button {
