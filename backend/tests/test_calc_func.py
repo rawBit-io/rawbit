@@ -1120,6 +1120,10 @@ def test_compare_equal_and_numeric_parsers():
     assert calc._parse_numeric_exact("0x10") == 16
     assert calc._parse_numeric_exact("10") == 10
     assert calc._parse_numeric_exact("1.5") == Decimal("1.5")
+    assert calc._parse_numeric_exact("1e6") == Decimal("1e6")
+    assert calc._parse_numeric_exact("1e8") == Decimal("1e8")
+    assert calc._parse_numeric_exact("2.5e3") == Decimal("2.5e3")
+    assert calc._parse_numeric_exact("deadbeef") == 0xDEADBEEF
     with pytest.raises(ValueError):
         calc._parse_numeric_exact("")
 
@@ -1132,6 +1136,8 @@ def test_compare_equal_and_numeric_parsers():
 def test_compare_numbers_and_math_operations():
     assert calc.compare_numbers(["10", "<", "20"]) == "true"
     assert calc.compare_numbers(["10", ">", "20"]) == "false"
+    assert calc.compare_numbers(["1e8", ">", "1000000"]) == "true"
+    assert calc.compare_numbers(["1e6", "<=", "1000000"]) == "true"
     with pytest.raises(ValueError):
         calc.compare_numbers(["10", "!=", "20"])
 
@@ -1139,8 +1145,48 @@ def test_compare_numbers_and_math_operations():
     assert calc.math_operation(["10", "-", "5"]) == "5"
     assert calc.math_operation(["10", "*", "5"]) == "50"
     assert calc.math_operation(["3", "/", "2"]) == "1.5"
+    assert calc.math_operation(["1e8", "+", "1"]) == "100000001"
+    assert calc.math_operation(["1e6", "*", "2"]) == "2000000"
     with pytest.raises(ValueError):
         calc.math_operation(["1", "/", "0"])
+
+@pytest.mark.parametrize("raw", [
+    "1e", "e10", "1E", "E10", "1e1e",
+    "0b10", "0B10",
+    # special Decimal values that must be rejected
+    "NaN", "nan", "Infinity", "-Infinity", "sNaN",
+    # underscore-separated numeric literals
+    "_10", "1__0", "1_",
+    # trailing dots – looks like a decimal but the fractional part is absent
+    "123.", "0.",
+    # malformed scientific notation: trailing dot before the exponent
+    "1.e6", "0.e3",
+])
+def test_parse_numeric_exact_rejects_malformed(raw):
+    with pytest.raises(ValueError):
+        calc._parse_numeric_exact(raw)
+
+
+@pytest.mark.parametrize("raw,expected", [
+    ("fe1",   0xfe1),
+    ("a1e4",  0xa1e4),
+    ("b3e2f", 0xb3e2f),
+    (".5e3",  Decimal(".5e3")),
+    ("+1e6",  Decimal("+1e6")),
+    ("-0.5",  Decimal("-0.5")),
+    ("0e0",   Decimal("0e0")),
+    ("0X1F",  0x1F),
+    ("0xDEAD", 0xDEAD),
+])
+def test_parse_numeric_exact_accepts_valid(raw, expected):
+    assert calc._parse_numeric_exact(raw) == expected
+
+
+def test_parse_numeric_exact_malformed_propagates_to_api():
+    with pytest.raises(ValueError):
+        calc.compare_numbers(["1e", "<", "31"])
+    with pytest.raises(ValueError):
+        calc.math_operation(["e10", "+", "1"])
 
 
 def test_hash160_and_sha256_address_helpers():

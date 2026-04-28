@@ -22,6 +22,14 @@ from decimal import Decimal, InvalidOperation, getcontext
 getcontext().prec = 50  # plenty for money math
 
 _INT_DEC_RE = re.compile(r'^[+-]?\d+$', re.ASCII)
+_STRICT_DECIMAL_RE = re.compile(
+    r'^[+-]?(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?$', re.ASCII
+)
+
+_LOOKS_LIKE_SCI_RE = re.compile(
+    r'(^[+-]?\d+\.?\d*[eE])|(^[eE]\d+)', re.ASCII
+)
+
 _UINT_DEC_NO_LEADING_ZERO_RE = re.compile(r"^(0|[1-9]\d*)$", re.ASCII)
 
 _CURVE_ORDER = SECP256k1.order
@@ -2745,8 +2753,8 @@ def script_verification(vals: list) -> str:
     amount_supplied = bool(amount_raw)
     if amount_supplied:
         try:
+            # Bitcoin amounts are always whole satoshis; reject any non-integer
             amount_param = int(amount_raw)
-            # Validate amount is non-negative
             if amount_param < 0:
                 raise ValueError("Amount must be non-negative")
         except ValueError as e:
@@ -3468,27 +3476,38 @@ def _parse_numeric_exact(raw: str):
       - decimal ints: '144', '+10', '-7'
       - hex: '0x90', '90' with A–F present (e.g. 'deadbeef')
       - decimal with fraction/exp: '12.5', '1e6', '0.1'
+    Raises ValueError for any input that does not fit a supported format
+    exactly, including NaN, Infinity, underscores, binary literals, trailing
+    dots, and malformed scientific-notation strings.
     """
     s = str(raw).strip()
     if not s:
         raise ValueError("empty number")
 
-    # hex?
-    if s.lower().startswith("0x") or (
-        all(c in "0123456789abcdefABCDEF" for c in s)
-        and any(c in "abcdefABCDEF" for c in s)
-    ):
+    # explicit hex prefix – always hex
+    if s.lower().startswith("0x"):
         return int(s, 16)
 
-    # plain integer?
+    if s.lower().startswith("0b"):
+        raise ValueError(f"'{raw}' is not a valid number")
+
+    # plain integer
     if _INT_DEC_RE.fullmatch(s):
         return int(s, 10)
 
-    # decimal/exp → Decimal
-    try:
+    # decimal / fraction / scientific-notation → Decimal
+    if _STRICT_DECIMAL_RE.fullmatch(s):
         return Decimal(s)
-    except InvalidOperation:
-        raise ValueError(f"'{raw}' is not a valid number")
+
+    # Ambiguous hex: all hex digits, at least one a–f letter, no recognised
+    if (
+        all(c in "0123456789abcdefABCDEF" for c in s)
+        and any(c in "abcdefABCDEF" for c in s)
+        and not _LOOKS_LIKE_SCI_RE.search(s)
+    ):
+        return int(s, 16)
+
+    raise ValueError(f"'{raw}' is not a valid number")
 
 def _coerce_for_op(a, b):
     """Promote to Decimal if either is Decimal; keep ints otherwise."""
