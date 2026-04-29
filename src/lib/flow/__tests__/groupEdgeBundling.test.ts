@@ -14,7 +14,7 @@ import { buildEdge, buildFlowNode } from "@/test-utils/types";
 import type { FlowNode } from "@/types";
 
 describe("buildGroupBundledEdges", () => {
-  it("hides repeated cross-group edges and adds one bundle edge", () => {
+  it("replaces repeated cross-group edges with segments and one bundle edge", () => {
     const nodes: FlowNode[] = [
       buildFlowNode({
         id: "group-a",
@@ -44,13 +44,9 @@ describe("buildGroupBundledEdges", () => {
       edge.id.startsWith(GROUP_BUNDLE_EDGE_ID_PREFIX)
     );
 
-    expect(rendered).toHaveLength(8);
-    expect(rendered.find((edge) => edge.id === "e1")).toMatchObject({
-      hidden: true,
-    });
-    expect(rendered.find((edge) => edge.id === "e2")).toMatchObject({
-      hidden: true,
-    });
+    expect(rendered).toHaveLength(6);
+    expect(rendered.find((edge) => edge.id === "e1")).toBeUndefined();
+    expect(rendered.find((edge) => edge.id === "e2")).toBeUndefined();
     expect(rendered.find((edge) => edge.id === "internal")?.hidden).toBe(
       undefined
     );
@@ -110,7 +106,9 @@ describe("buildGroupBundledEdges", () => {
       buildFlowNode({ id: "b1", parentId: "group-b" }),
     ];
     const edges: Edge[] = [
+      buildEdge({ id: "before", source: "a1", target: "a2" }),
       buildEdge({ id: "e1", source: "a1", target: "b1" }),
+      buildEdge({ id: "between", source: "a2", target: "a1" }),
       buildEdge({ id: "e2", source: "a2", target: "b1" }),
     ];
 
@@ -132,14 +130,18 @@ describe("buildGroupBundledEdges", () => {
     const nodes = p14MuSig2.nodes as FlowNode[];
     const edges = p14MuSig2.edges as Edge[];
     const rendered = buildGroupBundledEdges({ nodes, edges });
-    const hiddenCrossEdges = rendered.filter((edge) => edge.hidden);
     const bundleEdges = rendered.filter((edge) =>
       edge.id.startsWith(GROUP_BUNDLE_EDGE_ID_PREFIX)
     );
+    const segmentEdges = rendered.filter((edge) =>
+      edge.id.startsWith(GROUP_BUNDLE_SEGMENT_EDGE_ID_PREFIX)
+    );
 
     expect(edges).toHaveLength(151);
-    expect(hiddenCrossEdges).toHaveLength(63);
+    expect(rendered).toHaveLength(194);
+    expect(rendered.filter((edge) => edge.hidden)).toHaveLength(0);
     expect(bundleEdges).toHaveLength(10);
+    expect(segmentEdges).toHaveLength(96);
   });
 
   it("is idempotent when given an already projected visual graph", () => {
@@ -203,7 +205,9 @@ describe("buildGroupBundledEdges", () => {
       buildFlowNode({ id: "b1", parentId: "group-b" }),
     ];
     const edges: Edge[] = [
+      buildEdge({ id: "before", source: "a1", target: "a2" }),
       buildEdge({ id: "e1", source: "a1", target: "b1" }),
+      buildEdge({ id: "between", source: "a2", target: "a1" }),
       buildEdge({ id: "e2", source: "a2", target: "b1" }),
     ];
 

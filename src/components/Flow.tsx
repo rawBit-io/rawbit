@@ -86,11 +86,10 @@ import {
   sanitizeProtocolDiagramLayout,
 } from "@/lib/protocolDiagram/layoutPersistence";
 import {
+  buildGroupBundledElements,
   GROUP_BUNDLE_PORT_NODE_TYPE,
-  isGroupBundleVisualEdgeId,
   sanitizeGroupBundleVisualElementsForState,
   stripGroupBundlePortNodes,
-  stripGroupBundleVisualEdges,
 } from "@/lib/flow/groupEdgeBundling";
 
 const COLORABLE_NODE_TYPES = new Set([
@@ -169,6 +168,36 @@ function edgeIdsMatch(currentEdges: Edge[], expectedEdges: Edge[]) {
     if (currentEdges[index]?.id !== expectedEdges[index]?.id) return false;
   }
   return true;
+}
+
+function graphIdsMatchCanonicalOrProjection(
+  currentNodes: FlowNode[],
+  currentEdges: Edge[],
+  expectedNodes: FlowNode[],
+  expectedEdges: Edge[]
+) {
+  if (graphIdsMatch(currentNodes, currentEdges, expectedNodes, expectedEdges)) {
+    return true;
+  }
+  const canonical = sanitizeGroupBundleVisualElementsForState({
+    nodes: currentNodes,
+    edges: currentEdges,
+  });
+  if (
+    graphIdsMatch(canonical.nodes, canonical.edges, expectedNodes, expectedEdges)
+  ) {
+    return true;
+  }
+  const projected = buildGroupBundledElements({
+    nodes: expectedNodes,
+    edges: expectedEdges,
+  });
+  return graphIdsMatch(
+    currentNodes,
+    currentEdges,
+    projected.nodes,
+    projected.edges
+  );
 }
 
 function nodesNeedMeasurement(nodesToInspect: FlowNode[]) {
@@ -563,10 +592,10 @@ function FlowContent() {
   const hasSelectionRef = useRef(hasSelection);
   const canvasSelectedEdgeIds = useStore(
     useCallback(
-      (s: { edges: Edge[] }) =>
-        s.edges
-          .filter((e) => e.selected && !isGroupBundleVisualEdgeId(e.id))
-          .map((e) => e.id),
+      (state: { edges: Edge[] }) => {
+        void state;
+        return edgesRef.current.filter((e) => e.selected).map((e) => e.id);
+      },
       []
     ),
     (a, b) => a.length === b.length && a.every((id, i) => id === b[i])
@@ -747,13 +776,15 @@ function FlowContent() {
     // If parent state is correct but the store is missing nodes/edges, force-
     // sync the store and re-trigger node measurement instead of bailing out.
     const storeState = storeApi.getState();
-    const storeNodes = stripGroupBundlePortNodes(storeState.nodes as FlowNode[]);
-    const storeEdges = stripGroupBundleVisualEdges(storeState.edges);
-    const storeNodesStale =
-      storeNodes.length !== pending.nodes.length ||
-      !storeNodes.every((node, index) => node.id === pending.nodes[index]?.id);
-    const storeEdgesStale = !edgeIdsMatch(storeEdges, pending.edges);
-    const storeNeedsResync = storeNodesStale || storeEdgesStale;
+    const storeNodes = storeState.nodes as FlowNode[];
+    const storeEdges = storeState.edges;
+    const storeGraphMatches = graphIdsMatchCanonicalOrProjection(
+      storeNodes,
+      storeEdges,
+      pending.nodes,
+      pending.edges
+    );
+    const storeNeedsResync = !storeGraphMatches;
 
     if (parentMatches && !storeNeedsResync) {
       pendingSharedGraphRef.current = null;
@@ -776,12 +807,8 @@ function FlowContent() {
     }
 
     if (storeNeedsResync) {
-      if (storeNodesStale) {
-        rfSetNodes(pending.nodes);
-      }
-      if (storeEdgesStale) {
-        rfSetEdges(cloneEdgesForRender(pending.edges));
-      }
+      rfSetNodes(pending.nodes);
+      rfSetEdges(cloneEdgesForRender(pending.edges));
       const ids = pending.nodes.map((node) => node.id);
       if (ids.length > 0) updateNodeInternals(ids);
     }
@@ -820,30 +847,25 @@ function FlowContent() {
         // First, repair the React Flow internal store if it's behind parent
         // state — this is the actual failure mode for the Safari edge bug.
         const storeState = storeApi.getState();
-        const storeNodes = stripGroupBundlePortNodes(
-          storeState.nodes as FlowNode[]
+        const storeNodes = storeState.nodes as FlowNode[];
+        const storeGraphMatches = graphIdsMatchCanonicalOrProjection(
+          storeNodes,
+          storeState.edges,
+          expectedNodes,
+          expectedEdges
         );
-        const storeEdges = stripGroupBundleVisualEdges(storeState.edges);
-        const storeNodesStale =
-          storeNodes.length !== expectedNodes.length ||
-          !storeNodes.every(
-            (node, index) => node.id === expectedNodes[index]?.id
-          );
-        const storeEdgesStale = !edgeIdsMatch(storeEdges, expectedEdges);
         const storeNodesUnmeasured =
-          storeNodes.length === expectedNodes.length &&
-          nodesNeedMeasurement(storeNodes);
+          stripGroupBundlePortNodes(storeNodes).length === expectedNodes.length &&
+          nodesNeedMeasurement(stripGroupBundlePortNodes(storeNodes));
         const storeNeedsRepair =
-          storeNodesStale || storeEdgesStale || storeNodesUnmeasured;
+          !storeGraphMatches || storeNodesUnmeasured;
         if (!storeNeedsRepair) return;
 
-        if (storeNodesStale) {
+        if (!storeGraphMatches) {
           rfSetNodes(expectedNodes);
-        }
-        if (storeEdgesStale) {
           rfSetEdges(cloneEdgesForRender(expectedEdges));
         }
-        if (storeNodesStale || storeNodesUnmeasured) {
+        if (!storeGraphMatches || storeNodesUnmeasured) {
           const ids = expectedNodes.map((node) => node.id);
           if (ids.length > 0) updateNodeInternals(ids);
         }
@@ -946,6 +968,10 @@ function FlowContent() {
 
   const snapshotScheduler = useSnapshotScheduler({
     storeApi,
+    getSnapshotState: () => ({
+      nodes: getSavedNodes(),
+      edges: getSavedEdges(),
+    }),
     pushState,
     incrementGraphRev,
     skipLoadRef,
@@ -1476,10 +1502,14 @@ function FlowContent() {
       });
 
       setTimeout(() => {
-        pushState(getNodes(), getEdges(), "Update Group Comment (Flow Map)");
+        pushState(
+          getSavedNodes(),
+          getSavedEdges(),
+          "Update Group Comment (Flow Map)"
+        );
       }, 0);
     },
-    [getEdges, getNodes, pushState, setNodes]
+    [getNodes, getSavedEdges, getSavedNodes, pushState, setNodes]
   );
 
   const focusConnectionEndpoints = useCallback(

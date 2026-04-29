@@ -40,6 +40,8 @@ interface BundleAccumulator {
 
 interface GroupBundleEdgeRef {
   edgeId: string;
+  edge: Edge;
+  index: number;
   source: string;
   target: string;
   sourceHandle?: string | null;
@@ -49,6 +51,7 @@ interface GroupBundleEdgeRef {
 export interface GroupBundleEdgeData extends Record<string, unknown> {
   bundledEdgeIds: string[];
   selectedEdgeIds: string[];
+  representedEdges?: GroupBundleRepresentedEdge[];
   count: number;
   sourceGroupId: string;
   targetGroupId: string;
@@ -65,6 +68,19 @@ export interface GroupBundleEdgeData extends Record<string, unknown> {
 export interface GroupBundleSegmentEdgeData extends Record<string, unknown> {
   bundledEdgeIds: string[];
   selectedEdgeIds: string[];
+}
+
+interface GroupBundleRepresentedEdge {
+  index: number;
+  edge: Edge;
+}
+
+interface GroupBundleSegmentAccumulator {
+  nodeId: string;
+  handle?: string | null;
+  edgeIds: string[];
+  selectedEdgeIds: Set<string>;
+  order: number;
 }
 
 interface GroupBundlePortNodeData extends NodeData {
@@ -169,6 +185,9 @@ const edgeFallbackId = (edge: Edge): string =>
     edge.targetHandle ?? ""
   }`;
 
+const compareStrings = (a: string, b: string): number =>
+  a < b ? -1 : a > b ? 1 : 0;
+
 export const isGroupBundleEdgeId = (edgeId: string): boolean =>
   edgeId.startsWith(GROUP_BUNDLE_EDGE_ID_PREFIX);
 
@@ -198,6 +217,28 @@ export const stripGroupBundleVisualEdges = <T extends { id: string }>(
 export const sanitizeGroupBundleRenderEdgesForState = (
   edges: Edge[]
 ): Edge[] => {
+  const recoveredEdges = new Map<string, GroupBundleRepresentedEdge>();
+  for (const edge of edges) {
+    if (!isGroupBundleEdgeId(edge.id)) continue;
+    const representedEdges = (edge.data as GroupBundleEdgeData | undefined)
+      ?.representedEdges;
+    if (!Array.isArray(representedEdges)) continue;
+    for (const representedEdge of representedEdges) {
+      if (
+        typeof representedEdge?.index !== "number" ||
+        !representedEdge.edge ||
+        typeof representedEdge.edge !== "object"
+      ) {
+        continue;
+      }
+      const represented = representedEdge.edge;
+      recoveredEdges.set(represented.id || edgeFallbackId(represented), {
+        index: representedEdge.index,
+        edge: represented,
+      });
+    }
+  }
+
   const sourceEdges = stripGroupBundleVisualEdges(edges);
   let changed = sourceEdges !== edges;
   const sanitizedEdges = sourceEdges.map((edge) => {
@@ -208,7 +249,55 @@ export const sanitizeGroupBundleRenderEdgesForState = (
     return nextEdge;
   });
 
-  return changed ? sanitizedEdges : edges;
+  const existingEdgeIds = new Set(
+    sanitizedEdges.map((edge) => edge.id || edgeFallbackId(edge))
+  );
+  const restoredEdges = Array.from(recoveredEdges.values())
+    .filter(({ edge }) => !existingEdgeIds.has(edge.id || edgeFallbackId(edge)))
+    .sort((a, b) => a.index - b.index)
+    .map(({ edge }) => ({ ...edge }));
+
+  if (restoredEdges.length === 0) return changed ? sanitizedEdges : edges;
+
+  const restoredByIndex = new Map<number, Edge[]>();
+  for (const edge of restoredEdges) {
+    const index = recoveredEdges.get(edge.id || edgeFallbackId(edge))?.index;
+    if (typeof index !== "number") continue;
+    const edgesAtIndex = restoredByIndex.get(index);
+    if (edgesAtIndex) {
+      edgesAtIndex.push(edge);
+    } else {
+      restoredByIndex.set(index, [edge]);
+    }
+  }
+
+  const mergedEdges: Edge[] = [];
+  const placedRestoredEdges = new Set<Edge>();
+  let sourceEdgeIndex = 0;
+  const targetLength = sanitizedEdges.length + restoredEdges.length;
+  for (let index = 0; index < targetLength; index += 1) {
+    const recoveredAtIndex = restoredByIndex.get(index);
+    if (recoveredAtIndex) {
+      mergedEdges.push(...recoveredAtIndex);
+      recoveredAtIndex.forEach((edge) => placedRestoredEdges.add(edge));
+      continue;
+    }
+    if (sourceEdgeIndex < sanitizedEdges.length) {
+      mergedEdges.push(sanitizedEdges[sourceEdgeIndex]);
+      sourceEdgeIndex += 1;
+    }
+  }
+  if (sourceEdgeIndex < sanitizedEdges.length) {
+    mergedEdges.push(...sanitizedEdges.slice(sourceEdgeIndex));
+  }
+  const unplacedRestoredEdges = restoredEdges.filter(
+    (edge) => !placedRestoredEdges.has(edge)
+  );
+  if (unplacedRestoredEdges.length > 0) {
+    mergedEdges.push(...unplacedRestoredEdges);
+  }
+
+  return mergedEdges;
 };
 
 export const sanitizeGroupBundleVisualElementsForState = ({
@@ -241,11 +330,21 @@ const groupBundlePortNodeId = (
 const groupBundleSegmentEdgeId = (
   side: "source" | "target",
   bundleId: string,
-  edgeId: string
-): string => `${GROUP_BUNDLE_SEGMENT_EDGE_ID_PREFIX}${side}:${bundleId}:${edgeId}`;
+  nodeId: string,
+  handle?: string | null
+): string =>
+  `${GROUP_BUNDLE_SEGMENT_EDGE_ID_PREFIX}${side}:${bundleId}:${nodeId}:${
+    handle ?? ""
+  }`;
 
-const toBundleEdgeRef = (edge: Edge, edgeId: string): GroupBundleEdgeRef => ({
+const toBundleEdgeRef = (
+  edge: Edge,
+  edgeId: string,
+  index: number
+): GroupBundleEdgeRef => ({
   edgeId,
+  edge,
+  index,
   source: edge.source,
   target: edge.target,
   sourceHandle: edge.sourceHandle,
@@ -307,7 +406,7 @@ export const buildGroupBundledElements = ({
   edges: Edge[];
 }): GroupBundledElements => {
   const sourceNodes = stripGroupBundlePortNodes(nodes);
-  const sourceEdges = stripGroupBundleVisualEdges(edges);
+  const sourceEdges = sanitizeGroupBundleRenderEdgesForState(edges);
   const groupRects = new Map<string, GroupRect>();
   const nodeToGroup = new Map<string, string>();
 
@@ -327,7 +426,7 @@ export const buildGroupBundledElements = ({
 
   const bundlesByPair = new Map<string, BundleAccumulator>();
 
-  for (const edge of sourceEdges) {
+  for (const [edgeIndex, edge] of sourceEdges.entries()) {
     const sourceGroupId = nodeToGroup.get(edge.source);
     const targetGroupId = nodeToGroup.get(edge.target);
     if (!sourceGroupId || !targetGroupId) continue;
@@ -338,7 +437,7 @@ export const buildGroupBundledElements = ({
     const edgeId = edge.id || edgeFallbackId(edge);
     if (existing) {
       existing.edgeIds.push(edgeId);
-      existing.edgeRefs.push(toBundleEdgeRef(edge, edgeId));
+      existing.edgeRefs.push(toBundleEdgeRef(edge, edgeId, edgeIndex));
       if (edge.selected === true) existing.selectedEdgeIds.add(edgeId);
       existing.selected = existing.selected || edge.selected === true;
       continue;
@@ -348,7 +447,7 @@ export const buildGroupBundledElements = ({
       sourceGroupId,
       targetGroupId,
       edgeIds: [edgeId],
-      edgeRefs: [toBundleEdgeRef(edge, edgeId)],
+      edgeRefs: [toBundleEdgeRef(edge, edgeId, edgeIndex)],
       selectedEdgeIds: edge.selected === true ? new Set([edgeId]) : new Set(),
       selected: edge.selected === true,
     });
@@ -388,7 +487,7 @@ export const buildGroupBundledElements = ({
         (a, b) =>
           (edgeIdOrder.get(a) ?? Number.MAX_SAFE_INTEGER) -
             (edgeIdOrder.get(b) ?? Number.MAX_SAFE_INTEGER) ||
-          a.localeCompare(b)
+          compareStrings(a, b)
       );
 
     const selectedEdgeIds = sortEdgeIds(bundle.selectedEdgeIds);
@@ -411,45 +510,114 @@ export const buildGroupBundledElements = ({
       })
     );
 
+    const sourceSegmentAccumulators = new Map<
+      string,
+      GroupBundleSegmentAccumulator
+    >();
+    const targetSegmentAccumulators = new Map<
+      string,
+      GroupBundleSegmentAccumulator
+    >();
+    const getSegmentAccumulator = (
+      map: Map<string, GroupBundleSegmentAccumulator>,
+      nodeId: string,
+      handle: string | null | undefined,
+      order: number
+    ) => {
+      const key = `${nodeId}\u0000${handle ?? ""}`;
+      const existing = map.get(key);
+      if (existing) return existing;
+      const next: GroupBundleSegmentAccumulator = {
+        nodeId,
+        handle,
+        edgeIds: [],
+        selectedEdgeIds: new Set<string>(),
+        order,
+      };
+      map.set(key, next);
+      return next;
+    };
+
     for (const edgeRef of bundle.edgeRefs) {
       const isSelected = bundle.selectedEdgeIds.has(edgeRef.edgeId);
-      const segmentData: GroupBundleSegmentEdgeData = {
-        bundledEdgeIds: [edgeRef.edgeId],
-        selectedEdgeIds: isSelected ? [edgeRef.edgeId] : [],
-      };
-
-      segmentEdges.push(
-        {
-          id: groupBundleSegmentEdgeId("source", bundleId, edgeRef.edgeId),
-          source: edgeRef.source,
-          sourceHandle: edgeRef.sourceHandle,
-          target: sourcePortId,
-          targetHandle: GROUP_BUNDLE_PORT_TARGET_HANDLE,
-          selectable: false,
-          deletable: false,
-          reconnectable: false,
-          focusable: false,
-          selected: isSelected,
-          data: segmentData,
-          className: "group-bundle-segment-edge",
-          interactionWidth: 18,
-        },
-        {
-          id: groupBundleSegmentEdgeId("target", bundleId, edgeRef.edgeId),
-          source: targetPortId,
-          sourceHandle: GROUP_BUNDLE_PORT_SOURCE_HANDLE,
-          target: edgeRef.target,
-          targetHandle: edgeRef.targetHandle,
-          selectable: false,
-          deletable: false,
-          reconnectable: false,
-          focusable: false,
-          selected: isSelected,
-          data: segmentData,
-          className: "group-bundle-segment-edge",
-          interactionWidth: 18,
-        }
+      const sourceSegment = getSegmentAccumulator(
+        sourceSegmentAccumulators,
+        edgeRef.source,
+        edgeRef.sourceHandle,
+        edgeIdOrder.get(edgeRef.edgeId) ?? Number.MAX_SAFE_INTEGER
       );
+      const targetSegment = getSegmentAccumulator(
+        targetSegmentAccumulators,
+        edgeRef.target,
+        edgeRef.targetHandle,
+        edgeIdOrder.get(edgeRef.edgeId) ?? Number.MAX_SAFE_INTEGER
+      );
+      sourceSegment.edgeIds.push(edgeRef.edgeId);
+      targetSegment.edgeIds.push(edgeRef.edgeId);
+      if (isSelected) {
+        sourceSegment.selectedEdgeIds.add(edgeRef.edgeId);
+        targetSegment.selectedEdgeIds.add(edgeRef.edgeId);
+      }
+    }
+
+    for (const sourceSegment of Array.from(
+      sourceSegmentAccumulators.values()
+    ).sort((a, b) => a.order - b.order || compareStrings(a.nodeId, b.nodeId))) {
+      const sourceSegmentEdgeIds = sortEdgeIds(sourceSegment.edgeIds);
+      const sourceSelectedEdgeIds = sortEdgeIds(sourceSegment.selectedEdgeIds);
+      segmentEdges.push({
+        id: groupBundleSegmentEdgeId(
+          "source",
+          bundleId,
+          sourceSegment.nodeId,
+          sourceSegment.handle
+        ),
+        source: sourceSegment.nodeId,
+        sourceHandle: sourceSegment.handle,
+        target: sourcePortId,
+        targetHandle: GROUP_BUNDLE_PORT_TARGET_HANDLE,
+        selectable: false,
+        deletable: false,
+        reconnectable: false,
+        focusable: false,
+        selected: sourceSelectedEdgeIds.length > 0,
+        data: {
+          bundledEdgeIds: sourceSegmentEdgeIds,
+          selectedEdgeIds: sourceSelectedEdgeIds,
+        },
+        className: "group-bundle-segment-edge",
+        interactionWidth: 18,
+      });
+    }
+
+    for (const targetSegment of Array.from(
+      targetSegmentAccumulators.values()
+    ).sort((a, b) => a.order - b.order || compareStrings(a.nodeId, b.nodeId))) {
+      const targetSegmentEdgeIds = sortEdgeIds(targetSegment.edgeIds);
+      const targetSelectedEdgeIds = sortEdgeIds(targetSegment.selectedEdgeIds);
+      segmentEdges.push({
+        id: groupBundleSegmentEdgeId(
+          "target",
+          bundleId,
+          targetSegment.nodeId,
+          targetSegment.handle
+        ),
+        source: targetPortId,
+        sourceHandle: GROUP_BUNDLE_PORT_SOURCE_HANDLE,
+        target: targetSegment.nodeId,
+        targetHandle: targetSegment.handle,
+        selectable: false,
+        deletable: false,
+        reconnectable: false,
+        focusable: false,
+        selected: targetSelectedEdgeIds.length > 0,
+        data: {
+          bundledEdgeIds: targetSegmentEdgeIds,
+          selectedEdgeIds: targetSelectedEdgeIds,
+        },
+        className: "group-bundle-segment-edge",
+        interactionWidth: 18,
+      });
     }
 
     bundleEdges.push({
@@ -467,6 +635,10 @@ export const buildGroupBundledElements = ({
       data: {
         bundledEdgeIds: bundle.edgeIds,
         selectedEdgeIds,
+        representedEdges: bundle.edgeRefs.map((edgeRef) => ({
+          index: edgeRef.index,
+          edge: edgeRef.edge,
+        })),
         count: bundle.edgeIds.length,
         sourceGroupId: bundle.sourceGroupId,
         targetGroupId: bundle.targetGroupId,
@@ -484,16 +656,14 @@ export const buildGroupBundledElements = ({
 
   if (bundleEdges.length === 0) return { nodes: sourceNodes, edges: sourceEdges };
 
-  const renderedEdges = sourceEdges.map((edge) =>
-    bundledEdgeIds.has(edge.id || edgeFallbackId(edge))
-      ? { ...edge, hidden: true }
-      : edge
+  const renderedEdges = sourceEdges.filter(
+    (edge) => !bundledEdgeIds.has(edge.id || edgeFallbackId(edge))
   );
 
   const renderedSourcePortGroups = new Set<string>();
   const renderedTargetPortGroups = new Set<string>();
   const sortedBundleEdgeSeeds = bundleEdges.sort((a, b) =>
-    a.id.localeCompare(b.id)
+    compareStrings(a.id, b.id)
   );
 
   const sortedBundleEdges = sortedBundleEdgeSeeds.map((edge) => {

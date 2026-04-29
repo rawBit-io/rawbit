@@ -192,13 +192,13 @@ describe("FlowCanvas", () => {
     const passedEdges = reactFlowSpy.props.edges as Edge[];
     const passedNodes = reactFlowSpy.props.nodes as FlowNode[];
     expect(() => structuredClone(passedEdges)).not.toThrow();
-    expect(passedEdges).toHaveLength(7);
+    expect(passedEdges).toHaveLength(4);
     expect(
       passedNodes.filter((node) => node.type === GROUP_BUNDLE_PORT_NODE_TYPE)
     ).toHaveLength(2);
-    expect(passedEdges.filter((edge) => edge.hidden)).toHaveLength(2);
+    expect(passedEdges.filter((edge) => edge.hidden)).toHaveLength(0);
     expect(passedEdges.filter((edge) => isGroupBundleSegmentEdgeId(edge.id)))
-      .toHaveLength(4);
+      .toHaveLength(3);
     expect(
       passedEdges.find((edge) => edge.id === "__group_bundle__:group-a->group-b")
     ).toMatchObject({
@@ -342,7 +342,7 @@ describe("FlowCanvas", () => {
     const segmentEdge = passedEdges.find(
       (edge) =>
         isGroupBundleSegmentEdgeId(edge.id) &&
-        edge.id.includes("source:group-a->group-b:edge-1")
+        edge.id.includes("source:group-a->group-b:a1")
     );
     expect(segmentEdge).toBeDefined();
 
