@@ -79,6 +79,11 @@ interface GroupBundledElements {
   edges: Edge[];
 }
 
+interface GroupBundleCanonicalElements {
+  nodes: FlowNode[];
+  edges: Edge[];
+}
+
 const asFiniteNumber = (value: unknown): number | undefined => {
   const numeric = Number(value);
   return Number.isFinite(numeric) ? numeric : undefined;
@@ -176,6 +181,47 @@ export const isGroupBundleSegmentEdgeId = (edgeId: string): boolean =>
 export const isGroupBundleVisualEdgeId = (edgeId: string): boolean =>
   isGroupBundleEdgeId(edgeId) || isGroupBundleSegmentEdgeId(edgeId);
 
+export const stripGroupBundlePortNodes = <T extends { id: string }>(
+  nodes: T[]
+): T[] =>
+  nodes.some((node) => isGroupBundlePortNodeId(node.id))
+    ? nodes.filter((node) => !isGroupBundlePortNodeId(node.id))
+    : nodes;
+
+export const stripGroupBundleVisualEdges = <T extends { id: string }>(
+  edges: T[]
+): T[] =>
+  edges.some((edge) => isGroupBundleVisualEdgeId(edge.id))
+    ? edges.filter((edge) => !isGroupBundleVisualEdgeId(edge.id))
+    : edges;
+
+export const sanitizeGroupBundleRenderEdgesForState = (
+  edges: Edge[]
+): Edge[] => {
+  const sourceEdges = stripGroupBundleVisualEdges(edges);
+  let changed = sourceEdges !== edges;
+  const sanitizedEdges = sourceEdges.map((edge) => {
+    if (edge.hidden !== true) return edge;
+    changed = true;
+    const nextEdge = { ...edge };
+    delete nextEdge.hidden;
+    return nextEdge;
+  });
+
+  return changed ? sanitizedEdges : edges;
+};
+
+export const sanitizeGroupBundleVisualElementsForState = ({
+  nodes,
+  edges,
+}: {
+  nodes: FlowNode[];
+  edges: Edge[];
+}): GroupBundleCanonicalElements => ({
+  nodes: stripGroupBundlePortNodes(nodes),
+  edges: sanitizeGroupBundleRenderEdgesForState(edges),
+});
+
 export const getGroupBundleSegmentEdgeIds = (edge: Edge): string[] => {
   const bundledEdgeIds = (edge.data as GroupBundleSegmentEdgeData | undefined)
     ?.bundledEdgeIds;
@@ -260,27 +306,28 @@ export const buildGroupBundledElements = ({
   nodes: FlowNode[];
   edges: Edge[];
 }): GroupBundledElements => {
+  const sourceNodes = stripGroupBundlePortNodes(nodes);
+  const sourceEdges = stripGroupBundleVisualEdges(edges);
   const groupRects = new Map<string, GroupRect>();
   const nodeToGroup = new Map<string, string>();
 
-  for (const node of nodes) {
+  for (const node of sourceNodes) {
     if (node.type === "shadcnGroup") {
       groupRects.set(node.id, groupRect(node));
       nodeToGroup.set(node.id, node.id);
     }
   }
 
-  for (const node of nodes) {
+  for (const node of sourceNodes) {
     if (!node.parentId || !groupRects.has(node.parentId)) continue;
     nodeToGroup.set(node.id, node.parentId);
   }
 
-  if (groupRects.size < 2) return { nodes, edges };
+  if (groupRects.size < 2) return { nodes: sourceNodes, edges: sourceEdges };
 
   const bundlesByPair = new Map<string, BundleAccumulator>();
 
-  for (const edge of edges) {
-    if (isGroupBundleVisualEdgeId(edge.id)) continue;
+  for (const edge of sourceEdges) {
     const sourceGroupId = nodeToGroup.get(edge.source);
     const targetGroupId = nodeToGroup.get(edge.target);
     if (!sourceGroupId || !targetGroupId) continue;
@@ -435,9 +482,9 @@ export const buildGroupBundledElements = ({
     });
   }
 
-  if (bundleEdges.length === 0) return { nodes, edges };
+  if (bundleEdges.length === 0) return { nodes: sourceNodes, edges: sourceEdges };
 
-  const renderedEdges = edges.map((edge) =>
+  const renderedEdges = sourceEdges.map((edge) =>
     bundledEdgeIds.has(edge.id || edgeFallbackId(edge))
       ? { ...edge, hidden: true }
       : edge
@@ -471,7 +518,7 @@ export const buildGroupBundledElements = ({
   });
 
   return {
-    nodes: [...nodes, ...portNodes],
+    nodes: [...sourceNodes, ...portNodes],
     edges: [...renderedEdges, ...segmentEdges, ...sortedBundleEdges],
   };
 };

@@ -3,6 +3,7 @@ import type { Edge } from "@xyflow/react";
 import type { FlowNode, ProtocolDiagramLayout } from "@/types";
 import { shareFlow } from "@/lib/share";
 import { buildSharePayload } from "@/lib/share/buildSharePayload";
+import { sanitizeGroupBundleVisualElementsForState } from "@/lib/flow/groupEdgeBundling";
 
 interface UseShareFlowOptions {
   getNodes: () => FlowNode[];
@@ -52,9 +53,13 @@ export function useShareFlow({
   }, []);
 
   const requestShare = useCallback(async () => {
+    const canonicalGraph = sanitizeGroupBundleVisualElementsForState({
+      nodes: getNodes(),
+      edges: getEdges(),
+    });
     const payload = buildSharePayload(
-      getNodes(),
-      getEdges(),
+      canonicalGraph.nodes,
+      canonicalGraph.edges,
       getProtocolDiagramLayout?.()
     );
 

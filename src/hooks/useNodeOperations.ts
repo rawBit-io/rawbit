@@ -54,6 +54,11 @@ import {
   remapProtocolDiagramLayout,
   sanitizeProtocolDiagramLayout,
 } from "@/lib/protocolDiagram/layoutPersistence";
+import {
+  sanitizeGroupBundleRenderEdgesForState,
+  sanitizeGroupBundleVisualElementsForState,
+  stripGroupBundlePortNodes,
+} from "@/lib/flow/groupEdgeBundling";
 
 /* ------------------------------------------------------------------ */
 /*  Types & tiny utils                                                */
@@ -230,7 +235,7 @@ export function useNodeOperations(options: UseNodeOperationsOptions = {}) {
     (inst: RF) => {
       setRF(inst);
 
-      const allNodes = inst.getNodes() as FlowNode[];
+      const allNodes = stripGroupBundlePortNodes(inst.getNodes() as FlowNode[]);
 
       // Only mark nodes that need parent checking (not already parented, not groups)
       allNodes.forEach((node) => {
@@ -465,13 +470,17 @@ export function useNodeOperations(options: UseNodeOperationsOptions = {}) {
         );
 
         // ② run the stable-id merge (only rename on conflicts)
+        const currentGraph = sanitizeGroupBundleVisualElementsForState({
+          nodes: rf.getNodes() as FlowNode[],
+          edges: rf.getEdges(),
+        });
         const {
           nodes: sub,
           edges: subE,
           idMap,
         } = importWithFreshIds<FlowNode, Edge>({
-          currentNodes: rf.getNodes(),
-          currentEdges: rf.getEdges(),
+          currentNodes: currentGraph.nodes,
+          currentEdges: currentGraph.edges,
           importNodes: translated.nodes,
           importEdges: translated.edges,
           dedupeEdges: true,
@@ -480,8 +489,7 @@ export function useNodeOperations(options: UseNodeOperationsOptions = {}) {
 
         const sanitizedSub = ingestScriptSteps(sub);
 
-        const currentNodes = rf.getNodes() as FlowNode[];
-        const nextNodes = [...currentNodes, ...sanitizedSub];
+        const nextNodes = [...currentGraph.nodes, ...sanitizedSub];
         const importedLayout = sanitizeProtocolDiagramLayout(
           (maybeFlowData as FlowData).protocolDiagramLayout,
           collectGroupNodeIds((maybeFlowData as FlowData).nodes)
@@ -493,7 +501,7 @@ export function useNodeOperations(options: UseNodeOperationsOptions = {}) {
         );
         const currentLayout = sanitizeProtocolDiagramLayout(
           getProtocolDiagramLayout?.(),
-          collectGroupNodeIds(currentNodes)
+          collectGroupNodeIds(currentGraph.nodes)
         );
         const mergedLayout = mergeProtocolDiagramLayout(
           currentLayout,
@@ -504,8 +512,11 @@ export function useNodeOperations(options: UseNodeOperationsOptions = {}) {
         }
 
         // ③ append to canvas
-        setNodes((nds) => [...nds, ...sanitizedSub]);
-        setEdges((eds) => [...eds, ...subE]);
+        setNodes((nds) => [...stripGroupBundlePortNodes(nds), ...sanitizedSub]);
+        setEdges((eds) => [
+          ...sanitizeGroupBundleRenderEdgesForState(eds),
+          ...subE,
+        ]);
 
         // ④ downstream: adopt parenting + resize groups (unchanged)
         sanitizedSub.forEach((n) => {

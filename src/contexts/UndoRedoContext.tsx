@@ -18,6 +18,7 @@ import {
   SnapshotCalcState,
   UndoRedoContextValue,
 } from "@/contexts/undo-redo";
+import { sanitizeGroupBundleVisualElementsForState } from "@/lib/flow/groupEdgeBundling";
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -91,10 +92,11 @@ export function UndoRedoProvider({ children }: { children: ReactNode }) {
       `[history] initialize tab=${tabId} nodes=${nodes.length} edges=${edges.length}`
     );
 
-    const clonedNodes = ingestScriptSteps(cloneValue(nodes));
+    const canonical = sanitizeGroupBundleVisualElementsForState({ nodes, edges });
+    const clonedNodes = ingestScriptSteps(cloneValue(canonical.nodes));
     const initialSnapshot: GraphSnapshot = {
       nodes: clonedNodes,
-      edges: cloneValue(edges),
+      edges: cloneValue(canonical.edges),
       label: "Initial snapshot",
       scriptSteps: snapshotScriptSteps(),
       calcState: {
@@ -127,7 +129,8 @@ export function UndoRedoProvider({ children }: { children: ReactNode }) {
     edges: Edge[],
     labelOrOptions?: string | PushStateOptions
   ) => {
-    const clonedNodes = ingestScriptSteps(cloneValue(nodes));
+    const canonical = sanitizeGroupBundleVisualElementsForState({ nodes, edges });
+    const clonedNodes = ingestScriptSteps(cloneValue(canonical.nodes));
     const options =
       typeof labelOrOptions === "string"
         ? { label: labelOrOptions }
@@ -136,7 +139,7 @@ export function UndoRedoProvider({ children }: { children: ReactNode }) {
       options.label ?? `Snapshot #${history.length + 1}`;
     const newSnap: GraphSnapshot = {
       nodes: clonedNodes,
-      edges: cloneValue(edges),
+      edges: cloneValue(canonical.edges),
       label,
       scriptSteps: snapshotScriptSteps(),
       calcState: cloneCalcState(options.calcState),

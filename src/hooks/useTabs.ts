@@ -28,6 +28,7 @@ import {
   protocolDiagramLayoutEquals,
   sanitizeProtocolDiagramLayout,
 } from "@/lib/protocolDiagram/layoutPersistence";
+import { sanitizeGroupBundleVisualElementsForState } from "@/lib/flow/groupEdgeBundling";
 
 export interface FlowTab {
   id: string;
@@ -736,15 +737,24 @@ export function useTabs({
       if (idx < 0 && !hasExplicitData) return;
       const force = options?.force === true;
 
-      const currentNodes = options?.data?.nodes ?? getNodes();
+      const rawCurrentNodes = options?.data?.nodes ?? getNodes();
       const rawCurrentEdges = options?.data?.edges ?? getEdges();
-      const currentEdges = filterEdgesForNodes(currentNodes, rawCurrentEdges);
-      if (currentEdges.length !== rawCurrentEdges.length) {
+      const canonicalGraph = sanitizeGroupBundleVisualElementsForState({
+        nodes: rawCurrentNodes,
+        edges: rawCurrentEdges,
+      });
+      const currentNodes = canonicalGraph.nodes;
+      const canonicalCurrentEdges = canonicalGraph.edges;
+      const currentEdges = filterEdgesForNodes(
+        currentNodes,
+        canonicalCurrentEdges
+      );
+      if (currentEdges.length !== canonicalCurrentEdges.length) {
         console.warn(
           "Skipped dangling edges while persisting tab archive",
           {
             tabId,
-            skippedEdges: rawCurrentEdges.length - currentEdges.length,
+            skippedEdges: canonicalCurrentEdges.length - currentEdges.length,
           }
         );
       }

@@ -85,7 +85,13 @@ import {
   collectGroupNodeIds,
   sanitizeProtocolDiagramLayout,
 } from "@/lib/protocolDiagram/layoutPersistence";
-import { GROUP_BUNDLE_PORT_NODE_TYPE } from "@/lib/flow/groupEdgeBundling";
+import {
+  GROUP_BUNDLE_PORT_NODE_TYPE,
+  isGroupBundleVisualEdgeId,
+  sanitizeGroupBundleVisualElementsForState,
+  stripGroupBundlePortNodes,
+  stripGroupBundleVisualEdges,
+} from "@/lib/flow/groupEdgeBundling";
 
 const COLORABLE_NODE_TYPES = new Set([
   "calculation",
@@ -557,7 +563,10 @@ function FlowContent() {
   const hasSelectionRef = useRef(hasSelection);
   const canvasSelectedEdgeIds = useStore(
     useCallback(
-      (s: { edges: Edge[] }) => s.edges.filter((e) => e.selected).map((e) => e.id),
+      (s: { edges: Edge[] }) =>
+        s.edges
+          .filter((e) => e.selected && !isGroupBundleVisualEdgeId(e.id))
+          .map((e) => e.id),
       []
     ),
     (a, b) => a.length === b.length && a.every((id, i) => id === b[i])
@@ -738,8 +747,8 @@ function FlowContent() {
     // If parent state is correct but the store is missing nodes/edges, force-
     // sync the store and re-trigger node measurement instead of bailing out.
     const storeState = storeApi.getState();
-    const storeNodes = storeState.nodes as FlowNode[];
-    const storeEdges = storeState.edges;
+    const storeNodes = stripGroupBundlePortNodes(storeState.nodes as FlowNode[]);
+    const storeEdges = stripGroupBundleVisualEdges(storeState.edges);
     const storeNodesStale =
       storeNodes.length !== pending.nodes.length ||
       !storeNodes.every((node, index) => node.id === pending.nodes[index]?.id);
@@ -811,8 +820,10 @@ function FlowContent() {
         // First, repair the React Flow internal store if it's behind parent
         // state — this is the actual failure mode for the Safari edge bug.
         const storeState = storeApi.getState();
-        const storeNodes = storeState.nodes as FlowNode[];
-        const storeEdges = storeState.edges;
+        const storeNodes = stripGroupBundlePortNodes(
+          storeState.nodes as FlowNode[]
+        );
+        const storeEdges = stripGroupBundleVisualEdges(storeState.edges);
         const storeNodesStale =
           storeNodes.length !== expectedNodes.length ||
           !storeNodes.every(
@@ -1928,11 +1939,15 @@ function FlowContent() {
     pendingSnapshotRef.current = false;
     skipNextEdgeSnapshotRef.current = false;
     clearHighlights();
-    const restoredNodes = snap.nodes.map((n: FlowNode) => ({
+    const canonicalSnap = sanitizeGroupBundleVisualElementsForState({
+      nodes: snap.nodes,
+      edges: snap.edges,
+    });
+    const restoredNodes = canonicalSnap.nodes.map((n: FlowNode) => ({
       ...n,
       data: { ...n.data, dirty: false },
     }));
-    const restoredEdges = snap.edges.map((e: Edge) => ({
+    const restoredEdges = canonicalSnap.edges.map((e: Edge) => ({
       ...e,
       ...(e.data ? { data: { ...e.data } } : {}),
     }));

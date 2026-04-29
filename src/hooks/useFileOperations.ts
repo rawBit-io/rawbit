@@ -80,6 +80,7 @@ import {
   remapProtocolDiagramLayout,
   sanitizeProtocolDiagramLayout,
 } from "@/lib/protocolDiagram/layoutPersistence";
+import { sanitizeGroupBundleVisualElementsForState } from "@/lib/flow/groupEdgeBundling";
 
 // Strip ephemeral UI fields from saved JSON
 const omitUIState = (key: string, value: unknown) =>
@@ -343,7 +344,11 @@ export function useFileOperations(
 
   /* ─────────────────────  SAVE FULL FLOW (unchanged)  ─────────────────── */
   const saveFlow = useCallback(() => {
-    const nodesWithSteps = hydrateNodesWithScriptSteps(nodes);
+    const canonicalGraph = sanitizeGroupBundleVisualElementsForState({
+      nodes,
+      edges,
+    });
+    const nodesWithSteps = hydrateNodesWithScriptSteps(canonicalGraph.nodes);
     const groupIds = collectGroupNodeIds(nodesWithSteps);
     const protocolDiagramLayout = sanitizeProtocolDiagramLayout(
       importOptions?.getProtocolDiagramLayout?.(),
@@ -365,7 +370,7 @@ export function useFileOperations(
         height: n.height,
         dragHandle: n.dragHandle,
       })),
-      edges: edges.map((e) => ({ ...e })),
+      edges: canonicalGraph.edges.map((e) => ({ ...e })),
       protocolDiagramLayout,
     };
 
@@ -642,12 +647,17 @@ export function useFileOperations(
   );
 
   const buildSimplifiedSnapshot = useCallback(() => {
-    const selectedNodes = nodes.filter((n) => n.selected);
-    const nodesToSave = selectedNodes.length > 0 ? selectedNodes : nodes;
+    const canonicalGraph = sanitizeGroupBundleVisualElementsForState({
+      nodes,
+      edges,
+    });
+    const selectedNodes = canonicalGraph.nodes.filter((n) => n.selected);
+    const nodesToSave =
+      selectedNodes.length > 0 ? selectedNodes : canonicalGraph.nodes;
     const nodesWithSteps = hydrateNodesWithScriptSteps(nodesToSave);
 
     const nodeIdSet = new Set(nodesToSave.map((n) => n.id));
-    const edgesToSave = edges.filter(
+    const edgesToSave = canonicalGraph.edges.filter(
       (e) => nodeIdSet.has(e.source) && nodeIdSet.has(e.target)
     );
 
