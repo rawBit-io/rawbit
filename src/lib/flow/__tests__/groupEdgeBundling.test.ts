@@ -5,7 +5,6 @@ import {
   buildGroupBundledEdges,
   GROUP_BUNDLE_EDGE_ID_PREFIX,
   GROUP_BUNDLE_SEGMENT_EDGE_ID_PREFIX,
-  type GroupBundleEdgeData,
 } from "@/lib/flow/groupEdgeBundling";
 import p14MuSig2 from "@/my_tx_flows/p14_MuSig2.json";
 import { buildEdge, buildFlowNode } from "@/test-utils/types";
@@ -72,28 +71,9 @@ describe("buildGroupBundledEdges", () => {
         sourceLabel: "Inputs",
         targetLabel: "Outputs",
         sourceBoundaryPoint: { x: 300, y: 100 },
-        sourceInsidePoint: { x: 288, y: 100 },
-        sourcePoint: { x: 328, y: 100 },
         targetBoundaryPoint: { x: 500, y: 100 },
-        targetInsidePoint: { x: 512, y: 100 },
-        targetPoint: { x: 472, y: 100 },
       },
     });
-    const data = bundle?.data as GroupBundleEdgeData | undefined;
-    expect(data?.sourceTerminals).toHaveLength(2);
-    expect(data?.targetTerminals).toHaveLength(2);
-    expect(data?.sourceTerminals).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ nodeId: "a1", edgeIds: ["e1"] }),
-        expect.objectContaining({ nodeId: "a2", edgeIds: ["e2"] }),
-      ])
-    );
-    expect(data?.targetTerminals).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ nodeId: "b1", edgeIds: ["e1"] }),
-        expect.objectContaining({ nodeId: "b2", edgeIds: ["e2"] }),
-      ])
-    );
   });
 
   it("leaves single cross-group edges as normal detailed edges", () => {
@@ -138,11 +118,7 @@ describe("buildGroupBundledEdges", () => {
     expect(bundle).toMatchObject({
       data: {
         sourceBoundaryPoint: { x: 300, y: 100 },
-        sourceInsidePoint: { x: 288, y: 100 },
-        sourcePoint: { x: 328, y: 100 },
         targetBoundaryPoint: { x: 0, y: 600 },
-        targetInsidePoint: { x: 12, y: 600 },
-        targetPoint: { x: -28, y: 600 },
         sourcePosition: Position.Right,
         targetPosition: Position.Left,
       },

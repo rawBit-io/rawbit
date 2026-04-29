@@ -24,7 +24,6 @@ import type { FlowNode } from "@/types";
 const fallbackPoint = { x: 0, y: 0 };
 const OUTSIDE_EDGE_WIDTH = 1.9;
 const SELECTED_OUTSIDE_EDGE_WIDTH = 2.8;
-export const GROUP_BUNDLE_EDGE_SELECT_EVENT = "rawbit:group-bundle-edge-select";
 const GroupBundleEdgeSelectionContext = createContext<
   ((edgeIds: string[]) => void) | null
 >(null);
@@ -89,10 +88,8 @@ export function GroupBundleEdge({
     [bundledSelectedEdgeIds, edgeIds, selected]
   );
 
-  const sourceFallbackPoint =
-    bundle?.sourceBoundaryPoint ?? bundle?.sourcePoint ?? fallbackPoint;
-  const targetFallbackPoint =
-    bundle?.targetBoundaryPoint ?? bundle?.targetPoint ?? fallbackPoint;
+  const sourceFallbackPoint = bundle?.sourceBoundaryPoint ?? fallbackPoint;
+  const targetFallbackPoint = bundle?.targetBoundaryPoint ?? fallbackPoint;
   const sourceBoundaryPoint = pointFromEdgeCoordinates(
     sourceX,
     sourceY,
@@ -120,21 +117,12 @@ export function GroupBundleEdge({
       event.preventDefault();
       event.stopPropagation();
 
-      const selectedEdgeIds = new Set(idsToSelect);
-
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(
-          new CustomEvent(GROUP_BUNDLE_EDGE_SELECT_EVENT, {
-            detail: { edgeIds: idsToSelect },
-          })
-        );
-        return;
-      }
-
       if (onSelectEdgeIds) {
         onSelectEdgeIds(idsToSelect);
         return;
       }
+
+      const selectedEdgeIds = new Set(idsToSelect);
 
       reactFlow.setNodes((currentNodes) => {
         let changed = false;

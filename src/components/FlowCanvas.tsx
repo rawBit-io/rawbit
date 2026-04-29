@@ -20,10 +20,9 @@ import {
 } from "@xyflow/react";
 import { cn } from "@/lib/utils";
 import type { FlowNode } from "@/types";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { DragEvent } from "react";
 import {
-  GROUP_BUNDLE_EDGE_SELECT_EVENT,
   GroupBundleEdge,
   GroupBundleEdgeSelectionProvider,
 } from "@/components/edges/GroupBundleEdge";
@@ -266,31 +265,6 @@ export function FlowCanvas({
     },
     [onPaneClick]
   );
-
-  useEffect(() => {
-    const handleBundleEdgeSelectEvent = (event: Event) => {
-      const edgeIds = (event as CustomEvent<{ edgeIds?: unknown }>).detail
-        ?.edgeIds;
-      if (
-        !Array.isArray(edgeIds) ||
-        !edgeIds.every((edgeId) => typeof edgeId === "string")
-      ) {
-        return;
-      }
-      handleBundleEdgeSelect(edgeIds);
-    };
-
-    window.addEventListener(
-      GROUP_BUNDLE_EDGE_SELECT_EVENT,
-      handleBundleEdgeSelectEvent
-    );
-    return () => {
-      window.removeEventListener(
-        GROUP_BUNDLE_EDGE_SELECT_EVENT,
-        handleBundleEdgeSelectEvent
-      );
-    };
-  }, [handleBundleEdgeSelect]);
 
   return (
     <GroupBundleEdgeSelectionProvider onSelectEdgeIds={handleBundleEdgeSelect}>

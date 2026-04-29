@@ -67,6 +67,8 @@ cross-group edges stay normal.
   from target boundary ports to target nodes.
 - Click/highlight behavior that maps bundle visuals back to the represented
   original edge ids.
+- Bundle selection is scoped through the local canvas provider, not a global
+  browser event, so future secondary canvases do not receive each other's clicks.
 - Tests for bundle construction, render-layer filtering, segment clicks, and
   outside bundle selection.
 
@@ -113,6 +115,8 @@ future edge tooling.
 - Do not make generated port nodes selectable, draggable, connectable, or
   deletable.
 - Preserve original edge ids in generated edge data.
+- Keep bundle render data small; add metadata only when current rendering or
+  selection code consumes it.
 - Keep generated ids deterministic.
 - Treat MuSig2 as the primary visual regression fixture.
 

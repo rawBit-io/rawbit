@@ -12,10 +12,6 @@ export const GROUP_BUNDLE_PORT_TARGET_HANDLE = "in";
 
 const DEFAULT_GROUP_WIDTH = 380;
 const DEFAULT_GROUP_HEIGHT = 220;
-const DEFAULT_NODE_WIDTH = 260;
-const DEFAULT_NODE_HEIGHT = 120;
-const BUNDLE_BOUNDARY_OFFSET = 28;
-const BUNDLE_BOUNDARY_INSET = 12;
 const MIN_BUNDLE_EDGE_COUNT = 2;
 const BUNDLE_PORT_NODE_SIZE = 12;
 
@@ -33,27 +29,10 @@ interface GroupRect {
   height: number;
 }
 
-interface NodeRect {
-  id: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
 interface BundleAccumulator {
   sourceGroupId: string;
   targetGroupId: string;
-  representativeSourceNodeId: string;
-  representativeTargetNodeId: string;
-  representativeSourceHandle?: string | null;
-  representativeTargetHandle?: string | null;
   edgeIds: string[];
-  endpointNodeIds: Set<string>;
-  sourceNodeIds: Set<string>;
-  targetNodeIds: Set<string>;
-  sourceEdgesByNodeId: Map<string, GroupBundleTerminalEdge[]>;
-  targetEdgesByNodeId: Map<string, GroupBundleTerminalEdge[]>;
   edgeRefs: GroupBundleEdgeRef[];
   selectedEdgeIds: Set<string>;
   selected: boolean;
@@ -67,41 +46,18 @@ interface GroupBundleEdgeRef {
   targetHandle?: string | null;
 }
 
-export interface GroupBundleTerminalEdge {
-  edgeId: string;
-  handleId?: string | null;
-}
-
-export interface GroupBundleTerminal {
-  nodeId: string;
-  point: Point;
-  edgeIds: string[];
-  edges: GroupBundleTerminalEdge[];
-}
-
 export interface GroupBundleEdgeData extends Record<string, unknown> {
   bundledEdgeIds: string[];
   selectedEdgeIds: string[];
-  endpointNodeIds: string[];
   count: number;
   sourceGroupId: string;
   targetGroupId: string;
   sourceLabel: string;
   targetLabel: string;
-  sourcePoint: Point;
-  targetPoint: Point;
   sourceBoundaryPoint: Point;
   targetBoundaryPoint: Point;
-  sourceInsidePoint: Point;
-  targetInsidePoint: Point;
-  sourceTerminals: GroupBundleTerminal[];
-  targetTerminals: GroupBundleTerminal[];
   renderSourcePort: boolean;
   renderTargetPort: boolean;
-  sourceBundleLaneIndex: number;
-  sourceBundleLaneCount: number;
-  targetBundleLaneIndex: number;
-  targetBundleLaneCount: number;
   sourcePosition: Position;
   targetPosition: Position;
 }
@@ -154,48 +110,6 @@ const groupRect = (node: FlowNode): GroupRect => {
   };
 };
 
-const nodeRect = (
-  node: FlowNode,
-  groupRects: Map<string, GroupRect>
-): NodeRect => {
-  const data = node.data as NodeData | undefined;
-  const parentRect = node.parentId ? groupRects.get(node.parentId) : undefined;
-  return {
-    id: node.id,
-    x:
-      node.positionAbsolute?.x ??
-      (parentRect ? parentRect.x + node.position.x : node.position.x),
-    y:
-      node.positionAbsolute?.y ??
-      (parentRect ? parentRect.y + node.position.y : node.position.y),
-    width:
-      asFiniteNumber(data?.width) ??
-      asFiniteNumber(node.width) ??
-      asFiniteNumber(node.measured?.width) ??
-      DEFAULT_NODE_WIDTH,
-    height:
-      asFiniteNumber(data?.height) ??
-      asFiniteNumber(node.height) ??
-      asFiniteNumber(node.measured?.height) ??
-      DEFAULT_NODE_HEIGHT,
-  };
-};
-
-const outwardVector = (side: Position): Point => {
-  switch (side) {
-    case Position.Left:
-      return { x: -1, y: 0 };
-    case Position.Right:
-      return { x: 1, y: 0 };
-    case Position.Top:
-      return { x: 0, y: -1 };
-    case Position.Bottom:
-      return { x: 0, y: 1 };
-    default:
-      return { x: 1, y: 0 };
-  }
-};
-
 const centerOf = (rect: GroupRect): Point => ({
   x: rect.x + rect.width / 2,
   y: rect.y + rect.height / 2,
@@ -206,8 +120,6 @@ const boundaryAnchor = (
   position: Position
 ): {
   boundaryPoint: Point;
-  insidePoint: Point;
-  outsidePoint: Point;
   position: Position;
 } => {
   const center = centerOf(rect);
@@ -240,54 +152,17 @@ const boundaryAnchor = (
         };
     }
   })();
-  const outward = outwardVector(position);
 
   return {
     boundaryPoint,
-    insidePoint: {
-      x: boundaryPoint.x - outward.x * BUNDLE_BOUNDARY_INSET,
-      y: boundaryPoint.y - outward.y * BUNDLE_BOUNDARY_INSET,
-    },
-    outsidePoint: {
-      x: boundaryPoint.x + outward.x * BUNDLE_BOUNDARY_OFFSET,
-      y: boundaryPoint.y + outward.y * BUNDLE_BOUNDARY_OFFSET,
-    },
     position,
   };
-};
-
-const nodeBoundaryPoint = (rect: NodeRect, side: Position): Point => {
-  switch (side) {
-    case Position.Left:
-      return { x: rect.x, y: rect.y + rect.height / 2 };
-    case Position.Right:
-      return { x: rect.x + rect.width, y: rect.y + rect.height / 2 };
-    case Position.Top:
-      return { x: rect.x + rect.width / 2, y: rect.y };
-    case Position.Bottom:
-      return { x: rect.x + rect.width / 2, y: rect.y + rect.height };
-    default:
-      return { x: rect.x + rect.width, y: rect.y + rect.height / 2 };
-  }
 };
 
 const edgeFallbackId = (edge: Edge): string =>
   `${edge.source}:${edge.sourceHandle ?? ""}->${edge.target}:${
     edge.targetHandle ?? ""
   }`;
-
-const addEdgeForNode = (
-  nodeEdges: Map<string, GroupBundleTerminalEdge[]>,
-  nodeId: string,
-  edge: GroupBundleTerminalEdge
-) => {
-  const current = nodeEdges.get(nodeId);
-  if (current) {
-    current.push(edge);
-    return;
-  }
-  nodeEdges.set(nodeId, [edge]);
-};
 
 export const isGroupBundleEdgeId = (edgeId: string): boolean =>
   edgeId.startsWith(GROUP_BUNDLE_EDGE_ID_PREFIX);
@@ -386,7 +261,6 @@ export const buildGroupBundledElements = ({
   edges: Edge[];
 }): GroupBundledElements => {
   const groupRects = new Map<string, GroupRect>();
-  const nodeById = new Map(nodes.map((node) => [node.id, node] as const));
   const nodeToGroup = new Map<string, string>();
 
   for (const node of nodes) {
@@ -417,48 +291,16 @@ export const buildGroupBundledElements = ({
     const edgeId = edge.id || edgeFallbackId(edge);
     if (existing) {
       existing.edgeIds.push(edgeId);
-      existing.endpointNodeIds.add(edge.source);
-      existing.endpointNodeIds.add(edge.target);
-      existing.sourceNodeIds.add(edge.source);
-      existing.targetNodeIds.add(edge.target);
-      addEdgeForNode(existing.sourceEdgesByNodeId, edge.source, {
-        edgeId,
-        handleId: edge.sourceHandle,
-      });
-      addEdgeForNode(existing.targetEdgesByNodeId, edge.target, {
-        edgeId,
-        handleId: edge.targetHandle,
-      });
       existing.edgeRefs.push(toBundleEdgeRef(edge, edgeId));
       if (edge.selected === true) existing.selectedEdgeIds.add(edgeId);
       existing.selected = existing.selected || edge.selected === true;
       continue;
     }
 
-    const sourceEdgesByNodeId = new Map<string, GroupBundleTerminalEdge[]>();
-    const targetEdgesByNodeId = new Map<string, GroupBundleTerminalEdge[]>();
-    addEdgeForNode(sourceEdgesByNodeId, edge.source, {
-      edgeId,
-      handleId: edge.sourceHandle,
-    });
-    addEdgeForNode(targetEdgesByNodeId, edge.target, {
-      edgeId,
-      handleId: edge.targetHandle,
-    });
-
     bundlesByPair.set(key, {
       sourceGroupId,
       targetGroupId,
-      representativeSourceNodeId: edge.source,
-      representativeTargetNodeId: edge.target,
-      representativeSourceHandle: edge.sourceHandle,
-      representativeTargetHandle: edge.targetHandle,
       edgeIds: [edgeId],
-      endpointNodeIds: new Set([edge.source, edge.target]),
-      sourceNodeIds: new Set([edge.source]),
-      targetNodeIds: new Set([edge.target]),
-      sourceEdgesByNodeId,
-      targetEdgesByNodeId,
       edgeRefs: [toBundleEdgeRef(edge, edgeId)],
       selectedEdgeIds: edge.selected === true ? new Set([edgeId]) : new Set(),
       selected: edge.selected === true,
@@ -500,55 +342,6 @@ export const buildGroupBundledElements = ({
           (edgeIdOrder.get(a) ?? Number.MAX_SAFE_INTEGER) -
             (edgeIdOrder.get(b) ?? Number.MAX_SAFE_INTEGER) ||
           a.localeCompare(b)
-      );
-    const sortTerminalEdges = (terminalEdges: GroupBundleTerminalEdge[]) =>
-      [...terminalEdges].sort(
-        (a, b) =>
-          (edgeIdOrder.get(a.edgeId) ?? Number.MAX_SAFE_INTEGER) -
-            (edgeIdOrder.get(b.edgeId) ?? Number.MAX_SAFE_INTEGER) ||
-          a.edgeId.localeCompare(b.edgeId)
-      );
-    const sourceTerminals = Array.from(bundle.sourceNodeIds)
-      .sort((a, b) => a.localeCompare(b))
-      .map((nodeId) => {
-        const sourceNode = nodeById.get(nodeId);
-        if (!sourceNode) return null;
-        const terminalEdges = sortTerminalEdges(
-          bundle.sourceEdgesByNodeId.get(nodeId) ?? []
-        );
-        return {
-          nodeId,
-          point: nodeBoundaryPoint(
-            nodeRect(sourceNode, groupRects),
-            sourceAnchor.position
-          ),
-          edgeIds: terminalEdges.map((edge) => edge.edgeId),
-          edges: terminalEdges,
-        } satisfies GroupBundleTerminal;
-      })
-      .filter((terminal): terminal is GroupBundleTerminal =>
-        Boolean(terminal)
-      );
-    const targetTerminals = Array.from(bundle.targetNodeIds)
-      .sort((a, b) => a.localeCompare(b))
-      .map((nodeId) => {
-        const targetNode = nodeById.get(nodeId);
-        if (!targetNode) return null;
-        const terminalEdges = sortTerminalEdges(
-          bundle.targetEdgesByNodeId.get(nodeId) ?? []
-        );
-        return {
-          nodeId,
-          point: nodeBoundaryPoint(
-            nodeRect(targetNode, groupRects),
-            targetAnchor.position
-          ),
-          edgeIds: terminalEdges.map((edge) => edge.edgeId),
-          edges: terminalEdges,
-        } satisfies GroupBundleTerminal;
-      })
-      .filter((terminal): terminal is GroupBundleTerminal =>
-        Boolean(terminal)
       );
 
     const selectedEdgeIds = sortEdgeIds(bundle.selectedEdgeIds);
@@ -627,28 +420,15 @@ export const buildGroupBundledElements = ({
       data: {
         bundledEdgeIds: bundle.edgeIds,
         selectedEdgeIds,
-        endpointNodeIds: Array.from(bundle.endpointNodeIds).sort((a, b) =>
-          a.localeCompare(b)
-        ),
         count: bundle.edgeIds.length,
         sourceGroupId: bundle.sourceGroupId,
         targetGroupId: bundle.targetGroupId,
         sourceLabel: sourceRect.label,
         targetLabel: targetRect.label,
-        sourcePoint: sourceAnchor.outsidePoint,
-        targetPoint: targetAnchor.outsidePoint,
         sourceBoundaryPoint: sourceAnchor.boundaryPoint,
         targetBoundaryPoint: targetAnchor.boundaryPoint,
-        sourceInsidePoint: sourceAnchor.insidePoint,
-        targetInsidePoint: targetAnchor.insidePoint,
-        sourceTerminals,
-        targetTerminals,
         renderSourcePort: true,
         renderTargetPort: true,
-        sourceBundleLaneIndex: 0,
-        sourceBundleLaneCount: 1,
-        targetBundleLaneIndex: 0,
-        targetBundleLaneCount: 1,
         sourcePosition: sourceAnchor.position,
         targetPosition: targetAnchor.position,
       },
@@ -668,86 +448,10 @@ export const buildGroupBundledElements = ({
   const sortedBundleEdgeSeeds = bundleEdges.sort((a, b) =>
     a.id.localeCompare(b.id)
   );
-  const bundleLaneByEdgeId = new Map<
-    string,
-    {
-      sourceBundleLaneIndex: number;
-      sourceBundleLaneCount: number;
-      targetBundleLaneIndex: number;
-      targetBundleLaneCount: number;
-    }
-  >();
-  const assignBundleLanes = (
-    groupedEdges: Map<string, Edge<GroupBundleEdgeData>[]>,
-    side: "source" | "target"
-  ) => {
-    for (const groupEdges of groupedEdges.values()) {
-      const laneCount = groupEdges.length;
-      groupEdges
-        .sort((a, b) => {
-          const aData = a.data;
-          const bData = b.data;
-          if (!aData || !bData) return a.id.localeCompare(b.id);
-          const aPoint =
-            side === "source"
-              ? aData.targetBoundaryPoint
-              : aData.sourceBoundaryPoint;
-          const bPoint =
-            side === "source"
-              ? bData.targetBoundaryPoint
-              : bData.sourceBoundaryPoint;
-          return (
-            aPoint.y - bPoint.y ||
-            aPoint.x - bPoint.x ||
-            a.id.localeCompare(b.id)
-          );
-        })
-        .forEach((edge, laneIndex) => {
-          const current = bundleLaneByEdgeId.get(edge.id) ?? {
-            sourceBundleLaneIndex: 0,
-            sourceBundleLaneCount: 1,
-            targetBundleLaneIndex: 0,
-            targetBundleLaneCount: 1,
-          };
-          if (side === "source") {
-            current.sourceBundleLaneIndex = laneIndex;
-            current.sourceBundleLaneCount = laneCount;
-          } else {
-            current.targetBundleLaneIndex = laneIndex;
-            current.targetBundleLaneCount = laneCount;
-          }
-          bundleLaneByEdgeId.set(edge.id, current);
-        });
-    }
-  };
-  const sourceBundlesByGroup = new Map<string, Edge<GroupBundleEdgeData>[]>();
-  const targetBundlesByGroup = new Map<string, Edge<GroupBundleEdgeData>[]>();
-
-  for (const edge of sortedBundleEdgeSeeds) {
-    const data = edge.data;
-    if (!data) continue;
-    sourceBundlesByGroup.set(data.sourceGroupId, [
-      ...(sourceBundlesByGroup.get(data.sourceGroupId) ?? []),
-      edge,
-    ]);
-    targetBundlesByGroup.set(data.targetGroupId, [
-      ...(targetBundlesByGroup.get(data.targetGroupId) ?? []),
-      edge,
-    ]);
-  }
-
-  assignBundleLanes(sourceBundlesByGroup, "source");
-  assignBundleLanes(targetBundlesByGroup, "target");
 
   const sortedBundleEdges = sortedBundleEdgeSeeds.map((edge) => {
     const data = edge.data;
     if (!data) return edge;
-    const lanes = bundleLaneByEdgeId.get(edge.id) ?? {
-      sourceBundleLaneIndex: 0,
-      sourceBundleLaneCount: 1,
-      targetBundleLaneIndex: 0,
-      targetBundleLaneCount: 1,
-    };
     const renderSourcePort =
       edge.selected === true ||
       !renderedSourcePortGroups.has(data.sourceGroupId);
@@ -762,7 +466,6 @@ export const buildGroupBundledElements = ({
         ...data,
         renderSourcePort,
         renderTargetPort,
-        ...lanes,
       },
     };
   });

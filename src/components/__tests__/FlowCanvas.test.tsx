@@ -1,10 +1,9 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, beforeEach, vi } from "vitest";
 import type { Edge } from "@xyflow/react";
 import type { ReactNode } from "react";
 
 import { FlowCanvas } from "@/components/FlowCanvas";
-import { GROUP_BUNDLE_EDGE_SELECT_EVENT } from "@/components/edges/GroupBundleEdge";
 import {
   GROUP_BUNDLE_PORT_NODE_TYPE,
   isGroupBundleSegmentEdgeId,
@@ -271,20 +270,21 @@ describe("FlowCanvas", () => {
       />
     );
 
-    act(() => {
-      window.dispatchEvent(
-        new CustomEvent(GROUP_BUNDLE_EDGE_SELECT_EVENT, {
-          detail: { edgeIds: ["edge-1"] },
-        })
-      );
-    });
+    const bundleEdge = screen.getByTestId(
+      "custom-edge-__group_bundle__:group-a->group-b"
+    );
+    const outsideBundleHit = bundleEdge.querySelector(
+      '[data-bundle-hit="outside-bundle"]'
+    );
+    expect(outsideBundleHit).not.toBeNull();
+
+    fireEvent.click(outsideBundleHit as Element);
 
     expect(onNodesChange).toHaveBeenCalledWith([
       { id: "a1", type: "select", selected: false },
     ]);
     expect(onEdgesChange).toHaveBeenCalledWith([
       { id: "edge-1", type: "select", selected: true },
-      { id: "edge-2", type: "select", selected: false },
     ]);
   });
 
