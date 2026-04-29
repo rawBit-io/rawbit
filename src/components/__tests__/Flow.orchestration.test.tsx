@@ -462,6 +462,42 @@ afterEach(() => {
 
 // Tests will be added below
 
+describe("Flow welcome dialog suppression on shared links", () => {
+  afterEach(() => {
+    // Restore the URL to a plain origin so other tests are unaffected
+    window.history.replaceState({}, "", window.location.pathname);
+  });
+
+  it("does not show the welcome dialog when ?s= param is present on a fresh browser session", () => {
+    // Simulate a fresh browser: no welcomeSeen flag, and a ?s= shared link
+    localStorage.clear();
+    window.history.replaceState({}, "", "?s=abc123");
+
+    const { queryByText } = render(<Flow />);
+
+    expect(queryByText("Pick how you would like to get started.")).not.toBeInTheDocument();
+  });
+
+  it("does not show the welcome dialog when ?share= param is present on a fresh browser session", () => {
+    localStorage.clear();
+    window.history.replaceState({}, "", "?share=xyz789");
+
+    const { queryByText } = render(<Flow />);
+
+    expect(queryByText("Pick how you would like to get started.")).not.toBeInTheDocument();
+  });
+
+  it("shows the welcome dialog on a fresh browser session without a shared link", () => {
+    // No welcomeSeen flag, no share param → dialog should open
+    localStorage.clear();
+    window.history.replaceState({}, "", window.location.pathname);
+
+    const { getByText } = render(<Flow />);
+
+    expect(getByText("Pick how you would like to get started.")).toBeInTheDocument();
+  });
+});
+
 describe("Flow autosave scheduling", () => {
   let rafSpy: MockInstance<Window["requestAnimationFrame"]>;
   let cancelRafSpy: MockInstance<Window["cancelAnimationFrame"]>;

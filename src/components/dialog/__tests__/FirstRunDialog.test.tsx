@@ -168,9 +168,14 @@ describe("FirstRunDialog", () => {
     expect(onStartEmpty).not.toHaveBeenCalled();
   });
 
-  it("falls back to an empty canvas when closed without a selection", async () => {
+  it("closes without triggering any action when dismissed without a selection", async () => {
+    // The old behaviour (close → implicit empty canvas) was intentionally
+    // removed so that closing the dialog on a shared-link URL does NOT wipe
+    // the canvas.  Now close simply propagates onOpenChange(false) and lets
+    // the caller decide what to do.
     const onStartEmpty = vi.fn();
     const onLoadExample = vi.fn();
+    const onOpenChange = vi.fn();
     const user = userEvent.setup();
 
     const utils = renderWithProviders(
@@ -179,6 +184,7 @@ describe("FirstRunDialog", () => {
         flows={exampleFlows}
         onStartEmpty={onStartEmpty}
         onLoadExample={onLoadExample}
+        onOpenChange={onOpenChange}
       />
     );
     expect(
@@ -187,7 +193,9 @@ describe("FirstRunDialog", () => {
 
     await user.click(screen.getByTestId("mock-dialog-close"));
 
-    expect(onStartEmpty).toHaveBeenCalledTimes(1);
+    // Dialog signals close — no canvas action is taken automatically.
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(onStartEmpty).not.toHaveBeenCalled();
     expect(onLoadExample).not.toHaveBeenCalled();
   });
 

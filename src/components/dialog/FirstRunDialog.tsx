@@ -79,17 +79,7 @@ export function FirstRunDialog({
   };
 
   const handleOpenChange = (nextOpen: boolean) => {
-    if (nextOpen) {
-      onOpenChange?.(true);
-      return;
-    }
-    if (actionRef.current === null && !hideStartEmpty) {
-      actionRef.current = "empty";
-      onStartEmpty();
-      onOpenChange?.(false);
-      return;
-    }
-    onOpenChange?.(false);
+    onOpenChange?.(nextOpen);
   };
 
   const dialogDescription = hideStartEmpty
