@@ -311,6 +311,40 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
   opacity: var(--edge-dark-opacity, 0.45) !important;
 }
 
+/* Group-to-group bundle edges are derived render helpers for dense flows. */
+.group-bundle-edge-path {
+  opacity: calc(var(--edge-light-opacity, 0.45) + 0.12);
+}
+
+.group-bundle-stub-path {
+  opacity: calc(var(--edge-light-opacity, 0.45) + 0.03);
+}
+
+.group-bundle-port {
+  opacity: calc(var(--edge-light-opacity, 0.45) + 0.2);
+}
+
+.dark .group-bundle-edge-path {
+  opacity: calc(var(--edge-dark-opacity, 0.45) + 0.12);
+}
+
+.dark .group-bundle-stub-path {
+  opacity: calc(var(--edge-dark-opacity, 0.45) + 0.03);
+}
+
+.dark .group-bundle-port {
+  opacity: calc(var(--edge-dark-opacity, 0.45) + 0.2);
+}
+
+.group-bundle-edge-path-selected {
+  stroke: #2563eb !important;
+  opacity: 0.95 !important;
+}
+
+.dark .group-bundle-edge-path-selected {
+  stroke: #60a5fa !important;
+}
+
 /* ===================== Large-drag low-detail mode ===================== */
 body[data-large-drag="true"] .react-flow__edge,
 body[data-large-drag="true"] .react-flow__edge-path {

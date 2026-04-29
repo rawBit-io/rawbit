@@ -40,6 +40,18 @@ vi.mock("@xyflow/react", () => {
       controlsSpy.props = props;
       return <div data-testid="controls" />;
     },
+    EdgeLabelRenderer: ({ children }: { children: ReactNode }) => <>{children}</>,
+    getBezierPath: () => ["M 0 0 C 10 0, 20 0, 30 0", 15, 0],
+    useReactFlow: () => ({
+      setEdges: vi.fn(),
+      setNodes: vi.fn(),
+    }),
+    Position: {
+      Left: "left",
+      Right: "right",
+      Top: "top",
+      Bottom: "bottom",
+    },
     SelectionMode: { Full: "full" },
   };
 });
@@ -97,6 +109,75 @@ describe("FlowCanvas", () => {
     expect(passedEdges).toHaveLength(1);
     expect(passedEdges[0]?.selectable).toBe(false);
     expect(passedEdges[0]?.selected).toBe(false);
+  });
+
+  it("bundles repeated cross-group edges for the canvas render layer", () => {
+    const groupedNodes: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "A", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "B", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "a1",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "a2",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 120 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "b1",
+        type: "calculation",
+        parentId: "group-b",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+    ];
+
+    render(
+      <FlowCanvas
+        {...baseProps}
+        nodes={groupedNodes}
+        edges={[
+          { id: "edge-1", source: "a1", target: "b1" } as Edge,
+          { id: "edge-2", source: "a2", target: "b1" } as Edge,
+        ]}
+      />
+    );
+
+    const passedEdges = reactFlowSpy.props.edges as Edge[];
+    expect(passedEdges).toHaveLength(3);
+    expect(passedEdges.filter((edge) => edge.hidden)).toHaveLength(2);
+    expect(
+      passedEdges.find((edge) => edge.id === "__group_bundle__:group-a->group-b")
+    ).toMatchObject({
+      type: "groupBundle",
+      source: "a1",
+      target: "b1",
+      selectable: false,
+      data: {
+        bundledEdgeIds: ["edge-1", "edge-2"],
+        count: 2,
+        sourceGroupId: "group-a",
+        targetGroupId: "group-b",
+        sourceLabel: "A",
+        targetLabel: "B",
+      },
+    });
   });
 
   it("renders minimap with provided sizing and offset", () => {

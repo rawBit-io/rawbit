@@ -1,5 +1,6 @@
 import type {
   Edge,
+  EdgeChange,
   Node as ReactFlowNode,
   OnConnect,
   OnEdgesChange,
@@ -18,8 +19,14 @@ import {
 } from "@xyflow/react";
 import { cn } from "@/lib/utils";
 import type { FlowNode } from "@/types";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import type { DragEvent } from "react";
+import { GroupBundleEdge } from "@/components/edges/GroupBundleEdge";
+import {
+  buildGroupBundledEdges,
+  GROUP_BUNDLE_EDGE_TYPE,
+  isGroupBundleEdgeId,
+} from "@/lib/flow/groupEdgeBundling";
 
 interface FlowCanvasProps {
   nodeTypes: ReactFlowProps<FlowNode>["nodeTypes"];
@@ -53,6 +60,9 @@ const MAX_ZOOM = 10;
 const MOBILE_MIN_ZOOM = 0.21;
 const MOBILE_MAX_ZOOM = 4;
 const PRO_OPTIONS = { hideAttribution: true } as const;
+const edgeTypes = {
+  [GROUP_BUNDLE_EDGE_TYPE]: GroupBundleEdge,
+} satisfies ReactFlowProps<FlowNode>["edgeTypes"];
 
 export function FlowCanvas({
   nodeTypes,
@@ -80,14 +90,30 @@ export function FlowCanvas({
   const selectionEnabled = !isReadOnly && isSelectionModeActive;
   const minZoom = isReadOnly ? MOBILE_MIN_ZOOM : MIN_ZOOM;
   const maxZoom = isReadOnly ? MOBILE_MAX_ZOOM : MAX_ZOOM;
+  const visualEdges = useMemo(
+    () => buildGroupBundledEdges({ nodes, edges }),
+    [nodes, edges]
+  );
   const renderedEdges = useMemo(() => {
-    if (!selectionEnabled) return edges;
-    return edges.map((edge) =>
+    if (!selectionEnabled) return visualEdges;
+    return visualEdges.map((edge) =>
       edge.selectable === false && !edge.selected
         ? edge
         : { ...edge, selectable: false, selected: false }
     );
-  }, [edges, selectionEnabled]);
+  }, [selectionEnabled, visualEdges]);
+
+  const handleEdgesChange = useCallback(
+    (changes: EdgeChange[]) => {
+      if (!onEdgesChange) return;
+      const filtered = changes.filter(
+        (change) => !("id" in change) || !isGroupBundleEdgeId(change.id)
+      );
+      if (filtered.length === 0) return;
+      onEdgesChange(filtered);
+    },
+    [onEdgesChange]
+  );
 
   return (
     <ReactFlow
@@ -95,11 +121,12 @@ export function FlowCanvas({
       style={{ cursor: selectionEnabled ? "crosshair" : undefined }}
       onlyRenderVisibleElements={onlyRenderVisibleElements}
       nodeTypes={nodeTypes}
+      edgeTypes={edgeTypes}
       nodes={nodes}
       edges={renderedEdges}
       onInit={onInit}
       onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
+      onEdgesChange={handleEdgesChange}
       onConnect={onConnect}
       onReconnect={onReconnect}
       onDrop={onDrop}
