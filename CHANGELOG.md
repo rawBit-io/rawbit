@@ -199,3 +199,10 @@ and the project aims to adhere to [Semantic Versioning](https://semver.org/spec/
 
 - Fixed exact numeric parsing for scientific notation such as `1e6`, `1e8`, and `2.5e3`, so these values parse as decimal numbers instead of ambiguous hexadecimal input.
 - Hardened numeric parsing to reject malformed scientific notation, binary-prefixed strings, `NaN`/`Infinity`, and underscore variants before they can propagate into math or comparison operations. Thanks to @rajanarahul93 for the public PR.
+
+## [0.4.11] - 2026-04-29
+
+### Fixed
+
+- Fixed shared canvas imports so the first-run welcome dialog no longer wipes an imported shared graph in a fresh browser session.
+- Fixed dirty-node error annotation to return updated node objects instead of mutating existing node data in place, keeping React state updates immutable.
