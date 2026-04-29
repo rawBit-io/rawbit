@@ -106,12 +106,10 @@ async function loadBackendLimits(baseUrl: string): Promise<BackendLimits> {
 function annotateDirtyNodesWithError(
   nodes: Node<CalculationNodeData>[],
   message: string
-) {
-  nodes.forEach((node) => {
-    if (node.data?.dirty) {
-      node.data.error = true;
-      node.data.extendedError = message;
-    }
+): Node<CalculationNodeData>[] {
+  return nodes.map((node) => {
+    if (!node.data?.dirty) return node;
+    return { ...node, data: { ...node.data, error: true, extendedError: message } };
   });
 }
 
@@ -178,9 +176,8 @@ export async function recalculateGraph(
     const limitMessage = `Request is ${formatBytes(
       payloadBytes
     )}, over the server limit (${formatBytes(maxPayloadBytes)}).`;
-    annotateDirtyNodesWithError(nodes, limitMessage);
     return {
-      nodes,
+      nodes: annotateDirtyNodesWithError(nodes, limitMessage),
       version,
       errors: [{ nodeId: PAYLOAD_LIMIT_NODE_ID, error: limitMessage }],
     };
@@ -223,11 +220,8 @@ export async function recalculateGraph(
       ? "Backend not running. Start it with: python routes.py"
       : "Cannot connect to calculation service. Please try again later.";
 
-    // Mark all dirty nodes with error
-    annotateDirtyNodesWithError(nodes, message);
-
     return {
-      nodes: nodes,
+      nodes: annotateDirtyNodesWithError(nodes, message),
       version: version,
       errors: [], // No system error - the node errors are enough
     };

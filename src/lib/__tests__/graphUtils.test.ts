@@ -101,8 +101,8 @@ describe("recalculateGraph", () => {
 
     expect(response.errors).toHaveLength(1);
     expect(response.errors?.[0].nodeId).toBe("__payload_limit__");
-    expect(nodes[0].data.error).toBe(true);
-    expect(nodes[0].data.extendedError).toContain("over the server limit");
+    expect(response.nodes[0].data.error).toBe(true);
+    expect(response.nodes[0].data.extendedError).toContain("over the server limit");
   });
 
   it("stamps dirty nodes when backend returns malformed JSON", async () => {
@@ -121,9 +121,9 @@ describe("recalculateGraph", () => {
     const response = await recalculateGraph(nodes, edges, 0);
 
     expect(response.errors).toEqual([]);
-    expect(nodes[0].data.error).toBe(true);
-    expect(nodes[0].data.extendedError).toMatch(/Backend not running/);
-    expect(nodes[1].data?.error).not.toBe(true);
+    expect(response.nodes[0].data.error).toBe(true);
+    expect(response.nodes[0].data.extendedError).toMatch(/Backend not running/);
+    expect(response.nodes[1].data?.error).not.toBe(true);
   });
 
   it("aborts when the backend call times out", async () => {
@@ -165,8 +165,8 @@ describe("recalculateGraph", () => {
       const result = await promise;
 
       expect(result.errors).toEqual([]);
-      expect(nodes[0].data.error).toBe(true);
-      expect(nodes[0].data.extendedError).toMatch(
+      expect(result.nodes[0].data.error).toBe(true);
+      expect(result.nodes[0].data.extendedError).toMatch(
         /Calculation timed out after 5 s/
       );
     } finally {
