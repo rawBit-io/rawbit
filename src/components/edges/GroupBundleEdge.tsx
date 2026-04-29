@@ -22,8 +22,12 @@ import { cn } from "@/lib/utils";
 import type { FlowNode } from "@/types";
 
 const fallbackPoint = { x: 0, y: 0 };
-const OUTSIDE_EDGE_WIDTH = 1.9;
-const SELECTED_OUTSIDE_EDGE_WIDTH = 2.8;
+const OUTSIDE_EDGE_WIDTH = 2.8;
+const SELECTED_OUTSIDE_EDGE_WIDTH = 4;
+const COUNT_LABEL_SCALE = 5;
+const COUNT_LABEL_FONT_SIZE = 10 * COUNT_LABEL_SCALE;
+const COUNT_LABEL_HEIGHT = 14 * COUNT_LABEL_SCALE;
+const COUNT_LABEL_HORIZONTAL_PADDING = 10 * COUNT_LABEL_SCALE;
 const GroupBundleEdgeSelectionContext = createContext<
   ((edgeIds: string[]) => void) | null
 >(null);
@@ -184,8 +188,9 @@ export function GroupBundleEdge({
     count === 1 ? "" : "s"
   }`;
   const countLabel = `x${count}`;
-  const labelWidth = 10 + countLabel.length * 6;
-  const labelHeight = 14;
+  const labelWidth =
+    COUNT_LABEL_HORIZONTAL_PADDING + countLabel.length * COUNT_LABEL_FONT_SIZE * 0.68;
+  const labelHeight = COUNT_LABEL_HEIGHT;
 
   const renderHitPath = (
     key: string,
@@ -238,7 +243,7 @@ export function GroupBundleEdge({
             y={-labelHeight / 2}
             width={labelWidth}
             height={labelHeight}
-            rx={3}
+            rx={3 * COUNT_LABEL_SCALE}
             fill="hsl(var(--background))"
             fillOpacity={0.92}
             stroke={
@@ -247,7 +252,7 @@ export function GroupBundleEdge({
             strokeWidth={1}
           />
           <text
-            y={3.5}
+            y={3.5 * COUNT_LABEL_SCALE}
             textAnchor="middle"
             fill={
               hasSelectedPath
@@ -255,7 +260,8 @@ export function GroupBundleEdge({
                 : "hsl(var(--foreground))"
             }
             fontFamily="monospace"
-            fontSize={10}
+            fontSize={COUNT_LABEL_FONT_SIZE}
+            fontWeight={700}
             className="select-none"
           >
             {countLabel}
