@@ -287,6 +287,10 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
   stroke-width: 1;
 }
 
+.minimap-hidden {
+  display: none !important;
+}
+
 /* Diagram-bundle edge highlighting uses React Flow selection state. */
 .react-flow__edge .react-flow__edge-path {
   stroke-width: 1.4 !important;
@@ -312,24 +316,52 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
 }
 
 /* Group-to-group bundle edges are derived render helpers for dense flows. */
-.group-bundle-edge-path {
-  opacity: calc(var(--edge-light-opacity, 0.45) + 0.12);
+.group-bundle-outside-path {
+  opacity: calc(var(--edge-light-opacity, 0.45) + 0.1);
 }
 
-.group-bundle-stub-path {
-  opacity: calc(var(--edge-light-opacity, 0.45) + 0.03);
+.react-flow__edge.group-bundle-segment-edge .react-flow__edge-path {
+  stroke-width: 1.15 !important;
+}
+
+.react-flow__edge.group-bundle-segment-edge.selected .react-flow__edge-path,
+.react-flow__edge.group-bundle-segment-edge.group-bundle-edge-path-selected
+  .react-flow__edge-path {
+  stroke-width: 2.1 !important;
+}
+
+.group-bundle-port-node {
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+}
+
+.group-bundle-port-handle {
+  left: 50% !important;
+  right: auto !important;
+  top: 50% !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  width: 2px !important;
+  height: 2px !important;
+  min-width: 2px !important;
+  min-height: 2px !important;
+  border: 0 !important;
+  background: transparent !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .group-bundle-port {
   opacity: calc(var(--edge-light-opacity, 0.45) + 0.2);
 }
 
-.dark .group-bundle-edge-path {
-  opacity: calc(var(--edge-dark-opacity, 0.45) + 0.12);
+.group-bundle-hit-path {
+  pointer-events: stroke;
 }
 
-.dark .group-bundle-stub-path {
-  opacity: calc(var(--edge-dark-opacity, 0.45) + 0.03);
+.dark .group-bundle-outside-path {
+  opacity: calc(var(--edge-dark-opacity, 0.45) + 0.1);
 }
 
 .dark .group-bundle-port {

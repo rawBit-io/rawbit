@@ -1,9 +1,14 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { describe, expect, it, beforeEach, vi } from "vitest";
 import type { Edge } from "@xyflow/react";
 import type { ReactNode } from "react";
 
 import { FlowCanvas } from "@/components/FlowCanvas";
+import { GROUP_BUNDLE_EDGE_SELECT_EVENT } from "@/components/edges/GroupBundleEdge";
+import {
+  GROUP_BUNDLE_PORT_NODE_TYPE,
+  isGroupBundleSegmentEdgeId,
+} from "@/lib/flow/groupEdgeBundling";
 import type { FlowNode } from "@/types";
 
 type ReactFlowSpyProps = Record<string, unknown>;
@@ -29,7 +34,30 @@ vi.mock("@xyflow/react", () => {
       ...props
     }: { children: ReactNode } & Record<string, unknown>) => {
       reactFlowSpy.props = props;
-      return <div data-testid="reactflow">{children}</div>;
+      const edgeTypes = props.edgeTypes as
+        | Record<string, (edgeProps: Record<string, unknown>) => ReactNode>
+        | undefined;
+      const renderedEdges = (props.edges as Edge[] | undefined)?.map((edge) => {
+        const EdgeComponent = edge.type ? edgeTypes?.[edge.type] : undefined;
+        if (!EdgeComponent) return null;
+        return (
+          <svg key={edge.id} data-testid={`custom-edge-${edge.id}`}>
+            <EdgeComponent
+              id={edge.id}
+              data={edge.data}
+              selected={edge.selected}
+              source={edge.source}
+              target={edge.target}
+            />
+          </svg>
+        );
+      });
+      return (
+        <div data-testid="reactflow">
+          {renderedEdges}
+          {children}
+        </div>
+      );
     },
     MiniMap: (props: MiniMapSpyProps) => {
       minimapSpy.props = props;
@@ -46,6 +74,9 @@ vi.mock("@xyflow/react", () => {
       setEdges: vi.fn(),
       setNodes: vi.fn(),
     }),
+    useStore: (
+      selector: (state: { nodeLookup: Map<string, unknown> }) => unknown
+    ) => selector({ nodeLookup: new Map() }),
     Position: {
       Left: "left",
       Right: "right",
@@ -160,14 +191,21 @@ describe("FlowCanvas", () => {
     );
 
     const passedEdges = reactFlowSpy.props.edges as Edge[];
-    expect(passedEdges).toHaveLength(3);
+    const passedNodes = reactFlowSpy.props.nodes as FlowNode[];
+    expect(() => structuredClone(passedEdges)).not.toThrow();
+    expect(passedEdges).toHaveLength(7);
+    expect(
+      passedNodes.filter((node) => node.type === GROUP_BUNDLE_PORT_NODE_TYPE)
+    ).toHaveLength(2);
     expect(passedEdges.filter((edge) => edge.hidden)).toHaveLength(2);
+    expect(passedEdges.filter((edge) => isGroupBundleSegmentEdgeId(edge.id)))
+      .toHaveLength(4);
     expect(
       passedEdges.find((edge) => edge.id === "__group_bundle__:group-a->group-b")
     ).toMatchObject({
       type: "groupBundle",
-      source: "a1",
-      target: "b1",
+      source: "__group_bundle_port__:source:group-a->group-b",
+      target: "__group_bundle_port__:target:group-a->group-b",
       selectable: false,
       data: {
         bundledEdgeIds: ["edge-1", "edge-2"],
@@ -178,6 +216,154 @@ describe("FlowCanvas", () => {
         targetLabel: "B",
       },
     });
+  });
+
+  it("routes bundle selection through controlled node and edge changes", () => {
+    const onEdgesChange = vi.fn();
+    const onNodesChange = vi.fn();
+    const groupedNodes: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "A", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "B", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "a1",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 40 },
+        data: {},
+        selected: true,
+      } as FlowNode,
+      {
+        id: "a2",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 120 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "b1",
+        type: "calculation",
+        parentId: "group-b",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+    ];
+
+    render(
+      <FlowCanvas
+        {...baseProps}
+        nodes={groupedNodes}
+        edges={[
+          { id: "edge-1", source: "a1", target: "b1" } as Edge,
+          { id: "edge-2", source: "a2", target: "b1", selected: true } as Edge,
+        ]}
+        onEdgesChange={onEdgesChange}
+        onNodesChange={onNodesChange}
+      />
+    );
+
+    act(() => {
+      window.dispatchEvent(
+        new CustomEvent(GROUP_BUNDLE_EDGE_SELECT_EVENT, {
+          detail: { edgeIds: ["edge-1"] },
+        })
+      );
+    });
+
+    expect(onNodesChange).toHaveBeenCalledWith([
+      { id: "a1", type: "select", selected: false },
+    ]);
+    expect(onEdgesChange).toHaveBeenCalledWith([
+      { id: "edge-1", type: "select", selected: true },
+      { id: "edge-2", type: "select", selected: false },
+    ]);
+  });
+
+  it("routes synthetic inside segment clicks to the represented edge", () => {
+    const onEdgesChange = vi.fn();
+    const groupedNodes: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "A", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "B", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "a1",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "a2",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 120 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "b1",
+        type: "calculation",
+        parentId: "group-b",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+    ];
+
+    render(
+      <FlowCanvas
+        {...baseProps}
+        nodes={groupedNodes}
+        edges={[
+          { id: "edge-1", source: "a1", target: "b1" } as Edge,
+          { id: "edge-2", source: "a2", target: "b1" } as Edge,
+        ]}
+        onEdgesChange={onEdgesChange}
+      />
+    );
+
+    const passedEdges = reactFlowSpy.props.edges as Edge[];
+    const segmentEdge = passedEdges.find(
+      (edge) =>
+        isGroupBundleSegmentEdgeId(edge.id) &&
+        edge.id.includes("source:group-a->group-b:edge-1")
+    );
+    expect(segmentEdge).toBeDefined();
+
+    act(() => {
+      (
+        reactFlowSpy.props.onEdgeClick as (
+          event: Pick<MouseEvent, "preventDefault" | "stopPropagation">,
+          edge: Edge
+        ) => void
+      )(
+        {
+          preventDefault: vi.fn(),
+          stopPropagation: vi.fn(),
+        },
+        segmentEdge as Edge
+      );
+    });
+
+    expect(onEdgesChange).toHaveBeenCalledWith([
+      { id: "edge-1", type: "select", selected: true },
+    ]);
   });
 
   it("renders minimap with provided sizing and offset", () => {

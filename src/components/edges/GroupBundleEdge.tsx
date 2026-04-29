@@ -5,9 +5,13 @@ import {
   type EdgeProps,
 } from "@xyflow/react";
 import {
+  createContext,
   useCallback,
+  useContext,
   useMemo,
-  type MouseEvent,
+  type ReactNode,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
 } from "react";
 
 import {
@@ -18,58 +22,119 @@ import { cn } from "@/lib/utils";
 import type { FlowNode } from "@/types";
 
 const fallbackPoint = { x: 0, y: 0 };
+const OUTSIDE_EDGE_WIDTH = 1.9;
+const SELECTED_OUTSIDE_EDGE_WIDTH = 2.8;
+export const GROUP_BUNDLE_EDGE_SELECT_EVENT = "rawbit:group-bundle-edge-select";
+const GroupBundleEdgeSelectionContext = createContext<
+  ((edgeIds: string[]) => void) | null
+>(null);
 
-const oppositePosition = (position: Position): Position => {
-  switch (position) {
-    case Position.Left:
-      return Position.Right;
-    case Position.Right:
-      return Position.Left;
-    case Position.Top:
-      return Position.Bottom;
-    case Position.Bottom:
-      return Position.Top;
-    default:
-      return Position.Left;
-  }
-};
+interface Point {
+  x: number;
+  y: number;
+}
+
+export function GroupBundleEdgeSelectionProvider({
+  children,
+  onSelectEdgeIds,
+}: {
+  children: ReactNode;
+  onSelectEdgeIds: (edgeIds: string[]) => void;
+}) {
+  return (
+    <GroupBundleEdgeSelectionContext.Provider value={onSelectEdgeIds}>
+      {children}
+    </GroupBundleEdgeSelectionContext.Provider>
+  );
+}
+
+const pointFromEdgeCoordinates = (
+  x: number | undefined,
+  y: number | undefined,
+  fallback: Point
+): Point =>
+  Number.isFinite(x) && Number.isFinite(y)
+    ? { x: x as number, y: y as number }
+    : fallback;
 
 export function GroupBundleEdge({
   id,
   data,
   selected,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  sourcePosition: edgeSourcePosition,
+  targetPosition: edgeTargetPosition,
 }: EdgeProps): JSX.Element | null {
   const bundle = data as GroupBundleEdgeData | undefined;
   const reactFlow = useReactFlow<FlowNode>();
   const bundledEdgeIds = bundle?.bundledEdgeIds;
+  const bundledSelectedEdgeIds = bundle?.selectedEdgeIds;
+  const onSelectEdgeIds = useContext(GroupBundleEdgeSelectionContext);
   const edgeIds = useMemo(
     () => bundledEdgeIds ?? [],
     [bundledEdgeIds]
   );
+  const selectedEdgeIdSet = useMemo(
+    () =>
+      new Set(
+        bundledSelectedEdgeIds && bundledSelectedEdgeIds.length > 0
+          ? bundledSelectedEdgeIds
+          : selected === true
+            ? edgeIds
+            : []
+      ),
+    [bundledSelectedEdgeIds, edgeIds, selected]
+  );
 
-  const sourcePoint = bundle?.sourcePoint ?? fallbackPoint;
-  const targetPoint = bundle?.targetPoint ?? fallbackPoint;
-  const sourceBoundaryPoint = bundle?.sourceBoundaryPoint ?? sourcePoint;
-  const targetBoundaryPoint = bundle?.targetBoundaryPoint ?? targetPoint;
-  const sourceInsidePoint = bundle?.sourceInsidePoint ?? sourceBoundaryPoint;
-  const targetInsidePoint = bundle?.targetInsidePoint ?? targetBoundaryPoint;
-  const sourcePosition = bundle?.sourcePosition ?? Position.Right;
-  const targetPosition = bundle?.targetPosition ?? Position.Left;
-  const [path, labelX, labelY] = getBezierPath({
-    sourceX: sourcePoint.x,
-    sourceY: sourcePoint.y,
-    sourcePosition,
-    targetX: targetPoint.x,
-    targetY: targetPoint.y,
-    targetPosition,
-  });
+  const sourceFallbackPoint =
+    bundle?.sourceBoundaryPoint ?? bundle?.sourcePoint ?? fallbackPoint;
+  const targetFallbackPoint =
+    bundle?.targetBoundaryPoint ?? bundle?.targetPoint ?? fallbackPoint;
+  const sourceBoundaryPoint = pointFromEdgeCoordinates(
+    sourceX,
+    sourceY,
+    sourceFallbackPoint
+  );
+  const targetBoundaryPoint = pointFromEdgeCoordinates(
+    targetX,
+    targetY,
+    targetFallbackPoint
+  );
+  const sourcePosition =
+    edgeSourcePosition ?? bundle?.sourcePosition ?? Position.Right;
+  const targetPosition =
+    edgeTargetPosition ?? bundle?.targetPosition ?? Position.Left;
 
-  const selectBundledEdges = useCallback(
-    (event: MouseEvent<SVGPathElement | SVGGElement>) => {
+  const stopBundlePointerDown = useCallback(
+    (event: ReactPointerEvent<SVGElement>) => {
+      event.stopPropagation();
+    },
+    []
+  );
+
+  const selectEdgeIds = useCallback(
+    (event: ReactMouseEvent<SVGElement>, idsToSelect: string[]) => {
       event.preventDefault();
       event.stopPropagation();
 
-      const selectedEdgeIds = new Set(edgeIds);
+      const selectedEdgeIds = new Set(idsToSelect);
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent(GROUP_BUNDLE_EDGE_SELECT_EVENT, {
+            detail: { edgeIds: idsToSelect },
+          })
+        );
+        return;
+      }
+
+      if (onSelectEdgeIds) {
+        onSelectEdgeIds(idsToSelect);
+        return;
+      }
 
       reactFlow.setNodes((currentNodes) => {
         let changed = false;
@@ -84,8 +149,17 @@ export function GroupBundleEdge({
       reactFlow.setEdges((currentEdges) => {
         let changed = false;
         const next = currentEdges.map((edge) => {
-          const shouldSelect =
-            !isGroupBundleEdgeId(edge.id) && selectedEdgeIds.has(edge.id);
+          if (isGroupBundleEdgeId(edge.id)) {
+            const shouldSelect = edge.id === id && selectedEdgeIds.size > 0;
+            const data =
+              edge.id === id
+                ? { ...edge.data, selectedEdgeIds: Array.from(selectedEdgeIds) }
+                : { ...edge.data, selectedEdgeIds: [] };
+            changed = true;
+            return { ...edge, selected: shouldSelect, data };
+          }
+
+          const shouldSelect = selectedEdgeIds.has(edge.id);
           if (edge.selected === shouldSelect) return edge;
           changed = true;
           return { ...edge, selected: shouldSelect };
@@ -93,38 +167,31 @@ export function GroupBundleEdge({
         return changed ? next : currentEdges;
       });
     },
-    [edgeIds, reactFlow]
+    [id, onSelectEdgeIds, reactFlow]
+  );
+
+  const selectBundledEdges = useCallback(
+    (event: ReactMouseEvent<SVGElement>) => {
+      selectEdgeIds(event, edgeIds);
+    },
+    [edgeIds, selectEdgeIds]
   );
 
   if (!bundle) return null;
 
-  const sourceTerminalPaths = bundle.sourceTerminals.map((terminal) => ({
-    nodeId: terminal.nodeId,
-    path: getBezierPath({
-      sourceX: terminal.point.x,
-      sourceY: terminal.point.y,
-      sourcePosition,
-      targetX: sourceInsidePoint.x,
-      targetY: sourceInsidePoint.y,
-      targetPosition: oppositePosition(sourcePosition),
-    })[0],
-  }));
-  const targetTerminalPaths = bundle.targetTerminals.map((terminal) => ({
-    nodeId: terminal.nodeId,
-    path: getBezierPath({
-      sourceX: targetInsidePoint.x,
-      sourceY: targetInsidePoint.y,
-      sourcePosition: oppositePosition(targetPosition),
-      targetX: terminal.point.x,
-      targetY: terminal.point.y,
-      targetPosition,
-    })[0],
-  }));
   const count = bundle.count ?? edgeIds.length;
-  const isSelected = selected === true;
-  const strokeWidth = isSelected
-    ? 4.8
-    : Math.min(4, 2.2 + Math.log2(Math.max(1, count)) * 0.45);
+  const hasSelectedPath = selected === true || selectedEdgeIdSet.size > 0;
+  const outsideStrokeWidth = hasSelectedPath
+    ? SELECTED_OUTSIDE_EDGE_WIDTH
+    : OUTSIDE_EDGE_WIDTH;
+  const [outsidePath, labelX, labelY] = getBezierPath({
+    sourceX: sourceBoundaryPoint.x,
+    sourceY: sourceBoundaryPoint.y,
+    sourcePosition,
+    targetX: targetBoundaryPoint.x,
+    targetY: targetBoundaryPoint.y,
+    targetPosition,
+  });
   const title = `${bundle.sourceLabel} -> ${bundle.targetLabel}: ${count} edge${
     count === 1 ? "" : "s"
   }`;
@@ -132,85 +199,49 @@ export function GroupBundleEdge({
   const labelWidth = 10 + countLabel.length * 6;
   const labelHeight = 14;
 
+  const renderHitPath = (
+    key: string,
+    pathDefinition: string,
+    hitEdgeIds: string[],
+    hitKind: string
+  ) => (
+    <path
+      key={key}
+      d={pathDefinition}
+      fill="none"
+      stroke="transparent"
+      strokeLinecap="round"
+      strokeWidth={18}
+      pointerEvents="stroke"
+      className="group-bundle-hit-path cursor-pointer"
+      data-bundle-hit={hitKind}
+      onPointerDown={stopBundlePointerDown}
+      onClick={(event) => selectEdgeIds(event, hitEdgeIds)}
+    >
+      <title>{title}</title>
+    </path>
+  );
+
   return (
     <>
-      {sourceTerminalPaths.map((terminal) => (
-        <path
-          key={`source-${terminal.nodeId}`}
-          d={terminal.path}
-          fill="none"
-          stroke="hsl(var(--foreground))"
-          strokeLinecap="round"
-          strokeWidth={isSelected ? 1.7 : 1.2}
-          className={cn(
-            "group-bundle-stub-path pointer-events-none",
-            isSelected && "group-bundle-edge-path-selected"
-          )}
-        />
-      ))}
-      {targetTerminalPaths.map((terminal) => (
-        <path
-          key={`target-${terminal.nodeId}`}
-          d={terminal.path}
-          fill="none"
-          stroke="hsl(var(--foreground))"
-          strokeLinecap="round"
-          strokeWidth={isSelected ? 1.7 : 1.2}
-          className={cn(
-            "group-bundle-stub-path pointer-events-none",
-            isSelected && "group-bundle-edge-path-selected"
-          )}
-        />
-      ))}
-      <path
-        d={`M ${sourceInsidePoint.x} ${sourceInsidePoint.y} L ${sourcePoint.x} ${sourcePoint.y}`}
-        fill="none"
-        stroke="hsl(var(--foreground))"
-        strokeLinecap="round"
-        strokeWidth={isSelected ? 2.2 : 1.4}
-        className={cn(
-          "group-bundle-stub-path pointer-events-none",
-          isSelected && "group-bundle-edge-path-selected"
-        )}
-      />
-      <path
-        d={`M ${targetPoint.x} ${targetPoint.y} L ${targetInsidePoint.x} ${targetInsidePoint.y}`}
-        fill="none"
-        stroke="hsl(var(--foreground))"
-        strokeLinecap="round"
-        strokeWidth={isSelected ? 2.2 : 1.4}
-        className={cn(
-          "group-bundle-stub-path pointer-events-none",
-          isSelected && "group-bundle-edge-path-selected"
-        )}
-      />
       <path
         id={id}
-        d={path}
+        d={outsidePath}
         fill="none"
         stroke="hsl(var(--foreground))"
         strokeLinecap="round"
-        strokeWidth={strokeWidth}
+        strokeWidth={outsideStrokeWidth}
         className={cn(
-          "group-bundle-edge-path pointer-events-none",
-          isSelected && "group-bundle-edge-path-selected"
+          "group-bundle-outside-path pointer-events-none",
+          hasSelectedPath && "group-bundle-edge-path-selected"
         )}
       />
-      <path
-        d={path}
-        fill="none"
-        stroke="transparent"
-        strokeLinecap="round"
-        strokeWidth={18}
-        className="cursor-pointer"
-        onClick={selectBundledEdges}
-      >
-        <title>{title}</title>
-      </path>
+      {renderHitPath("outside-hit", outsidePath, edgeIds, "outside-bundle")}
       {count > 1 && (
         <g
           transform={`translate(${labelX} ${labelY})`}
           className="cursor-pointer"
+          onPointerDown={stopBundlePointerDown}
           onClick={selectBundledEdges}
         >
           <title>{title}</title>
@@ -222,13 +253,19 @@ export function GroupBundleEdge({
             rx={3}
             fill="hsl(var(--background))"
             fillOpacity={0.92}
-            stroke={isSelected ? "hsl(var(--primary))" : "hsl(var(--border))"}
+            stroke={
+              hasSelectedPath ? "hsl(var(--primary))" : "hsl(var(--border))"
+            }
             strokeWidth={1}
           />
           <text
             y={3.5}
             textAnchor="middle"
-            fill={isSelected ? "hsl(var(--primary))" : "hsl(var(--foreground))"}
+            fill={
+              hasSelectedPath
+                ? "hsl(var(--primary))"
+                : "hsl(var(--foreground))"
+            }
             fontFamily="monospace"
             fontSize={10}
             className="select-none"
@@ -241,13 +278,42 @@ export function GroupBundleEdge({
         <circle
           cx={sourceBoundaryPoint.x}
           cy={sourceBoundaryPoint.y}
-          r={isSelected ? 4.2 : 3.2}
+          r={hasSelectedPath ? 4.2 : 3.2}
           fill="hsl(var(--background))"
           stroke="hsl(var(--foreground))"
-          strokeWidth={isSelected ? 1.8 : 1.2}
+          strokeWidth={hasSelectedPath ? 1.8 : 1.2}
           className={cn(
             "group-bundle-port pointer-events-none",
-            isSelected && "group-bundle-edge-path-selected"
+            hasSelectedPath && "group-bundle-edge-path-selected"
+          )}
+        />
+      )}
+      {bundle.renderSourcePort && (
+        <circle
+          cx={sourceBoundaryPoint.x}
+          cy={sourceBoundaryPoint.y}
+          r={9}
+          fill="transparent"
+          className="cursor-pointer"
+          data-bundle-hit="source-port"
+          pointerEvents="fill"
+          onPointerDown={stopBundlePointerDown}
+          onClick={selectBundledEdges}
+        >
+          <title>{title}</title>
+        </circle>
+      )}
+      {bundle.renderTargetPort && (
+        <circle
+          cx={targetBoundaryPoint.x}
+          cy={targetBoundaryPoint.y}
+          r={hasSelectedPath ? 4.2 : 3.2}
+          fill="hsl(var(--background))"
+          stroke="hsl(var(--foreground))"
+          strokeWidth={hasSelectedPath ? 1.8 : 1.2}
+          className={cn(
+            "group-bundle-port pointer-events-none",
+            hasSelectedPath && "group-bundle-edge-path-selected"
           )}
         />
       )}
@@ -255,15 +321,16 @@ export function GroupBundleEdge({
         <circle
           cx={targetBoundaryPoint.x}
           cy={targetBoundaryPoint.y}
-          r={isSelected ? 4.2 : 3.2}
-          fill="hsl(var(--background))"
-          stroke="hsl(var(--foreground))"
-          strokeWidth={isSelected ? 1.8 : 1.2}
-          className={cn(
-            "group-bundle-port pointer-events-none",
-            isSelected && "group-bundle-edge-path-selected"
-          )}
-        />
+          r={9}
+          fill="transparent"
+          className="cursor-pointer"
+          data-bundle-hit="target-port"
+          pointerEvents="fill"
+          onPointerDown={stopBundlePointerDown}
+          onClick={selectBundledEdges}
+        >
+          <title>{title}</title>
+        </circle>
       )}
     </>
   );

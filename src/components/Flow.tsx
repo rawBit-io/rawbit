@@ -22,6 +22,7 @@ import CalculationNode from "@/components/nodes/CalculationNode";
 import ShadcnGroupNode from "@/components/nodes/GroupNode";
 import TextInfoNode from "@/components/nodes/TextInfoNode";
 import OpCodeNode from "@/components/nodes/OpCodeNode";
+import { GroupBundlePortNode } from "@/components/nodes/GroupBundlePortNode";
 
 import { TopBar } from "@/components/layout/TopBar";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -84,6 +85,7 @@ import {
   collectGroupNodeIds,
   sanitizeProtocolDiagramLayout,
 } from "@/lib/protocolDiagram/layoutPersistence";
+import { GROUP_BUNDLE_PORT_NODE_TYPE } from "@/lib/flow/groupEdgeBundling";
 
 const COLORABLE_NODE_TYPES = new Set([
   "calculation",
@@ -99,6 +101,7 @@ const nodeTypes = {
   shadcnGroup: ShadcnGroupNode,
   shadcnTextInfo: TextInfoNode,
   opCodeNode: OpCodeNode,
+  [GROUP_BUNDLE_PORT_NODE_TYPE]: GroupBundlePortNode,
 };
 
 type TabCalculationState = {
@@ -1523,7 +1526,10 @@ function FlowContent() {
   });
 
   const nodeClassName = useCallback(
-    (n: Node) => (n.type === "shadcnGroup" ? "minimap-group" : ""),
+    (n: Node) => {
+      if (n.type === GROUP_BUNDLE_PORT_NODE_TYPE) return "minimap-hidden";
+      return n.type === "shadcnGroup" ? "minimap-group" : "";
+    },
     []
   );
 
@@ -1735,6 +1741,34 @@ function FlowContent() {
     setNodes,
     setEdges,
   ]);
+
+  const handleBundleEdgesSelect = useCallback(
+    (edgeIds: string[]) => {
+      const selectedEdgeIds = new Set(edgeIds);
+
+      setNodes((existing) => {
+        let mutated = false;
+        const next = existing.map((node) => {
+          if (!node.selected) return node;
+          mutated = true;
+          return { ...node, selected: false };
+        });
+        return mutated ? next : existing;
+      });
+
+      setEdges((existing) => {
+        let mutated = false;
+        const next = existing.map((edge) => {
+          const shouldSelect = selectedEdgeIds.has(edge.id);
+          if ((edge.selected === true) === shouldSelect) return edge;
+          mutated = true;
+          return { ...edge, selected: shouldSelect };
+        });
+        return mutated ? next : existing;
+      });
+    },
+    [setEdges, setNodes]
+  );
 
   const {
     onNodesChange,
@@ -2261,6 +2295,7 @@ function FlowContent() {
                 onDragOver={onDragOver}
                 onNodeDragStop={onNodeDragStopWithUndo}
                 onPaneClick={handlePaneClick}
+                onBundleEdgesSelect={handleBundleEdgesSelect}
                 onMoveEnd={onMoveEnd}
                 isSelectionModeActive={isSelectionMode}
                 isReadOnly={isMobileReadOnly}

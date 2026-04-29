@@ -1,6 +1,7 @@
 import type {
   Edge,
   EdgeChange,
+  NodeChange,
   Node as ReactFlowNode,
   OnConnect,
   OnEdgesChange,
@@ -19,13 +20,22 @@ import {
 } from "@xyflow/react";
 import { cn } from "@/lib/utils";
 import type { FlowNode } from "@/types";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DragEvent } from "react";
-import { GroupBundleEdge } from "@/components/edges/GroupBundleEdge";
 import {
-  buildGroupBundledEdges,
+  GROUP_BUNDLE_EDGE_SELECT_EVENT,
+  GroupBundleEdge,
+  GroupBundleEdgeSelectionProvider,
+} from "@/components/edges/GroupBundleEdge";
+import {
+  buildGroupBundledElements,
+  getGroupBundleSegmentEdgeIds,
   GROUP_BUNDLE_EDGE_TYPE,
+  type GroupBundleEdgeData,
   isGroupBundleEdgeId,
+  isGroupBundlePortNodeId,
+  isGroupBundleSegmentEdgeId,
+  isGroupBundleVisualEdgeId,
 } from "@/lib/flow/groupEdgeBundling";
 
 interface FlowCanvasProps {
@@ -46,6 +56,7 @@ interface FlowCanvasProps {
   onDragOver?: (event: DragEvent) => void;
   onNodeDragStop?: ReactFlowProps<FlowNode>["onNodeDragStop"];
   onPaneClick?: ReactFlowProps<FlowNode>["onPaneClick"];
+  onBundleEdgesSelect?: (edgeIds: string[]) => void;
   onMoveEnd?: (
     event: MouseEvent | TouchEvent | null,
     viewport: Viewport
@@ -82,6 +93,7 @@ export function FlowCanvas({
   onDragOver,
   onNodeDragStop,
   onPaneClick,
+  onBundleEdgesSelect,
   onMoveEnd,
   isSelectionModeActive = false,
   isReadOnly = false,
@@ -90,104 +102,274 @@ export function FlowCanvas({
   const selectionEnabled = !isReadOnly && isSelectionModeActive;
   const minZoom = isReadOnly ? MOBILE_MIN_ZOOM : MIN_ZOOM;
   const maxZoom = isReadOnly ? MOBILE_MAX_ZOOM : MAX_ZOOM;
-  const visualEdges = useMemo(
-    () => buildGroupBundledEdges({ nodes, edges }),
-    [nodes, edges]
+  const [bundleSelectedEdgeIds, setBundleSelectedEdgeIds] = useState<string[]>(
+    []
+  );
+  const bundleSelectedEdgeIdSet = useMemo(
+    () => new Set(bundleSelectedEdgeIds),
+    [bundleSelectedEdgeIds]
+  );
+  const visualElements = useMemo(() => {
+    const bundledElements = buildGroupBundledElements({ nodes, edges });
+    if (bundleSelectedEdgeIdSet.size === 0) return bundledElements;
+
+    return {
+      nodes: bundledElements.nodes.map((node) => {
+        if (!isGroupBundlePortNodeId(node.id)) return node;
+        const bundledEdgeIds = node.data.bundledEdgeIds;
+        if (!Array.isArray(bundledEdgeIds)) return node;
+        const selectedEdgeIds = bundledEdgeIds.filter(
+          (edgeId): edgeId is string =>
+            typeof edgeId === "string" && bundleSelectedEdgeIdSet.has(edgeId)
+        );
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            selectedEdgeIds,
+          },
+        };
+      }),
+      edges: bundledElements.edges.map((edge) => {
+        if (isGroupBundleSegmentEdgeId(edge.id)) {
+          const selectedEdgeIds = getGroupBundleSegmentEdgeIds(edge).filter(
+            (edgeId) => bundleSelectedEdgeIdSet.has(edgeId)
+          );
+          return {
+            ...edge,
+            selected: selectedEdgeIds.length > 0,
+            data: {
+              ...edge.data,
+              selectedEdgeIds,
+            },
+            className: cn(
+              edge.className,
+              selectedEdgeIds.length > 0 && "group-bundle-edge-path-selected"
+            ),
+          };
+        }
+
+        if (!isGroupBundleEdgeId(edge.id)) return edge;
+        const data = edge.data as GroupBundleEdgeData | undefined;
+        if (!data) return edge;
+        const selectedEdgeIds = data.bundledEdgeIds.filter((edgeId) =>
+          bundleSelectedEdgeIdSet.has(edgeId)
+        );
+        return {
+          ...edge,
+          selected: selectedEdgeIds.length > 0,
+          data: {
+            ...data,
+            selectedEdgeIds,
+            renderSourcePort:
+              selectedEdgeIds.length > 0 ? true : data.renderSourcePort,
+            renderTargetPort:
+              selectedEdgeIds.length > 0 ? true : data.renderTargetPort,
+          },
+        };
+      }),
+    };
+  }, [bundleSelectedEdgeIdSet, edges, nodes]);
+  const handleBundleEdgeSelect = useCallback(
+    (edgeIdsToSelect: string[]) => {
+      setBundleSelectedEdgeIds(edgeIdsToSelect);
+
+      if (onBundleEdgesSelect) {
+        onBundleEdgesSelect(edgeIdsToSelect);
+        return;
+      }
+
+      const selectedEdgeIds = new Set(edgeIdsToSelect);
+
+      if (onNodesChange) {
+        const nodeChanges: NodeChange<FlowNode>[] = nodes
+          .filter((node) => node.selected === true)
+          .map((node) => ({
+            id: node.id,
+            type: "select",
+            selected: false,
+          }));
+        if (nodeChanges.length > 0) onNodesChange(nodeChanges);
+      }
+
+      if (!onEdgesChange) return;
+
+      const edgeChanges: EdgeChange[] = [];
+      for (const edge of edges) {
+        const selected = selectedEdgeIds.has(edge.id);
+        if ((edge.selected === true) === selected) continue;
+        edgeChanges.push({
+          id: edge.id,
+          type: "select",
+          selected,
+        });
+      }
+
+      if (edgeChanges.length > 0) onEdgesChange(edgeChanges);
+    },
+    [edges, nodes, onBundleEdgesSelect, onEdgesChange, onNodesChange]
   );
   const renderedEdges = useMemo(() => {
-    if (!selectionEnabled) return visualEdges;
-    return visualEdges.map((edge) =>
-      edge.selectable === false && !edge.selected
+    if (!selectionEnabled) return visualElements.edges;
+    return visualElements.edges.map((edge) =>
+      edge.selectable === false
         ? edge
         : { ...edge, selectable: false, selected: false }
     );
-  }, [selectionEnabled, visualEdges]);
+  }, [selectionEnabled, visualElements.edges]);
+
+  const handleNodesChange = useCallback(
+    (changes: NodeChange<FlowNode>[]) => {
+      if (!onNodesChange) return;
+      const filtered = changes.filter(
+        (change) => !("id" in change) || !isGroupBundlePortNodeId(change.id)
+      );
+      if (filtered.length === 0) return;
+      onNodesChange(filtered);
+    },
+    [onNodesChange]
+  );
 
   const handleEdgesChange = useCallback(
     (changes: EdgeChange[]) => {
       if (!onEdgesChange) return;
+      if (changes.some((change) => change.type === "select")) {
+        setBundleSelectedEdgeIds([]);
+      }
       const filtered = changes.filter(
-        (change) => !("id" in change) || !isGroupBundleEdgeId(change.id)
+        (change) => !("id" in change) || !isGroupBundleVisualEdgeId(change.id)
       );
       if (filtered.length === 0) return;
       onEdgesChange(filtered);
     },
     [onEdgesChange]
   );
+  const handleEdgeClick = useCallback<
+    NonNullable<ReactFlowProps<FlowNode>["onEdgeClick"]>
+  >(
+    (event, edge) => {
+      if (!isGroupBundleSegmentEdgeId(edge.id)) return;
+      const edgeIdsToSelect = getGroupBundleSegmentEdgeIds(edge);
+      if (edgeIdsToSelect.length === 0) return;
+      event.preventDefault();
+      event.stopPropagation();
+      handleBundleEdgeSelect(edgeIdsToSelect);
+    },
+    [handleBundleEdgeSelect]
+  );
+  const handlePaneClick = useCallback<
+    NonNullable<ReactFlowProps<FlowNode>["onPaneClick"]>
+  >(
+    (event) => {
+      setBundleSelectedEdgeIds([]);
+      onPaneClick?.(event);
+    },
+    [onPaneClick]
+  );
+
+  useEffect(() => {
+    const handleBundleEdgeSelectEvent = (event: Event) => {
+      const edgeIds = (event as CustomEvent<{ edgeIds?: unknown }>).detail
+        ?.edgeIds;
+      if (
+        !Array.isArray(edgeIds) ||
+        !edgeIds.every((edgeId) => typeof edgeId === "string")
+      ) {
+        return;
+      }
+      handleBundleEdgeSelect(edgeIds);
+    };
+
+    window.addEventListener(
+      GROUP_BUNDLE_EDGE_SELECT_EVENT,
+      handleBundleEdgeSelectEvent
+    );
+    return () => {
+      window.removeEventListener(
+        GROUP_BUNDLE_EDGE_SELECT_EVENT,
+        handleBundleEdgeSelectEvent
+      );
+    };
+  }, [handleBundleEdgeSelect]);
 
   return (
-    <ReactFlow
-      className={cn(selectionEnabled ? "cursor-crosshair" : "cursor-grab")}
-      style={{ cursor: selectionEnabled ? "crosshair" : undefined }}
-      onlyRenderVisibleElements={onlyRenderVisibleElements}
-      nodeTypes={nodeTypes}
-      edgeTypes={edgeTypes}
-      nodes={nodes}
-      edges={renderedEdges}
-      onInit={onInit}
-      onNodesChange={onNodesChange}
-      onEdgesChange={handleEdgesChange}
-      onConnect={onConnect}
-      onReconnect={onReconnect}
-      onDrop={onDrop}
-      onDragOver={onDragOver}
-      onNodeDragStop={onNodeDragStop}
-      onPaneClick={onPaneClick}
-      onMoveEnd={onMoveEnd}
-      minZoom={minZoom}
-      maxZoom={maxZoom}
-      proOptions={PRO_OPTIONS}
-      connectOnClick={!isReadOnly}
-      edgesReconnectable={!isReadOnly}
-      deleteKeyCode={isReadOnly ? [] : ["Backspace", "Delete"]}
-      selectionMode={SelectionMode.Full}
-      selectionOnDrag={selectionEnabled}
-      selectionKeyCode="s"
-      multiSelectionKeyCode={["Meta", "Control"]}
-      panOnDrag={selectionEnabled ? [1] : [0, 1]}
-      selectNodesOnDrag={selectionEnabled}
-      nodesDraggable={!isReadOnly}
-      nodesConnectable={!isReadOnly}
-      elementsSelectable={!isReadOnly}
-      disableKeyboardA11y
-    >
-      <Background />
-      {showMiniMap && (
-        <MiniMap
-          position="bottom-right"
-          pannable
-          zoomable
-          style={{
-            position: "fixed",
-            bottom: "-0.2rem",
-            right: miniMapOffset,
-            width: miniMapSize.w,
-            height: miniMapSize.h,
-            borderRadius: "0.75rem",
-            zIndex: 2_147_483_647,
-          }}
-          className={cn(
-            "rounded-lg overflow-hidden cursor-move ring-1 ring-border",
-            isDark ? "shadow-sm backdrop-blur-sm bg-background/80" : "bg-white"
-          )}
-          nodeColor={() => "hsl(var(--foreground))"}
-          nodeStrokeColor={() => "transparent"}
-          nodeClassName={nodeClassName}
-          maskColor={isDark ? "rgba(0,0,0,0.35)" : "transparent"}
-          maskStrokeColor="#ff0000"
-          maskStrokeWidth={1}
-        />
-      )}
-      {!isReadOnly && (
-        <Controls
-          className="custom-flow-controls"
-          position="bottom-right"
-          showZoom
-          showFitView
-          showInteractive={false}
-          style={{ zIndex: 9999, right: "0.1rem", bottom: "0.1rem" }}
-        />
-      )}
-    </ReactFlow>
+    <GroupBundleEdgeSelectionProvider onSelectEdgeIds={handleBundleEdgeSelect}>
+      <ReactFlow
+        className={cn(selectionEnabled ? "cursor-crosshair" : "cursor-grab")}
+        style={{ cursor: selectionEnabled ? "crosshair" : undefined }}
+        onlyRenderVisibleElements={onlyRenderVisibleElements}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        nodes={visualElements.nodes}
+        edges={renderedEdges}
+        onInit={onInit}
+        onNodesChange={handleNodesChange}
+        onEdgesChange={handleEdgesChange}
+        onEdgeClick={handleEdgeClick}
+        onConnect={onConnect}
+        onReconnect={onReconnect}
+        onDrop={onDrop}
+        onDragOver={onDragOver}
+        onNodeDragStop={onNodeDragStop}
+        onPaneClick={handlePaneClick}
+        onMoveEnd={onMoveEnd}
+        minZoom={minZoom}
+        maxZoom={maxZoom}
+        proOptions={PRO_OPTIONS}
+        connectOnClick={!isReadOnly}
+        edgesReconnectable={!isReadOnly}
+        deleteKeyCode={isReadOnly ? [] : ["Backspace", "Delete"]}
+        selectionMode={SelectionMode.Full}
+        selectionOnDrag={selectionEnabled}
+        selectionKeyCode="s"
+        multiSelectionKeyCode={["Meta", "Control"]}
+        panOnDrag={selectionEnabled ? [1] : [0, 1]}
+        selectNodesOnDrag={selectionEnabled}
+        nodesDraggable={!isReadOnly}
+        nodesConnectable={!isReadOnly}
+        elementsSelectable={!isReadOnly}
+        disableKeyboardA11y
+      >
+        <Background />
+        {showMiniMap && (
+          <MiniMap
+            position="bottom-right"
+            pannable
+            zoomable
+            style={{
+              position: "fixed",
+              bottom: "-0.2rem",
+              right: miniMapOffset,
+              width: miniMapSize.w,
+              height: miniMapSize.h,
+              borderRadius: "0.75rem",
+              zIndex: 2_147_483_647,
+            }}
+            className={cn(
+              "rounded-lg overflow-hidden cursor-move ring-1 ring-border",
+              isDark
+                ? "shadow-sm backdrop-blur-sm bg-background/80"
+                : "bg-white"
+            )}
+            nodeColor={() => "hsl(var(--foreground))"}
+            nodeStrokeColor={() => "transparent"}
+            nodeClassName={nodeClassName}
+            maskColor={isDark ? "rgba(0,0,0,0.35)" : "transparent"}
+            maskStrokeColor="#ff0000"
+            maskStrokeWidth={1}
+          />
+        )}
+        {!isReadOnly && (
+          <Controls
+            className="custom-flow-controls"
+            position="bottom-right"
+            showZoom
+            showFitView
+            showInteractive={false}
+            style={{ zIndex: 9999, right: "0.1rem", bottom: "0.1rem" }}
+          />
+        )}
+      </ReactFlow>
+    </GroupBundleEdgeSelectionProvider>
   );
 }
