@@ -20,7 +20,7 @@ import {
 } from "@xyflow/react";
 import { cn } from "@/lib/utils";
 import type { FlowNode } from "@/types";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DragEvent } from "react";
 import {
   GroupBundleEdge,
@@ -73,6 +73,17 @@ const PRO_OPTIONS = { hideAttribution: true } as const;
 const edgeTypes = {
   [GROUP_BUNDLE_EDGE_TYPE]: GroupBundleEdge,
 } satisfies ReactFlowProps<FlowNode>["edgeTypes"];
+
+const isEditableTarget = (target: EventTarget | null): boolean => {
+  if (!(target instanceof HTMLElement)) return false;
+  const tag = target.tagName.toLowerCase();
+  return (
+    target.isContentEditable ||
+    tag === "input" ||
+    tag === "textarea" ||
+    tag === "select"
+  );
+};
 
 export function FlowCanvas({
   nodeTypes,
@@ -169,6 +180,43 @@ export function FlowCanvas({
       }),
     };
   }, [bundleSelectedEdgeIdSet, edges, nodes]);
+  const selectedNonRenderedEdgeIds = useMemo(() => {
+    const renderedEdgeIds = new Set(
+      visualElements.edges.map((edge) => edge.id)
+    );
+    return edges
+      .filter((edge) => edge.selected === true && !renderedEdgeIds.has(edge.id))
+      .map((edge) => edge.id);
+  }, [edges, visualElements.edges]);
+
+  useEffect(() => {
+    if (isReadOnly || !onEdgesChange || selectedNonRenderedEdgeIds.length === 0) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return;
+      if (event.key !== "Backspace" && event.key !== "Delete") return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (isEditableTarget(event.target)) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      setBundleSelectedEdgeIds([]);
+      onEdgesChange(
+        selectedNonRenderedEdgeIds.map((id) => ({
+          id,
+          type: "remove",
+        }))
+      );
+    };
+
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown, { capture: true });
+    };
+  }, [isReadOnly, onEdgesChange, selectedNonRenderedEdgeIds]);
+
   const handleBundleEdgeSelect = useCallback(
     (edgeIdsToSelect: string[]) => {
       setBundleSelectedEdgeIds(edgeIdsToSelect);

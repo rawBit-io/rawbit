@@ -366,6 +366,64 @@ describe("FlowCanvas", () => {
     ]);
   });
 
+  it("deletes selected bundled edges that are not rendered as raw edges", () => {
+    const onEdgesChange = vi.fn();
+    const groupedNodes: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "A", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "B", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "a1",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "a2",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 120 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "b1",
+        type: "calculation",
+        parentId: "group-b",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+    ];
+
+    render(
+      <FlowCanvas
+        {...baseProps}
+        nodes={groupedNodes}
+        edges={[
+          { id: "edge-1", source: "a1", target: "b1", selected: true } as Edge,
+          { id: "edge-2", source: "a2", target: "b1", selected: true } as Edge,
+        ]}
+        onEdgesChange={onEdgesChange}
+      />
+    );
+
+    fireEvent.keyDown(window, { key: "Delete" });
+
+    expect(onEdgesChange).toHaveBeenCalledWith([
+      { id: "edge-1", type: "remove" },
+      { id: "edge-2", type: "remove" },
+    ]);
+  });
+
   it("renders minimap with provided sizing and offset", () => {
     render(<FlowCanvas {...baseProps} />);
 
