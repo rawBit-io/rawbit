@@ -1,12 +1,12 @@
 # rawBit
 
-_rawBit is a visual, node-based editor for constructing and understanding Bitcoin transactions. Connect inputs, keys, and scripts on a canvas to build raw transactions visually._
+_rawBit is a visual, node-based editor with an integrated step-by-step Bitcoin Script debugger for constructing and understanding Bitcoin transactions. Connect inputs, keys, and scripts on a canvas, then step through Bitcoin Script execution and watch the stack change after each opcode._
 
 **Try it now:** [rawbit.io](https://rawbit.io) | **Run locally:** See [Quick start](#quick-start-local) below
 
 ## Flow Examples
 
-rawBit ships with **16 hands-on example lessons** you can load, tweak, and inspect. They progress from legacy to SegWit and Taproot, but each is standalone — start anywhere.
+rawBit ships with **16 hands-on example lessons** you can load, tweak, and inspect. Drop a lesson from the sidebar's **Flow Examples** section onto the canvas and start learning. Lessons 1-14 progress from legacy transactions through SegWit and Taproot; lessons 15-16 add standalone hardware-signing and contributor labs.
 
 - **Lessons 1–2:** P2PKH, P2PK, multisig, and P2SH fundamentals
 - **Lessons 3–4:** Timelocks (nLockTime / nSequence), CLTV/CSV patterns
@@ -17,14 +17,14 @@ rawBit ships with **16 hands-on example lessons** you can load, tweak, and inspe
 - **Lesson 10:** Fee savings: wrapped SegWit vs legacy
 - **Lesson 11:** Taproot key-path spend (P2TR, Schnorr)
 - **Lesson 12:** Taproot script-path spend (taptree, control block, tapscript)
-- **Lesson 13:** Taproot script-path multisig (NUMS + `OP_CHECKSIGADD`)
+- **Lesson 13:** Taproot script-path multisig (NUMS + OP_CHECKSIGADD)
 - **Lesson 14:** MuSig2 multisig (BIP327, aggregated Schnorr)
 - **Lesson 15:** Trezor signing flow (BIP39/BIP32, RFC6979, hardware signing comparison)
 - **Lesson 16:** Summer of Bitcoin 2026 PoC flow
 
 The lesson transactions were broadcast on **testnet3**, so you can inspect them on-chain and compare the raw bytes yourself.
 
-**Lesson notes:** [docu/l-sum.md](docu/l-sum.md) currently covers lessons 1-14; lessons 15-16 are available in the app.
+**Lesson notes:** [docu/l-sum.md](docu/l-sum.md) summarizes all 16 lessons.
 
 ---
 
@@ -34,14 +34,14 @@ The lesson transactions were broadcast on **testnet3**, so you can inspect them 
 
 ## What rawBit does
 
+- **Debug scripts step by step:** Inspect stack diffs after each opcode and see where validation fails.
 - **Build and inspect transactions visually:** Drag predefined nodes for keys, scripts, serialization, signing, and verification onto a canvas.
 - **Compare formats side-by-side:** P2PKH, P2SH, wrapped SegWit, native SegWit v0, and Taproot v1 flows.
-- **Watch bytes change live:** Tweak `nSequence`, `nLockTime`, witness data, and `SIGHASH` types while sizes, weight, TXID/WTXID, preimages, witnesses, and fees update.
-- **Debug scripts step by step:** Inspect stack diffs after each opcode and see where validation fails.
+- **Trace transaction bytes live:** Build and edit inputs, outputs, scripts, signatures, and witness data while raw serialization, size, weight, TXID/WTXID, preimages, witnesses, and fees update.
 - **Inspect the implementation:** Open calculation nodes to view the exact Python function used by the backend.
 - **Work with larger lessons:** Use multi-tab history, templates, clipboard, search, minimap, and the protocol flow map.
-- **Export reproducible artifacts:** Save/load full JSON, compact/LLM snapshots, and optional share links. Imports use collision-safe IDs.
-- **Target Bitcoin networks where relevant:** Address and script nodes support mainnet, testnet, and regtest options where the operation needs a network.
+- **Export reproducible artifacts:** Save/load full JSON, export simplified snapshots or LLM-ready bundles with backend code for each exported node, scope exports to selected nodes, and create optional share links.
+- **Target Bitcoin networks where relevant:** Address nodes support mainnet, testnet, and regtest options where the operation needs a network.
 
 ---
 
@@ -92,7 +92,7 @@ Open [http://localhost:3041/](http://localhost:3041/). The frontend bundles less
 
 ### Optional: environment tweaks
 
-Tracked env files provide defaults for the app and tests. For private local overrides, use shell environment variables or an ignored mode-local file such as `.env.development.local`; see `.env.example` for supported keys. Local dev pages force remote API URLs back to `http://localhost:5007` unless `VITE_ALLOW_REMOTE_API=true`.
+The tracked `.env` file provides local defaults for the app and tests. For private overrides, use shell environment variables or an ignored `*.local` env file such as `.env.development.local`. Local dev pages force remote API URLs back to `http://localhost:5007` unless `VITE_ALLOW_REMOTE_API=true`.
 
 ---
 
@@ -100,12 +100,11 @@ Tracked env files provide defaults for the app and tests. For private local over
 
 - **Frontend:** React + Vite + Tailwind + `@xyflow/react`. Handles the canvas, tabs, panels, templates, clipboard, protocol flow map, search/minimap, and per-tab undo/redo.
 - **Backend:** Flask + Python (with `python-bitcointx`). Evaluates calculation nodes, validates scripts/signatures, enforces a sliding computation-time budget, and exposes `/bulk_calculate`, `/flows`, `/code`, and `/healthz`.
-- **Share service:** Optional Cloudflare Worker in `cloudflare/` for share links (`POST /share`, `GET /s/<id>`).
 
 See `/docu` for the deeper tours:
 
-- `frontend-architecture.md` – provider stack, hooks, canvas/panels/dialogs.
-- `backend-overview.md` – calculation pipeline, budgets, and API surface.
+- [frontend-architecture.md](docu/frontend-architecture.md) – provider stack, hooks, canvas/panels/dialogs.
+- [backend-overview.md](docu/backend-overview.md) – calculation pipeline, budgets, and API surface.
 
 ---
 

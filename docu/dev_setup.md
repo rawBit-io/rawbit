@@ -1,8 +1,8 @@
 # Developer Setup
 
-This guide collects the extra setup steps and tooling notes that make day‑to‑day
-development smoother. Follow the [README Quick start](../README.md#quick-start-local)
-to get the app running, then apply the optimizations below.
+This guide collects extra setup steps and tooling notes for local development.
+Follow the [README Quick start](../README.md#quick-start-local) to get the app
+running, then apply the optimizations below as needed.
 
 ## Fresh macOS bootstrap
 
@@ -50,11 +50,12 @@ Replace `/opt/homebrew` with `/usr/local` on Intel Macs.
 - If the import fails, verify that the system-level library is installed and
   reinstall the Python bindings with `pip install --no-binary=:all: secp256k1`.
 
-## IDE / Type Checking (Pyright)
+## IDE Type Hints
 
-We check type hints with [Pyright](https://github.com/microsoft/pyright). To
-avoid "Import could not be resolved" errors for the editable `python-bitcointx`
-dependency, add the virtual environment’s paths to `pyrightconfig.json`:
+The repository does not ship a Python type-checking command. If your editor uses
+Pyright or Pylance and reports "Import could not be resolved" for the editable
+`python-bitcointx` dependency, add the virtual environment's paths to a local
+`pyrightconfig.json`:
 
 ```json
 {
@@ -67,45 +68,38 @@ dependency, add the virtual environment’s paths to `pyrightconfig.json`:
 
 - Relative paths are resolved from the repository root. If your editable install
   lives elsewhere, swap in the absolute path to that directory.
-- You can tighten type checking (`standard` or `strict`) once the codebase is
-  clean under `basic`.
-
-Run Pyright manually with:
-
-```bash
-node_modules/.bin/pyright
-```
-
-or rely on the VS Code extension for on-save diagnostics.
+- This is optional editor configuration. The tracked project checks currently
+  use `npm run typecheck` for TypeScript and `python -m pytest backend/tests`
+  for backend validation.
 
 ## Environment Overrides
 
-Tracked env files provide the defaults used by local development, Playwright,
-and deployment scripts. For private overrides, use shell environment variables
-or an ignored mode-local file such as `.env.development.local`. Do not put
-secrets in tracked env files.
+The tracked `.env` file provides defaults used by local development and tests.
+For private overrides, use shell environment variables or an ignored mode-local
+file such as `.env.development.local`. Do not put secrets in tracked env files.
 
 ```bash
 # Optional: point local dev at a remote backend.
 VITE_ALLOW_REMOTE_API=true
 VITE_API_BASE_URL=https://api-dev.rawbit.io
 
-# Optional: only needed if you run a share service locally.
+# Optional: only useful if you run a compatible share service locally.
 VITE_SHARE_BASE_URL=http://localhost:8787
 ```
 
-See `.env.example` for the full list of supported environment flags you can copy
-as a baseline.
+Share links require an external service that implements `POST /share` and
+`GET /s/<id>`; that service is not included in this repository.
 
 ## JavaScript Tooling
 
 Vite, ESLint, and Vitest are already configured via `npm install`. Useful
 commands:
 
-- `npm run lint` – type-aware ESLint pass over the frontend.
-- `npm run typecheck` – TypeScript project references for the app, worker, and E2E tests.
-- `npm run test` – frontend unit/integration suite.
-- `npm run test:e2e` – Playwright end-to-end tests (backend must be running).
+- `npm run lint` - ESLint pass over the frontend.
+- `npm run typecheck` - TypeScript project references for the app, worker, and E2E tests.
+- `npm run test` - frontend unit/integration suite.
+- `npm run test:e2e` - Playwright end-to-end tests. Start the backend first, or
+  use `python3 run_all_tests.py` to let the helper start it for you.
 
 Install Playwright browsers once with `npx playwright install`.
 
@@ -119,7 +113,7 @@ python -m pytest backend/tests
 
 The helper script `python3 run_all_tests.py` drives lint, typecheck, frontend,
 E2E, and backend suites sequentially and respects the `RUN_ALL_TESTS_*`
-overrides documented in the README.
+overrides documented in [run-all-tests.md](./run-all-tests.md).
 
 ## Logging & Debugging
 

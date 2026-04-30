@@ -1,83 +1,103 @@
 # Frontend Architecture Guide
 
-This guide explains how the visual editor is composed, how state flows between providers and hooks, and where to extend behaviour when new features land.
+The frontend is a React + Vite visual editor built on React Flow. Its main job
+is to keep the canvas, tabs, calculations, exports, sharing, and protocol-map
+views in sync without hiding the Bitcoin data being inspected.
 
-## Top-Level Composition (`Flow.tsx`)
+## Runtime Shape
 
-The main entry point is `Flow.tsx`, which wraps the canvas with three key providers before rendering the editor surface:
+[`Flow.tsx`](../src/components/Flow.tsx) is the main orchestration point.
 
-- **`UndoRedoProvider`** – maintains per-tab history up to 50 snapshots, including calculation status and script-step payloads.【F:src/components/Flow.tsx†L32-L60】【F:src/contexts/UndoRedoContext.tsx†L72-L149】
-- **`SnapshotProvider`** – exposes the snapshot scheduler so hooks and components can queue history saves without needing the full undo context.【F:src/components/Flow.tsx†L64-L79】
-- **`FlowActionsProvider`** – supplies high-level actions (`groupWithUndo`, `ungroupWithUndo`) to any descendant component that needs to trigger grouping with undo support.【F:src/components/Flow.tsx†L61-L63】
-- The exported `Flow` component adds the `ReactFlowProvider` on the outside so hooks can call `useReactFlow` anywhere within the tree.【F:src/components/Flow.tsx†L1588-L1598】
+- `ReactFlowProvider` wraps the editor so graph hooks can access React Flow.
+- `UndoRedoProvider` stores per-tab history, calculation state, and script-step
+  snapshots.
+- `FlowContent` owns the active canvas state, tab state, dialog state, backend
+  calculation state, and protocol-map state.
+- `SnapshotProvider` exposes the active snapshot scheduler.
+- `FlowActionsProvider` exposes shared group and ungroup actions to descendants.
 
-Inside those providers, `FlowContent` orchestrates:
+The editor surface is split into three shells:
 
-- Tab lifecycle, loading, and tooltips via `useTabs` with persisted transforms and script-step hydration.【F:src/components/Flow.tsx†L380-L520】
-- Panel state (`showUndoRedoPanel`, `showErrorPanel`, `showSearchPanel`) with auto-close logic driven by `usePanelAutoClose`.
-- Calculation status per tab and error badges stored in `calcStateByTab`.
-- Dialog visibility (connect dialog, share dialog + Turnstile soft gate, confirmation prompts).
-- Minimap sizing and placement, including adjustments when right-hand panels are open.
-- The first-run experience is gated by `FirstRunDialog`, which offers quick links to example flows and records a local-storage flag so returning users skip the modal.【F:src/components/Flow.tsx†L1535-L1560】
-
-## Canvas & Panel Layering
-
-`Flow.tsx` renders three compositional shells that divide responsibilities:
-
-- **`FlowCanvas`** – wraps `<ReactFlow>` and the minimap. It receives the node/edge collections plus handlers from `useNodeOperations`, keeps track of selection mode, and exposes props that align with the hooks described below.
-- **`FlowPanels`** – houses the undo history, error panel, and search panel. Visibility is controlled by props from `FlowContent`, while `usePanelAutoClose` closes panels when the active tab changes or errors clear.
-- **`FlowDialogLayer`** – manages all dialogs: confirmation modal, connect dialog, share dialog, and the Turnstile soft-gate overlay. Each dialog is wired to callbacks from the flow hooks (`useFlowInteractions`, `useShareFlow`, `useSimplifiedSave`).【F:src/components/Flow.tsx†L512-L560】
+- `FlowCanvas` renders React Flow, nodes, edges, viewport handlers, and minimap.
+- `FlowPanels` renders undo, error, search, and protocol-map panels.
+- `FlowDialogLayer` renders confirmation, connect, share, soft-gate, and export
+  dialogs.
 
 ## Core Hooks
 
-### `useNodeOperations`
-Centralises all mutations to the React Flow graph:
+- `useNodeOperations` owns node/edge mutation, drag/drop, grouping, template
+  placement, graph import, and group resizing.
+- `useFlowInteractions` coordinates undo-friendly edits, reconnects, dirty state,
+  paste behavior, tab tooltips, and snapshot throttling.
+- `useGlobalCalculationLogic` debounces dirty calculable nodes, sends partial
+  graphs to `/bulk_calculate`, discards stale responses by version, and merges
+  results/errors back into nodes.
+- `useSnapshotScheduler` batches history writes and avoids duplicate snapshots
+  during drags, calculations, imports, and grouped operations.
+- `useTabs` persists multi-tab metadata and archived graph snapshots in
+  `localStorage`.
+- `useSharedFlowLoader` imports `?s=` and `?share=` links, merges shared graphs,
+  restores script steps, and preserves protocol-map layout when present.
 
-- Owns `nodes`/`edges` state and registers handlers for `onNodesChange`, `onEdgesChange`, drag/drop, grouping, and template placement (via `placeFlowDataAtPosition`).【F:src/hooks/useNodeOperations.ts†L1-L200】
-- Tracks `pendingIds` for initial dimension measurements and resizes groups with `fitGroupToChildren`.
-- Integrates with script-step caching to ingest saved debug steps on load and remove them when nodes are deleted.
+## Data and Calculation Flow
 
-### `useFlowInteractions`
-Builds on `useNodeOperations` to coordinate undo-friendly updates:
+1. A user action updates nodes or edges through `useNodeOperations` or
+   `useFlowInteractions`.
+2. Affected calculation nodes are marked dirty and a snapshot is scheduled.
+3. `useGlobalCalculationLogic` builds the recalculation payload and calls the
+   backend.
+4. Backend results update node `result`, `outputValues`, error fields, and
+   `scriptDebugSteps`.
+5. Clean snapshots are pushed into `UndoRedoProvider` so undo/redo restores both
+   graph shape and debugger state.
 
-- Coalesces drag updates and throttles snapshot pushes (`fpsForCount`, `scheduleDoubleRAF`).
-- Manages dirty state flags, reconnect operations, paste shortcuts, and tab tooltips.
-- Works alongside the snapshot scheduler to skip redundant history entries when batch operations occur.【F:src/hooks/useFlowInteractions.ts†L1-L220】
+## File, Share, and Export Paths
 
-### `useGlobalCalculationLogic`
-Handles debounced backend recalculation:
+`useFileOperations` handles full-flow saves, imports, simplified exports, and
+LLM exports.
 
-- Detects dirty calculable nodes, filters those that have sufficient inputs, and requests partial recalculation from the backend.
-- Clears dirty flags for nodes that are missing required handles, drops stale script debug steps, and merges backend results/errors into the graph.
-- Maintains optimistic concurrency by tagging requests with versions and discarding stale responses.【F:src/hooks/useCalculation.ts†L1-L200】
+- Full-flow saves preserve node positions, edges, tab metadata, script steps, and
+  protocol-map layout.
+- Simplified exports omit canvas layout and keep the selected subgraph when
+  nodes are selected; otherwise they export the full graph.
+- LLM exports use the simplified shape plus runtime semantics and backend Python
+  source code for each unique exported node function.
+- Simplified and LLM exports are intentionally not importable back into the
+  editor because they omit layout data.
 
-### `useSnapshotScheduler`
-Coordinates snapshot timing with undo/redo:
+Sharing is handled by `useShareFlow`, `buildSharePayload`, and
+`src/lib/share`. Share links require an external service configured with
+`VITE_SHARE_BASE_URL`; tests stub the share endpoints.
 
-- Provides imperative helpers (`scheduleSnapshot`, `markPendingAfterDirtyChange`, skip locks) so hooks avoid redundant history entries.
-- Supports auto-snapshotting after calculations finish (when `calcStatus` returns to `OK`), and refreshes the banner when requested.
-- Works in tandem with `UndoRedoContext` by pushing sanitized node/edge copies and preserving calculation state snapshots.【F:src/hooks/useSnapshotScheduler.ts†L1-L200】
+## Protocol Map
 
-### Other Supporting Hooks
+The flow-map panel is built from grouped canvas nodes by
+`buildProtocolDiagramModel` and rendered by `ProtocolDiagramPanel`.
 
-- `useSimplifiedSave` – prompts users when a partial selection is active, ensuring simplified exports only capture intended nodes.【F:src/hooks/useSimplifiedSave.ts†L9-L44】
-- `useSharedFlowLoader` – imports flows from the share service, merges them into the current tab, and schedules snapshots.
-- `usePanelAutoClose` – closes panels when switching tabs or when error counts drop to zero.
-- `useHighlight` / `useSearchHighlights` – manage search highlighting, selection syncing, and viewport fitting for highlighted nodes.
-- `useColorPalette`, `useMiniMapSize`, `useFlowHotkeys`, `useTabs` – provide focused behaviour for color styling, minimap sizing, keyboard shortcuts, and multi-tab persistence respectively.
+- Group cards show boundary inputs and outputs while hiding internal processing
+  nodes.
+- Cross-group edges are bundled into protocol-level connection lines.
+- Clicks on cards, boundary nodes, and connection lines synchronize back to the
+  main canvas.
+- Manual group offsets and comments are persisted in the flow's
+  `protocolDiagramLayout`.
 
-## Tab, History, and Script-Step Management
+The detailed classification and layout rules live in
+[protocol-diagram-logic-spec.md](./protocol-diagram-logic-spec.md).
 
-- Tabs persist to `localStorage` (`rawbit.flow.tabs`, `rawbit.flow.activeTab`) and store node/edge snapshots plus optional transform metadata.【F:src/hooks/useTabs.ts†L1-L200】
-- Undo history stores script steps alongside graph snapshots so replays maintain debug traces; on restoration the cache is repopulated via `restoreScriptSteps`.【F:src/contexts/UndoRedoContext.tsx†L72-L154】
-- The graph revision counter (`graphRevRef`) increments on every clean snapshot to coordinate with calculations and avoid stale banner states.
+## Source Code Views
 
-## Data Flow Overview
+Calculation and opcode nodes can open `NodeCodeDialog`, which asks the backend
+`/code` endpoint for the Python helper source. This keeps the UI focused on the
+actual runtime implementation instead of a duplicated frontend description.
 
-1. User interaction triggers a handler in `useNodeOperations` or `useFlowInteractions`.
-2. Handlers mark nodes dirty, schedule snapshots, and update panel/dialog state.
-3. `useGlobalCalculationLogic` debounces dirty nodes, builds a subgraph, and calls the backend.
-4. Responses merge back into the graph, clearing dirty flags and pushing updates through `useSnapshotScheduler`.
-5. `UndoRedoProvider` records the clean snapshot once snapshots are flushed, including script debug steps and calc status.
+## Extension Points
 
-This separation keeps the editor predictable: mutations go through a single hook, calculations are isolated, and history is managed in one place. Extend these entry points when adding new capabilities (e.g., additional dialogs or grouping behaviours) so future contributors inherit consistent patterns.
+- Add calculation behavior in the backend first, then expose it through frontend
+  node metadata and palette entries.
+- Route canvas mutations through the existing hooks so undo, dirty state, and
+  recalculation stay consistent.
+- Preserve script-step cache handling when importing, copying, sharing, or
+  exporting nodes.
+- Update Playwright coverage when a workflow changes visible behavior across
+  files, tabs, dialogs, panels, or backend responses.
