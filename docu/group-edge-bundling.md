@@ -16,16 +16,16 @@ flows. That helps, but it does not fully solve the problem:
   exists
 
 Group edge bundling is the first concrete implementation in a broader edge
-readability direction. It targets the most obvious dense case: repeated edges
-crossing from one group to another. MuSig2 (`flow-14`, `p14_MuSig2.json`) is the
-main regression fixture.
+readability direction. It targets cross-group edges so connections between
+groups leave and enter through stable boundary points. MuSig2 (`flow-14`,
+`p14_MuSig2.json`) is the main regression fixture.
 
 ## Design Goals
 
 1. Reduce visual noise without hiding real dependencies.
 2. Keep normal node-to-node edges for ordinary local flow.
-3. Bundle repeated cross-group traffic into one outside connection per directed
-   group pair.
+3. Route all cross-group traffic through one outside connection per directed
+   group pair, even when there is only one edge.
 4. Keep one visible outgoing port on the right group boundary and one visible
    incoming port on the left group boundary.
 5. Let React Flow render and update inside-group edges.
@@ -51,14 +51,14 @@ For every bundleable directed group pair, the builder creates:
 - normal React Flow segment edges inside each group
 - one custom outside bundle edge between the boundary ports
 
-An edge is bundleable when its source belongs to one group, its target belongs to
-another group, and at least two edges share that same directed group pair. Single
-cross-group edges stay normal.
+An edge is bundleable when its source belongs to one group and its target belongs
+to another group. Single cross-group edges are still routed through the generated
+boundary ports so no edge crosses group boundaries on its own.
 
 ## Implemented So Far
 
-- Cross-group bundle detection for repeated edges between the same directed
-  group pair.
+- Cross-group bundle detection for edges between directed group pairs, including
+  single-edge pairs.
 - Render-layer removal of the represented raw cross-group edges, with their
   canonical data preserved on the outside bundle edge.
 - One custom outside bundle edge between generated boundary ports.

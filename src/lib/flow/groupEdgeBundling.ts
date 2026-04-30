@@ -12,7 +12,7 @@ export const GROUP_BUNDLE_PORT_TARGET_HANDLE = "in";
 
 const DEFAULT_GROUP_WIDTH = 380;
 const DEFAULT_GROUP_HEIGHT = 220;
-const MIN_BUNDLE_EDGE_COUNT = 2;
+const MIN_BUNDLE_EDGE_COUNT = 1;
 const BUNDLE_PORT_NODE_SIZE = 12;
 
 interface Point {

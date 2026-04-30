@@ -75,7 +75,7 @@ describe("buildGroupBundledEdges", () => {
     });
   });
 
-  it("leaves single cross-group edges as normal detailed edges", () => {
+  it("routes single cross-group edges through boundary ports", () => {
     const nodes: FlowNode[] = [
       buildFlowNode({ id: "group-a", type: "shadcnGroup" }),
       buildFlowNode({ id: "group-b", type: "shadcnGroup" }),
@@ -84,7 +84,35 @@ describe("buildGroupBundledEdges", () => {
     ];
     const edges = [buildEdge({ id: "e1", source: "a1", target: "b1" })];
 
-    expect(buildGroupBundledEdges({ nodes, edges })).toBe(edges);
+    const visual = buildGroupBundledElements({ nodes, edges });
+    const rendered = visual.edges;
+    const bundle = rendered.find((edge) =>
+      edge.id.startsWith(GROUP_BUNDLE_EDGE_ID_PREFIX)
+    );
+
+    expect(visual.nodes).toHaveLength(nodes.length + 2);
+    expect(
+      visual.nodes.filter((node) =>
+        node.id.startsWith(GROUP_BUNDLE_PORT_NODE_ID_PREFIX)
+      )
+    ).toHaveLength(2);
+    expect(rendered.find((edge) => edge.id === "e1")).toBeUndefined();
+    expect(
+      rendered.filter((edge) =>
+        edge.id.startsWith(GROUP_BUNDLE_SEGMENT_EDGE_ID_PREFIX)
+      )
+    ).toHaveLength(2);
+    expect(bundle).toMatchObject({
+      id: "__group_bundle__:group-a->group-b",
+      data: {
+        bundledEdgeIds: ["e1"],
+        count: 1,
+      },
+    });
+    expect(sanitizeGroupBundleVisualElementsForState(visual)).toEqual({
+      nodes,
+      edges,
+    });
   });
 
   it("uses one fixed right output port and one fixed left input port per group", () => {

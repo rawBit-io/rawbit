@@ -217,6 +217,66 @@ describe("FlowCanvas", () => {
     });
   });
 
+  it("routes single cross-group edges through boundary ports", () => {
+    const groupedNodes: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "A", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "B", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "a1",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "b1",
+        type: "calculation",
+        parentId: "group-b",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+    ];
+
+    render(
+      <FlowCanvas
+        {...baseProps}
+        nodes={groupedNodes}
+        edges={[
+          { id: "edge-1", source: "a1", target: "b1" } as Edge,
+        ]}
+      />
+    );
+
+    const passedEdges = reactFlowSpy.props.edges as Edge[];
+    const passedNodes = reactFlowSpy.props.nodes as FlowNode[];
+
+    expect(passedEdges.find((edge) => edge.id === "edge-1")).toBeUndefined();
+    expect(
+      passedNodes.filter((node) => node.type === GROUP_BUNDLE_PORT_NODE_TYPE)
+    ).toHaveLength(2);
+    expect(passedEdges.filter((edge) => isGroupBundleSegmentEdgeId(edge.id)))
+      .toHaveLength(2);
+    expect(
+      passedEdges.find((edge) => edge.id === "__group_bundle__:group-a->group-b")
+    ).toMatchObject({
+      type: "groupBundle",
+      data: {
+        bundledEdgeIds: ["edge-1"],
+        count: 1,
+      },
+    });
+  });
+
   it("routes bundle selection through controlled node and edge changes", () => {
     const onEdgesChange = vi.fn();
     const onNodesChange = vi.fn();
