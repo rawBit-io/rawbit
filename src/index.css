@@ -321,19 +321,64 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
 }
 
 .react-flow__edge.group-bundle-segment-edge .react-flow__edge-path {
-  stroke-width: 1.15 !important;
+  stroke-width: 1.4 !important;
+  stroke-dasharray: 6 5 !important;
+  opacity: var(--edge-light-opacity, 0.45) !important;
+}
+
+.dark .react-flow__edge.group-bundle-segment-edge .react-flow__edge-path {
+  opacity: var(--edge-dark-opacity, 0.45) !important;
 }
 
 .react-flow__edge.group-bundle-segment-edge.selected .react-flow__edge-path,
 .react-flow__edge.group-bundle-segment-edge.group-bundle-edge-path-selected
   .react-flow__edge-path {
   stroke-width: 2.1 !important;
+  stroke-dasharray: 7 5 !important;
+  opacity: 0.95 !important;
+}
+
+.react-flow__node-groupBundlePort {
+  cursor: ns-resize !important;
 }
 
 .group-bundle-port-node {
-  width: 12px;
-  height: 12px;
-  pointer-events: none;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  border: 1.5px solid hsl(var(--foreground) / 0.65);
+  background: hsl(var(--background) / 0.92);
+  box-shadow: 0 0 0 2px hsl(var(--background) / 0.85);
+  cursor: ns-resize;
+  pointer-events: auto;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    transform 120ms ease;
+}
+
+.group-bundle-port-node::before {
+  content: "";
+  width: 2px;
+  height: 10px;
+  border-top: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.react-flow__node-groupBundlePort:hover .group-bundle-port-node {
+  border-color: hsl(var(--primary));
+  box-shadow:
+    0 0 0 2px hsl(var(--background)),
+    0 0 0 5px hsl(var(--primary) / 0.18);
+  transform: scale(1.12);
+}
+
+.react-flow__node-groupBundlePort:hover .group-bundle-port-node::before {
+  opacity: 0.85;
 }
 
 .group-bundle-port-handle {

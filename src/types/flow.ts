@@ -57,6 +57,11 @@ export interface OutputPortDefinition {
   handleTopSource?: string;
 }
 
+export interface GroupBundlePortOffsets {
+  source?: number;
+  target?: number;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Calculation-node-specific data                                    */
 /* ------------------------------------------------------------------ */
@@ -106,6 +111,7 @@ export interface CalculationNodeData extends Record<string, unknown> {
   groupFlash?: boolean;
   borderColor?: string;
   locked?: boolean;
+  groupBundlePortOffsets?: GroupBundlePortOffsets;
   isHighlighted?: boolean;
   isConcatAll?: boolean;
   searchMark?: {

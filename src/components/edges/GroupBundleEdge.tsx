@@ -272,7 +272,7 @@ export function GroupBundleEdge({
         <circle
           cx={sourceBoundaryPoint.x}
           cy={sourceBoundaryPoint.y}
-          r={hasSelectedPath ? 4.2 : 3.2}
+          r={hasSelectedPath ? 6 : 5}
           fill="hsl(var(--background))"
           stroke="hsl(var(--foreground))"
           strokeWidth={hasSelectedPath ? 1.8 : 1.2}
@@ -286,7 +286,7 @@ export function GroupBundleEdge({
         <circle
           cx={sourceBoundaryPoint.x}
           cy={sourceBoundaryPoint.y}
-          r={9}
+          r={12}
           fill="transparent"
           className="cursor-pointer"
           data-bundle-hit="source-port"
@@ -301,7 +301,7 @@ export function GroupBundleEdge({
         <circle
           cx={targetBoundaryPoint.x}
           cy={targetBoundaryPoint.y}
-          r={hasSelectedPath ? 4.2 : 3.2}
+          r={hasSelectedPath ? 6 : 5}
           fill="hsl(var(--background))"
           stroke="hsl(var(--foreground))"
           strokeWidth={hasSelectedPath ? 1.8 : 1.2}
@@ -315,7 +315,7 @@ export function GroupBundleEdge({
         <circle
           cx={targetBoundaryPoint.x}
           cy={targetBoundaryPoint.y}
-          r={9}
+          r={12}
           fill="transparent"
           className="cursor-pointer"
           data-bundle-hit="target-port"

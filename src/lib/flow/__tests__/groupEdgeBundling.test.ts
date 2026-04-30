@@ -115,6 +115,132 @@ describe("buildGroupBundledEdges", () => {
     });
   });
 
+  it("routes grouped source edges to ungrouped targets through an output port", () => {
+    const nodes: FlowNode[] = [
+      buildFlowNode({
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "Inputs", width: 300, height: 200 },
+      }),
+      buildFlowNode({ id: "a1", parentId: "group-a" }),
+      buildFlowNode({
+        id: "outside",
+        position: { x: 500, y: 40 },
+        data: { title: "Outside" },
+      }),
+    ];
+    const edges = [
+      buildEdge({
+        id: "e1",
+        source: "a1",
+        target: "outside",
+        targetHandle: "in",
+      }),
+    ];
+
+    const visual = buildGroupBundledElements({ nodes, edges });
+    const bundle = visual.edges.find((edge) =>
+      edge.id.startsWith(GROUP_BUNDLE_EDGE_ID_PREFIX)
+    );
+
+    expect(visual.nodes).toHaveLength(nodes.length + 1);
+    expect(
+      visual.nodes.filter((node) =>
+        node.id.startsWith(GROUP_BUNDLE_PORT_NODE_ID_PREFIX)
+      )
+    ).toHaveLength(1);
+    expect(visual.edges.find((edge) => edge.id === "e1")).toBeUndefined();
+    expect(
+      visual.edges.filter((edge) =>
+        edge.id.startsWith(GROUP_BUNDLE_SEGMENT_EDGE_ID_PREFIX)
+      )
+    ).toHaveLength(1);
+    expect(bundle).toMatchObject({
+      id: "__group_bundle__:group-a->node:outside:in",
+      source: "__group_bundle_port__:source:group-a->node:outside:in",
+      target: "outside",
+      targetHandle: "in",
+      data: {
+        bundledEdgeIds: ["e1"],
+        count: 1,
+        sourceGroupId: "group-a",
+        sourceLabel: "Inputs",
+        targetLabel: "Outside",
+        renderSourcePort: true,
+        renderTargetPort: false,
+      },
+    });
+    expect(bundle?.data?.targetGroupId).toBeUndefined();
+    expect(sanitizeGroupBundleVisualElementsForState(visual)).toEqual({
+      nodes,
+      edges,
+    });
+  });
+
+  it("routes ungrouped source edges to grouped targets through an input port", () => {
+    const nodes: FlowNode[] = [
+      buildFlowNode({
+        id: "outside",
+        position: { x: 0, y: 40 },
+        data: { title: "Outside" },
+      }),
+      buildFlowNode({
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "Outputs", width: 300, height: 200 },
+      }),
+      buildFlowNode({ id: "b1", parentId: "group-b" }),
+    ];
+    const edges = [
+      buildEdge({
+        id: "e1",
+        source: "outside",
+        sourceHandle: "out",
+        target: "b1",
+      }),
+    ];
+
+    const visual = buildGroupBundledElements({ nodes, edges });
+    const bundle = visual.edges.find((edge) =>
+      edge.id.startsWith(GROUP_BUNDLE_EDGE_ID_PREFIX)
+    );
+
+    expect(visual.nodes).toHaveLength(nodes.length + 1);
+    expect(
+      visual.nodes.filter((node) =>
+        node.id.startsWith(GROUP_BUNDLE_PORT_NODE_ID_PREFIX)
+      )
+    ).toHaveLength(1);
+    expect(visual.edges.find((edge) => edge.id === "e1")).toBeUndefined();
+    expect(
+      visual.edges.filter((edge) =>
+        edge.id.startsWith(GROUP_BUNDLE_SEGMENT_EDGE_ID_PREFIX)
+      )
+    ).toHaveLength(1);
+    expect(bundle).toMatchObject({
+      id: "__group_bundle__:node:outside:out->group-b",
+      source: "outside",
+      sourceHandle: "out",
+      target: "__group_bundle_port__:target:node:outside:out->group-b",
+      data: {
+        bundledEdgeIds: ["e1"],
+        count: 1,
+        targetGroupId: "group-b",
+        sourceLabel: "Outside",
+        targetLabel: "Outputs",
+        renderSourcePort: false,
+        renderTargetPort: true,
+      },
+    });
+    expect(bundle?.data?.sourceGroupId).toBeUndefined();
+    expect(sanitizeGroupBundleVisualElementsForState(visual)).toEqual({
+      nodes,
+      edges,
+    });
+  });
+
   it("uses one fixed right output port and one fixed left input port per group", () => {
     const nodes: FlowNode[] = [
       buildFlowNode({
@@ -150,6 +276,47 @@ describe("buildGroupBundledEdges", () => {
         targetBoundaryPoint: { x: 0, y: 600 },
         sourcePosition: Position.Right,
         targetPosition: Position.Left,
+      },
+    });
+  });
+
+  it("applies persisted vertical port offsets", () => {
+    const nodes: FlowNode[] = [
+      buildFlowNode({
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: {
+          title: "A",
+          width: 300,
+          height: 200,
+          groupBundlePortOffsets: { source: 40 },
+        },
+      }),
+      buildFlowNode({
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: {
+          title: "B",
+          width: 300,
+          height: 200,
+          groupBundlePortOffsets: { target: -30 },
+        },
+      }),
+      buildFlowNode({ id: "a1", parentId: "group-a" }),
+      buildFlowNode({ id: "b1", parentId: "group-b" }),
+    ];
+    const edges: Edge[] = [buildEdge({ id: "e1", source: "a1", target: "b1" })];
+
+    const bundle = buildGroupBundledEdges({ nodes, edges }).find((edge) =>
+      edge.id.startsWith(GROUP_BUNDLE_EDGE_ID_PREFIX)
+    );
+
+    expect(bundle).toMatchObject({
+      data: {
+        sourceBoundaryPoint: { x: 300, y: 140 },
+        targetBoundaryPoint: { x: 500, y: 70 },
       },
     });
   });

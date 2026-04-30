@@ -12,8 +12,11 @@ export const GROUP_BUNDLE_PORT_TARGET_HANDLE = "in";
 
 const DEFAULT_GROUP_WIDTH = 380;
 const DEFAULT_GROUP_HEIGHT = 220;
+const DEFAULT_NODE_WIDTH = 160;
+const DEFAULT_NODE_HEIGHT = 80;
 const MIN_BUNDLE_EDGE_COUNT = 1;
-const BUNDLE_PORT_NODE_SIZE = 12;
+const BUNDLE_PORT_NODE_SIZE = 18;
+const BUNDLE_PORT_NODE_MARGIN = BUNDLE_PORT_NODE_SIZE / 2;
 
 interface Point {
   x: number;
@@ -27,11 +30,24 @@ interface GroupRect {
   y: number;
   width: number;
   height: number;
+  sourcePortOffset: number;
+  targetPortOffset: number;
 }
 
+type BundleEndpoint =
+  | {
+      kind: "group";
+      groupId: string;
+    }
+  | {
+      kind: "node";
+      nodeId: string;
+      handle?: string | null;
+    };
+
 interface BundleAccumulator {
-  sourceGroupId: string;
-  targetGroupId: string;
+  sourceEndpoint: BundleEndpoint;
+  targetEndpoint: BundleEndpoint;
   edgeIds: string[];
   edgeRefs: GroupBundleEdgeRef[];
   selectedEdgeIds: Set<string>;
@@ -53,8 +69,8 @@ export interface GroupBundleEdgeData extends Record<string, unknown> {
   selectedEdgeIds: string[];
   representedEdges?: GroupBundleRepresentedEdge[];
   count: number;
-  sourceGroupId: string;
-  targetGroupId: string;
+  sourceGroupId?: string;
+  targetGroupId?: string;
   sourceLabel: string;
   targetLabel: string;
   sourceBoundaryPoint: Point;
@@ -111,6 +127,15 @@ const asString = (value: unknown): string | undefined =>
 const groupLabel = (node: FlowNode): string =>
   asString((node.data as NodeData | undefined)?.title) ?? node.id;
 
+const nodeLabel = (node: FlowNode | undefined, fallbackId: string): string =>
+  node ? groupLabel(node) : fallbackId;
+
+const groupBundlePortOffset = (
+  data: NodeData | undefined,
+  role: "source" | "target"
+): number =>
+  asFiniteNumber(data?.groupBundlePortOffsets?.[role]) ?? 0;
+
 const groupRect = (node: FlowNode): GroupRect => {
   const data = node.data as NodeData | undefined;
   return {
@@ -128,6 +153,8 @@ const groupRect = (node: FlowNode): GroupRect => {
       asFiniteNumber(node.height) ??
       asFiniteNumber(node.measured?.height) ??
       DEFAULT_GROUP_HEIGHT,
+    sourcePortOffset: groupBundlePortOffset(data, "source"),
+    targetPortOffset: groupBundlePortOffset(data, "target"),
   };
 };
 
@@ -136,25 +163,53 @@ const centerOf = (rect: GroupRect): Point => ({
   y: rect.y + rect.height / 2,
 });
 
+const centerOfNode = (node: FlowNode | undefined): Point => {
+  if (!node) return { x: 0, y: 0 };
+  const data = node.data as NodeData | undefined;
+  return {
+    x:
+      (node.positionAbsolute?.x ?? node.position.x) +
+      (asFiniteNumber(data?.width) ??
+        asFiniteNumber(node.width) ??
+        asFiniteNumber(node.measured?.width) ??
+        DEFAULT_NODE_WIDTH) /
+        2,
+    y:
+      (node.positionAbsolute?.y ?? node.position.y) +
+      (asFiniteNumber(data?.height) ??
+        asFiniteNumber(node.height) ??
+        asFiniteNumber(node.measured?.height) ??
+        DEFAULT_NODE_HEIGHT) /
+        2,
+  };
+};
+
 const boundaryAnchor = (
   rect: GroupRect,
-  position: Position
+  position: Position,
+  yOffset = 0
 ): {
   boundaryPoint: Point;
   position: Position;
 } => {
   const center = centerOf(rect);
+  const minY = rect.y + BUNDLE_PORT_NODE_MARGIN;
+  const maxY = rect.y + rect.height - BUNDLE_PORT_NODE_MARGIN;
+  const sideY =
+    minY <= maxY
+      ? Math.min(Math.max(center.y + yOffset, minY), maxY)
+      : center.y;
   const boundaryPoint = (() => {
     switch (position) {
       case Position.Left:
         return {
           x: rect.x,
-          y: center.y,
+          y: sideY,
         };
       case Position.Right:
         return {
           x: rect.x + rect.width,
-          y: center.y,
+          y: sideY,
         };
       case Position.Top:
         return {
@@ -322,10 +377,8 @@ export const getGroupBundleSegmentEdgeIds = (edge: Edge): string[] => {
 
 const groupBundlePortNodeId = (
   role: "source" | "target",
-  sourceGroupId: string,
-  targetGroupId: string
-): string =>
-  `${GROUP_BUNDLE_PORT_NODE_ID_PREFIX}${role}:${sourceGroupId}->${targetGroupId}`;
+  bundleId: string
+): string => `${GROUP_BUNDLE_PORT_NODE_ID_PREFIX}${role}:${bundleId}`;
 
 const groupBundleSegmentEdgeId = (
   side: "source" | "target",
@@ -350,6 +403,33 @@ const toBundleEdgeRef = (
   sourceHandle: edge.sourceHandle,
   targetHandle: edge.targetHandle,
 });
+
+const bundleEndpointKey = (endpoint: BundleEndpoint): string =>
+  endpoint.kind === "group"
+    ? endpoint.groupId
+    : `node:${endpoint.nodeId}:${endpoint.handle ?? ""}`;
+
+const bundleEndpointGroupId = (
+  endpoint: BundleEndpoint
+): string | undefined =>
+  endpoint.kind === "group" ? endpoint.groupId : undefined;
+
+const bundleEndpointLabel = (
+  endpoint: BundleEndpoint,
+  groupRects: Map<string, GroupRect>,
+  nodeById: Map<string, FlowNode>
+): string =>
+  endpoint.kind === "group"
+    ? (groupRects.get(endpoint.groupId)?.label ?? endpoint.groupId)
+    : nodeLabel(nodeById.get(endpoint.nodeId), endpoint.nodeId);
+
+const bundleEndpointPoint = (
+  endpoint: BundleEndpoint,
+  nodeById: Map<string, FlowNode>
+): Point =>
+  endpoint.kind === "node"
+    ? centerOfNode(nodeById.get(endpoint.nodeId))
+    : { x: 0, y: 0 };
 
 const buildPortNode = ({
   id,
@@ -390,7 +470,7 @@ const buildPortNode = ({
     groupId,
     role,
   },
-  draggable: false,
+  draggable: true,
   selectable: false,
   connectable: false,
   deletable: false,
@@ -407,6 +487,7 @@ export const buildGroupBundledElements = ({
 }): GroupBundledElements => {
   const sourceNodes = stripGroupBundlePortNodes(nodes);
   const sourceEdges = sanitizeGroupBundleRenderEdgesForState(edges);
+  const nodeById = new Map(sourceNodes.map((node) => [node.id, node]));
   const groupRects = new Map<string, GroupRect>();
   const nodeToGroup = new Map<string, string>();
 
@@ -422,17 +503,28 @@ export const buildGroupBundledElements = ({
     nodeToGroup.set(node.id, node.parentId);
   }
 
-  if (groupRects.size < 2) return { nodes: sourceNodes, edges: sourceEdges };
+  if (groupRects.size < 1) return { nodes: sourceNodes, edges: sourceEdges };
 
   const bundlesByPair = new Map<string, BundleAccumulator>();
 
   for (const [edgeIndex, edge] of sourceEdges.entries()) {
     const sourceGroupId = nodeToGroup.get(edge.source);
     const targetGroupId = nodeToGroup.get(edge.target);
-    if (!sourceGroupId || !targetGroupId) continue;
-    if (sourceGroupId === targetGroupId) continue;
+    if (!sourceGroupId && !targetGroupId) continue;
+    if (sourceGroupId && targetGroupId && sourceGroupId === targetGroupId) {
+      continue;
+    }
 
-    const key = `${sourceGroupId}->${targetGroupId}`;
+    const sourceEndpoint: BundleEndpoint = sourceGroupId
+      ? { kind: "group", groupId: sourceGroupId }
+      : { kind: "node", nodeId: edge.source, handle: edge.sourceHandle };
+    const targetEndpoint: BundleEndpoint = targetGroupId
+      ? { kind: "group", groupId: targetGroupId }
+      : { kind: "node", nodeId: edge.target, handle: edge.targetHandle };
+
+    const key = `${bundleEndpointKey(sourceEndpoint)}->${bundleEndpointKey(
+      targetEndpoint
+    )}`;
     const existing = bundlesByPair.get(key);
     const edgeId = edge.id || edgeFallbackId(edge);
     if (existing) {
@@ -444,8 +536,8 @@ export const buildGroupBundledElements = ({
     }
 
     bundlesByPair.set(key, {
-      sourceGroupId,
-      targetGroupId,
+      sourceEndpoint,
+      targetEndpoint,
       edgeIds: [edgeId],
       edgeRefs: [toBundleEdgeRef(edge, edgeId, edgeIndex)],
       selectedEdgeIds: edge.selected === true ? new Set([edgeId]) : new Set(),
@@ -461,24 +553,30 @@ export const buildGroupBundledElements = ({
   for (const bundle of bundlesByPair.values()) {
     if (bundle.edgeIds.length < MIN_BUNDLE_EDGE_COUNT) continue;
 
-    const sourceRect = groupRects.get(bundle.sourceGroupId);
-    const targetRect = groupRects.get(bundle.targetGroupId);
-    if (!sourceRect || !targetRect) continue;
+    const sourceGroupId = bundleEndpointGroupId(bundle.sourceEndpoint);
+    const targetGroupId = bundleEndpointGroupId(bundle.targetEndpoint);
+    const sourceRect = sourceGroupId ? groupRects.get(sourceGroupId) : undefined;
+    const targetRect = targetGroupId ? groupRects.get(targetGroupId) : undefined;
+    if ((sourceGroupId && !sourceRect) || (targetGroupId && !targetRect)) {
+      continue;
+    }
 
     bundle.edgeIds.forEach((edgeId) => bundledEdgeIds.add(edgeId));
-    const bundleId = `${bundle.sourceGroupId}->${bundle.targetGroupId}`;
-    const sourcePortId = groupBundlePortNodeId(
-      "source",
-      bundle.sourceGroupId,
-      bundle.targetGroupId
-    );
-    const targetPortId = groupBundlePortNodeId(
-      "target",
-      bundle.sourceGroupId,
-      bundle.targetGroupId
-    );
-    const sourceAnchor = boundaryAnchor(sourceRect, Position.Right);
-    const targetAnchor = boundaryAnchor(targetRect, Position.Left);
+    const bundleId = `${bundleEndpointKey(
+      bundle.sourceEndpoint
+    )}->${bundleEndpointKey(bundle.targetEndpoint)}`;
+    const sourcePortId = sourceGroupId
+      ? groupBundlePortNodeId("source", bundleId)
+      : undefined;
+    const targetPortId = targetGroupId
+      ? groupBundlePortNodeId("target", bundleId)
+      : undefined;
+    const sourceAnchor = sourceRect
+      ? boundaryAnchor(sourceRect, Position.Right, sourceRect.sourcePortOffset)
+      : undefined;
+    const targetAnchor = targetRect
+      ? boundaryAnchor(targetRect, Position.Left, targetRect.targetPortOffset)
+      : undefined;
     const edgeIdOrder = new Map(
       bundle.edgeIds.map((edgeId, index) => [edgeId, index] as const)
     );
@@ -491,24 +589,26 @@ export const buildGroupBundledElements = ({
       );
 
     const selectedEdgeIds = sortEdgeIds(bundle.selectedEdgeIds);
-    portNodes.push(
-      buildPortNode({
+    if (sourceGroupId && sourceAnchor && sourcePortId) {
+      portNodes.push(buildPortNode({
         id: sourcePortId,
         point: sourceAnchor.boundaryPoint,
-        groupId: bundle.sourceGroupId,
+        groupId: sourceGroupId,
         role: "source",
         bundledEdgeIds: bundle.edgeIds,
         selectedEdgeIds,
-      }),
-      buildPortNode({
+      }));
+    }
+    if (targetGroupId && targetAnchor && targetPortId) {
+      portNodes.push(buildPortNode({
         id: targetPortId,
         point: targetAnchor.boundaryPoint,
-        groupId: bundle.targetGroupId,
+        groupId: targetGroupId,
         role: "target",
         bundledEdgeIds: bundle.edgeIds,
         selectedEdgeIds,
-      })
-    );
+      }));
+    }
 
     const sourceSegmentAccumulators = new Map<
       string,
@@ -540,93 +640,128 @@ export const buildGroupBundledElements = ({
 
     for (const edgeRef of bundle.edgeRefs) {
       const isSelected = bundle.selectedEdgeIds.has(edgeRef.edgeId);
-      const sourceSegment = getSegmentAccumulator(
-        sourceSegmentAccumulators,
-        edgeRef.source,
-        edgeRef.sourceHandle,
-        edgeIdOrder.get(edgeRef.edgeId) ?? Number.MAX_SAFE_INTEGER
-      );
-      const targetSegment = getSegmentAccumulator(
-        targetSegmentAccumulators,
-        edgeRef.target,
-        edgeRef.targetHandle,
-        edgeIdOrder.get(edgeRef.edgeId) ?? Number.MAX_SAFE_INTEGER
-      );
-      sourceSegment.edgeIds.push(edgeRef.edgeId);
-      targetSegment.edgeIds.push(edgeRef.edgeId);
-      if (isSelected) {
-        sourceSegment.selectedEdgeIds.add(edgeRef.edgeId);
-        targetSegment.selectedEdgeIds.add(edgeRef.edgeId);
+      const order = edgeIdOrder.get(edgeRef.edgeId) ?? Number.MAX_SAFE_INTEGER;
+      if (sourcePortId) {
+        const sourceSegment = getSegmentAccumulator(
+          sourceSegmentAccumulators,
+          edgeRef.source,
+          edgeRef.sourceHandle,
+          order
+        );
+        sourceSegment.edgeIds.push(edgeRef.edgeId);
+        if (isSelected) sourceSegment.selectedEdgeIds.add(edgeRef.edgeId);
+      }
+      if (targetPortId) {
+        const targetSegment = getSegmentAccumulator(
+          targetSegmentAccumulators,
+          edgeRef.target,
+          edgeRef.targetHandle,
+          order
+        );
+        targetSegment.edgeIds.push(edgeRef.edgeId);
+        if (isSelected) targetSegment.selectedEdgeIds.add(edgeRef.edgeId);
       }
     }
 
-    for (const sourceSegment of Array.from(
-      sourceSegmentAccumulators.values()
-    ).sort((a, b) => a.order - b.order || compareStrings(a.nodeId, b.nodeId))) {
-      const sourceSegmentEdgeIds = sortEdgeIds(sourceSegment.edgeIds);
-      const sourceSelectedEdgeIds = sortEdgeIds(sourceSegment.selectedEdgeIds);
-      segmentEdges.push({
-        id: groupBundleSegmentEdgeId(
-          "source",
-          bundleId,
-          sourceSegment.nodeId,
-          sourceSegment.handle
-        ),
-        source: sourceSegment.nodeId,
-        sourceHandle: sourceSegment.handle,
-        target: sourcePortId,
-        targetHandle: GROUP_BUNDLE_PORT_TARGET_HANDLE,
-        selectable: false,
-        deletable: false,
-        reconnectable: false,
-        focusable: false,
-        selected: sourceSelectedEdgeIds.length > 0,
-        data: {
-          bundledEdgeIds: sourceSegmentEdgeIds,
-          selectedEdgeIds: sourceSelectedEdgeIds,
-        },
-        className: "group-bundle-segment-edge",
-        interactionWidth: 18,
-      });
+    if (sourcePortId) {
+      for (const sourceSegment of Array.from(
+        sourceSegmentAccumulators.values()
+      ).sort(
+        (a, b) => a.order - b.order || compareStrings(a.nodeId, b.nodeId)
+      )) {
+        const sourceSegmentEdgeIds = sortEdgeIds(sourceSegment.edgeIds);
+        const sourceSelectedEdgeIds = sortEdgeIds(
+          sourceSegment.selectedEdgeIds
+        );
+        segmentEdges.push({
+          id: groupBundleSegmentEdgeId(
+            "source",
+            bundleId,
+            sourceSegment.nodeId,
+            sourceSegment.handle
+          ),
+          source: sourceSegment.nodeId,
+          sourceHandle: sourceSegment.handle,
+          target: sourcePortId,
+          targetHandle: GROUP_BUNDLE_PORT_TARGET_HANDLE,
+          selectable: false,
+          deletable: false,
+          reconnectable: false,
+          focusable: false,
+          selected: sourceSelectedEdgeIds.length > 0,
+          data: {
+            bundledEdgeIds: sourceSegmentEdgeIds,
+            selectedEdgeIds: sourceSelectedEdgeIds,
+          },
+          className: "group-bundle-segment-edge",
+          interactionWidth: 18,
+        });
+      }
     }
 
-    for (const targetSegment of Array.from(
-      targetSegmentAccumulators.values()
-    ).sort((a, b) => a.order - b.order || compareStrings(a.nodeId, b.nodeId))) {
-      const targetSegmentEdgeIds = sortEdgeIds(targetSegment.edgeIds);
-      const targetSelectedEdgeIds = sortEdgeIds(targetSegment.selectedEdgeIds);
-      segmentEdges.push({
-        id: groupBundleSegmentEdgeId(
-          "target",
-          bundleId,
-          targetSegment.nodeId,
-          targetSegment.handle
-        ),
-        source: targetPortId,
-        sourceHandle: GROUP_BUNDLE_PORT_SOURCE_HANDLE,
-        target: targetSegment.nodeId,
-        targetHandle: targetSegment.handle,
-        selectable: false,
-        deletable: false,
-        reconnectable: false,
-        focusable: false,
-        selected: targetSelectedEdgeIds.length > 0,
-        data: {
-          bundledEdgeIds: targetSegmentEdgeIds,
-          selectedEdgeIds: targetSelectedEdgeIds,
-        },
-        className: "group-bundle-segment-edge",
-        interactionWidth: 18,
-      });
+    if (targetPortId) {
+      for (const targetSegment of Array.from(
+        targetSegmentAccumulators.values()
+      ).sort(
+        (a, b) => a.order - b.order || compareStrings(a.nodeId, b.nodeId)
+      )) {
+        const targetSegmentEdgeIds = sortEdgeIds(targetSegment.edgeIds);
+        const targetSelectedEdgeIds = sortEdgeIds(
+          targetSegment.selectedEdgeIds
+        );
+        segmentEdges.push({
+          id: groupBundleSegmentEdgeId(
+            "target",
+            bundleId,
+            targetSegment.nodeId,
+            targetSegment.handle
+          ),
+          source: targetPortId,
+          sourceHandle: GROUP_BUNDLE_PORT_SOURCE_HANDLE,
+          target: targetSegment.nodeId,
+          targetHandle: targetSegment.handle,
+          selectable: false,
+          deletable: false,
+          reconnectable: false,
+          focusable: false,
+          selected: targetSelectedEdgeIds.length > 0,
+          data: {
+            bundledEdgeIds: targetSegmentEdgeIds,
+            selectedEdgeIds: targetSelectedEdgeIds,
+          },
+          className: "group-bundle-segment-edge",
+          interactionWidth: 18,
+        });
+      }
     }
+
+    const outsideSource =
+      sourcePortId ??
+      (bundle.sourceEndpoint.kind === "node"
+        ? bundle.sourceEndpoint.nodeId
+        : undefined);
+    const outsideTarget =
+      targetPortId ??
+      (bundle.targetEndpoint.kind === "node"
+        ? bundle.targetEndpoint.nodeId
+        : undefined);
+    if (!outsideSource || !outsideTarget) continue;
 
     bundleEdges.push({
       id: `${GROUP_BUNDLE_EDGE_ID_PREFIX}${bundleId}`,
       type: GROUP_BUNDLE_EDGE_TYPE,
-      source: sourcePortId,
-      target: targetPortId,
-      sourceHandle: GROUP_BUNDLE_PORT_SOURCE_HANDLE,
-      targetHandle: GROUP_BUNDLE_PORT_TARGET_HANDLE,
+      source: outsideSource,
+      target: outsideTarget,
+      sourceHandle: sourcePortId
+        ? GROUP_BUNDLE_PORT_SOURCE_HANDLE
+        : bundle.sourceEndpoint.kind === "node"
+          ? bundle.sourceEndpoint.handle
+          : undefined,
+      targetHandle: targetPortId
+        ? GROUP_BUNDLE_PORT_TARGET_HANDLE
+        : bundle.targetEndpoint.kind === "node"
+          ? bundle.targetEndpoint.handle
+          : undefined,
       selectable: false,
       deletable: false,
       reconnectable: false,
@@ -640,16 +775,28 @@ export const buildGroupBundledElements = ({
           edge: edgeRef.edge,
         })),
         count: bundle.edgeIds.length,
-        sourceGroupId: bundle.sourceGroupId,
-        targetGroupId: bundle.targetGroupId,
-        sourceLabel: sourceRect.label,
-        targetLabel: targetRect.label,
-        sourceBoundaryPoint: sourceAnchor.boundaryPoint,
-        targetBoundaryPoint: targetAnchor.boundaryPoint,
-        renderSourcePort: true,
-        renderTargetPort: true,
-        sourcePosition: sourceAnchor.position,
-        targetPosition: targetAnchor.position,
+        sourceGroupId,
+        targetGroupId,
+        sourceLabel: bundleEndpointLabel(
+          bundle.sourceEndpoint,
+          groupRects,
+          nodeById
+        ),
+        targetLabel: bundleEndpointLabel(
+          bundle.targetEndpoint,
+          groupRects,
+          nodeById
+        ),
+        sourceBoundaryPoint:
+          sourceAnchor?.boundaryPoint ??
+          bundleEndpointPoint(bundle.sourceEndpoint, nodeById),
+        targetBoundaryPoint:
+          targetAnchor?.boundaryPoint ??
+          bundleEndpointPoint(bundle.targetEndpoint, nodeById),
+        renderSourcePort: Boolean(sourceGroupId),
+        renderTargetPort: Boolean(targetGroupId),
+        sourcePosition: sourceAnchor?.position ?? Position.Right,
+        targetPosition: targetAnchor?.position ?? Position.Left,
       },
     });
   }
@@ -669,14 +816,16 @@ export const buildGroupBundledElements = ({
   const sortedBundleEdges = sortedBundleEdgeSeeds.map((edge) => {
     const data = edge.data;
     if (!data) return edge;
-    const renderSourcePort =
-      edge.selected === true ||
-      !renderedSourcePortGroups.has(data.sourceGroupId);
-    const renderTargetPort =
-      edge.selected === true ||
-      !renderedTargetPortGroups.has(data.targetGroupId);
-    renderedSourcePortGroups.add(data.sourceGroupId);
-    renderedTargetPortGroups.add(data.targetGroupId);
+    const sourceGroupId = data.sourceGroupId;
+    const targetGroupId = data.targetGroupId;
+    const renderSourcePort = sourceGroupId
+      ? edge.selected === true || !renderedSourcePortGroups.has(sourceGroupId)
+      : false;
+    const renderTargetPort = targetGroupId
+      ? edge.selected === true || !renderedTargetPortGroups.has(targetGroupId)
+      : false;
+    if (sourceGroupId) renderedSourcePortGroups.add(sourceGroupId);
+    if (targetGroupId) renderedTargetPortGroups.add(targetGroupId);
     return {
       ...edge,
       data: {

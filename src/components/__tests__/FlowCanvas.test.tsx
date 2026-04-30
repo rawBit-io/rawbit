@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 
 import { FlowCanvas } from "@/components/FlowCanvas";
 import {
+  GROUP_BUNDLE_EDGE_ID_PREFIX,
   GROUP_BUNDLE_PORT_NODE_TYPE,
   isGroupBundleSegmentEdgeId,
 } from "@/lib/flow/groupEdgeBundling";
@@ -275,6 +276,160 @@ describe("FlowCanvas", () => {
         count: 1,
       },
     });
+  });
+
+  it("routes group boundary edges even when only one endpoint is grouped", () => {
+    const groupedNodes: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "A", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "a1",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "outside",
+        type: "calculation",
+        position: { x: 500, y: 40 },
+        data: {},
+      } as FlowNode,
+    ];
+
+    render(
+      <FlowCanvas
+        {...baseProps}
+        nodes={groupedNodes}
+        edges={[
+          { id: "edge-1", source: "a1", target: "outside" } as Edge,
+        ]}
+      />
+    );
+
+    const passedEdges = reactFlowSpy.props.edges as Edge[];
+    const passedNodes = reactFlowSpy.props.nodes as FlowNode[];
+
+    expect(passedEdges.find((edge) => edge.id === "edge-1")).toBeUndefined();
+    expect(
+      passedNodes.filter((node) => node.type === GROUP_BUNDLE_PORT_NODE_TYPE)
+    ).toHaveLength(1);
+    expect(passedEdges.filter((edge) => isGroupBundleSegmentEdgeId(edge.id)))
+      .toHaveLength(1);
+    expect(
+      passedEdges.find((edge) =>
+        edge.id.startsWith(GROUP_BUNDLE_EDGE_ID_PREFIX)
+      )
+    ).toMatchObject({
+      type: "groupBundle",
+      source: "__group_bundle_port__:source:group-a->node:outside:",
+      target: "outside",
+      data: {
+        bundledEdgeIds: ["edge-1"],
+        count: 1,
+        sourceGroupId: "group-a",
+      },
+    });
+  });
+
+  it("stores vertical port drags on the owning group node", () => {
+    const onNodesChange = vi.fn();
+    const groupedNodes: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "A", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "B", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "a1",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "b1",
+        type: "calculation",
+        parentId: "group-b",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+    ];
+
+    render(
+      <FlowCanvas
+        {...baseProps}
+        nodes={groupedNodes}
+        edges={[
+          { id: "edge-1", source: "a1", target: "b1" } as Edge,
+        ]}
+        onNodesChange={onNodesChange}
+      />
+    );
+
+    const passedNodes = reactFlowSpy.props.nodes as FlowNode[];
+    const sourcePort = passedNodes.find(
+      (node) =>
+        node.type === GROUP_BUNDLE_PORT_NODE_TYPE && node.data.role === "source"
+    );
+    const targetPort = passedNodes.find(
+      (node) =>
+        node.type === GROUP_BUNDLE_PORT_NODE_TYPE && node.data.role === "target"
+    );
+
+    expect(sourcePort).toBeDefined();
+    expect(targetPort).toBeDefined();
+
+    act(() => {
+      (
+        reactFlowSpy.props.onNodesChange as (changes: unknown[]) => void
+      )([
+        {
+          id: sourcePort?.id,
+          type: "position",
+          position: { x: 999, y: 150 },
+          dragging: false,
+        },
+        {
+          id: targetPort?.id,
+          type: "position",
+          position: { x: -999, y: 20 },
+          dragging: false,
+        },
+      ]);
+    });
+
+    expect(onNodesChange).toHaveBeenCalledWith([
+      expect.objectContaining({
+        id: "group-a",
+        type: "replace",
+        item: expect.objectContaining({
+          data: expect.objectContaining({
+            groupBundlePortOffsets: expect.objectContaining({ source: 59 }),
+          }),
+        }),
+      }),
+      expect.objectContaining({
+        id: "group-b",
+        type: "replace",
+        item: expect.objectContaining({
+          data: expect.objectContaining({
+            groupBundlePortOffsets: expect.objectContaining({ target: -71 }),
+          }),
+        }),
+      }),
+    ]);
   });
 
   it("routes bundle selection through controlled node and edge changes", () => {

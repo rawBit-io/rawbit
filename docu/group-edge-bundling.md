@@ -24,8 +24,8 @@ groups leave and enter through stable boundary points. MuSig2 (`flow-14`,
 
 1. Reduce visual noise without hiding real dependencies.
 2. Keep normal node-to-node edges for ordinary local flow.
-3. Route all cross-group traffic through one outside connection per directed
-   group pair, even when there is only one edge.
+3. Route all group-boundary traffic through ports, even when there is only one
+   edge or only one endpoint is grouped.
 4. Keep one visible outgoing port on the right group boundary and one visible
    incoming port on the left group boundary.
 5. Let React Flow render and update inside-group edges.
@@ -44,28 +44,36 @@ Main files:
 - `src/components/nodes/GroupBundlePortNode.tsx`
 - `src/index.css`
 
-For every bundleable directed group pair, the builder creates:
+For every bundleable directed boundary crossing, the builder creates:
 
-- two invisible boundary port nodes
-- no rendered copy of the represented raw cross-group edges
+- one or two boundary port nodes, depending on which endpoints are grouped
+- no rendered copy of the represented raw boundary-crossing edges
 - normal React Flow segment edges inside each group
-- one custom outside bundle edge between the boundary ports
+- one custom outside bundle edge from the source side to the target side
 
-An edge is bundleable when its source belongs to one group and its target belongs
-to another group. Single cross-group edges are still routed through the generated
-boundary ports so no edge crosses group boundaries on its own.
+An edge is bundleable when it crosses a group boundary. This includes
+group-to-group, group-to-ungrouped, and ungrouped-to-group edges. Single edges
+are still routed through the generated boundary ports so no edge crosses a group
+boundary on its own.
+
+Users can drag the generated incoming and outgoing boundary ports vertically.
+The saved graph still stores only the real nodes and edges; port positions are
+saved as small offsets on the owning group node.
 
 ## Implemented So Far
 
-- Cross-group bundle detection for edges between directed group pairs, including
-  single-edge pairs.
-- Render-layer removal of the represented raw cross-group edges, with their
-  canonical data preserved on the outside bundle edge.
-- One custom outside bundle edge between generated boundary ports.
-- Generated boundary port nodes that are invisible infrastructure, not user
-  graph state.
+- Group-boundary bundle detection, including single-edge crossings and edges
+  where only one endpoint is grouped.
+- Render-layer removal of the represented raw boundary-crossing edges, with
+  their canonical data preserved on the outside bundle edge.
+- One custom outside bundle edge between the generated port side and the other
+  endpoint side.
+- Generated boundary port nodes that are visual/editable render helpers, not
+  user graph state.
 - Normal React Flow segment edges from source nodes to source boundary ports and
   from target boundary ports to target nodes.
+- Dashed inside segment styling so group-to-port helper legs remain distinct
+  from normal node-to-node edges inside the group.
 - Click/highlight behavior that maps bundle visuals back to the represented
   original edge ids.
 - Snapshot/state sanitizing that strips generated visuals and restores
@@ -90,8 +98,8 @@ The current version treats inside legs as normal React Flow edges:
 - generated target boundary port -> original target node handle
 
 This lets React Flow handle movement, resize invalidation, handle positions, and
-view culling. The custom renderer is now only responsible for the outside
-group-to-group bundle path.
+view culling. The custom renderer is now only responsible for the outside bundle
+path.
 
 ## Possible Performance Optimization
 
@@ -126,8 +134,9 @@ future edge tooling.
 - Do not draw inside-group bundle legs manually in `GroupBundleEdge` unless
   profiling proves React Flow segment edges are the bottleneck.
 - Do not persist generated port nodes or generated visual edges.
-- Do not make generated port nodes selectable, draggable, connectable, or
-  deletable.
+- Do not make generated port nodes selectable, connectable, or deletable.
+  Vertical dragging is allowed only to update the owning group's stored port
+  offset.
 - Preserve original edge ids in generated edge data.
 - Keep bundle render data small; add metadata only when current rendering or
   selection code consumes it.

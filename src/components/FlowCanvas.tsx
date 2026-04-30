@@ -85,6 +85,79 @@ const isEditableTarget = (target: EventTarget | null): boolean => {
   );
 };
 
+const asFiniteNumber = (value: unknown): number | undefined => {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : undefined;
+};
+
+const nodeAbsoluteY = (node: FlowNode): number =>
+  node.positionAbsolute?.y ?? node.position.y;
+
+const nodeHeight = (node: FlowNode): number =>
+  asFiniteNumber(node.data?.height) ??
+  asFiniteNumber(node.height) ??
+  asFiniteNumber(node.measured?.height) ??
+  0;
+
+const portRole = (node: FlowNode): "source" | "target" | undefined =>
+  node.data?.role === "source" || node.data?.role === "target"
+    ? node.data.role
+    : undefined;
+
+const buildGroupPortOffsetChange = ({
+  change,
+  portNode,
+  groupNode,
+}: {
+  change: NodeChange<FlowNode>;
+  portNode: FlowNode;
+  groupNode: FlowNode;
+}): NodeChange<FlowNode> | null => {
+  if (change.type !== "position") return null;
+  const role = portRole(portNode);
+  if (!role) return null;
+
+  const nextPosition = change.positionAbsolute ?? change.position;
+  if (!nextPosition) return null;
+
+  const groupY = nodeAbsoluteY(groupNode);
+  const groupH = nodeHeight(groupNode);
+  if (groupH <= 0) return null;
+
+  const portH =
+    asFiniteNumber(portNode.data?.height) ??
+    asFiniteNumber(portNode.height) ??
+    asFiniteNumber(portNode.measured?.height) ??
+    0;
+  const portCenterY = nextPosition.y + portH / 2;
+  const groupCenterY = groupY + groupH / 2;
+  const minCenterY = groupY + portH / 2;
+  const maxCenterY = groupY + groupH - portH / 2;
+  const clampedCenterY =
+    minCenterY <= maxCenterY
+      ? Math.min(Math.max(portCenterY, minCenterY), maxCenterY)
+      : groupCenterY;
+  const nextOffset = Math.round((clampedCenterY - groupCenterY) * 100) / 100;
+  const currentOffsets = groupNode.data?.groupBundlePortOffsets ?? {};
+
+  if (currentOffsets[role] === nextOffset) return null;
+
+  return {
+    id: groupNode.id,
+    type: "replace",
+    item: {
+      ...groupNode,
+      data: {
+        ...groupNode.data,
+        groupBundlePortOffsets: {
+          ...currentOffsets,
+          [role]: nextOffset,
+        },
+      },
+    },
+  };
+};
+
 export function FlowCanvas({
   nodeTypes,
   nodes,
@@ -268,13 +341,38 @@ export function FlowCanvas({
   const handleNodesChange = useCallback(
     (changes: NodeChange<FlowNode>[]) => {
       if (!onNodesChange) return;
-      const filtered = changes.filter(
-        (change) => !("id" in change) || !isGroupBundlePortNodeId(change.id)
+      const visualNodeById = new Map(
+        visualElements.nodes.map((node) => [node.id, node])
       );
-      if (filtered.length === 0) return;
-      onNodesChange(filtered);
+      const canonicalNodeById = new Map(nodes.map((node) => [node.id, node]));
+      const forwarded: NodeChange<FlowNode>[] = [];
+
+      for (const change of changes) {
+        if (!("id" in change) || !isGroupBundlePortNodeId(change.id)) {
+          forwarded.push(change);
+          continue;
+        }
+
+        if (isReadOnly) continue;
+
+        const portNode = visualNodeById.get(change.id);
+        const groupId = portNode?.data?.groupId;
+        const groupNode =
+          typeof groupId === "string" ? canonicalNodeById.get(groupId) : undefined;
+        if (!portNode || !groupNode) continue;
+
+        const offsetChange = buildGroupPortOffsetChange({
+          change,
+          portNode,
+          groupNode,
+        });
+        if (offsetChange) forwarded.push(offsetChange);
+      }
+
+      if (forwarded.length === 0) return;
+      onNodesChange(forwarded);
     },
-    [onNodesChange]
+    [isReadOnly, nodes, onNodesChange, visualElements.nodes]
   );
 
   const handleEdgesChange = useCallback(
