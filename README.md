@@ -1,6 +1,6 @@
 # rawBit
 
-_rawBit is a visual, node-based editor with an integrated step-by-step Bitcoin Script debugger for constructing and understanding Bitcoin transactions. Connect inputs, keys, and scripts on a canvas, then step through Bitcoin Script execution and watch the stack change after each opcode._
+_rawBit is a visual, node-based editor for constructing Bitcoin transactions and understanding how they are validated. Build transactions from inputs, keys, scripts, signatures, hashes, and witnesses, then step through Bitcoin Script execution opcode by opcode._
 
 **Try it now:** [rawbit.io](https://rawbit.io) | **Run locally:** See [Quick start](#quick-start-local) below
 
