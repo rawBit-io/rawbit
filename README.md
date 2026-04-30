@@ -2,7 +2,7 @@
 
 _rawBit is a visual, node-based editor for constructing Bitcoin transactions and understanding how they are validated. Build transactions from inputs, keys, scripts, signatures, hashes, and witnesses, then step through Bitcoin Script execution opcode by opcode._
 
-**Try it now:** [rawbit.io](https://rawbit.io) | **Run locally:** See [Quick start](#quick-start-local) below
+**Try rawBit online:** [rawbit.io](https://rawbit.io) | **Run locally:** [Quick start](#quick-start-local)
 
 ## Flow Examples
 
@@ -34,14 +34,13 @@ The lesson transactions were broadcast on **testnet3**, so you can inspect them 
 
 ## What rawBit does
 
-- **Debug scripts step by step:** Inspect stack diffs after each opcode and see where validation fails.
-- **Build and inspect transactions visually:** Drag predefined nodes for keys, scripts, serialization, signing, and verification onto a canvas.
-- **Compare formats side-by-side:** P2PKH, P2SH, wrapped SegWit, native SegWit v0, and Taproot v1 flows.
-- **Trace transaction bytes live:** Build and edit inputs, outputs, scripts, signatures, and witness data while raw serialization, size, weight, TXID/WTXID, preimages, witnesses, and fees update.
-- **Inspect the implementation:** Open calculation nodes to view the exact Python function used by the backend.
-- **Work with larger lessons:** Use multi-tab history, templates, clipboard, search, minimap, and the protocol flow map.
-- **Export reproducible artifacts:** Save/load full JSON, export simplified snapshots or LLM-ready bundles with backend code for each exported node, scope exports to selected nodes, and create optional share links.
-- **Target Bitcoin networks where relevant:** Address nodes support mainnet, testnet, and regtest options where the operation needs a network.
+- **Build complete transaction flows:** Assemble inputs, outputs, keys, scripts, signatures, witnesses, hashes, and serialization steps on a canvas.
+- **Edit inputs and watch results update:** Change keys, amounts, scripts, or witness data and see preimages, signatures, TXID/WTXID recalculate.
+- **Inspect the backend logic:** Open any calculation node to see the exact Python function that produced its result.
+- **Debug Bitcoin Script execution:** Step through opcodes, stack changes, and validation failures with the integrated debugger.
+- **Use powerful canvas tools:** Organize and explore Bitcoin flows with groups, tabs, templates, clipboard, history, search, minimap, and the protocol flow map.
+- **Learn through built-in lessons:** Explore P2PKH, P2SH, SegWit, Taproot, MuSig2, hardware signing, and contributor challenge flows.
+- **Export and share your work:** Save/load full graphs, create share links, export selected nodes, or generate LLM-ready bundles with backend code.
 
 ---
 
