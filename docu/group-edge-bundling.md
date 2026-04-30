@@ -47,7 +47,7 @@ Main files:
 For every bundleable directed group pair, the builder creates:
 
 - two invisible boundary port nodes
-- hidden versions of the original cross-group edges
+- no rendered copy of the represented raw cross-group edges
 - normal React Flow segment edges inside each group
 - one custom outside bundle edge between the boundary ports
 
@@ -59,7 +59,8 @@ cross-group edges stay normal.
 
 - Cross-group bundle detection for repeated edges between the same directed
   group pair.
-- Render-layer hiding of the represented raw cross-group edges.
+- Render-layer removal of the represented raw cross-group edges, with their
+  canonical data preserved on the outside bundle edge.
 - One custom outside bundle edge between generated boundary ports.
 - Generated boundary port nodes that are invisible infrastructure, not user
   graph state.
@@ -67,6 +68,10 @@ cross-group edges stay normal.
   from target boundary ports to target nodes.
 - Click/highlight behavior that maps bundle visuals back to the represented
   original edge ids.
+- Snapshot/state sanitizing that strips generated visuals and restores
+  represented raw edges before data reaches canonical graph state.
+- Delete handling for selected bundled raw edges that are not currently rendered
+  as normal edges.
 - Bundle selection is scoped through the local canvas provider, not a global
   browser event, so future secondary canvases do not receive each other's clicks.
 - Tests for bundle construction, render-layer filtering, segment clicks, and
@@ -87,6 +92,14 @@ The current version treats inside legs as normal React Flow edges:
 This lets React Flow handle movement, resize invalidation, handle positions, and
 view culling. The custom renderer is now only responsible for the outside
 group-to-group bundle path.
+
+## Possible Performance Optimization
+
+If profiling proves React Flow segment edges are the bottleneck, we can draw the
+inside bundle legs as inline SVG paths inside `GroupBundleEdge` instead. This
+would reduce React Flow edge objects, but adds custom geometry, hit testing,
+highlight mapping, and tighter coupling to React Flow internals. Keep the
+simpler segment-edge model unless the deployed app needs this.
 
 ## Selection Behavior
 
@@ -110,7 +123,8 @@ future edge tooling.
 
 ## Constraints For Future Work
 
-- Do not draw inside-group bundle legs manually in `GroupBundleEdge`.
+- Do not draw inside-group bundle legs manually in `GroupBundleEdge` unless
+  profiling proves React Flow segment edges are the bottleneck.
 - Do not persist generated port nodes or generated visual edges.
 - Do not make generated port nodes selectable, draggable, connectable, or
   deletable.
