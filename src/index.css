@@ -262,7 +262,7 @@
 .app-tab[data-state="active"] {
   border-color: transparent !important;
   background: hsl(var(--card) / 0.9) !important;
-  color: hsl(var(--primary)) !important;
+  color: hsl(var(--foreground)) !important;
   box-shadow: 0 8px 18px -16px hsl(var(--foreground) / 0.62) !important;
 }
 
@@ -272,10 +272,10 @@
   left: 0.75rem;
   right: 0.75rem;
   bottom: 0.18rem;
-  height: 1.5px;
+  height: 1px;
   border-radius: 999px;
   background: currentColor;
-  opacity: 0.9;
+  opacity: 0.72;
 }
 
 .app-tab-title {
@@ -1010,12 +1010,6 @@ body[data-large-drag="true"] .rf-node {
   background: hsl(var(--secondary) / 0.54) !important;
 }
 
-[data-skin="paper"] .app-tab[data-state="active"] {
-  border-color: transparent !important;
-  background: hsl(var(--card) / 0.86) !important;
-  color: hsl(var(--primary)) !important;
-}
-
 [data-skin="paper"] .app-tabbar-add {
   border-color: transparent;
   background: transparent;
@@ -1179,13 +1173,6 @@ body[data-large-drag="true"] .rf-node {
 [data-skin="midnight"] .app-tab:hover {
   border-color: transparent !important;
   background: hsl(var(--accent) / 0.62) !important;
-}
-
-[data-skin="midnight"] .app-tab[data-state="active"] {
-  border-color: transparent !important;
-  background: hsl(var(--card) / 0.9) !important;
-  color: hsl(var(--primary)) !important;
-  box-shadow: 0 8px 18px -18px hsl(var(--foreground) / 0.62) !important;
 }
 
 [data-skin="midnight"] .app-tabbar-add {
