@@ -115,6 +115,26 @@ describe("buildGroupBundledEdges", () => {
     });
   });
 
+  it("does not render bundle artifacts for stale edges with missing nodes", () => {
+    const nodes: FlowNode[] = [
+      buildFlowNode({ id: "group-a", type: "shadcnGroup" }),
+      buildFlowNode({ id: "group-b", type: "shadcnGroup" }),
+      buildFlowNode({ id: "b1", parentId: "group-b" }),
+    ];
+    const edges = [
+      buildEdge({ id: "stale", source: "deleted-node", target: "b1" }),
+    ];
+
+    const visual = buildGroupBundledElements({ nodes, edges });
+
+    expect(visual.edges).toEqual([]);
+    expect(
+      visual.nodes.some((node) =>
+        node.id.startsWith(GROUP_BUNDLE_PORT_NODE_ID_PREFIX)
+      )
+    ).toBe(false);
+  });
+
   it("routes grouped source edges to ungrouped targets through an output port", () => {
     const nodes: FlowNode[] = [
       buildFlowNode({

@@ -522,6 +522,9 @@ export const buildGroupBundledElements = ({
   const sourceNodes = stripGroupBundlePortNodes(nodes);
   const sourceEdges = sanitizeGroupBundleRenderEdgesForState(edges);
   const nodeById = new Map(sourceNodes.map((node) => [node.id, node]));
+  const validSourceEdges = sourceEdges.filter(
+    (edge) => nodeById.has(edge.source) && nodeById.has(edge.target)
+  );
   const groupRects = new Map<string, GroupRect>();
   const nodeToGroup = new Map<string, string>();
 
@@ -537,11 +540,11 @@ export const buildGroupBundledElements = ({
     nodeToGroup.set(node.id, node.parentId);
   }
 
-  if (groupRects.size < 1) return { nodes: sourceNodes, edges: sourceEdges };
+  if (groupRects.size < 1) return { nodes: sourceNodes, edges: validSourceEdges };
 
   const bundlesByPair = new Map<string, BundleAccumulator>();
 
-  for (const [edgeIndex, edge] of sourceEdges.entries()) {
+  for (const [edgeIndex, edge] of validSourceEdges.entries()) {
     const sourceGroupId = nodeToGroup.get(edge.source);
     const targetGroupId = nodeToGroup.get(edge.target);
     if (!sourceGroupId && !targetGroupId) continue;
@@ -848,9 +851,11 @@ export const buildGroupBundledElements = ({
     });
   }
 
-  if (bundleEdges.length === 0) return { nodes: sourceNodes, edges: sourceEdges };
+  if (bundleEdges.length === 0) {
+    return { nodes: sourceNodes, edges: validSourceEdges };
+  }
 
-  const renderedEdges = sourceEdges.filter(
+  const renderedEdges = validSourceEdges.filter(
     (edge) => !bundledEdgeIds.has(edge.id || edgeFallbackId(edge))
   );
 

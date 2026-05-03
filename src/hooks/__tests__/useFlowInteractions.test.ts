@@ -268,6 +268,170 @@ describe("useFlowInteractions", () => {
     expect(deps.pendingSnapshotRef.current).toBe(false);
   });
 
+  it("removes edges attached to a removed node", () => {
+    const deps = baseDeps();
+    let nodesState: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "deleted",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "target",
+        type: "calculation",
+        position: { x: 240, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "other",
+        type: "calculation",
+        position: { x: 440, y: 40 },
+        data: {},
+      } as FlowNode,
+    ];
+    let edgesState: Edge[] = [
+      { id: "edge-deleted-out", source: "deleted", target: "target" } as Edge,
+      { id: "edge-deleted-in", source: "other", target: "deleted" } as Edge,
+      { id: "edge-kept", source: "other", target: "target" } as Edge,
+    ];
+
+    const getNodes = () => nodesState;
+    const getEdges = () => edgesState;
+    const setNodes = (updater: (nodes: FlowNode[]) => FlowNode[]) => {
+      nodesState = updater(nodesState);
+    };
+    const setEdges = (updater: (edges: Edge[]) => Edge[]) => {
+      edgesState = updater(edgesState);
+    };
+
+    const { result } = renderHook(() =>
+      useFlowInteractions({
+        ...deps,
+        rawOnNodesChange: deps.rawOnNodesChange,
+        rawOnEdgesChange: deps.rawOnEdgesChange,
+        onConnect: deps.onConnect,
+        onDrop: deps.onDrop,
+        onNodeDragStop: deps.onNodeDragStop,
+        getNodes,
+        getEdges,
+        setNodes,
+        setEdges,
+        getTopLeftPosition: deps.getTopLeftPosition,
+        pasteNodes: deps.pasteNodes,
+        isSidebarOpen: false,
+        setTabTooltip: deps.setTabTooltip,
+        renameTab: deps.renameTab,
+        activeTabId: "tab-1",
+        groupSelectedNodes: deps.groupSelectedNodes,
+        ungroupSelectedNodes: deps.ungroupSelectedNodes,
+        clearHighlights: deps.clearHighlights,
+        setIsSearchHighlight: deps.setIsSearchHighlight,
+        incRev: deps.incRev,
+        pushCleanState: deps.pushCleanState,
+        updatePaletteEligibility: deps.updatePaletteEligibility,
+        skipNextNodeRemovalRef: deps.skipNextNodeRemovalRef,
+        releaseNodeRemovalSnapshotSkip: deps.releaseNodeRemovalSnapshotSkip,
+      })
+    );
+
+    const removeChange = { id: "deleted", type: "remove" } as NodeChange<FlowNode>;
+
+    act(() => {
+      result.current.onNodesChange([removeChange]);
+    });
+
+    expect(edgesState.map((edge) => edge.id)).toEqual(["edge-kept"]);
+    expect(deps.rawOnNodesChange).toHaveBeenCalledWith([removeChange]);
+    expect(deps.scheduleSnapshot).toHaveBeenCalledWith(
+      "Node(s) removed",
+      expect.objectContaining({ refresh: true })
+    );
+  });
+
+  it("removes child edges when a group is removed", () => {
+    const deps = baseDeps();
+    let nodesState: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "child-a",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "outside",
+        type: "calculation",
+        position: { x: 240, y: 40 },
+        data: {},
+      } as FlowNode,
+    ];
+    let edgesState: Edge[] = [
+      { id: "edge-child", source: "child-a", target: "outside" } as Edge,
+      { id: "edge-group", source: "group-a", target: "outside" } as Edge,
+    ];
+
+    const getNodes = () => nodesState;
+    const getEdges = () => edgesState;
+    const setNodes = (updater: (nodes: FlowNode[]) => FlowNode[]) => {
+      nodesState = updater(nodesState);
+    };
+    const setEdges = (updater: (edges: Edge[]) => Edge[]) => {
+      edgesState = updater(edgesState);
+    };
+
+    const { result } = renderHook(() =>
+      useFlowInteractions({
+        ...deps,
+        rawOnNodesChange: deps.rawOnNodesChange,
+        rawOnEdgesChange: deps.rawOnEdgesChange,
+        onConnect: deps.onConnect,
+        onDrop: deps.onDrop,
+        onNodeDragStop: deps.onNodeDragStop,
+        getNodes,
+        getEdges,
+        setNodes,
+        setEdges,
+        getTopLeftPosition: deps.getTopLeftPosition,
+        pasteNodes: deps.pasteNodes,
+        isSidebarOpen: false,
+        setTabTooltip: deps.setTabTooltip,
+        renameTab: deps.renameTab,
+        activeTabId: "tab-1",
+        groupSelectedNodes: deps.groupSelectedNodes,
+        ungroupSelectedNodes: deps.ungroupSelectedNodes,
+        clearHighlights: deps.clearHighlights,
+        setIsSearchHighlight: deps.setIsSearchHighlight,
+        incRev: deps.incRev,
+        pushCleanState: deps.pushCleanState,
+        updatePaletteEligibility: deps.updatePaletteEligibility,
+        skipNextNodeRemovalRef: deps.skipNextNodeRemovalRef,
+        releaseNodeRemovalSnapshotSkip: deps.releaseNodeRemovalSnapshotSkip,
+      })
+    );
+
+    act(() => {
+      result.current.onNodesChange([
+        { id: "group-a", type: "remove" } as NodeChange<FlowNode>,
+      ]);
+    });
+
+    expect(edgesState).toEqual([]);
+  });
+
   it("renames the tab when a flow template is dropped into an empty canvas", () => {
     const deps = baseDeps();
     let nodesState: FlowNode[] = [];
