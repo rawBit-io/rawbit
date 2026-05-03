@@ -104,6 +104,11 @@ const portRole = (node: FlowNode): "source" | "target" | undefined =>
     ? node.data.role
     : undefined;
 
+const portBundleId = (node: FlowNode): string | undefined =>
+  typeof node.data?.bundleId === "string" && node.data.bundleId.trim()
+    ? node.data.bundleId
+    : undefined;
+
 const buildGroupPortOffsetChange = ({
   change,
   portNode,
@@ -139,6 +144,32 @@ const buildGroupPortOffsetChange = ({
       : groupCenterY;
   const nextOffset = Math.round((clampedCenterY - groupCenterY) * 100) / 100;
   const currentOffsets = groupNode.data?.groupBundlePortOffsets ?? {};
+  const bundleId = portBundleId(portNode);
+  if (bundleId) {
+    const byBundleKey =
+      role === "source" ? "sourceByBundle" : "targetByBundle";
+    const currentBundleOffsets = currentOffsets[byBundleKey] ?? {};
+    const currentOffset = currentBundleOffsets[bundleId] ?? currentOffsets[role];
+    if (currentOffset === nextOffset) return null;
+
+    return {
+      id: groupNode.id,
+      type: "replace",
+      item: {
+        ...groupNode,
+        data: {
+          ...groupNode.data,
+          groupBundlePortOffsets: {
+            ...currentOffsets,
+            [byBundleKey]: {
+              ...currentBundleOffsets,
+              [bundleId]: nextOffset,
+            },
+          },
+        },
+      },
+    };
+  }
 
   if (currentOffsets[role] === nextOffset) return null;
 

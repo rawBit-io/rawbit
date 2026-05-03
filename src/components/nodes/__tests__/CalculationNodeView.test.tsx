@@ -268,4 +268,48 @@ describe("CalculationNodeView", () => {
       screen.queryByDisplayValue("m/44'/1'/0'/0/0")
     ).not.toBeInTheDocument();
   });
+
+  it("hides duplicate result output on identity input nodes", () => {
+    const clip = createClip({ prettyResult: "abc123" });
+    const mut = createMut();
+
+    renderWithProviders(
+      <CalculationNodeView
+        selected={false}
+        data={{
+          functionName: "identity",
+          paramExtraction: "single_val",
+          showField: true,
+        } as NodeData}
+        rawTitle="Input"
+        derived={derived}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        singleValue={{
+          showField: true,
+          showHandle: false,
+          value: "abc123",
+          onChange: vi.fn(),
+        }}
+        result="abc123"
+        error={false}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: false,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    expect(screen.getByDisplayValue("abc123")).toHaveAttribute("rows", "1");
+    expect(screen.queryByText("> Calculation Result:")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("node-result")).not.toBeInTheDocument();
+    expect(screen.queryByTitle("Copy result to clipboard")).not.toBeInTheDocument();
+  });
 });

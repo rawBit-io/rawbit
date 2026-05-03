@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useLayoutEffect, useRef } from "react";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -16,6 +16,7 @@ export interface TerminalFieldProps {
   readOnly?: boolean;
   small?: boolean;
   rows?: number;
+  autoResizeMaxRows?: number;
   onChange?: (val: string) => void;
   onFocus?: (val: string) => void;
   onBlur?: (val: string) => void;
@@ -47,6 +48,7 @@ function terminalFieldPropsAreEqual(
     prev.readOnly === next.readOnly &&
     prev.small === next.small &&
     prev.rows === next.rows &&
+    prev.autoResizeMaxRows === next.autoResizeMaxRows &&
     prev.allowEmpty00 === next.allowEmpty00 &&
     prev.allowEmptyBlank === next.allowEmptyBlank &&
     prev.allowNull === next.allowNull &&
@@ -76,6 +78,7 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
   readOnly,
   small,
   rows,
+  autoResizeMaxRows,
   onChange,
   onFocus,
   onBlur,
@@ -94,6 +97,7 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
   onToggleNull,
 }: TerminalFieldProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRows = autoResizeMaxRows ? 1 : rows ?? 3;
 
   useEffect(() => {
     const ta = textareaRef.current;
@@ -109,6 +113,28 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
     ta.addEventListener("wheel", onWheel, { passive: false });
     return () => ta.removeEventListener("wheel", onWheel);
   }, []);
+
+  useLayoutEffect(() => {
+    const ta = textareaRef.current;
+    if (!ta || !autoResizeMaxRows) return;
+
+    const computed = window.getComputedStyle(ta);
+    const lineHeight = Number.parseFloat(computed.lineHeight) || 20;
+    const paddingTop = Number.parseFloat(computed.paddingTop) || 0;
+    const paddingBottom = Number.parseFloat(computed.paddingBottom) || 0;
+    const borderTop = Number.parseFloat(computed.borderTopWidth) || 0;
+    const borderBottom = Number.parseFloat(computed.borderBottomWidth) || 0;
+    const maxHeight =
+      lineHeight * autoResizeMaxRows +
+      paddingTop +
+      paddingBottom +
+      borderTop +
+      borderBottom;
+
+    ta.style.height = "auto";
+    ta.style.height = `${Math.min(ta.scrollHeight, maxHeight)}px`;
+    ta.style.overflowY = ta.scrollHeight > maxHeight ? "auto" : "hidden";
+  }, [autoResizeMaxRows, value]);
 
   if (comment) {
     return (
@@ -192,14 +218,14 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
                 placeholder={placeholder}
                 value={value ?? ""}
                 readOnly={readOnly}
-                rows={rows ?? 3}
+                rows={textareaRows}
                 spellCheck={false}
                 onChange={(event) => onChange?.(event.target.value)}
                 onFocus={(event) => onFocus?.(event.target.value)}
                 onBlur={(event) => onBlur?.(event.target.value)}
                 style={{
-                  maxHeight: "200px",
-                  overflowY: "auto",
+                  maxHeight: autoResizeMaxRows ? undefined : "200px",
+                  overflowY: autoResizeMaxRows ? "hidden" : "auto",
                   cursor: readOnly ? "not-allowed" : "text",
                 }}
               />
@@ -289,14 +315,14 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
         placeholder={placeholder}
         value={value ?? ""}
         readOnly={readOnly}
-        rows={rows ?? 3}
+        rows={textareaRows}
         spellCheck={false}
         onChange={(event) => onChange?.(event.target.value)}
         onFocus={(event) => onFocus?.(event.target.value)}
         onBlur={(event) => onBlur?.(event.target.value)}
         style={{
-          maxHeight: "200px",
-          overflowY: "auto",
+          maxHeight: autoResizeMaxRows ? undefined : "200px",
+          overflowY: autoResizeMaxRows ? "hidden" : "auto",
           cursor: readOnly ? "not-allowed" : "text",
         }}
       />

@@ -60,6 +60,8 @@ export interface OutputPortDefinition {
 export interface GroupBundlePortOffsets {
   source?: number;
   target?: number;
+  sourceByBundle?: Record<string, number>;
+  targetByBundle?: Record<string, number>;
 }
 
 /* ------------------------------------------------------------------ */

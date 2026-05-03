@@ -215,6 +215,12 @@ describe("ThemeProvider", () => {
     expect(
       document.documentElement.style.getPropertyValue("--edge-dark-opacity")
     ).toBe("0.2");
+    expect(
+      document.documentElement.style.getPropertyValue("--edge-light-dashed-opacity")
+    ).toBe("0.475");
+    expect(
+      document.documentElement.style.getPropertyValue("--edge-dark-dashed-opacity")
+    ).toBe("0.1");
 
     await act(async () => {
       screen.getByTestId("edge-light-increase").click();
@@ -229,6 +235,9 @@ describe("ThemeProvider", () => {
     expect(
       document.documentElement.style.getPropertyValue("--edge-light-opacity")
     ).toBe("1");
+    expect(
+      document.documentElement.style.getPropertyValue("--edge-light-dashed-opacity")
+    ).toBe("0.5");
   });
 
   it("throws when useTheme is called outside ThemeProvider", () => {

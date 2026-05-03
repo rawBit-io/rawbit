@@ -81,6 +81,8 @@ function applyEdgeVisibilityCss(value: EdgeVisibility): void {
   const root = window.document.documentElement;
   root.style.setProperty("--edge-light-opacity", String(value.light));
   root.style.setProperty("--edge-dark-opacity", String(value.dark));
+  root.style.setProperty("--edge-light-dashed-opacity", String(value.light / 2));
+  root.style.setProperty("--edge-dark-dashed-opacity", String(value.dark / 2));
 }
 
 function safeStorageGet(key: string): string | null {
@@ -184,6 +186,8 @@ const setInitialTheme = (
     } catch (_) {}
     document.documentElement.style.setProperty('--edge-light-opacity', String(edgeVisibility.light));
     document.documentElement.style.setProperty('--edge-dark-opacity', String(edgeVisibility.dark));
+    document.documentElement.style.setProperty('--edge-light-dashed-opacity', String(edgeVisibility.light / 2));
+    document.documentElement.style.setProperty('--edge-dark-dashed-opacity', String(edgeVisibility.dark / 2));
   })();`;
 };
 

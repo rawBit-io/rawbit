@@ -30,8 +30,7 @@ interface GroupRect {
   y: number;
   width: number;
   height: number;
-  sourcePortOffset: number;
-  targetPortOffset: number;
+  data?: NodeData;
 }
 
 type BundleEndpoint =
@@ -100,6 +99,7 @@ interface GroupBundleSegmentAccumulator {
 }
 
 interface GroupBundlePortNodeData extends NodeData {
+  bundleId: string;
   bundledEdgeIds: string[];
   selectedEdgeIds: string[];
   groupId: string;
@@ -132,9 +132,16 @@ const nodeLabel = (node: FlowNode | undefined, fallbackId: string): string =>
 
 const groupBundlePortOffset = (
   data: NodeData | undefined,
-  role: "source" | "target"
+  role: "source" | "target",
+  bundleId: string
 ): number =>
-  asFiniteNumber(data?.groupBundlePortOffsets?.[role]) ?? 0;
+  asFiniteNumber(
+    role === "source"
+      ? data?.groupBundlePortOffsets?.sourceByBundle?.[bundleId]
+      : data?.groupBundlePortOffsets?.targetByBundle?.[bundleId]
+  ) ??
+  asFiniteNumber(data?.groupBundlePortOffsets?.[role]) ??
+  0;
 
 const groupRect = (node: FlowNode): GroupRect => {
   const data = node.data as NodeData | undefined;
@@ -153,8 +160,7 @@ const groupRect = (node: FlowNode): GroupRect => {
       asFiniteNumber(node.height) ??
       asFiniteNumber(node.measured?.height) ??
       DEFAULT_GROUP_HEIGHT,
-    sourcePortOffset: groupBundlePortOffset(data, "source"),
-    targetPortOffset: groupBundlePortOffset(data, "target"),
+    data,
   };
 };
 
@@ -435,6 +441,7 @@ const buildPortNode = ({
   id,
   point,
   groupId,
+  bundleId,
   role,
   bundledEdgeIds,
   selectedEdgeIds,
@@ -442,6 +449,7 @@ const buildPortNode = ({
   id: string;
   point: Point;
   groupId: string;
+  bundleId: string;
   role: "source" | "target";
   bundledEdgeIds: string[];
   selectedEdgeIds: string[];
@@ -468,6 +476,7 @@ const buildPortNode = ({
     bundledEdgeIds,
     selectedEdgeIds,
     groupId,
+    bundleId,
     role,
   },
   draggable: true,
@@ -572,10 +581,18 @@ export const buildGroupBundledElements = ({
       ? groupBundlePortNodeId("target", bundleId)
       : undefined;
     const sourceAnchor = sourceRect
-      ? boundaryAnchor(sourceRect, Position.Right, sourceRect.sourcePortOffset)
+      ? boundaryAnchor(
+          sourceRect,
+          Position.Right,
+          groupBundlePortOffset(sourceRect.data, "source", bundleId)
+        )
       : undefined;
     const targetAnchor = targetRect
-      ? boundaryAnchor(targetRect, Position.Left, targetRect.targetPortOffset)
+      ? boundaryAnchor(
+          targetRect,
+          Position.Left,
+          groupBundlePortOffset(targetRect.data, "target", bundleId)
+        )
       : undefined;
     const edgeIdOrder = new Map(
       bundle.edgeIds.map((edgeId, index) => [edgeId, index] as const)
@@ -594,6 +611,7 @@ export const buildGroupBundledElements = ({
         id: sourcePortId,
         point: sourceAnchor.boundaryPoint,
         groupId: sourceGroupId,
+        bundleId,
         role: "source",
         bundledEdgeIds: bundle.edgeIds,
         selectedEdgeIds,
@@ -604,6 +622,7 @@ export const buildGroupBundledElements = ({
         id: targetPortId,
         point: targetAnchor.boundaryPoint,
         groupId: targetGroupId,
+        bundleId,
         role: "target",
         bundledEdgeIds: bundle.edgeIds,
         selectedEdgeIds,

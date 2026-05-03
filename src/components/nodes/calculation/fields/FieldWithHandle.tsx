@@ -17,6 +17,7 @@ export interface FieldWithHandleProps {
   readOnly?: boolean;
   small?: boolean;
   rows?: number;
+  autoResizeMaxRows?: number;
   onChange?: (val: string) => void;
   onLabelChange?: (val: string) => void;
   handleOffset?: number;
@@ -44,6 +45,7 @@ function fieldWithHandlePropsAreEqual(
     prev.readOnly === next.readOnly &&
     prev.small === next.small &&
     prev.rows === next.rows &&
+    prev.autoResizeMaxRows === next.autoResizeMaxRows &&
     prev.comment === next.comment &&
     prev.onChange === next.onChange &&
     prev.onLabelChange === next.onLabelChange &&
@@ -67,6 +69,7 @@ export const FieldWithHandle = React.memo(function FieldWithHandleComponent({
   readOnly,
   small,
   rows,
+  autoResizeMaxRows,
   comment,
   onChange,
   onLabelChange,
@@ -134,6 +137,7 @@ export const FieldWithHandle = React.memo(function FieldWithHandleComponent({
         readOnly={readOnly || forceReadOnly}
         small={small}
         rows={rows}
+        autoResizeMaxRows={autoResizeMaxRows}
         comment={comment}
         onChange={onChange}
         onLabelChange={onLabelChange}

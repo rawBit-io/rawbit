@@ -416,7 +416,9 @@ describe("FlowCanvas", () => {
         type: "replace",
         item: expect.objectContaining({
           data: expect.objectContaining({
-            groupBundlePortOffsets: expect.objectContaining({ source: 59 }),
+            groupBundlePortOffsets: expect.objectContaining({
+              sourceByBundle: { "group-a->group-b": 59 },
+            }),
           }),
         }),
       }),
@@ -425,7 +427,117 @@ describe("FlowCanvas", () => {
         type: "replace",
         item: expect.objectContaining({
           data: expect.objectContaining({
-            groupBundlePortOffsets: expect.objectContaining({ target: -71 }),
+            groupBundlePortOffsets: expect.objectContaining({
+              targetByBundle: { "group-a->group-b": -71 },
+            }),
+          }),
+        }),
+      }),
+    ]);
+  });
+
+  it("stores drags independently for each group bundle port", () => {
+    const onNodesChange = vi.fn();
+    const groupedNodes: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "A", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "B", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "group-c",
+        type: "shadcnGroup",
+        position: { x: 500, y: 300 },
+        data: { title: "C", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "a1",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "a2",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 120 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "b1",
+        type: "calculation",
+        parentId: "group-b",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "c1",
+        type: "calculation",
+        parentId: "group-c",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+    ];
+
+    render(
+      <FlowCanvas
+        {...baseProps}
+        nodes={groupedNodes}
+        edges={[
+          { id: "edge-1", source: "a1", target: "b1" } as Edge,
+          { id: "edge-2", source: "a2", target: "c1" } as Edge,
+        ]}
+        onNodesChange={onNodesChange}
+      />
+    );
+
+    const passedNodes = reactFlowSpy.props.nodes as FlowNode[];
+    const sourcePortToB = passedNodes.find(
+      (node) =>
+        node.type === GROUP_BUNDLE_PORT_NODE_TYPE &&
+        node.data.role === "source" &&
+        node.data.bundleId === "group-a->group-b"
+    );
+    const sourcePortToC = passedNodes.find(
+      (node) =>
+        node.type === GROUP_BUNDLE_PORT_NODE_TYPE &&
+        node.data.role === "source" &&
+        node.data.bundleId === "group-a->group-c"
+    );
+
+    expect(sourcePortToB).toBeDefined();
+    expect(sourcePortToC).toBeDefined();
+
+    act(() => {
+      (
+        reactFlowSpy.props.onNodesChange as (changes: unknown[]) => void
+      )([
+        {
+          id: sourcePortToB?.id,
+          type: "position",
+          position: { x: 999, y: 150 },
+          dragging: false,
+        },
+      ]);
+    });
+
+    expect(onNodesChange).toHaveBeenCalledWith([
+      expect.objectContaining({
+        id: "group-a",
+        type: "replace",
+        item: expect.objectContaining({
+          data: expect.objectContaining({
+            groupBundlePortOffsets: {
+              sourceByBundle: { "group-a->group-b": 59 },
+            },
           }),
         }),
       }),

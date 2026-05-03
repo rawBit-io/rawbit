@@ -321,6 +321,65 @@ describe("buildGroupBundledEdges", () => {
     });
   });
 
+  it("applies per-bundle vertical port offsets independently", () => {
+    const nodes: FlowNode[] = [
+      buildFlowNode({
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: {
+          title: "A",
+          width: 300,
+          height: 200,
+          groupBundlePortOffsets: {
+            sourceByBundle: {
+              "group-a->group-b": 40,
+            },
+          },
+        },
+      }),
+      buildFlowNode({
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "B", width: 300, height: 200 },
+      }),
+      buildFlowNode({
+        id: "group-c",
+        type: "shadcnGroup",
+        position: { x: 500, y: 300 },
+        data: { title: "C", width: 300, height: 200 },
+      }),
+      buildFlowNode({ id: "a1", parentId: "group-a" }),
+      buildFlowNode({ id: "a2", parentId: "group-a" }),
+      buildFlowNode({ id: "b1", parentId: "group-b" }),
+      buildFlowNode({ id: "c1", parentId: "group-c" }),
+    ];
+    const edges: Edge[] = [
+      buildEdge({ id: "e1", source: "a1", target: "b1" }),
+      buildEdge({ id: "e2", source: "a2", target: "c1" }),
+    ];
+
+    const rendered = buildGroupBundledEdges({ nodes, edges });
+    const bundleToB = rendered.find(
+      (edge) => edge.id === "__group_bundle__:group-a->group-b"
+    );
+    const bundleToC = rendered.find(
+      (edge) => edge.id === "__group_bundle__:group-a->group-c"
+    );
+
+    expect(bundleToB).toMatchObject({
+      data: {
+        sourceBoundaryPoint: { x: 300, y: 140 },
+      },
+    });
+    expect(bundleToC).toMatchObject({
+      data: {
+        sourceBoundaryPoint: { x: 300, y: 100 },
+      },
+    });
+  });
+
   it("collapses p14 MuSig2 cross-group traffic from 63 raw edges to 10 bundles", () => {
     const nodes = p14MuSig2.nodes as FlowNode[];
     const edges = p14MuSig2.edges as Edge[];

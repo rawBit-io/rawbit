@@ -323,11 +323,11 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
 .react-flow__edge.group-bundle-segment-edge .react-flow__edge-path {
   stroke-width: 1.4 !important;
   stroke-dasharray: 6 5 !important;
-  opacity: var(--edge-light-opacity, 0.45) !important;
+  opacity: var(--edge-light-dashed-opacity, 0.225) !important;
 }
 
 .dark .react-flow__edge.group-bundle-segment-edge .react-flow__edge-path {
-  opacity: var(--edge-dark-opacity, 0.45) !important;
+  opacity: var(--edge-dark-dashed-opacity, 0.225) !important;
 }
 
 .react-flow__edge.group-bundle-segment-edge.selected .react-flow__edge-path,

@@ -684,6 +684,7 @@ export function CalculationNodeView({
     tree.label = "root";
     return renderAsciiTree(tree);
   })();
+  const hideResultForInputNode = showField && data.functionName === "identity";
 
   const anchoredPortSources = useMemo(
     () =>
@@ -975,7 +976,7 @@ export function CalculationNodeView({
 
       <CardContent className="flex flex-1 flex-col p-4 text-sm">
         {!derived.isMultiVal && singleValue && (
-          <div className="mb-4">
+          <div className={cn(hideResultForInputNode ? "mb-0" : "mb-4")}>
             {showField && (
               <FieldWithHandle
                 handleId="input-0"
@@ -983,6 +984,8 @@ export function CalculationNodeView({
                 label={data.customFieldLabels?.[0] || "INPUT VALUE:"}
                 placeholder="Type a value..."
                 value={singleValue.value}
+                rows={hideResultForInputNode ? 1 : undefined}
+                autoResizeMaxRows={hideResultForInputNode ? 3 : undefined}
                 onChange={singleValue.onChange}
                 disableHandle={!showHandle}
                 handleOffset={-16}
@@ -1080,20 +1083,84 @@ export function CalculationNodeView({
           </div>
         )}
 
-        <div className="mt-auto border-t border-border pt-2">
-          <div className="mb-2 text-sm text-primary">
-            {">"} Calculation Result:
-          </div>
-          {isMusig2NonceGen ? (
-            <div className="space-y-3 text-sm">
-              <div
-                ref={musig2PubnonceRowRef}
-                className="flex items-start justify-between gap-2"
-              >
+        {!hideResultForInputNode && (
+          <div className="mt-auto border-t border-border pt-2">
+            <div className="mb-2 text-sm text-primary">
+              {">"} Calculation Result:
+            </div>
+            {isMusig2NonceGen ? (
+              <div className="space-y-3 text-sm">
+                <div
+                  ref={musig2PubnonceRowRef}
+                  className="flex items-start justify-between gap-2"
+                >
+                  <div className="flex-1 min-w-0" data-testid="node-result">
+                    <div className="mb-1 text-xs font-medium">Pubnonce:</div>
+                    <span className="block whitespace-pre-wrap break-all">
+                      {musig2PubnonceDisplay}
+                    </span>
+                  </div>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="nodrag shrink-0 self-start"
+                    onPointerDownCapture={(event) => event.stopPropagation()}
+                    onClick={clip.copyResult}
+                    disabled={result === undefined}
+                    title={
+                      clip.resultCopied ? "Copied!" : "Copy pubnonce to clipboard"
+                    }
+                  >
+                    {clip.resultCopied ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+
+                <div
+                  ref={musig2SecnonceRowRef}
+                  className="flex items-start justify-between gap-2"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="mb-1 text-xs font-medium">Secnonce:</div>
+                    <span className="block whitespace-pre-wrap break-all">
+                      {musig2SecnonceDisplay}
+                    </span>
+                  </div>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="nodrag shrink-0 self-start"
+                    onPointerDownCapture={(event) => event.stopPropagation()}
+                    onClick={copyMusig2Secnonce}
+                    disabled={
+                      musig2SecnonceValue === undefined ||
+                      musig2SecnonceValue === null ||
+                      musig2SecnonceValue === ""
+                    }
+                    title={
+                      musig2SecnonceCopied
+                        ? "Copied!"
+                        : "Copy secnonce to clipboard"
+                    }
+                  >
+                    {musig2SecnonceCopied ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-start justify-between gap-2 text-sm">
                 <div className="flex-1 min-w-0" data-testid="node-result">
-                  <div className="mb-1 text-xs font-medium">Pubnonce:</div>
                   <span className="block whitespace-pre-wrap break-all">
-                    {musig2PubnonceDisplay}
+                    {clip.prettyResult}
                   </span>
                 </div>
 
@@ -1104,9 +1171,7 @@ export function CalculationNodeView({
                   onPointerDownCapture={(event) => event.stopPropagation()}
                   onClick={clip.copyResult}
                   disabled={result === undefined}
-                  title={
-                    clip.resultCopied ? "Copied!" : "Copy pubnonce to clipboard"
-                  }
+                  title={clip.resultCopied ? "Copied!" : "Copy result to clipboard"}
                 >
                   {clip.resultCopied ? (
                     <Check className="h-4 w-4" />
@@ -1115,162 +1180,102 @@ export function CalculationNodeView({
                   )}
                 </Button>
               </div>
+            )}
 
+            {isTaprootTreeBuilder && taprootLeafLabels.length > 0 ? (
               <div
-                ref={musig2SecnonceRowRef}
-                className="flex items-start justify-between gap-2"
+                ref={pathRowRef}
+                className="relative mt-3 flex items-center justify-between"
               >
-                <div className="flex-1 min-w-0">
-                  <div className="mb-1 text-xs font-medium">Secnonce:</div>
-                  <span className="block whitespace-pre-wrap break-all">
-                    {musig2SecnonceDisplay}
-                  </span>
+                <span className="text-xs font-medium">Merkle Path Leaf:</span>
+                <Select
+                  value={String(taprootLeafIndex)}
+                  onValueChange={(value) =>
+                    mut.setTaprootLeafIndex(Number(value))
+                  }
+                >
+                  <SelectTrigger
+                    ref={pathTriggerRef}
+                    className="h-7 w-40"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {taprootLeafLabels.map((label, index) => (
+                      <SelectItem key={`${label}-${index}`} value={String(index)}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : null}
+
+            {isTaprootTweakXonly ? (
+              <div
+                ref={parityRowRef}
+                className="relative mt-3 flex items-center justify-between"
+              >
+                <span className="text-xs font-medium">Output Key Parity:</span>
+                <div
+                  ref={parityValueRef}
+                  className="flex h-7 min-w-[3.5rem] items-center justify-center rounded-md border border-input bg-background px-2 text-xs font-mono"
+                >
+                  {parityDisplay}
                 </div>
+              </div>
+            ) : null}
 
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="nodrag shrink-0 self-start"
-                  onPointerDownCapture={(event) => event.stopPropagation()}
-                  onClick={copyMusig2Secnonce}
-                  disabled={
-                    musig2SecnonceValue === undefined ||
-                    musig2SecnonceValue === null ||
-                    musig2SecnonceValue === ""
-                  }
-                  title={
-                    musig2SecnonceCopied
-                      ? "Copied!"
-                      : "Copy secnonce to clipboard"
-                  }
-                >
-                  {musig2SecnonceCopied ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
+            {taprootTreeDisplay ? (
+              <div className="mt-3 border-t border-border pt-2">
+                <TerminalField
+                  label="Taproot Tree:"
+                  value={taprootTreeDisplay}
+                  readOnly={true}
+                  rows={Math.min(
+                    12,
+                    Math.max(4, taprootTreeDisplay.split("\n").length)
                   )}
-                </Button>
+                />
               </div>
-            </div>
-          ) : (
-            <div className="flex items-start justify-between gap-2 text-sm">
-              <div className="flex-1 min-w-0" data-testid="node-result">
-                <span className="block whitespace-pre-wrap break-all">
-                  {clip.prettyResult}
-                </span>
-              </div>
+            ) : null}
 
-              <Button
-                variant="ghost"
-                size="icon"
-                className="nodrag shrink-0 self-start"
-                onPointerDownCapture={(event) => event.stopPropagation()}
-                onClick={clip.copyResult}
-                disabled={result === undefined}
-                title={clip.resultCopied ? "Copied!" : "Copy result to clipboard"}
-              >
-                {clip.resultCopied ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          )}
-
-          {isTaprootTreeBuilder && taprootLeafLabels.length > 0 ? (
-            <div
-              ref={pathRowRef}
-              className="relative mt-3 flex items-center justify-between"
-            >
-              <span className="text-xs font-medium">Merkle Path Leaf:</span>
-              <Select
-                value={String(taprootLeafIndex)}
-                onValueChange={(value) =>
-                  mut.setTaprootLeafIndex(Number(value))
-                }
-              >
-                <SelectTrigger
-                  ref={pathTriggerRef}
-                  className="h-7 w-40"
+            {data.networkDependent && (
+              <div className="mt-3 flex items-center justify-between">
+                <span className="text-xs font-medium">Network:</span>
+                <Select
+                  value={data.selectedNetwork || "testnet"}
+                  onValueChange={mut.handleNetworkChange}
                 >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {taprootLeafLabels.map((label, index) => (
-                    <SelectItem key={`${label}-${index}`} value={String(index)}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          ) : null}
-
-          {isTaprootTweakXonly ? (
-            <div
-              ref={parityRowRef}
-              className="relative mt-3 flex items-center justify-between"
-            >
-              <span className="text-xs font-medium">Output Key Parity:</span>
-              <div
-                ref={parityValueRef}
-                className="flex h-7 min-w-[3.5rem] items-center justify-center rounded-md border border-input bg-background px-2 text-xs font-mono"
-              >
-                {parityDisplay}
+                  <SelectTrigger className="h-7 w-28">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mainnet">Mainnet</SelectItem>
+                    <SelectItem value="testnet">Testnet</SelectItem>
+                    <SelectItem value="regtest">Regtest</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
-          ) : null}
+            )}
 
-          {taprootTreeDisplay ? (
-            <div className="mt-3 border-t border-border pt-2">
-              <TerminalField
-                label="Taproot Tree:"
-                value={taprootTreeDisplay}
-                readOnly={true}
-                rows={Math.min(
-                  12,
-                  Math.max(4, taprootTreeDisplay.split("\n").length)
-                )}
-              />
-            </div>
-          ) : null}
-
-          {data.networkDependent && (
-            <div className="mt-3 flex items-center justify-between">
-              <span className="text-xs font-medium">Network:</span>
-              <Select
-                value={data.selectedNetwork || "testnet"}
-                onValueChange={mut.handleNetworkChange}
+            {script.isScriptVerification && script.scriptResult !== null ? (
+              <Button
+                variant="outline"
+                className="mt-3"
+                onClick={() => setShowSteps(true)}
               >
-                <SelectTrigger className="h-7 w-28">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mainnet">Mainnet</SelectItem>
-                  <SelectItem value="testnet">Testnet</SelectItem>
-                  <SelectItem value="regtest">Regtest</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+                View Script Steps
+              </Button>
+            ) : null}
 
-          {script.isScriptVerification && script.scriptResult !== null ? (
-            <Button
-              variant="outline"
-              className="mt-3"
-              onClick={() => setShowSteps(true)}
-            >
-              View Script Steps
-            </Button>
-          ) : null}
-
-          {isHardwareAction && hardwareStatusText ? (
-            <div className="mt-3 rounded border border-border bg-muted/40 px-2 py-1 text-xs text-muted-foreground">
-              {hardwareStatusText}
-            </div>
-          ) : null}
-        </div>
+            {isHardwareAction && hardwareStatusText ? (
+              <div className="mt-3 rounded border border-border bg-muted/40 px-2 py-1 text-xs text-muted-foreground">
+                {hardwareStatusText}
+              </div>
+            ) : null}
+          </div>
+        )}
 
         {showComment && (
           <div className="mt-4 border-t border-border pt-2">
