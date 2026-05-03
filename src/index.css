@@ -823,22 +823,35 @@ body[data-large-drag="true"] .rf-node {
   border-width: 1.25px !important;
   border-color: hsl(var(--border));
   background: hsl(var(--card) / 0.98) !important;
-  box-shadow: 0 10px 18px -22px hsl(27 32% 18% / 0.9) !important;
+  box-shadow: 0 8px 14px -24px hsl(27 32% 18% / 0.72) !important;
+}
+
+[data-skin="paper"] .react-flow__node-calculation > * > :first-child {
+  background: hsl(var(--secondary) / 0.36);
+}
+
+.dark[data-skin="paper"] .react-flow__node-calculation > * > :first-child {
+  background: hsl(var(--secondary) / 0.5);
 }
 
 [data-skin="paper"] .react-flow__node-shadcnGroup > * {
   border-radius: var(--group-node-radius) !important;
   border-width: 1.5px !important;
-  border-color: hsl(var(--primary) / 0.5);
-  background-color: hsl(var(--background) / 0.8) !important;
+  border-color: hsl(var(--primary) / 0.38);
+  background-color: hsl(var(--background) / 0.74) !important;
+}
+
+.dark[data-skin="paper"] .react-flow__node-shadcnGroup > * {
+  border-color: hsl(var(--primary) / 0.32);
+  background-color: hsl(var(--card) / 0.42) !important;
 }
 
 [data-skin="paper"] .react-flow__node-shadcnGroup [data-testid="group-fill"] {
-  opacity: var(--group-light-fill-opacity, 0.07) !important;
+  opacity: calc(var(--group-light-fill-opacity, 0.07) * 0.86) !important;
 }
 
 .dark[data-skin="paper"] .react-flow__node-shadcnGroup [data-testid="group-fill"] {
-  opacity: var(--group-dark-fill-opacity, 0.07) !important;
+  opacity: calc(var(--group-dark-fill-opacity, 0.07) * 0.86) !important;
 }
 
 [data-skin="paper"] .react-flow__node-shadcnTextInfo > * {
@@ -850,7 +863,7 @@ body[data-large-drag="true"] .rf-node {
 }
 
 .dark[data-skin="paper"] .react-flow__node-shadcnTextInfo [data-testid="text-info-fill"] {
-  background-color: hsl(var(--card) / 0.42);
+  background-color: hsl(var(--primary) / 0.12);
   opacity: 1 !important;
 }
 
@@ -863,11 +876,26 @@ body[data-large-drag="true"] .rf-node {
 }
 
 [data-skin="paper"] .field-surface {
-  background-color: hsl(var(--background)) !important;
+  background-color: hsl(var(--secondary) / 0.52) !important;
+}
+
+.dark[data-skin="paper"] .field-surface {
+  background-color: hsl(var(--secondary) / 0.68) !important;
 }
 
 [data-skin="paper"] .custom-flow-controls .react-flow__controls-button {
   border-radius: 6px !important;
+}
+
+[data-skin="paper"] .minimap-group {
+  fill: hsl(var(--primary) / 0.055) !important;
+  stroke: hsl(var(--primary) / 0.36);
+  stroke-width: 1.15;
+}
+
+.dark[data-skin="paper"] .minimap-group {
+  fill: hsl(var(--primary) / 0.07) !important;
+  stroke: hsl(var(--primary) / 0.32);
 }
 
 [data-skin="paper"] .react-flow__handle {
