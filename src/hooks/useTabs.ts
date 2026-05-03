@@ -8,7 +8,7 @@ import {
   type SetStateAction,
 } from "react";
 import type { Edge, ReactFlowInstance } from "@xyflow/react";
-import type { FlowNode, ProtocolDiagramLayout } from "@/types";
+import type { FlowNode } from "@/types";
 import {
   restoreScriptSteps,
   snapshotScriptSteps,
@@ -23,12 +23,8 @@ import type {
   CompressTabResponse,
   WorkerFlowTabArchive,
 } from "@/workers/tabsCompression.types";
-import {
-  collectGroupNodeIds,
-  protocolDiagramLayoutEquals,
-  sanitizeProtocolDiagramLayout,
-} from "@/lib/protocolDiagram/layoutPersistence";
 import { sanitizeGroupBundleVisualElementsForState } from "@/lib/flow/groupEdgeBundling";
+import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
 
 export interface FlowTab {
   id: string;
@@ -55,7 +51,6 @@ interface FlowTabArchive {
   nodes: FlowNode[];
   edges: Edge[];
   scriptSteps?: ScriptStepsEntry[];
-  protocolDiagramLayout?: ProtocolDiagramLayout;
 }
 
 function isIdentityTransform(transform?: FlowTab["transform"]): boolean {
@@ -124,18 +119,16 @@ function filterEdgesForNodes(nodes: FlowNode[], edges: Edge[]): Edge[] {
 function normalizeArchive(value: unknown): FlowTabArchive {
   if (!value || typeof value !== "object") return createEmptyArchive();
   const maybe = value as Partial<FlowTabArchive>;
-  const nodes = Array.isArray(maybe.nodes) ? (maybe.nodes as FlowNode[]) : [];
+  const nodes = stripLegacyFlowMapNodeData(
+    Array.isArray(maybe.nodes) ? (maybe.nodes as FlowNode[]) : []
+  );
   const rawEdges = Array.isArray(maybe.edges) ? (maybe.edges as Edge[]) : [];
   const edges = filterEdgesForNodes(nodes, rawEdges);
   const scriptSteps = sanitizeScriptSteps(maybe.scriptSteps);
-  const protocolDiagramLayout = sanitizeProtocolDiagramLayout(
-    maybe.protocolDiagramLayout
-  );
   return {
     nodes,
     edges,
     scriptSteps,
-    protocolDiagramLayout,
   };
 }
 
@@ -473,8 +466,6 @@ function hydrateCounter(tabs: FlowTab[]): number {
 interface UseTabsArgs {
   getNodes: () => FlowNode[];
   getEdges: () => Edge[];
-  getProtocolDiagramLayout?: () => ProtocolDiagramLayout | undefined;
-  setProtocolDiagramLayout?: (layout: ProtocolDiagramLayout | undefined) => void;
   baseSetNodes: (next: FlowNode[] | ((prev: FlowNode[]) => FlowNode[])) => void;
   baseSetEdges: (next: Edge[] | ((prev: Edge[]) => Edge[])) => void;
   graphRevRef: React.MutableRefObject<number>;
@@ -500,7 +491,6 @@ interface SaveTabDataOptions {
   data?: {
     nodes: FlowNode[];
     edges: Edge[];
-    protocolDiagramLayout?: ProtocolDiagramLayout;
   };
 }
 
@@ -534,8 +524,6 @@ export interface UseTabsResult {
 export function useTabs({
   getNodes,
   getEdges,
-  getProtocolDiagramLayout,
-  setProtocolDiagramLayout,
   baseSetNodes,
   baseSetEdges,
   graphRevRef,
@@ -743,7 +731,7 @@ export function useTabs({
         nodes: rawCurrentNodes,
         edges: rawCurrentEdges,
       });
-      const currentNodes = canonicalGraph.nodes;
+      const currentNodes = stripLegacyFlowMapNodeData(canonicalGraph.nodes);
       const canonicalCurrentEdges = canonicalGraph.edges;
       const currentEdges = filterEdgesForNodes(
         currentNodes,
@@ -758,20 +746,9 @@ export function useTabs({
           }
         );
       }
-      const groupIds = collectGroupNodeIds(currentNodes);
       const entry = ensureArchiveEntry(tabId);
-      const currentLayout = sanitizeProtocolDiagramLayout(
-        options?.data
-          ? options.data.protocolDiagramLayout
-          : getProtocolDiagramLayout?.(),
-        groupIds
-      );
-      const layoutChanged = !protocolDiagramLayoutEquals(
-        entry.raw?.protocolDiagramLayout,
-        currentLayout
-      );
       const tabVersion = idx >= 0 ? tabs[idx].version : undefined;
-      if (!force && tabVersion === graphRevRef.current && !layoutChanged) {
+      if (!force && tabVersion === graphRevRef.current) {
         return;
       }
 
@@ -784,7 +761,6 @@ export function useTabs({
         nodes: clone(currentNodes),
         edges: clone(currentEdges),
         scriptSteps: tabScriptSteps.length ? tabScriptSteps : undefined,
-        protocolDiagramLayout: currentLayout,
       };
       archiveRef.current.set(tabId, entry);
       if (options?.immediate) {
@@ -816,7 +792,6 @@ export function useTabs({
       ensureArchiveEntry,
       getEdges,
       getNodes,
-      getProtocolDiagramLayout,
       getTabIndex,
       graphRevRef,
       persistTabCompressed,
@@ -931,16 +906,12 @@ export function useTabs({
         restoreScriptSteps(nextArchive.scriptSteps ?? []);
         baseSetNodes(clone(nextArchive.nodes));
         baseSetEdges(clone(nextArchive.edges));
-        setProtocolDiagramLayout?.(
-          sanitizeProtocolDiagramLayout(nextArchive.protocolDiagramLayout)
-        );
         graphRevRef.current = nextTab.version;
         refreshBanner(nextArchive.nodes, tabId);
       } else {
         restoreScriptSteps([]);
         baseSetNodes([]);
         baseSetEdges([]);
-        setProtocolDiagramLayout?.(undefined);
         graphRevRef.current = 0;
         initializeTabHistory(tabId, [], []);
       }
@@ -959,7 +930,6 @@ export function useTabs({
       refreshBanner,
       runViewportRestore,
       saveTabData,
-      setProtocolDiagramLayout,
       setActiveTabCtx,
       tabs,
     ]
@@ -993,7 +963,6 @@ export function useTabs({
     restoreScriptSteps([]);
     baseSetNodes([]);
     baseSetEdges([]);
-    setProtocolDiagramLayout?.(undefined);
     graphRevRef.current = 0;
     initializeTabHistory(newId, [], []);
     refreshBanner([], newId);
@@ -1012,7 +981,6 @@ export function useTabs({
     refreshBanner,
     runViewportRestore,
     saveTabData,
-    setProtocolDiagramLayout,
     setActiveTabCtx,
     persistTabCompressed,
     tabCounter,
@@ -1070,7 +1038,6 @@ export function useTabs({
     restoreScriptSteps([]);
     baseSetNodes([]);
     baseSetEdges([]);
-    setProtocolDiagramLayout?.(undefined);
     graphRevRef.current = 0;
     initializeTabHistory(nextTab.id, [], []);
     refreshBanner([], nextTab.id);
@@ -1090,7 +1057,6 @@ export function useTabs({
     persistTabsMetadata,
     refreshBanner,
     runViewportRestore,
-    setProtocolDiagramLayout,
     setActiveTabCtx,
     tabs,
   ]);
@@ -1131,9 +1097,6 @@ export function useTabs({
       restoreScriptSteps(keepArchive.scriptSteps ?? []);
       baseSetNodes(clone(keepArchive.nodes));
       baseSetEdges(clone(keepArchive.edges));
-      setProtocolDiagramLayout?.(
-        sanitizeProtocolDiagramLayout(keepArchive.protocolDiagramLayout)
-      );
       graphRevRef.current = nextTab.version;
       refreshBanner(keepArchive.nodes, keepTabId);
       runViewportRestore(nextTab, keepArchive);
@@ -1154,7 +1117,6 @@ export function useTabs({
     refreshBanner,
     runViewportRestore,
     saveTabData,
-    setProtocolDiagramLayout,
     setActiveTabCtx,
     tabs,
   ]);
@@ -1181,15 +1143,11 @@ export function useTabs({
         restoreScriptSteps(nextArchive.scriptSteps ?? []);
         baseSetNodes(clone(nextArchive.nodes));
         baseSetEdges(clone(nextArchive.edges));
-        setProtocolDiagramLayout?.(
-          sanitizeProtocolDiagramLayout(nextArchive.protocolDiagramLayout)
-        );
         graphRevRef.current = next.version;
         refreshBanner(nextArchive.nodes, next.id);
         runViewportRestore(next, nextArchive);
       } else {
         restoreScriptSteps([]);
-        setProtocolDiagramLayout?.(undefined);
       }
     }
 
@@ -1207,7 +1165,6 @@ export function useTabs({
     discardTabData,
     persistTabsMetadata,
     runViewportRestore,
-    setProtocolDiagramLayout,
     setActiveTabCtx,
     tabs,
   ]);
@@ -1351,9 +1308,6 @@ export function useTabs({
     restoreScriptSteps(archiveData.scriptSteps ?? []);
     baseSetNodes(clone(archiveData.nodes));
     baseSetEdges(clone(archiveData.edges));
-    setProtocolDiagramLayout?.(
-      sanitizeProtocolDiagramLayout(archiveData.protocolDiagramLayout)
-    );
     graphRevRef.current = active.version;
     refreshBanner(archiveData.nodes, active.id);
     initializeTabHistory(
@@ -1385,7 +1339,6 @@ export function useTabs({
     initializeTabHistory,
     refreshBanner,
     runViewportRestore,
-    setProtocolDiagramLayout,
     tabs,
   ]);
 

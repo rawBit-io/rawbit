@@ -39,7 +39,7 @@ The lesson transactions were broadcast on **testnet3**, so you can inspect them 
 - **Watch bytes change live:** Tweak `nSequence`, `nLockTime`, witness data, and `SIGHASH` types while sizes, weight, TXID/WTXID, preimages, witnesses, and fees update.
 - **Debug scripts step by step:** Inspect stack diffs after each opcode and see where validation fails.
 - **Inspect the implementation:** Open calculation nodes to view the exact Python function used by the backend.
-- **Work with larger lessons:** Use multi-tab history, templates, clipboard, search, minimap, and the protocol flow map.
+- **Work with larger lessons:** Use multi-tab history, templates, clipboard, search, and minimap.
 - **Export reproducible artifacts:** Save/load full JSON, compact/LLM snapshots, and optional share links. Imports use collision-safe IDs.
 - **Target Bitcoin networks where relevant:** Address and script nodes support mainnet, testnet, and regtest options where the operation needs a network.
 
@@ -98,7 +98,7 @@ Tracked env files provide defaults for the app and tests. For private local over
 
 ## Architecture (at a glance)
 
-- **Frontend:** React + Vite + Tailwind + `@xyflow/react`. Handles the canvas, tabs, panels, templates, clipboard, protocol flow map, search/minimap, and per-tab undo/redo.
+- **Frontend:** React + Vite + Tailwind + `@xyflow/react`. Handles the canvas, tabs, panels, templates, clipboard, search/minimap, and per-tab undo/redo.
 - **Backend:** Flask + Python (with `python-bitcointx`). Evaluates calculation nodes, validates scripts/signatures, enforces a sliding computation-time budget, and exposes `/bulk_calculate`, `/flows`, `/code`, and `/healthz`.
 - **Share service:** Optional Cloudflare Worker in `cloudflare/` for share links (`POST /share`, `GET /s/<id>`).
 

@@ -23,7 +23,6 @@ import {
 } from "@xyflow/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   AlertTriangle,
   Minus,
@@ -39,7 +38,7 @@ import { useClipboardLite } from "@/hooks/nodes/useClipboardLite";
 import { useSnapshotSchedulerContext } from "@/hooks/useSnapshotSchedulerContext";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
 import { useFlowActions } from "@/hooks/useFlowActions";
-import type { CalculationNodeData, FlowNode, NodeData } from "@/types";
+import type { CalculationNodeData, FlowNode } from "@/types";
 import { produce, setAutoFreeze } from "immer";
 import { EditableLabel } from "./common/EditableLabel";
 import { BorderDragHandles } from "./common/BorderDragHandles";
@@ -95,7 +94,6 @@ export default function ShadcnGroupNode({
   const rawTitle = data.title || "Group Node";
   const currentComment =
     typeof data.comment === "string" ? data.comment : "";
-  const excludeFromFlowMap = data.excludeFromFlowMap === true;
   const [commentDraft, setCommentDraft] = useState(currentComment);
   const commentDraftRef = useRef(commentDraft);
   commentDraftRef.current = commentDraft;
@@ -304,32 +302,6 @@ export default function ShadcnGroupNode({
     },
     [id, mutateNode, pushState, rf]
   );
-
-  const toggleExcludeFromFlowMap = useCallback(() => {
-    const currentNode = rf.getNodes().find((node) => node.id === id);
-    const currentlyExcluded =
-      (currentNode?.data as NodeData | undefined)?.excludeFromFlowMap === true;
-    const nextExcluded = !currentlyExcluded;
-    mutateNode((d) => {
-      if (nextExcluded) {
-        d.excludeFromFlowMap = true;
-      } else {
-        delete d.excludeFromFlowMap;
-      }
-    });
-
-    setTimeout(
-      () =>
-        pushState(
-          rf.getNodes(),
-          rf.getEdges(),
-          nextExcluded
-            ? "Exclude Group From Flow Map"
-            : "Include Group In Flow Map"
-        ),
-      0
-    );
-  }, [id, mutateNode, pushState, rf]);
 
   useEffect(() => {
     if (!showMenu) return;
@@ -821,21 +793,6 @@ export default function ShadcnGroupNode({
                 className="w-full rounded-sm border border-border bg-background px-2 py-1 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                 rows={3}
               />
-              <label
-                htmlFor={`group-flow-map-exclude-${id}`}
-                className="mt-2 flex cursor-pointer items-center gap-2 text-xs text-foreground"
-              >
-                <Checkbox
-                  id={`group-flow-map-exclude-${id}`}
-                  checked={excludeFromFlowMap}
-                  onCheckedChange={toggleExcludeFromFlowMap}
-                  className="h-3.5 w-3.5 data-[state=checked]:bg-transparent data-[state=checked]:text-primary"
-                />
-                Exclude from Flow Map
-              </label>
-              <div className="mt-1 text-[10px] text-muted-foreground">
-                Hidden groups and their connections are omitted from Flow Map.
-              </div>
             </div>
             <div className="my-1 h-px bg-border" />
             <button

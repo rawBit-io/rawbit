@@ -1,7 +1,6 @@
 // src/lib/share/buildSharePayload.ts
 import type {
   FlowNode,
-  ProtocolDiagramLayout,
   SharePayload,
   SharedEdge,
   SharedNode,
@@ -9,20 +8,14 @@ import type {
 import type { Edge } from "@xyflow/react";
 import { FLOW_SCHEMA_VERSION } from "@/lib/flow/schema";
 import { hydrateNodesWithScriptSteps } from "@/lib/share/scriptStepsCache";
-import {
-  collectGroupNodeIds,
-  sanitizeProtocolDiagramLayout,
-} from "@/lib/protocolDiagram/layoutPersistence";
+import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
 
 export function buildSharePayload(
   nodes: FlowNode[],
-  edges: Edge[],
-  protocolDiagramLayout?: ProtocolDiagramLayout
+  edges: Edge[]
 ): SharePayload {
-  const nodesWithSteps = hydrateNodesWithScriptSteps(nodes);
-  const sanitizedLayout = sanitizeProtocolDiagramLayout(
-    protocolDiagramLayout,
-    collectGroupNodeIds(nodesWithSteps)
+  const nodesWithSteps = hydrateNodesWithScriptSteps(
+    stripLegacyFlowMapNodeData(nodes)
   );
   const cleanedNodes = nodesWithSteps.map((n) => {
     const data: Record<string, unknown> = { ...(n.data ?? {}) };
@@ -30,6 +23,7 @@ export function buildSharePayload(
     // Remove only UI-specific fields
     delete data.searchMark;
     delete data.isHighlighted;
+    delete data.excludeFromFlowMap;
     // Keep scriptDebugSteps - we want to share the full debug info
 
     const sharedNode: SharedNode = {
@@ -56,6 +50,5 @@ export function buildSharePayload(
     schemaVersion: FLOW_SCHEMA_VERSION,
     nodes: cleanedNodes,
     edges: cleanedEdges,
-    protocolDiagramLayout: sanitizedLayout,
   };
 }

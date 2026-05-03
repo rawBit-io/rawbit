@@ -96,10 +96,6 @@ const baseProps: TopBarProps & ExtraTopBarProps = {
   connectDisabled: true,
   onSearchClick: vi.fn(),
   setShowSearchPanel: vi.fn(),
-  showProtocolDiagramPanel: false,
-  setShowProtocolDiagramPanel: vi.fn(),
-  hasProtocolDiagram: true,
-  protocolDiagramDisabledTooltip: "Add groups to enable diagram view",
   showMiniMap: true,
   onToggleMiniMap: vi.fn(),
   isSelectionModeActive: false,
@@ -398,7 +394,6 @@ describe("TopBar", () => {
   it("closes other panels before showing search", () => {
     const setShowUndoRedoPanel = vi.fn();
     const setShowErrorPanel = vi.fn();
-    const setShowProtocolDiagramPanel = vi.fn();
     const onSearchClick = vi.fn();
 
     render(
@@ -406,7 +401,6 @@ describe("TopBar", () => {
         {...baseProps}
         setShowUndoRedoPanel={setShowUndoRedoPanel}
         setShowErrorPanel={setShowErrorPanel}
-        setShowProtocolDiagramPanel={setShowProtocolDiagramPanel}
         onSearchClick={onSearchClick}
       />
     );
@@ -415,7 +409,6 @@ describe("TopBar", () => {
 
     expect(setShowUndoRedoPanel).toHaveBeenCalledWith(false);
     expect(setShowErrorPanel).toHaveBeenCalledWith(false);
-    expect(setShowProtocolDiagramPanel).toHaveBeenCalledWith(false);
     expect(onSearchClick).toHaveBeenCalled();
   });
 
@@ -437,37 +430,6 @@ describe("TopBar", () => {
 
     expect(setShowSearchPanel).toHaveBeenCalledWith(false);
     expect(setShowErrorPanel).toHaveBeenCalledWith(true);
-  });
-
-  it("disables protocol diagram button when no groups exist", () => {
-    render(<TopBar {...baseProps} hasProtocolDiagram={false} />);
-    expect(screen.getByRole("button", { name: "Flow map" })).toBeDisabled();
-  });
-
-  it("toggles protocol diagram and closes other right-side panels", () => {
-    const setShowUndoRedoPanel = vi.fn();
-    const setShowErrorPanel = vi.fn();
-    const setShowSearchPanel = vi.fn();
-    const setShowProtocolDiagramPanel = vi.fn();
-
-    render(
-      <TopBar
-        {...baseProps}
-        showProtocolDiagramPanel={false}
-        setShowUndoRedoPanel={setShowUndoRedoPanel}
-        setShowErrorPanel={setShowErrorPanel}
-        setShowSearchPanel={setShowSearchPanel}
-        setShowProtocolDiagramPanel={setShowProtocolDiagramPanel}
-        hasProtocolDiagram
-      />
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: "Flow map" }));
-
-    expect(setShowUndoRedoPanel).toHaveBeenCalledWith(false);
-    expect(setShowErrorPanel).toHaveBeenCalledWith(false);
-    expect(setShowSearchPanel).toHaveBeenCalledWith(false);
-    expect(setShowProtocolDiagramPanel).toHaveBeenCalledWith(true);
   });
 
   it("invokes simplified save when holding the S key", () => {

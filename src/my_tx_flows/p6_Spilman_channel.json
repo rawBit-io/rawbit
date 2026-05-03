@@ -16,8 +16,7 @@
         "title": "                            Bob",
         "dirty": false,
         "fontSize": 96,
-        "borderColor": "#a855f7",
-        "excludeFromFlowMap": true
+        "borderColor": "#a855f7"
       },
       "dragHandle": "[data-drag-handle]"
     },
@@ -35,8 +34,7 @@
         "title": "                                                                            Alice",
         "dirty": false,
         "fontSize": 96,
-        "borderColor": "#22c55e",
-        "excludeFromFlowMap": true
+        "borderColor": "#22c55e"
       },
       "dragHandle": "[data-drag-handle]"
     },
@@ -54,8 +52,7 @@
         "title": "    Exchange/Publish",
         "dirty": false,
         "fontSize": 96,
-        "borderColor": "#eab308",
-        "excludeFromFlowMap": true
+        "borderColor": "#eab308"
       },
       "dragHandle": "[data-drag-handle]"
     },
@@ -72,8 +69,7 @@
         "height": 22702,
         "title": "            Step",
         "dirty": false,
-        "fontSize": 96,
-        "excludeFromFlowMap": true
+        "fontSize": 96
       },
       "dragHandle": "[data-drag-handle]"
     },

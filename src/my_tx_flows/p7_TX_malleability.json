@@ -15,8 +15,7 @@
         "height": 2693,
         "title": "1. Adding OP_NOP at End ",
         "dirty": false,
-        "fontSize": 48,
-        "excludeFromFlowMap": true
+        "fontSize": 48
       },
       "dragHandle": "[data-drag-handle]"
     },
@@ -2153,8 +2152,7 @@
         "height": 2693,
         "title": "2. OP_0 + OP_DROP Prefix",
         "dirty": false,
-        "fontSize": 48,
-        "excludeFromFlowMap": true
+        "fontSize": 48
       },
       "dragHandle": "[data-drag-handle]"
     },
@@ -2558,8 +2556,7 @@
         "height": 2693,
         "title": "3. Multiple OP_NOPs at End ",
         "dirty": false,
-        "fontSize": 48,
-        "excludeFromFlowMap": true
+        "fontSize": 48
       },
       "dragHandle": "[data-drag-handle]"
     },

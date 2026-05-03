@@ -41,24 +41,17 @@ import type {
   FlowNode,
   FlowData,
   CalculationNodeData,
-  ProtocolDiagramLayout,
 } from "@/types";
 import { log } from "@/lib/logConfig";
 import { importWithFreshIds } from "@/lib/idUtils";
 import { ingestScriptSteps, removeScriptSteps } from "@/lib/share/scriptStepsCache";
 import { isFlowFileCandidate, isRecord } from "@/lib/flow/guards";
 import {
-  collectGroupNodeIds,
-  mergeProtocolDiagramLayout,
-  protocolDiagramLayoutEquals,
-  remapProtocolDiagramLayout,
-  sanitizeProtocolDiagramLayout,
-} from "@/lib/protocolDiagram/layoutPersistence";
-import {
   sanitizeGroupBundleRenderEdgesForState,
   sanitizeGroupBundleVisualElementsForState,
   stripGroupBundlePortNodes,
 } from "@/lib/flow/groupEdgeBundling";
+import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
 
 /* ------------------------------------------------------------------ */
 /*  Types & tiny utils                                                */
@@ -198,14 +191,7 @@ function fitGroupToChildren(
 /* ------------------------------------------------------------------ */
 /*  Main hook                                                         */
 /* ------------------------------------------------------------------ */
-interface UseNodeOperationsOptions {
-  getProtocolDiagramLayout?: () => ProtocolDiagramLayout | undefined;
-  setProtocolDiagramLayout?: (layout: ProtocolDiagramLayout | undefined) => void;
-}
-
-export function useNodeOperations(options: UseNodeOperationsOptions = {}) {
-  const { getProtocolDiagramLayout, setProtocolDiagramLayout } = options;
-
+export function useNodeOperations() {
   /* ─ State / refs ──────────────────────────────────────────────── */
   const initialNodes = useMemo(
     () =>
@@ -474,42 +460,16 @@ export function useNodeOperations(options: UseNodeOperationsOptions = {}) {
           nodes: rf.getNodes() as FlowNode[],
           edges: rf.getEdges(),
         });
-        const {
-          nodes: sub,
-          edges: subE,
-          idMap,
-        } = importWithFreshIds<FlowNode, Edge>({
+        const { nodes: sub, edges: subE } = importWithFreshIds<FlowNode, Edge>({
           currentNodes: currentGraph.nodes,
           currentEdges: currentGraph.edges,
-          importNodes: translated.nodes,
+        importNodes: stripLegacyFlowMapNodeData(translated.nodes),
           importEdges: translated.edges,
           dedupeEdges: true,
           renameMode: "collision", // preserve IDs unless there is a collision
         });
 
-        const sanitizedSub = ingestScriptSteps(sub);
-
-        const nextNodes = [...currentGraph.nodes, ...sanitizedSub];
-        const importedLayout = sanitizeProtocolDiagramLayout(
-          (maybeFlowData as FlowData).protocolDiagramLayout,
-          collectGroupNodeIds((maybeFlowData as FlowData).nodes)
-        );
-        const remappedLayout = remapProtocolDiagramLayout(
-          importedLayout,
-          idMap,
-          collectGroupNodeIds(nextNodes)
-        );
-        const currentLayout = sanitizeProtocolDiagramLayout(
-          getProtocolDiagramLayout?.(),
-          collectGroupNodeIds(currentGraph.nodes)
-        );
-        const mergedLayout = mergeProtocolDiagramLayout(
-          currentLayout,
-          remappedLayout
-        );
-        if (!protocolDiagramLayoutEquals(currentLayout, mergedLayout)) {
-          setProtocolDiagramLayout?.(mergedLayout);
-        }
+        const sanitizedSub = stripLegacyFlowMapNodeData(ingestScriptSteps(sub));
 
         // ③ append to canvas
         setNodes((nds) => [...stripGroupBundlePortNodes(nds), ...sanitizedSub]);
@@ -548,8 +508,6 @@ export function useNodeOperations(options: UseNodeOperationsOptions = {}) {
       createNode,
       setNodes,
       setEdges,
-      getProtocolDiagramLayout,
-      setProtocolDiagramLayout,
     ]
   );
 

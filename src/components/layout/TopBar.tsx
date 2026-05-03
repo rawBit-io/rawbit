@@ -41,7 +41,6 @@ import {
   Github,
   Twitter,
   Mail,
-  Network,
   Paintbrush,
   Check,
 } from "lucide-react";
@@ -140,10 +139,6 @@ export type ExtraTopBarProps = {
   /* Search panel toggle */
   onSearchClick?: () => void;
   setShowSearchPanel?: (open: boolean) => void;
-  showProtocolDiagramPanel?: boolean;
-  setShowProtocolDiagramPanel?: (open: boolean) => void;
-  hasProtocolDiagram?: boolean;
-  protocolDiagramDisabledTooltip?: string;
 
   /* mini-map toggle */
   showMiniMap?: boolean;
@@ -276,10 +271,6 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
     /* search panel */
     onSearchClick,
     setShowSearchPanel,
-    showProtocolDiagramPanel = false,
-    setShowProtocolDiagramPanel,
-    hasProtocolDiagram = false,
-    protocolDiagramDisabledTooltip = "Add groups to enable diagram view",
     showMiniMap = true,
     onToggleMiniMap,
     isSelectionModeActive = false,
@@ -616,7 +607,6 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
               /* always close the ErrorPanel and SearchPanel when opening History */
               setShowErrorPanel?.(false);
               setShowSearchPanel?.(false);
-              setShowProtocolDiagramPanel?.(false);
               setShowUndoRedoPanel?.(!showUndoRedoPanel);
             }}
             tooltip="History"
@@ -661,31 +651,6 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
           >
             <MapPinned className="h-7 w-7" />
           </TopBarIconButton>
-          <TopBarIconButton
-            variant="ghost"
-            size="icon"
-            onClick={() => {
-              setShowUndoRedoPanel?.(false);
-              setShowErrorPanel?.(false);
-              setShowSearchPanel?.(false);
-              setShowProtocolDiagramPanel?.(!showProtocolDiagramPanel);
-            }}
-            disabled={!hasProtocolDiagram}
-            tooltip={
-              hasProtocolDiagram
-                ? showProtocolDiagramPanel
-                  ? "Hide flow map"
-                  : "Show flow map"
-                : protocolDiagramDisabledTooltip
-            }
-            aria-label="Flow map"
-            className={cn(
-              showProtocolDiagramPanel &&
-                "bg-secondary text-secondary-foreground hover:bg-secondary"
-            )}
-          >
-            <Network className="h-7 w-7" />
-          </TopBarIconButton>
           <Separator orientation="vertical" className="mx-2 h-8 w-px" />{" "}
           {/* Search shortcut */}
           <TopBarIconButton
@@ -694,7 +659,6 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
             onClick={() => {
               setShowUndoRedoPanel?.(false);
               setShowErrorPanel?.(false);
-              setShowProtocolDiagramPanel?.(false);
               onSearchClick?.();
             }}
             tooltip="Search nodes"
@@ -720,11 +684,10 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
               variant="ghost"
               size="sm"
               onClick={() => {
-                setShowUndoRedoPanel?.(false);
-                setShowSearchPanel?.(false);
-                setShowProtocolDiagramPanel?.(false);
-                onRetryAll?.();
-              }}
+              setShowUndoRedoPanel?.(false);
+              setShowSearchPanel?.(false);
+              onRetryAll?.();
+            }}
               title="Retry all nodes in this tab"
               className="h-6 px-2 text-xs border border-border"
             >
@@ -739,7 +702,6 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
               onClick={() => {
                 setShowUndoRedoPanel?.(false);
                 setShowSearchPanel?.(false);
-                setShowProtocolDiagramPanel?.(false);
                 setShowErrorPanel?.(!showErrorPanel);
               }}
               title="Show errors"

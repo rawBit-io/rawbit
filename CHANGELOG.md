@@ -83,12 +83,11 @@ and the project aims to adhere to [Semantic Versioning](https://semver.org/spec/
 
 - First public release of **Lesson 14: MuSig2** flow.
 - MuSig2 node/backend set required by Lesson 14
-- First release of **Flow Map / Protocol Diagram**.
 - First release of the **skin/theme system**.
 
 ### Fixed
 
-- Undo/redo now captures node comment blur commits and flow-map/group comment commits reliably.
+- Undo/redo now captures node comment blur commits and group comment commits reliably.
 - UI fixes: tab-strip scrollbar appearance, and TextInfo/group interaction stability.
 
 ## [0.3.7] - 2026-03-17

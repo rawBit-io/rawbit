@@ -100,27 +100,17 @@ describe("validateFlowData", () => {
     expect(result.errors.some((err) => err.code === "NODE_FUNCTION_UNKNOWN")).toBe(true);
   });
 
-  it("warns for protocol layout and script steps that reference missing nodes", () => {
+  it("warns for script steps that reference missing nodes", () => {
     const result = validateFlowData({
       schemaVersion: FLOW_SCHEMA_VERSION,
       nodes: [makeNode("calc")],
       edges: [],
-      protocolDiagramLayout: {
-        groupOffsets: {
-          "missing-group": { dx: 1, dy: 2 },
-        },
-      },
       scriptSteps: [["missing-node", null]],
     } as FlowData & { scriptSteps: [string, null][] });
 
     expect(result.ok).toBe(true);
     const codes = result.warnings.map((warning) => warning.code);
-    expect(codes).toEqual(
-      expect.arrayContaining([
-        "PROTOCOL_LAYOUT_GROUP_MISSING",
-        "SCRIPT_STEP_NODE_MISSING",
-      ])
-    );
+    expect(codes).toContain("SCRIPT_STEP_NODE_MISSING");
   });
 
   it("detects missing target handles and duplicate connections", () => {

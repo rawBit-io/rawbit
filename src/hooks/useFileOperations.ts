@@ -49,7 +49,6 @@ import type {
   FieldDefinition,
   GroupDefinition,
   InputStructure,
-  ProtocolDiagramLayout,
   ScriptExecutionResult,
 } from "@/types";
 import type { Edge, NodeChange, EdgeChange } from "@xyflow/react";
@@ -73,18 +72,14 @@ import {
   isRecord,
   isXYPosition,
 } from "@/lib/flow/guards";
-import {
-  collectGroupNodeIds,
-  mergeProtocolDiagramLayout,
-  protocolDiagramLayoutEquals,
-  remapProtocolDiagramLayout,
-  sanitizeProtocolDiagramLayout,
-} from "@/lib/protocolDiagram/layoutPersistence";
 import { sanitizeGroupBundleVisualElementsForState } from "@/lib/flow/groupEdgeBundling";
+import {
+  omitEphemeralOrLegacyNodeData,
+  stripLegacyFlowMapNodeData,
+} from "@/lib/flow/legacyCompatibility";
 
 // Strip ephemeral UI fields from saved JSON
-const omitUIState = (key: string, value: unknown) =>
-  key === "isHighlighted" || key === "searchMark" ? undefined : value;
+const omitUIState = omitEphemeralOrLegacyNodeData;
 
 const isFieldDefinition = (value: unknown): value is FieldDefinition =>
   isRecord(value) && typeof value.index === "number";
@@ -164,8 +159,6 @@ interface SimplifiedExportPayload {
 interface ImportBehaviorOptions {
   getNodes?: () => FlowNode[];
   getEdges?: () => Edge[];
-  getProtocolDiagramLayout?: () => ProtocolDiagramLayout | undefined;
-  setProtocolDiagramLayout?: (layout: ProtocolDiagramLayout | undefined) => void;
   scheduleSnapshot?: (label: string, options?: { refresh?: boolean }) => void;
   fitView?: () => void;
   onTooltip?: (filename?: string) => void;
@@ -348,11 +341,8 @@ export function useFileOperations(
       nodes,
       edges,
     });
-    const nodesWithSteps = hydrateNodesWithScriptSteps(canonicalGraph.nodes);
-    const groupIds = collectGroupNodeIds(nodesWithSteps);
-    const protocolDiagramLayout = sanitizeProtocolDiagramLayout(
-      importOptions?.getProtocolDiagramLayout?.(),
-      groupIds
+    const nodesWithSteps = hydrateNodesWithScriptSteps(
+      stripLegacyFlowMapNodeData(canonicalGraph.nodes)
     );
 
     const payload: FullExportPayload = {
@@ -371,7 +361,6 @@ export function useFileOperations(
         dragHandle: n.dragHandle,
       })),
       edges: canonicalGraph.edges.map((e) => ({ ...e })),
-      protocolDiagramLayout,
     };
 
     const json = JSON.stringify(payload, omitUIState, 2);
@@ -508,20 +497,21 @@ export function useFileOperations(
           const {
             nodes: mergedNodes,
             edges: mergedEdges,
-            idMap,
           } = importWithFreshIds<
             FlowNode,
             Edge
           >({
             currentNodes: nodes,
             currentEdges: edges,
-            importNodes: parsed.nodes,
+            importNodes: stripLegacyFlowMapNodeData(parsed.nodes),
             importEdges: parsed.edges,
             dedupeEdges: true,
             renameMode: "collision", // rename only when IDs collide
           });
 
-          const sanitizedMergedNodes = ingestScriptSteps(mergedNodes);
+          const sanitizedMergedNodes = stripLegacyFlowMapNodeData(
+            ingestScriptSteps(mergedNodes)
+          );
 
           // ② safety: filter orphan edges (in case of hand-edited JSON)
           const importedNodeIds = new Set(
@@ -554,26 +544,6 @@ export function useFileOperations(
             type: "add" as const,
             item: { ...e },
           }));
-
-          const importedLayout = sanitizeProtocolDiagramLayout(
-            parsed.protocolDiagramLayout,
-            collectGroupNodeIds(parsed.nodes)
-          );
-          const remappedLayout = remapProtocolDiagramLayout(
-            importedLayout,
-            idMap,
-            collectGroupNodeIds(sanitizedMergedNodes)
-          );
-          const currentLayout = sanitizeProtocolDiagramLayout(
-            importOptions?.getProtocolDiagramLayout?.()
-          );
-          const mergedLayout = mergeProtocolDiagramLayout(
-            currentLayout,
-            remappedLayout
-          );
-          if (!protocolDiagramLayoutEquals(currentLayout, mergedLayout)) {
-            importOptions?.setProtocolDiagramLayout?.(mergedLayout);
-          }
 
           // ⑤ deselect current, then append
           const deselect = nodes
@@ -654,7 +624,9 @@ export function useFileOperations(
     const selectedNodes = canonicalGraph.nodes.filter((n) => n.selected);
     const nodesToSave =
       selectedNodes.length > 0 ? selectedNodes : canonicalGraph.nodes;
-    const nodesWithSteps = hydrateNodesWithScriptSteps(nodesToSave);
+    const nodesWithSteps = hydrateNodesWithScriptSteps(
+      stripLegacyFlowMapNodeData(nodesToSave)
+    );
 
     const nodeIdSet = new Set(nodesToSave.map((n) => n.id));
     const edgesToSave = canonicalGraph.edges.filter(

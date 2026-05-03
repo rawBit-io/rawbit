@@ -5,7 +5,7 @@ import type {
   NodeChange,
   ReactFlowInstance,
 } from "@xyflow/react";
-import type { FlowData, FlowNode, ProtocolDiagramLayout } from "@/types";
+import type { FlowData, FlowNode } from "@/types";
 import { getShareJsonUrl, loadShared } from "@/lib/share";
 import { importWithFreshIds } from "@/lib/idUtils";
 import { validateFlowData } from "@/lib/flow/validate";
@@ -19,19 +19,12 @@ import {
   formatBytes,
   measureFlowBytes,
 } from "@/lib/flow/schema";
+import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
 import {
   isFlowFileCandidate,
   isRecord,
   isXYPosition,
 } from "@/lib/flow/guards";
-import {
-  collectGroupNodeIds,
-  mergeProtocolDiagramLayout,
-  protocolDiagramLayoutEquals,
-  remapProtocolDiagramLayout,
-  sanitizeProtocolDiagramLayout,
-} from "@/lib/protocolDiagram/layoutPersistence";
-
 const SHARE_ALT_LINK_ID = "rawbit-share-json-link";
 
 function readSharedIdFromLocation() {
@@ -92,12 +85,9 @@ interface UseSharedFlowLoaderOptions {
   getNodes: () => FlowNode[];
   getEdges: () => Edge[];
   fitView?: () => void;
-  getProtocolDiagramLayout?: () => ProtocolDiagramLayout | undefined;
-  setProtocolDiagramLayout?: (layout: ProtocolDiagramLayout | undefined) => void;
   replaceGraph?: (graph: {
     nodes: FlowNode[];
     edges: Edge[];
-    protocolDiagramLayout?: ProtocolDiagramLayout;
     tabId?: string;
   }) => void;
   onNodesChange: (changes: NodeChange<FlowNode>[]) => void;
@@ -120,8 +110,6 @@ export function useSharedFlowLoader({
   getNodes,
   getEdges,
   fitView,
-  getProtocolDiagramLayout,
-  setProtocolDiagramLayout,
   replaceGraph,
   onNodesChange,
   onEdgesChange,
@@ -140,8 +128,6 @@ export function useSharedFlowLoader({
     getNodes,
     getEdges,
     fitView,
-    getProtocolDiagramLayout,
-    setProtocolDiagramLayout,
     replaceGraph,
     onNodesChange,
     onEdgesChange,
@@ -159,8 +145,6 @@ export function useSharedFlowLoader({
     getNodes,
     getEdges,
     fitView,
-    getProtocolDiagramLayout,
-    setProtocolDiagramLayout,
     replaceGraph,
     onNodesChange,
     onEdgesChange,
@@ -284,7 +268,7 @@ export function useSharedFlowLoader({
           console.warn("Shared flow validation warnings", validation.warnings);
         }
 
-        const sharedNodes = parsedData.nodes;
+        const sharedNodes = stripLegacyFlowMapNodeData(parsedData.nodes);
         const sharedEdges = parsedData.edges;
         const shouldReplaceGraph = Boolean(options.replaceGraph);
 
@@ -315,7 +299,6 @@ export function useSharedFlowLoader({
         const {
           nodes: mergedNodes,
           edges: mergedEdges,
-          idMap,
         } = importWithFreshIds<
           FlowNode,
           Edge
@@ -332,7 +315,9 @@ export function useSharedFlowLoader({
           restoreScriptSteps([]);
         }
 
-        const sanitizedNodes = ingestScriptSteps(mergedNodes);
+        const sanitizedNodes = stripLegacyFlowMapNodeData(
+          ingestScriptSteps(mergedNodes)
+        );
         const importedNodeIds = new Set(sanitizedNodes.map((node) => node.id));
         const safeEdges = mergedEdges.filter(
           (edge) => importedNodeIds.has(edge.source) && importedNodeIds.has(edge.target)
@@ -377,38 +362,12 @@ export function useSharedFlowLoader({
           item: edge,
         }));
 
-        const sharedLayout = sanitizeProtocolDiagramLayout(
-          parsedData.protocolDiagramLayout,
-          collectGroupNodeIds(sharedNodes)
-        );
-        const remappedLayout = remapProtocolDiagramLayout(
-          sharedLayout,
-          idMap,
-          collectGroupNodeIds(sanitizedNodes)
-        );
-        const nextLayout = (() => {
-          if (shouldReplaceGraph) return remappedLayout;
-
-          const currentLayout = sanitizeProtocolDiagramLayout(
-            options.getProtocolDiagramLayout?.()
-          );
-          const mergedLayout = mergeProtocolDiagramLayout(
-            currentLayout,
-            remappedLayout
-          );
-          if (!protocolDiagramLayoutEquals(currentLayout, mergedLayout)) {
-            options.setProtocolDiagramLayout?.(mergedLayout);
-          }
-          return mergedLayout;
-        })();
-
         if (cancelled) return;
 
         if (options.replaceGraph) {
           options.replaceGraph({
             nodes: nextNodes,
             edges: nextEdges,
-            protocolDiagramLayout: nextLayout,
             tabId: targetTabId ?? undefined,
           });
         } else {

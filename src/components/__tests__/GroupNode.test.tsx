@@ -221,37 +221,6 @@ describe("GroupNode interactions", () => {
     );
   });
 
-  it("toggles flow map exclusion from the group menu and records undo state", () => {
-    renderGroupNode({ excludeFromFlowMap: false });
-
-    openGroupMenu();
-    const excludeCheckbox = screen.getByLabelText("Exclude from Flow Map");
-    fireEvent.click(excludeCheckbox);
-
-    act(() => {
-      vi.runAllTimers();
-    });
-
-    expect(nodes[0].data.excludeFromFlowMap).toBe(true);
-    expect(pushState).toHaveBeenCalledWith(
-      nodes,
-      edges,
-      "Exclude Group From Flow Map"
-    );
-
-    fireEvent.click(screen.getByLabelText("Exclude from Flow Map"));
-    act(() => {
-      vi.runAllTimers();
-    });
-
-    expect(nodes[0].data.excludeFromFlowMap).toBeUndefined();
-    expect(pushState).toHaveBeenCalledWith(
-      nodes,
-      edges,
-      "Include Group In Flow Map"
-    );
-  });
-
   it("supports long group comments beyond the previous 220-char cap", () => {
     renderGroupNode({ comment: "" });
 

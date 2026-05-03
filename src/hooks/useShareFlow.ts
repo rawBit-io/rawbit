@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import type { Edge } from "@xyflow/react";
-import type { FlowNode, ProtocolDiagramLayout } from "@/types";
+import type { FlowNode } from "@/types";
 import { shareFlow } from "@/lib/share";
 import { buildSharePayload } from "@/lib/share/buildSharePayload";
 import { sanitizeGroupBundleVisualElementsForState } from "@/lib/flow/groupEdgeBundling";
@@ -8,7 +8,6 @@ import { sanitizeGroupBundleVisualElementsForState } from "@/lib/flow/groupEdgeB
 interface UseShareFlowOptions {
   getNodes: () => FlowNode[];
   getEdges: () => Edge[];
-  getProtocolDiagramLayout?: () => ProtocolDiagramLayout | undefined;
 }
 
 interface InfoDialogState {
@@ -19,7 +18,6 @@ interface InfoDialogState {
 export function useShareFlow({
   getNodes,
   getEdges,
-  getProtocolDiagramLayout,
 }: UseShareFlowOptions) {
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [shareCreatedId, setShareCreatedId] = useState<string | null>(null);
@@ -57,11 +55,7 @@ export function useShareFlow({
       nodes: getNodes(),
       edges: getEdges(),
     });
-    const payload = buildSharePayload(
-      canonicalGraph.nodes,
-      canonicalGraph.edges,
-      getProtocolDiagramLayout?.()
-    );
+    const payload = buildSharePayload(canonicalGraph.nodes, canonicalGraph.edges);
 
     try {
       const { id } = await shareFlow(payload);
@@ -85,7 +79,7 @@ export function useShareFlow({
       setInfoDialog({ open: true, message });
       throw err;
     }
-  }, [getEdges, getNodes, getProtocolDiagramLayout]);
+  }, [getEdges, getNodes]);
 
   const verifyTurnstile = useCallback(
     async (token?: string) => {

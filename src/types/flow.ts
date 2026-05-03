@@ -101,7 +101,6 @@ export interface CalculationNodeData extends Record<string, unknown> {
   extendedError?: string;
   comment?: string;
   showComment?: boolean;
-  excludeFromFlowMap?: boolean;
   title?: string; // editable display name
   customFieldLabels?: Record<number, string>;
   customGroupTitles?: Record<string, string>;
@@ -175,20 +174,6 @@ export type FlowGraph<
 /*  Flow & persistent-storage                                         */
 /* ------------------------------------------------------------------ */
 
-export interface ProtocolDiagramGroupOffset {
-  dx: number;
-  dy: number;
-}
-
-export type ProtocolDiagramGroupOffsets = Record<
-  string,
-  ProtocolDiagramGroupOffset
->;
-
-export interface ProtocolDiagramLayout {
-  groupOffsets?: ProtocolDiagramGroupOffsets;
-}
-
 export interface FlowData<
   TNode extends FlowNode = FlowNode,
   TEdge extends Edge = Edge
@@ -197,7 +182,6 @@ export interface FlowData<
   edges: TEdge[];
   name?: string;
   schemaVersion?: number;
-  protocolDiagramLayout?: ProtocolDiagramLayout;
 }
 
 /* ------------------------------------------------------------------ */

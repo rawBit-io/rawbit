@@ -3,7 +3,7 @@ import { renderHook, act } from "@testing-library/react";
 import { ReactFlowProvider } from "@xyflow/react";
 import type { Edge, ReactFlowInstance } from "@xyflow/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { FlowNode, ProtocolDiagramLayout } from "@/types";
+import type { FlowNode } from "@/types";
 import {
   buildFlowData,
   buildFlowNode,
@@ -174,93 +174,6 @@ const createMockInstance = (
     expect(importedVerifyNode).toBeDefined();
     expect(importedVerifyNode?.data?.scriptDebugSteps).toBeUndefined();
     expect(getScriptSteps(importedVerifyNode!.id)).toEqual(scriptResult);
-  });
-
-  it("imports protocol diagram layout when dropping flow templates", () => {
-    let protocolDiagramLayout: ProtocolDiagramLayout | undefined;
-    const setProtocolDiagramLayout = vi.fn(
-      (layout: ProtocolDiagramLayout | undefined) => {
-        protocolDiagramLayout = layout;
-      }
-    );
-
-    const { result } = renderHook(
-      () =>
-        useNodeOperations({
-          getProtocolDiagramLayout: () => protocolDiagramLayout,
-          setProtocolDiagramLayout,
-        }),
-      { wrapper }
-    );
-    const mockRf = createMockInstance(result);
-
-    act(() => {
-      result.current.onInit(mockRf);
-    });
-
-    const flowData = buildFlowData({
-      nodes: [
-        buildFlowNode({
-          id: "group-template",
-          type: "shadcnGroup",
-          position: { x: 20, y: 20 },
-          data: {
-            title: "Template Group",
-            width: 320,
-            height: 220,
-            isGroup: true,
-          },
-        }),
-        buildFlowNode({
-          id: "child-template",
-          type: "calculation",
-          parentId: "group-template",
-          extent: "parent",
-          position: { x: 40, y: 40 },
-          data: { functionName: "identity" },
-        }),
-      ],
-      edges: [],
-      protocolDiagramLayout: {
-        groupOffsets: {
-          "group-template": {
-            dx: 111,
-            dy: -42,
-          },
-        },
-      },
-    });
-
-    const event = {
-      preventDefault: vi.fn(),
-      dataTransfer: {
-        getData: (type: string) =>
-          type === "application/reactflow"
-            ? JSON.stringify({
-                functionName: "flow_template",
-                nodeData: { flowData },
-              })
-            : "",
-      },
-      clientX: 100,
-      clientY: 120,
-    } as unknown as React.DragEvent<HTMLDivElement>;
-
-    act(() => {
-      result.current.onDrop(event);
-    });
-
-    const importedGroup = result.current.nodes.find(
-      (node) =>
-        node.type === "shadcnGroup" &&
-        node.data?.title === "Template Group"
-    );
-    expect(importedGroup).toBeDefined();
-    expect(setProtocolDiagramLayout).toHaveBeenCalled();
-    expect(protocolDiagramLayout?.groupOffsets?.[importedGroup!.id]).toEqual({
-      dx: 111,
-      dy: -42,
-    });
   });
 
   it("groups selected nodes into a new group", () => {
