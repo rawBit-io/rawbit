@@ -749,6 +749,57 @@ body[data-large-drag="true"] .rf-node {
   will-change: transform;
 }
 
+/* ===================== Shadcn skin — class overrides ===================== */
+
+[data-skin="shadcn"] .react-flow__node-calculation > * {
+  border-color: hsl(var(--border));
+  background: hsl(var(--card)) !important;
+  box-shadow: 0 10px 20px -24px hsl(var(--foreground) / 0.5) !important;
+}
+
+[data-skin="shadcn"] .react-flow__node-calculation > * > :first-child {
+  background: hsl(var(--muted) / 0.28);
+}
+
+.dark[data-skin="shadcn"] .react-flow__node-calculation > * > :first-child {
+  background: hsl(var(--muted) / 0.22);
+}
+
+[data-skin="shadcn"] .react-flow__node-shadcnGroup > * {
+  border-color: hsl(var(--border) / 0.88);
+  background-color: hsl(var(--background) / 0.62) !important;
+}
+
+.dark[data-skin="shadcn"] .react-flow__node-shadcnGroup > * {
+  border-color: hsl(var(--border) / 0.72);
+  background-color: hsl(var(--card) / 0.46) !important;
+}
+
+[data-skin="shadcn"] .react-flow__node-shadcnTextInfo [data-testid="text-info-fill"]:not(.has-palette-fill) {
+  background-color: hsl(var(--muted));
+  opacity: 0.62 !important;
+}
+
+.dark[data-skin="shadcn"] .react-flow__node-shadcnTextInfo [data-testid="text-info-fill"]:not(.has-palette-fill) {
+  background-color: hsl(var(--muted) / 0.62);
+  opacity: 1 !important;
+}
+
+[data-skin="shadcn"] .react-flow__node.selected:not(.is-highlighted) > * {
+  border-color: hsl(var(--primary) / 0.58) !important;
+}
+
+[data-skin="shadcn"] .minimap-group {
+  fill: hsl(var(--foreground) / 0.045) !important;
+  stroke: hsl(var(--foreground) / 0.22);
+  stroke-width: 1.1;
+}
+
+.dark[data-skin="shadcn"] .minimap-group {
+  fill: hsl(var(--foreground) / 0.06) !important;
+  stroke: hsl(var(--foreground) / 0.26);
+}
+
 /* ===================== Paper Ledger skin — class overrides ===================== */
 
 [data-skin="paper"] body {
