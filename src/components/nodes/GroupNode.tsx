@@ -59,7 +59,6 @@ const MIN_W = 380;
 const MIN_H = 220;
 
 const BORDER_WIDTH = 10;
-const FILL_OPACITY = 0.1;
 const MENU_WIDTH = 240;
 const GROUP_COMMENT_MAX_LENGTH = 2200;
 const GROUP_COMMENT_SAVE_DEBOUNCE_MS = 350;
@@ -688,9 +687,9 @@ export default function ShadcnGroupNode({
         <div className="relative z-10 h-full w-full" data-testid="group-body-content" />
         {data.borderColor && (
           <div
-            className="absolute inset-0 pointer-events-none rounded-b-lg z-0"
+            className="group-fill absolute inset-0 pointer-events-none rounded-b-lg z-0"
             data-testid="group-fill"
-            style={{ backgroundColor: data.borderColor, opacity: FILL_OPACITY }}
+            style={{ backgroundColor: data.borderColor }}
           />
         )}
       </CardContent>

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { act, render, screen, fireEvent } from "@testing-library/react";
 import type { MutableRefObject } from "react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
@@ -7,13 +7,22 @@ import {
   type TopBarProps,
   type ExtraTopBarProps,
 } from "@/components/layout/TopBar";
-import { EDGE_VISIBILITY_STEP } from "@/contexts/theme";
+import {
+  EDGE_VISIBILITY_STEP,
+  GROUP_FILL_OPACITY_STEP,
+} from "@/contexts/theme";
 
 const undoMock = vi.fn();
 const redoMock = vi.fn();
 const setThemeMock = vi.fn<(theme: string) => void>();
 const setSkinMock = vi.fn<(skin: string) => void>();
 const adjustEdgeVisibilityMock = vi.fn<(mode: string, delta: number) => void>();
+const adjustDashedEdgeVisibilityMock = vi.fn<
+  (mode: string, delta: number) => void
+>();
+const adjustGroupFillOpacityMock = vi.fn<
+  (mode: string, delta: number) => void
+>();
 let themeMock: "light" | "dark" | "system" = "light";
 
 vi.mock("@/hooks/useUndoRedo", () => ({
@@ -32,7 +41,11 @@ vi.mock("@/hooks/useTheme", () => ({
     skin: "shadcn",
     setSkin: setSkinMock,
     edgeVisibility: { light: 0.45, dark: 0.45 },
+    dashedEdgeVisibility: { light: 0.225, dark: 0.225 },
+    groupFillOpacity: { light: 0.05, dark: 0.05 },
     adjustEdgeVisibility: adjustEdgeVisibilityMock,
+    adjustDashedEdgeVisibility: adjustDashedEdgeVisibilityMock,
+    adjustGroupFillOpacity: adjustGroupFillOpacityMock,
   }),
 }));
 
@@ -95,6 +108,8 @@ describe("TopBar", () => {
     setThemeMock.mockClear();
     setSkinMock.mockClear();
     adjustEdgeVisibilityMock.mockClear();
+    adjustDashedEdgeVisibilityMock.mockClear();
+    adjustGroupFillOpacityMock.mockClear();
     themeMock = "light";
   });
 
@@ -146,6 +161,8 @@ describe("TopBar", () => {
     fireEvent.keyDown(trigger, { key: "Enter" });
 
     expect(screen.getByText("Edges")).toBeInTheDocument();
+    expect(screen.getByText("Dashed")).toBeInTheDocument();
+    expect(screen.getByText("Group fill")).toBeInTheDocument();
     expect(screen.queryByText("Edge visibility")).not.toBeInTheDocument();
     expect(screen.queryByText("Light mode")).not.toBeInTheDocument();
     expect(screen.queryByText("Dark mode")).not.toBeInTheDocument();
@@ -174,6 +191,99 @@ describe("TopBar", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("adjusts the active dashed edge visibility from the skin menu", () => {
+    render(<TopBar {...baseProps} />);
+
+    const trigger = screen.getByRole("button", { name: "Skin: shadcn" });
+    fireEvent.keyDown(trigger, { key: "Enter" });
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Increase dashed edge visibility",
+      })
+    );
+    expect(adjustDashedEdgeVisibilityMock).toHaveBeenCalledWith(
+      "light",
+      EDGE_VISIBILITY_STEP
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Decrease dashed edge visibility",
+      })
+    );
+    expect(adjustDashedEdgeVisibilityMock).toHaveBeenCalledWith(
+      "light",
+      -EDGE_VISIBILITY_STEP
+    );
+  });
+
+  it("adjusts the active group fill opacity from the skin menu", () => {
+    render(<TopBar {...baseProps} />);
+
+    const trigger = screen.getByRole("button", { name: "Skin: shadcn" });
+    fireEvent.keyDown(trigger, { key: "Enter" });
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Increase group fill opacity",
+      })
+    );
+    expect(adjustGroupFillOpacityMock).toHaveBeenCalledWith(
+      "light",
+      GROUP_FILL_OPACITY_STEP
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Decrease group fill opacity",
+      })
+    );
+    expect(adjustGroupFillOpacityMock).toHaveBeenCalledWith(
+      "light",
+      -GROUP_FILL_OPACITY_STEP
+    );
+  });
+
+  it("repeats group fill opacity adjustment while held", () => {
+    vi.useFakeTimers();
+    try {
+      render(<TopBar {...baseProps} />);
+
+      const trigger = screen.getByRole("button", { name: "Skin: shadcn" });
+      fireEvent.keyDown(trigger, { key: "Enter" });
+
+      const increase = screen.getByRole("button", {
+        name: "Increase group fill opacity",
+      });
+      fireEvent.pointerDown(increase, { pointerId: 1 });
+
+      expect(adjustGroupFillOpacityMock).toHaveBeenCalledTimes(1);
+      expect(adjustGroupFillOpacityMock).toHaveBeenLastCalledWith(
+        "light",
+        GROUP_FILL_OPACITY_STEP
+      );
+
+      act(() => {
+        vi.advanceTimersByTime(350);
+      });
+      expect(adjustGroupFillOpacityMock).toHaveBeenCalledTimes(2);
+
+      act(() => {
+        vi.advanceTimersByTime(140);
+      });
+      expect(adjustGroupFillOpacityMock).toHaveBeenCalledTimes(4);
+
+      fireEvent.pointerUp(increase, { pointerId: 1 });
+      act(() => {
+        vi.advanceTimersByTime(210);
+      });
+      expect(adjustGroupFillOpacityMock).toHaveBeenCalledTimes(4);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("adjusts the active dark edge visibility from the skin menu", () => {
     themeMock = "dark";
     render(<TopBar {...baseProps} />);
@@ -182,6 +292,8 @@ describe("TopBar", () => {
     fireEvent.keyDown(trigger, { key: "Enter" });
 
     expect(screen.getByText("Edges")).toBeInTheDocument();
+    expect(screen.getByText("Dashed")).toBeInTheDocument();
+    expect(screen.getByText("Group fill")).toBeInTheDocument();
     expect(screen.queryByText("Light mode")).not.toBeInTheDocument();
     expect(screen.queryByText("Dark mode")).not.toBeInTheDocument();
 

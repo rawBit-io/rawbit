@@ -11,6 +11,7 @@ import {
   useState,
   type ChangeEvent,
   type MouseEvent,
+  type PointerEvent as ReactPointerEvent,
   type RefObject,
 } from "react";
 
@@ -51,6 +52,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTheme } from "@/hooks/useTheme";
 import {
   EDGE_VISIBILITY_STEP,
+  GROUP_FILL_OPACITY_STEP,
   type EdgeVisibilityMode,
   type Skin,
 } from "@/contexts/theme";
@@ -64,6 +66,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+const GROUP_FILL_REPEAT_DELAY_MS = 350;
+const GROUP_FILL_REPEAT_INTERVAL_MS = 70;
 
 export interface TopBarProps {
   isSidebarOpen: boolean;
@@ -288,7 +293,11 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
     skin,
     setSkin,
     edgeVisibility,
+    dashedEdgeVisibility,
+    groupFillOpacity,
     adjustEdgeVisibility,
+    adjustDashedEdgeVisibility,
+    adjustGroupFillOpacity,
   } = useTheme();
   const { undo, redo, canUndo, canRedo } = useUndoRedo();
   const saveSimplifiedHotKeyRef = useRef(false);
@@ -297,6 +306,15 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
   const [renameDraft, setRenameDraft] = useState("");
   const renameInputRef = useRef<HTMLInputElement | null>(null);
   const skinTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const groupFillRepeatRef = useRef<{
+    timeout: ReturnType<typeof setTimeout> | null;
+    interval: ReturnType<typeof setInterval> | null;
+    ignoreNextClick: boolean;
+  }>({
+    timeout: null,
+    interval: null,
+    ignoreNextClick: false,
+  });
 
   useEffect(() => {
     if (!renamingTabId) return;
@@ -408,6 +426,64 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
       window.matchMedia("(prefers-color-scheme: dark)").matches)
       ? "dark"
       : "light";
+
+  const stopGroupFillRepeat = useCallback(() => {
+    const repeat = groupFillRepeatRef.current;
+    if (repeat.timeout) {
+      clearTimeout(repeat.timeout);
+      repeat.timeout = null;
+    }
+    if (repeat.interval) {
+      clearInterval(repeat.interval);
+      repeat.interval = null;
+    }
+  }, []);
+
+  useEffect(() => stopGroupFillRepeat, [stopGroupFillRepeat]);
+
+  const adjustActiveGroupFillOpacity = useCallback(
+    (delta: number) => {
+      adjustGroupFillOpacity(activeEdgeVisibilityMode, delta);
+    },
+    [activeEdgeVisibilityMode, adjustGroupFillOpacity]
+  );
+
+  const startGroupFillRepeat = useCallback(
+    (event: ReactPointerEvent<HTMLButtonElement>, delta: number) => {
+      event.preventDefault();
+      event.stopPropagation();
+      event.currentTarget.setPointerCapture?.(event.pointerId);
+
+      const repeat = groupFillRepeatRef.current;
+      repeat.ignoreNextClick = true;
+      stopGroupFillRepeat();
+      adjustActiveGroupFillOpacity(delta);
+
+      repeat.timeout = setTimeout(() => {
+        adjustActiveGroupFillOpacity(delta);
+        repeat.interval = setInterval(() => {
+          adjustActiveGroupFillOpacity(delta);
+        }, GROUP_FILL_REPEAT_INTERVAL_MS);
+      }, GROUP_FILL_REPEAT_DELAY_MS);
+    },
+    [adjustActiveGroupFillOpacity, stopGroupFillRepeat]
+  );
+
+  const handleGroupFillClick = useCallback(
+    (event: MouseEvent<HTMLButtonElement>, delta: number) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const repeat = groupFillRepeatRef.current;
+      if (repeat.ignoreNextClick && event.detail > 0) {
+        repeat.ignoreNextClick = false;
+        return;
+      }
+      repeat.ignoreNextClick = false;
+      adjustActiveGroupFillOpacity(delta);
+    },
+    [adjustActiveGroupFillOpacity]
+  );
 
   /* ---------------------------------------------------------------------- */
   /*  UI                                                                    */
@@ -835,6 +911,92 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                         EDGE_VISIBILITY_STEP
                       );
                     }}
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex h-8 items-center justify-between gap-3 rounded-sm px-2 py-1.5 text-sm">
+                <span className="w-20">Dashed</span>
+                <div className="flex items-center gap-0.5">
+                  <button
+                    type="button"
+                    aria-label="Decrease dashed edge visibility"
+                    title="Decrease dashed edge visibility"
+                    className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      adjustDashedEdgeVisibility(
+                        activeEdgeVisibilityMode,
+                        -EDGE_VISIBILITY_STEP
+                      );
+                    }}
+                  >
+                    <Minus className="h-3.5 w-3.5" />
+                  </button>
+                  <span className="w-7 text-center font-mono text-xs text-muted-foreground">
+                    {Math.round(
+                      dashedEdgeVisibility[activeEdgeVisibilityMode] * 100
+                    )}
+                  </span>
+                  <button
+                    type="button"
+                    aria-label="Increase dashed edge visibility"
+                    title="Increase dashed edge visibility"
+                    className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      adjustDashedEdgeVisibility(
+                        activeEdgeVisibilityMode,
+                        EDGE_VISIBILITY_STEP
+                      );
+                    }}
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex h-8 items-center justify-between gap-3 rounded-sm px-2 py-1.5 text-sm">
+                <span className="w-20">Group fill</span>
+                <div className="flex items-center gap-0.5">
+                  <button
+                    type="button"
+                    aria-label="Decrease group fill opacity"
+                    title="Decrease group fill opacity"
+                    className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    onPointerDown={(event) =>
+                      startGroupFillRepeat(event, -GROUP_FILL_OPACITY_STEP)
+                    }
+                    onPointerUp={stopGroupFillRepeat}
+                    onPointerCancel={stopGroupFillRepeat}
+                    onPointerLeave={stopGroupFillRepeat}
+                    onLostPointerCapture={stopGroupFillRepeat}
+                    onClick={(event) =>
+                      handleGroupFillClick(event, -GROUP_FILL_OPACITY_STEP)
+                    }
+                  >
+                    <Minus className="h-3.5 w-3.5" />
+                  </button>
+                  <span className="w-7 text-center font-mono text-xs text-muted-foreground">
+                    {Math.round(groupFillOpacity[activeEdgeVisibilityMode] * 100)}
+                  </span>
+                  <button
+                    type="button"
+                    aria-label="Increase group fill opacity"
+                    title="Increase group fill opacity"
+                    className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    onPointerDown={(event) =>
+                      startGroupFillRepeat(event, GROUP_FILL_OPACITY_STEP)
+                    }
+                    onPointerUp={stopGroupFillRepeat}
+                    onPointerCancel={stopGroupFillRepeat}
+                    onPointerLeave={stopGroupFillRepeat}
+                    onLostPointerCapture={stopGroupFillRepeat}
+                    onClick={(event) =>
+                      handleGroupFillClick(event, GROUP_FILL_OPACITY_STEP)
+                    }
                   >
                     <Plus className="h-3.5 w-3.5" />
                   </button>

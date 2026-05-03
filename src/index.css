@@ -210,6 +210,14 @@
   z-index: 0 !important;
 }
 
+.react-flow__node-shadcnGroup [data-testid="group-fill"] {
+  opacity: var(--group-light-fill-opacity, 0.05);
+}
+
+.dark .react-flow__node-shadcnGroup [data-testid="group-fill"] {
+  opacity: var(--group-dark-fill-opacity, 0.05);
+}
+
 /* Edges => in the middle: z-index: 1 (so above group, but below normal nodes) */
 .react-flow__edges {
   z-index: 1 !important;
@@ -479,7 +487,11 @@ body[data-large-drag="true"] .rf-node {
 }
 
 [data-skin="paper"] .react-flow__node-shadcnGroup [data-testid="group-fill"] {
-  opacity: 0.08 !important;
+  opacity: var(--group-light-fill-opacity, 0.05) !important;
+}
+
+.dark[data-skin="paper"] .react-flow__node-shadcnGroup [data-testid="group-fill"] {
+  opacity: var(--group-dark-fill-opacity, 0.05) !important;
 }
 
 [data-skin="paper"] .custom-flow-controls .react-flow__controls-button {
@@ -548,7 +560,11 @@ body[data-large-drag="true"] .rf-node {
 }
 
 [data-skin="midnight"] .react-flow__node-shadcnGroup [data-testid="group-fill"] {
-  opacity: 0.1 !important;
+  opacity: var(--group-light-fill-opacity, 0.05) !important;
+}
+
+.dark[data-skin="midnight"] .react-flow__node-shadcnGroup [data-testid="group-fill"] {
+  opacity: var(--group-dark-fill-opacity, 0.05) !important;
 }
 
 [data-skin="midnight"] .custom-flow-controls .react-flow__controls-button {

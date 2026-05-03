@@ -572,10 +572,11 @@ describe("GroupNode interactions", () => {
     const fill = screen.getByTestId("group-fill");
     expect(fill).toBeInTheDocument();
     expect(fill).toHaveStyle({ backgroundColor: "#ffaa00" });
-    expect(parseFloat(fill.style.opacity)).toBeGreaterThan(0);
+    expect(fill.style.opacity).toBe("");
 
     const bodyContent = screen.getByTestId("group-body-content");
     expect(bodyContent.className).toContain("z-10");
+    expect(fill.className).toContain("group-fill");
     expect(fill.className).toContain("pointer-events-none");
   });
 });

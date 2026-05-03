@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import {
+  DEFAULT_DASHED_EDGE_VISIBILITY,
   DEFAULT_EDGE_VISIBILITY,
+  DEFAULT_GROUP_FILL_OPACITY,
   EDGE_VISIBILITY_MAX,
   EDGE_VISIBILITY_MIN,
+  GROUP_FILL_OPACITY_MAX,
+  GROUP_FILL_OPACITY_MIN,
   type Skin,
   type EdgeVisibility,
   type EdgeVisibilityMode,
@@ -17,6 +21,8 @@ type ThemeProviderProps = {
   storageKey?: string;
   skinStorageKey?: string;
   edgeVisibilityStorageKey?: string;
+  dashedEdgeVisibilityStorageKey?: string;
+  groupFillOpacityStorageKey?: string;
 };
 
 const VALID_SKINS: readonly Skin[] = [
@@ -53,23 +59,80 @@ function clampEdgeVisibility(value: unknown, fallback: number): number {
   return Number(clamped.toFixed(2));
 }
 
-function normalizeEdgeVisibility(value: unknown): EdgeVisibility {
+function clampGroupFillOpacity(value: unknown, fallback: number): number {
+  const parsed =
+    typeof value === "number" ? value : typeof value === "string" ? Number(value) : NaN;
+  if (!Number.isFinite(parsed)) return fallback;
+  const clamped = Math.min(
+    GROUP_FILL_OPACITY_MAX,
+    Math.max(GROUP_FILL_OPACITY_MIN, parsed)
+  );
+  return Number(clamped.toFixed(2));
+}
+
+function halfEdgeVisibility(value: EdgeVisibility): EdgeVisibility {
+  return {
+    light: Number(
+      Math.min(
+        EDGE_VISIBILITY_MAX,
+        Math.max(EDGE_VISIBILITY_MIN, value.light / 2)
+      ).toFixed(3)
+    ),
+    dark: Number(
+      Math.min(
+        EDGE_VISIBILITY_MAX,
+        Math.max(EDGE_VISIBILITY_MIN, value.dark / 2)
+      ).toFixed(3)
+    ),
+  };
+}
+
+function normalizeEdgeVisibility(
+  value: unknown,
+  fallback: EdgeVisibility = DEFAULT_EDGE_VISIBILITY
+): EdgeVisibility {
   const candidate =
     value && typeof value === "object"
       ? (value as Partial<Record<EdgeVisibilityMode, unknown>>)
       : {};
   return {
-    light: clampEdgeVisibility(candidate.light, DEFAULT_EDGE_VISIBILITY.light),
-    dark: clampEdgeVisibility(candidate.dark, DEFAULT_EDGE_VISIBILITY.dark),
+    light: clampEdgeVisibility(candidate.light, fallback.light),
+    dark: clampEdgeVisibility(candidate.dark, fallback.dark),
   };
 }
 
-function parseStoredEdgeVisibility(value: string | null): EdgeVisibility {
-  if (!value) return DEFAULT_EDGE_VISIBILITY;
+function normalizeGroupFillOpacity(
+  value: unknown,
+  fallback: EdgeVisibility = DEFAULT_GROUP_FILL_OPACITY
+): EdgeVisibility {
+  const candidate =
+    value && typeof value === "object"
+      ? (value as Partial<Record<EdgeVisibilityMode, unknown>>)
+      : {};
+  return {
+    light: clampGroupFillOpacity(candidate.light, fallback.light),
+    dark: clampGroupFillOpacity(candidate.dark, fallback.dark),
+  };
+}
+
+function parseStoredEdgeVisibility(
+  value: string | null,
+  fallback: EdgeVisibility = DEFAULT_EDGE_VISIBILITY
+): EdgeVisibility {
+  if (!value) return fallback;
   try {
-    return normalizeEdgeVisibility(JSON.parse(value));
+    return normalizeEdgeVisibility(JSON.parse(value), fallback);
   } catch {
-    return DEFAULT_EDGE_VISIBILITY;
+    return fallback;
+  }
+}
+
+function parseStoredGroupFillOpacity(value: string | null): EdgeVisibility {
+  if (!value) return DEFAULT_GROUP_FILL_OPACITY;
+  try {
+    return normalizeGroupFillOpacity(JSON.parse(value));
+  } catch {
+    return DEFAULT_GROUP_FILL_OPACITY;
   }
 }
 
@@ -77,12 +140,34 @@ function serializeEdgeVisibility(value: EdgeVisibility): string {
   return JSON.stringify(value);
 }
 
-function applyEdgeVisibilityCss(value: EdgeVisibility): void {
+function applyEdgeVisibilityCss({
+  edgeVisibility,
+  dashedEdgeVisibility,
+  groupFillOpacity,
+}: {
+  edgeVisibility: EdgeVisibility;
+  dashedEdgeVisibility: EdgeVisibility;
+  groupFillOpacity: EdgeVisibility;
+}): void {
   const root = window.document.documentElement;
-  root.style.setProperty("--edge-light-opacity", String(value.light));
-  root.style.setProperty("--edge-dark-opacity", String(value.dark));
-  root.style.setProperty("--edge-light-dashed-opacity", String(value.light / 2));
-  root.style.setProperty("--edge-dark-dashed-opacity", String(value.dark / 2));
+  root.style.setProperty("--edge-light-opacity", String(edgeVisibility.light));
+  root.style.setProperty("--edge-dark-opacity", String(edgeVisibility.dark));
+  root.style.setProperty(
+    "--edge-light-dashed-opacity",
+    String(dashedEdgeVisibility.light)
+  );
+  root.style.setProperty(
+    "--edge-dark-dashed-opacity",
+    String(dashedEdgeVisibility.dark)
+  );
+  root.style.setProperty(
+    "--group-light-fill-opacity",
+    String(groupFillOpacity.light)
+  );
+  root.style.setProperty(
+    "--group-dark-fill-opacity",
+    String(groupFillOpacity.dark)
+  );
 }
 
 function safeStorageGet(key: string): string | null {
@@ -107,7 +192,9 @@ const setInitialTheme = (
   storageKey: string,
   defaultTheme: Theme,
   skinStorageKey: string,
-  edgeVisibilityStorageKey: string
+  edgeVisibilityStorageKey: string,
+  dashedEdgeVisibilityStorageKey: string,
+  groupFillOpacityStorageKey: string
 ) => {
   const validSkins = JSON.stringify(VALID_SKINS);
   const validThemes = JSON.stringify(VALID_THEMES);
@@ -117,19 +204,37 @@ const setInitialTheme = (
   const defaultThemeJson = JSON.stringify(defaultTheme);
   const defaultSkinJson = JSON.stringify(defaultSkin);
   const edgeVisibilityStorageKeyJson = JSON.stringify(edgeVisibilityStorageKey);
+  const dashedEdgeVisibilityStorageKeyJson = JSON.stringify(
+    dashedEdgeVisibilityStorageKey
+  );
+  const groupFillOpacityStorageKeyJson = JSON.stringify(
+    groupFillOpacityStorageKey
+  );
   const defaultEdgeVisibilityJson = JSON.stringify(DEFAULT_EDGE_VISIBILITY);
+  const defaultDashedEdgeVisibilityJson = JSON.stringify(
+    DEFAULT_DASHED_EDGE_VISIBILITY
+  );
+  const defaultGroupFillOpacityJson = JSON.stringify(DEFAULT_GROUP_FILL_OPACITY);
   const edgeVisibilityMinJson = JSON.stringify(EDGE_VISIBILITY_MIN);
   const edgeVisibilityMaxJson = JSON.stringify(EDGE_VISIBILITY_MAX);
+  const groupFillOpacityMinJson = JSON.stringify(GROUP_FILL_OPACITY_MIN);
+  const groupFillOpacityMaxJson = JSON.stringify(GROUP_FILL_OPACITY_MAX);
   // This function will be converted to a string and injected into a script tag
   return `(function() {
     var storageKey = ${storageKeyJson};
     var skinStorageKey = ${skinStorageKeyJson};
     var edgeVisibilityStorageKey = ${edgeVisibilityStorageKeyJson};
+    var dashedEdgeVisibilityStorageKey = ${dashedEdgeVisibilityStorageKeyJson};
+    var groupFillOpacityStorageKey = ${groupFillOpacityStorageKeyJson};
     var defaultTheme = ${defaultThemeJson};
     var defaultSkin = ${defaultSkinJson};
     var defaultEdgeVisibility = ${defaultEdgeVisibilityJson};
+    var defaultDashedEdgeVisibility = ${defaultDashedEdgeVisibilityJson};
+    var defaultGroupFillOpacity = ${defaultGroupFillOpacityJson};
     var edgeVisibilityMin = ${edgeVisibilityMinJson};
     var edgeVisibilityMax = ${edgeVisibilityMaxJson};
+    var groupFillOpacityMin = ${groupFillOpacityMinJson};
+    var groupFillOpacityMax = ${groupFillOpacityMaxJson};
     var validThemes = ${validThemes};
     var validSkins = ${validSkins};
     const getStoredTheme = () => {
@@ -170,24 +275,60 @@ const setInitialTheme = (
       if (!Number.isFinite(parsed)) return fallback;
       return Math.min(edgeVisibilityMax, Math.max(edgeVisibilityMin, parsed));
     }
-    function normalizeEdgeVisibility(value) {
+    function clampGroupFillOpacity(value, fallback) {
+      var parsed = Number(value);
+      if (!Number.isFinite(parsed)) return fallback;
+      return Math.min(groupFillOpacityMax, Math.max(groupFillOpacityMin, parsed));
+    }
+    function normalizeEdgeVisibility(value, fallback) {
       value = value && typeof value === 'object' ? value : {};
+      fallback = fallback || defaultEdgeVisibility;
       return {
-        light: clampEdgeVisibility(value.light, defaultEdgeVisibility.light),
-        dark: clampEdgeVisibility(value.dark, defaultEdgeVisibility.dark)
+        light: clampEdgeVisibility(value.light, fallback.light),
+        dark: clampEdgeVisibility(value.dark, fallback.dark)
+      };
+    }
+    function normalizeGroupFillOpacity(value, fallback) {
+      value = value && typeof value === 'object' ? value : {};
+      fallback = fallback || defaultGroupFillOpacity;
+      return {
+        light: clampGroupFillOpacity(value.light, fallback.light),
+        dark: clampGroupFillOpacity(value.dark, fallback.dark)
+      };
+    }
+    function halfEdgeVisibility(value) {
+      return {
+        light: clampEdgeVisibility(value.light / 2, defaultDashedEdgeVisibility.light),
+        dark: clampEdgeVisibility(value.dark / 2, defaultDashedEdgeVisibility.dark)
       };
     }
     var edgeVisibility = defaultEdgeVisibility;
     try {
       var rawEdgeVisibility = localStorage.getItem(edgeVisibilityStorageKey);
       if (rawEdgeVisibility) {
-        edgeVisibility = normalizeEdgeVisibility(JSON.parse(rawEdgeVisibility));
+        edgeVisibility = normalizeEdgeVisibility(JSON.parse(rawEdgeVisibility), defaultEdgeVisibility);
+      }
+    } catch (_) {}
+    var dashedEdgeVisibility = halfEdgeVisibility(edgeVisibility);
+    try {
+      var rawDashedEdgeVisibility = localStorage.getItem(dashedEdgeVisibilityStorageKey);
+      if (rawDashedEdgeVisibility) {
+        dashedEdgeVisibility = normalizeEdgeVisibility(JSON.parse(rawDashedEdgeVisibility), halfEdgeVisibility(edgeVisibility));
+      }
+    } catch (_) {}
+    var groupFillOpacity = defaultGroupFillOpacity;
+    try {
+      var rawGroupFillOpacity = localStorage.getItem(groupFillOpacityStorageKey);
+      if (rawGroupFillOpacity) {
+        groupFillOpacity = normalizeGroupFillOpacity(JSON.parse(rawGroupFillOpacity), defaultGroupFillOpacity);
       }
     } catch (_) {}
     document.documentElement.style.setProperty('--edge-light-opacity', String(edgeVisibility.light));
     document.documentElement.style.setProperty('--edge-dark-opacity', String(edgeVisibility.dark));
-    document.documentElement.style.setProperty('--edge-light-dashed-opacity', String(edgeVisibility.light / 2));
-    document.documentElement.style.setProperty('--edge-dark-dashed-opacity', String(edgeVisibility.dark / 2));
+    document.documentElement.style.setProperty('--edge-light-dashed-opacity', String(dashedEdgeVisibility.light));
+    document.documentElement.style.setProperty('--edge-dark-dashed-opacity', String(dashedEdgeVisibility.dark));
+    document.documentElement.style.setProperty('--group-light-fill-opacity', String(groupFillOpacity.light));
+    document.documentElement.style.setProperty('--group-dark-fill-opacity', String(groupFillOpacity.dark));
   })();`;
 };
 
@@ -197,6 +338,8 @@ export function ThemeProvider({
   storageKey = "vite-ui-theme",
   skinStorageKey = "vite-ui-skin",
   edgeVisibilityStorageKey = "vite-ui-edge-visibility",
+  dashedEdgeVisibilityStorageKey = "vite-ui-dashed-edge-visibility",
+  groupFillOpacityStorageKey = "vite-ui-group-fill-opacity",
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(
@@ -207,6 +350,16 @@ export function ThemeProvider({
   );
   const [edgeVisibility, setEdgeVisibility] = useState<EdgeVisibility>(() =>
     parseStoredEdgeVisibility(safeStorageGet(edgeVisibilityStorageKey))
+  );
+  const [dashedEdgeVisibility, setDashedEdgeVisibility] = useState<EdgeVisibility>(
+    () =>
+      parseStoredEdgeVisibility(
+        safeStorageGet(dashedEdgeVisibilityStorageKey),
+        halfEdgeVisibility(edgeVisibility)
+      )
+  );
+  const [groupFillOpacity, setGroupFillOpacity] = useState<EdgeVisibility>(() =>
+    parseStoredGroupFillOpacity(safeStorageGet(groupFillOpacityStorageKey))
   );
   const [mounted, setMounted] = useState(false);
 
@@ -219,7 +372,9 @@ export function ThemeProvider({
         storageKey,
         defaultTheme,
         skinStorageKey,
-        edgeVisibilityStorageKey
+        edgeVisibilityStorageKey,
+        dashedEdgeVisibilityStorageKey,
+        groupFillOpacityStorageKey
       );
       script.id = "theme-initializer";
 
@@ -230,7 +385,14 @@ export function ThemeProvider({
     }
 
     setMounted(true);
-  }, [defaultTheme, edgeVisibilityStorageKey, storageKey, skinStorageKey]);
+  }, [
+    dashedEdgeVisibilityStorageKey,
+    defaultTheme,
+    edgeVisibilityStorageKey,
+    groupFillOpacityStorageKey,
+    storageKey,
+    skinStorageKey,
+  ]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -259,15 +421,21 @@ export function ThemeProvider({
 
   useEffect(() => {
     if (!mounted) return;
-    applyEdgeVisibilityCss(edgeVisibility);
-  }, [edgeVisibility, mounted]);
+    applyEdgeVisibilityCss({
+      edgeVisibility,
+      dashedEdgeVisibility,
+      groupFillOpacity,
+    });
+  }, [dashedEdgeVisibility, edgeVisibility, groupFillOpacity, mounted]);
 
-  const saveEdgeVisibility = (
+  const saveVisibility = (
+    storageKey: string,
+    setVisibility: React.Dispatch<React.SetStateAction<EdgeVisibility>>,
     getNextValue: (current: EdgeVisibility) => EdgeVisibility
   ) => {
-    setEdgeVisibility((current) => {
+    setVisibility((current) => {
       const normalized = normalizeEdgeVisibility(getNextValue(current));
-      safeStorageSet(edgeVisibilityStorageKey, serializeEdgeVisibility(normalized));
+      safeStorageSet(storageKey, serializeEdgeVisibility(normalized));
       return normalized;
     });
   };
@@ -285,11 +453,40 @@ export function ThemeProvider({
       setSkin(normalizedSkin);
     },
     edgeVisibility,
+    dashedEdgeVisibility,
+    groupFillOpacity,
     adjustEdgeVisibility: (mode: EdgeVisibilityMode, delta: number) => {
-      saveEdgeVisibility((current) => ({
-        ...current,
-        [mode]: current[mode] + delta,
-      }));
+      saveVisibility(
+        edgeVisibilityStorageKey,
+        setEdgeVisibility,
+        (current) => ({
+          ...current,
+          [mode]: current[mode] + delta,
+        })
+      );
+    },
+    adjustDashedEdgeVisibility: (mode: EdgeVisibilityMode, delta: number) => {
+      saveVisibility(
+        dashedEdgeVisibilityStorageKey,
+        setDashedEdgeVisibility,
+        (current) => ({
+          ...current,
+          [mode]: current[mode] + delta,
+        })
+      );
+    },
+    adjustGroupFillOpacity: (mode: EdgeVisibilityMode, delta: number) => {
+      setGroupFillOpacity((current) => {
+        const normalized = normalizeGroupFillOpacity({
+          ...current,
+          [mode]: current[mode] + delta,
+        });
+        safeStorageSet(
+          groupFillOpacityStorageKey,
+          serializeEdgeVisibility(normalized)
+        );
+        return normalized;
+      });
     },
   };
 
