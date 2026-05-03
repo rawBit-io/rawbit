@@ -722,7 +722,7 @@ export default function ShadcnGroupNode({
               onCommit={commitTitle}
               maxLength={100}
               fontSize={currentFontSize}
-              className="font-mono text-center text-primary"
+              className="group-node-title font-mono text-center text-primary"
             />
           </div>
 

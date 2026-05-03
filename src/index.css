@@ -121,48 +121,48 @@
   /* ===================== Midnight Signal skin — light ===================== */
   [data-skin="midnight"] {
     --radius: 0.75rem;
-    --background: 223 27% 96%;
-    --foreground: 228 36% 19%;
+    --background: 218 20% 97%;
+    --foreground: 226 24% 18%;
     --card: 0 0% 100%;
-    --card-foreground: 228 36% 19%;
+    --card-foreground: 226 24% 18%;
     --popover: 0 0% 100%;
-    --popover-foreground: 228 36% 19%;
-    --primary: 224 62% 47%;
+    --popover-foreground: 226 24% 18%;
+    --primary: 191 76% 38%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 225 22% 90%;
-    --secondary-foreground: 228 36% 19%;
-    --muted: 225 20% 91%;
-    --muted-foreground: 224 14% 45%;
-    --accent: 224 22% 86%;
-    --accent-foreground: 228 36% 19%;
-    --border: 224 20% 81%;
-    --input: 224 20% 82%;
-    --ring: 196 74% 42%;
-    --controls-color: #304c75;
-    --skin-accent-hover-alpha: 0.4;
+    --secondary: 218 16% 91%;
+    --secondary-foreground: 226 24% 18%;
+    --muted: 218 15% 92%;
+    --muted-foreground: 222 12% 45%;
+    --accent: 190 28% 88%;
+    --accent-foreground: 226 24% 18%;
+    --border: 218 15% 80%;
+    --input: 218 15% 82%;
+    --ring: 191 76% 40%;
+    --controls-color: #2d5568;
+    --skin-accent-hover-alpha: 0.34;
   }
 
   /* ===================== Midnight Signal skin — dark ===================== */
   [data-skin="midnight"].dark {
-    --background: 226 28% 8%;
-    --foreground: 214 21% 92%;
-    --card: 226 24% 12%;
-    --card-foreground: 214 21% 92%;
-    --popover: 226 24% 12%;
-    --popover-foreground: 214 21% 92%;
-    --primary: 191 93% 60%;
-    --primary-foreground: 226 28% 8%;
-    --secondary: 226 16% 19%;
-    --secondary-foreground: 214 21% 92%;
-    --muted: 226 16% 19%;
-    --muted-foreground: 218 14% 64%;
-    --accent: 224 14% 24%;
-    --accent-foreground: 214 21% 92%;
-    --border: 224 14% 25%;
-    --input: 224 14% 28%;
-    --ring: 191 93% 60%;
-    --controls-color: #89a7d2;
-    --skin-accent-hover-alpha: 0.32;
+    --background: 222 18% 9%;
+    --foreground: 210 24% 92%;
+    --card: 222 15% 14%;
+    --card-foreground: 210 24% 92%;
+    --popover: 222 15% 14%;
+    --popover-foreground: 210 24% 92%;
+    --primary: 189 92% 59%;
+    --primary-foreground: 222 18% 9%;
+    --secondary: 220 12% 20%;
+    --secondary-foreground: 210 24% 92%;
+    --muted: 220 12% 18%;
+    --muted-foreground: 215 13% 66%;
+    --accent: 188 24% 18%;
+    --accent-foreground: 210 24% 92%;
+    --border: 218 13% 27%;
+    --input: 218 13% 30%;
+    --ring: 189 92% 59%;
+    --controls-color: #91dff0;
+    --skin-accent-hover-alpha: 0.28;
   }
 
 }
@@ -844,10 +844,16 @@ body[data-large-drag="true"] .rf-node {
 /* ===================== Midnight Signal skin — class overrides ===================== */
 
 [data-skin="midnight"] body {
-  font-family: "Sora", "IBM Plex Sans", "Ubuntu", sans-serif;
+  font-family: Inter, "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   background-image:
-    radial-gradient(64rem 38rem at 50% -18%, hsl(194 95% 54% / 0.15), transparent 60%),
-    radial-gradient(48rem 28rem at 98% 98%, hsl(42 92% 57% / 0.12), transparent 56%);
+    radial-gradient(64rem 38rem at 50% -18%, hsl(var(--primary) / 0.09), transparent 62%),
+    radial-gradient(48rem 28rem at 98% 98%, hsl(42 92% 57% / 0.06), transparent 58%);
+}
+
+.dark[data-skin="midnight"] body {
+  background-image:
+    radial-gradient(64rem 38rem at 50% -18%, hsl(var(--primary) / 0.075), transparent 64%),
+    radial-gradient(48rem 28rem at 98% 98%, hsl(42 92% 57% / 0.035), transparent 60%);
 }
 
 [data-skin="midnight"] .react-flow__node {
@@ -855,25 +861,41 @@ body[data-large-drag="true"] .rf-node {
   letter-spacing: 0.01em;
 }
 
+[data-skin="midnight"] .react-flow__node-shadcnTextInfo {
+  font-family: Inter, "IBM Plex Sans", "Segoe UI", system-ui, sans-serif !important;
+  letter-spacing: 0;
+}
+
+[data-skin="midnight"] .node-title,
+[data-skin="midnight"] .group-node-title {
+  font-family: "Sora", "IBM Plex Sans", "Ubuntu", sans-serif !important;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
 [data-skin="midnight"] .react-flow__node > * {
   border-radius: 0.75rem !important;
   border-width: 1.25px !important;
-  border-color: hsl(var(--primary) / 0.45);
-  background: linear-gradient(
-    180deg,
-    hsl(var(--card) / 0.95) 0%,
-    hsl(var(--background) / 0.96) 100%
-  ) !important;
-  box-shadow:
-    0 0 0 1px hsl(var(--primary) / 0.14),
-    0 16px 28px -24px hsl(224 45% 4% / 0.95) !important;
+  border-color: hsl(var(--primary) / 0.34);
+  background: hsl(var(--card) / 0.98) !important;
+  box-shadow: none !important;
+}
+
+.dark[data-skin="midnight"] .react-flow__node > * {
+  border-color: hsl(var(--primary) / 0.3);
+  background: hsl(var(--card) / 0.94) !important;
 }
 
 [data-skin="midnight"] .react-flow__node-shadcnGroup > * {
   border-radius: var(--group-node-radius) !important;
   border-width: 1.5px !important;
-  border-color: hsl(var(--accent) / 0.5);
-  background-color: hsl(var(--card) / 0.7) !important;
+  border-color: hsl(var(--primary) / 0.24);
+  background-color: hsl(var(--background) / 0.72) !important;
+}
+
+.dark[data-skin="midnight"] .react-flow__node-shadcnGroup > * {
+  border-color: hsl(var(--primary) / 0.22);
+  background-color: hsl(var(--card) / 0.38) !important;
 }
 
 [data-skin="midnight"] .react-flow__node-shadcnGroup [data-testid="group-fill"] {
@@ -889,11 +911,12 @@ body[data-large-drag="true"] .rf-node {
 }
 
 [data-skin="midnight"] .react-flow__node-shadcnTextInfo [data-testid="text-info-fill"] {
-  opacity: var(--group-light-fill-opacity, 0.07) !important;
+  background-color: hsl(var(--primary) / 0.12);
+  opacity: 1 !important;
 }
 
 .dark[data-skin="midnight"] .react-flow__node-shadcnTextInfo [data-testid="text-info-fill"] {
-  background-color: hsl(var(--card) / 0.48);
+  background-color: hsl(var(--secondary) / 0.62);
   opacity: 1 !important;
 }
 
@@ -906,7 +929,11 @@ body[data-large-drag="true"] .rf-node {
 }
 
 [data-skin="midnight"] .field-surface {
-  background-color: hsl(var(--background)) !important;
+  background-color: hsl(var(--muted) / 0.46) !important;
+}
+
+.dark[data-skin="midnight"] .field-surface {
+  background-color: hsl(var(--secondary) / 0.5) !important;
 }
 
 [data-skin="midnight"] .custom-flow-controls .react-flow__controls-button {
@@ -915,6 +942,8 @@ body[data-large-drag="true"] .rf-node {
 
 [data-skin="midnight"] .react-flow__handle {
   border-width: 2px !important;
+  border-color: hsl(var(--background)) !important;
+  background-color: hsl(var(--primary)) !important;
 }
 
 [data-skin="midnight"] .react-flow__node.selected > * {
@@ -930,7 +959,7 @@ body[data-large-drag="true"] .rf-node {
   border-radius: inherit;
   box-shadow:
     0 0 0 2px hsl(var(--background)),
-    0 0 0 5px hsl(var(--ring));
+    0 0 0 4px hsl(var(--ring) / 0.86);
   z-index: 2;
 }
 

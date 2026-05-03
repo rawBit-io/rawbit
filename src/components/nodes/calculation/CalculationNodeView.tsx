@@ -834,7 +834,7 @@ export function CalculationNodeView({
           <EditableLabel
             value={rawTitle}
             onCommit={mut.handleTitleUpdate}
-            className="text-xl"
+            className="node-title text-xl"
             maxLength={100}
           />
         </div>
