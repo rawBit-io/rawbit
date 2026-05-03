@@ -1,7 +1,9 @@
 import { act, render, waitFor } from "@testing-library/react";
+import type { Edge } from "@xyflow/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import CalculationNode from "@/components/nodes/CalculationNode";
+import { CanonicalGraphContext } from "@/contexts/canonical-graph";
 import type { FlowNode } from "@/types";
 import { buildFlowNode, buildNodeProps } from "@/test-utils/types";
 
@@ -201,6 +203,64 @@ describe("CalculationNode", () => {
     expect(updated.data.hardwareStatusText).toBe(
       "Inputs changed. Press Get Address again."
     );
+  });
+
+  it("resolves connected input values from canonical edges when bundle edges are rendered", () => {
+    derivedMock.value = {
+      ...derivedMock.value,
+      isMultiVal: true,
+      wiredHandles: new Set(["input-0"]),
+    };
+    const node: FlowNode = buildFlowNode({
+      id: "calc-1",
+      data: {
+        functionName: "concat_all",
+        paramExtraction: "multi_val",
+        inputs: { vals: { 0: "saved-value" } },
+      },
+    });
+    const source: FlowNode = buildFlowNode({
+      id: "raw-source",
+      data: { result: "02000000" },
+    });
+    const portNode: FlowNode = buildFlowNode({
+      id: "__group_bundle_port__:target:group-a->group-b",
+      type: "groupBundlePort",
+      data: {},
+    });
+    const canonicalEdges: Edge[] = [
+      {
+        id: "raw-edge",
+        source: "raw-source",
+        target: "calc-1",
+        targetHandle: "input-0",
+      },
+    ];
+    reactFlowMock.storeState = {
+      nodes: [node, portNode],
+      edges: [
+        {
+          id: "visual-segment",
+          source: portNode.id,
+          target: "calc-1",
+          targetHandle: "input-0",
+        },
+      ],
+    };
+
+    render(
+      <CanonicalGraphContext.Provider
+        value={{ nodes: [node, source], edges: canonicalEdges }}
+      >
+        <CalculationNode {...buildNodeProps(node)} />
+      </CanonicalGraphContext.Provider>
+    );
+
+    const props = calcViewMock.mock.calls.at(-1)?.[0] as {
+      getInputMeta: (index: number) => { value: unknown } | undefined;
+    };
+
+    expect(props.getInputMeta(0)?.value).toBe("02000000");
   });
 
   it("clears legacy Trezor results that do not have an input snapshot", async () => {

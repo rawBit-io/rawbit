@@ -1,8 +1,10 @@
 import { renderHook, waitFor } from "@testing-library/react";
-import type { ReactFlowState } from "@xyflow/react";
+import { createElement, type ReactNode } from "react";
+import type { Edge, ReactFlowState } from "@xyflow/react";
 import * as ReactFlow from "@xyflow/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { CanonicalGraphContext } from "@/contexts/canonical-graph";
 import { SENTINEL_EMPTY, SENTINEL_FORCE00 } from "@/lib/nodes/constants";
 import type { FlowNode, NodeData } from "@/types";
 
@@ -148,6 +150,33 @@ describe("useCalcNodeDerived", () => {
       expect(nodes[0].data.totalInputs).toBe(3);
       expect(nodes[0].data.unwiredCount).toBe(0);
     });
+  });
+
+  it("uses canonical edges instead of rendered bundle edges", () => {
+    storeState.edges = [
+      {
+        id: "visual-segment",
+        source: "__group_bundle_port__:target:group-a->group-b",
+        target: nodeId,
+        targetHandle: "input-500",
+      },
+    ];
+    const canonicalEdges: Edge[] = [
+      { id: "raw-edge", source: "src-1", target: nodeId, targetHandle: "input-1" },
+    ];
+    const wrapper = ({ children }: { children: ReactNode }) =>
+      createElement(
+        CanonicalGraphContext.Provider,
+        { value: { nodes, edges: canonicalEdges } },
+        children
+      );
+
+    const { result } = renderHook(
+      () => useCalcNodeDerived(nodeId, data, setNodes),
+      { wrapper }
+    );
+
+    expect(Array.from(result.current.wiredHandles)).toEqual(["input-1"]);
   });
 
   it("ignores wiring bookkeeping for single-value nodes", async () => {

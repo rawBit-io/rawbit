@@ -30,6 +30,7 @@ import {
   EdgeCurveControlProvider,
   type EdgeCurvePoint,
 } from "@/components/edges/EdgeCurveControlContext";
+import { CanonicalGraphContext } from "@/contexts/canonical-graph";
 import {
   buildGroupBundledElements,
   getGroupBundleSegmentEdgeIds,
@@ -448,6 +449,7 @@ export function FlowCanvas({
         : { ...edge, selectable: false, selected: false }
     );
   }, [selectionEnabled, visualElements.edges]);
+  const canonicalGraph = useMemo(() => ({ nodes, edges }), [edges, nodes]);
 
   const handleNodesChange = useCallback(
     (changes: NodeChange<FlowNode>[]) => {
@@ -566,85 +568,87 @@ export function FlowCanvas({
   );
 
   return (
-    <EdgeCurveControlProvider
-      onControlPointCommit={handleCurveControlPointCommit}
-    >
-      <GroupBundleEdgeSelectionProvider onSelectEdgeIds={handleBundleEdgeSelect}>
-        <ReactFlow
-          className={cn(selectionEnabled ? "cursor-crosshair" : "cursor-grab")}
-          style={{ cursor: selectionEnabled ? "crosshair" : undefined }}
-          onlyRenderVisibleElements={onlyRenderVisibleElements}
-          nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
-          nodes={visualElements.nodes}
-          edges={renderedEdges}
-          onInit={onInit}
-          onNodesChange={handleNodesChange}
-          onEdgesChange={handleEdgesChange}
-          onEdgeClick={handleEdgeClick}
-          onConnect={onConnect}
-          onReconnect={onReconnect}
-          onDrop={onDrop}
-          onDragOver={onDragOver}
-          onNodeDragStop={onNodeDragStop}
-          onPaneClick={handlePaneClick}
-          onMoveEnd={onMoveEnd}
-          minZoom={minZoom}
-          maxZoom={maxZoom}
-          proOptions={PRO_OPTIONS}
-          connectOnClick={!isReadOnly}
-          edgesReconnectable={!isReadOnly}
-          deleteKeyCode={isReadOnly ? [] : ["Backspace", "Delete"]}
-          selectionMode={SelectionMode.Full}
-          selectionOnDrag={selectionEnabled}
-          selectionKeyCode="s"
-          multiSelectionKeyCode={["Meta", "Control"]}
-          panOnDrag={selectionEnabled ? [1] : [0, 1]}
-          selectNodesOnDrag={selectionEnabled}
-          nodesDraggable={!isReadOnly}
-          nodesConnectable={!isReadOnly}
-          elementsSelectable={!isReadOnly}
-          disableKeyboardA11y
-        >
-          <Background />
-          {showMiniMap && (
-            <MiniMap
-              position="bottom-right"
-              pannable
-              zoomable
-              style={{
-                position: "fixed",
-                bottom: "-0.2rem",
-                right: miniMapOffset,
-                width: miniMapSize.w,
-                height: miniMapSize.h,
-                borderRadius: "0.75rem",
-                zIndex: 2_147_483_647,
-              }}
-              className={cn(
-                "rounded-lg overflow-hidden cursor-move ring-1 ring-border bg-background shadow-sm"
-              )}
-              bgColor="hsl(var(--background))"
-              nodeColor={() => "hsl(var(--foreground))"}
-              nodeStrokeColor={() => "transparent"}
-              nodeClassName={nodeClassName}
-              maskColor={isDark ? "rgba(0,0,0,0.35)" : "transparent"}
-              maskStrokeColor="#ff0000"
-              maskStrokeWidth={1}
-            />
-          )}
-          {!isReadOnly && (
-            <Controls
-              className="custom-flow-controls"
-              position="bottom-right"
-              showZoom
-              showFitView
-              showInteractive={false}
-              style={{ zIndex: 9999, right: "0.1rem", bottom: "0.1rem" }}
-            />
-          )}
-        </ReactFlow>
-      </GroupBundleEdgeSelectionProvider>
-    </EdgeCurveControlProvider>
+    <CanonicalGraphContext.Provider value={canonicalGraph}>
+      <EdgeCurveControlProvider
+        onControlPointCommit={handleCurveControlPointCommit}
+      >
+        <GroupBundleEdgeSelectionProvider onSelectEdgeIds={handleBundleEdgeSelect}>
+          <ReactFlow
+            className={cn(selectionEnabled ? "cursor-crosshair" : "cursor-grab")}
+            style={{ cursor: selectionEnabled ? "crosshair" : undefined }}
+            onlyRenderVisibleElements={onlyRenderVisibleElements}
+            nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
+            nodes={visualElements.nodes}
+            edges={renderedEdges}
+            onInit={onInit}
+            onNodesChange={handleNodesChange}
+            onEdgesChange={handleEdgesChange}
+            onEdgeClick={handleEdgeClick}
+            onConnect={onConnect}
+            onReconnect={onReconnect}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            onNodeDragStop={onNodeDragStop}
+            onPaneClick={handlePaneClick}
+            onMoveEnd={onMoveEnd}
+            minZoom={minZoom}
+            maxZoom={maxZoom}
+            proOptions={PRO_OPTIONS}
+            connectOnClick={!isReadOnly}
+            edgesReconnectable={!isReadOnly}
+            deleteKeyCode={isReadOnly ? [] : ["Backspace", "Delete"]}
+            selectionMode={SelectionMode.Full}
+            selectionOnDrag={selectionEnabled}
+            selectionKeyCode="s"
+            multiSelectionKeyCode={["Meta", "Control"]}
+            panOnDrag={selectionEnabled ? [1] : [0, 1]}
+            selectNodesOnDrag={selectionEnabled}
+            nodesDraggable={!isReadOnly}
+            nodesConnectable={!isReadOnly}
+            elementsSelectable={!isReadOnly}
+            disableKeyboardA11y
+          >
+            <Background />
+            {showMiniMap && (
+              <MiniMap
+                position="bottom-right"
+                pannable
+                zoomable
+                style={{
+                  position: "fixed",
+                  bottom: "-0.2rem",
+                  right: miniMapOffset,
+                  width: miniMapSize.w,
+                  height: miniMapSize.h,
+                  borderRadius: "0.75rem",
+                  zIndex: 2_147_483_647,
+                }}
+                className={cn(
+                  "rounded-lg overflow-hidden cursor-move ring-1 ring-border bg-background shadow-sm"
+                )}
+                bgColor="hsl(var(--background))"
+                nodeColor={() => "hsl(var(--foreground))"}
+                nodeStrokeColor={() => "transparent"}
+                nodeClassName={nodeClassName}
+                maskColor={isDark ? "rgba(0,0,0,0.35)" : "transparent"}
+                maskStrokeColor="#ff0000"
+                maskStrokeWidth={1}
+              />
+            )}
+            {!isReadOnly && (
+              <Controls
+                className="custom-flow-controls"
+                position="bottom-right"
+                showZoom
+                showFitView
+                showInteractive={false}
+                style={{ zIndex: 9999, right: "0.1rem", bottom: "0.1rem" }}
+              />
+            )}
+          </ReactFlow>
+        </GroupBundleEdgeSelectionProvider>
+      </EdgeCurveControlProvider>
+    </CanonicalGraphContext.Provider>
   );
 }

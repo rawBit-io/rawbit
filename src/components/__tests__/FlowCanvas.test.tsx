@@ -153,6 +153,20 @@ describe("FlowCanvas", () => {
       <FlowCanvas
         {...baseProps}
         isSelectionModeActive
+        nodes={[
+          {
+            id: "node-a",
+            type: "calculation",
+            position: { x: 0, y: 0 },
+            data: {},
+          } as FlowNode,
+          {
+            id: "node-b",
+            type: "calculation",
+            position: { x: 120, y: 0 },
+            data: {},
+          } as FlowNode,
+        ]}
         edges={[
           {
             id: "edge-1",
