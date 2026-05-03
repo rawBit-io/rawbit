@@ -1198,6 +1198,11 @@ body[data-large-drag="true"] .rf-node {
   letter-spacing: 0;
 }
 
+[data-skin="midnight"] [data-testid="sidebar"] {
+  font-family: "JetBrains Mono", "Fira Code", SFMono-Regular, Consolas, monospace;
+  letter-spacing: 0;
+}
+
 [data-skin="midnight"] .react-flow__node .font-mono {
   font-family: "JetBrains Mono", "Fira Code", SFMono-Regular, Consolas, monospace !important;
   letter-spacing: 0;
@@ -1205,7 +1210,7 @@ body[data-large-drag="true"] .rf-node {
 
 [data-skin="midnight"] .node-title,
 [data-skin="midnight"] .group-node-title {
-  font-family: Inter, "IBM Plex Sans", "Segoe UI", system-ui, sans-serif !important;
+  font-family: "JetBrains Mono", "Fira Code", SFMono-Regular, Consolas, monospace !important;
   font-weight: 500;
   letter-spacing: 0;
 }
