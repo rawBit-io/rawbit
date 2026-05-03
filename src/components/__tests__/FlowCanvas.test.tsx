@@ -880,7 +880,7 @@ describe("FlowCanvas", () => {
 
     expect(
       screen.getByTestId("group-bundle-count-label-__group_bundle__:group-a->group-b")
-    ).toHaveAttribute("transform", "translate(35 -26.5)");
+    ).toHaveAttribute("transform", "translate(35 -21.625)");
   });
 
   it("routes bundle selection through controlled node and edge changes", () => {
@@ -1099,6 +1099,8 @@ describe("FlowCanvas", () => {
     expect(style?.right).toBe(baseProps.miniMapOffset);
     expect(style?.width).toBe(baseProps.miniMapSize.w);
     expect(style?.height).toBe(baseProps.miniMapSize.h);
+    expect(minimapSpy.props.className).toContain("bg-background");
+    expect(minimapSpy.props.bgColor).toBe("hsl(var(--background))");
     expect(minimapSpy.props.maskColor).toBe("rgba(0,0,0,0.35)");
   });
 

@@ -8,7 +8,7 @@ import type { XYPosition } from "@xyflow/react";
 
 interface ColorPaletteProps {
   isOpen: boolean;
-  position: XYPosition; // Position calculated in Flow.tsx
+  position: XYPosition;
   onColorSelect: (color: string | undefined) => void;
   onClose: () => void;
 }
@@ -52,7 +52,6 @@ export function ColorPalette({
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
-        transform: "translate(-50%, -50%)", // Center on the position
       }}
       onMouseDown={stopPropagation}
       onClick={stopPropagation}

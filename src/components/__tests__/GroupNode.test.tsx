@@ -127,6 +127,38 @@ const openGroupMenu = () => {
   fireEvent.click(screen.getByTitle("More"));
 };
 
+type PointerHandlerEvent = PointerEventInit & {
+  pointerId: number;
+  target?: EventTarget | null;
+  currentTarget?: EventTarget | null;
+  stopPropagation?: () => void;
+  preventDefault?: () => void;
+};
+
+const getReactHandlers = (
+  element: HTMLElement
+): Partial<Record<string, (event: PointerHandlerEvent) => void>> => {
+  const reactKey = Object.keys(element).find((key) =>
+    key.startsWith("__reactProps$")
+  );
+  return reactKey
+    ? ((element as unknown as Record<string, unknown>)[reactKey] as Partial<
+        Record<string, (event: PointerHandlerEvent) => void>
+      >)
+    : {};
+};
+
+const dispatchWindowPointerEvent = (
+  type: string,
+  overrides: PointerEventInit & { pointerId: number }
+) => {
+  const event = Object.assign(
+    new Event(type, { bubbles: true, cancelable: true }),
+    overrides
+  );
+  window.dispatchEvent(event);
+};
+
 beforeEach(() => {
   vi.useFakeTimers();
   nodeResizerProps = null;
@@ -173,6 +205,76 @@ describe("GroupNode interactions", () => {
     revealGroupControls();
 
     expect(screen.getByTitle("More")).toBeInTheDocument();
+  });
+
+  it("reveals title controls on pointer release instead of pointer down", () => {
+    renderGroupNode({}, { selected: false });
+
+    const header = screen.getByTestId("group-header");
+    const handlers = getReactHandlers(header);
+
+    act(() => {
+      handlers.onPointerDownCapture?.({
+        button: 0,
+        buttons: 1,
+        pointerId: 11,
+        clientX: 100,
+        clientY: 100,
+        target: header,
+        currentTarget: header,
+        stopPropagation: vi.fn(),
+      });
+    });
+
+    expect(screen.queryByTitle("More")).not.toBeInTheDocument();
+
+    act(() => {
+      dispatchWindowPointerEvent("pointerup", {
+        pointerId: 11,
+        clientX: 101,
+        clientY: 100,
+      });
+    });
+
+    expect(screen.getByTitle("More")).toBeInTheDocument();
+  });
+
+  it("keeps title controls hidden after dragging from the title", () => {
+    renderGroupNode();
+
+    const header = screen.getByTestId("group-header");
+    const handlers = getReactHandlers(header);
+    expect(screen.getByTitle("More")).toBeInTheDocument();
+
+    act(() => {
+      handlers.onPointerDownCapture?.({
+        button: 0,
+        buttons: 1,
+        pointerId: 12,
+        clientX: 100,
+        clientY: 100,
+        target: header,
+        currentTarget: header,
+        stopPropagation: vi.fn(),
+      });
+    });
+
+    expect(screen.queryByTitle("More")).not.toBeInTheDocument();
+
+    act(() => {
+      dispatchWindowPointerEvent("pointermove", {
+        pointerId: 12,
+        clientX: 120,
+        clientY: 100,
+      });
+      dispatchWindowPointerEvent("pointerup", {
+        pointerId: 12,
+        clientX: 120,
+        clientY: 100,
+      });
+    });
+
+    expect(screen.queryByTitle("More")).not.toBeInTheDocument();
   });
 
   it("saves group comment from the menu and records undo state", () => {

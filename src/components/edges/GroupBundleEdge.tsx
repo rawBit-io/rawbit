@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 import type { FlowNode } from "@/types";
 
 const fallbackPoint = { x: 0, y: 0 };
-const COUNT_LABEL_SCALE = 5;
+const COUNT_LABEL_SCALE = 4.25;
 const COUNT_LABEL_FONT_SIZE = 9 * COUNT_LABEL_SCALE;
 const COUNT_LABEL_HEIGHT = 13 * COUNT_LABEL_SCALE;
 const COUNT_LABEL_HORIZONTAL_PADDING = 9 * COUNT_LABEL_SCALE;

@@ -523,7 +523,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
             variant="ghost"
             size="icon"
             onClick={handleSaveClick}
-            tooltip="Save (hold S for simplified)"
+            tooltip="Save (hold S for simplified, hold L for LLM export)"
             aria-label="Save"
             aria-description="Hold S while clicking to download a simplified export, or hold L to include backend function sources for LLM export"
           >

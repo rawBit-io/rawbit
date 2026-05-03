@@ -26,8 +26,6 @@ describe("useColorPalette", () => {
         getNodes: () => state,
         setNodes: (updater) => setState((prev) => updater(prev)),
         scheduleSnapshot,
-        isSidebarOpen: false,
-        tabsCount: 1,
         isColorable: (node) => node.type === "calculation",
       });
 
@@ -56,7 +54,7 @@ describe("useColorPalette", () => {
     });
 
     expect(hook.result.current.palette.isOpen).toBe(true);
-    expect(hook.result.current.palette.position).toEqual({ x: 900, y: 76 });
+    expect(hook.result.current.palette.position).toEqual({ x: 828, y: 64 });
 
     act(() => {
       hook.result.current.palette.apply("#ffeeaa");

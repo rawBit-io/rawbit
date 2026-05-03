@@ -42,9 +42,9 @@ vi.mock("@/hooks/useTheme", () => ({
     setTheme: setThemeMock,
     skin: "shadcn",
     setSkin: setSkinMock,
-    edgeVisibility: { light: 0.45, dark: 0.45 },
-    dashedEdgeVisibility: { light: 0.225, dark: 0.225 },
-    groupFillOpacity: { light: 0.05, dark: 0.05 },
+    edgeVisibility: { light: 0.65, dark: 0.65 },
+    dashedEdgeVisibility: { light: 0.325, dark: 0.325 },
+    groupFillOpacity: { light: 0.07, dark: 0.07 },
     edgeThickness: { light: 1, dark: 1 },
     adjustEdgeVisibility: adjustEdgeVisibilityMock,
     adjustDashedEdgeVisibility: adjustDashedEdgeVisibilityMock,
@@ -452,6 +452,15 @@ describe("TopBar", () => {
     fireEvent.keyUp(window, { key: "s" });
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
     expect(onSave).toHaveBeenCalled();
+  });
+
+  it("shows both save shortcut hints in the hover title", () => {
+    render(<TopBar {...baseProps} />);
+
+    expect(screen.getByRole("button", { name: "Save" })).toHaveAttribute(
+      "title",
+      "Save (hold S for simplified, hold L for LLM export)"
+    );
   });
 
   it("invokes LLM export when holding the L key", () => {

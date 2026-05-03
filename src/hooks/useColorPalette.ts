@@ -6,8 +6,6 @@ interface UseColorPaletteOptions {
   getNodes: () => FlowNode[];
   setNodes: (updater: (nodes: FlowNode[]) => FlowNode[]) => void;
   scheduleSnapshot: (label: string, options?: { refresh?: boolean }) => void;
-  isSidebarOpen: boolean;
-  tabsCount: number;
   isColorable: (node: FlowNode) => boolean;
 }
 
@@ -21,8 +19,6 @@ export function useColorPalette({
   getNodes,
   setNodes,
   scheduleSnapshot,
-  isSidebarOpen,
-  tabsCount,
   isColorable,
 }: UseColorPaletteOptions) {
   const [state, setState] = useState<ColorPaletteState>({
@@ -33,11 +29,10 @@ export function useColorPalette({
 
   const paletteMetrics = useMemo(
     () => ({
-      width: 200,
-      height: 150,
-      margin: 10,
+      width: 144,
+      height: 62,
+      margin: 8,
       topBarHeight: 56,
-      tabBarHeight: 40,
     }),
     []
   );
@@ -60,24 +55,18 @@ export function useColorPalette({
           return prev;
         }
 
-        const { width, height, margin, topBarHeight, tabBarHeight } =
-          paletteMetrics;
+        const { width, height, margin, topBarHeight } = paletteMetrics;
 
-        let x = evt.clientX;
-        let y =
-          topBarHeight +
-          margin +
-          (tabsCount >= 2 ? tabBarHeight : 0) +
-          (isSidebarOpen ? 30 : 10);
+        let x = evt.clientX - width / 2;
+        let y = topBarHeight + margin;
 
         const vw = window.innerWidth;
-        if (x + width / 2 > vw - margin) x = vw - margin - width / 2;
-        if (x - width / 2 < margin) x = margin + width / 2;
+        const vh = window.innerHeight;
 
-        const minRequiredHeight = y + height / 2 + margin;
-        if (window.innerHeight < minRequiredHeight) {
-          y = window.innerHeight - height / 2 - margin;
-        }
+        if (x + width > vw - margin) x = vw - margin - width;
+        if (x < margin) x = margin;
+        if (y + height > vh - margin) y = vh - margin - height;
+        if (y < margin) y = margin;
 
         return {
           ...prev,
@@ -86,7 +75,7 @@ export function useColorPalette({
         };
       });
     },
-    [isSidebarOpen, paletteMetrics, tabsCount]
+    [paletteMetrics]
   );
 
   const apply = useCallback(

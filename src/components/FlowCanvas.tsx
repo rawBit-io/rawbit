@@ -622,11 +622,9 @@ export function FlowCanvas({
                 zIndex: 2_147_483_647,
               }}
               className={cn(
-                "rounded-lg overflow-hidden cursor-move ring-1 ring-border",
-                isDark
-                  ? "shadow-sm backdrop-blur-sm bg-background/80"
-                  : "bg-white"
+                "rounded-lg overflow-hidden cursor-move ring-1 ring-border bg-background shadow-sm"
               )}
+              bgColor="hsl(var(--background))"
               nodeColor={() => "hsl(var(--foreground))"}
               nodeStrokeColor={() => "transparent"}
               nodeClassName={nodeClassName}

@@ -60,6 +60,7 @@ const BORDER_WIDTH = 10;
 const MENU_WIDTH = 240;
 const GROUP_COMMENT_MAX_LENGTH = 2200;
 const GROUP_COMMENT_SAVE_DEBOUNCE_MS = 350;
+const TITLE_CLICK_MOVE_TOLERANCE = 4;
 
 const normalizeFontSize = (value: unknown) => {
   const numeric = Number(value);
@@ -84,7 +85,17 @@ export default function ShadcnGroupNode({
   // menu state
   const [showMenu, setShowMenu] = useState(false);
   const [showTitleControls, setShowTitleControls] = useState(false);
+  const [titlePressActive, setTitlePressActive] = useState(false);
+  const [suppressSelectedTitleControls, setSuppressSelectedTitleControls] =
+    useState(false);
   const menuAnchorRef = useRef<HTMLButtonElement | null>(null);
+  const titlePressRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    didDrag: boolean;
+  } | null>(null);
+  const suppressNextTitleClickRef = useRef(false);
   const { containerRef: menuContainerRef, position: menuPos } =
     useNodePortalMenu({
       isOpen: showMenu,
@@ -145,6 +156,9 @@ export default function ShadcnGroupNode({
     if (selected) return;
     setShowMenu(false);
     setShowTitleControls(false);
+    setTitlePressActive(false);
+    setSuppressSelectedTitleControls(false);
+    titlePressRef.current = null;
   }, [selected]);
 
   useEffect(() => {
@@ -236,11 +250,93 @@ export default function ShadcnGroupNode({
   const showGroupChrome = useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
       event.stopPropagation();
+      if (suppressNextTitleClickRef.current) {
+        suppressNextTitleClickRef.current = false;
+        return;
+      }
       selectGroupNode();
+      setSuppressSelectedTitleControls(false);
       setShowTitleControls(true);
     },
     [selectGroupNode]
   );
+
+  const handleTitlePointerDown = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (event.button !== 0) return;
+      if (
+        event.target instanceof HTMLElement &&
+        event.target.closest("input, textarea, [contenteditable='true'], select")
+      ) {
+        return;
+      }
+
+      titlePressRef.current = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        didDrag: false,
+      };
+      suppressNextTitleClickRef.current = false;
+      setTitlePressActive(true);
+      setShowMenu(false);
+      setShowTitleControls(false);
+      selectGroupNode();
+    },
+    [selectGroupNode]
+  );
+
+  useEffect(() => {
+    if (!titlePressActive) return;
+
+    const markMovement = (event: PointerEvent) => {
+      const press = titlePressRef.current;
+      if (!press || press.pointerId !== event.pointerId) return;
+      const dx = Math.abs(event.clientX - press.startX);
+      const dy = Math.abs(event.clientY - press.startY);
+      if (dx > TITLE_CLICK_MOVE_TOLERANCE || dy > TITLE_CLICK_MOVE_TOLERANCE) {
+        press.didDrag = true;
+      }
+    };
+
+    const finishPress = (event: PointerEvent) => {
+      const press = titlePressRef.current;
+      if (!press || press.pointerId !== event.pointerId) return;
+
+      titlePressRef.current = null;
+      setTitlePressActive(false);
+
+      if (press.didDrag) {
+        suppressNextTitleClickRef.current = true;
+        setSuppressSelectedTitleControls(true);
+        setShowTitleControls(false);
+        return;
+      }
+
+      setSuppressSelectedTitleControls(false);
+      setShowTitleControls(true);
+    };
+
+    const cancelPress = (event: PointerEvent) => {
+      const press = titlePressRef.current;
+      if (!press || press.pointerId !== event.pointerId) return;
+      titlePressRef.current = null;
+      suppressNextTitleClickRef.current = true;
+      setTitlePressActive(false);
+      setSuppressSelectedTitleControls(true);
+      setShowTitleControls(false);
+    };
+
+    window.addEventListener("pointermove", markMovement);
+    window.addEventListener("pointerup", finishPress);
+    window.addEventListener("pointercancel", cancelPress);
+
+    return () => {
+      window.removeEventListener("pointermove", markMovement);
+      window.removeEventListener("pointerup", finishPress);
+      window.removeEventListener("pointercancel", cancelPress);
+    };
+  }, [titlePressActive]);
 
   const increaseFontSize = () => {
     const currentSize = normalizeFontSize(data.fontSize);
@@ -530,7 +626,10 @@ export default function ShadcnGroupNode({
   const h = Number(data.height) || 360;
   const currentFontSize = normalizeFontSize(data.fontSize);
   const titlePillHeight = Math.round(Math.max(56, currentFontSize + 30));
-  const titleControlsVisible = selected || showTitleControls || showMenu;
+  const titleControlsVisible =
+    showTitleControls ||
+    showMenu ||
+    (selected && !titlePressActive && !suppressSelectedTitleControls);
   const titleControlVisualSize = Math.round(currentFontSize);
   const titleControlButtonSize = Math.round(
     Math.max(28, currentFontSize + 12)
@@ -610,7 +709,7 @@ export default function ShadcnGroupNode({
           height: titlePillHeight,
           ...borderStyle,
         }}
-        onPointerDownCapture={selectGroupNode}
+        onPointerDownCapture={handleTitlePointerDown}
         onClick={showGroupChrome}
       >
         <div className="flex h-full w-full items-center justify-center gap-2 px-5">

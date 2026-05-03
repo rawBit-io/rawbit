@@ -1149,8 +1149,6 @@ function FlowContent() {
     getNodes,
     setNodes,
     scheduleSnapshot,
-    isSidebarOpen,
-    tabsCount: tabs.length,
     isColorable: isNodeColorable,
   });
 
