@@ -62,6 +62,18 @@ function createCustomFlows() {
       level: "intro",
       tags: ["legacy"],
     },
+    {
+      id: "intro-flow",
+      label: "Intro",
+      data: {
+        nodes: [],
+        edges: [],
+      },
+      section: "top-level",
+      lessonNo: 0,
+      level: "intro",
+      tags: ["intro"],
+    },
   ];
 }
 
@@ -148,6 +160,7 @@ describe("Sidebar", () => {
 
     const examplesTrigger = screen.getByText("Flow Examples");
     fireEvent.click(examplesTrigger);
+    expect(screen.getByText("Intro")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Legacy Foundations/i })
     ).toBeInTheDocument();

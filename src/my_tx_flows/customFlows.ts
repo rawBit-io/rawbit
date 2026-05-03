@@ -5,6 +5,7 @@ import type { FlowData } from "@/types";
 // Import each JSON file.
 // Make sure your paths match exactly where they live in your project:
 
+import intro from "@/my_tx_flows/p0_Intro.json";
 import intro_p2pkh_p2pk from "@/my_tx_flows/p1_Intro_P2PKH_and_P2PK.json";
 import p2_multisig from "@/my_tx_flows/p2_Bare_P2MS_and_P2SH_MultiSig.json";
 import locktime_tx from "@/my_tx_flows/p3_Locktime_Intro.json";
@@ -36,6 +37,15 @@ export interface CustomFlowTemplate {
 
 // Then build the array, casting each import to FlowData:
 export const customFlows: CustomFlowTemplate[] = [
+  {
+    id: "flow-0",
+    label: "Intro",
+    data: intro as unknown as FlowData,
+    section: "top-level",
+    lessonNo: 0,
+    level: "intro",
+    tags: ["intro", "overview"],
+  },
   {
     id: "flow-1",
     label: "Intro P2PKH and P2PK",

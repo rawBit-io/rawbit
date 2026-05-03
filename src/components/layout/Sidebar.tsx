@@ -133,6 +133,7 @@ const subgroupLabelClass =
   "min-w-0 flex-1 whitespace-normal break-words pr-3 text-left leading-snug";
 const subgroupContentClass = "pt-1 pb-1";
 const subgroupItemsClass = "space-y-2 pb-1";
+const TOP_LEVEL_FLOW_SECTION = "top-level";
 
 const flowSections = [
   { id: "legacy-foundations", label: "Legacy Foundations" },
@@ -281,6 +282,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
   const groupedFlows = useMemo(() => {
     const groups = new Map<string, typeof customFlows>();
     customFlows.forEach((flow) => {
+      if (flow.section === TOP_LEVEL_FLOW_SECTION) return;
       const section = flow.section || "other-flows";
       groups.set(section, [...(groups.get(section) ?? []), flow]);
     });
@@ -299,6 +301,10 @@ export function Sidebar({ isOpen }: SidebarProps) {
 
     return ordered;
   }, []);
+  const topLevelFlows = useMemo(
+    () => customFlows.filter((flow) => flow.section === TOP_LEVEL_FLOW_SECTION),
+    []
+  );
 
   // Standard drag logic for normal single nodes
   const onDragStart = (event: React.DragEvent, node: NodeTemplate) => {
@@ -376,12 +382,15 @@ export function Sidebar({ isOpen }: SidebarProps) {
     </div>
   );
 
-  const renderFlowCard = (flow: CustomFlowTemplate) => (
+  const renderFlowCard = (flow: CustomFlowTemplate, className?: string) => (
     <div
       key={flow.id}
       draggable
       onDragStart={(event) => onFlowDragStart(event, flow)}
-      className="flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors"
+      className={cn(
+        "flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors",
+        className
+      )}
     >
       <div className="flex flex-col">
         <span className="text-sm font-medium">{formatFlowLabel(flow)}</span>
@@ -618,31 +627,38 @@ export function Sidebar({ isOpen }: SidebarProps) {
               </AccordionTrigger>
               <AccordionContent className="pt-0 pb-0 px-0">
                 {customFlows.length > 0 ? (
-                  <Accordion
-                    type="multiple"
-                    value={openFlowSections}
-                    onValueChange={setOpenFlowSections}
-                    className={cn(subgroupAccordionClass, "pb-0.5")}
-                  >
-                    {groupedFlows.map((section) => (
-                      <AccordionItem
-                        key={section.id}
-                        value={section.id}
-                        className="border-none"
+                  <div className="space-y-1.5 pb-0.5">
+                    {topLevelFlows.map((flow) => renderFlowCard(flow, "ml-8"))}
+                    {groupedFlows.length > 0 && (
+                      <Accordion
+                        type="multiple"
+                        value={openFlowSections}
+                        onValueChange={setOpenFlowSections}
+                        className={cn(subgroupAccordionClass, "pb-0.5")}
                       >
-                        <AccordionTrigger className={subgroupTriggerClass}>
-                          <span className={subgroupLabelClass}>
-                            {section.label}
-                          </span>
-                        </AccordionTrigger>
-                        <AccordionContent className={subgroupContentClass}>
-                          <div className={subgroupItemsClass}>
-                            {section.items.map((flow) => renderFlowCard(flow))}
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
+                        {groupedFlows.map((section) => (
+                          <AccordionItem
+                            key={section.id}
+                            value={section.id}
+                            className="border-none"
+                          >
+                            <AccordionTrigger className={subgroupTriggerClass}>
+                              <span className={subgroupLabelClass}>
+                                {section.label}
+                              </span>
+                            </AccordionTrigger>
+                            <AccordionContent className={subgroupContentClass}>
+                              <div className={subgroupItemsClass}>
+                                {section.items.map((flow) =>
+                                  renderFlowCard(flow)
+                                )}
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    )}
+                  </div>
                 ) : (
                   <div className="ml-4 p-3 text-sm text-muted-foreground rounded-md bg-muted/50">
                     No custom flows found
