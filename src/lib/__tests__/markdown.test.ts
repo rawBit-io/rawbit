@@ -30,6 +30,22 @@ describe("mdToHtml", () => {
     expect(html).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
   });
 
+  it("keeps fenced code languages out of the code body", () => {
+    const html = mdToHtml("```bash\nbitcoin-cli getblockcount\n```");
+
+    expect(html).toContain('<pre><code data-language="bash">bitcoin-cli');
+    expect(html).not.toContain(">bash\nbitcoin-cli");
+  });
+
+  it("renders blockquotes and nested lists as standard markdown", () => {
+    const html = mdToHtml(
+      "> Useful note\n> second line\n\n- parent\n  - child\n- next"
+    );
+
+    expect(html).toContain("<blockquote>Useful note<br />second line</blockquote>");
+    expect(html).toContain("<ul><li>parent<ul><li>child</li></ul></li><li>next</li></ul>");
+  });
+
   it("sanitizes unsafe links and allows safe/relative ones", () => {
     const html = mdToHtml(
       "[bad](javascript:alert(1)) [safe](https://example.com) [mail](mailto:test@a.com) [rel](/docs) [anchor](#section)"

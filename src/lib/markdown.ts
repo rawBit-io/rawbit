@@ -11,8 +11,9 @@ const BOLD = /\*\*(.+?)\*\*/g;
 const ITALIC = /\*(.+?)\*/g;
 const LINK = /\[(.+?)\]\((.+?)\)/g;
 const CODE = /`(.+?)`/g;
-const CODE_BLOCK = /```([\s\S]*?)```/g;
+const CODE_BLOCK = /```(?:([a-zA-Z0-9_-]+)\n)?([\s\S]*?)```/g;
 const TABLE = /^(\|[^\n]+\|)\n(\|[-:\s|]+\|)(\n\|[^\n]+\|)*$/gm;
+const BLOCK_TOKEN = /@@RAWBIT_MD_BLOCK_(\d+)@@/g;
 
 export function decodeHtmlEntities(str: string): string {
   return str
@@ -75,13 +76,12 @@ export function parseTable(tableText: string): string {
     return tableText;
   }
 
-  let html =
-    '<table class="border border-border" style="border-collapse:collapse;width:100%;margin:6px 0;font-size:0.92em">';
+  let html = "<table>";
 
   const headerCells = lines[0].split("|").filter((cell) => cell.trim());
   html += "<thead><tr>";
   headerCells.forEach((cell) => {
-    html += `<th class="border border-border bg-muted" style="padding:8px;text-align:left;font-weight:600">${cell.trim()}</th>`;
+    html += `<th>${cell.trim()}</th>`;
   });
   html += "</tr></thead>";
 
@@ -92,7 +92,7 @@ export function parseTable(tableText: string): string {
       if (cells.length > 0) {
         html += "<tr>";
         cells.forEach((cell) => {
-          html += `<td class="border border-border" style="padding:8px">${cell.trim()}</td>`;
+          html += `<td>${cell.trim()}</td>`;
         });
         html += "</tr>";
       }
@@ -104,36 +104,92 @@ export function parseTable(tableText: string): string {
   return html;
 }
 
+export function parseBlockquotes(text: string): string {
+  const lines = text.split("\n");
+  let html = "";
+  let i = 0;
+
+  while (i < lines.length) {
+    if (/^\s*(?:>|&gt;)\s?/.test(lines[i])) {
+      const parts: string[] = [];
+      while (i < lines.length && /^\s*(?:>|&gt;)\s?/.test(lines[i])) {
+        parts.push(lines[i].replace(/^\s*(?:>|&gt;)\s?/, "").trim());
+        i++;
+      }
+      html += `<blockquote>${parts.join("<br />")}</blockquote>`;
+      continue;
+    }
+
+    html += lines[i] + "\n";
+    i++;
+  }
+
+  return html;
+}
+
+type ListType = "ul" | "ol";
+
+function parseListLine(
+  line: string
+): { indent: number; type: ListType; content: string } | null {
+  const match = /^(\s*)([-*]|\d+\.)\s+(.+)$/.exec(line);
+  if (!match) return null;
+
+  return {
+    indent: match[1].length,
+    type: /^\d+\./.test(match[2]) ? "ol" : "ul",
+    content: match[3].trim(),
+  };
+}
+
+function parseListBlock(
+  lines: string[],
+  start: number,
+  baseIndent: number,
+  type: ListType
+): { html: string; next: number } {
+  let html = `<${type}>`;
+  let i = start;
+  let itemOpen = false;
+
+  while (i < lines.length) {
+    const item = parseListLine(lines[i]);
+    if (!item || item.indent < baseIndent) break;
+
+    if (item.indent > baseIndent) {
+      if (!itemOpen) break;
+      const nested = parseListBlock(lines, i, item.indent, item.type);
+      html += nested.html;
+      i = nested.next;
+      continue;
+    }
+
+    if (item.type !== type) break;
+
+    if (itemOpen) html += "</li>";
+    html += `<li>${item.content}`;
+    itemOpen = true;
+    i++;
+  }
+
+  if (itemOpen) html += "</li>";
+  html += `</${type}>`;
+
+  return { html, next: i };
+}
+
 export function parseLists(text: string): string {
   const lines = text.split("\n");
   let html = "";
   let i = 0;
 
-  const ul = (item: string) => `<li style="margin:0.18em 0">${item}</li>`;
-  const ol = (item: string) => `<li style="margin:0.18em 0">${item}</li>`;
-
   while (i < lines.length) {
-    const line = lines[i];
+    const item = parseListLine(lines[i]);
 
-    if (/^\s*[-*]\s+/.test(line)) {
-      html +=
-        '<ul style="list-style-type:disc;margin:0.35em 0 0.6em;padding-left:1.5em">';
-      while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) {
-        html += ul(lines[i].replace(/^\s*[-*]\s+/, "").trim());
-        i++;
-      }
-      html += "</ul>";
-      continue;
-    }
-
-    if (/^\s*\d+\.\s+/.test(line)) {
-      html +=
-        '<ol style="list-style-type:decimal;margin:0.35em 0 0.6em;padding-left:1.5em">';
-      while (i < lines.length && /^\s*\d+\.\s+/.test(lines[i])) {
-        html += ol(lines[i].replace(/^\s*\d+\.\s+/, "").trim());
-        i++;
-      }
-      html += "</ol>";
+    if (item) {
+      const parsed = parseListBlock(lines, i, item.indent, item.type);
+      html += parsed.html;
+      i = parsed.next;
       continue;
     }
 
@@ -152,38 +208,42 @@ export function wrapParagraphs(text: string): string {
       if (/^<\s*(h1|h2|h3|ul|ol|pre|table|blockquote)\b/i.test(block)) {
         return block;
       }
-      return `<p style="margin:0.3em 0 0.55em">${block}</p>`;
+      if (/^@@RAWBIT_MD_BLOCK_\d+@@$/.test(block)) {
+        return block;
+      }
+      return `<p>${block}</p>`;
     })
     .join("");
 }
 
 export function mdToHtml(src: string): string {
   let result = escapeHtml(src);
+  const blocks: string[] = [];
+  const stashBlock = (html: string) => {
+    const index = blocks.push(html) - 1;
+    return `@@RAWBIT_MD_BLOCK_${index}@@`;
+  };
 
   result = result.replace(TABLE, (match) => parseTable(match));
 
-  result = result.replace(CODE_BLOCK, (_, content) => {
-    return `<pre class="border border-border bg-muted/60 text-foreground" style="display:block;border-radius:6px;padding:12px;margin:0.6em 0;overflow-x:auto;font-family:'JetBrains Mono','Fira Code',SFMono-Regular,monospace;font-size:0.9em;line-height:1.45"><code>${content}</code></pre>`;
+  result = result.replace(CODE_BLOCK, (_, language, content) => {
+    const languageAttr = language ? ` data-language="${language}"` : "";
+    const normalizedContent = content.replace(/^\n/, "").replace(/\n$/, "");
+    return stashBlock(
+      `<pre><code${languageAttr}>${normalizedContent}</code></pre>`
+    );
   });
 
   result = result
-    .replace(
-      H1,
-      "<h1 style=\"font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-weight:700;font-size:1.35em;margin:0.6em 0 0.15em\">$1</h1>"
-    )
-    .replace(
-      H2,
-      "<h2 style=\"font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-weight:700;font-size:1.18em;margin:0.8em 0 0.15em\">$1</h2>"
-    )
-    .replace(
-      H3,
-      "<h3 style=\"font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-weight:600;font-size:1.08em;margin:0.6em 0 0.12em\">$1</h3>"
-    );
+    .replace(H1, "<h1>$1</h1>")
+    .replace(H2, "<h2>$1</h2>")
+    .replace(H3, "<h3>$1</h3>");
 
+  result = parseBlockquotes(result);
   result = parseLists(result);
 
   result = result
-    .replace(BOLD, '<strong style="font-weight:600">$1</strong>')
+    .replace(BOLD, "<strong>$1</strong>")
     .replace(ITALIC, "<em>$1</em>")
     .replace(LINK, (_, text, url) => {
       const safeUrl = sanitizeLinkUrl(url);
@@ -193,10 +253,11 @@ export function mdToHtml(src: string): string {
       return `<a href="${escapeHtml(safeUrl)}" class="text-primary underline underline-offset-2 hover:opacity-90" target="_blank" rel="noopener noreferrer">${text}</a>`;
     })
     .replace(CODE, (_, content) => {
-      return `<code class="bg-muted/60 text-foreground" style="font-family:'JetBrains Mono','Fira Code',SFMono-Regular,monospace;padding:0 0.25em;border-radius:4px">${content}</code>`;
+      return `<code>${content}</code>`;
     });
 
   result = wrapParagraphs(result);
+  result = result.replace(BLOCK_TOKEN, (_, index) => blocks[Number(index)] ?? "");
 
   return result;
 }

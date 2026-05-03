@@ -39,7 +39,7 @@ setAutoFreeze(false); // Immer objects must stay mutable for React-Flow
 const DEFAULT_TEXT = "...";
 const MIN_WIDTH = 360;
 const MIN_HEIGHT = 100;
-const HEADER_HEIGHT = 32; // h-8 in Tailwind = 32px
+const CONTENT_VERTICAL_CHROME = 48;
 const MIN_FONT_SIZE = 8;
 const MAX_FONT_SIZE = 150;
 
@@ -152,11 +152,15 @@ export default function TextInfoNode({
   const content = typeof data.content === "string" ? data.content : "";
   const fontSize = normalizeFontSize(data.fontSize);
   const lineHeight = Math.round(fontSize * 1.5); // Use the same calculation as the second file
-  const borderStyle = data.borderColor ? { borderColor: data.borderColor } : {};
-  const rawTitle = data.title || "Text Node";
+  const paletteColor =
+    typeof data.borderColor === "string" && data.borderColor.trim()
+      ? data.borderColor.trim()
+      : undefined;
+  const borderStyle = paletteColor ? { borderColor: paletteColor } : undefined;
+  const fillStyle = paletteColor ? { backgroundColor: paletteColor } : undefined;
   const { copyId, idCopied } = useClipboardLite({
     result: undefined,
-    rawTitle,
+    rawTitle: "Text Info Node",
     id,
   });
 
@@ -169,6 +173,27 @@ export default function TextInfoNode({
   });
   committedSizeRef.current.width = Math.round(displayWidth);
   committedSizeRef.current.height = Math.round(displayHeight);
+  const titleFontSize = Math.round(Math.max(18, Math.min(36, fontSize)));
+  const titlePillHeight = Math.round(Math.max(52, titleFontSize + 24));
+  const titleControlVisualSize = Math.round(Math.max(14, titleFontSize * 0.78));
+  const titleControlButtonSize = Math.round(Math.max(30, titleFontSize + 10));
+  const titleControlValueWidth = Math.round(Math.max(34, titleFontSize * 1.8));
+  const titleControlGap = Math.round(Math.max(4, titleFontSize * 0.12));
+  const fontControlsVisible = selected;
+  const controlsVisible = selected;
+  const fontControlsWidth = fontControlsVisible
+    ? titleControlButtonSize * 2 + titleControlValueWidth + titleControlGap * 2
+    : 0;
+  const titleControlsWidth = Math.round(
+    titleControlButtonSize +
+      fontControlsWidth +
+      (fontControlsVisible ? titleControlGap : 0) +
+      16
+  );
+  const titlePillWidth = Math.round(titleControlsWidth + 32);
+  const contentTopPadding = controlsVisible
+    ? Math.round(Math.max(44, titlePillHeight * 0.78))
+    : 32;
 
   /* 🔶 Highlight ring (search / edge-select) */
   const highlightStyles =
@@ -188,6 +213,10 @@ export default function TextInfoNode({
   const [showMenu, setShowMenu] = useState(false);
   const searchMarkTerm = data.searchMark?.term?.trim();
   const searchMarkTimestamp = data.searchMark?.ts;
+
+  useEffect(() => {
+    if (!selected) setShowMenu(false);
+  }, [selected]);
 
   /* keep draft in sync when external content changes */
   useEffect(() => {
@@ -214,7 +243,10 @@ export default function TextInfoNode({
 
   const updateTextareaFit = useCallback(() => {
     if (!textareaRef.current) return;
-    textareaRef.current.style.height = `${displayHeightRef.current - HEADER_HEIGHT}px`;
+    textareaRef.current.style.height = `${Math.max(
+      32,
+      displayHeightRef.current - CONTENT_VERTICAL_CHROME
+    )}px`;
   }, []); // stable – reads height via ref
 
   useEffect(() => {
@@ -316,7 +348,10 @@ export default function TextInfoNode({
         d.height = h;
       });
       if (isEditing && textareaRef.current) {
-        textareaRef.current.style.height = `${h - HEADER_HEIGHT}px`;
+        textareaRef.current.style.height = `${Math.max(
+          32,
+          h - CONTENT_VERTICAL_CHROME
+        )}px`;
       }
     },
     [updateNode, isEditing]
@@ -392,10 +427,9 @@ export default function TextInfoNode({
   return (
     <Card
       className={cn(
-        "rounded-lg shadow-md bg-card relative overflow-visible",
+        "rounded-lg shadow-md bg-card relative overflow-visible text-primary transition-colors cursor-pointer",
         highlightStyles, // yellow halo when data.isHighlighted === true
-        selectedStyles, // blue ring when the node itself is selected
-        data.borderColor ? "border-2" : "border"
+        selectedStyles // blue ring when the node itself is selected
       )}
       style={{
         ...borderStyle,
@@ -403,6 +437,15 @@ export default function TextInfoNode({
         height: displayHeight,
       }}
     >
+      <div
+        className={cn(
+          "text-info-fill pointer-events-none absolute inset-0 z-0 rounded-lg",
+          paletteColor && "has-palette-fill"
+        )}
+        data-testid="text-info-fill"
+        style={fillStyle}
+      />
+
       <NodeResizer
         isVisible={selected}
         minWidth={200}
@@ -424,82 +467,151 @@ export default function TextInfoNode({
         onResizeEnd={onResizeEnd}
       />
 
-      {/* Header – font controls and inline menu */}
-      <div className="flex items-center justify-between h-8 px-2 -mx-px -mt-px bg-primary/10 border-b rounded-t-lg cursor-pointer active:cursor-grabbing">
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6"
-            onClick={() => changeFontSize(-2)}
-            title="Smaller font"
-          >
-            <Minus className="h-3 w-3" />
-          </Button>
-          <span className="text-xs text-muted-foreground w-5 text-center">
-            {fontSize}
-          </span>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6"
-            onClick={() => changeFontSize(+2)}
-            title="Larger font"
-          >
-            <Plus className="h-3 w-3" />
-          </Button>
-        </div>
+      {controlsVisible && (
+        <div
+          data-testid="text-info-header"
+          className="absolute left-1/2 top-0 z-20 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border bg-background/95 shadow-sm cursor-grab active:cursor-grabbing"
+          style={{
+            width: titlePillWidth,
+            height: titlePillHeight,
+            ...borderStyle,
+          }}
+        >
+          <div className="flex h-full w-full items-center justify-center px-3">
+            <div
+              className="nodrag flex shrink-0 items-center"
+              style={{
+                columnGap: titleControlGap,
+              }}
+              onClick={(event) => event.stopPropagation()}
+            >
+              {fontControlsVisible && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full p-0"
+                    style={{
+                      width: titleControlButtonSize,
+                      height: titleControlButtonSize,
+                    }}
+                    onClick={() => changeFontSize(-2)}
+                    title="Smaller font"
+                    aria-label="Smaller font"
+                  >
+                    <Minus
+                      className="text-foreground"
+                      style={{
+                        width: titleControlVisualSize,
+                        height: titleControlVisualSize,
+                      }}
+                    />
+                  </Button>
+                  <span
+                    className="text-center text-muted-foreground tabular-nums select-none"
+                    style={{
+                      width: titleControlValueWidth,
+                      fontSize: titleFontSize,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {fontSize}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full p-0"
+                    style={{
+                      width: titleControlButtonSize,
+                      height: titleControlButtonSize,
+                    }}
+                    onClick={() => changeFontSize(+2)}
+                    title="Larger font"
+                    aria-label="Larger font"
+                  >
+                    <Plus
+                      className="text-foreground"
+                      style={{
+                        width: titleControlVisualSize,
+                        height: titleControlVisualSize,
+                      }}
+                    />
+                  </Button>
+                </>
+              )}
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">Markdown</span>
-
-          <DropdownMenu modal={false} open={showMenu} onOpenChange={setShowMenu}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-6 w-6">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuPortal>
-              <DropdownMenuContent
-                align="end"
-                side="right"
-                avoidCollisions
-                className="z-[100] min-w-[160px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
-                style={{ fontSize: "14px" }}
-                onPointerDown={(event) => event.stopPropagation()}
-                onWheelCapture={(event) => event.stopPropagation()}
+              <DropdownMenu
+                modal={false}
+                open={showMenu}
+                onOpenChange={setShowMenu}
               >
-                <DropdownMenuItem onSelect={handleCopyId}>
-                  <span className="flex items-center gap-2">
-                    {idCopied ? (
-                      <>
-                        <Check className="h-4 w-4" /> Copied ✓
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-4 w-4" /> Copy ID
-                      </>
-                    )}
-                  </span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
-                  onSelect={deleteNode}
-                >
-                  <span className="flex items-center gap-2">
-                    <Trash2 className="h-4 w-4" /> Delete Node
-                  </span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenuPortal>
-          </DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    aria-label="Text node menu"
+                    title="Text node menu"
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full p-0"
+                    style={{
+                      width: titleControlButtonSize,
+                      height: titleControlButtonSize,
+                    }}
+                  >
+                    <MoreHorizontal
+                      className="text-foreground"
+                      style={{
+                        width: titleControlVisualSize,
+                        height: titleControlVisualSize,
+                      }}
+                    />
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuPortal>
+                  <DropdownMenuContent
+                    align="end"
+                    side="right"
+                    avoidCollisions
+                    className="z-[100] min-w-[160px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
+                    style={{ fontSize: "14px" }}
+                    onPointerDown={(event) => event.stopPropagation()}
+                    onWheelCapture={(event) => event.stopPropagation()}
+                  >
+                    <DropdownMenuItem onSelect={handleCopyId}>
+                      <span className="flex items-center gap-2">
+                        {idCopied ? (
+                          <>
+                            <Check className="h-4 w-4" /> Copied ✓
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-4 w-4" /> Copy ID
+                          </>
+                        )}
+                      </span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onSelect={deleteNode}
+                    >
+                      <span className="flex items-center gap-2">
+                        <Trash2 className="h-4 w-4" /> Delete Node
+                      </span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenuPortal>
+              </DropdownMenu>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Content */}
-      <CardContent className="p-0 h-[calc(100%-32px)] overflow-hidden">
+      <CardContent
+        className="relative z-10 h-full overflow-hidden px-8 pb-8 cursor-pointer"
+        style={{ paddingTop: contentTopPadding }}
+      >
         {isEditing ? (
           <textarea
             ref={textareaRef}
@@ -508,29 +620,26 @@ export default function TextInfoNode({
             onBlur={commitEdit}
             onKeyDown={handleKeyDown}
             spellCheck={false}
-            className="nowheel nodrag w-full h-full p-4 bg-transparent focus:outline-none border-0 resize-none"
+            className="nowheel nodrag h-full w-full resize-none border-0 bg-transparent p-0 text-foreground cursor-text focus:outline-none"
             style={{
               fontSize: `${fontSize}px`,
               lineHeight: `${lineHeight}px`,
               overflowY: "auto",
               overscrollBehavior: "contain",
-              fontFamily:
-                '"Inter Var",Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif',
+              fontFamily: "inherit",
             }}
             placeholder="Type markdown here…"
           />
         ) : (
           <div
             ref={contentRef}
-            className="nowheel nodrag cursor-text p-4 w-full h-full"
+            className="text-info-markdown nowheel h-full w-full cursor-pointer overflow-auto text-foreground"
             style={{
               fontSize: `${fontSize}px`,
               lineHeight: `${lineHeight}px`,
               overflowY: "auto",
               overscrollBehavior: "contain",
-              // Removed whiteSpace: "pre-wrap" - this was causing extra spacing
-              fontFamily:
-                '"Inter Var",Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif',
+              fontFamily: "inherit",
             }}
             onClick={(e) => {
               if (!(e.target as HTMLElement).closest("a")) startEdit();

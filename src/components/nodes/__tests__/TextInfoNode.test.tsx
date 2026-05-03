@@ -147,7 +147,9 @@ describe("TextInfoNode", () => {
       { snapshotScheduler: scheduler }
     );
 
-    const display = container.querySelector(".cursor-text") as HTMLElement;
+    const display = container.querySelector(".text-info-markdown") as HTMLElement;
+    expect(display).not.toHaveClass("nodrag");
+    expect(display).toHaveClass("cursor-pointer");
     await user.click(display);
 
     const textarea = await screen.findByPlaceholderText("Type markdown here…");
@@ -204,7 +206,7 @@ describe("TextInfoNode", () => {
     await waitFor(() => expect(pushStateMock).toHaveBeenCalled());
   });
 
-  it("copies the node id and deletes via the portaled menu", async () => {
+  it("uses theme fallback fill until a palette color is selected", () => {
     const clipboardMock = {
       prettyResult: "",
       copyResult: vi.fn(),
@@ -215,8 +217,6 @@ describe("TextInfoNode", () => {
       idCopied: false,
     };
     clipboardHook.mockReturnValue(clipboardMock);
-
-    const user = userEvent.setup();
 
     renderWithProviders(
       <TextInfoNode
@@ -235,8 +235,90 @@ describe("TextInfoNode", () => {
       { snapshotScheduler: scheduler }
     );
 
-    const markdownControls = screen.getByText("Markdown").parentElement as HTMLElement;
-    const menuButton = markdownControls.querySelector("button:not([title])") as HTMLButtonElement;
+    const fill = screen.getByTestId("text-info-fill");
+    expect(fill).toHaveClass("text-info-fill");
+    expect(fill).not.toHaveClass("has-palette-fill");
+    expect(fill.getAttribute("style") ?? "").not.toContain("#eab308");
+    expect(screen.queryByTestId("text-info-header")).toBeNull();
+    expect(screen.queryByTitle("Larger font")).toBeNull();
+    expect(screen.queryByTitle("Double-click to rename")).toBeNull();
+    expect(screen.queryByText("Info")).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: /text node menu/i })
+    ).toBeNull();
+  });
+
+  it("uses the palette color for the group-style fill", () => {
+    const clipboardMock = {
+      prettyResult: "",
+      copyResult: vi.fn(),
+      copyError: vi.fn(),
+      copyId: vi.fn(),
+      resultCopied: false,
+      errorCopied: false,
+      idCopied: false,
+    };
+    clipboardHook.mockReturnValue(clipboardMock);
+    nodesState[0].data.borderColor = "#0d9488";
+
+    renderWithProviders(
+      <TextInfoNode
+        id="text-1"
+        data={nodesState[0].data}
+        selected={true}
+        type="text"
+        dragging={false}
+        zIndex={0}
+        width={nodesState[0].width}
+        height={nodesState[0].height}
+        isConnectable={true}
+        positionAbsoluteX={0}
+        positionAbsoluteY={0}
+      />,
+      { snapshotScheduler: scheduler }
+    );
+
+    const fill = screen.getByTestId("text-info-fill");
+    expect(fill).toHaveStyle({ backgroundColor: "#0d9488" });
+    expect(fill).toHaveClass(
+      "text-info-fill",
+      "has-palette-fill",
+      "pointer-events-none"
+    );
+  });
+
+  it("copies the node id and deletes via the portaled menu", async () => {
+    const clipboardMock = {
+      prettyResult: "",
+      copyResult: vi.fn(),
+      copyError: vi.fn(),
+      copyId: vi.fn(),
+      resultCopied: false,
+      errorCopied: false,
+      idCopied: false,
+    };
+    clipboardHook.mockReturnValue(clipboardMock);
+
+    const user = userEvent.setup();
+
+    renderWithProviders(
+      <TextInfoNode
+        id="text-1"
+        data={nodesState[0].data}
+        selected={true}
+        type="text"
+        dragging={false}
+        zIndex={0}
+        width={nodesState[0].width}
+        height={nodesState[0].height}
+        isConnectable={true}
+        positionAbsoluteX={0}
+        positionAbsoluteY={0}
+      />,
+      { snapshotScheduler: scheduler }
+    );
+
+    const menuButton = screen.getByRole("button", { name: /text node menu/i });
 
     await user.click(menuButton);
     await user.click(screen.getByRole("menuitem", { name: /copy id/i }));
@@ -271,7 +353,7 @@ describe("TextInfoNode", () => {
       <TextInfoNode
         id="text-1"
         data={nodesState[0].data}
-        selected={false}
+        selected={true}
         type="text"
         dragging={false}
         zIndex={0}
@@ -284,8 +366,7 @@ describe("TextInfoNode", () => {
       { snapshotScheduler: scheduler }
     );
 
-    const markdownControls = screen.getByText("Markdown").parentElement as HTMLElement;
-    const menuButton = markdownControls.querySelector("button:not([title])") as HTMLButtonElement;
+    const menuButton = screen.getByRole("button", { name: /text node menu/i });
 
     await user.click(menuButton);
     expect(screen.getByRole("menuitem", { name: /copy id/i })).toBeInTheDocument();
