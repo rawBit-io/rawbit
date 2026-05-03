@@ -91,7 +91,7 @@ const createNode = (
     selected: true,
     data: {
       title: "Group Node",
-      fontSize: 20,
+      fontSize: 36,
       width: 600,
       height: 360,
       ...dataOverrides,
@@ -116,6 +116,15 @@ const renderGroupNode = (
   render(<ShadcnGroupNode {...buildNodeProps(node)} />);
 
   return node;
+};
+
+const revealGroupControls = () => {
+  fireEvent.click(screen.getByRole("button", { name: "Group Node" }));
+};
+
+const openGroupMenu = () => {
+  revealGroupControls();
+  fireEvent.click(screen.getByTitle("More"));
 };
 
 beforeEach(() => {
@@ -150,16 +159,26 @@ describe("GroupNode interactions", () => {
   it("opens menu and copies id", () => {
     renderGroupNode();
 
+    expect(screen.getByTitle("More")).toBeInTheDocument();
     fireEvent.click(screen.getByTitle("More"));
     fireEvent.click(screen.getByText(/Copy ID/i));
 
     expect(clipboardMock.copyId).toHaveBeenCalledTimes(1);
   });
 
+  it("shows controls after clicking the title on an unselected group", () => {
+    renderGroupNode({}, { selected: false });
+
+    expect(screen.queryByTitle("More")).not.toBeInTheDocument();
+    revealGroupControls();
+
+    expect(screen.getByTitle("More")).toBeInTheDocument();
+  });
+
   it("saves group comment from the menu and records undo state", () => {
     renderGroupNode({ comment: "" });
 
-    fireEvent.click(screen.getByTitle("More"));
+    openGroupMenu();
     const commentInput = screen.getByLabelText("Group Comment");
     fireEvent.change(commentInput, {
       target: { value: "Derives sighash preimage components for signing." },
@@ -183,7 +202,7 @@ describe("GroupNode interactions", () => {
   it("autosaves group comment while typing with debounce", () => {
     renderGroupNode({ comment: "" });
 
-    fireEvent.click(screen.getByTitle("More"));
+    openGroupMenu();
     const commentInput = screen.getByLabelText("Group Comment");
     fireEvent.change(commentInput, {
       target: { value: "Auto-save comment while typing." },
@@ -205,7 +224,7 @@ describe("GroupNode interactions", () => {
   it("toggles flow map exclusion from the group menu and records undo state", () => {
     renderGroupNode({ excludeFromFlowMap: false });
 
-    fireEvent.click(screen.getByTitle("More"));
+    openGroupMenu();
     const excludeCheckbox = screen.getByLabelText("Exclude from Flow Map");
     fireEvent.click(excludeCheckbox);
 
@@ -238,7 +257,7 @@ describe("GroupNode interactions", () => {
 
     const longComment = "A".repeat(500);
 
-    fireEvent.click(screen.getByTitle("More"));
+    openGroupMenu();
     const commentInput = screen.getByLabelText("Group Comment");
     fireEvent.change(commentInput, {
       target: { value: longComment },
@@ -301,6 +320,7 @@ describe("GroupNode interactions", () => {
   it("increases font size with dynamic step", () => {
     renderGroupNode({ fontSize: 32 });
 
+    revealGroupControls();
     fireEvent.click(screen.getByRole("button", { name: "Increase font size" }));
 
     act(() => {
@@ -311,23 +331,31 @@ describe("GroupNode interactions", () => {
     expect(pushState).toHaveBeenCalledWith(nodes, edges, "Increase Font Size");
   });
 
-  it("grows header height as title font increases", () => {
+  it("renders a top title pill without reducing body height", () => {
     renderGroupNode({ fontSize: 48, height: 360 });
 
     const header = screen.getByTestId("group-header");
     const body = screen.getByTestId("group-body");
 
     const headerHeight = parseInt(header.style.height, 10);
-    const bodyHeight = parseInt(body.style.height, 10);
-    const nodeHeight = nodes[0].data.height as number;
+    const headerWidth = parseInt(header.style.width, 10);
+    const fontSizeValue = screen.getByText("48");
+    const moreIcon = screen.getByTitle("More").querySelector("svg");
 
-    expect(headerHeight).toBeGreaterThan(36);
-    expect(bodyHeight).toBe(nodeHeight - headerHeight);
+    expect(headerHeight).toBeGreaterThan(70);
+    expect(headerWidth).toBeGreaterThan(240);
+    expect(fontSizeValue.style.fontSize).toBe("48px");
+    expect(moreIcon?.getAttribute("style")).toContain("width: 48px");
+    expect(moreIcon?.getAttribute("style")).toContain("height: 48px");
+    expect(header.className).toContain("-translate-y-1/2");
+    expect(header.className).not.toContain("border-b");
+    expect(body.className).toContain("inset-0");
   });
 
   it("decreases font size respecting minimum", () => {
     renderGroupNode({ fontSize: 12 });
 
+    revealGroupControls();
     fireEvent.click(screen.getByRole("button", { name: "Decrease font size" }));
 
     act(() => {
@@ -522,7 +550,7 @@ describe("GroupNode interactions", () => {
 
     renderGroupNode({}, { selected: false });
 
-    fireEvent.click(screen.getByTitle("More"));
+    openGroupMenu();
     fireEvent.click(screen.getByText(/Ungroup/i));
 
     expect(flowActionsMock.ungroupWithUndo).toHaveBeenCalledTimes(1);
@@ -548,7 +576,7 @@ describe("GroupNode interactions", () => {
 
     render(<ShadcnGroupNode {...buildNodeProps(parent)} />);
 
-    fireEvent.click(screen.getByTitle("More"));
+    openGroupMenu();
     fireEvent.click(screen.getByText(/Delete Node/i));
 
     expect(nodes).toEqual([]);

@@ -76,12 +76,12 @@ test.describe('Manual wiring flow', () => {
       }
     }
 
-    await dropNode('identity', /Identity/i, { x: 220, y: 280 });
+    await dropNode('identity', /Input/i, { x: 220, y: 280 });
     await dropNode('privkey', /PrivKey/i, { x: 440, y: 280 });
     await dropNode('hash160', /Data.*HASH160/i, { x: 660, y: 280 });
     await dropNode('p2pkh', /HASH160.*P2PKH Address/i, { x: 880, y: 280 });
 
-    const identityNode = page.locator('.react-flow__node').filter({ hasText: /Identity/i }).first();
+    const identityNode = page.locator('.react-flow__node').filter({ hasText: /Input/i }).first();
     const privKeyNode = page.locator('.react-flow__node').filter({ hasText: /PrivKey/i }).first();
     const hashNode = page
       .locator('.react-flow__node')

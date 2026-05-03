@@ -124,11 +124,13 @@ const WHEEL_ZOOM_SENSITIVITY = 0.0014;
 const WHEEL_SUPPRESS_MS_AFTER_DRAG = 120;
 
 const GROUP_WIDTH = 290;
-const HEADER_HEIGHT = 42;
+const HEADER_HEIGHT = 40;
 const CONTENT_TOP_PADDING = 4;
 const CONTENT_INNER_PAD = 5;          // content div py-1 (4px) + border (1px)
-const IO_HEAD_HEIGHT = 4;
+const IO_HEAD_HEIGHT = 18;
 const ROW_HEIGHT = 26;
+const GROUP_TITLE_FONT_SIZE = 16;
+const GROUP_TITLE_LINE_HEIGHT = 20;
 const COMMENT_SECTION_EXPANDED_GAP = 6;
 const COMMENT_MIN_HEIGHT = 28;
 const COMMENT_LINE_HEIGHT = 16;
@@ -1856,9 +1858,14 @@ export function ProtocolDiagramPanel({
                                     : `Focus ${group.title} on canvas`
                                 }
                               >
-                                <span className="block text-xs leading-tight truncate">{"> "}{group.title}</span>
-                                <span className="block text-[10px] text-muted-foreground truncate">
-                                  {group.nodeCount}
+                                <span
+                                  className="block truncate font-semibold"
+                                  style={{
+                                    fontSize: GROUP_TITLE_FONT_SIZE,
+                                    lineHeight: `${GROUP_TITLE_LINE_HEIGHT}px`,
+                                  }}
+                                >
+                                  {"> "}{group.title}
                                 </span>
                               </button>
                             </div>
@@ -1873,7 +1880,13 @@ export function ProtocolDiagramPanel({
                                   GROUP_FOOTER_PADDING,
                               }}
                             >
-                              <div className="h-1" />
+                              <div
+                                className="grid grid-cols-2 gap-x-2 px-0.5 text-[10px] font-semibold leading-none text-muted-foreground"
+                                style={{ height: IO_HEAD_HEIGHT }}
+                              >
+                                <span>IN</span>
+                                <span className="text-right">OUT</span>
+                              </div>
 
                               <div className="space-y-0">
                                 {Array.from({ length: group.rowCount }).map((_, index) => {

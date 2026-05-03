@@ -576,10 +576,6 @@ body[data-large-drag="true"] .rf-node {
   background-color: hsl(var(--background) / 0.8) !important;
 }
 
-[data-skin="paper"] .react-flow__node-shadcnGroup [data-drag-handle] {
-  border-bottom-color: hsl(var(--primary) / 0.28) !important;
-}
-
 [data-skin="paper"] .react-flow__node-shadcnGroup [data-testid="group-fill"] {
   opacity: var(--group-light-fill-opacity, 0.05) !important;
 }
@@ -647,10 +643,6 @@ body[data-large-drag="true"] .rf-node {
   border-width: 1.5px !important;
   border-color: hsl(var(--accent) / 0.5);
   background-color: hsl(var(--card) / 0.7) !important;
-}
-
-[data-skin="midnight"] .react-flow__node-shadcnGroup [data-drag-handle] {
-  border-bottom-color: hsl(var(--accent) / 0.32) !important;
 }
 
 [data-skin="midnight"] .react-flow__node-shadcnGroup [data-testid="group-fill"] {

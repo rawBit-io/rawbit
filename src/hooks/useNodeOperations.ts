@@ -677,6 +677,7 @@ export function useNodeOperations(options: UseNodeOperationsOptions = {}) {
         width: bounds.width + margin * 2,
         height: bounds.height + margin * 2,
         title: "Group Node",
+        fontSize: 36,
       },
       selected: false,
     };

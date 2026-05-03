@@ -1,6 +1,6 @@
 //  src/components/nodes/GroupNode.tsx
 //  -------------------------------------------------------------------
-//  Group node with title bar, font +/- and a compact "…" menu
+//  Group node with top title pill and on-demand controls
 //  - Menu renders in a portal (always above children)
 //  - Menu position follows the anchor live while open (handles zoom/pan)
 //  - Deleting from the menu recursively deletes all descendants
@@ -48,12 +48,11 @@ import { useNodePortalMenu } from "@/hooks/nodes/useNodePortalMenu";
 setAutoFreeze(false);
 
 // --- UI constants ---------------------------------------------------
-const MIN_HEADER_H = 36;
-const HEADER_VERTICAL_PADDING = 8;
-const DEFAULT_FONT_SIZE = 20;
+const DEFAULT_FONT_SIZE = 36;
 const MIN_FONT_SIZE = 12;
 const MAX_FONT_SIZE = 150;
 const RESIZE_HANDLE_SIZE = 24;
+const TITLE_PILL_MIN_WIDTH = 220;
 
 const MIN_W = 380;
 const MIN_H = 220;
@@ -85,6 +84,7 @@ export default function ShadcnGroupNode({
 
   // menu state
   const [showMenu, setShowMenu] = useState(false);
+  const [showTitleControls, setShowTitleControls] = useState(false);
   const menuAnchorRef = useRef<HTMLButtonElement | null>(null);
   const { containerRef: menuContainerRef, position: menuPos } =
     useNodePortalMenu({
@@ -133,12 +133,21 @@ export default function ShadcnGroupNode({
     if (!showMenu) return;
     const pane = document.querySelector(".react-flow__pane");
     if (!pane) return;
-    const handlePanePointerDown = () => setShowMenu(false);
+    const handlePanePointerDown = () => {
+      setShowMenu(false);
+      setShowTitleControls(false);
+    };
     pane.addEventListener("pointerdown", handlePanePointerDown);
     return () => {
       pane.removeEventListener("pointerdown", handlePanePointerDown);
     };
   }, [showMenu]);
+
+  useEffect(() => {
+    if (selected) return;
+    setShowMenu(false);
+    setShowTitleControls(false);
+  }, [selected]);
 
   useEffect(() => {
     if (!showMenu) {
@@ -224,6 +233,15 @@ export default function ShadcnGroupNode({
       selectGroupNode();
     },
     [blurActiveEditableElement, selectGroupNode]
+  );
+
+  const showGroupChrome = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      event.stopPropagation();
+      selectGroupNode();
+      setShowTitleControls(true);
+    },
+    [selectGroupNode]
   );
 
   const increaseFontSize = () => {
@@ -404,6 +422,8 @@ export default function ShadcnGroupNode({
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (e.button !== 0) return;
       if (isInteractionTargetEditable(e.target)) return;
+      setShowMenu(false);
+      setShowTitleControls(false);
       blurActiveEditableElement();
       clearSelectedEdges();
 
@@ -537,18 +557,38 @@ export default function ShadcnGroupNode({
   const w = Number(data.width) || 600;
   const h = Number(data.height) || 360;
   const currentFontSize = normalizeFontSize(data.fontSize);
-  const headerHeight = Math.max(
-    MIN_HEADER_H,
-    Math.round(currentFontSize + HEADER_VERTICAL_PADDING * 2)
+  const titlePillHeight = Math.round(Math.max(56, currentFontSize + 30));
+  const titleControlsVisible = selected || showTitleControls || showMenu;
+  const titleControlVisualSize = Math.round(currentFontSize);
+  const titleControlButtonSize = Math.round(
+    Math.max(28, currentFontSize + 12)
   );
-  const bodyHeight = Math.max(0, h - headerHeight);
+  const titleControlValueWidth = Math.round(
+    Math.max(34, currentFontSize * 2.15)
+  );
+  const titleControlGap = Math.round(Math.max(4, currentFontSize * 0.12));
+  const titleControlsWidth = titleControlsVisible
+    ? Math.round(
+        titleControlButtonSize * 3 +
+          titleControlValueWidth +
+          titleControlGap * 3 +
+          16
+      )
+    : 0;
+  const titlePillWidth = Math.round(
+    Math.max(
+      TITLE_PILL_MIN_WIDTH,
+      rawTitle.length * currentFontSize * 0.62 + 56 + titleControlsWidth
+    )
+  );
+  const titleTextWidth = Math.max(
+    120,
+    titlePillWidth - 48 - titleControlsWidth
+  );
 
   const borderStyle = data.borderColor
     ? { borderColor: data.borderColor }
     : undefined;
-
-  const headerClasses =
-    "border-b border-border p-2 pl-3 pr-1 flex items-center gap-2 w-full cursor-grab active:cursor-grabbing";
 
   return (
     <Card
@@ -588,93 +628,147 @@ export default function ShadcnGroupNode({
         onResizeEnd={endResize}
       />
 
-      {/* Title bar (drag handle) */}
+      {/* Top title pill (drag handle) */}
       <div
         data-drag-handle
         data-testid="group-header"
-        className={headerClasses}
-        style={{ height: headerHeight }}
+        className="absolute left-1/2 top-0 z-20 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border bg-background/95 shadow-sm cursor-grab active:cursor-grabbing"
+        style={{
+          width: titlePillWidth,
+          height: titlePillHeight,
+          ...borderStyle,
+        }}
         onPointerDownCapture={selectGroupNode}
+        onClick={showGroupChrome}
       >
-        {/* Font size controls (left aligned, with value between - and +) */}
-        <div className="flex items-center gap-1 pr-2 shrink-0">
-          <Button
-            variant="ghost"
-            size="icon"
-            onPointerDownCapture={handleHeaderControlPointerDown}
-            onClick={decreaseFontSize}
-            disabled={currentFontSize <= MIN_FONT_SIZE}
-            title="Decrease font size"
-            aria-label="Decrease font size"
-            className="h-8 w-8"
+        <div className="flex h-full w-full items-center justify-center gap-2 px-5">
+          <div
+            className="flex min-w-0 items-center justify-center leading-tight"
+            style={{ width: titleTextWidth }}
           >
-            <Minus className="h-4 w-4 text-foreground" />
-          </Button>
+            <EditableLabel
+              value={rawTitle}
+              onCommit={commitTitle}
+              maxLength={100}
+              fontSize={currentFontSize}
+              className="font-mono text-center text-primary"
+            />
+          </div>
 
-          <span className="w-9 text-center text-xs text-muted-foreground tabular-nums select-none">
-            {Math.round(currentFontSize)}
-          </span>
+          {titleControlsVisible && (
+            <div
+              className="nodrag flex shrink-0 items-center gap-1 border-l border-border pl-2"
+              style={{
+                columnGap: titleControlGap,
+                paddingLeft: Math.max(8, Math.round(currentFontSize * 0.22)),
+              }}
+              onPointerDownCapture={(event) => {
+                event.stopPropagation();
+              }}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <Button
+                variant="ghost"
+                size="icon"
+                onPointerDownCapture={handleHeaderControlPointerDown}
+                onClick={decreaseFontSize}
+                disabled={currentFontSize <= MIN_FONT_SIZE}
+                title="Decrease font size"
+                aria-label="Decrease font size"
+                className="rounded-full p-0"
+                style={{
+                  width: titleControlButtonSize,
+                  height: titleControlButtonSize,
+                }}
+              >
+                <Minus
+                  className="text-foreground"
+                  style={{
+                    width: titleControlVisualSize,
+                    height: titleControlVisualSize,
+                  }}
+                />
+              </Button>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            onPointerDownCapture={handleHeaderControlPointerDown}
-            onClick={increaseFontSize}
-            disabled={currentFontSize >= MAX_FONT_SIZE}
-            title="Increase font size"
-            aria-label="Increase font size"
-            className="h-8 w-8"
-          >
-            <Plus className="h-4 w-4 text-foreground" />
-          </Button>
+              <span
+                className="text-center text-muted-foreground tabular-nums select-none"
+                style={{
+                  width: titleControlValueWidth,
+                  fontSize: currentFontSize,
+                  lineHeight: 1,
+                }}
+              >
+                {Math.round(currentFontSize)}
+              </span>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                onPointerDownCapture={handleHeaderControlPointerDown}
+                onClick={increaseFontSize}
+                disabled={currentFontSize >= MAX_FONT_SIZE}
+                title="Increase font size"
+                aria-label="Increase font size"
+                className="rounded-full p-0"
+                style={{
+                  width: titleControlButtonSize,
+                  height: titleControlButtonSize,
+                }}
+              >
+                <Plus
+                  className="text-foreground"
+                  style={{
+                    width: titleControlVisualSize,
+                    height: titleControlVisualSize,
+                  }}
+                />
+              </Button>
+
+              <Button
+                ref={menuAnchorRef}
+                variant="ghost"
+                size="icon"
+                className="rounded-full p-0"
+                style={{
+                  width: titleControlButtonSize,
+                  height: titleControlButtonSize,
+                }}
+                onClick={() => setShowMenu((v) => !v)}
+                onPointerDownCapture={handleHeaderControlPointerDown}
+                aria-label="More"
+                title="More"
+              >
+                <MoreHorizontal
+                  className="text-foreground"
+                  style={{
+                    width: titleControlVisualSize,
+                    height: titleControlVisualSize,
+                  }}
+                />
+              </Button>
+            </div>
+          )}
         </div>
-
-        <div className="leading-tight whitespace-normal break-words flex-1 min-w-0">
-          <EditableLabel
-            value={rawTitle}
-            onCommit={commitTitle}
-            maxLength={100}
-            fontSize={currentFontSize}
-            className="font-mono text-primary"
-          />
-        </div>
-
-        {/* Error icon (if present) */}
         {data.error && (
           <div
-            className="cursor-default"
+            className="absolute -right-1 -top-1 cursor-default rounded-full bg-background"
             title={data.extendedError || "Group node error"}
           >
-            <AlertTriangle className="h-6 w-6 text-destructive" />
+            <AlertTriangle className="h-5 w-5 text-destructive" />
           </div>
         )}
-
-        {/* More menu toggle (STOP events so we don't drag the group) */}
-        <Button
-          ref={menuAnchorRef}
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 nodrag"
-          onClick={() => setShowMenu((v) => !v)}
-          onPointerDownCapture={handleHeaderControlPointerDown}
-          aria-label="More"
-          title="More"
-        >
-          <MoreHorizontal className="h-4 w-4 text-foreground" />
-        </Button>
       </div>
 
       {/* Thin 10px invisible border areas act as additional drag handles */}
       <BorderDragHandles
         borderWidth={BORDER_WIDTH}
-        cornerGap={Math.max(headerHeight, RESIZE_HANDLE_SIZE)}
+        cornerGap={RESIZE_HANDLE_SIZE}
       />
 
       {/* Body content background fill (transparent) */}
       <CardContent
         data-testid="group-body"
-        className="p-2 overflow-visible relative nodrag"
-        style={{ height: bodyHeight }}
+        className="absolute inset-0 p-2 overflow-visible nodrag"
         onPointerDownCapture={handleBodyPointerDown}
         onPointerMoveCapture={handleBodyPointerMove}
         onPointerUpCapture={resetBodyPan}
@@ -687,7 +781,7 @@ export default function ShadcnGroupNode({
         <div className="relative z-10 h-full w-full" data-testid="group-body-content" />
         {data.borderColor && (
           <div
-            className="group-fill absolute inset-0 pointer-events-none rounded-b-lg z-0"
+            className="group-fill absolute inset-0 pointer-events-none rounded-lg z-0"
             data-testid="group-fill"
             style={{ backgroundColor: data.borderColor }}
           />

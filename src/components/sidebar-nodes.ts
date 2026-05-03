@@ -18,14 +18,14 @@ export const allSidebarNodes: NodeTemplate[] = [
   // ------------------------------------------------------------------
   {
     functionName: "identity",
-    label: "Identity",
+    label: "Input",
     category: "Canvas & Inputs",
     subcategory: "General",
     description: "Simple data entry node to accept raw user input",
     type: "calculation",
     nodeData: {
       functionName: "identity",
-      title: "Identity",
+      title: "Input",
       showField: true,
       numInputs: 0,
       value: "",
@@ -52,6 +52,7 @@ export const allSidebarNodes: NodeTemplate[] = [
       width: 380,
       height: 220,
       title: "Group Node",
+      fontSize: 36,
     },
   },
   {

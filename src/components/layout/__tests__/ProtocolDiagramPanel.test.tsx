@@ -152,6 +152,25 @@ describe("ProtocolDiagramPanel", () => {
     expect(screen.queryByTitle("Bundle Keys -> SigHash (2 edges)")).not.toBeInTheDocument();
   });
 
+  it("labels flow map node columns as IN and OUT", () => {
+    render(<ProtocolDiagramPanel isOpen model={model} />);
+
+    expect(screen.getAllByText("IN").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("OUT").length).toBeGreaterThan(0);
+  });
+
+  it("renders flow map group titles larger and bolder", () => {
+    render(<ProtocolDiagramPanel isOpen model={model} />);
+
+    const groupTitle = screen.getByText("> Round 1");
+
+    expect(groupTitle.className).toContain("font-semibold");
+    expect(groupTitle).toHaveStyle({
+      fontSize: "16px",
+      lineHeight: "20px",
+    });
+  });
+
   it("keeps the top-right output as main output at top and styles it bolder", () => {
     render(<ProtocolDiagramPanel isOpen model={model} />);
 
