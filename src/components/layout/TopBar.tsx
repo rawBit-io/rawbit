@@ -714,18 +714,6 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
             </Button>
           )}
 
-          {/* add tab */}
-          <TopBarIconButton
-            variant="ghost"
-            size="icon"
-            onClick={onAddTab}
-            tooltip="New tab"
-          >
-            <Plus className="h-6 w-6" />
-          </TopBarIconButton>
-
-          <Separator orientation="vertical" className="mx-1 h-6 w-px" />
-
           <TopBarIconButton
             variant="ghost"
             size="icon"
@@ -752,17 +740,6 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
             <DropdownMenuContent align="end" side="bottom">
               <DropdownMenuItem asChild>
                 <a
-                  href="https://discord.gg/HPSYkT9tq"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2"
-                >
-                  <DiscordIcon className="h-4 w-4" />
-                  <span>Discord</span>
-                </a>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <a
                   href="https://github.com/rawBit-io/rawbit"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -781,6 +758,17 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                 >
                   <Twitter className="h-4 w-4" />
                   <span>X (Twitter)</span>
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a
+                  href="https://discord.gg/HPSYkT9tq"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2"
+                >
+                  <DiscordIcon className="h-4 w-4" />
+                  <span>Discord</span>
                 </a>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
@@ -1039,16 +1027,15 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
       {tabs.length > 0 && (
         <div
           className={cn(
-            // ⬇︎  just add this utility class
-            "fixed top-14 z-10 h-10 border-b bg-background/80 backdrop-blur-sm select-none transition-[right] duration-300",
+            "app-tabbar fixed top-14 z-10 h-10 select-none transition-[right] duration-300",
             isSidebarOpen ? "left-64" : "left-0"
           )}
           style={{ right: tabBarRightInset }}
         >
-          <div className="tab-strip-scroll h-full w-full overflow-x-auto overflow-y-hidden">
-            <div className="flex h-full min-w-max items-center px-1">
+          <div className="tab-strip-scroll app-tabbar-scroll h-full w-full overflow-x-auto overflow-y-hidden">
+            <div className="app-tabbar-track flex h-full min-w-max items-center px-2">
               <Tabs value={activeTabId} onValueChange={onTabSelect}>
-                <TabsList className="h-full gap-0.5 bg-transparent p-0">
+                <TabsList className="h-full gap-1 bg-transparent p-0">
                   {tabs.map((t) => {
                     const isRenaming = renamingTabId === t.id;
                     return (
@@ -1056,7 +1043,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                         key={t.id}
                         value={t.id}
                         title={t.tooltip ?? t.title}
-                        className="relative group flex h-8 items-center rounded-none px-3 text-sm after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px after:data-[state=active]:bg-primary"
+                        className="app-tab relative group flex h-8 items-center px-3 text-sm"
                         onDoubleClick={(e) => {
                           if (!onRenameTab) return;
                           e.preventDefault();
@@ -1086,16 +1073,16 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                                 cancelRename();
                               }
                             }}
-                            className="w-36 rounded-sm border border-input bg-background px-2 py-0.5 text-sm text-foreground outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                            className="app-tab-rename-input w-36 rounded-sm border border-input bg-background px-2 py-0.5 text-sm text-foreground outline-none focus-visible:ring-1 focus-visible:ring-primary"
                           />
                         ) : (
-                          <span className="flex-grow truncate text-center max-w-[9rem]">
+                          <span className="app-tab-title flex-grow truncate text-center max-w-[9rem]">
                             {t.title}
                           </span>
                         )}
                         {onCloseTab && !isRenaming && (
                           <span
-                            className="ml-2 cursor-pointer rounded-full p-0.5 opacity-0 group-hover:opacity-100 hover:bg-accent data-[state=active]:text-foreground/70"
+                            className="app-tab-close ml-2 cursor-pointer rounded-full p-0.5"
                             onClick={(e) => {
                               e.stopPropagation();
                               onCloseTab(t.id);
@@ -1109,6 +1096,17 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                   })}
                 </TabsList>
               </Tabs>
+              {onAddTab && (
+                <button
+                  type="button"
+                  className="app-tabbar-add ml-1 flex h-8 w-8 shrink-0 items-center justify-center"
+                  title="New tab"
+                  aria-label="New tab"
+                  onClick={onAddTab}
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </div>
         </div>
