@@ -323,9 +323,80 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
   opacity: var(--edge-dark-opacity, 0.45) !important;
 }
 
+.editable-edge-control-point {
+  position: absolute;
+  z-index: 5;
+  width: 14px;
+  height: 14px;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  border: 1.4px solid hsl(var(--foreground) / 0.58);
+  background: hsl(var(--background) / 0.94);
+  box-shadow: 0 0 0 2px hsl(var(--background) / 0.82);
+  cursor: grab;
+  opacity: 0.46;
+  pointer-events: all;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    opacity 120ms ease;
+}
+
+.editable-edge-control-point > span {
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: 0.82;
+}
+
+.editable-edge-control-point:hover,
+.editable-edge-control-point:focus-visible,
+.editable-edge-control-point-active {
+  border-color: hsl(var(--primary));
+  box-shadow:
+    0 0 0 2px hsl(var(--background)),
+    0 0 0 5px hsl(var(--primary) / 0.16);
+  opacity: 0.95;
+}
+
+.editable-edge-control-point:active {
+  cursor: grabbing;
+}
+
+.group-bundle-curve-control-point {
+  width: 22px;
+  height: 22px;
+  border: 2px solid hsl(var(--muted-foreground) / 0.82);
+  background: hsl(var(--background) / 0.92);
+  box-shadow: 0 0 0 2px hsl(var(--background) / 0.92);
+  cursor: pointer;
+  opacity: 0.96;
+}
+
+.group-bundle-curve-control-point > span {
+  display: none;
+}
+
+.group-bundle-curve-control-point:hover,
+.group-bundle-curve-control-point:focus-visible,
+.group-bundle-curve-control-point.editable-edge-control-point-active {
+  border-color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  box-shadow:
+    0 0 0 2px hsl(var(--background)),
+    0 0 0 6px hsl(var(--primary) / 0.16);
+  opacity: 1;
+}
+
+.group-bundle-curve-control-point:active {
+  cursor: pointer;
+}
+
 /* Group-to-group bundle edges are derived render helpers for dense flows. */
 .group-bundle-outside-path {
-  opacity: calc(var(--edge-light-opacity, 0.45) + 0.1);
+  opacity: var(--edge-light-opacity, 0.45);
 }
 
 .react-flow__edge.group-bundle-segment-edge .react-flow__edge-path {
@@ -406,7 +477,7 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
 }
 
 .group-bundle-port {
-  opacity: calc(var(--edge-light-opacity, 0.45) + 0.2);
+  opacity: calc(var(--edge-light-opacity, 0.45) + 0.08);
 }
 
 .group-bundle-hit-path {
@@ -414,11 +485,11 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
 }
 
 .dark .group-bundle-outside-path {
-  opacity: calc(var(--edge-dark-opacity, 0.45) + 0.1);
+  opacity: var(--edge-dark-opacity, 0.45);
 }
 
 .dark .group-bundle-port {
-  opacity: calc(var(--edge-dark-opacity, 0.45) + 0.2);
+  opacity: calc(var(--edge-dark-opacity, 0.45) + 0.08);
 }
 
 .group-bundle-edge-path-selected {

@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, beforeEach, vi } from "vitest";
 import type { Edge } from "@xyflow/react";
 import type { ReactNode } from "react";
@@ -26,6 +26,8 @@ type MiniMapSpyProps = {
 const reactFlowSpy: { props: ReactFlowSpyProps } = { props: {} };
 const minimapSpy: { props: MiniMapSpyProps } = { props: {} };
 const controlsSpy: { props: Record<string, unknown> } = { props: {} };
+const GROUP_CURVE_OFFSET_RESET_STORAGE_KEY =
+  "rawbit.flow.groupCurveOffsetsReset.2026-05-03";
 
 vi.mock("@xyflow/react", () => {
   return {
@@ -48,6 +50,12 @@ vi.mock("@xyflow/react", () => {
               selected={edge.selected}
               source={edge.source}
               target={edge.target}
+              sourceX={0}
+              sourceY={0}
+              targetX={100}
+              targetY={0}
+              sourcePosition="right"
+              targetPosition="left"
             />
           </svg>
         );
@@ -73,6 +81,7 @@ vi.mock("@xyflow/react", () => {
     useReactFlow: () => ({
       setEdges: vi.fn(),
       setNodes: vi.fn(),
+      screenToFlowPosition: ({ x, y }: { x: number; y: number }) => ({ x, y }),
     }),
     useStore: (
       selector: (state: { nodeLookup: Map<string, unknown> }) => unknown
@@ -91,6 +100,24 @@ const nodeClassName = vi.fn();
 const nodes: FlowNode[] = [];
 const edges: Edge[] = [];
 
+const firePointerEvent = (
+  target: HTMLElement,
+  type: string,
+  init: { pointerId?: number; clientX: number; clientY: number }
+) => {
+  const event = new MouseEvent(type, {
+    bubbles: true,
+    cancelable: true,
+    clientX: init.clientX,
+    clientY: init.clientY,
+  });
+  Object.defineProperty(event, "pointerId", {
+    configurable: true,
+    value: init.pointerId ?? 1,
+  });
+  fireEvent(target, event);
+};
+
 const baseProps = {
   nodeTypes: {},
   nodes,
@@ -106,6 +133,7 @@ describe("FlowCanvas", () => {
   beforeEach(() => {
     reactFlowSpy.props = {};
     minimapSpy.props = {};
+    localStorage.removeItem(GROUP_CURVE_OFFSET_RESET_STORAGE_KEY);
   });
 
   it("passes selection behaviour to ReactFlow", () => {
@@ -542,6 +570,317 @@ describe("FlowCanvas", () => {
         }),
       }),
     ]);
+  });
+
+  it("adds curve controls only to bundle edges between two groups", () => {
+    const groupedNodes: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "A", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "B", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "inside-a",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "inside-b",
+        type: "calculation",
+        parentId: "group-b",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "outside",
+        type: "calculation",
+        position: { x: 900, y: 40 },
+        data: {},
+      } as FlowNode,
+    ];
+
+    const { unmount } = render(
+      <FlowCanvas
+        {...baseProps}
+        nodes={groupedNodes}
+        edges={[
+          { id: "group-edge", source: "inside-a", target: "inside-b" } as Edge,
+        ]}
+      />
+    );
+
+    expect(
+      screen.getByRole("button", {
+        name: "Adjust group bundle edge curve",
+      })
+    ).toBeInTheDocument();
+
+    unmount();
+
+    render(
+      <FlowCanvas
+        {...baseProps}
+        nodes={groupedNodes}
+        edges={[
+          { id: "mixed-edge", source: "inside-a", target: "outside" } as Edge,
+        ]}
+      />
+    );
+
+    expect(
+      screen.queryByRole("button", {
+        name: "Adjust group bundle edge curve",
+      })
+    ).toBeNull();
+  });
+
+  it("stores group bundle curve drags on represented canonical edges", () => {
+    const onEdgesChange = vi.fn();
+    const groupedNodes: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "A", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "B", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "a1",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "a2",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 120 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "b1",
+        type: "calculation",
+        parentId: "group-b",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+    ];
+
+    render(
+      <FlowCanvas
+        {...baseProps}
+        nodes={groupedNodes}
+        edges={[
+          { id: "edge-1", source: "a1", target: "b1" } as Edge,
+          { id: "edge-2", source: "a2", target: "b1" } as Edge,
+        ]}
+        onEdgesChange={onEdgesChange}
+      />
+    );
+
+    const control = screen.getByRole("button", {
+      name: "Adjust group bundle edge curve",
+    });
+
+    firePointerEvent(control, "pointerdown", {
+      pointerId: 1,
+      clientX: 15,
+      clientY: 0,
+    });
+    firePointerEvent(control, "pointermove", {
+      pointerId: 1,
+      clientX: 35,
+      clientY: 20,
+    });
+    firePointerEvent(control, "pointerup", {
+      pointerId: 1,
+      clientX: 35,
+      clientY: 20,
+    });
+
+    expect(onEdgesChange).toHaveBeenCalledWith([
+      expect.objectContaining({
+        id: "edge-1",
+        type: "replace",
+        item: expect.objectContaining({
+          id: "edge-1",
+          data: {
+            curveControlPointOffset: { x: 20, y: 20 },
+          },
+        }),
+      }),
+      expect.objectContaining({
+        id: "edge-2",
+        type: "replace",
+        item: expect.objectContaining({
+          id: "edge-2",
+          data: {
+            curveControlPointOffset: { x: 20, y: 20 },
+          },
+        }),
+      }),
+    ]);
+  });
+
+  it("clears existing group bundle curve offsets once", async () => {
+    const onEdgesChange = vi.fn();
+    const groupedNodes: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "A", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "B", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "a1",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "a2",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 120 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "b1",
+        type: "calculation",
+        parentId: "group-b",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+    ];
+
+    render(
+      <FlowCanvas
+        {...baseProps}
+        nodes={groupedNodes}
+        edges={[
+          {
+            id: "edge-1",
+            source: "a1",
+            target: "b1",
+            data: { curveControlPointOffset: { x: 20, y: 20 } },
+          } as Edge,
+          {
+            id: "edge-2",
+            source: "a2",
+            target: "b1",
+            data: { curveControlPointOffset: { x: -12, y: 8 } },
+          } as Edge,
+        ]}
+        onEdgesChange={onEdgesChange}
+      />
+    );
+
+    await waitFor(() => {
+      expect(onEdgesChange).toHaveBeenCalledWith([
+        expect.objectContaining({
+          id: "edge-1",
+          type: "replace",
+          item: expect.objectContaining({
+            id: "edge-1",
+            data: {},
+          }),
+        }),
+        expect.objectContaining({
+          id: "edge-2",
+          type: "replace",
+          item: expect.objectContaining({
+            id: "edge-2",
+            data: {},
+          }),
+        }),
+      ]);
+    });
+    expect(localStorage.getItem(GROUP_CURVE_OFFSET_RESET_STORAGE_KEY)).toBe("1");
+  });
+
+  it("keeps the group bundle count label above the curve control point", () => {
+    const groupedNodes: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "A", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "B", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "a1",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "a2",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 120 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "b1",
+        type: "calculation",
+        parentId: "group-b",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+    ];
+
+    render(
+      <FlowCanvas
+        {...baseProps}
+        nodes={groupedNodes}
+        edges={[
+          {
+            id: "edge-1",
+            source: "a1",
+            target: "b1",
+            data: { curveControlPointOffset: { x: 20, y: 20 } },
+          } as Edge,
+          {
+            id: "edge-2",
+            source: "a2",
+            target: "b1",
+            data: { curveControlPointOffset: { x: 20, y: 20 } },
+          } as Edge,
+        ]}
+      />
+    );
+
+    expect(
+      screen.getByTestId("group-bundle-count-label-__group_bundle__:group-a->group-b")
+    ).toHaveAttribute("transform", "translate(35 -26.5)");
   });
 
   it("routes bundle selection through controlled node and edge changes", () => {

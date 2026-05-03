@@ -20,12 +20,16 @@ import {
 } from "@xyflow/react";
 import { cn } from "@/lib/utils";
 import type { FlowNode } from "@/types";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DragEvent } from "react";
 import {
   GroupBundleEdge,
   GroupBundleEdgeSelectionProvider,
 } from "@/components/edges/GroupBundleEdge";
+import {
+  EdgeCurveControlProvider,
+  type EdgeCurvePoint,
+} from "@/components/edges/EdgeCurveControlContext";
 import {
   buildGroupBundledElements,
   getGroupBundleSegmentEdgeIds,
@@ -73,6 +77,8 @@ const PRO_OPTIONS = { hideAttribution: true } as const;
 const edgeTypes = {
   [GROUP_BUNDLE_EDGE_TYPE]: GroupBundleEdge,
 } satisfies ReactFlowProps<FlowNode>["edgeTypes"];
+const GROUP_CURVE_OFFSET_RESET_STORAGE_KEY =
+  "rawbit.flow.groupCurveOffsetsReset.2026-05-03";
 
 const isEditableTarget = (target: EventTarget | null): boolean => {
   if (!(target instanceof HTMLElement)) return false;
@@ -108,6 +114,30 @@ const portBundleId = (node: FlowNode): string | undefined =>
   typeof node.data?.bundleId === "string" && node.data.bundleId.trim()
     ? node.data.bundleId
     : undefined;
+
+const hasCurveControlPointOffset = (edge: Edge): boolean =>
+  Boolean(
+    edge.data &&
+      Object.prototype.hasOwnProperty.call(
+        edge.data,
+        "curveControlPointOffset"
+      )
+  );
+
+const buildClearCurveOffsetChange = (edge: Edge): EdgeChange => {
+  const data = {
+    ...(edge.data as Record<string, unknown> | undefined),
+  };
+  delete data.curveControlPointOffset;
+  return {
+    id: edge.id,
+    type: "replace",
+    item: {
+      ...edge,
+      data,
+    },
+  };
+};
 
 const buildGroupPortOffsetChange = ({
   change,
@@ -216,6 +246,7 @@ export function FlowCanvas({
   const selectionEnabled = !isReadOnly && isSelectionModeActive;
   const minZoom = isReadOnly ? MOBILE_MIN_ZOOM : MIN_ZOOM;
   const maxZoom = isReadOnly ? MOBILE_MAX_ZOOM : MAX_ZOOM;
+  const hasRunGroupCurveOffsetResetRef = useRef(false);
   const [bundleSelectedEdgeIds, setBundleSelectedEdgeIds] = useState<string[]>(
     []
   );
@@ -224,11 +255,11 @@ export function FlowCanvas({
     [bundleSelectedEdgeIds]
   );
   const visualElements = useMemo(() => {
-    const bundledElements = buildGroupBundledElements({ nodes, edges });
-    if (bundleSelectedEdgeIdSet.size === 0) return bundledElements;
+    const baseElements = buildGroupBundledElements({ nodes, edges });
+    if (bundleSelectedEdgeIdSet.size === 0) return baseElements;
 
     return {
-      nodes: bundledElements.nodes.map((node) => {
+      nodes: baseElements.nodes.map((node) => {
         if (!isGroupBundlePortNodeId(node.id)) return node;
         const bundledEdgeIds = node.data.bundledEdgeIds;
         if (!Array.isArray(bundledEdgeIds)) return node;
@@ -244,7 +275,7 @@ export function FlowCanvas({
           },
         };
       }),
-      edges: bundledElements.edges.map((edge) => {
+      edges: baseElements.edges.map((edge) => {
         if (isGroupBundleSegmentEdgeId(edge.id)) {
           const selectedEdgeIds = getGroupBundleSegmentEdgeIds(edge).filter(
             (edgeId) => bundleSelectedEdgeIdSet.has(edgeId)
@@ -292,6 +323,55 @@ export function FlowCanvas({
       .filter((edge) => edge.selected === true && !renderedEdgeIds.has(edge.id))
       .map((edge) => edge.id);
   }, [edges, visualElements.edges]);
+
+  useEffect(() => {
+    if (isReadOnly || !onEdgesChange || hasRunGroupCurveOffsetResetRef.current) {
+      return;
+    }
+    hasRunGroupCurveOffsetResetRef.current = true;
+
+    if (typeof window !== "undefined") {
+      try {
+        if (
+          window.localStorage.getItem(GROUP_CURVE_OFFSET_RESET_STORAGE_KEY) ===
+          "1"
+        ) {
+          return;
+        }
+      } catch (error) {
+        console.warn("Failed to read group curve reset marker", error);
+      }
+    }
+
+    const bundledGroupEdgeIds = new Set<string>();
+    for (const edge of visualElements.edges) {
+      if (!isGroupBundleEdgeId(edge.id)) continue;
+      const data = edge.data as GroupBundleEdgeData | undefined;
+      if (!data?.sourceGroupId || !data.targetGroupId) continue;
+      for (const bundledEdgeId of data.bundledEdgeIds) {
+        bundledGroupEdgeIds.add(bundledEdgeId);
+      }
+    }
+
+    const changes = edges
+      .filter(
+        (edge) =>
+          bundledGroupEdgeIds.has(edge.id) && hasCurveControlPointOffset(edge)
+      )
+      .map(buildClearCurveOffsetChange);
+
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.setItem(GROUP_CURVE_OFFSET_RESET_STORAGE_KEY, "1");
+      } catch (error) {
+        console.warn("Failed to persist group curve reset marker", error);
+      }
+    }
+
+    if (changes.length > 0) {
+      onEdgesChange(changes);
+    }
+  }, [edges, isReadOnly, onEdgesChange, visualElements.edges]);
 
   useEffect(() => {
     if (isReadOnly || !onEdgesChange || selectedNonRenderedEdgeIds.length === 0) {
@@ -420,6 +500,48 @@ export function FlowCanvas({
     },
     [onEdgesChange]
   );
+  const handleCurveControlPointCommit = useCallback(
+    (edgeId: string, offset: EdgeCurvePoint | null) => {
+      if (!onEdgesChange) return;
+      const renderedEdge = visualElements.edges.find(
+        (edge) => edge.id === edgeId && isGroupBundleEdgeId(edge.id)
+      );
+      const bundle = renderedEdge?.data as GroupBundleEdgeData | undefined;
+      if (
+        !bundle?.sourceGroupId ||
+        !bundle.targetGroupId ||
+        !Array.isArray(bundle.bundledEdgeIds)
+      ) {
+        return;
+      }
+
+      const bundledEdgeIds = new Set(bundle.bundledEdgeIds);
+      const changes = edges
+        .filter((edge) => bundledEdgeIds.has(edge.id))
+        .map((edge): EdgeChange => {
+          const data = {
+            ...(edge.data as Record<string, unknown> | undefined),
+          };
+          if (offset) {
+            data.curveControlPointOffset = offset;
+          } else {
+            delete data.curveControlPointOffset;
+          }
+          return {
+            id: edge.id,
+            type: "replace",
+            item: {
+              ...edge,
+              data,
+            },
+          };
+        });
+
+      if (changes.length === 0) return;
+      onEdgesChange(changes);
+    },
+    [edges, onEdgesChange, visualElements.edges]
+  );
   const handleEdgeClick = useCallback<
     NonNullable<ReactFlowProps<FlowNode>["onEdgeClick"]>
   >(
@@ -444,83 +566,87 @@ export function FlowCanvas({
   );
 
   return (
-    <GroupBundleEdgeSelectionProvider onSelectEdgeIds={handleBundleEdgeSelect}>
-      <ReactFlow
-        className={cn(selectionEnabled ? "cursor-crosshair" : "cursor-grab")}
-        style={{ cursor: selectionEnabled ? "crosshair" : undefined }}
-        onlyRenderVisibleElements={onlyRenderVisibleElements}
-        nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
-        nodes={visualElements.nodes}
-        edges={renderedEdges}
-        onInit={onInit}
-        onNodesChange={handleNodesChange}
-        onEdgesChange={handleEdgesChange}
-        onEdgeClick={handleEdgeClick}
-        onConnect={onConnect}
-        onReconnect={onReconnect}
-        onDrop={onDrop}
-        onDragOver={onDragOver}
-        onNodeDragStop={onNodeDragStop}
-        onPaneClick={handlePaneClick}
-        onMoveEnd={onMoveEnd}
-        minZoom={minZoom}
-        maxZoom={maxZoom}
-        proOptions={PRO_OPTIONS}
-        connectOnClick={!isReadOnly}
-        edgesReconnectable={!isReadOnly}
-        deleteKeyCode={isReadOnly ? [] : ["Backspace", "Delete"]}
-        selectionMode={SelectionMode.Full}
-        selectionOnDrag={selectionEnabled}
-        selectionKeyCode="s"
-        multiSelectionKeyCode={["Meta", "Control"]}
-        panOnDrag={selectionEnabled ? [1] : [0, 1]}
-        selectNodesOnDrag={selectionEnabled}
-        nodesDraggable={!isReadOnly}
-        nodesConnectable={!isReadOnly}
-        elementsSelectable={!isReadOnly}
-        disableKeyboardA11y
-      >
-        <Background />
-        {showMiniMap && (
-          <MiniMap
-            position="bottom-right"
-            pannable
-            zoomable
-            style={{
-              position: "fixed",
-              bottom: "-0.2rem",
-              right: miniMapOffset,
-              width: miniMapSize.w,
-              height: miniMapSize.h,
-              borderRadius: "0.75rem",
-              zIndex: 2_147_483_647,
-            }}
-            className={cn(
-              "rounded-lg overflow-hidden cursor-move ring-1 ring-border",
-              isDark
-                ? "shadow-sm backdrop-blur-sm bg-background/80"
-                : "bg-white"
-            )}
-            nodeColor={() => "hsl(var(--foreground))"}
-            nodeStrokeColor={() => "transparent"}
-            nodeClassName={nodeClassName}
-            maskColor={isDark ? "rgba(0,0,0,0.35)" : "transparent"}
-            maskStrokeColor="#ff0000"
-            maskStrokeWidth={1}
-          />
-        )}
-        {!isReadOnly && (
-          <Controls
-            className="custom-flow-controls"
-            position="bottom-right"
-            showZoom
-            showFitView
-            showInteractive={false}
-            style={{ zIndex: 9999, right: "0.1rem", bottom: "0.1rem" }}
-          />
-        )}
-      </ReactFlow>
-    </GroupBundleEdgeSelectionProvider>
+    <EdgeCurveControlProvider
+      onControlPointCommit={handleCurveControlPointCommit}
+    >
+      <GroupBundleEdgeSelectionProvider onSelectEdgeIds={handleBundleEdgeSelect}>
+        <ReactFlow
+          className={cn(selectionEnabled ? "cursor-crosshair" : "cursor-grab")}
+          style={{ cursor: selectionEnabled ? "crosshair" : undefined }}
+          onlyRenderVisibleElements={onlyRenderVisibleElements}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          nodes={visualElements.nodes}
+          edges={renderedEdges}
+          onInit={onInit}
+          onNodesChange={handleNodesChange}
+          onEdgesChange={handleEdgesChange}
+          onEdgeClick={handleEdgeClick}
+          onConnect={onConnect}
+          onReconnect={onReconnect}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+          onNodeDragStop={onNodeDragStop}
+          onPaneClick={handlePaneClick}
+          onMoveEnd={onMoveEnd}
+          minZoom={minZoom}
+          maxZoom={maxZoom}
+          proOptions={PRO_OPTIONS}
+          connectOnClick={!isReadOnly}
+          edgesReconnectable={!isReadOnly}
+          deleteKeyCode={isReadOnly ? [] : ["Backspace", "Delete"]}
+          selectionMode={SelectionMode.Full}
+          selectionOnDrag={selectionEnabled}
+          selectionKeyCode="s"
+          multiSelectionKeyCode={["Meta", "Control"]}
+          panOnDrag={selectionEnabled ? [1] : [0, 1]}
+          selectNodesOnDrag={selectionEnabled}
+          nodesDraggable={!isReadOnly}
+          nodesConnectable={!isReadOnly}
+          elementsSelectable={!isReadOnly}
+          disableKeyboardA11y
+        >
+          <Background />
+          {showMiniMap && (
+            <MiniMap
+              position="bottom-right"
+              pannable
+              zoomable
+              style={{
+                position: "fixed",
+                bottom: "-0.2rem",
+                right: miniMapOffset,
+                width: miniMapSize.w,
+                height: miniMapSize.h,
+                borderRadius: "0.75rem",
+                zIndex: 2_147_483_647,
+              }}
+              className={cn(
+                "rounded-lg overflow-hidden cursor-move ring-1 ring-border",
+                isDark
+                  ? "shadow-sm backdrop-blur-sm bg-background/80"
+                  : "bg-white"
+              )}
+              nodeColor={() => "hsl(var(--foreground))"}
+              nodeStrokeColor={() => "transparent"}
+              nodeClassName={nodeClassName}
+              maskColor={isDark ? "rgba(0,0,0,0.35)" : "transparent"}
+              maskStrokeColor="#ff0000"
+              maskStrokeWidth={1}
+            />
+          )}
+          {!isReadOnly && (
+            <Controls
+              className="custom-flow-controls"
+              position="bottom-right"
+              showZoom
+              showFitView
+              showInteractive={false}
+              style={{ zIndex: 9999, right: "0.1rem", bottom: "0.1rem" }}
+            />
+          )}
+        </ReactFlow>
+      </GroupBundleEdgeSelectionProvider>
+    </EdgeCurveControlProvider>
   );
 }

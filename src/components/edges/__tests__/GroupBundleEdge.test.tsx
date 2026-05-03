@@ -1,6 +1,7 @@
 import { fireEvent, render } from "@testing-library/react";
 import { Position, type EdgeProps } from "@xyflow/react";
 import { describe, expect, it, beforeEach, vi } from "vitest";
+import type { ReactNode } from "react";
 
 import {
   GroupBundleEdge,
@@ -29,9 +30,11 @@ vi.mock("@xyflow/react", () => ({
     targetX: number;
     targetY: number;
   }) => [`M ${sourceX} ${sourceY} L ${targetX} ${targetY}`, 50, 0],
+  EdgeLabelRenderer: ({ children }: { children: ReactNode }) => <>{children}</>,
   useReactFlow: () => ({
     setEdges,
     setNodes,
+    screenToFlowPosition: ({ x, y }: { x: number; y: number }) => ({ x, y }),
   }),
 }));
 
@@ -98,5 +101,29 @@ describe("GroupBundleEdge", () => {
     fireEvent.click(outsideBundleHit as Element);
 
     expect(onSelectEdgeIds).toHaveBeenCalledWith(["e1", "e2", "e3"]);
+  });
+
+  it("keeps the default bundle curve until a control offset exists", () => {
+    const { container } = renderEdge(bundleData);
+    const outsidePath = container.querySelector(
+      ".group-bundle-outside-path"
+    );
+
+    expect(outsidePath).toHaveAttribute("d", "M 100 50 L 400 50");
+  });
+
+  it("keeps adjusted bundle curves on a cubic bezier path", () => {
+    const { container } = renderEdge({
+      ...bundleData,
+      curveControlPointOffset: { x: 30, y: 15 },
+    });
+    const outsidePath = container.querySelector(
+      ".group-bundle-outside-path"
+    );
+
+    expect(outsidePath).toHaveAttribute(
+      "d",
+      "M 100 50 C 290 70 290 70 400 50"
+    );
   });
 });

@@ -550,9 +550,16 @@ export function useFlowInteractions({
 
       const hasAdd = filteredChanges.some((change) => change.type === "add");
       const hasRemove = filteredChanges.some((change) => change.type === "remove");
+      const hasReplace = filteredChanges.some(
+        (change) => change.type === "replace"
+      );
 
-      if (!selectionOnly && (hasAdd || hasRemove)) {
-        const label = hasAdd ? "Edge(s) added" : "Edge(s) removed";
+      if (!selectionOnly && (hasAdd || hasRemove || hasReplace)) {
+        const label = hasAdd
+          ? "Edge(s) added"
+          : hasRemove
+            ? "Edge(s) removed"
+            : "Edge shape changed";
         scheduleSnapshot(label, {
           before: () => {
             if (hasRemove && skipNextEdgeSnapshotRef.current) {

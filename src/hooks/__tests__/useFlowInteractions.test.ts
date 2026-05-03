@@ -458,4 +458,70 @@ describe("useFlowInteractions", () => {
       { id: "edge-1", type: "select", selected: true },
     ]);
   });
+
+  it("schedules a snapshot for edge shape replacements", () => {
+    const deps = baseDeps();
+    let nodesState: FlowNode[] = [];
+    let edgesState: Edge[] = [];
+
+    const getNodes = () => nodesState;
+    const getEdges = () => edgesState;
+    const setNodes = (updater: (nodes: FlowNode[]) => FlowNode[]) => {
+      nodesState = updater(nodesState);
+    };
+    const setEdges = (updater: (edges: Edge[]) => Edge[]) => {
+      edgesState = updater(edgesState);
+    };
+    const replacement = {
+      id: "edge-1",
+      source: "source",
+      target: "target",
+      data: { curveControlPointOffset: { x: 20, y: 20 } },
+    } as Edge;
+    const change = {
+      id: "edge-1",
+      type: "replace",
+      item: replacement,
+    } as EdgeChange;
+
+    const { result } = renderHook(() =>
+      useFlowInteractions({
+        ...deps,
+        rawOnNodesChange: deps.rawOnNodesChange,
+        rawOnEdgesChange: deps.rawOnEdgesChange,
+        onConnect: deps.onConnect,
+        onDrop: deps.onDrop,
+        onNodeDragStop: deps.onNodeDragStop,
+        getNodes,
+        getEdges,
+        setNodes,
+        setEdges,
+        getTopLeftPosition: deps.getTopLeftPosition,
+        pasteNodes: deps.pasteNodes,
+        isSidebarOpen: false,
+        setTabTooltip: deps.setTabTooltip,
+        renameTab: deps.renameTab,
+        activeTabId: "tab-1",
+        groupSelectedNodes: deps.groupSelectedNodes,
+        ungroupSelectedNodes: deps.ungroupSelectedNodes,
+        clearHighlights: deps.clearHighlights,
+        setIsSearchHighlight: deps.setIsSearchHighlight,
+        incRev: deps.incRev,
+        pushCleanState: deps.pushCleanState,
+        updatePaletteEligibility: deps.updatePaletteEligibility,
+        skipNextNodeRemovalRef: deps.skipNextNodeRemovalRef,
+        releaseNodeRemovalSnapshotSkip: deps.releaseNodeRemovalSnapshotSkip,
+      })
+    );
+
+    act(() => {
+      result.current.onEdgesChange([change]);
+    });
+
+    expect(deps.rawOnEdgesChange).toHaveBeenCalledWith([change]);
+    expect(deps.scheduleSnapshot).toHaveBeenCalledWith(
+      "Edge shape changed",
+      expect.objectContaining({ before: expect.any(Function) })
+    );
+  });
 });
