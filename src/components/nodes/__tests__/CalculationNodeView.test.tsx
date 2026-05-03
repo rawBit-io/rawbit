@@ -161,6 +161,8 @@ describe("CalculationNodeView", () => {
     const commentArea = await screen.findByPlaceholderText(
       "Enter your notes here..."
     );
+    expect(commentArea).toHaveClass("field-surface");
+    expect(screen.getByRole("combobox")).toHaveClass("field-surface");
     await user.type(commentArea, " updated");
     expect(mut.handleCommentChange).toHaveBeenCalled();
     expect(mut.handleCommentChange.mock.calls.at(-1)?.[0]).not.toBe("Remember");

@@ -1196,7 +1196,7 @@ export function CalculationNodeView({
                 >
                   <SelectTrigger
                     ref={pathTriggerRef}
-                    className="h-7 w-40"
+                    className="field-surface h-7 w-40"
                   >
                     <SelectValue />
                   </SelectTrigger>
@@ -1219,7 +1219,7 @@ export function CalculationNodeView({
                 <span className="text-xs font-medium">Output Key Parity:</span>
                 <div
                   ref={parityValueRef}
-                  className="flex h-7 min-w-[3.5rem] items-center justify-center rounded-md border border-input bg-background px-2 text-xs font-mono"
+                  className="field-surface flex h-7 min-w-[3.5rem] items-center justify-center rounded-md border border-input bg-background px-2 text-xs font-mono"
                 >
                   {parityDisplay}
                 </div>
@@ -1247,7 +1247,7 @@ export function CalculationNodeView({
                   value={data.selectedNetwork || "testnet"}
                   onValueChange={mut.handleNetworkChange}
                 >
-                  <SelectTrigger className="h-7 w-28">
+                  <SelectTrigger className="field-surface h-7 w-28">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

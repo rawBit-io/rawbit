@@ -457,6 +457,14 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
   border-bottom: 0;
 }
 
+.field-surface {
+  background-color: hsl(var(--muted) / 0.22) !important;
+}
+
+.dark .field-surface {
+  background-color: hsl(var(--muted) / 0.18) !important;
+}
+
 /* ===================== CONTROL OVERRIDES ===================== */
 
 /* The React Flow Controls container */
@@ -803,6 +811,10 @@ body[data-large-drag="true"] .rf-node {
   opacity: var(--group-dark-fill-opacity, 0.07) !important;
 }
 
+[data-skin="paper"] .field-surface {
+  background-color: hsl(var(--background)) !important;
+}
+
 [data-skin="paper"] .custom-flow-controls .react-flow__controls-button {
   border-radius: 6px !important;
 }
@@ -891,6 +903,10 @@ body[data-large-drag="true"] .rf-node {
 
 .dark[data-skin="midnight"] .react-flow__node-shadcnTextInfo [data-testid="text-info-fill"].has-palette-fill {
   opacity: var(--group-dark-fill-opacity, 0.07) !important;
+}
+
+[data-skin="midnight"] .field-surface {
+  background-color: hsl(var(--background)) !important;
 }
 
 [data-skin="midnight"] .custom-flow-controls .react-flow__controls-button {

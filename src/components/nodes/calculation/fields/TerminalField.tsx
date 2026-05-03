@@ -208,7 +208,7 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
               <textarea
                 ref={textareaRef}
                 className={cn(
-                  "nodrag w-full resize-none rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring",
+                  "field-surface nodrag w-full resize-none rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring",
                   "text-sm p-2 font-mono transition-colors",
                   small ? "w-32" : "w-full",
                   (isBlank || is00 || isNull) &&
@@ -306,7 +306,7 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
       <textarea
         ref={textareaRef}
         className={cn(
-          "nodrag w-full resize-none rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring",
+          "field-surface nodrag w-full resize-none rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring",
           "text-sm p-2 font-mono transition-colors",
           small ? "w-32" : "w-full",
           (is00 || isBlank || isNull) && "text-muted-foreground",

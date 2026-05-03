@@ -435,7 +435,13 @@ export function Sidebar({ isOpen }: SidebarProps) {
             isOpen ? "opacity-100" : "opacity-0"
           )}
         >
-          raw<span className="inline-block rotate-[14deg]">₿</span>it
+          raw
+          <span
+            className="text-primary"
+            data-testid="sidebar-brand-bit"
+          >
+            <span className="inline-block rotate-[14deg]">₿</span>it
+          </span>
           {envLabel && (
             <span className="ml-2 text-sm font-normal text-muted-foreground">
               {envLabel}

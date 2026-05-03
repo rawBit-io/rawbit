@@ -101,6 +101,7 @@ describe("Sidebar", () => {
   it("shows environment badge when label is set", () => {
     renderSidebar();
     expect(screen.getByText(/raw/i)).toHaveTextContent(/raw₿it\s*\(staging\)/i);
+    expect(screen.getByTestId("sidebar-brand-bit")).toHaveClass("text-primary");
   });
 
   it("supports typo-tolerant search results", () => {
