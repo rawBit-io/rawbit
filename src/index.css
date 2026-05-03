@@ -242,7 +242,7 @@
   max-width: 13rem;
   border: 1px solid transparent !important;
   border-radius: 0.375rem !important;
-  background: hsl(var(--muted) / 0.22) !important;
+  background: transparent !important;
   color: hsl(var(--muted-foreground)) !important;
   box-shadow: none !important;
   transition:
@@ -255,15 +255,15 @@
 
 .app-tab:hover {
   border-color: transparent !important;
-  background: hsl(var(--accent) / 0.58) !important;
+  background: transparent !important;
   color: hsl(var(--foreground)) !important;
 }
 
 .app-tab[data-state="active"] {
   border-color: transparent !important;
-  background: hsl(var(--card) / 0.9) !important;
+  background: transparent !important;
   color: hsl(var(--foreground)) !important;
-  box-shadow: 0 8px 18px -16px hsl(var(--foreground) / 0.62) !important;
+  box-shadow: none !important;
 }
 
 .app-tab[data-state="active"]::after {
@@ -1002,12 +1002,12 @@ body[data-large-drag="true"] .rf-node {
 
 [data-skin="paper"] .app-tab {
   border-color: transparent !important;
-  background: hsl(var(--card) / 0.54) !important;
+  background: transparent !important;
 }
 
 [data-skin="paper"] .app-tab:hover {
   border-color: transparent !important;
-  background: hsl(var(--secondary) / 0.54) !important;
+  background: transparent !important;
 }
 
 [data-skin="paper"] .app-tabbar-add {
@@ -1167,12 +1167,12 @@ body[data-large-drag="true"] .rf-node {
 
 [data-skin="midnight"] .app-tab {
   border-color: transparent !important;
-  background: hsl(var(--secondary) / 0.3) !important;
+  background: transparent !important;
 }
 
 [data-skin="midnight"] .app-tab:hover {
   border-color: transparent !important;
-  background: hsl(var(--accent) / 0.62) !important;
+  background: transparent !important;
 }
 
 [data-skin="midnight"] .app-tabbar-add {
@@ -1221,6 +1221,14 @@ body[data-large-drag="true"] .rf-node {
 .dark[data-skin="midnight"] .react-flow__node > * {
   border-color: hsl(var(--primary) / 0.3);
   background: hsl(var(--card) / 0.94) !important;
+}
+
+[data-skin="midnight"] .react-flow__node-calculation > * > :first-child {
+  background: hsl(var(--secondary) / 0.24);
+}
+
+.dark[data-skin="midnight"] .react-flow__node-calculation > * > :first-child {
+  background: hsl(var(--secondary) / 0.3);
 }
 
 [data-skin="midnight"] .react-flow__node-shadcnGroup > * {

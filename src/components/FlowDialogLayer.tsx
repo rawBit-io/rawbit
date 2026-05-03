@@ -97,14 +97,17 @@ function CloseTabActionPicker({
           type="button"
           variant="outline"
           size="icon"
-          className="h-9 w-9"
+          className="h-9 w-9 border-0 bg-transparent shadow-none hover:bg-accent/70"
           aria-label="Choose close action"
           title="Choose close action"
         >
           <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-56 p-1 font-sans text-sm">
+      <DropdownMenuContent
+        align="start"
+        className="w-56 border-0 p-1 font-sans text-sm"
+      >
         {selectedAction !== "current" && (
           <DropdownMenuItem
             className={closeActionMenuItemClass}
