@@ -33,6 +33,8 @@ describe("ColorPalette", () => {
     const resetButton = document.querySelector(
       'button[title="Remove border color"]'
     ) as HTMLButtonElement;
+    expect(resetButton).not.toHaveClass("border-dashed");
+    expect(resetButton).toHaveClass("border-transparent");
     fireEvent.click(resetButton);
     expect(onColorSelect).toHaveBeenCalledWith(undefined);
   });
@@ -49,10 +51,10 @@ describe("ColorPalette", () => {
     );
 
     const swatch = document.querySelector(
-      'button[title="#3b82f6"]'
+      'button[title="yellow"]'
     ) as HTMLButtonElement;
     fireEvent.click(swatch);
-    expect(onColorSelect).toHaveBeenCalledWith("#3b82f6");
+    expect(onColorSelect).toHaveBeenCalledWith("#eab308");
   });
 
   it("prevents pointer events from bubbling to parents", () => {
@@ -75,4 +77,3 @@ describe("ColorPalette", () => {
     expect(parentClick).not.toHaveBeenCalled();
   });
 });
-

@@ -125,6 +125,14 @@ const categories = [
 ];
 
 const MIN_NODES_FOR_SUBGROUPS = 5;
+const subgroupAccordionClass =
+  "ml-7 pl-2 space-y-1";
+const subgroupTriggerClass =
+  "rounded-md py-1.5 pl-2 pr-6 text-[14px] font-medium text-foreground hover:bg-accent/60 hover:no-underline data-[state=open]:bg-accent/40";
+const subgroupLabelClass =
+  "min-w-0 flex-1 whitespace-normal break-words pr-3 text-left leading-snug";
+const subgroupContentClass = "pt-1 pb-1";
+const subgroupItemsClass = "space-y-2 pb-1";
 
 const flowSections = [
   { id: "legacy-foundations", label: "Legacy Foundations" },
@@ -538,10 +546,10 @@ export function Sidebar({ isOpen }: SidebarProps) {
                       </span>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="pt-1 pb-0 px-0">
+                  <AccordionContent className="pt-0 pb-0 px-0">
                     {catNodes.length > 0 ? (
-                      <div className="space-y-2 py-1">
-                        {flatNodes.map((node) => renderNodeCard(node, "ml-5"))}
+                      <div className="space-y-1.5 pb-0.5">
+                        {flatNodes.map((node) => renderNodeCard(node, "ml-8"))}
                         {useSubgroups && (
                           <Accordion
                             type="multiple"
@@ -549,7 +557,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
                             onValueChange={(value) =>
                               handleSubcategoryChange(cat.id, value)
                             }
-                            className="space-y-0.5"
+                            className={subgroupAccordionClass}
                           >
                             {subcategoryGroups.map((group) => (
                               <AccordionItem
@@ -557,13 +565,17 @@ export function Sidebar({ isOpen }: SidebarProps) {
                                 value={group.label}
                                 className="border-none"
                               >
-                                <AccordionTrigger className="py-2 pl-2 pr-6 text-[15px] font-medium text-muted-foreground hover:text-foreground hover:no-underline">
-                                  <span className="min-w-0 flex-1 whitespace-normal break-words pl-6 pr-4 text-left">
+                                <AccordionTrigger
+                                  className={subgroupTriggerClass}
+                                >
+                                  <span className={subgroupLabelClass}>
                                     {group.label}
                                   </span>
                                 </AccordionTrigger>
-                                <AccordionContent className="pt-1 pb-1">
-                                  <div className="ml-8 space-y-2">
+                                <AccordionContent
+                                  className={subgroupContentClass}
+                                >
+                                  <div className={subgroupItemsClass}>
                                     {group.items.map((node) =>
                                       renderNodeCard(node)
                                     )}
@@ -604,13 +616,13 @@ export function Sidebar({ isOpen }: SidebarProps) {
                   </span>
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="pt-1 pb-0 px-0">
+              <AccordionContent className="pt-0 pb-0 px-0">
                 {customFlows.length > 0 ? (
                   <Accordion
                     type="multiple"
                     value={openFlowSections}
                     onValueChange={setOpenFlowSections}
-                    className="space-y-0.5 py-1"
+                    className={cn(subgroupAccordionClass, "pb-0.5")}
                   >
                     {groupedFlows.map((section) => (
                       <AccordionItem
@@ -618,13 +630,13 @@ export function Sidebar({ isOpen }: SidebarProps) {
                         value={section.id}
                         className="border-none"
                       >
-                        <AccordionTrigger className="py-2 pl-2 pr-6 text-[15px] font-medium text-muted-foreground hover:text-foreground hover:no-underline">
-                          <span className="min-w-0 flex-1 whitespace-normal break-words pl-6 pr-4 text-left">
+                        <AccordionTrigger className={subgroupTriggerClass}>
+                          <span className={subgroupLabelClass}>
                             {section.label}
                           </span>
                         </AccordionTrigger>
-                        <AccordionContent className="pt-1 pb-1">
-                          <div className="ml-8 space-y-2">
+                        <AccordionContent className={subgroupContentClass}>
+                          <div className={subgroupItemsClass}>
                             {section.items.map((flow) => renderFlowCard(flow))}
                           </div>
                         </AccordionContent>

@@ -73,7 +73,7 @@ export function ColorPalette({
           <Button
             variant="outline"
             className={cn(
-              "p-0 border-dashed flex items-center justify-center",
+              "border-transparent bg-transparent p-0 flex items-center justify-center",
               "hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1",
               SWATCH_SIZE
             )}
