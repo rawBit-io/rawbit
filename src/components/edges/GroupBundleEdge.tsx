@@ -26,8 +26,6 @@ import { cn } from "@/lib/utils";
 import type { FlowNode } from "@/types";
 
 const fallbackPoint = { x: 0, y: 0 };
-const OUTSIDE_EDGE_WIDTH = 2;
-const SELECTED_OUTSIDE_EDGE_WIDTH = 3.1;
 const COUNT_LABEL_SCALE = 5;
 const COUNT_LABEL_FONT_SIZE = 9 * COUNT_LABEL_SCALE;
 const COUNT_LABEL_HEIGHT = 13 * COUNT_LABEL_SCALE;
@@ -295,9 +293,6 @@ export function GroupBundleEdge({
   const count = bundle.count ?? edgeIds.length;
   const supportsCurveControl = Boolean(bundle.sourceGroupId && bundle.targetGroupId);
   const hasSelectedPath = selected === true || selectedEdgeIdSet.size > 0;
-  const outsideStrokeWidth = hasSelectedPath
-    ? SELECTED_OUTSIDE_EDGE_WIDTH
-    : OUTSIDE_EDGE_WIDTH;
   const [outsidePath, labelX, labelY] = getBezierPath({
     sourceX: sourceBoundaryPoint.x,
     sourceY: sourceBoundaryPoint.y,
@@ -454,7 +449,6 @@ export function GroupBundleEdge({
         fill="none"
         stroke="hsl(var(--muted-foreground))"
         strokeLinecap="round"
-        strokeWidth={outsideStrokeWidth}
         className={cn(
           "group-bundle-outside-path pointer-events-none",
           hasSelectedPath && "group-bundle-edge-path-selected"

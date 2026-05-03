@@ -14,6 +14,9 @@ export const EDGE_VISIBILITY_STEP = 0.05;
 export const GROUP_FILL_OPACITY_MIN = 0;
 export const GROUP_FILL_OPACITY_MAX = 0.5;
 export const GROUP_FILL_OPACITY_STEP = 0.01;
+export const EDGE_THICKNESS_MIN = 0.5;
+export const EDGE_THICKNESS_MAX = 2;
+export const EDGE_THICKNESS_STEP = 0.1;
 export const DEFAULT_EDGE_VISIBILITY: EdgeVisibility = {
   light: 0.45,
   dark: 0.45,
@@ -26,6 +29,10 @@ export const DEFAULT_GROUP_FILL_OPACITY: EdgeVisibility = {
   light: 0.05,
   dark: 0.05,
 };
+export const DEFAULT_EDGE_THICKNESS: EdgeVisibility = {
+  light: 1,
+  dark: 1,
+};
 
 export type ThemeProviderState = {
   theme: Theme;
@@ -35,12 +42,14 @@ export type ThemeProviderState = {
   edgeVisibility: EdgeVisibility;
   dashedEdgeVisibility: EdgeVisibility;
   groupFillOpacity: EdgeVisibility;
+  edgeThickness: EdgeVisibility;
   adjustEdgeVisibility: (mode: EdgeVisibilityMode, delta: number) => void;
   adjustDashedEdgeVisibility: (
     mode: EdgeVisibilityMode,
     delta: number
   ) => void;
   adjustGroupFillOpacity: (mode: EdgeVisibilityMode, delta: number) => void;
+  adjustEdgeThickness: (mode: EdgeVisibilityMode, delta: number) => void;
 };
 
 export const ThemeProviderContext = createContext<ThemeProviderState | undefined>(

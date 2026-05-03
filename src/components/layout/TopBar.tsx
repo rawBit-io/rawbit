@@ -51,6 +51,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTheme } from "@/hooks/useTheme";
 import {
+  EDGE_THICKNESS_STEP,
   EDGE_VISIBILITY_STEP,
   GROUP_FILL_OPACITY_STEP,
   type EdgeVisibilityMode,
@@ -63,6 +64,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -295,9 +297,11 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
     edgeVisibility,
     dashedEdgeVisibility,
     groupFillOpacity,
+    edgeThickness,
     adjustEdgeVisibility,
     adjustDashedEdgeVisibility,
     adjustGroupFillOpacity,
+    adjustEdgeThickness,
   } = useTheme();
   const { undo, redo, canUndo, canRedo } = useUndoRedo();
   const saveSimplifiedHotKeyRef = useRef(false);
@@ -846,7 +850,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
             <DropdownMenuContent
               align="end"
               side="bottom"
-              className="w-52 p-1 font-sans text-sm"
+              className="w-60 p-1 font-sans text-sm"
               onCloseAutoFocus={(event) => {
                 event.preventDefault();
                 skinTriggerRef.current?.blur();
@@ -874,13 +878,56 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
+              <DropdownMenuLabel className="px-2 pb-0 pt-1 text-[11px] font-medium uppercase tracking-normal text-muted-foreground">
+                Edges
+              </DropdownMenuLabel>
               <div className="flex h-8 items-center justify-between gap-3 rounded-sm px-2 py-1.5 text-sm">
-                <span className="w-20">Edges</span>
+                <span className="w-28">Thickness</span>
                 <div className="flex items-center gap-0.5">
                   <button
                     type="button"
-                    aria-label="Decrease edge visibility"
-                    title="Decrease edge visibility"
+                    aria-label="Decrease edge thickness"
+                    title="Decrease edge thickness"
+                    className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      adjustEdgeThickness(
+                        activeEdgeVisibilityMode,
+                        -EDGE_THICKNESS_STEP
+                      );
+                    }}
+                  >
+                    <Minus className="h-3.5 w-3.5" />
+                  </button>
+                  <span className="w-7 text-center font-mono text-xs text-muted-foreground">
+                    {Math.round(edgeThickness[activeEdgeVisibilityMode] * 100)}
+                  </span>
+                  <button
+                    type="button"
+                    aria-label="Increase edge thickness"
+                    title="Increase edge thickness"
+                    className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      adjustEdgeThickness(
+                        activeEdgeVisibilityMode,
+                        EDGE_THICKNESS_STEP
+                      );
+                    }}
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex h-8 items-center justify-between gap-3 rounded-sm px-2 py-1.5 text-sm">
+                <span className="w-28">Normal opacity</span>
+                <div className="flex items-center gap-0.5">
+                  <button
+                    type="button"
+                    aria-label="Decrease normal edge opacity"
+                    title="Decrease normal edge opacity"
                     className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     onClick={(event) => {
                       event.preventDefault();
@@ -894,14 +941,12 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                     <Minus className="h-3.5 w-3.5" />
                   </button>
                   <span className="w-7 text-center font-mono text-xs text-muted-foreground">
-                    {Math.round(
-                      edgeVisibility[activeEdgeVisibilityMode] * 100
-                    )}
+                    {Math.round(edgeVisibility[activeEdgeVisibilityMode] * 100)}
                   </span>
                   <button
                     type="button"
-                    aria-label="Increase edge visibility"
-                    title="Increase edge visibility"
+                    aria-label="Increase normal edge opacity"
+                    title="Increase normal edge opacity"
                     className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     onClick={(event) => {
                       event.preventDefault();
@@ -917,12 +962,12 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                 </div>
               </div>
               <div className="flex h-8 items-center justify-between gap-3 rounded-sm px-2 py-1.5 text-sm">
-                <span className="w-20">Dashed</span>
+                <span className="w-28">Dashed opacity</span>
                 <div className="flex items-center gap-0.5">
                   <button
                     type="button"
-                    aria-label="Decrease dashed edge visibility"
-                    title="Decrease dashed edge visibility"
+                    aria-label="Decrease dashed edge opacity"
+                    title="Decrease dashed edge opacity"
                     className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     onClick={(event) => {
                       event.preventDefault();
@@ -942,8 +987,8 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                   </span>
                   <button
                     type="button"
-                    aria-label="Increase dashed edge visibility"
-                    title="Increase dashed edge visibility"
+                    aria-label="Increase dashed edge opacity"
+                    title="Increase dashed edge opacity"
                     className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     onClick={(event) => {
                       event.preventDefault();
@@ -958,6 +1003,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                   </button>
                 </div>
               </div>
+              <DropdownMenuSeparator />
               <div className="flex h-8 items-center justify-between gap-3 rounded-sm px-2 py-1.5 text-sm">
                 <span className="w-20">Group fill</span>
                 <div className="flex items-center gap-0.5">

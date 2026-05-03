@@ -301,17 +301,22 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
 
 /* Diagram-bundle edge highlighting uses React Flow selection state. */
 .react-flow__edge .react-flow__edge-path {
-  stroke-width: 1.4 !important;
+  stroke-width: var(--edge-light-stroke-width, 1.4px) !important;
   stroke-linecap: round !important;
 }
 
 .react-flow__edge.selected .react-flow__edge-path {
   stroke: #2563eb !important;
-  stroke-width: 2.4 !important;
+  stroke-width: var(--edge-light-selected-stroke-width, 2.4px) !important;
+}
+
+.dark .react-flow__edge .react-flow__edge-path {
+  stroke-width: var(--edge-dark-stroke-width, 1.4px) !important;
 }
 
 .dark .react-flow__edge.selected .react-flow__edge-path {
   stroke: #60a5fa !important;
+  stroke-width: var(--edge-dark-selected-stroke-width, 2.4px) !important;
 }
 
 /* Non-selected edge visibility is shared across skins. */
@@ -397,24 +402,33 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
 /* Group-to-group bundle edges are derived render helpers for dense flows. */
 .group-bundle-outside-path {
   opacity: var(--edge-light-opacity, 0.45);
+  stroke-width: var(--group-bundle-light-outside-edge-width, 2px);
 }
 
 .react-flow__edge.group-bundle-segment-edge .react-flow__edge-path {
-  stroke-width: 1.4 !important;
+  stroke-width: var(--edge-light-dashed-stroke-width, 1.4px) !important;
   stroke-dasharray: 6 5 !important;
   opacity: var(--edge-light-dashed-opacity, 0.225) !important;
 }
 
 .dark .react-flow__edge.group-bundle-segment-edge .react-flow__edge-path {
+  stroke-width: var(--edge-dark-dashed-stroke-width, 1.4px) !important;
   opacity: var(--edge-dark-dashed-opacity, 0.225) !important;
 }
 
 .react-flow__edge.group-bundle-segment-edge.selected .react-flow__edge-path,
 .react-flow__edge.group-bundle-segment-edge.group-bundle-edge-path-selected
   .react-flow__edge-path {
-  stroke-width: 2.1 !important;
+  stroke-width: var(--edge-light-dashed-selected-stroke-width, 2.1px) !important;
   stroke-dasharray: 7 5 !important;
   opacity: 0.95 !important;
+}
+
+.dark .react-flow__edge.group-bundle-segment-edge.selected .react-flow__edge-path,
+.dark
+  .react-flow__edge.group-bundle-segment-edge.group-bundle-edge-path-selected
+  .react-flow__edge-path {
+  stroke-width: var(--edge-dark-dashed-selected-stroke-width, 2.1px) !important;
 }
 
 .react-flow__node-groupBundlePort {
@@ -486,6 +500,7 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
 
 .dark .group-bundle-outside-path {
   opacity: var(--edge-dark-opacity, 0.45);
+  stroke-width: var(--group-bundle-dark-outside-edge-width, 2px);
 }
 
 .dark .group-bundle-port {
@@ -497,8 +512,16 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
   opacity: 0.95 !important;
 }
 
+.group-bundle-outside-path.group-bundle-edge-path-selected {
+  stroke-width: var(--group-bundle-light-outside-selected-edge-width, 3.1px);
+}
+
 .dark .group-bundle-edge-path-selected {
   stroke: #60a5fa !important;
+}
+
+.dark .group-bundle-outside-path.group-bundle-edge-path-selected {
+  stroke-width: var(--group-bundle-dark-outside-selected-edge-width, 3.1px);
 }
 
 /* ===================== Large-drag low-detail mode ===================== */

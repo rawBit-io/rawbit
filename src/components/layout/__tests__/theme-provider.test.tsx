@@ -10,7 +10,9 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import {
   DEFAULT_DASHED_EDGE_VISIBILITY,
+  DEFAULT_EDGE_THICKNESS,
   DEFAULT_GROUP_FILL_OPACITY,
+  EDGE_THICKNESS_STEP,
   EDGE_VISIBILITY_STEP,
   GROUP_FILL_OPACITY_STEP,
 } from "@/contexts/theme";
@@ -26,9 +28,11 @@ function ThemeConsumer() {
     edgeVisibility,
     dashedEdgeVisibility,
     groupFillOpacity,
+    edgeThickness,
     adjustEdgeVisibility,
     adjustDashedEdgeVisibility,
     adjustGroupFillOpacity,
+    adjustEdgeThickness,
   } = useTheme();
   return (
     <>
@@ -50,6 +54,12 @@ function ThemeConsumer() {
       <span data-testid="group-fill-dark-value">
         {groupFillOpacity.dark}
       </span>
+      <span data-testid="edge-thickness-light-value">
+        {edgeThickness.light}
+      </span>
+      <span data-testid="edge-thickness-dark-value">
+        {edgeThickness.dark}
+      </span>
       <button
         data-testid="edge-light-increase"
         onClick={() => adjustEdgeVisibility("light", EDGE_VISIBILITY_STEP)}
@@ -64,6 +74,10 @@ function ThemeConsumer() {
         data-testid="group-fill-light-increase"
         onClick={() => adjustGroupFillOpacity("light", GROUP_FILL_OPACITY_STEP)}
       />
+      <button
+        data-testid="edge-thickness-light-increase"
+        onClick={() => adjustEdgeThickness("light", EDGE_THICKNESS_STEP)}
+      />
     </>
   );
 }
@@ -73,6 +87,7 @@ describe("ThemeProvider", () => {
   const EDGE_VISIBILITY_STORAGE_KEY = "test-edge-visibility";
   const DASHED_EDGE_VISIBILITY_STORAGE_KEY = "test-dashed-edge-visibility";
   const GROUP_FILL_OPACITY_STORAGE_KEY = "test-group-fill-opacity";
+  const EDGE_THICKNESS_STORAGE_KEY = "test-edge-thickness";
   let baseMatchMediaCleanup: MockCleanup | undefined;
 
   beforeEach(() => {
@@ -387,6 +402,81 @@ describe("ThemeProvider", () => {
     expect(
       document.documentElement.style.getPropertyValue("--group-light-fill-opacity")
     ).toBe("0.21");
+  });
+
+  it("persists edge thickness and applies stroke width CSS variables", async () => {
+    localStorage.setItem(
+      EDGE_THICKNESS_STORAGE_KEY,
+      JSON.stringify({ light: 1.2, dark: 0.8 })
+    );
+
+    render(
+      <ThemeProvider
+        storageKey={STORAGE_KEY}
+        edgeThicknessStorageKey={EDGE_THICKNESS_STORAGE_KEY}
+        defaultTheme="light"
+      >
+        <ThemeConsumer />
+      </ThemeProvider>
+    );
+
+    await waitFor(() =>
+      expect(screen.getByTestId("edge-thickness-light-value")).toHaveTextContent(
+        "1.2"
+      )
+    );
+    expect(screen.getByTestId("edge-thickness-dark-value")).toHaveTextContent(
+      "0.8"
+    );
+    expect(
+      document.documentElement.style.getPropertyValue("--edge-light-stroke-width")
+    ).toBe("1.68px");
+    expect(
+      document.documentElement.style.getPropertyValue(
+        "--edge-light-selected-stroke-width"
+      )
+    ).toBe("2.88px");
+    expect(
+      document.documentElement.style.getPropertyValue(
+        "--group-bundle-light-outside-edge-width"
+      )
+    ).toBe("2.4px");
+    expect(
+      document.documentElement.style.getPropertyValue("--edge-dark-stroke-width")
+    ).toBe("1.12px");
+
+    await act(async () => {
+      screen.getByTestId("edge-thickness-light-increase").click();
+    });
+
+    await waitFor(() =>
+      expect(screen.getByTestId("edge-thickness-light-value")).toHaveTextContent(
+        "1.3"
+      )
+    );
+    expect(localStorage.getItem(EDGE_THICKNESS_STORAGE_KEY)).toBe(
+      JSON.stringify({ light: 1.3, dark: 0.8 })
+    );
+    expect(
+      document.documentElement.style.getPropertyValue("--edge-light-stroke-width")
+    ).toBe("1.82px");
+  });
+
+  it("defaults edge thickness to normal width", async () => {
+    render(
+      <ThemeProvider storageKey={STORAGE_KEY} defaultTheme="light">
+        <ThemeConsumer />
+      </ThemeProvider>
+    );
+
+    await waitFor(() =>
+      expect(screen.getByTestId("edge-thickness-light-value")).toHaveTextContent(
+        String(DEFAULT_EDGE_THICKNESS.light)
+      )
+    );
+    expect(
+      document.documentElement.style.getPropertyValue("--edge-light-stroke-width")
+    ).toBe("1.4px");
   });
 
   it("throws when useTheme is called outside ThemeProvider", () => {

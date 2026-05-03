@@ -15,22 +15,20 @@ interface ColorPaletteProps {
 
 // --- Color Palette Definition ---
 const defaultColors = [
-  "#3b82f6",
-  "#22c55e",
-  "#ef4444",
-  "#a855f7",
-  "#f97316",
-  "#ec4899",
-  "#14b8a6",
-  "#eab308",
-  "#6366f1",
+  { name: "yellow", value: "#eab308" },
+  { name: "teal", value: "#0d9488" },
+  { name: "amber", value: "#b97a08" },
+  { name: "sky", value: "#3a6ea5" },
+  { name: "violet", value: "#6b4d8a" },
+  { name: "green", value: "#2d7a3a" },
+  { name: "accent", value: "#b34a1f" },
 ];
 
 // --- Sizing Constants (Original Style with Fixed Width) ---
 const PALETTE_WIDTH = "w-36"; // Fixed width (9rem = 36 × 4 = 144px)
 const SWATCH_SIZE = "w-5 h-5"; // Same small swatches as original
 const ICON_SIZE = "h-3 w-3"; // Same smaller icons as original
-const GRID_COLUMNS = "grid-cols-5"; // Same 5 columns as original
+const GRID_COLUMNS = "grid-cols-4"; // Balanced rows with reset plus seven colors
 const GAP_SIZE = "gap-1.5"; // Same spacing as original
 const PADDING = "p-1.5"; // Same padding as original
 
@@ -86,18 +84,19 @@ export function ColorPalette({
           </Button>
 
           {/* Color Swatches */}
-          {defaultColors.map((color) => (
+          {defaultColors.map(({ name, value }) => (
             <Button
-              key={color}
+              key={value}
               variant="ghost"
               className={cn(
                 "p-0 border rounded",
                 "hover:ring-1 hover:ring-offset-1 hover:ring-ring/50 focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1",
                 SWATCH_SIZE
               )}
-              style={{ backgroundColor: color }}
-              onClick={() => onColorSelect(color)}
-              title={color}
+              style={{ backgroundColor: value }}
+              onClick={() => onColorSelect(value)}
+              title={name}
+              aria-label={`Select ${name}`}
             />
           ))}
         </div>

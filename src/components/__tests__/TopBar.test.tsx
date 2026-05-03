@@ -8,6 +8,7 @@ import {
   type ExtraTopBarProps,
 } from "@/components/layout/TopBar";
 import {
+  EDGE_THICKNESS_STEP,
   EDGE_VISIBILITY_STEP,
   GROUP_FILL_OPACITY_STEP,
 } from "@/contexts/theme";
@@ -23,6 +24,7 @@ const adjustDashedEdgeVisibilityMock = vi.fn<
 const adjustGroupFillOpacityMock = vi.fn<
   (mode: string, delta: number) => void
 >();
+const adjustEdgeThicknessMock = vi.fn<(mode: string, delta: number) => void>();
 let themeMock: "light" | "dark" | "system" = "light";
 
 vi.mock("@/hooks/useUndoRedo", () => ({
@@ -43,9 +45,11 @@ vi.mock("@/hooks/useTheme", () => ({
     edgeVisibility: { light: 0.45, dark: 0.45 },
     dashedEdgeVisibility: { light: 0.225, dark: 0.225 },
     groupFillOpacity: { light: 0.05, dark: 0.05 },
+    edgeThickness: { light: 1, dark: 1 },
     adjustEdgeVisibility: adjustEdgeVisibilityMock,
     adjustDashedEdgeVisibility: adjustDashedEdgeVisibilityMock,
     adjustGroupFillOpacity: adjustGroupFillOpacityMock,
+    adjustEdgeThickness: adjustEdgeThicknessMock,
   }),
 }));
 
@@ -102,6 +106,11 @@ const baseProps: TopBarProps & ExtraTopBarProps = {
   onToggleSelectionMode: vi.fn(),
 };
 
+function openSkinMenu() {
+  const trigger = screen.getByRole("button", { name: "Skin: shadcn" });
+  fireEvent.keyDown(trigger, { key: "Enter" });
+}
+
 describe("TopBar", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -110,6 +119,7 @@ describe("TopBar", () => {
     adjustEdgeVisibilityMock.mockClear();
     adjustDashedEdgeVisibilityMock.mockClear();
     adjustGroupFillOpacityMock.mockClear();
+    adjustEdgeThicknessMock.mockClear();
     themeMock = "light";
   });
 
@@ -157,11 +167,12 @@ describe("TopBar", () => {
   it("adjusts the active light edge visibility from the skin menu", () => {
     render(<TopBar {...baseProps} />);
 
-    const trigger = screen.getByRole("button", { name: "Skin: shadcn" });
-    fireEvent.keyDown(trigger, { key: "Enter" });
+    openSkinMenu();
 
     expect(screen.getByText("Edges")).toBeInTheDocument();
-    expect(screen.getByText("Dashed")).toBeInTheDocument();
+    expect(screen.getByText("Thickness")).toBeInTheDocument();
+    expect(screen.getByText("Normal opacity")).toBeInTheDocument();
+    expect(screen.getByText("Dashed opacity")).toBeInTheDocument();
     expect(screen.getByText("Group fill")).toBeInTheDocument();
     expect(screen.queryByText("Edge visibility")).not.toBeInTheDocument();
     expect(screen.queryByText("Light mode")).not.toBeInTheDocument();
@@ -169,7 +180,7 @@ describe("TopBar", () => {
 
     fireEvent.click(
       screen.getByRole("button", {
-        name: "Increase edge visibility",
+        name: "Increase normal edge opacity",
       })
     );
     expect(adjustEdgeVisibilityMock).toHaveBeenCalledWith(
@@ -179,7 +190,7 @@ describe("TopBar", () => {
 
     fireEvent.click(
       screen.getByRole("button", {
-        name: "Decrease edge visibility",
+        name: "Decrease normal edge opacity",
       })
     );
     expect(adjustEdgeVisibilityMock).toHaveBeenCalledWith(
@@ -191,15 +202,40 @@ describe("TopBar", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("adjusts the active dashed edge visibility from the skin menu", () => {
+  it("adjusts the active edge thickness from the skin menu", () => {
     render(<TopBar {...baseProps} />);
 
-    const trigger = screen.getByRole("button", { name: "Skin: shadcn" });
-    fireEvent.keyDown(trigger, { key: "Enter" });
+    openSkinMenu();
 
     fireEvent.click(
       screen.getByRole("button", {
-        name: "Increase dashed edge visibility",
+        name: "Increase edge thickness",
+      })
+    );
+    expect(adjustEdgeThicknessMock).toHaveBeenCalledWith(
+      "light",
+      EDGE_THICKNESS_STEP
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Decrease edge thickness",
+      })
+    );
+    expect(adjustEdgeThicknessMock).toHaveBeenCalledWith(
+      "light",
+      -EDGE_THICKNESS_STEP
+    );
+  });
+
+  it("adjusts the active dashed edge visibility from the skin menu", () => {
+    render(<TopBar {...baseProps} />);
+
+    openSkinMenu();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Increase dashed edge opacity",
       })
     );
     expect(adjustDashedEdgeVisibilityMock).toHaveBeenCalledWith(
@@ -209,7 +245,7 @@ describe("TopBar", () => {
 
     fireEvent.click(
       screen.getByRole("button", {
-        name: "Decrease dashed edge visibility",
+        name: "Decrease dashed edge opacity",
       })
     );
     expect(adjustDashedEdgeVisibilityMock).toHaveBeenCalledWith(
@@ -288,23 +324,34 @@ describe("TopBar", () => {
     themeMock = "dark";
     render(<TopBar {...baseProps} />);
 
-    const trigger = screen.getByRole("button", { name: "Skin: shadcn" });
-    fireEvent.keyDown(trigger, { key: "Enter" });
+    openSkinMenu();
 
     expect(screen.getByText("Edges")).toBeInTheDocument();
-    expect(screen.getByText("Dashed")).toBeInTheDocument();
+    expect(screen.getByText("Thickness")).toBeInTheDocument();
+    expect(screen.getByText("Normal opacity")).toBeInTheDocument();
+    expect(screen.getByText("Dashed opacity")).toBeInTheDocument();
     expect(screen.getByText("Group fill")).toBeInTheDocument();
     expect(screen.queryByText("Light mode")).not.toBeInTheDocument();
     expect(screen.queryByText("Dark mode")).not.toBeInTheDocument();
 
     fireEvent.click(
       screen.getByRole("button", {
-        name: "Decrease edge visibility",
+        name: "Decrease normal edge opacity",
       })
     );
     expect(adjustEdgeVisibilityMock).toHaveBeenCalledWith(
       "dark",
       -EDGE_VISIBILITY_STEP
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Increase edge thickness",
+      })
+    );
+    expect(adjustEdgeThicknessMock).toHaveBeenCalledWith(
+      "dark",
+      EDGE_THICKNESS_STEP
     );
   });
 
