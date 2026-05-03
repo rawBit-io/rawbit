@@ -207,11 +207,17 @@
 
 /* The group node => behind edges: z-index: 0 */
 .react-flow__node-shadcnGroup {
+  --group-node-radius: 2rem;
   z-index: 0 !important;
+}
+
+.react-flow__node-shadcnGroup > * {
+  border-radius: var(--group-node-radius) !important;
 }
 
 .react-flow__node-shadcnGroup [data-testid="group-fill"] {
   opacity: var(--group-light-fill-opacity, 0.07);
+  border-radius: var(--group-node-radius) !important;
 }
 
 .dark .react-flow__node-shadcnGroup [data-testid="group-fill"] {
@@ -570,7 +576,7 @@ body[data-large-drag="true"] .rf-node {
 }
 
 [data-skin="paper"] .react-flow__node-shadcnGroup > * {
-  border-radius: 0.625rem !important;
+  border-radius: var(--group-node-radius) !important;
   border-width: 1.5px !important;
   border-color: hsl(var(--primary) / 0.5);
   background-color: hsl(var(--background) / 0.8) !important;
@@ -639,7 +645,7 @@ body[data-large-drag="true"] .rf-node {
 }
 
 [data-skin="midnight"] .react-flow__node-shadcnGroup > * {
-  border-radius: 0.875rem !important;
+  border-radius: var(--group-node-radius) !important;
   border-width: 1.5px !important;
   border-color: hsl(var(--accent) / 0.5);
   background-color: hsl(var(--card) / 0.7) !important;

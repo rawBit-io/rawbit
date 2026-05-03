@@ -1,5 +1,5 @@
 {
-  "name": "flow-1777832328346",
+  "name": "flow-1777833636705",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -30,8 +30,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 11389.677408676085,
-        "y": 10045.297737151675
+        "x": 7805.449323252164,
+        "y": 4257.334799123034
       },
       "data": {
         "isGroup": true,
@@ -57,8 +57,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 6309.374148034957,
-        "y": 7915.592688436508
+        "x": 2725.1460626110356,
+        "y": 2127.6297504078666
       },
       "data": {
         "isGroup": true,
@@ -68,7 +68,7 @@
         "groupBundlePortOffsets": {
           "target": -559.24,
           "targetByBundle": {
-            "group_zi8x2qm->group_cd0gkcz": -561.42,
+            "group_zi8x2qm->group_cd0gkcz": -426.48,
             "group_7w6adu7->group_cd0gkcz": 88.2
           },
           "sourceByBundle": {
@@ -87,8 +87,8 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 3254.020655198061,
-        "y": 7284.32427876982
+        "x": -330.20743022586066,
+        "y": 1496.3613407411785
       },
       "data": {
         "isGroup": true,
@@ -104,7 +104,7 @@
           }
         },
         "dirty": false,
-        "borderColor": "#3a6ea5",
+        "borderColor": "#0d9488",
         "fontSize": 44
       },
       "width": 2217,
@@ -115,8 +115,8 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": 310.3495006677065,
-        "y": 10241.347878210408
+        "x": -3273.878584756215,
+        "y": 4453.384940181767
       },
       "data": {
         "isGroup": true,
@@ -124,8 +124,14 @@
         "height": 1092,
         "title": "redeem Script",
         "dirty": false,
-        "borderColor": "#0d9488",
-        "fontSize": 44
+        "borderColor": "#2d7a3a",
+        "fontSize": 44,
+        "groupBundlePortOffsets": {
+          "sourceByBundle": {
+            "group_hegqa99->group_ixnjwes": -38.47,
+            "group_hegqa99->group_7w6adu7": -401.67
+          }
+        }
       },
       "width": 2478,
       "height": 1092,
@@ -135,8 +141,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 3779.2280854239216,
-        "y": 6147.9629380286415
+        "x": 195,
+        "y": 360
       },
       "data": {
         "isGroup": true,
@@ -179,7 +185,6 @@
           ]
         },
         "groupInstances": {},
-        "borderColor": "#14b8a6",
         "title": "Transaction Version",
         "error": false
       },
@@ -214,7 +219,6 @@
           ]
         },
         "groupInstances": {},
-        "borderColor": "#14b8a6",
         "title": "Input Count",
         "customFieldLabels": {
           "0": "INPUT VALUE:"
@@ -252,7 +256,6 @@
           ]
         },
         "groupInstances": {},
-        "borderColor": "#14b8a6",
         "title": "Previous TXID ",
         "showComment": false,
         "comment": "Prev TXID → faucet or explorer",
@@ -289,7 +292,6 @@
           ]
         },
         "groupInstances": {},
-        "borderColor": "#14b8a6",
         "title": "Output Index (vout)",
         "error": false
       },
@@ -324,7 +326,6 @@
           ]
         },
         "groupInstances": {},
-        "borderColor": "#14b8a6",
         "title": "Output Count",
         "error": false
       },
@@ -360,7 +361,6 @@
         },
         "groupInstances": {},
         "title": "Output Amount (satoshis)",
-        "borderColor": "#14b8a6",
         "showComment": false,
         "error": false
       },
@@ -371,8 +371,8 @@
       "id": "node_bkJNiVtV",
       "type": "calculation",
       "position": {
-        "x": 111.955443529695,
-        "y": 737.2197298774527
+        "x": 60.294887493233546,
+        "y": 836.8508022334859
       },
       "data": {
         "functionName": "identity",
@@ -396,7 +396,6 @@
         },
         "groupInstances": {},
         "title": "SIGHASH_ALL flag",
-        "borderColor": "#eab308",
         "error": false
       },
       "parentId": "group_cd0gkcz",
@@ -458,7 +457,6 @@
         "paramExtraction": "single_val",
         "title": "Opcode Sequence",
         "opSequenceNames": ["OP_DUP", "OP_HASH160"],
-        "borderColor": "#14b8a6",
         "error": false
       },
       "parentId": "group_hegqa99",
@@ -484,7 +482,6 @@
         "paramExtraction": "single_val",
         "title": "Opcode Sequence",
         "opSequenceNames": ["OP_EQUALVERIFY", "OP_CHECKSIG"],
-        "borderColor": "#14b8a6",
         "error": false
       },
       "parentId": "group_hegqa99",
@@ -542,7 +539,6 @@
         },
         "baseHeight": 80,
         "title": "scriptPubKey ",
-        "borderColor": "#14b8a6",
         "totalInputs": 4,
         "unwiredCount": 0,
         "showComment": true,
@@ -607,11 +603,14 @@
           "INPUTS[]": [0, 100]
         },
         "baseHeight": 80,
-        "title": "Pre-image + SIGHASH",
-        "borderColor": "#eab308",
+        "title": "Preimage + SIGHASH",
         "totalInputs": 2,
         "unwiredCount": 0,
-        "error": false
+        "error": false,
+        "customFieldLabels": {
+          "0": "Preimage:",
+          "100": "Sighash:"
+        }
       },
       "parentId": "group_cd0gkcz",
       "extent": "parent"
@@ -666,10 +665,13 @@
         },
         "baseHeight": 80,
         "title": "Signature + Flag",
-        "borderColor": "#eab308",
         "totalInputs": 2,
         "unwiredCount": 0,
-        "error": false
+        "error": false,
+        "customFieldLabels": {
+          "0": "Signature:",
+          "100": "Sighash:"
+        }
       },
       "parentId": "group_cd0gkcz",
       "extent": "parent"
@@ -726,7 +728,6 @@
         },
         "baseHeight": 80,
         "title": "scriptSig (push sig & pubkey)",
-        "borderColor": "#eab308",
         "totalInputs": 4,
         "unwiredCount": 0,
         "error": false,
@@ -744,8 +745,8 @@
       "id": "node_UIgo6BTD",
       "type": "calculation",
       "position": {
-        "x": 1522.6269263780441,
-        "y": 182.84799468470737
+        "x": 1619.8805255930274,
+        "y": 408.3935758428597
       },
       "data": {
         "functionName": "concat_all",
@@ -883,9 +884,8 @@
           "OUTPUTS[]": [3000]
         },
         "baseHeight": 120,
-        "borderColor": "#14b8a6",
         "totalInputs": 12,
-        "unwiredCount": 1,
+        "unwiredCount": 0,
         "title": "Preimage",
         "error": false
       },
@@ -1035,9 +1035,8 @@
           "OUTPUTS[]": [3000]
         },
         "baseHeight": 120,
-        "borderColor": "#a855f7",
         "totalInputs": 12,
-        "unwiredCount": 1,
+        "unwiredCount": 0,
         "showComment": true,
         "comment": "bitcoin-cli -testnet sendrawtransaction <hex>",
         "title": "Final Raw Transaction ",
@@ -1065,7 +1064,6 @@
         "inputs": {
           "val": "0959fe8c99eab96f02beaceda253c4883b5fae69b0fe9daab6a84130b5410208"
         },
-        "borderColor": "#14b8a6",
         "error": false
       },
       "parentId": "group_zi8x2qm",
@@ -1099,7 +1097,6 @@
           ]
         },
         "groupInstances": {},
-        "borderColor": "#14b8a6",
         "error": false
       },
       "parentId": "group_zi8x2qm",
@@ -1123,7 +1120,6 @@
         "inputs": {
           "val": 1
         },
-        "borderColor": "#14b8a6",
         "error": false
       },
       "parentId": "group_7w6adu7",
@@ -1147,7 +1143,6 @@
         "inputs": {
           "val": "adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef"
         },
-        "borderColor": "#14b8a6",
         "error": false
       },
       "parentId": "group_7w6adu7",
@@ -1171,7 +1166,6 @@
         "inputs": {
           "val": 1
         },
-        "borderColor": "#14b8a6",
         "error": false
       },
       "parentId": "group_7w6adu7",
@@ -1181,8 +1175,8 @@
       "id": "node_jM1BkHeL",
       "type": "calculation",
       "position": {
-        "x": 2138.874885862372,
-        "y": 298.68577669542174
+        "x": 2166.3573544710525,
+        "y": 590.4227511568006
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -1195,7 +1189,6 @@
           "val": "76a914d8727d64c917f123fbeb74df978d3489496cef7688ac"
         },
         "result": "19",
-        "borderColor": "#14b8a6",
         "error": false
       },
       "parentId": "group_hegqa99",
@@ -1220,7 +1213,6 @@
           "val": 145000
         },
         "result": "6836020000000000",
-        "borderColor": "#14b8a6",
         "error": false
       },
       "parentId": "group_7w6adu7",
@@ -1277,7 +1269,6 @@
           ]
         },
         "groupInstances": {},
-        "borderColor": "#eab308",
         "error": false
       },
       "parentId": "group_cd0gkcz",
@@ -1320,7 +1311,6 @@
         "result": "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d443",
         "totalInputs": 2,
         "unwiredCount": 0,
-        "borderColor": "#eab308",
         "error": false
       },
       "parentId": "group_cd0gkcz",
@@ -1344,7 +1334,6 @@
           "val": "473044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d4430121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
         },
         "result": "6a",
-        "borderColor": "#eab308",
         "error": false
       },
       "parentId": "group_cd0gkcz",
@@ -1379,7 +1368,6 @@
         },
         "groupInstances": {},
         "showComment": false,
-        "borderColor": "#a855f7",
         "error": false
       },
       "parentId": "group_ixnjwes",
@@ -1389,8 +1377,8 @@
       "id": "node_24bD1CIj",
       "type": "calculation",
       "position": {
-        "x": 1223.2030696214188,
-        "y": 1512.1434550474023
+        "x": 1251.691760309499,
+        "y": 1514.8566636843625
       },
       "data": {
         "functionName": "reverse_txid_bytes",
@@ -1404,8 +1392,7 @@
           "val": "8da13225bf06e3793248bcde03af444af66853f0d72d07ce96125708b8fb3df3"
         },
         "showComment": true,
-        "comment": "TXID as displayed by bitcoin core",
-        "borderColor": "#a855f7",
+        "comment": "TXID as displayed by bitcoin clients",
         "error": false
       },
       "parentId": "group_ixnjwes",
@@ -1440,7 +1427,6 @@
           ]
         },
         "groupInstances": {},
-        "borderColor": "#eab308",
         "error": false
       },
       "parentId": "group_cd0gkcz",
@@ -1475,7 +1461,6 @@
           ]
         },
         "groupInstances": {},
-        "borderColor": "#eab308",
         "error": false
       },
       "parentId": "group_cd0gkcz",
@@ -1510,7 +1495,6 @@
           ]
         },
         "groupInstances": {},
-        "borderColor": "#14b8a6",
         "error": false
       },
       "parentId": "group_hegqa99",
@@ -1531,7 +1515,6 @@
         "numInputs": 0,
         "groupInstances": {},
         "result": "0959fe8c99eab96f02beaceda253c4883b5fae69b0fe9daab6a84130b5410208",
-        "borderColor": "#14b8a6",
         "showComment": true,
         "comment": "⚠️ Don't reuse private keys",
         "error": false
@@ -1558,7 +1541,6 @@
           "val": 1
         },
         "result": "01000000",
-        "borderColor": "#14b8a6",
         "error": false
       },
       "parentId": "group_7w6adu7",
@@ -1583,7 +1565,6 @@
           "val": 2
         },
         "result": "02000000",
-        "borderColor": "#14b8a6",
         "error": false
       },
       "parentId": "group_7w6adu7",
@@ -1593,8 +1574,8 @@
       "id": "node_ojrcMe27",
       "type": "calculation",
       "position": {
-        "x": 397.5092684821784,
-        "y": 518.0452134255183
+        "x": 388.284169189953,
+        "y": 569.7057694619803
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -1608,7 +1589,6 @@
           "val": 1
         },
         "result": "01000000",
-        "borderColor": "#eab308",
         "error": false
       },
       "parentId": "group_cd0gkcz",
@@ -1643,7 +1623,6 @@
         },
         "groupInstances": {},
         "title": "Sequence",
-        "borderColor": "#14b8a6",
         "showComment": false,
         "comment": "RBF enabled (< 0xfffffffe)",
         "error": false
@@ -1680,7 +1659,6 @@
           ]
         },
         "groupInstances": {},
-        "borderColor": "#14b8a6",
         "error": false
       },
       "parentId": "group_7w6adu7",
@@ -1719,7 +1697,6 @@
         },
         "showComment": true,
         "comment": "Fund this testnet address https://coinfaucet.eu/en/btc-testnet/",
-        "borderColor": "#14b8a6",
         "error": false
       },
       "parentId": "group_zi8x2qm",
@@ -1798,7 +1775,6 @@
         "dirty": false,
         "totalInputs": 4,
         "unwiredCount": 0,
-        "borderColor": "#a855f7",
         "error": false,
         "scriptDebugSteps": {
           "isValid": true,
@@ -1934,8 +1910,8 @@
       "id": "node_iRN4paNu",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 948.5210297275024,
-        "y": 7241.594003886634
+        "x": -2635.707055696419,
+        "y": 1453.6310658579923
       },
       "data": {
         "content": "# Lesson 1: Building and Signing Legacy Transactions (P2PKH, P2PK)\n\n- Generate keypairs and derive standard P2PKH addresses.\n- Build and sign a basic P2PKH spend: construct the sighash preimage and produce a valid ECDSA signature for the scriptSig.\n- Spend to a legacy P2PK output and note the script differences vs. P2PKH.\n- Create a multi‑output transaction (payment + change).\n- Spend from multiple inputs in one transaction, signing each input with its own correct preimage.\n- Verify each example by evaluating scriptSig + scriptPubKey to ensure it’s valid for broadcast.",
@@ -1967,7 +1943,6 @@
         "inputs": {
           "val": "6a5c5916eadf1217d7c7c6c6b27104848811e6f4aa55fc69e2a0c2fe2accdfc3"
         },
-        "borderColor": "#14b8a6",
         "error": false
       },
       "parentId": "group_hegqa99",
@@ -2001,7 +1976,6 @@
           ]
         },
         "groupInstances": {},
-        "borderColor": "#14b8a6",
         "error": false
       },
       "parentId": "group_hegqa99",
@@ -2022,11 +1996,46 @@
         "numInputs": 0,
         "groupInstances": {},
         "result": "6a5c5916eadf1217d7c7c6c6b27104848811e6f4aa55fc69e2a0c2fe2accdfc3",
-        "borderColor": "#14b8a6",
         "showComment": false,
         "error": false
       },
       "parentId": "group_hegqa99",
+      "extent": "parent"
+    },
+    {
+      "id": "node_hHXC5ZW3",
+      "type": "calculation",
+      "position": {
+        "x": 534.2079412526493,
+        "y": 2303.5290512587194
+      },
+      "data": {
+        "functionName": "identity",
+        "showField": true,
+        "numInputs": 0,
+        "value": "00000000",
+        "dirty": false,
+        "version": 0,
+        "inputs": {
+          "val": "00000000"
+        },
+        "result": "00000000",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT VALUE:",
+              "rows": 1
+            }
+          ]
+        },
+        "groupInstances": {},
+        "title": "Locktime",
+        "borderColor": "#14b8a6",
+        "showComment": false,
+        "error": false
+      },
+      "parentId": "group_7w6adu7",
       "extent": "parent"
     }
   ],
@@ -2571,6 +2580,19 @@
       "target": "node_7bQgp6gF",
       "targetHandle": "input-200",
       "selected": false
+    },
+    {
+      "id": "edge_89uwelv",
+      "source": "node_hHXC5ZW3",
+      "target": "node_UIgo6BTD",
+      "targetHandle": "input-4000",
+      "selected": false
+    },
+    {
+      "id": "edge_4ivlhdu",
+      "source": "node_hHXC5ZW3",
+      "target": "node_qMmh8Zrk",
+      "targetHandle": "input-4000"
     }
   ]
 }
