@@ -1,5 +1,4 @@
 import {
-  EdgeLabelRenderer,
   Position,
   getBezierPath,
   useReactFlow,
@@ -10,14 +9,11 @@ import {
   useCallback,
   useContext,
   useMemo,
-  useRef,
-  useState,
   type ReactNode,
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
 
-import { useEdgeCurveControlCommit } from "@/components/edges/EdgeCurveControlContext";
 import {
   isGroupBundleEdgeId,
   type GroupBundleEdgeData,
@@ -63,117 +59,6 @@ const pointFromEdgeCoordinates = (
     ? { x: x as number, y: y as number }
     : fallback;
 
-const asFiniteNumber = (value: unknown): number | undefined => {
-  const numeric = Number(value);
-  return Number.isFinite(numeric) ? numeric : undefined;
-};
-
-const pointFromData = (value: unknown): Point | null => {
-  if (!value || typeof value !== "object") return null;
-  const candidate = value as Partial<Point>;
-  const x = asFiniteNumber(candidate.x);
-  const y = asFiniteNumber(candidate.y);
-  return x === undefined || y === undefined ? null : { x, y };
-};
-
-const roundPoint = (point: Point): Point => ({
-  x: Math.round(point.x * 100) / 100,
-  y: Math.round(point.y * 100) / 100,
-});
-
-const normalizeOffset = (point: Point): Point | null => {
-  const rounded = roundPoint(point);
-  return Math.abs(rounded.x) < 0.5 && Math.abs(rounded.y) < 0.5
-    ? null
-    : rounded;
-};
-
-const calculateControlOffset = (distance: number, curvature: number): number => {
-  if (distance >= 0) return 0.5 * distance;
-  return curvature * 25 * Math.sqrt(-distance);
-};
-
-const controlWithCurvature = ({
-  position,
-  point,
-  opposite,
-  curvature,
-}: {
-  position: Position;
-  point: Point;
-  opposite: Point;
-  curvature: number;
-}): Point => {
-  switch (position) {
-    case Position.Left:
-      return {
-        x: point.x - calculateControlOffset(point.x - opposite.x, curvature),
-        y: point.y,
-      };
-    case Position.Right:
-      return {
-        x: point.x + calculateControlOffset(opposite.x - point.x, curvature),
-        y: point.y,
-      };
-    case Position.Top:
-      return {
-        x: point.x,
-        y: point.y - calculateControlOffset(point.y - opposite.y, curvature),
-      };
-    case Position.Bottom:
-      return {
-        x: point.x,
-        y: point.y + calculateControlOffset(opposite.y - point.y, curvature),
-      };
-  }
-};
-
-const cubicBezierPathWithCenterOffset = ({
-  source,
-  target,
-  sourcePosition,
-  targetPosition,
-  offset,
-}: {
-  source: Point;
-  target: Point;
-  sourcePosition: Position;
-  targetPosition: Position;
-  offset: Point;
-}): string => {
-  const curvature = 0.25;
-  const sourceControl = controlWithCurvature({
-    position: sourcePosition,
-    point: source,
-    opposite: target,
-    curvature,
-  });
-  const targetControl = controlWithCurvature({
-    position: targetPosition,
-    point: target,
-    opposite: source,
-    curvature,
-  });
-  const controlShift = {
-    x: (offset.x * 4) / 3,
-    y: (offset.y * 4) / 3,
-  };
-  const shiftedSourceControl = {
-    x: sourceControl.x + controlShift.x,
-    y: sourceControl.y + controlShift.y,
-  };
-  const shiftedTargetControl = {
-    x: targetControl.x + controlShift.x,
-    y: targetControl.y + controlShift.y,
-  };
-
-  return `M ${source.x} ${source.y} C ${roundPoint(shiftedSourceControl).x} ${
-    roundPoint(shiftedSourceControl).y
-  } ${roundPoint(shiftedTargetControl).x} ${
-    roundPoint(shiftedTargetControl).y
-  } ${target.x} ${target.y}`;
-};
-
 export function GroupBundleEdge({
   id,
   data,
@@ -187,11 +72,6 @@ export function GroupBundleEdge({
 }: EdgeProps): JSX.Element | null {
   const bundle = data as GroupBundleEdgeData | undefined;
   const reactFlow = useReactFlow<FlowNode>();
-  const onControlPointCommit = useEdgeCurveControlCommit();
-  const [previewPoint, setPreviewPoint] = useState<Point | null>(null);
-  const previewPointRef = useRef<Point | null>(null);
-  const draggingRef = useRef(false);
-  const didMoveRef = useRef(false);
   const bundledEdgeIds = bundle?.bundledEdgeIds;
   const bundledSelectedEdgeIds = bundle?.selectedEdgeIds;
   const onSelectEdgeIds = useContext(GroupBundleEdgeSelectionContext);
@@ -291,7 +171,7 @@ export function GroupBundleEdge({
   if (!bundle) return null;
 
   const count = bundle.count ?? edgeIds.length;
-  const supportsCurveControl = Boolean(bundle.sourceGroupId && bundle.targetGroupId);
+  const isGroupToGroupBundle = Boolean(bundle.sourceGroupId && bundle.targetGroupId);
   const hasSelectedPath = selected === true || selectedEdgeIdSet.size > 0;
   const [outsidePath, labelX, labelY] = getBezierPath({
     sourceX: sourceBoundaryPoint.x,
@@ -308,115 +188,13 @@ export function GroupBundleEdge({
   const labelWidth =
     COUNT_LABEL_HORIZONTAL_PADDING + countLabel.length * COUNT_LABEL_FONT_SIZE * 0.68;
   const labelHeight = COUNT_LABEL_HEIGHT;
-  const defaultHandlePoint = {
-    x: labelX,
-    y: labelY,
-  };
-  const savedOffset = supportsCurveControl
-    ? pointFromData(bundle.curveControlPointOffset)
-    : null;
-  const savedPoint = savedOffset
+  const countLabelPoint = isGroupToGroupBundle
     ? {
-        x: defaultHandlePoint.x + savedOffset.x,
-        y: defaultHandlePoint.y + savedOffset.y,
-      }
-    : null;
-  const handlePoint = previewPoint ?? savedPoint ?? defaultHandlePoint;
-  const countLabelPoint = supportsCurveControl
-    ? {
-        x: handlePoint.x,
-        y: handlePoint.y - labelHeight / 2 - BUNDLE_CURVE_LABEL_GAP,
+        x: labelX,
+        y: labelY - labelHeight / 2 - BUNDLE_CURVE_LABEL_GAP,
       }
     : { x: labelX, y: labelY };
-  const renderedOutsidePath =
-    savedPoint || previewPoint
-      ? cubicBezierPathWithCenterOffset({
-          source: sourceBoundaryPoint,
-          target: targetBoundaryPoint,
-          sourcePosition,
-          targetPosition,
-          offset: {
-            x: handlePoint.x - defaultHandlePoint.x,
-            y: handlePoint.y - defaultHandlePoint.y,
-          },
-        })
-      : outsidePath;
-
-  const pointFromPointerEvent = (
-    event: ReactPointerEvent<HTMLElement>
-  ): Point | null => {
-    const nativeEvent = event.nativeEvent as {
-      clientX?: unknown;
-      clientY?: unknown;
-      x?: unknown;
-      y?: unknown;
-    };
-    const x =
-      asFiniteNumber(event.clientX) ??
-      asFiniteNumber(nativeEvent.clientX) ??
-      asFiniteNumber(nativeEvent.x);
-    const y =
-      asFiniteNumber(event.clientY) ??
-      asFiniteNumber(nativeEvent.clientY) ??
-      asFiniteNumber(nativeEvent.y);
-
-    if (x === undefined || y === undefined) return null;
-
-    return roundPoint(reactFlow.screenToFlowPosition({ x, y }));
-  };
-
-  const handleCurvePointerDown = (
-    event: ReactPointerEvent<HTMLButtonElement>
-  ) => {
-    event.preventDefault();
-    event.stopPropagation();
-    event.currentTarget.setPointerCapture?.(event.pointerId);
-    draggingRef.current = true;
-    didMoveRef.current = false;
-    previewPointRef.current = null;
-  };
-
-  const handleCurvePointerMove = (
-    event: ReactPointerEvent<HTMLButtonElement>
-  ) => {
-    if (!draggingRef.current) return;
-    event.preventDefault();
-    event.stopPropagation();
-    const nextPoint = pointFromPointerEvent(event);
-    if (!nextPoint) return;
-    didMoveRef.current = true;
-    previewPointRef.current = nextPoint;
-    setPreviewPoint(nextPoint);
-  };
-
-  const stopCurveDragging = (
-    event: ReactPointerEvent<HTMLButtonElement>
-  ) => {
-    if (!draggingRef.current) return;
-    event.preventDefault();
-    event.stopPropagation();
-    draggingRef.current = false;
-
-    const nextPoint = previewPointRef.current;
-    previewPointRef.current = null;
-    setPreviewPoint(null);
-    if (
-      !supportsCurveControl ||
-      !didMoveRef.current ||
-      !nextPoint ||
-      !onControlPointCommit
-    ) {
-      return;
-    }
-
-    onControlPointCommit(
-      id,
-      normalizeOffset({
-        x: nextPoint.x - defaultHandlePoint.x,
-        y: nextPoint.y - defaultHandlePoint.y,
-      })
-    );
-  };
+  const renderedOutsidePath = outsidePath;
 
   const renderHitPath = (
     key: string,
@@ -459,35 +237,6 @@ export function GroupBundleEdge({
         renderedOutsidePath,
         edgeIds,
         "outside-bundle"
-      )}
-      {supportsCurveControl && (
-        <EdgeLabelRenderer>
-          <button
-            type="button"
-            aria-label="Adjust group bundle edge curve"
-            title="Adjust group bundle edge curve"
-            data-testid={`edge-curve-control-${id}`}
-            className={cn(
-              "editable-edge-control-point group-bundle-curve-control-point",
-              (hasSelectedPath || previewPoint) &&
-                "editable-edge-control-point-active"
-            )}
-            style={{
-              transform: `translate(-50%, -50%) translate(${handlePoint.x}px, ${handlePoint.y}px)`,
-            }}
-            onPointerDown={handleCurvePointerDown}
-            onPointerMove={handleCurvePointerMove}
-            onPointerUp={stopCurveDragging}
-            onPointerCancel={stopCurveDragging}
-            onLostPointerCapture={stopCurveDragging}
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-            }}
-          >
-            <span aria-hidden="true" />
-          </button>
-        </EdgeLabelRenderer>
       )}
       {count > 1 && (
         <g
