@@ -15,20 +15,19 @@ interface ColorPaletteProps {
 
 // --- Color Palette Definition ---
 const defaultColors = [
-  { name: "yellow", value: "#eab308" },
-  { name: "teal", value: "#0d9488" },
-  { name: "amber", value: "#b97a08" },
-  { name: "sky", value: "#3a6ea5" },
-  { name: "violet", value: "#6b4d8a" },
-  { name: "green", value: "#2d7a3a" },
-  { name: "accent", value: "#b34a1f" },
+  { name: "yellow", value: "#d6a500" },
+  { name: "teal", value: "#008c86" },
+  { name: "blue", value: "#2d5fb3" },
+  { name: "violet", value: "#7a4ea3" },
+  { name: "accent", value: "#a83a32" },
+  { name: "gray", value: "#6f6a60" },
 ];
 
 // --- Sizing Constants (Original Style with Fixed Width) ---
-const PALETTE_WIDTH = "w-36"; // Fixed width (9rem = 36 × 4 = 144px)
+const PALETTE_WIDTH = "w-48"; // Wide enough for reset plus six swatches
 const SWATCH_SIZE = "w-5 h-5"; // Same small swatches as original
 const ICON_SIZE = "h-3 w-3"; // Same smaller icons as original
-const GRID_COLUMNS = "grid-cols-4"; // Balanced rows with reset plus seven colors
+const GRID_COLUMNS = "grid-cols-7"; // Reset plus six clearly separated colors
 const GAP_SIZE = "gap-1.5"; // Same spacing as original
 const PADDING = "p-1.5"; // Same padding as original
 

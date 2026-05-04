@@ -54,7 +54,7 @@ describe("ColorPalette", () => {
       'button[title="yellow"]'
     ) as HTMLButtonElement;
     fireEvent.click(swatch);
-    expect(onColorSelect).toHaveBeenCalledWith("#eab308");
+    expect(onColorSelect).toHaveBeenCalledWith("#d6a500");
   });
 
   it("prevents pointer events from bubbling to parents", () => {

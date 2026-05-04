@@ -123,6 +123,7 @@ export interface CalculationNodeData extends Record<string, unknown> {
   /** TextInfoNode */
   content?: string;
   fontSize?: number;
+  textInfoFill?: "none";
 
   totalInputs?: number; // how many input handles the node *should* render
   unwiredCount?: number; // how many of those handles are currently *unwired*

@@ -75,22 +75,22 @@
   [data-skin="paper"] {
     --radius: 0.5rem;
     --background: 42 43% 94%;
-    --foreground: 26 24% 20%;
-    --card: 40 48% 97%;
-    --card-foreground: 26 24% 20%;
-    --popover: 40 48% 97%;
-    --popover-foreground: 26 24% 20%;
-    --primary: 22 58% 37%;
+    --foreground: 24 28% 15%;
+    --card: 42 60% 98%;
+    --card-foreground: 24 28% 15%;
+    --popover: 42 60% 98%;
+    --popover-foreground: 24 28% 15%;
+    --primary: 21 64% 31%;
     --primary-foreground: 42 48% 96%;
     --secondary: 38 34% 88%;
     --secondary-foreground: 26 24% 20%;
     --muted: 38 32% 89%;
-    --muted-foreground: 28 16% 44%;
+    --muted-foreground: 27 20% 32%;
     --accent: 36 20% 86%;
     --accent-foreground: 26 24% 20%;
-    --border: 35 27% 74%;
-    --input: 35 27% 74%;
-    --ring: 22 58% 41%;
+    --border: 31 28% 58%;
+    --input: 31 28% 58%;
+    --ring: 22 62% 36%;
     --controls-color: #6b4d34;
     --skin-accent-hover-alpha: 0.42;
   }
@@ -98,22 +98,22 @@
   /* ===================== Paper Ledger skin — dark ===================== */
   [data-skin="paper"].dark {
     --background: 24 16% 13%;
-    --foreground: 42 35% 89%;
-    --card: 24 14% 17%;
-    --card-foreground: 42 35% 89%;
-    --popover: 24 14% 17%;
-    --popover-foreground: 42 35% 89%;
-    --primary: 33 74% 62%;
+    --foreground: 42 42% 92%;
+    --card: 24 13% 19%;
+    --card-foreground: 42 42% 92%;
+    --popover: 24 13% 19%;
+    --popover-foreground: 42 42% 92%;
+    --primary: 34 84% 70%;
     --primary-foreground: 24 16% 13%;
     --secondary: 23 12% 23%;
     --secondary-foreground: 42 35% 89%;
     --muted: 23 12% 23%;
-    --muted-foreground: 34 16% 63%;
+    --muted-foreground: 36 22% 74%;
     --accent: 24 10% 30%;
     --accent-foreground: 42 35% 89%;
-    --border: 24 12% 32%;
-    --input: 24 12% 34%;
-    --ring: 33 74% 58%;
+    --border: 31 18% 46%;
+    --input: 31 18% 48%;
+    --ring: 34 82% 64%;
     --controls-color: #d7c09a;
     --skin-accent-hover-alpha: 0.34;
   }
@@ -1029,18 +1029,22 @@ body[data-large-drag="true"] .rf-node {
 
 [data-skin="paper"] .react-flow__node > * {
   border-radius: 0.5rem !important;
-  border-width: 1.25px !important;
+  border-width: 1.5px !important;
   border-color: hsl(var(--border));
   background: hsl(var(--card) / 0.98) !important;
   box-shadow: 0 8px 14px -24px hsl(27 32% 18% / 0.72) !important;
 }
 
 [data-skin="paper"] .react-flow__node-calculation > * > :first-child {
-  background: hsl(var(--secondary) / 0.24);
+  border-bottom-color: hsl(var(--border));
+  background: hsl(39 43% 87% / 0.5);
+  color: hsl(var(--primary));
 }
 
 .dark[data-skin="paper"] .react-flow__node-calculation > * > :first-child {
-  background: hsl(var(--secondary) / 0.36);
+  border-bottom-color: hsl(var(--border));
+  background: hsl(29 20% 26% / 0.84);
+  color: hsl(var(--primary));
 }
 
 [data-skin="paper"] .react-flow__node-shadcnGroup > * {
@@ -1085,11 +1089,13 @@ body[data-large-drag="true"] .rf-node {
 }
 
 [data-skin="paper"] .field-surface {
-  background-color: hsl(var(--secondary) / 0.34) !important;
+  border-color: hsl(var(--input)) !important;
+  background-color: hsl(42 56% 96% / 0.94) !important;
 }
 
 .dark[data-skin="paper"] .field-surface {
-  background-color: hsl(var(--secondary) / 0.48) !important;
+  border-color: hsl(var(--input)) !important;
+  background-color: hsl(25 16% 24% / 0.88) !important;
 }
 
 [data-skin="paper"] .custom-flow-controls .react-flow__controls-button {
@@ -1276,6 +1282,12 @@ body[data-large-drag="true"] .rf-node {
 
 .dark[data-skin="midnight"] .react-flow__node-shadcnTextInfo [data-testid="text-info-fill"].has-palette-fill {
   opacity: var(--group-dark-fill-opacity, 0.07) !important;
+}
+
+[data-skin] .react-flow__node-shadcnTextInfo [data-testid="text-info-fill"].no-text-info-fill,
+.text-info-fill.no-text-info-fill {
+  background-color: transparent !important;
+  opacity: 0 !important;
 }
 
 [data-skin="midnight"] .field-surface {

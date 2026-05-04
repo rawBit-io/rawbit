@@ -90,11 +90,22 @@ export function useColorPalette({
       }
 
       setNodes((prev) =>
-        prev.map((node) =>
-          targets.some((target) => target.id === node.id)
-            ? { ...node, data: { ...node.data, borderColor: color } }
-            : node
-        )
+        prev.map((node) => {
+          if (!targets.some((target) => target.id === node.id)) return node;
+
+          if (node.type === "shadcnTextInfo") {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                borderColor: color,
+                textInfoFill: color === undefined ? "none" : undefined,
+              },
+            };
+          }
+
+          return { ...node, data: { ...node.data, borderColor: color } };
+        })
       );
 
       scheduleSnapshot("Change Node Color");

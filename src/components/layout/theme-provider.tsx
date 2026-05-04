@@ -37,6 +37,7 @@ const VALID_SKINS: readonly Skin[] = [
 
 const VALID_THEMES: readonly Theme[] = ["dark", "light", "system"];
 const DEFAULT_SKIN: Skin = "paper";
+const MOBILE_DEFAULT_SKIN: Skin = "shadcn";
 const BASE_EDGE_STROKE_WIDTH = 1.4;
 const BASE_SELECTED_EDGE_STROKE_WIDTH = 2.4;
 const BASE_DASHED_SELECTED_EDGE_STROKE_WIDTH = 2.1;
@@ -50,14 +51,36 @@ function normalizeTheme(value: string | null, fallback: Theme): Theme {
   return fallback;
 }
 
-function normalizeSkin(value: string | null): Skin {
+function isMobileLikeClient(): boolean {
+  if (typeof window === "undefined") return false;
+
+  const nav = window.navigator as Navigator & {
+    userAgentData?: { mobile?: boolean };
+  };
+  const coarsePointer =
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(pointer: coarse)").matches;
+  const mobileUserAgent =
+    typeof nav.userAgent === "string" &&
+    /Mobile|Android|iP(?:ad|hone|od)|Tablet|BlackBerry|IEMobile|Opera Mini/i.test(
+      nav.userAgent
+    );
+
+  return Boolean(nav.userAgentData?.mobile || coarsePointer || mobileUserAgent);
+}
+
+function getDefaultSkinForDevice(): Skin {
+  return isMobileLikeClient() ? MOBILE_DEFAULT_SKIN : DEFAULT_SKIN;
+}
+
+function normalizeSkin(value: string | null, fallback: Skin = DEFAULT_SKIN): Skin {
   if (value === "default") {
     return "shadcn";
   }
   if (value && VALID_SKINS.includes(value as Skin)) {
     return value as Skin;
   }
-  return DEFAULT_SKIN;
+  return fallback;
 }
 
 function clampEdgeVisibility(value: unknown, fallback: number): number {
@@ -326,6 +349,7 @@ const setInitialTheme = (
     var edgeThicknessStorageKey = ${edgeThicknessStorageKeyJson};
     var defaultTheme = ${defaultThemeJson};
     var defaultSkin = ${defaultSkinJson};
+    var mobileDefaultSkin = ${JSON.stringify(MOBILE_DEFAULT_SKIN)};
     var defaultEdgeVisibility = ${defaultEdgeVisibilityJson};
     var defaultDashedEdgeVisibility = ${defaultDashedEdgeVisibilityJson};
     var defaultGroupFillOpacity = ${defaultGroupFillOpacityJson};
@@ -356,6 +380,20 @@ const setInitialTheme = (
       }
       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     };
+    const getDefaultSkinForDevice = () => {
+      var coarsePointer = false;
+      try {
+        coarsePointer = typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
+      } catch (_) {}
+      var nav = window.navigator || {};
+      var mobileUserAgent = false;
+      try {
+        mobileUserAgent = /Mobile|Android|iP(?:ad|hone|od)|Tablet|BlackBerry|IEMobile|Opera Mini/i.test(nav.userAgent || '');
+      } catch (_) {}
+      return nav.userAgentData && nav.userAgentData.mobile || coarsePointer || mobileUserAgent
+        ? mobileDefaultSkin
+        : defaultSkin;
+    };
 
     const storedTheme = getStoredTheme();
     const theme = validThemes.includes(storedTheme) ? storedTheme : defaultTheme;
@@ -368,7 +406,7 @@ const setInitialTheme = (
       rawSkin = localStorage.getItem(skinStorageKey);
     } catch (_) {}
     var migratedSkin = rawSkin === 'default' ? 'shadcn' : rawSkin;
-    var skin = validSkins.includes(migratedSkin) ? migratedSkin : defaultSkin;
+    var skin = validSkins.includes(migratedSkin) ? migratedSkin : getDefaultSkinForDevice();
     if (skin !== rawSkin) {
       try {
         localStorage.setItem(skinStorageKey, skin);
@@ -485,7 +523,7 @@ export function ThemeProvider({
     () => normalizeTheme(safeStorageGet(storageKey), defaultTheme)
   );
   const [skin, setSkin] = useState<Skin>(() =>
-    normalizeSkin(safeStorageGet(skinStorageKey))
+    normalizeSkin(safeStorageGet(skinStorageKey), getDefaultSkinForDevice())
   );
   const [edgeVisibility, setEdgeVisibility] = useState<EdgeVisibility>(() =>
     parseStoredEdgeVisibility(safeStorageGet(edgeVisibilityStorageKey))

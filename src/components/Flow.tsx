@@ -130,6 +130,8 @@ const TABS_STORAGE_KEYS = [
   "rawbit.flow.tabs",
   "rawbit.flow.tabs.archive",
 ] as const;
+const TAB_ARCHIVE_STORAGE_PREFIX = "rawbit.flow.tab.";
+const INTRO_FLOW_ID = "flow-0";
 const SHARED_IMPORT_FIT_MIN_ZOOM = 0.2;
 
 function graphIdsMatch(
@@ -225,6 +227,20 @@ function isAutomationEnvironment() {
       return true;
     }
   }
+  return false;
+}
+
+function hasExistingFlowStorage(storage: Storage) {
+  if (TABS_STORAGE_KEYS.some((key) => Boolean(storage.getItem(key)))) {
+    return true;
+  }
+
+  for (let index = 0; index < storage.length; index += 1) {
+    if (storage.key(index)?.startsWith(TAB_ARCHIVE_STORAGE_PREFIX)) {
+      return true;
+    }
+  }
+
   return false;
 }
 
@@ -331,10 +347,7 @@ function FlowContent() {
         return;
       }
 
-      const hasExistingData = TABS_STORAGE_KEYS.some((key) =>
-        Boolean(window.localStorage.getItem(key))
-      );
-      if (hasExistingData) {
+      if (hasExistingFlowStorage(window.localStorage)) {
         window.localStorage.setItem(FIRST_RUN_STORAGE_KEY, "1");
         welcomeCompleteRef.current = true;
         return;
@@ -353,7 +366,6 @@ function FlowContent() {
       }
     }
 
-    setShowWelcomeDialog(true);
   }, []);
 
   const markWelcomeComplete = useCallback(() => {
@@ -1106,6 +1118,31 @@ function FlowContent() {
     },
     [loadExampleFlow, markWelcomeComplete, setShowWelcomeDialog]
   );
+
+  useEffect(() => {
+    if (!initialHydrationDone) return;
+    if (welcomeCompleteRef.current) return;
+
+    const introFlowId = exampleFlowMap.has(INTRO_FLOW_ID)
+      ? INTRO_FLOW_ID
+      : exampleFlowOptions[0]?.id;
+
+    if (!introFlowId) {
+      markWelcomeComplete();
+      return;
+    }
+
+    const loaded = loadExampleFlow(introFlowId);
+    if (loaded) {
+      markWelcomeComplete();
+    }
+  }, [
+    exampleFlowMap,
+    exampleFlowOptions,
+    initialHydrationDone,
+    loadExampleFlow,
+    markWelcomeComplete,
+  ]);
 
   const [, { setIsSearchHighlight, clearHighlights }] = useHighlight({
     setNodes,

@@ -156,6 +156,7 @@ export default function TextInfoNode({
     typeof data.borderColor === "string" && data.borderColor.trim()
       ? data.borderColor.trim()
       : undefined;
+  const hasExplicitNoFill = data.textInfoFill === "none";
   const borderStyle = paletteColor ? { borderColor: paletteColor } : undefined;
   const fillStyle = paletteColor ? { backgroundColor: paletteColor } : undefined;
   const { copyId, idCopied } = useClipboardLite({
@@ -440,7 +441,8 @@ export default function TextInfoNode({
       <div
         className={cn(
           "text-info-fill pointer-events-none absolute inset-0 z-0 rounded-lg",
-          paletteColor && "has-palette-fill"
+          paletteColor && "has-palette-fill",
+          hasExplicitNoFill && "no-text-info-fill"
         )}
         data-testid="text-info-fill"
         style={fillStyle}

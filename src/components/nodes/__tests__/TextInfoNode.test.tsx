@@ -248,6 +248,42 @@ describe("TextInfoNode", () => {
     ).toBeNull();
   });
 
+  it("does not use the theme fallback fill after explicit palette none", () => {
+    const clipboardMock = {
+      prettyResult: "",
+      copyResult: vi.fn(),
+      copyError: vi.fn(),
+      copyId: vi.fn(),
+      resultCopied: false,
+      errorCopied: false,
+      idCopied: false,
+    };
+    clipboardHook.mockReturnValue(clipboardMock);
+    nodesState[0].data.borderColor = undefined;
+    nodesState[0].data.textInfoFill = "none";
+
+    renderWithProviders(
+      <TextInfoNode
+        id="text-1"
+        data={nodesState[0].data}
+        selected={false}
+        type="text"
+        dragging={false}
+        zIndex={0}
+        width={nodesState[0].width}
+        height={nodesState[0].height}
+        isConnectable={true}
+        positionAbsoluteX={0}
+        positionAbsoluteY={0}
+      />,
+      { snapshotScheduler: scheduler }
+    );
+
+    const fill = screen.getByTestId("text-info-fill");
+    expect(fill).toHaveClass("text-info-fill", "no-text-info-fill");
+    expect(fill).not.toHaveClass("has-palette-fill");
+  });
+
   it("uses the palette color for the group-style fill", () => {
     const clipboardMock = {
       prettyResult: "",

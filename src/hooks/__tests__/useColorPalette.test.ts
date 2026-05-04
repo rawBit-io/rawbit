@@ -18,7 +18,11 @@ const buildNode = (id: string, selected = true): FlowNode =>
 describe("useColorPalette", () => {
   const scheduleSnapshot = vi.fn();
 
-  const setup = (nodes: FlowNode[] = [buildNode("node-1")]) =>
+  const setup = (
+    nodes: FlowNode[] = [buildNode("node-1")],
+    isColorable: (node: FlowNode) => boolean = (node) =>
+      node.type === "calculation"
+  ) =>
     renderHook(() => {
       const [state, setState] = useState(nodes);
 
@@ -26,7 +30,7 @@ describe("useColorPalette", () => {
         getNodes: () => state,
         setNodes: (updater) => setState((prev) => updater(prev)),
         scheduleSnapshot,
-        isColorable: (node) => node.type === "calculation",
+        isColorable,
       });
 
       return { palette, nodes: state };
@@ -63,6 +67,26 @@ describe("useColorPalette", () => {
     expect(scheduleSnapshot).toHaveBeenCalledWith("Change Node Color");
     expect(hook.result.current.nodes[0].data?.borderColor).toBe("#ffeeaa");
     expect(hook.result.current.palette.isOpen).toBe(false);
+  });
+
+  it("marks text info fill as none when reset is applied", () => {
+    const textInfoNode = buildFlowNode({
+      id: "text-1",
+      type: "shadcnTextInfo",
+      selected: true,
+      data: {
+        functionName: "shadcnTextInfo",
+        borderColor: "#d6a500",
+      },
+    });
+    const hook = setup([textInfoNode], (node) => node.type === "shadcnTextInfo");
+
+    act(() => {
+      hook.result.current.palette.apply(undefined);
+    });
+
+    expect(hook.result.current.nodes[0].data?.borderColor).toBeUndefined();
+    expect(hook.result.current.nodes[0].data?.textInfoFill).toBe("none");
   });
 
   it("keeps palette closed when no eligible selection exists", () => {
