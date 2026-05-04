@@ -354,6 +354,12 @@
   transform: translateZ(0);
 }
 
+.react-flow__node-calculation > * > .calc-node-header {
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  overflow: hidden;
+}
+
 /* The group node => behind edges: z-index: 0 */
 .react-flow__node-shadcnGroup {
   --group-node-radius: 2rem;

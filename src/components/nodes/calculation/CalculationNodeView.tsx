@@ -78,6 +78,20 @@ import type { ClipboardLiteResult } from "@/hooks/nodes/useClipboardLite";
 const ScriptExecutionSteps = React.lazy(
   () => import("@/components/dialog/ScriptExecutionSteps")
 );
+
+function ConcatTypeBadge() {
+  return (
+    <span
+      className={cn(
+        "node-type-chip inline-flex h-6 flex-shrink-0 items-center rounded-full border px-2",
+        "border-border/70 bg-muted/40 text-[0.65rem] font-semibold leading-none text-muted-foreground"
+      )}
+      title="Aggregator node: concatenates ordered input parts"
+    >
+      concat
+    </span>
+  );
+}
 const NodeCodeDialog = React.lazy(
   () => import("@/components/dialog/NodeCodeDialog")
 );
@@ -964,17 +978,23 @@ export function CalculationNodeView({
         ...(data.borderColor ? { borderColor: data.borderColor } : {}),
       }}
     >
-      <div className="flex w-full flex-row items-start gap-2 border-b border-border p-2 text-xl">
-        <div className="min-w-0 flex-1 break-words leading-tight">
-          <EditableLabel
-            value={rawTitle}
-            onCommit={mut.handleTitleUpdate}
-            className="node-title text-xl"
-            maxLength={100}
-          />
+      <div className="calc-node-header flex w-full flex-row items-start gap-2 border-b border-border p-2 text-xl">
+        <div className="min-w-0 flex-1 leading-tight">
+          <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+            <div className="min-w-0 break-words">
+              <EditableLabel
+                value={rawTitle}
+                onCommit={mut.handleTitleUpdate}
+                className="node-title text-xl"
+                maxLength={100}
+              />
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-shrink-0 items-center space-x-2">
+          {isConcatAll && <ConcatTypeBadge />}
+
           {derived.connectionStatus.shouldShow && (
             <ConnectionStatusBadge
               connected={derived.connectionStatus.connected}

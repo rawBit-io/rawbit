@@ -398,6 +398,9 @@ describe("CalculationNodeView", () => {
 
     expect(screen.getByDisplayValue("aa")).toHaveAttribute("rows", "1");
     expect(screen.getByDisplayValue("bb")).toHaveAttribute("rows", "1");
+    expect(
+      screen.getByTitle("Aggregator node: concatenates ordered input parts")
+    ).toHaveTextContent("concat");
   });
 
   it("hides duplicate result output on identity input nodes", () => {
@@ -439,6 +442,9 @@ describe("CalculationNodeView", () => {
     );
 
     expect(screen.getByDisplayValue("abc123")).toHaveAttribute("rows", "1");
+    expect(
+      screen.queryByTitle("Aggregator node: concatenates ordered input parts")
+    ).not.toBeInTheDocument();
     expect(screen.queryByText("> Calculation Result:")).not.toBeInTheDocument();
     expect(screen.queryByTestId("node-result")).not.toBeInTheDocument();
     expect(screen.queryByTitle("Copy result to clipboard")).not.toBeInTheDocument();
