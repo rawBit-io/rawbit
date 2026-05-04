@@ -190,7 +190,7 @@
 
 .app-tabbar {
   --tabbar-fade: hsl(var(--background) / 0.96);
-  border-bottom: 1px solid hsl(var(--border) / 0.58);
+  border-bottom: 0;
   background: linear-gradient(
     to bottom,
     hsl(var(--background) / 0.94),
@@ -202,7 +202,6 @@
 
 .dark .app-tabbar {
   --tabbar-fade: hsl(var(--background) / 0.94);
-  border-bottom-color: hsl(var(--border) / 0.48);
   background: linear-gradient(
     to bottom,
     hsl(var(--background) / 0.92),
@@ -214,16 +213,27 @@
 .app-tabbar::after {
   content: "";
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 1.1rem;
   pointer-events: none;
-  z-index: 2;
 }
 
 .app-tabbar::before {
   left: 0;
-  background: linear-gradient(to right, var(--tabbar-fade), transparent);
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: hsl(var(--border) / 0.58);
+  z-index: 1;
+}
+
+.dark .app-tabbar::before {
+  background: hsl(var(--border) / 0.48);
+}
+
+.app-tabbar::after {
+  top: 0;
+  bottom: 0;
+  width: 1.1rem;
+  z-index: 3;
 }
 
 .app-tabbar::after {
@@ -234,44 +244,36 @@
 .app-tabbar-scroll,
 .app-tabbar-track {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .app-tab {
-  min-width: 5rem;
+  min-width: 0;
   max-width: 13rem;
-  border: 1px solid transparent !important;
-  border-radius: 0.375rem !important;
-  background: transparent !important;
-  color: hsl(var(--muted-foreground)) !important;
-  box-shadow: none !important;
+  color: hsl(var(--muted-foreground));
   transition:
     background-color 140ms ease,
-    border-color 140ms ease,
     color 140ms ease,
     box-shadow 140ms ease,
     transform 140ms ease;
 }
 
 .app-tab:hover {
-  border-color: transparent !important;
-  background: transparent !important;
-  color: hsl(var(--foreground)) !important;
+  color: hsl(var(--foreground));
 }
 
 .app-tab[data-state="active"] {
-  border-color: transparent !important;
+  color: hsl(var(--foreground));
   background: transparent !important;
-  color: hsl(var(--foreground)) !important;
   box-shadow: none !important;
 }
 
 .app-tab[data-state="active"]::after {
   content: "";
   position: absolute;
-  left: 0.75rem;
-  right: 0.75rem;
-  bottom: 0.18rem;
+  left: 0;
+  right: 0;
+  bottom: 0;
   height: 1px;
   border-radius: 999px;
   background: currentColor;
@@ -327,7 +329,7 @@
 .app-tabbar-add:hover,
 .app-tabbar-add:focus-visible {
   border-color: transparent;
-  background: transparent;
+  background: hsl(var(--muted) / 0.7);
   color: hsl(var(--foreground));
 }
 
@@ -1046,29 +1048,6 @@ body[data-large-drag="true"] .rf-node {
   );
 }
 
-[data-skin="paper"] .app-tab {
-  border-color: transparent !important;
-  background: transparent !important;
-}
-
-[data-skin="paper"] .app-tab:hover {
-  border-color: transparent !important;
-  background: transparent !important;
-}
-
-[data-skin="paper"] .app-tabbar-add {
-  border-color: transparent;
-  background: transparent;
-  color: hsl(var(--muted-foreground));
-}
-
-[data-skin="paper"] .app-tabbar-add:hover,
-[data-skin="paper"] .app-tabbar-add:focus-visible {
-  border-color: transparent;
-  background: transparent;
-  color: hsl(var(--foreground));
-}
-
 [data-skin="paper"] .react-flow__node {
   font-family: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", serif !important;
 }
@@ -1215,29 +1194,6 @@ body[data-large-drag="true"] .rf-node {
     hsl(var(--background) / 0.92),
     hsl(var(--background) / 0.78)
   );
-}
-
-[data-skin="midnight"] .app-tab {
-  border-color: transparent !important;
-  background: transparent !important;
-}
-
-[data-skin="midnight"] .app-tab:hover {
-  border-color: transparent !important;
-  background: transparent !important;
-}
-
-[data-skin="midnight"] .app-tabbar-add {
-  border-color: transparent;
-  background: transparent;
-  color: hsl(var(--muted-foreground));
-}
-
-[data-skin="midnight"] .app-tabbar-add:hover,
-[data-skin="midnight"] .app-tabbar-add:focus-visible {
-  border-color: transparent;
-  background: transparent;
-  color: hsl(var(--foreground));
 }
 
 [data-skin="midnight"] .react-flow__node {

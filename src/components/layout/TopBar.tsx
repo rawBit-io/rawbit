@@ -1034,8 +1034,12 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
         >
           <div className="tab-strip-scroll app-tabbar-scroll h-full w-full overflow-x-auto overflow-y-hidden">
             <div className="app-tabbar-track flex h-full min-w-max items-center px-2">
-              <Tabs value={activeTabId} onValueChange={onTabSelect}>
-                <TabsList className="h-full gap-1 bg-transparent p-0">
+              <Tabs
+                value={activeTabId}
+                onValueChange={onTabSelect}
+                className="h-full shrink-0"
+              >
+                <TabsList className="h-full w-max gap-4 rounded-none bg-transparent p-0">
                   {tabs.map((t) => {
                     const isRenaming = renamingTabId === t.id;
                     return (
@@ -1043,7 +1047,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                         key={t.id}
                         value={t.id}
                         title={t.tooltip ?? t.title}
-                        className="app-tab relative group flex h-8 items-center px-3 text-sm"
+                        className="app-tab relative group flex h-full w-auto items-center px-0 text-sm"
                         onDoubleClick={(e) => {
                           if (!onRenameTab) return;
                           e.preventDefault();
@@ -1076,7 +1080,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                             className="app-tab-rename-input w-36 rounded-sm border border-input bg-background px-2 py-0.5 text-sm text-foreground outline-none focus-visible:ring-1 focus-visible:ring-primary"
                           />
                         ) : (
-                          <span className="app-tab-title flex-grow truncate text-center max-w-[9rem]">
+                          <span className="app-tab-title truncate text-center max-w-[9rem]">
                             {t.title}
                           </span>
                         )}
