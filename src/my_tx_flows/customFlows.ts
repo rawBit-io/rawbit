@@ -5,7 +5,7 @@ import type { FlowData } from "@/types";
 // Import each JSON file.
 // Make sure your paths match exactly where they live in your project:
 
-import intro from "@/my_tx_flows/p0_Intro.json";
+import intro from "@/my_tx_flows/p0_Intro_P2PKH.json";
 import intro_p2pkh_p2pk from "@/my_tx_flows/p1_Intro_P2PKH_and_P2PK.json";
 import p2_multisig from "@/my_tx_flows/p2_Bare_P2MS_and_P2SH_MultiSig.json";
 import locktime_tx from "@/my_tx_flows/p3_Locktime_Intro.json";
@@ -23,7 +23,11 @@ import MuSig2 from "@/my_tx_flows/p14_MuSig2.json";
 import TrezorSigningFlow from "@/my_tx_flows/p15_Trezor_signing_flow.json";
 import SummerOfBitcoinPoC from "@/my_tx_flows/p16_Summer_of_Bitcoin_26_PoC.json";
 
-export type CustomFlowLevel = "intro" | "intermediate" | "advanced" | "challenge";
+export type CustomFlowLevel =
+  | "intro"
+  | "intermediate"
+  | "advanced"
+  | "challenge";
 
 export interface CustomFlowTemplate {
   id: string;
@@ -39,7 +43,7 @@ export interface CustomFlowTemplate {
 export const customFlows: CustomFlowTemplate[] = [
   {
     id: "flow-0",
-    label: "Intro",
+    label: "Intro P2PKH",
     data: intro as unknown as FlowData,
     section: "top-level",
     lessonNo: 0,
