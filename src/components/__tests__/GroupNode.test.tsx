@@ -91,7 +91,7 @@ const createNode = (
     selected: true,
     data: {
       title: "Group Node",
-      fontSize: 36,
+      fontSize: 44,
       width: 600,
       height: 360,
       ...dataOverrides,

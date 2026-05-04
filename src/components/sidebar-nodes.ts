@@ -52,7 +52,7 @@ export const allSidebarNodes: NodeTemplate[] = [
       width: 380,
       height: 220,
       title: "Group Node",
-      fontSize: 36,
+      fontSize: 44,
     },
   },
   {

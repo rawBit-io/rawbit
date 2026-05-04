@@ -217,6 +217,7 @@ const createMockInstance = (
 
     const group = result.current.nodes.find((n) => n.type === "shadcnGroup");
     expect(group).toBeDefined();
+    expect(group?.data.fontSize).toBe(44);
     expect(result.current.nodes.filter((n) => n.parentId === group?.id)).toHaveLength(2);
   });
 

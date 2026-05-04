@@ -898,18 +898,46 @@ body[data-large-drag="true"] .rf-node {
 
 /* ===================== Shadcn skin — class overrides ===================== */
 
+[data-skin="shadcn"] {
+  --background: 36 18% 97%;
+  --foreground: 222 13% 17%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 13% 17%;
+  --muted: 36 15% 91%;
+  --muted-foreground: 220 7% 43%;
+  --accent: 36 18% 91%;
+  --accent-foreground: 222 13% 17%;
+  --border: 32 12% 82%;
+  --input: 32 12% 80%;
+  --ring: 222 12% 34%;
+}
+
+.dark[data-skin="shadcn"] {
+  --background: 222 10% 11%;
+  --foreground: 220 8% 88%;
+  --card: 222 9% 14%;
+  --card-foreground: 220 8% 88%;
+  --muted: 222 8% 19%;
+  --muted-foreground: 220 6% 64%;
+  --accent: 222 8% 20%;
+  --accent-foreground: 220 8% 88%;
+  --border: 222 7% 27%;
+  --input: 222 7% 29%;
+  --ring: 220 7% 68%;
+}
+
 [data-skin="shadcn"] .react-flow__node-calculation > * {
-  border-color: hsl(var(--border));
+  border-color: hsl(var(--border) / 0.76);
   background: hsl(var(--card)) !important;
-  box-shadow: 0 10px 20px -24px hsl(var(--foreground) / 0.5) !important;
+  box-shadow: 0 10px 18px -26px hsl(var(--foreground) / 0.5) !important;
 }
 
 [data-skin="shadcn"] .react-flow__node-calculation > * > :first-child {
-  background: hsl(var(--muted) / 0.28);
+  background: hsl(var(--muted) / 0.36);
 }
 
 .dark[data-skin="shadcn"] .react-flow__node-calculation > * > :first-child {
-  background: hsl(var(--muted) / 0.22);
+  background: hsl(var(--muted) / 0.36);
 }
 
 [data-skin="shadcn"] .react-flow__node-shadcnGroup > * {
@@ -963,6 +991,15 @@ body[data-large-drag="true"] .rf-node {
     hsl(var(--background) / 0.92),
     hsl(var(--background) / 0.8)
   );
+}
+
+[data-skin="shadcn"] .react-flow__node-shadcnTextInfo > * {
+  border-color: hsl(var(--border) / 0.76);
+  box-shadow: 0 10px 18px -26px hsl(var(--foreground) / 0.5) !important;
+}
+
+[data-skin="shadcn"] .field-surface {
+  background-color: hsl(var(--muted) / 0.24) !important;
 }
 
 /* ===================== Paper Ledger skin — class overrides ===================== */

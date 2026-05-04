@@ -47,7 +47,7 @@ import { useNodePortalMenu } from "@/hooks/nodes/useNodePortalMenu";
 setAutoFreeze(false);
 
 // --- UI constants ---------------------------------------------------
-const DEFAULT_FONT_SIZE = 36;
+const DEFAULT_FONT_SIZE = 44;
 const MIN_FONT_SIZE = 12;
 const MAX_FONT_SIZE = 150;
 const RESIZE_HANDLE_SIZE = 24;

@@ -635,7 +635,7 @@ export function useNodeOperations() {
         width: bounds.width + margin * 2,
         height: bounds.height + margin * 2,
         title: "Group Node",
-        fontSize: 36,
+        fontSize: 44,
       },
       selected: false,
     };
