@@ -1251,7 +1251,7 @@ body[data-large-drag="true"] .rf-node {
 }
 
 [data-skin="midnight"] [data-testid="sidebar"] {
-  font-family: "JetBrains Mono", "Fira Code", SFMono-Regular, Consolas, monospace;
+  font-family: Inter, "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   letter-spacing: 0;
 }
 
