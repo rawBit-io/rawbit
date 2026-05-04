@@ -129,6 +129,7 @@ type FieldDefinition = BaseFieldDefinition & {
   allowEmptyBlank?: boolean;
   allowNull?: boolean;
   nullLabel?: string;
+  autoResizeMaxRows?: number;
 };
 
 type AsciiTreeNode = {
@@ -367,6 +368,7 @@ export function CalculationNodeView({
   const isDynamicTxFieldExtract =
     data.functionName === "extract_tx_field" &&
     data.txFieldExtractMode === "dynamic";
+  const isConcatAll = data.functionName === "concat_all";
   const txExtractFields = useMemo(
     () => normalizeTxFieldExtractFields(data.txExtractFields),
     [data.txExtractFields]
@@ -552,6 +554,8 @@ export function CalculationNodeView({
       const allowNull =
         field.allowNull ||
         (data.functionName === "musig2_nonce_gen" && fieldIndex === 2);
+      const fieldRows = isConcatAll ? 1 : field.rows;
+      const autoResizeMaxRows = isConcatAll ? 3 : field.autoResizeMaxRows;
 
       if (field.options) {
         const current = rawValue ?? field.options[0];
@@ -577,7 +581,8 @@ export function CalculationNodeView({
           placeholder={resolved.placeholder}
           value={resolved.displayValue}
           small={field.small}
-          rows={field.rows}
+          rows={fieldRows}
+          autoResizeMaxRows={autoResizeMaxRows}
           handleOffset={handleOffset}
           disableHandle={field.unconnectable}
           allowEmpty00={field.allowEmpty00}
@@ -619,6 +624,8 @@ export function CalculationNodeView({
     const allowNull =
       field.allowNull ||
       (data.functionName === "musig2_nonce_gen" && fieldIndex === 2);
+    const fieldRows = isConcatAll ? 1 : field.rows;
+    const autoResizeMaxRows = isConcatAll ? 3 : field.autoResizeMaxRows;
 
     if (field.options) {
       const current = rawValue ?? field.options[0];
@@ -645,7 +652,8 @@ export function CalculationNodeView({
         placeholder={resolved.placeholder}
         value={resolved.displayValue}
         small={field.small}
-        rows={field.rows}
+        rows={fieldRows}
+        autoResizeMaxRows={autoResizeMaxRows}
         handleOffset={-33}
         disableHandle={field.unconnectable}
         allowEmpty00={field.allowEmpty00}

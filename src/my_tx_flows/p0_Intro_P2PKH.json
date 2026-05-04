@@ -1,5 +1,5 @@
 {
-  "name": "flow-1777903663941",
+  "name": "flow-1777916135119",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -27,34 +27,17 @@
   },
   "nodes": [
     {
-      "id": "group_spy3f0v",
-      "type": "shadcnGroup",
-      "position": {
-        "x": 10330.589490067952,
-        "y": 1634.4776975311102
-      },
-      "data": {
-        "isGroup": true,
-        "width": 520,
-        "height": 1040,
-        "title": "Verify Script",
-        "fontSize": 44,
-        "dirty": false
-      },
-      "dragHandle": "[data-drag-handle]"
-    },
-    {
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 7880.449323252164,
-        "y": 4287.334799123034
+        "x": 10992.874146092212,
+        "y": 3849.1698126119045
       },
       "data": {
         "isGroup": true,
-        "width": 1408,
-        "height": 2000,
-        "title": "Final TX",
+        "width": 1576,
+        "height": 2090,
+        "title": "Final TX and Verify Script",
         "dirty": false,
         "groupBundlePortOffsets": {
           "targetByBundle": {
@@ -67,16 +50,16 @@
         "borderColor": "#7a4ea3",
         "fontSize": 44
       },
-      "width": 1408,
-      "height": 2000,
+      "width": 1576,
+      "height": 2090,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 2663.230634332741,
-        "y": 2307.948936414233
+        "x": 5783.890739532513,
+        "y": 1746.2547145072383
       },
       "data": {
         "isGroup": true,
@@ -86,7 +69,7 @@
         "groupBundlePortOffsets": {
           "target": -559.24,
           "targetByBundle": {
-            "group_zi8x2qm->group_cd0gkcz": -453.68,
+            "group_zi8x2qm->group_cd0gkcz": -527.39,
             "group_7w6adu7->group_cd0gkcz": 88.2
           },
           "sourceByBundle": {
@@ -105,23 +88,23 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": -214.18424941181001,
-        "y": 2127.696096870036
+        "x": 2323.792204155353,
+        "y": 1831.5506411886802
       },
       "data": {
         "isGroup": true,
-        "width": 2217,
-        "height": 2503,
+        "width": 2779,
+        "height": 2663,
         "title": "Preimage",
         "groupBundlePortOffsets": {
           "source": 1199.26,
           "target": 1028.2,
           "sourceByBundle": {
-            "group_7w6adu7->group_ixnjwes": 649.78,
-            "group_7w6adu7->group_cd0gkcz": -169.7
+            "group_7w6adu7->group_ixnjwes": 1245.24,
+            "group_7w6adu7->group_cd0gkcz": 90.62
           },
           "targetByBundle": {
-            "group_zi8x2qm->group_7w6adu7": -731.27,
+            "group_zi8x2qm->group_7w6adu7": -820.54,
             "group_ef2se5b->group_7w6adu7": -600.33
           }
         },
@@ -129,16 +112,16 @@
         "borderColor": "#008c86",
         "fontSize": 44
       },
-      "width": 2217,
-      "height": 2503,
+      "width": 2779,
+      "height": 2663,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": -3359.600722786494,
-        "y": 5093.849980529299
+        "x": -691.265862565614,
+        "y": 4643.998416054506
       },
       "data": {
         "isGroup": true,
@@ -163,13 +146,13 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": -2183.89555391303,
-        "y": -739.7709374251413
+        "x": 270,
+        "y": 270
       },
       "data": {
         "isGroup": true,
-        "width": 1704,
-        "height": 1625,
+        "width": 1654,
+        "height": 1033,
         "title": "Funding TX",
         "groupBundlePortOffsets": {
           "source": 409.13,
@@ -182,16 +165,16 @@
         "fontSize": 44,
         "borderColor": "#6f6a60"
       },
-      "width": 1704,
-      "height": 1625,
+      "width": 1654,
+      "height": 1033,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "node_8QSOHj19",
       "type": "calculation",
       "position": {
-        "x": 314.7208452605778,
-        "y": 187.43822758363967
+        "x": 776.536506995858,
+        "y": 83.58119752910034
       },
       "data": {
         "functionName": "identity",
@@ -224,8 +207,8 @@
       "id": "node_1AL3tCpN",
       "type": "calculation",
       "position": {
-        "x": 313.81817676925084,
-        "y": 457.105670294367
+        "x": 781.4162147965299,
+        "y": 347.80263786147316
       },
       "data": {
         "functionName": "identity",
@@ -261,8 +244,8 @@
       "id": "node_kSTGvvaL",
       "type": "calculation",
       "position": {
-        "x": 320.93870205807934,
-        "y": 1810.2617490679613
+        "x": 719.6049153899185,
+        "y": 1772.5220501340043
       },
       "data": {
         "functionName": "identity",
@@ -295,8 +278,8 @@
       "id": "node_IRajBmor",
       "type": "calculation",
       "position": {
-        "x": 341.4896973100276,
-        "y": 2072.0177485971444
+        "x": 710.4367864244964,
+        "y": 2090.9988630272564
       },
       "data": {
         "functionName": "identity",
@@ -330,8 +313,8 @@
       "id": "node_bkJNiVtV",
       "type": "calculation",
       "position": {
-        "x": 60.294887493233546,
-        "y": 836.8508022334859
+        "x": 58.620496626233034,
+        "y": 945.6862085885634
       },
       "data": {
         "functionName": "identity",
@@ -364,8 +347,8 @@
       "id": "node_Dj53D8z4",
       "type": "opCodeNode",
       "position": {
-        "x": 1096.0782903453908,
-        "y": 60
+        "x": 1069.6991414543213,
+        "y": 121.55134741249549
       },
       "data": {
         "functionName": "op_code_select",
@@ -389,8 +372,8 @@
       "id": "node_YVC3JSpC",
       "type": "opCodeNode",
       "position": {
-        "x": 1085.7674444116699,
-        "y": 761.1105610381883
+        "x": 1080.4754380642266,
+        "y": 710.9000529694631
       },
       "data": {
         "functionName": "op_code_select",
@@ -414,8 +397,8 @@
       "id": "node_7bQgp6gF",
       "type": "calculation",
       "position": {
-        "x": 1616.6670957405602,
-        "y": 127.90710738325834
+        "x": 1590.2879468494907,
+        "y": 189.45845479575382
       },
       "data": {
         "functionName": "concat_all",
@@ -481,8 +464,8 @@
       "id": "node_Xoq2K65O",
       "type": "calculation",
       "position": {
-        "x": 715.6909904303002,
-        "y": 174.56139225889183
+        "x": 680.5287822232749,
+        "y": 333.62852462400565
       },
       "data": {
         "functionName": "concat_all",
@@ -668,8 +651,8 @@
       "id": "node_UIgo6BTD",
       "type": "calculation",
       "position": {
-        "x": 1593.9068995499354,
-        "y": 372.25052394258
+        "x": 1988.3939972987632,
+        "y": 501.1010620167581
       },
       "data": {
         "functionName": "concat_all",
@@ -972,8 +955,8 @@
       "id": "node_yf0EwOn6",
       "type": "calculation",
       "position": {
-        "x": 528.8603929078381,
-        "y": 358.74304951817885
+        "x": 502.6710304958701,
+        "y": 385.9531585630591
       },
       "data": {
         "functionName": "public_key_from_private_key",
@@ -996,8 +979,8 @@
       "id": "node_MlkWePnK",
       "type": "calculation",
       "position": {
-        "x": 909.6173581664534,
-        "y": 252.6232131645893
+        "x": 883.4279957544854,
+        "y": 279.83332220946954
       },
       "data": {
         "functionName": "hash160_hex",
@@ -1029,8 +1012,8 @@
       "id": "node_CLVgEw37",
       "type": "calculation",
       "position": {
-        "x": 751.3306324700702,
-        "y": 474.51892218835656
+        "x": 1267.3306324700702,
+        "y": 366.5920801987454
       },
       "data": {
         "functionName": "encode_varint",
@@ -1052,8 +1035,8 @@
       "id": "node_JyOxx76F",
       "type": "calculation",
       "position": {
-        "x": 754.6528032460592,
-        "y": 700.2049397816709
+        "x": 1270.6528032460592,
+        "y": 642.2049397816709
       },
       "data": {
         "functionName": "reverse_txid_bytes",
@@ -1075,8 +1058,8 @@
       "id": "node_A97ESBMe",
       "type": "calculation",
       "position": {
-        "x": 747.9705402628238,
-        "y": 1817.7157597317955
+        "x": 1236.4620030963915,
+        "y": 1782.201497185539
       },
       "data": {
         "functionName": "encode_varint",
@@ -1098,8 +1081,8 @@
       "id": "node_jM1BkHeL",
       "type": "calculation",
       "position": {
-        "x": 2166.3573544710525,
-        "y": 590.4227511568006
+        "x": 2139.978205579983,
+        "y": 651.9740985692961
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -1121,8 +1104,8 @@
       "id": "node_uc3qXmHd",
       "type": "calculation",
       "position": {
-        "x": 733.2028707160475,
-        "y": 2067.241231994428
+        "x": 1225.9222372194272,
+        "y": 2069.8213307112746
       },
       "data": {
         "functionName": "satoshi_to_8_le",
@@ -1145,8 +1128,8 @@
       "id": "node_NRUA8pnX",
       "type": "calculation",
       "position": {
-        "x": 753.4367319973112,
-        "y": 1291.4062772112256
+        "x": 1250.609752387219,
+        "y": 1184.2915357843187
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -1168,8 +1151,8 @@
       "id": "node_fL7jxPA0",
       "type": "calculation",
       "position": {
-        "x": 1235.4093047448705,
-        "y": 247.70662166156671
+        "x": 1203.5958782718471,
+        "y": 435.2383987657006
       },
       "data": {
         "functionName": "double_sha256_hex",
@@ -1201,8 +1184,8 @@
       "id": "node_b1GSXfdE",
       "type": "calculation",
       "position": {
-        "x": 1661.4866804754429,
-        "y": 179.70489827084293
+        "x": 1685.3346615562587,
+        "y": 355.31275895684826
       },
       "data": {
         "functionName": "sign_as_bitcoin_core_low_r",
@@ -1243,8 +1226,8 @@
       "id": "node_3LLc1EbO",
       "type": "calculation",
       "position": {
-        "x": 3846.5042886578094,
-        "y": 275.97904922809084
+        "x": 3887.696255979219,
+        "y": 310.66702170927715
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -1267,7 +1250,7 @@
       "type": "calculation",
       "position": {
         "x": 759.5069382856091,
-        "y": 1097.5089294814024
+        "y": 1344.4336516672274
       },
       "data": {
         "functionName": "double_sha256_hex",
@@ -1300,8 +1283,8 @@
       "id": "node_24bD1CIj",
       "type": "calculation",
       "position": {
-        "x": 1091.6879497159644,
-        "y": 1382.1705768507
+        "x": 1163.1661587697545,
+        "y": 1512.130956948503
       },
       "data": {
         "functionName": "reverse_txid_bytes",
@@ -1359,8 +1342,8 @@
       "id": "node_d4b67dsm",
       "type": "calculation",
       "position": {
-        "x": 2839.8158730481164,
-        "y": 661.814460237917
+        "x": 2848.4878661684143,
+        "y": 596.7745118356936
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -1393,8 +1376,8 @@
       "id": "node_hXZugDJb",
       "type": "calculation",
       "position": {
-        "x": 1109.7262559680494,
-        "y": 362.45480463976673
+        "x": 1070.157532631445,
+        "y": 380.04090390047895
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -1427,8 +1410,8 @@
       "id": "node_CWfi6O88",
       "type": "calculation",
       "position": {
-        "x": 72.27992349876877,
-        "y": 454.97988008025914
+        "x": 46.09056108680079,
+        "y": 482.1899891251394
       },
       "data": {
         "functionName": "random_256",
@@ -1449,8 +1432,8 @@
       "id": "node_C85oMB8J",
       "type": "calculation",
       "position": {
-        "x": 760.9900886208761,
-        "y": 999.7683359101329
+        "x": 1259.7952202849692,
+        "y": 913.9759439221034
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -1473,8 +1456,8 @@
       "id": "node_iG1CdtRQ",
       "type": "calculation",
       "position": {
-        "x": 749.5559495660868,
-        "y": 237.26299718219616
+        "x": 1250.3608237431617,
+        "y": 122.82395841133166
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -1497,8 +1480,8 @@
       "id": "node_ojrcMe27",
       "type": "calculation",
       "position": {
-        "x": 388.284169189953,
-        "y": 569.7057694619803
+        "x": 373.214651386942,
+        "y": 712.0289931570821
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -1521,8 +1504,8 @@
       "id": "node_v7K1rBTw",
       "type": "calculation",
       "position": {
-        "x": 330.5720512513435,
-        "y": 1540.8751412833253
+        "x": 752.793679609646,
+        "y": 1476.582877976887
       },
       "data": {
         "functionName": "identity",
@@ -1557,8 +1540,8 @@
       "id": "node_E7c0t33i",
       "type": "calculation",
       "position": {
-        "x": 759.4057079286904,
-        "y": 1567.5519241345382
+        "x": 1257.0158626421257,
+        "y": 1467.0835745220095
       },
       "data": {
         "functionName": "reverse_bytes_4",
@@ -1592,7 +1575,7 @@
       "type": "calculation",
       "position": {
         "x": 1296.802215656966,
-        "y": 175.03222310346518
+        "y": 104.03222310346507
       },
       "data": {
         "functionName": "hash160_to_p2pkh_address",
@@ -1629,8 +1612,8 @@
       "id": "node_opeFHAE6",
       "type": "calculation",
       "position": {
-        "x": 414.8502200679494,
-        "y": 367.61409514388106
+        "x": 397.2641208072364,
+        "y": 510.5011516371751
       },
       "data": {
         "functionName": "public_key_from_private_key",
@@ -1653,8 +1636,8 @@
       "id": "node_Lwo0cZDT",
       "type": "calculation",
       "position": {
-        "x": 766.2389642031903,
-        "y": 408.9449777145128
+        "x": 761.8424393880122,
+        "y": 545.2372469850388
       },
       "data": {
         "functionName": "hash160_hex",
@@ -1686,8 +1669,8 @@
       "id": "node_JMarfc2B",
       "type": "calculation",
       "position": {
-        "x": 40.80894213046861,
-        "y": 356.8160794722444
+        "x": 39.73936266065766,
+        "y": 495.30661115035946
       },
       "data": {
         "functionName": "random_256",
@@ -1707,8 +1690,8 @@
       "id": "node_hHXC5ZW3",
       "type": "calculation",
       "position": {
-        "x": 534.2079412526493,
-        "y": 2303.5290512587194
+        "x": 1227.119192356331,
+        "y": 2354.4407526514487
       },
       "data": {
         "functionName": "identity",
@@ -1732,7 +1715,6 @@
         },
         "groupInstances": {},
         "title": "Locktime",
-        "borderColor": "#14b8a6",
         "showComment": false,
         "error": false
       },
@@ -1743,8 +1725,8 @@
       "id": "node_o6vul7a",
       "type": "calculation",
       "position": {
-        "x": 60,
-        "y": 60
+        "x": 1022.5937200514891,
+        "y": 309.258836062284
       },
       "data": {
         "functionName": "script_verification",
@@ -1972,15 +1954,15 @@
           "error": "signature check failed, and signature is not empty (Note: SegWit/Taproot verification requires the spent amount in satoshis)"
         }
       },
-      "parentId": "group_spy3f0v",
+      "parentId": "group_ixnjwes",
       "extent": "parent"
     },
     {
       "id": "node_ljj3f78",
       "type": "calculation",
       "position": {
-        "x": 519.6968268060232,
-        "y": 1006.4698072340298
+        "x": 127.29385230153957,
+        "y": 1240.020682267149
       },
       "data": {
         "functionName": "identity",
@@ -2006,19 +1988,19 @@
         "dirty": false,
         "error": false
       },
-      "parentId": "group_zi8x2qm",
+      "parentId": "group_7w6adu7",
       "extent": "parent"
     },
     {
       "id": "node_xfz2u3e",
       "type": "calculation",
       "position": {
-        "x": 518.9251844784708,
-        "y": 712.3873000518997
+        "x": 637.3276201578155,
+        "y": 787.6591384614619
       },
       "data": {
         "functionName": "identity",
-        "title": "rawTX",
+        "title": "funding rawTX",
         "showField": true,
         "numInputs": 0,
         "value": "0200000000010167342ffa61c88abd8e77667f2ab0bf2966123b790096170b0bae4710dc10c7ed0000000000fdffffff02dc7cbb94000000001976a9143b349ba7eddb9ef731a66fdeb417b91a0c52fe1d88ac573b0200000000001976a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88ac0247304402201ad7abcc4a332ea840806f4a02b4b5b00281f9472900ac1912448ea459d8b784022060324016ddf18fee00b250b79bde18a3296aeff8004329c7fe3a44c44bfe72d301210241606b136ae88260bb77337dd631c12efd1769e33864b3dc735330825c6a323fdbc04400",
@@ -2047,8 +2029,8 @@
       "id": "node_2bp7tnt",
       "type": "calculation",
       "position": {
-        "x": 1028.7411198419509,
-        "y": 908.7013489532392
+        "x": 621.8140787187672,
+        "y": 588.0178801330021
       },
       "data": {
         "functionName": "extract_tx_field",
@@ -2102,7 +2084,7 @@
         },
         "error": false
       },
-      "parentId": "group_zi8x2qm",
+      "parentId": "group_7w6adu7",
       "extent": "parent"
     }
   ],
@@ -2195,8 +2177,8 @@
       "id": "edge_juB030IU",
       "data": {
         "curveControlPointOffset": {
-          "x": 819.87,
-          "y": -263.91
+          "x": 331.49,
+          "y": -199.8
         }
       }
     },
@@ -2425,8 +2407,8 @@
       "id": "edge_Zc9ORlr9",
       "data": {
         "curveControlPointOffset": {
-          "x": 819.87,
-          "y": -263.91
+          "x": 331.49,
+          "y": -199.8
         }
       }
     },
@@ -2452,8 +2434,8 @@
       "id": "edge_v4UKc1K7",
       "data": {
         "curveControlPointOffset": {
-          "x": 819.87,
-          "y": -263.91
+          "x": 331.49,
+          "y": -199.8
         }
       }
     },
@@ -2618,7 +2600,6 @@
     {
       "source": "node_xfz2u3e",
       "target": "node_2bp7tnt",
-      "sourceHandle": null,
       "targetHandle": "input-0",
       "selected": false,
       "id": "xy-edge__node_xfz2u3e-node_2bp7tntinput-0"
@@ -2626,7 +2607,6 @@
     {
       "source": "node_ljj3f78",
       "target": "node_2bp7tnt",
-      "sourceHandle": null,
       "targetHandle": "input-1",
       "selected": false,
       "id": "xy-edge__node_ljj3f78-node_2bp7tntinput-1"
@@ -2635,7 +2615,6 @@
       "id": "edge_jn7bwol",
       "source": "node_ljj3f78",
       "target": "node_C85oMB8J",
-      "sourceHandle": null,
       "targetHandle": "input-0",
       "data": {
         "curveControlPointOffset": {

@@ -87,6 +87,7 @@ export const allSidebarNodes: NodeTemplate[] = [
       paramExtraction: "multi_val",
       numInputs: 2,
       inputs: { vals: [] },
+      compactConcatInputs: true,
 
       version: 0,
       result: "",
@@ -104,7 +105,8 @@ export const allSidebarNodes: NodeTemplate[] = [
                 index: 0,
                 label: "Value:",
                 placeholder: "<input>",
-                rows: 3,
+                rows: 1,
+                autoResizeMaxRows: 3,
               },
             ],
           },

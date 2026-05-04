@@ -344,6 +344,62 @@ describe("CalculationNodeView", () => {
     expect(mut.resizeTxFieldExtractFields).toHaveBeenCalledWith(false);
   });
 
+  it("renders concat_all inputs as one-line auto-growing fields even when renamed", () => {
+    const clip = createClip({ prettyResult: "aabb" });
+    const mut = createMut();
+
+    renderWithProviders(
+      <CalculationNodeView
+        selected={false}
+        data={{
+          functionName: "concat_all",
+          title: "scriptPubKey",
+          paramExtraction: "multi_val",
+          inputs: {
+            vals: {
+              0: "aa",
+              100: "bb",
+            },
+          },
+          inputStructure: {
+            groups: [
+              {
+                title: "INPUTS[]",
+                baseIndex: 0,
+                fields: [{ index: 0, label: "Value:", rows: 3 }],
+              },
+            ],
+          },
+          groupInstanceKeys: { "INPUTS[]": [0, 100] },
+        } as NodeData}
+        rawTitle="scriptPubKey"
+        derived={{
+          ...derived,
+          isMultiVal: true,
+        }}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        singleValue={undefined}
+        result="aabb"
+        error={false}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: false,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    expect(screen.getByDisplayValue("aa")).toHaveAttribute("rows", "1");
+    expect(screen.getByDisplayValue("bb")).toHaveAttribute("rows", "1");
+  });
+
   it("hides duplicate result output on identity input nodes", () => {
     const clip = createClip({ prettyResult: "abc123" });
     const mut = createMut();

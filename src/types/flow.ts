@@ -12,6 +12,7 @@ export interface FieldDefinition {
   placeholder?: string;
   small?: boolean;
   rows?: number;
+  autoResizeMaxRows?: number;
   allowEmpty00?: boolean;
   allowEmptyBlank?: boolean;
   allowNull?: boolean;
@@ -115,6 +116,7 @@ export interface CalculationNodeData extends Record<string, unknown> {
   groupBundlePortOffsets?: GroupBundlePortOffsets;
   isHighlighted?: boolean;
   isConcatAll?: boolean;
+  compactConcatInputs?: boolean;
   searchMark?: {
     term: string;
     ts: number;
