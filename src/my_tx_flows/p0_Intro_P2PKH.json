@@ -1,5 +1,5 @@
 {
-  "name": "flow-1777916135119",
+  "name": "flow-1777917115817",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -88,13 +88,13 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 2323.792204155353,
-        "y": 1831.5506411886802
+        "x": 2358.8191722426172,
+        "y": 1845.919812273812
       },
       "data": {
         "isGroup": true,
-        "width": 2779,
-        "height": 2663,
+        "width": 2659,
+        "height": 2574,
         "title": "Preimage",
         "groupBundlePortOffsets": {
           "source": 1199.26,
@@ -104,16 +104,17 @@
             "group_7w6adu7->group_cd0gkcz": 90.62
           },
           "targetByBundle": {
-            "group_zi8x2qm->group_7w6adu7": -820.54,
-            "group_ef2se5b->group_7w6adu7": -600.33
+            "group_zi8x2qm->group_7w6adu7": -1208.38,
+            "group_ef2se5b->group_7w6adu7": -600.33,
+            "group_hegqa99->group_7w6adu7": 947.97
           }
         },
         "dirty": false,
         "borderColor": "#008c86",
         "fontSize": 44
       },
-      "width": 2779,
-      "height": 2663,
+      "width": 2659,
+      "height": 2574,
       "dragHandle": "[data-drag-handle]"
     },
     {
@@ -157,8 +158,9 @@
         "groupBundlePortOffsets": {
           "source": 409.13,
           "sourceByBundle": {
-            "group_zi8x2qm->group_7w6adu7": 687.24,
-            "group_zi8x2qm->group_spy3f0v": 94.6
+            "group_zi8x2qm->group_7w6adu7": 459.77,
+            "group_zi8x2qm->group_spy3f0v": 94.6,
+            "group_zi8x2qm->group_cd0gkcz": 324.69
           }
         },
         "dirty": false,
@@ -173,8 +175,8 @@
       "id": "node_8QSOHj19",
       "type": "calculation",
       "position": {
-        "x": 776.536506995858,
-        "y": 83.58119752910034
+        "x": 673.536506995858,
+        "y": 105.24751471504305
       },
       "data": {
         "functionName": "identity",
@@ -207,8 +209,8 @@
       "id": "node_1AL3tCpN",
       "type": "calculation",
       "position": {
-        "x": 781.4162147965299,
-        "y": 347.80263786147316
+        "x": 678.4162147965299,
+        "y": 377.6910607760633
       },
       "data": {
         "functionName": "identity",
@@ -244,8 +246,8 @@
       "id": "node_kSTGvvaL",
       "type": "calculation",
       "position": {
-        "x": 719.6049153899185,
-        "y": 1772.5220501340043
+        "x": 729.4919836843305,
+        "y": 1736.317488064405
       },
       "data": {
         "functionName": "identity",
@@ -278,8 +280,8 @@
       "id": "node_IRajBmor",
       "type": "calculation",
       "position": {
-        "x": 710.4367864244964,
-        "y": 2090.9988630272564
+        "x": 711.6648029176808,
+        "y": 2040.9568722470722
       },
       "data": {
         "functionName": "identity",
@@ -473,13 +475,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000002076a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88acfdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000",
+            "0": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000001976a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88acfdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000",
             "100": "01000000"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000002076a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88acfdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac0000000001000000",
+        "result": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000001976a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88acfdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac0000000001000000",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -534,13 +536,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f2",
+            "0": "3044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda",
             "100": "01"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
+        "result": "3044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda01",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -596,14 +598,14 @@
         "inputs": {
           "vals": {
             "0": "47",
-            "100": "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
+            "100": "3044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda01",
             "200": "21",
             "300": "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "473044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f20121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
+        "result": "473044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda0121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -651,8 +653,8 @@
       "id": "node_UIgo6BTD",
       "type": "calculation",
       "position": {
-        "x": 1988.3939972987632,
-        "y": 501.1010620167581
+        "x": 1907.1245912316017,
+        "y": 616.885603052463
       },
       "data": {
         "functionName": "concat_all",
@@ -664,7 +666,7 @@
             "10": "01",
             "1000": "adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef",
             "1010": "01000000",
-            "1020": "20",
+            "1020": "19",
             "1030": "76a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88ac",
             "1040": "fdffffff",
             "2000": "01",
@@ -676,7 +678,7 @@
         },
         "dirty": false,
         "version": 0,
-        "result": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000002076a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88acfdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000",
+        "result": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000001976a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88acfdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000",
         "inputStructure": {
           "afterGroups": [
             {
@@ -802,8 +804,8 @@
       "id": "node_qMmh8Zrk",
       "type": "calculation",
       "position": {
-        "x": 233.54895426238545,
-        "y": 67.73280205127321
+        "x": 203.92692000143143,
+        "y": 171.40992196461366
       },
       "data": {
         "functionName": "concat_all",
@@ -816,7 +818,7 @@
             "1000": "adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef",
             "1010": "01000000",
             "1020": "6a",
-            "1030": "473044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f20121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
+            "1030": "473044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda0121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
             "1040": "fdffffff",
             "2000": "01",
             "3000": "6836020000000000",
@@ -827,7 +829,7 @@
         },
         "dirty": false,
         "version": 0,
-        "result": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000006a473044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f20121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5fdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000",
+        "result": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000006a473044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda0121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5fdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000",
         "inputStructure": {
           "afterGroups": [
             {
@@ -955,8 +957,8 @@
       "id": "node_yf0EwOn6",
       "type": "calculation",
       "position": {
-        "x": 502.6710304958701,
-        "y": 385.9531585630591
+        "x": 454.28382496554684,
+        "y": 366.0290151093966
       },
       "data": {
         "functionName": "public_key_from_private_key",
@@ -1012,8 +1014,8 @@
       "id": "node_CLVgEw37",
       "type": "calculation",
       "position": {
-        "x": 1267.3306324700702,
-        "y": 366.5920801987454
+        "x": 1164.3306324700702,
+        "y": 363.5920801987454
       },
       "data": {
         "functionName": "encode_varint",
@@ -1035,8 +1037,8 @@
       "id": "node_JyOxx76F",
       "type": "calculation",
       "position": {
-        "x": 1270.6528032460592,
-        "y": 642.2049397816709
+        "x": 1152.1339035611481,
+        "y": 565.984596009168
       },
       "data": {
         "functionName": "reverse_txid_bytes",
@@ -1058,8 +1060,8 @@
       "id": "node_A97ESBMe",
       "type": "calculation",
       "position": {
-        "x": 1236.4620030963915,
-        "y": 1782.201497185539
+        "x": 1144.0332277191847,
+        "y": 1606.3482747412068
       },
       "data": {
         "functionName": "encode_varint",
@@ -1104,8 +1106,8 @@
       "id": "node_uc3qXmHd",
       "type": "calculation",
       "position": {
-        "x": 1225.9222372194272,
-        "y": 2069.8213307112746
+        "x": 1153.0082072879163,
+        "y": 1982.5806145195056
       },
       "data": {
         "functionName": "satoshi_to_8_le",
@@ -1128,8 +1130,8 @@
       "id": "node_NRUA8pnX",
       "type": "calculation",
       "position": {
-        "x": 1250.609752387219,
-        "y": 1184.2915357843187
+        "x": 1154.299025313614,
+        "y": 1029.004278840921
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -1139,9 +1141,9 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": "efbcb8a25b793c067470ea61edeb2e1d81f979b19f1cd36d7307f162381aebad"
+          "val": "76a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88ac"
         },
-        "result": "20",
+        "result": "19",
         "error": false
       },
       "parentId": "group_7w6adu7",
@@ -1162,9 +1164,9 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000002076a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88acfdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac0000000001000000"
+          "val": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000001976a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88acfdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac0000000001000000"
         },
-        "result": "7f1bd4612a2f1c798a95dcf95a3daeb6af1a4902ca74f82e5f6e0a25ec8f25b7",
+        "result": "1e0a33fc4e021cdf902f000679d9ffdb9faf170ea7c5847f32e0f48e37c4e770",
         "inputStructure": {
           "ungrouped": [
             {
@@ -1184,8 +1186,8 @@
       "id": "node_b1GSXfdE",
       "type": "calculation",
       "position": {
-        "x": 1685.3346615562587,
-        "y": 355.31275895684826
+        "x": 1668.654259389843,
+        "y": 293.35697948158827
       },
       "data": {
         "functionName": "sign_as_bitcoin_core_low_r",
@@ -1196,7 +1198,7 @@
         "inputs": {
           "vals": {
             "0": "0959fe8c99eab96f02beaceda253c4883b5fae69b0fe9daab6a84130b5410208",
-            "1": "7f1bd4612a2f1c798a95dcf95a3daeb6af1a4902ca74f82e5f6e0a25ec8f25b7"
+            "1": "1e0a33fc4e021cdf902f000679d9ffdb9faf170ea7c5847f32e0f48e37c4e770"
           }
         },
         "inputStructure": {
@@ -1214,7 +1216,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f2",
+        "result": "3044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda",
         "totalInputs": 2,
         "unwiredCount": 0,
         "error": false
@@ -1237,7 +1239,7 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": "473044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f20121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
+          "val": "473044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda0121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
         },
         "result": "6a",
         "error": false
@@ -1260,9 +1262,9 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000006a473044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f20121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5fdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000"
+          "val": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000006a473044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda0121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5fdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000"
         },
-        "result": "2019ad7383b5a48f3b2d24de0220e8011070eb34776528662df538df09a80797",
+        "result": "a457ec0620ef76c647a1f3681fffee73fba4132b25576e689c1bf97c1f663aab",
         "inputStructure": {
           "ungrouped": [
             {
@@ -1293,9 +1295,9 @@
         "showField": false,
         "dirty": false,
         "groupInstances": {},
-        "result": "9707a809df38f52d6628657734eb701001e82002de242d3b8fa4b58373ad1920",
+        "result": "ab3a661f7cf91b9c686e57252b13a4fb73eeff1f68f3a147c676ef2006ec57a4",
         "inputs": {
-          "val": "2019ad7383b5a48f3b2d24de0220e8011070eb34776528662df538df09a80797"
+          "val": "a457ec0620ef76c647a1f3681fffee73fba4132b25576e689c1bf97c1f663aab"
         },
         "showComment": true,
         "comment": "TXID as displayed by bitcoin clients",
@@ -1319,7 +1321,7 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201"
+          "val": "3044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda01"
         },
         "result": "47",
         "inputStructure": {
@@ -1410,8 +1412,8 @@
       "id": "node_CWfi6O88",
       "type": "calculation",
       "position": {
-        "x": 46.09056108680079,
-        "y": 482.1899891251394
+        "x": 37.55164246380252,
+        "y": 428.1101711794839
       },
       "data": {
         "functionName": "random_256",
@@ -1432,8 +1434,8 @@
       "id": "node_C85oMB8J",
       "type": "calculation",
       "position": {
-        "x": 1259.7952202849692,
-        "y": 913.9759439221034
+        "x": 1147.8794242586837,
+        "y": 831.0408386761901
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -1456,8 +1458,8 @@
       "id": "node_iG1CdtRQ",
       "type": "calculation",
       "position": {
-        "x": 1250.3608237431617,
-        "y": 122.82395841133166
+        "x": 1147.3608237431617,
+        "y": 119.82395841133166
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -1504,8 +1506,8 @@
       "id": "node_v7K1rBTw",
       "type": "calculation",
       "position": {
-        "x": 752.793679609646,
-        "y": 1476.582877976887
+        "x": 720.2207217849409,
+        "y": 1473.142897999841
       },
       "data": {
         "functionName": "identity",
@@ -1540,8 +1542,8 @@
       "id": "node_E7c0t33i",
       "type": "calculation",
       "position": {
-        "x": 1257.0158626421257,
-        "y": 1467.0835745220095
+        "x": 1151.0072656352768,
+        "y": 1379.8428583302407
       },
       "data": {
         "functionName": "reverse_bytes_4",
@@ -1690,8 +1692,8 @@
       "id": "node_hHXC5ZW3",
       "type": "calculation",
       "position": {
-        "x": 1227.119192356331,
-        "y": 2354.4407526514487
+        "x": 1166.9746877667744,
+        "y": 2286.137140597439
       },
       "data": {
         "functionName": "identity",
@@ -1735,9 +1737,9 @@
         "numInputs": 6,
         "inputs": {
           "vals": {
-            "0": "473044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f20121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
+            "0": "473044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda0121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
             "1": "76a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88ac",
-            "2": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000006a473044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f20121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5fdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000",
+            "2": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000006a473044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda0121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5fdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000",
             "3": "0",
             "5": "__EMPTY__"
           }
@@ -1816,13 +1818,13 @@
         },
         "groupInstances": {},
         "groupInstanceKeys": {},
-        "result": "false",
+        "result": "true",
         "error": false,
         "totalInputs": 4,
         "unwiredCount": 0,
         "dirty": false,
         "scriptDebugSteps": {
-          "isValid": false,
+          "isValid": true,
           "steps": [
             {
               "pc": 0,
@@ -1830,7 +1832,7 @@
               "opcode_name": "unknown opcode",
               "stack_before": [],
               "stack_after": [
-                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201"
+                "3044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda01"
               ],
               "phase": "scriptSig"
             },
@@ -1839,10 +1841,10 @@
               "opcode": 33,
               "opcode_name": "unknown opcode",
               "stack_before": [
-                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201"
+                "3044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda01"
               ],
               "stack_after": [
-                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
+                "3044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda01",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
               ],
               "phase": "scriptSig"
@@ -1852,11 +1854,11 @@
               "opcode": 118,
               "opcode_name": "OP_DUP",
               "stack_before": [
-                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
+                "3044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda01",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
               ],
               "stack_after": [
-                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
+                "3044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda01",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
               ],
@@ -1867,12 +1869,12 @@
               "opcode": 169,
               "opcode_name": "OP_HASH160",
               "stack_before": [
-                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
+                "3044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda01",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
               ],
               "stack_after": [
-                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
+                "3044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda01",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
                 "333d1836c8f4db933eae179bd5bf5ec9209eb78a"
               ],
@@ -1883,12 +1885,12 @@
               "opcode": 20,
               "opcode_name": "unknown opcode",
               "stack_before": [
-                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
+                "3044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda01",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
                 "333d1836c8f4db933eae179bd5bf5ec9209eb78a"
               ],
               "stack_after": [
-                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
+                "3044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda01",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
                 "333d1836c8f4db933eae179bd5bf5ec9209eb78a",
                 "333d1836c8f4db933eae179bd5bf5ec9209eb78a"
@@ -1900,13 +1902,13 @@
               "opcode": 136,
               "opcode_name": "OP_EQUALVERIFY",
               "stack_before": [
-                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
+                "3044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda01",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
                 "333d1836c8f4db933eae179bd5bf5ec9209eb78a",
                 "333d1836c8f4db933eae179bd5bf5ec9209eb78a"
               ],
               "stack_after": [
-                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
+                "3044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda01",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
               ],
               "phase": "scriptPubKey"
@@ -1916,19 +1918,14 @@
               "opcode": 172,
               "opcode_name": "OP_CHECKSIG",
               "stack_before": [
-                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
+                "3044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda01",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
               ],
-              "stack_after": [
-                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
-                "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
-              ],
-              "phase": "scriptPubKey",
-              "failed": true,
-              "error": "signature check failed, and signature is not empty"
+              "stack_after": ["01"],
+              "phase": "scriptPubKey"
             }
           ],
-          "scriptSig": "473044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f20121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
+          "scriptSig": "473044022039d5a54d098ee7cb3873e5fc9fd296f1b261a86e54569269b5cfaebd9eb19a3c022076ccd53e1f90bea7d0ab6b6d4342431464f9729df77e54f6a667f3417d522cda0121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
           "scriptPubKey": "76a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88ac",
           "excludedFlags": [],
           "activeFlags": [
@@ -1950,8 +1947,7 @@
             "WITNESS_PUBKEYTYPE"
           ],
           "usesWitness": true,
-          "amountUsed": 0,
-          "error": "signature check failed, and signature is not empty (Note: SegWit/Taproot verification requires the spent amount in satoshis)"
+          "amountUsed": 0
         }
       },
       "parentId": "group_ixnjwes",
@@ -1961,8 +1957,8 @@
       "id": "node_ljj3f78",
       "type": "calculation",
       "position": {
-        "x": 127.29385230153957,
-        "y": 1240.020682267149
+        "x": 125.05027890932934,
+        "y": 1229.9580233445054
       },
       "data": {
         "functionName": "identity",
@@ -2029,8 +2025,8 @@
       "id": "node_2bp7tnt",
       "type": "calculation",
       "position": {
-        "x": 621.8140787187672,
-        "y": 588.0178801330021
+        "x": 564.6197554470036,
+        "y": 801.9959579204074
       },
       "data": {
         "functionName": "extract_tx_field",
@@ -2639,20 +2635,6 @@
       "selected": false
     },
     {
-      "id": "edge_112iydi",
-      "source": "node_2bp7tnt",
-      "target": "node_NRUA8pnX",
-      "sourceHandle": "output-0",
-      "targetHandle": "input-0",
-      "data": {
-        "curveControlPointOffset": {
-          "x": -102.96,
-          "y": -103.93
-        }
-      },
-      "selected": false
-    },
-    {
       "id": "edge_e3uldaq",
       "source": "node_2bp7tnt",
       "target": "node_UIgo6BTD",
@@ -2667,6 +2649,20 @@
       "sourceHandle": "output-1",
       "targetHandle": "input-1",
       "selected": false
+    },
+    {
+      "source": "node_2bp7tnt",
+      "target": "node_NRUA8pnX",
+      "sourceHandle": "output-1",
+      "targetHandle": "input-0",
+      "data": {
+        "curveControlPointOffset": {
+          "x": -102.96,
+          "y": -103.93
+        }
+      },
+      "selected": false,
+      "id": "xy-edge__node_2bp7tntoutput-1-node_NRUA8pnXinput-0"
     }
   ]
 }
