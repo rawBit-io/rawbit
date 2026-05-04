@@ -12,6 +12,11 @@ from config import (
     CALCULATION_TIMEOUT_NODE_ID,
 )
 
+SAMPLE_TX_HEX = (
+    "02000000010000000000000000000000000000000000000000000000000000000000000000000000000151"
+    "ffffffff01e803000000000000015100000000"
+)
+
 
 def test_validate_inputs_required_and_numeric_rules():
     with pytest.raises(ValueError) as missing:
@@ -774,6 +779,50 @@ def test_bulk_calculate_logic_missing_function_sets_error():
     assert updated["bad"]["data"]["error"] is True
     assert "No such function" in updated["bad"]["data"]["extendedError"]
     assert updated["bad"]["data"].get("dirty") is False
+
+
+def test_bulk_calculate_logic_dynamic_tx_field_extract_outputs():
+    nodes = [
+        {
+            "id": "extract",
+            "type": "calculation",
+            "data": {
+                "functionName": "extract_tx_field",
+                "paramExtraction": "multi_val",
+                "txFieldExtractMode": "dynamic",
+                "txExtractFields": ["txid", "vout.scriptPubKey", "vout.value"],
+                "inputStructure": {
+                    "ungrouped": [
+                        {"index": 0, "label": "Raw TX (hex):"},
+                        {"index": 1, "label": "VIN/VOUT Index:"},
+                    ]
+                },
+                "inputs": {"vals": {"0": SAMPLE_TX_HEX, "1": "0"}},
+                "dirty": True,
+            },
+        }
+    ]
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic(copy.deepcopy(nodes), [])
+    data = list(updated_nodes)[0]["data"]
+
+    assert errors == []
+    assert data["dirty"] is False
+    assert data["outputValues"] == {
+        "output-0": calc.extract_tx_field([SAMPLE_TX_HEX, "txid", "0"]),
+        "output-1": "51",
+        "output-2": "1000",
+    }
+    assert data["outputPorts"] == [
+        {"label": "txid", "handleId": "output-0", "showLabel": False},
+        {
+            "label": "vout.scriptPubKey",
+            "handleId": "output-1",
+            "showLabel": False,
+        },
+        {"label": "vout.value", "handleId": "output-2", "showLabel": False},
+    ]
+    assert "vout.scriptPubKey: 51" in data["result"]
 
 
 def test_build_val_with_network_params_includes_selected_network():

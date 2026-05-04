@@ -573,6 +573,46 @@ def build_multi_val_with_network_params(node, edges, _map, get_res):
     }
 
 
+def _tx_field_extract_fields(data):
+    fields = data.get("txExtractFields")
+    if not isinstance(fields, list):
+        return ["txid", "vout.scriptPubKey"]
+
+    normalized = [str(field).strip() for field in fields if str(field).strip()]
+    return normalized or ["txid", "vout.scriptPubKey"]
+
+
+def _tx_field_extract_output_ports(fields):
+    return [
+        {
+            "label": field,
+            "handleId": f"output-{index}",
+            "showLabel": False,
+        }
+        for index, field in enumerate(fields)
+    ]
+
+
+def _calculate_dynamic_tx_field_extract(data, inp_dict):
+    vals = inp_dict.get("vals") or []
+    raw_tx_hex = vals[0] if len(vals) > 0 else ""
+    index = vals[1] if len(vals) > 1 else ""
+    fields = _tx_field_extract_fields(data)
+
+    output_values = {}
+    result_lines = []
+    for output_index, field in enumerate(fields):
+        handle_id = f"output-{output_index}"
+        value = extract_tx_field([str(raw_tx_hex), field, str(index or "")])
+        output_values[handle_id] = value
+        result_lines.append(f"{field}: {value}")
+
+    data["txExtractFields"] = fields
+    data["outputPorts"] = _tx_field_extract_output_ports(fields)
+    data["outputValues"] = output_values
+    data["result"] = "\n".join(result_lines)
+
+
 PARAM_BUILDERS = {
     "none": build_none_params,
     "single_val": build_single_val_params,
@@ -696,6 +736,18 @@ def bulk_calculate_logic(nodes, edges):
                             vals_copy[2] = None
                             inp_dict["vals"] = vals_copy
                     validate_inputs(fn_name, inp_dict)
+
+                    if (
+                        fn_name == "extract_tx_field"
+                        and data.get("txFieldExtractMode") == "dynamic"
+                    ):
+                        _calculate_dynamic_tx_field_extract(data, inp_dict)
+                        store_inputs = inp_dict.copy()
+                        if "_sparseVals" in store_inputs:
+                            store_inputs["vals"] = store_inputs.pop("_sparseVals")
+                        data.update({"inputs": store_inputs, "dirty": False})
+                        data.pop("error", None)
+                        continue
 
                     # numeric casts according to spec
                     for p, spec in FUNCTION_SPECS.get(fn_name, {}).get(

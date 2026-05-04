@@ -32,6 +32,8 @@ function createMut() {
   return {
     setFieldValue: vi.fn(),
     setTaprootLeafIndex: vi.fn(),
+    setTxFieldExtractField: vi.fn(),
+    resizeTxFieldExtractFields: vi.fn(),
     updateFieldLabel: vi.fn(),
     updateGroupTitle: vi.fn(),
     handleNetworkChange: vi.fn(),
@@ -269,6 +271,77 @@ describe("CalculationNodeView", () => {
     expect(
       screen.queryByDisplayValue("m/44'/1'/0'/0/0")
     ).not.toBeInTheDocument();
+  });
+
+  it("renders dynamic TX field extract outputs without the generic result block", async () => {
+    const clip = createClip({ prettyResult: "hidden summary" });
+    const mut = createMut();
+    const user = userEvent.setup();
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText },
+      configurable: true,
+    });
+
+    renderWithProviders(
+      <CalculationNodeView
+        selected={false}
+        data={{
+          functionName: "extract_tx_field",
+          paramExtraction: "multi_val",
+          txFieldExtractMode: "dynamic",
+          txExtractFields: ["txid", "vout.scriptPubKey"],
+          outputValues: {
+            "output-0": "abc",
+            "output-1": "51",
+          },
+          inputStructure: {
+            ungrouped: [
+              { index: 0, label: "Raw TX (hex):", rows: 4 },
+              { index: 1, label: "VIN/VOUT Index:", rows: 1 },
+            ],
+          },
+          inputs: { vals: { 1: "0" } },
+        } as NodeData}
+        rawTitle="TX Field Extract"
+        derived={{
+          ...derived,
+          isMultiVal: true,
+        }}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        singleValue={undefined}
+        result="hidden summary"
+        error={false}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: false,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    expect(screen.getByText("> Outputs")).toBeInTheDocument();
+    expect(screen.getByText("abc")).toBeInTheDocument();
+    expect(screen.getByText("51")).toBeInTheDocument();
+    expect(screen.queryByText("> Calculation Result:")).not.toBeInTheDocument();
+    expect(screen.getAllByTestId("rf-handle")).toHaveLength(4);
+
+    await user.click(screen.getByTitle("Copy txid output to clipboard"));
+    expect(writeText).toHaveBeenCalledWith("abc");
+    expect(await screen.findByTitle("Copied!")).toBeInTheDocument();
+
+    await user.click(screen.getByTitle("Add output"));
+    expect(mut.resizeTxFieldExtractFields).toHaveBeenCalledWith(true);
+
+    await user.click(screen.getByTitle("Remove output"));
+    expect(mut.resizeTxFieldExtractFields).toHaveBeenCalledWith(false);
   });
 
   it("hides duplicate result output on identity input nodes", () => {

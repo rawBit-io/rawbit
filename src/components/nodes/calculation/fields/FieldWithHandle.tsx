@@ -114,8 +114,9 @@ export const FieldWithHandle = React.memo(function FieldWithHandleComponent({
     value === SENTINEL_NULL;
 
   return (
-    <div className="relative mb-3">
-      {!disableHandle && (
+    <div className="mb-3">
+      <TerminalField
+        fieldHandle={!disableHandle && (
         <Handle
           type="target"
           position={Position.Left}
@@ -129,8 +130,6 @@ export const FieldWithHandle = React.memo(function FieldWithHandleComponent({
           }}
         />
       )}
-
-      <TerminalField
         label={label}
         placeholder={placeholder}
         value={displayValue}

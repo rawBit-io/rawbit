@@ -1,5 +1,5 @@
 {
-  "name": "intro-p2pkh",
+  "name": "flow-1777903663941",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -27,38 +27,56 @@
   },
   "nodes": [
     {
-      "id": "group_ixnjwes",
+      "id": "group_spy3f0v",
       "type": "shadcnGroup",
       "position": {
-        "x": 7820.449323252164,
-        "y": 4362.334799123034
+        "x": 10330.589490067952,
+        "y": 1634.4776975311102
       },
       "data": {
         "isGroup": true,
-        "width": 1896,
-        "height": 1965,
-        "title": "Final TX and Verify Script",
+        "width": 520,
+        "height": 1040,
+        "title": "Verify Script",
+        "fontSize": 44,
+        "dirty": false
+      },
+      "dragHandle": "[data-drag-handle]"
+    },
+    {
+      "id": "group_ixnjwes",
+      "type": "shadcnGroup",
+      "position": {
+        "x": 7880.449323252164,
+        "y": 4287.334799123034
+      },
+      "data": {
+        "isGroup": true,
+        "width": 1408,
+        "height": 2000,
+        "title": "Final TX",
         "dirty": false,
         "groupBundlePortOffsets": {
           "targetByBundle": {
             "group_7w6adu7->group_ixnjwes": -41.89,
             "group_hegqa99->group_ixnjwes": 242.19,
-            "group_cd0gkcz->group_ixnjwes": -424.35
+            "group_cd0gkcz->group_ixnjwes": -424.35,
+            "group_ef2se5b->group_ixnjwes": -858.27
           }
         },
         "borderColor": "#7a4ea3",
         "fontSize": 44
       },
-      "width": 1896,
-      "height": 1965,
+      "width": 1408,
+      "height": 2000,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 2740.1460626110356,
-        "y": 2232.6297504078666
+        "x": 2663.230634332741,
+        "y": 2307.948936414233
       },
       "data": {
         "isGroup": true,
@@ -87,8 +105,8 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": -274.18424941181,
-        "y": 2208.6901270350418
+        "x": -214.18424941181001,
+        "y": 2127.696096870036
       },
       "data": {
         "isGroup": true,
@@ -101,6 +119,10 @@
           "sourceByBundle": {
             "group_7w6adu7->group_ixnjwes": 649.78,
             "group_7w6adu7->group_cd0gkcz": -169.7
+          },
+          "targetByBundle": {
+            "group_zi8x2qm->group_7w6adu7": -731.27,
+            "group_ef2se5b->group_7w6adu7": -600.33
           }
         },
         "dirty": false,
@@ -115,8 +137,8 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": -3316.9144019543864,
-        "y": 4544.174862133977
+        "x": -3359.600722786494,
+        "y": 5093.849980529299
       },
       "data": {
         "isGroup": true,
@@ -141,21 +163,27 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 210,
-        "y": 465
+        "x": -2183.89555391303,
+        "y": -739.7709374251413
       },
       "data": {
         "isGroup": true,
-        "width": 1686.439908574749,
-        "height": 987.7410627874756,
+        "width": 1704,
+        "height": 1625,
         "title": "Funding TX",
         "groupBundlePortOffsets": {
-          "source": 409.13
+          "source": 409.13,
+          "sourceByBundle": {
+            "group_zi8x2qm->group_7w6adu7": 687.24,
+            "group_zi8x2qm->group_spy3f0v": 94.6
+          }
         },
         "dirty": false,
         "fontSize": 44,
         "borderColor": "#6f6a60"
       },
+      "width": 1704,
+      "height": 1625,
       "dragHandle": "[data-drag-handle]"
     },
     {
@@ -224,76 +252,6 @@
         "customFieldLabels": {
           "0": "INPUT VALUE:"
         },
-        "error": false
-      },
-      "parentId": "group_7w6adu7",
-      "extent": "parent"
-    },
-    {
-      "id": "node_muBFw233",
-      "type": "calculation",
-      "position": {
-        "x": 305.7043626783243,
-        "y": 699.3145036695269
-      },
-      "data": {
-        "functionName": "identity",
-        "showField": true,
-        "numInputs": 0,
-        "value": "adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef",
-        "dirty": false,
-        "version": 0,
-        "inputs": {
-          "val": "adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef"
-        },
-        "result": "adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef",
-        "inputStructure": {
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "INPUT VALUE:",
-              "rows": 1
-            }
-          ]
-        },
-        "groupInstances": {},
-        "title": "Previous TXID ",
-        "showComment": false,
-        "comment": "Prev TXID → faucet or explorer",
-        "error": false
-      },
-      "parentId": "group_7w6adu7",
-      "extent": "parent"
-    },
-    {
-      "id": "node_UTrih9Wa",
-      "type": "calculation",
-      "position": {
-        "x": 316.2914543565262,
-        "y": 981.3843192237409
-      },
-      "data": {
-        "functionName": "identity",
-        "showField": true,
-        "numInputs": 0,
-        "value": "1",
-        "dirty": false,
-        "version": 0,
-        "inputs": {
-          "val": "1"
-        },
-        "result": "1",
-        "inputStructure": {
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "INPUT VALUE:",
-              "rows": 1
-            }
-          ]
-        },
-        "groupInstances": {},
-        "title": "Output Index (vout)",
         "error": false
       },
       "parentId": "group_7w6adu7",
@@ -400,42 +358,6 @@
         "error": false
       },
       "parentId": "group_cd0gkcz",
-      "extent": "parent"
-    },
-    {
-      "id": "node_6o4n7R4s",
-      "type": "calculation",
-      "position": {
-        "x": 322.25459112680164,
-        "y": 1240.102564878286
-      },
-      "data": {
-        "functionName": "identity",
-        "value": "76a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88ac",
-        "inputs": {
-          "val": "76a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88ac"
-        },
-        "dirty": false,
-        "version": 0,
-        "result": "76a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88ac",
-        "groupInstances": {},
-        "showField": true,
-        "numInputs": 0,
-        "inputStructure": {
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "INPUT VALUE:",
-              "rows": 1
-            }
-          ]
-        },
-        "showComment": false,
-        "title": "Previous ScriptPubKey",
-        "comment": "ScriptPubKey → paste from explorer or derive",
-        "error": false
-      },
-      "parentId": "group_7w6adu7",
       "extent": "parent"
     },
     {
@@ -568,13 +490,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "0200000001efbcb8a25b793c067470ea61edeb2e1d81f979b19f1cd36d7307f162381aebad010000001976a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88acfdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000",
+            "0": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000002076a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88acfdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000",
             "100": "01000000"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "0200000001efbcb8a25b793c067470ea61edeb2e1d81f979b19f1cd36d7307f162381aebad010000001976a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88acfdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac0000000001000000",
+        "result": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000002076a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88acfdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac0000000001000000",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -629,13 +551,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d443",
+            "0": "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f2",
             "100": "01"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301",
+        "result": "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -691,14 +613,14 @@
         "inputs": {
           "vals": {
             "0": "47",
-            "100": "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301",
+            "100": "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
             "200": "21",
             "300": "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "473044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d4430121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
+        "result": "473044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f20121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -757,9 +679,9 @@
           "vals": {
             "0": "02000000",
             "10": "01",
-            "1000": "efbcb8a25b793c067470ea61edeb2e1d81f979b19f1cd36d7307f162381aebad",
+            "1000": "adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef",
             "1010": "01000000",
-            "1020": "19",
+            "1020": "20",
             "1030": "76a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88ac",
             "1040": "fdffffff",
             "2000": "01",
@@ -771,7 +693,7 @@
         },
         "dirty": false,
         "version": 0,
-        "result": "0200000001efbcb8a25b793c067470ea61edeb2e1d81f979b19f1cd36d7307f162381aebad010000001976a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88acfdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000",
+        "result": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000002076a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88acfdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000",
         "inputStructure": {
           "afterGroups": [
             {
@@ -908,10 +830,10 @@
           "vals": {
             "0": "02000000",
             "10": "01",
-            "1000": "efbcb8a25b793c067470ea61edeb2e1d81f979b19f1cd36d7307f162381aebad",
+            "1000": "adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef",
             "1010": "01000000",
             "1020": "6a",
-            "1030": "473044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d4430121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
+            "1030": "473044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f20121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
             "1040": "fdffffff",
             "2000": "01",
             "3000": "6836020000000000",
@@ -922,7 +844,7 @@
         },
         "dirty": false,
         "version": 0,
-        "result": "0200000001efbcb8a25b793c067470ea61edeb2e1d81f979b19f1cd36d7307f162381aebad010000006a473044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d4430121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5fdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000",
+        "result": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000006a473044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f20121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5fdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000",
         "inputStructure": {
           "afterGroups": [
             {
@@ -1140,9 +1062,9 @@
         "showField": false,
         "dirty": false,
         "groupInstances": {},
-        "result": "efbcb8a25b793c067470ea61edeb2e1d81f979b19f1cd36d7307f162381aebad",
+        "result": "adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef",
         "inputs": {
-          "val": "adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef"
+          "val": "efbcb8a25b793c067470ea61edeb2e1d81f979b19f1cd36d7307f162381aebad"
         },
         "error": false
       },
@@ -1234,9 +1156,9 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": "76a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88ac"
+          "val": "efbcb8a25b793c067470ea61edeb2e1d81f979b19f1cd36d7307f162381aebad"
         },
-        "result": "19",
+        "result": "20",
         "error": false
       },
       "parentId": "group_7w6adu7",
@@ -1257,9 +1179,9 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "0200000001efbcb8a25b793c067470ea61edeb2e1d81f979b19f1cd36d7307f162381aebad010000001976a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88acfdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac0000000001000000"
+          "val": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000002076a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88acfdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac0000000001000000"
         },
-        "result": "d56214ae9ab20f1f151733a67d91a5c3e7e2f384530cae197c859e03ac0fedb1",
+        "result": "7f1bd4612a2f1c798a95dcf95a3daeb6af1a4902ca74f82e5f6e0a25ec8f25b7",
         "inputStructure": {
           "ungrouped": [
             {
@@ -1291,7 +1213,7 @@
         "inputs": {
           "vals": {
             "0": "0959fe8c99eab96f02beaceda253c4883b5fae69b0fe9daab6a84130b5410208",
-            "1": "d56214ae9ab20f1f151733a67d91a5c3e7e2f384530cae197c859e03ac0fedb1"
+            "1": "7f1bd4612a2f1c798a95dcf95a3daeb6af1a4902ca74f82e5f6e0a25ec8f25b7"
           }
         },
         "inputStructure": {
@@ -1309,7 +1231,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d443",
+        "result": "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f2",
         "totalInputs": 2,
         "unwiredCount": 0,
         "error": false
@@ -1332,7 +1254,7 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": "473044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d4430121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
+          "val": "473044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f20121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
         },
         "result": "6a",
         "error": false
@@ -1344,8 +1266,8 @@
       "id": "node_m3ArBCgv",
       "type": "calculation",
       "position": {
-        "x": 837.5575775995294,
-        "y": 1202.877292555193
+        "x": 759.5069382856091,
+        "y": 1097.5089294814024
       },
       "data": {
         "functionName": "double_sha256_hex",
@@ -1355,9 +1277,9 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "0200000001efbcb8a25b793c067470ea61edeb2e1d81f979b19f1cd36d7307f162381aebad010000006a473044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d4430121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5fdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000"
+          "val": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000006a473044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f20121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5fdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000"
         },
-        "result": "8da13225bf06e3793248bcde03af444af66853f0d72d07ce96125708b8fb3df3",
+        "result": "2019ad7383b5a48f3b2d24de0220e8011070eb34776528662df538df09a80797",
         "inputStructure": {
           "ungrouped": [
             {
@@ -1378,8 +1300,8 @@
       "id": "node_24bD1CIj",
       "type": "calculation",
       "position": {
-        "x": 1251.691760309499,
-        "y": 1514.8566636843625
+        "x": 1091.6879497159644,
+        "y": 1382.1705768507
       },
       "data": {
         "functionName": "reverse_txid_bytes",
@@ -1388,9 +1310,9 @@
         "showField": false,
         "dirty": false,
         "groupInstances": {},
-        "result": "f33dfbb808571296ce072dd7f05368f64a44af03debc483279e306bf2532a18d",
+        "result": "9707a809df38f52d6628657734eb701001e82002de242d3b8fa4b58373ad1920",
         "inputs": {
-          "val": "8da13225bf06e3793248bcde03af444af66853f0d72d07ce96125708b8fb3df3"
+          "val": "2019ad7383b5a48f3b2d24de0220e8011070eb34776528662df538df09a80797"
         },
         "showComment": true,
         "comment": "TXID as displayed by bitcoin clients",
@@ -1414,7 +1336,7 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301"
+          "val": "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201"
         },
         "result": "47",
         "inputStructure": {
@@ -1821,8 +1743,8 @@
       "id": "node_o6vul7a",
       "type": "calculation",
       "position": {
-        "x": 1352.5327688466496,
-        "y": 223.55758544118726
+        "x": 60,
+        "y": 60
       },
       "data": {
         "functionName": "script_verification",
@@ -1831,9 +1753,9 @@
         "numInputs": 6,
         "inputs": {
           "vals": {
-            "0": "473044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d4430121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
+            "0": "473044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f20121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
             "1": "76a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88ac",
-            "2": "0200000001efbcb8a25b793c067470ea61edeb2e1d81f979b19f1cd36d7307f162381aebad010000006a473044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d4430121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5fdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000",
+            "2": "0200000001adeb1a3862f107736dd31c9fb179f9811d2eebed61ea7074063c795ba2b8bcef010000006a473044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f20121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5fdffffff0168360200000000001976a914d8727d64c917f123fbeb74df978d3489496cef7688ac00000000",
             "3": "0",
             "5": "__EMPTY__"
           }
@@ -1912,13 +1834,13 @@
         },
         "groupInstances": {},
         "groupInstanceKeys": {},
-        "result": "true",
+        "result": "false",
         "error": false,
         "totalInputs": 4,
         "unwiredCount": 0,
         "dirty": false,
         "scriptDebugSteps": {
-          "isValid": true,
+          "isValid": false,
           "steps": [
             {
               "pc": 0,
@@ -1926,7 +1848,7 @@
               "opcode_name": "unknown opcode",
               "stack_before": [],
               "stack_after": [
-                "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301"
+                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201"
               ],
               "phase": "scriptSig"
             },
@@ -1935,10 +1857,10 @@
               "opcode": 33,
               "opcode_name": "unknown opcode",
               "stack_before": [
-                "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301"
+                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201"
               ],
               "stack_after": [
-                "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301",
+                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
               ],
               "phase": "scriptSig"
@@ -1948,11 +1870,11 @@
               "opcode": 118,
               "opcode_name": "OP_DUP",
               "stack_before": [
-                "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301",
+                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
               ],
               "stack_after": [
-                "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301",
+                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
               ],
@@ -1963,12 +1885,12 @@
               "opcode": 169,
               "opcode_name": "OP_HASH160",
               "stack_before": [
-                "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301",
+                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
               ],
               "stack_after": [
-                "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301",
+                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
                 "333d1836c8f4db933eae179bd5bf5ec9209eb78a"
               ],
@@ -1979,12 +1901,12 @@
               "opcode": 20,
               "opcode_name": "unknown opcode",
               "stack_before": [
-                "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301",
+                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
                 "333d1836c8f4db933eae179bd5bf5ec9209eb78a"
               ],
               "stack_after": [
-                "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301",
+                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
                 "333d1836c8f4db933eae179bd5bf5ec9209eb78a",
                 "333d1836c8f4db933eae179bd5bf5ec9209eb78a"
@@ -1996,13 +1918,13 @@
               "opcode": 136,
               "opcode_name": "OP_EQUALVERIFY",
               "stack_before": [
-                "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301",
+                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
                 "333d1836c8f4db933eae179bd5bf5ec9209eb78a",
                 "333d1836c8f4db933eae179bd5bf5ec9209eb78a"
               ],
               "stack_after": [
-                "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301",
+                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
               ],
               "phase": "scriptPubKey"
@@ -2012,14 +1934,19 @@
               "opcode": 172,
               "opcode_name": "OP_CHECKSIG",
               "stack_before": [
-                "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301",
+                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
               ],
-              "stack_after": ["01"],
-              "phase": "scriptPubKey"
+              "stack_after": [
+                "3044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f201",
+                "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
+              ],
+              "phase": "scriptPubKey",
+              "failed": true,
+              "error": "signature check failed, and signature is not empty"
             }
           ],
-          "scriptSig": "473044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d4430121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
+          "scriptSig": "473044022078deb578a2b0c6325270c237719ef814cded8b104faa906d08a2d20f9d4874e502207a48ed0af5d85e0e2b03fdea34df34cba6d970c467ef07b0b6e365879f3784f20121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
           "scriptPubKey": "76a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88ac",
           "excludedFlags": [],
           "activeFlags": [
@@ -2041,10 +1968,141 @@
             "WITNESS_PUBKEYTYPE"
           ],
           "usesWitness": true,
-          "amountUsed": 0
+          "amountUsed": 0,
+          "error": "signature check failed, and signature is not empty (Note: SegWit/Taproot verification requires the spent amount in satoshis)"
         }
       },
-      "parentId": "group_ixnjwes",
+      "parentId": "group_spy3f0v",
+      "extent": "parent"
+    },
+    {
+      "id": "node_ljj3f78",
+      "type": "calculation",
+      "position": {
+        "x": 519.6968268060232,
+        "y": 1006.4698072340298
+      },
+      "data": {
+        "functionName": "identity",
+        "title": "VOUT",
+        "showField": true,
+        "numInputs": 0,
+        "value": "1",
+        "version": 0,
+        "inputs": {
+          "val": "1"
+        },
+        "result": "1",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT VALUE:",
+              "rows": 1
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_zi8x2qm",
+      "extent": "parent"
+    },
+    {
+      "id": "node_xfz2u3e",
+      "type": "calculation",
+      "position": {
+        "x": 518.9251844784708,
+        "y": 712.3873000518997
+      },
+      "data": {
+        "functionName": "identity",
+        "title": "rawTX",
+        "showField": true,
+        "numInputs": 0,
+        "value": "0200000000010167342ffa61c88abd8e77667f2ab0bf2966123b790096170b0bae4710dc10c7ed0000000000fdffffff02dc7cbb94000000001976a9143b349ba7eddb9ef731a66fdeb417b91a0c52fe1d88ac573b0200000000001976a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88ac0247304402201ad7abcc4a332ea840806f4a02b4b5b00281f9472900ac1912448ea459d8b784022060324016ddf18fee00b250b79bde18a3296aeff8004329c7fe3a44c44bfe72d301210241606b136ae88260bb77337dd631c12efd1769e33864b3dc735330825c6a323fdbc04400",
+        "version": 0,
+        "inputs": {
+          "val": "0200000000010167342ffa61c88abd8e77667f2ab0bf2966123b790096170b0bae4710dc10c7ed0000000000fdffffff02dc7cbb94000000001976a9143b349ba7eddb9ef731a66fdeb417b91a0c52fe1d88ac573b0200000000001976a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88ac0247304402201ad7abcc4a332ea840806f4a02b4b5b00281f9472900ac1912448ea459d8b784022060324016ddf18fee00b250b79bde18a3296aeff8004329c7fe3a44c44bfe72d301210241606b136ae88260bb77337dd631c12efd1769e33864b3dc735330825c6a323fdbc04400"
+        },
+        "result": "0200000000010167342ffa61c88abd8e77667f2ab0bf2966123b790096170b0bae4710dc10c7ed0000000000fdffffff02dc7cbb94000000001976a9143b349ba7eddb9ef731a66fdeb417b91a0c52fe1d88ac573b0200000000001976a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88ac0247304402201ad7abcc4a332ea840806f4a02b4b5b00281f9472900ac1912448ea459d8b784022060324016ddf18fee00b250b79bde18a3296aeff8004329c7fe3a44c44bfe72d301210241606b136ae88260bb77337dd631c12efd1769e33864b3dc735330825c6a323fdbc04400",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT VALUE:",
+              "rows": 1
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_zi8x2qm",
+      "extent": "parent"
+    },
+    {
+      "id": "node_2bp7tnt",
+      "type": "calculation",
+      "position": {
+        "x": 1028.7411198419509,
+        "y": 908.7013489532392
+      },
+      "data": {
+        "functionName": "extract_tx_field",
+        "title": "TX Field Extract",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "result": "txid: efbcb8a25b793c067470ea61edeb2e1d81f979b19f1cd36d7307f162381aebad\nvout.scriptPubKey: 76a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88ac",
+        "inputs": {
+          "vals": {
+            "0": "0200000000010167342ffa61c88abd8e77667f2ab0bf2966123b790096170b0bae4710dc10c7ed0000000000fdffffff02dc7cbb94000000001976a9143b349ba7eddb9ef731a66fdeb417b91a0c52fe1d88ac573b0200000000001976a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88ac0247304402201ad7abcc4a332ea840806f4a02b4b5b00281f9472900ac1912448ea459d8b784022060324016ddf18fee00b250b79bde18a3296aeff8004329c7fe3a44c44bfe72d301210241606b136ae88260bb77337dd631c12efd1769e33864b3dc735330825c6a323fdbc04400",
+            "1": "1"
+          }
+        },
+        "txFieldExtractMode": "dynamic",
+        "txExtractFields": ["txid", "vout.scriptPubKey"],
+        "outputPorts": [
+          {
+            "label": "txid",
+            "handleId": "output-0",
+            "showLabel": false
+          },
+          {
+            "label": "vout.scriptPubKey",
+            "handleId": "output-1",
+            "showLabel": false
+          }
+        ],
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Raw TX (hex):",
+              "rows": 4,
+              "placeholder": "<transaction hex>"
+            },
+            {
+              "index": 1,
+              "label": "VIN/VOUT Index:",
+              "rows": 1,
+              "placeholder": "0"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "totalInputs": 2,
+        "unwiredCount": 0,
+        "dirty": false,
+        "outputValues": {
+          "output-0": "efbcb8a25b793c067470ea61edeb2e1d81f979b19f1cd36d7307f162381aebad",
+          "output-1": "76a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88ac"
+        },
+        "error": false
+      },
+      "parentId": "group_zi8x2qm",
       "extent": "parent"
     }
   ],
@@ -2075,13 +2133,6 @@
       "source": "node_YVC3JSpC",
       "target": "node_7bQgp6gF",
       "targetHandle": "input-300",
-      "selected": false
-    },
-    {
-      "id": "edge_IZFx8RP6",
-      "source": "node_6o4n7R4s",
-      "target": "node_UIgo6BTD",
-      "targetHandle": "input-1030",
       "selected": false
     },
     {
@@ -2144,8 +2195,8 @@
       "id": "edge_juB030IU",
       "data": {
         "curveControlPointOffset": {
-          "x": -14.13,
-          "y": 53.17
+          "x": 819.87,
+          "y": -263.91
         }
       }
     },
@@ -2202,13 +2253,6 @@
       "targetHandle": "input-1000",
       "selected": false,
       "id": "edge_2nKGZk8I"
-    },
-    {
-      "source": "node_muBFw233",
-      "target": "node_JyOxx76F",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "edge_tclaYk84"
     },
     {
       "source": "node_kSTGvvaL",
@@ -2305,13 +2349,6 @@
       "id": "edge_262dCoOW"
     },
     {
-      "source": "node_6o4n7R4s",
-      "target": "node_NRUA8pnX",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "edge_AzBN7uKr"
-    },
-    {
       "source": "node_Xoq2K65O",
       "target": "node_fL7jxPA0",
       "targetHandle": "input-0",
@@ -2388,8 +2425,8 @@
       "id": "edge_Zc9ORlr9",
       "data": {
         "curveControlPointOffset": {
-          "x": -14.13,
-          "y": 53.17
+          "x": 819.87,
+          "y": -263.91
         }
       }
     },
@@ -2415,8 +2452,8 @@
       "id": "edge_v4UKc1K7",
       "data": {
         "curveControlPointOffset": {
-          "x": -14.13,
-          "y": 53.17
+          "x": 819.87,
+          "y": -263.91
         }
       }
     },
@@ -2426,13 +2463,6 @@
       "targetHandle": "input-0",
       "selected": false,
       "id": "edge_mQML0jGD"
-    },
-    {
-      "source": "node_UTrih9Wa",
-      "target": "node_C85oMB8J",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "edge_SxQA9Vhg"
     },
     {
       "source": "node_C85oMB8J",
@@ -2568,25 +2598,95 @@
       "id": "edge_4ivlhdu",
       "source": "node_hHXC5ZW3",
       "target": "node_qMmh8Zrk",
-      "targetHandle": "input-4000"
+      "targetHandle": "input-4000",
+      "selected": false
     },
     {
       "id": "enode_gH7sxRGZ-node_o6vul7a-input-0",
       "source": "node_gH7sxRGZ",
       "target": "node_o6vul7a",
-      "targetHandle": "input-0"
-    },
-    {
-      "id": "enode_6o4n7R4s-node_o6vul7a-input-1",
-      "source": "node_6o4n7R4s",
-      "target": "node_o6vul7a",
-      "targetHandle": "input-1"
+      "targetHandle": "input-0",
+      "selected": false
     },
     {
       "id": "enode_qMmh8Zrk-node_o6vul7a-input-2",
       "source": "node_qMmh8Zrk",
       "target": "node_o6vul7a",
       "targetHandle": "input-2",
+      "selected": false
+    },
+    {
+      "source": "node_xfz2u3e",
+      "target": "node_2bp7tnt",
+      "sourceHandle": null,
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "xy-edge__node_xfz2u3e-node_2bp7tntinput-0"
+    },
+    {
+      "source": "node_ljj3f78",
+      "target": "node_2bp7tnt",
+      "sourceHandle": null,
+      "targetHandle": "input-1",
+      "selected": false,
+      "id": "xy-edge__node_ljj3f78-node_2bp7tntinput-1"
+    },
+    {
+      "id": "edge_jn7bwol",
+      "source": "node_ljj3f78",
+      "target": "node_C85oMB8J",
+      "sourceHandle": null,
+      "targetHandle": "input-0",
+      "data": {
+        "curveControlPointOffset": {
+          "x": -102.96,
+          "y": -103.93
+        }
+      },
+      "selected": false
+    },
+    {
+      "id": "edge_smer53e",
+      "source": "node_2bp7tnt",
+      "target": "node_JyOxx76F",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-0",
+      "data": {
+        "curveControlPointOffset": {
+          "x": -102.96,
+          "y": -103.93
+        }
+      },
+      "selected": false
+    },
+    {
+      "id": "edge_112iydi",
+      "source": "node_2bp7tnt",
+      "target": "node_NRUA8pnX",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-0",
+      "data": {
+        "curveControlPointOffset": {
+          "x": -102.96,
+          "y": -103.93
+        }
+      },
+      "selected": false
+    },
+    {
+      "id": "edge_e3uldaq",
+      "source": "node_2bp7tnt",
+      "target": "node_UIgo6BTD",
+      "sourceHandle": "output-1",
+      "targetHandle": "input-1030",
+      "selected": false
+    },
+    {
+      "id": "edge_3y3374y",
+      "source": "node_2bp7tnt",
+      "target": "node_o6vul7a",
+      "sourceHandle": "output-1",
+      "targetHandle": "input-1",
       "selected": false
     }
   ]

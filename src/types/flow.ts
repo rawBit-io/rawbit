@@ -134,6 +134,8 @@ export interface CalculationNodeData extends Record<string, unknown> {
   outputLayout?: OutputLayoutMode;
   outputPorts?: OutputPortDefinition[];
   outputValues?: Record<string, unknown>;
+  txFieldExtractMode?: "dynamic";
+  txExtractFields?: string[];
   banner?: unknown;
   tooltip?: unknown;
 }

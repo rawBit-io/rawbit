@@ -37,7 +37,9 @@ import {
   Copy,
   FileCode,
   MessageSquare,
+  Minus,
   MoreHorizontal,
+  Plus,
   RefreshCw,
   Trash2,
   Usb,
@@ -56,6 +58,11 @@ import {
   SENTINEL_NULL,
 } from "@/lib/nodes/constants";
 import { canGrowGroup } from "@/lib/nodes/fieldUtils";
+import {
+  TX_FIELD_EXTRACT_MAX_OUTPUTS,
+  TX_FIELD_EXTRACT_OPTIONS,
+  normalizeTxFieldExtractFields,
+} from "@/lib/nodes/txFieldExtract";
 import { INSTANCE_STRIDE, cn, getVal } from "@/lib/utils";
 import type {
   FieldDefinition as BaseFieldDefinition,
@@ -324,7 +331,14 @@ export function CalculationNodeView({
     Record<string, number | null>
   >({});
   const [musig2SecnonceCopied, setMusig2SecnonceCopied] = useState(false);
+  const [txCopiedOutputHandle, setTxCopiedOutputHandle] = useState<
+    string | null
+  >(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
+  const txOutputRowRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [txOutputHandleTops, setTxOutputHandleTops] = useState<
+    Record<string, number>
+  >({});
   const pathRowRef = useRef<HTMLDivElement | null>(null);
   const pathTriggerRef =
     useRef<React.ElementRef<typeof SelectTrigger> | null>(null);
@@ -350,6 +364,17 @@ export function CalculationNodeView({
   const isTaprootTreeBuilder = outputLayout === "taproot_tree_builder";
   const isTaprootTweakXonly = outputLayout === "taproot_tweak_xonly_pubkey";
   const isMusig2NonceGen = outputLayout === "musig2_nonce_gen";
+  const isDynamicTxFieldExtract =
+    data.functionName === "extract_tx_field" &&
+    data.txFieldExtractMode === "dynamic";
+  const txExtractFields = useMemo(
+    () => normalizeTxFieldExtractFields(data.txExtractFields),
+    [data.txExtractFields]
+  );
+  const txExtractOutputValues =
+    data.outputValues && typeof data.outputValues === "object"
+      ? (data.outputValues as Record<string, unknown>)
+      : {};
   const outputPorts = useMemo(
     () =>
       Array.isArray(data.outputPorts) && data.outputPorts.length > 0
@@ -403,19 +428,7 @@ export function CalculationNodeView({
       ? JSON.stringify(musig2SecnonceValue, null, 2)
       : String(musig2SecnonceValue);
 
-  const copyMusig2Secnonce = () => {
-    if (musig2SecnonceValue === undefined || musig2SecnonceValue === null) return;
-    const text =
-      typeof musig2SecnonceValue === "object"
-        ? JSON.stringify(musig2SecnonceValue, null, 2)
-        : String(musig2SecnonceValue);
-    if (!text) return;
-
-    const onSuccess = () => {
-      setMusig2SecnonceCopied(true);
-      window.setTimeout(() => setMusig2SecnonceCopied(false), 1000);
-    };
-
+  const copyTextToClipboard = useCallback((text: string, onSuccess: () => void) => {
     if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(text).then(onSuccess, () => fallback());
     } else {
@@ -436,7 +449,47 @@ export function CalculationNodeView({
         document.body.removeChild(textarea);
       }
     }
+  }, []);
+
+  const copyMusig2Secnonce = () => {
+    if (musig2SecnonceValue === undefined || musig2SecnonceValue === null) return;
+    const text =
+      typeof musig2SecnonceValue === "object"
+        ? JSON.stringify(musig2SecnonceValue, null, 2)
+        : String(musig2SecnonceValue);
+    if (!text) return;
+
+    copyTextToClipboard(text, () => {
+      setMusig2SecnonceCopied(true);
+      window.setTimeout(() => setMusig2SecnonceCopied(false), 1000);
+    });
   };
+
+  const copyTxExtractOutput = useCallback(
+    (handleId: string, value: unknown) => {
+      if (value === undefined || value === null || value === "") return;
+      const text =
+        typeof value === "object" ? JSON.stringify(value, null, 2) : String(value);
+      if (!text) return;
+
+      copyTextToClipboard(text, () => {
+        setTxCopiedOutputHandle(handleId);
+        window.setTimeout(() => {
+          setTxCopiedOutputHandle((current) =>
+            current === handleId ? null : current
+          );
+        }, 1000);
+      });
+    },
+    [copyTextToClipboard]
+  );
+
+  const setTxOutputRowRef = useCallback(
+    (handleId: string) => (element: HTMLDivElement | null) => {
+      txOutputRowRefs.current[handleId] = element;
+    },
+    []
+  );
 
   const handleCopyId = () => {
     clip.copyId();
@@ -685,6 +738,7 @@ export function CalculationNodeView({
     return renderAsciiTree(tree);
   })();
   const hideResultForInputNode = showField && data.functionName === "identity";
+  const hideGenericResult = hideResultForInputNode || isDynamicTxFieldExtract;
 
   const anchoredPortSources = useMemo(
     () =>
@@ -700,6 +754,79 @@ export function CalculationNodeView({
       ),
     [outputPorts]
   );
+
+  useLayoutEffect(() => {
+    if (!isDynamicTxFieldExtract) return;
+    const cardEl = cardRef.current;
+    if (!cardEl) return;
+
+    let frame = 0;
+    const updatePosition = () => {
+      const cardHeight = cardEl.offsetHeight;
+      if (!cardHeight) return;
+      const cardRect = cardEl.getBoundingClientRect();
+      if (!cardRect.height) return;
+      const scaleY = cardRect.height / cardHeight;
+      const next: Record<string, number> = {};
+
+      txExtractFields.forEach((_, index) => {
+        const handleId = `output-${index}`;
+        const row = txOutputRowRefs.current[handleId];
+        if (!row) return;
+        const rowRect = row.getBoundingClientRect();
+        if (!rowRect.height) return;
+        const rawTop = rowRect.top - cardRect.top + rowRect.height / 2;
+        const top = scaleY ? rawTop / scaleY : rawTop;
+        if (Number.isFinite(top)) {
+          next[handleId] = Math.round(Math.min(Math.max(top, 0), cardHeight));
+        }
+      });
+
+      setTxOutputHandleTops((prev) => {
+        const nextKeys = Object.keys(next);
+        const prevKeys = Object.keys(prev);
+        if (
+          nextKeys.length === prevKeys.length &&
+          nextKeys.every((key) => prev[key] === next[key])
+        ) {
+          return prev;
+        }
+        return next;
+      });
+    };
+    const schedule = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        updatePosition();
+      });
+    };
+
+    updatePosition();
+    schedule();
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", schedule);
+      return () => {
+        if (frame) window.cancelAnimationFrame(frame);
+        window.removeEventListener("resize", schedule);
+      };
+    }
+
+    const observer = new ResizeObserver(schedule);
+    observer.observe(cardEl);
+    txExtractFields.forEach((_, index) => {
+      const row = txOutputRowRefs.current[`output-${index}`];
+      if (row) observer.observe(row);
+    });
+    window.addEventListener("resize", schedule);
+
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener("resize", schedule);
+    };
+  }, [isDynamicTxFieldExtract, txExtractFields]);
 
   useLayoutEffect(() => {
     if (!anchoredPortSources.length) return;
@@ -976,7 +1103,7 @@ export function CalculationNodeView({
 
       <CardContent className="flex flex-1 flex-col p-4 text-sm">
         {!derived.isMultiVal && singleValue && (
-          <div className={cn(hideResultForInputNode ? "mb-0" : "mb-4")}>
+          <div className={cn(hideGenericResult ? "mb-0" : "mb-4")}>
             {showField && (
               <FieldWithHandle
                 handleId="input-0"
@@ -1083,7 +1210,110 @@ export function CalculationNodeView({
           </div>
         )}
 
-        {!hideResultForInputNode && (
+        {isDynamicTxFieldExtract && (
+          <div className="mb-6 space-y-3">
+            <div className="mb-3 flex items-center justify-between border-b border-border pb-2">
+              <div className="font-mono text-lg text-primary">
+                {">"} Outputs
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => mut.resizeTxFieldExtractFields(false)}
+                  disabled={txExtractFields.length <= 1}
+                  title="Remove output"
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => mut.resizeTxFieldExtractFields(true)}
+                  disabled={txExtractFields.length >= TX_FIELD_EXTRACT_MAX_OUTPUTS}
+                  title="Add output"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {txExtractFields.map((field, index) => {
+                const handleId = `output-${index}`;
+                const value = txExtractOutputValues[handleId];
+                const display =
+                  value === undefined || value === null || value === ""
+                    ? "--"
+                    : String(value);
+                const canCopy =
+                  value !== undefined && value !== null && value !== "";
+                const copied = txCopiedOutputHandle === handleId;
+
+                return (
+                  <div
+                    key={handleId}
+                    ref={setTxOutputRowRef(handleId)}
+                    className="field-surface relative rounded-md border border-input bg-background p-2"
+                  >
+                    <div className="grid grid-cols-[minmax(0,1fr)_2.5rem] items-center gap-2">
+                      <Select
+                        value={field}
+                        onValueChange={(value) =>
+                          mut.setTxFieldExtractField(index, value)
+                        }
+                      >
+                        <SelectTrigger className="field-surface h-8 min-w-0 font-mono text-xs">
+                          <SelectValue placeholder="Choose field" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {TX_FIELD_EXTRACT_OPTIONS.map((option) => (
+                            <SelectItem
+                              key={option}
+                              value={option}
+                              className="font-mono text-xs"
+                            >
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <span className="justify-self-center whitespace-nowrap text-[10px] uppercase text-muted-foreground">
+                        out {index + 1}
+                      </span>
+                    </div>
+                    <div className="mt-2 grid grid-cols-[minmax(0,1fr)_2.5rem] items-start gap-2">
+                      <div className="max-h-20 min-w-0 overflow-y-auto whitespace-pre-wrap break-all rounded border border-border/70 bg-muted/25 px-2 py-1 text-xs text-muted-foreground">
+                        {display}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="nodrag h-7 w-10 justify-self-center"
+                        onPointerDownCapture={(event) => event.stopPropagation()}
+                        onClick={() => copyTxExtractOutput(handleId, value)}
+                        disabled={!canCopy}
+                        title={
+                          copied
+                            ? "Copied!"
+                            : `Copy ${field} output to clipboard`
+                        }
+                      >
+                        {copied ? (
+                          <Check className="h-3.5 w-3.5" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {!hideGenericResult && (
           <div className="mt-auto border-t border-border pt-2">
             <div className="mb-2 text-sm text-primary">
               {">"} Calculation Result:
@@ -1291,7 +1521,26 @@ export function CalculationNodeView({
         )}
       </CardContent>
 
-      {outputPorts
+      {isDynamicTxFieldExtract &&
+        txExtractFields.map((_, index, visiblePorts) => {
+          const handleId = `output-${index}`;
+          const top =
+            txOutputHandleTops[handleId] !== undefined
+              ? `${txOutputHandleTops[handleId]}px`
+              : `${((index + 1) / (visiblePorts.length + 1)) * 100}%`;
+          return (
+            <Handle
+              key={handleId}
+              type="source"
+              id={handleId}
+              position={Position.Right}
+              className="!h-3 !w-3 !border-2 !border-primary !bg-background"
+              style={{ top, transform: "translate(50%, -50%)" }}
+            />
+          );
+        })}
+
+      {!isDynamicTxFieldExtract && outputPorts
         .filter((port) => port.showHandle !== false)
         .map((port, index, visiblePorts) => {
           const anchoredTop =

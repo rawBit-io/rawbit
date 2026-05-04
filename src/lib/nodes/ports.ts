@@ -1,5 +1,9 @@
 import type { NodePorts, PortInfo } from "@/components/dialog/ConnectDialog";
 import type { FlowNode, InputStructure, FieldDefinition } from "@/types";
+import {
+  buildTxFieldExtractOutputPorts,
+  normalizeTxFieldExtractFields,
+} from "@/lib/nodes/txFieldExtract";
 
 // Build the port list for a node for use by the Connect dialog.
 export function buildPorts(n: FlowNode): NodePorts {
@@ -9,12 +13,20 @@ export function buildPorts(n: FlowNode): NodePorts {
     data.customFieldLabels?.[idx] ?? fallback ?? `in ${idx}`;
 
   const label = data.title || data.functionName || n.id;
+  const dynamicTxExtractOutputs =
+    data.functionName === "extract_tx_field" &&
+    data.txFieldExtractMode === "dynamic"
+      ? buildTxFieldExtractOutputPorts(
+          normalizeTxFieldExtractFields(data.txExtractFields)
+        )
+      : undefined;
   const outputs: PortInfo[] =
-    Array.isArray(data.outputPorts) && data.outputPorts.length > 0
+    dynamicTxExtractOutputs ??
+    (Array.isArray(data.outputPorts) && data.outputPorts.length > 0
       ? data.outputPorts
           .filter((port) => port.showHandle !== false)
           .map((port) => ({ label: port.label, handleId: port.handleId }))
-      : [{ label: "out", handleId: "" }];
+      : [{ label: "out", handleId: "" }]);
 
   const handleLabels = new Map<string, string>();
   const registerHandle = (index: number, fallbackLabel?: string) => {

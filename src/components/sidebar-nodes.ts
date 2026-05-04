@@ -1,6 +1,10 @@
 // src/components/sidebar-nodes.ts
 
 import type { NodeTemplate } from "@/types";
+import {
+  DEFAULT_TX_FIELD_EXTRACT_FIELDS,
+  buildTxFieldExtractOutputPorts,
+} from "@/lib/nodes/txFieldExtract";
 
 /**
  * Node templates organized by categories:
@@ -2629,16 +2633,21 @@ export const allSidebarNodes: NodeTemplate[] = [
     label: "TX Field Extract",
     category: "Transactions",
     subcategory: "Parsing & Inspection",
-    description: "Pull a single value out of a raw Bitcoin transaction",
+    description: "Pull selected fields out of a raw Bitcoin transaction",
     type: "calculation", // still rendered by CalculationNode
     nodeData: {
       functionName: "extract_tx_field",
       title: "TX Field Extract",
       paramExtraction: "multi_val",
-      numInputs: 3, // [rawTx, fieldName, index]
+      numInputs: 2, // [rawTx, index]
 
       result: "",
-      inputs: { vals: ["", "txid", ""] }, // index starts blank
+      inputs: { vals: ["", "0"] },
+      txFieldExtractMode: "dynamic",
+      txExtractFields: [...DEFAULT_TX_FIELD_EXTRACT_FIELDS],
+      outputPorts: buildTxFieldExtractOutputPorts([
+        ...DEFAULT_TX_FIELD_EXTRACT_FIELDS,
+      ]),
 
       inputStructure: {
         ungrouped: [
@@ -2650,35 +2659,12 @@ export const allSidebarNodes: NodeTemplate[] = [
             placeholder: "<transaction hex>",
           },
 
-          /* 1 ─ dropdown selector (no cables) */
+          /* 1 ─ vin/vout index used by per-input/per-output fields */
           {
             index: 1,
-            label: "Field name:",
-            unconnectable: true,
-            options: [
-              "version",
-              "locktime",
-              "txid",
-              "input_count",
-              "output_count",
-              "vin.txid",
-              "vin.vout",
-              "vin.scriptSig",
-              "vin.sequence",
-              "vout.value",
-              "vout.scriptPubKey",
-              "raw_no_witness",
-            ],
-          },
-
-          /* 2 ─ optional index (manual only, no checkbox, no handle) */
-          {
-            index: 2,
-            label: "Index (opt):",
+            label: "VIN/VOUT Index:",
             rows: 1,
             placeholder: "0",
-            unconnectable: true, // ← removes the input handle
-            // no allowEmptyBlank → the “Ø” checkbox disappears
           },
         ],
       },

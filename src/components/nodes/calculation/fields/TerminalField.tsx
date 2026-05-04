@@ -1,4 +1,8 @@
-import React, { useEffect, useLayoutEffect, useRef } from "react";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from "react";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -33,6 +37,7 @@ export interface TerminalFieldProps {
   onToggle00?: (checked: boolean) => void;
   onToggleBlank?: (checked: boolean) => void;
   onToggleNull?: (checked: boolean) => void;
+  fieldHandle?: React.ReactNode;
 }
 
 import { EditableLabel } from "./EditableLabel";
@@ -64,7 +69,8 @@ function terminalFieldPropsAreEqual(
     prev.onLabelChange === next.onLabelChange &&
     prev.onToggle00 === next.onToggle00 &&
     prev.onToggleBlank === next.onToggleBlank &&
-    prev.onToggleNull === next.onToggleNull
+    prev.onToggleNull === next.onToggleNull &&
+    prev.fieldHandle === next.fieldHandle
   );
 }
 
@@ -95,8 +101,9 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
   onToggle00,
   onToggleBlank,
   onToggleNull,
+  fieldHandle,
 }: TerminalFieldProps) {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const textareaRows = autoResizeMaxRows ? 1 : rows ?? 3;
 
   useEffect(() => {
@@ -205,30 +212,32 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
                 </div>
               </div>
 
-              <textarea
-                ref={textareaRef}
-                className={cn(
-                  "field-surface nodrag w-full resize-none rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring",
-                  "text-sm p-2 font-mono transition-colors",
-                  small ? "w-32" : "w-full",
-                  (isBlank || is00 || isNull) &&
-                    "text-muted-foreground",
-                  readOnly ? "border-input" : "border-dashed border-input"
-                )}
-                placeholder={placeholder}
-                value={value ?? ""}
-                readOnly={readOnly}
-                rows={textareaRows}
-                spellCheck={false}
-                onChange={(event) => onChange?.(event.target.value)}
-                onFocus={(event) => onFocus?.(event.target.value)}
-                onBlur={(event) => onBlur?.(event.target.value)}
-                style={{
-                  maxHeight: autoResizeMaxRows ? undefined : "200px",
-                  overflowY: autoResizeMaxRows ? "hidden" : "auto",
-                  cursor: readOnly ? "not-allowed" : "text",
-                }}
-              />
+              <div className="relative">
+                {fieldHandle}
+                <textarea
+                  ref={textareaRef}
+                  className={cn(
+                    "field-surface nodrag block w-full resize-none rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring",
+                    "text-sm p-2 font-mono transition-colors",
+                    small ? "w-32" : "w-full",
+                    (isBlank || is00 || isNull) && "text-muted-foreground",
+                    readOnly ? "border-input" : "border-dashed border-input"
+                  )}
+                  placeholder={placeholder}
+                  value={value ?? ""}
+                  readOnly={readOnly}
+                  rows={textareaRows}
+                  spellCheck={false}
+                  onChange={(event) => onChange?.(event.target.value)}
+                  onFocus={(event) => onFocus?.(event.target.value)}
+                  onBlur={(event) => onBlur?.(event.target.value)}
+                  style={{
+                    maxHeight: autoResizeMaxRows ? undefined : "200px",
+                    overflowY: autoResizeMaxRows ? "hidden" : "auto",
+                    cursor: readOnly ? "not-allowed" : "text",
+                  }}
+                />
+              </div>
             </div>
           </TooltipTrigger>
 
@@ -303,29 +312,32 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
         </div>
       </div>
 
-      <textarea
-        ref={textareaRef}
-        className={cn(
-          "field-surface nodrag w-full resize-none rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring",
-          "text-sm p-2 font-mono transition-colors",
-          small ? "w-32" : "w-full",
-          (is00 || isBlank || isNull) && "text-muted-foreground",
-          readOnly ? "border-input" : "border-dashed border-input"
-        )}
-        placeholder={placeholder}
-        value={value ?? ""}
-        readOnly={readOnly}
-        rows={textareaRows}
-        spellCheck={false}
-        onChange={(event) => onChange?.(event.target.value)}
-        onFocus={(event) => onFocus?.(event.target.value)}
-        onBlur={(event) => onBlur?.(event.target.value)}
-        style={{
-          maxHeight: autoResizeMaxRows ? undefined : "200px",
-          overflowY: autoResizeMaxRows ? "hidden" : "auto",
-          cursor: readOnly ? "not-allowed" : "text",
-        }}
-      />
+      <div className="relative">
+        {fieldHandle}
+        <textarea
+          ref={textareaRef}
+          className={cn(
+            "field-surface nodrag block w-full resize-none rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring",
+            "text-sm p-2 font-mono transition-colors",
+            small ? "w-32" : "w-full",
+            (is00 || isBlank || isNull) && "text-muted-foreground",
+            readOnly ? "border-input" : "border-dashed border-input"
+          )}
+          placeholder={placeholder}
+          value={value ?? ""}
+          readOnly={readOnly}
+          rows={textareaRows}
+          spellCheck={false}
+          onChange={(event) => onChange?.(event.target.value)}
+          onFocus={(event) => onFocus?.(event.target.value)}
+          onBlur={(event) => onBlur?.(event.target.value)}
+          style={{
+            maxHeight: autoResizeMaxRows ? undefined : "200px",
+            overflowY: autoResizeMaxRows ? "hidden" : "auto",
+            cursor: readOnly ? "not-allowed" : "text",
+          }}
+        />
+      </div>
     </div>
   );
 },

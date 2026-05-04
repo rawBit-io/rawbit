@@ -83,6 +83,67 @@ describe("useCalcNodeMutations", () => {
     expect(nodes[0].data.inputs?.vals?.[1]).toBe(SENTINEL_EMPTY);
   });
 
+  it("updates dynamic TX extract outputs and removes edges from deleted outputs", () => {
+    nodes = [
+      {
+        ...baseNode(),
+        data: {
+          functionName: "extract_tx_field",
+          txFieldExtractMode: "dynamic",
+          txExtractFields: ["txid", "vout.scriptPubKey"],
+          outputPorts: [
+            { label: "txid", handleId: "output-0" },
+            { label: "vout.scriptPubKey", handleId: "output-1" },
+          ],
+          outputValues: {
+            "output-0": "tx",
+            "output-1": "script",
+          },
+        },
+      },
+    ];
+    edges = [
+      {
+        id: "e-keep",
+        source: nodeId,
+        sourceHandle: "output-0",
+        target: "node-2",
+      },
+      {
+        id: "e-remove",
+        source: nodeId,
+        sourceHandle: "output-1",
+        target: "node-3",
+      },
+    ];
+
+    const { result } = renderHook(() =>
+      useCalcNodeMutations(nodeId, setNodes, setEdges)
+    );
+
+    act(() => {
+      result.current.setTxFieldExtractField(0, "vin.txid");
+    });
+
+    expect(nodes[0].data.txExtractFields).toEqual([
+      "vin.txid",
+      "vout.scriptPubKey",
+    ]);
+    expect(nodes[0].data.outputPorts?.[0]).toMatchObject({
+      label: "vin.txid",
+      handleId: "output-0",
+    });
+    expect(nodes[0].data.dirty).toBe(true);
+
+    act(() => {
+      result.current.resizeTxFieldExtractFields(false);
+    });
+
+    expect(nodes[0].data.txExtractFields).toEqual(["vin.txid"]);
+    expect(nodes[0].data.outputValues).toEqual({ "output-0": "tx" });
+    expect(edges.map((edge) => edge.id)).toEqual(["e-keep"]);
+  });
+
   it("removes a node and guards undo snapshot hooks", () => {
     const lockEdgeSnapshotSkip = vi.fn();
     const releaseEdgeSnapshotSkip = vi.fn();
