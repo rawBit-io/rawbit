@@ -1161,7 +1161,12 @@ export function CalculationNodeView({
         )}
 
         {derived.isMultiVal && (
-          <div className="mb-6 flex flex-col gap-6">
+          <div
+            className={cn(
+              "flex flex-col [&>div:last-child]:mb-0",
+              isConcatAll ? "mb-2 gap-4" : "mb-6 gap-6"
+            )}
+          >
             <FieldSection
               fields={
                 data.inputStructure?.ungrouped as FieldDefinition[] | undefined
@@ -1342,7 +1347,12 @@ export function CalculationNodeView({
         )}
 
         {!hideGenericResult && (
-          <div className="mt-auto border-t border-border pt-2">
+          <div
+            className={cn(
+              "border-t border-border pt-2",
+              isConcatAll ? "mt-1" : "mt-auto"
+            )}
+          >
             <div className="mb-2 text-sm text-primary">
               {">"} Calculation Result:
             </div>
