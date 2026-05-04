@@ -151,6 +151,9 @@ describe("TextInfoNode", () => {
     expect(display).not.toHaveClass("nodrag");
     expect(display).toHaveClass("cursor-pointer");
     await user.click(display);
+    expect(screen.queryByPlaceholderText("Type markdown here…")).toBeNull();
+
+    await user.dblClick(display);
 
     const textarea = await screen.findByPlaceholderText("Type markdown here…");
     await user.type(textarea, " Updated");
@@ -204,6 +207,48 @@ describe("TextInfoNode", () => {
 
     resizeHandlers.onResizeEnd?.();
     await waitFor(() => expect(pushStateMock).toHaveBeenCalled());
+  });
+
+  it("shows the default edit hint and opens an empty editor on double-click", async () => {
+    const clipboardMock = {
+      prettyResult: "",
+      copyResult: vi.fn(),
+      copyError: vi.fn(),
+      copyId: vi.fn(),
+      resultCopied: false,
+      errorCopied: false,
+      idCopied: false,
+    };
+    clipboardHook.mockReturnValue(clipboardMock);
+    nodesState[0].data.content = "...";
+
+    const user = userEvent.setup();
+
+    renderWithProviders(
+      <TextInfoNode
+        id="text-1"
+        data={nodesState[0].data}
+        selected={false}
+        type="text"
+        dragging={false}
+        zIndex={0}
+        width={nodesState[0].width}
+        height={nodesState[0].height}
+        isConnectable={true}
+        positionAbsoluteX={0}
+        positionAbsoluteY={0}
+      />,
+      { snapshotScheduler: scheduler }
+    );
+
+    const hint = screen.getByText("Double-click to edit");
+    expect(hint.closest(".text-info-markdown")).toHaveClass(
+      "text-info-placeholder"
+    );
+    await user.dblClick(hint);
+
+    const textarea = await screen.findByPlaceholderText("Type markdown here…");
+    expect(textarea).toHaveValue("");
   });
 
   it("uses theme fallback fill until a palette color is selected", () => {

@@ -36,7 +36,7 @@ setAutoFreeze(false); // Immer objects must stay mutable for React-Flow
 /* -------------------------------------------------------------
  *  Constants
  * ----------------------------------------------------------- */
-const DEFAULT_TEXT = "...";
+const DEFAULT_TEXT = "Double-click to edit";
 const MIN_WIDTH = 360;
 const MIN_HEIGHT = 100;
 const CONTENT_VERTICAL_CHROME = 48;
@@ -117,6 +117,10 @@ export default function TextInfoNode({
     },
     []
   );
+  const isDefaultContent = useCallback((value: string) => {
+    const trimmed = value.trim();
+    return trimmed === "" || trimmed === DEFAULT_TEXT || trimmed === "...";
+  }, []);
 
   /* ───────── hooks & helpers ──────────────────────────────── */
   const rf = useReactFlow<FlowNode>();
@@ -149,7 +153,9 @@ export default function TextInfoNode({
   );
 
   /* ───────── node-level data ──────────────────────────────── */
-  const content = typeof data.content === "string" ? data.content : "";
+  const rawContent = typeof data.content === "string" ? data.content : "";
+  const isPlaceholderContent = isDefaultContent(rawContent);
+  const content = isPlaceholderContent ? DEFAULT_TEXT : rawContent;
   const fontSize = normalizeFontSize(data.fontSize);
   const lineHeight = Math.round(fontSize * 1.5); // Use the same calculation as the second file
   const paletteColor =
@@ -297,13 +303,13 @@ export default function TextInfoNode({
 
   /* ───────── editing lifecycle ───────────────────────────── */
   const startEdit = useCallback(() => {
-    setDraft(content === DEFAULT_TEXT ? "" : content);
+    setDraft(isDefaultContent(content) ? "" : content);
     setIsEditing(true);
     setTimeout(() => {
       textareaRef.current?.focus();
       updateTextareaFit();
     }, 0);
-  }, [content, updateTextareaFit]);
+  }, [content, isDefaultContent, updateTextareaFit]);
 
   const commitEdit = useCallback(() => {
     const newText = draft.trim() ? draft : DEFAULT_TEXT;
@@ -635,7 +641,10 @@ export default function TextInfoNode({
         ) : (
           <div
             ref={contentRef}
-            className="text-info-markdown nowheel h-full w-full cursor-pointer overflow-auto text-foreground"
+            className={`text-info-markdown nowheel h-full w-full cursor-pointer overflow-auto text-foreground${
+              isPlaceholderContent ? " text-info-placeholder" : ""
+            }`}
+            title="Double-click to edit"
             style={{
               fontSize: `${fontSize}px`,
               lineHeight: `${lineHeight}px`,
@@ -643,7 +652,7 @@ export default function TextInfoNode({
               overscrollBehavior: "contain",
               fontFamily: "inherit",
             }}
-            onClick={(e) => {
+            onDoubleClick={(e) => {
               if (!(e.target as HTMLElement).closest("a")) startEdit();
             }}
             dangerouslySetInnerHTML={{ __html: formatted }}

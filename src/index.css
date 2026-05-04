@@ -604,6 +604,15 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
   border-bottom: 0;
 }
 
+.text-info-placeholder {
+  color: hsl(var(--muted-foreground) / 0.52) !important;
+  font-style: italic;
+}
+
+.text-info-placeholder :where(*) {
+  color: inherit !important;
+}
+
 .field-surface {
   background-color: hsl(var(--muted) / 0.22) !important;
 }

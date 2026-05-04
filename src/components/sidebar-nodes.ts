@@ -63,7 +63,7 @@ export const allSidebarNodes: NodeTemplate[] = [
     description: "Displays markdown text with adjustable font size",
     type: "shadcnTextInfo",
     nodeData: {
-      content: "...",
+      content: "Double-click to edit",
       fontSize: 28,
       width: 300,
       height: 200,
