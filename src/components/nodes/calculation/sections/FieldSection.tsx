@@ -8,16 +8,26 @@ import {
   VIRTUAL_MAX_HEIGHT,
   VIRTUAL_OVERSCAN,
 } from "@/lib/nodes/constants";
+import { cn } from "@/lib/utils";
 import type { FieldDefinition } from "@/types";
 
 interface FieldSectionProps {
   fields?: FieldDefinition[];
   scope: string;
   paddingLeft?: number;
+  className?: string;
+  getItemClassName?: (field: FieldDefinition, index: number) => string | undefined;
   renderField: (field: FieldDefinition, index: number) => React.ReactNode;
 }
 
-export function FieldSection({ fields, scope, paddingLeft = 0, renderField }: FieldSectionProps) {
+export function FieldSection({
+  fields,
+  scope,
+  paddingLeft = 0,
+  className,
+  getItemClassName,
+  renderField,
+}: FieldSectionProps) {
   if (!fields || fields.length === 0) return null;
 
   if (fields.length > VIRTUALIZE_THRESHOLD) {
@@ -39,6 +49,7 @@ export function FieldSection({ fields, scope, paddingLeft = 0, renderField }: Fi
               paddingBottom: 12,
               boxSizing: "border-box",
             }}
+            className={getItemClassName?.(fields[index], index)}
           >
             {renderField(fields[index], index)}
           </div>
@@ -48,9 +59,14 @@ export function FieldSection({ fields, scope, paddingLeft = 0, renderField }: Fi
   }
 
   return (
-    <div className={`space-y-3${paddingLeft ? " pl-4" : ""}`}>
+    <div className={cn("space-y-3", paddingLeft ? "pl-4" : "", className)}>
       {fields.map((field, index) => (
-        <React.Fragment key={`${scope}-${field.index}`}>{renderField(field, index)}</React.Fragment>
+        <div
+          key={`${scope}-${field.index}`}
+          className={getItemClassName?.(field, index)}
+        >
+          {renderField(field, index)}
+        </div>
       ))}
     </div>
   );

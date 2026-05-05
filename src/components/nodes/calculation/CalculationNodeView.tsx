@@ -89,6 +89,8 @@ const SCRIPT_VERIFY_TAPROOT_PREVOUT_GROUPS = new Set([
   "Taproot Prevouts (vin order)",
   "Taproot prevouts",
 ]);
+const TX_TEMPLATE_INPUT_GROUP_TITLE = "INPUTS[]";
+const TX_TEMPLATE_OUTPUT_GROUP_TITLE = "OUTPUTS[]";
 
 const isScriptVerifyTaprootGroup = (groupDef: GroupDefinition) =>
   SCRIPT_VERIFY_TAPROOT_PREVOUT_GROUPS.has(groupDef.title);
@@ -97,6 +99,8 @@ const hasMeaningfulValue = (value: unknown) =>
   value !== undefined && value !== null && String(value).trim().length > 0;
 
 const formatScriptVerifyFieldLabel = (label: string) => label.toUpperCase();
+const normalizedFieldLabelIncludes = (label: string, token: string) =>
+  label.toUpperCase().replace(/\s+/g, "_").includes(token);
 
 function ConcatTypeBadge() {
   return (
@@ -588,7 +592,8 @@ export function CalculationNodeView({
       const fieldLabel = isScriptVerificationNode
         ? formatScriptVerifyFieldLabel(rawFieldLabel)
         : rawFieldLabel;
-      const handleOffset = scope.startsWith("between-") ? -32 : -16;
+      const handleOffset =
+        scope.startsWith("between-") && !isTxTemplateNode ? -32 : -16;
       const allowNull =
         field.allowNull ||
         (data.functionName === "musig2_nonce_gen" && fieldIndex === 2);
@@ -746,6 +751,38 @@ export function CalculationNodeView({
   const visibleInputGroups = isScriptVerificationNode
     ? inputGroups.filter((groupDef) => !isScriptVerifyTaprootGroup(groupDef))
     : inputGroups;
+  const isTxTemplateNode = Boolean(
+    isConcatAll &&
+      visibleInputFields?.some((field) =>
+        normalizedFieldLabelIncludes(field.label, "INPUT_COUNT")
+      ) &&
+      visibleInputGroups.some(
+        (groupDef) => groupDef.title === TX_TEMPLATE_INPUT_GROUP_TITLE
+      ) &&
+      visibleInputGroups.some(
+        (groupDef) => groupDef.title === TX_TEMPLATE_OUTPUT_GROUP_TITLE
+      ) &&
+      (
+        data.inputStructure?.betweenGroups?.[
+          TX_TEMPLATE_INPUT_GROUP_TITLE
+        ] as FieldDefinition[] | undefined
+      )?.some((field) =>
+        normalizedFieldLabelIncludes(field.label, "OUTPUT_COUNT")
+      )
+  );
+  const isTxTemplatePrimaryGroup = (groupDef: GroupDefinition) =>
+    isTxTemplateNode &&
+    (groupDef.title === TX_TEMPLATE_INPUT_GROUP_TITLE ||
+      groupDef.title === TX_TEMPLATE_OUTPUT_GROUP_TITLE);
+  const isConcatPrimaryGroup = (groupDef: GroupDefinition) =>
+    isConcatAll &&
+    (groupDef.title === TX_TEMPLATE_INPUT_GROUP_TITLE ||
+      groupDef.title === TX_TEMPLATE_OUTPUT_GROUP_TITLE);
+  const txTemplateFieldItemClassName = (field: FieldDefinition) =>
+    isTxTemplateNode &&
+    normalizedFieldLabelIncludes(field.label, "INPUT_COUNT")
+      ? "pt-4 mb-1"
+      : undefined;
   const hasScriptVerifyAdvancedData = Boolean(
     scriptVerifyAdvancedFields?.some((field) =>
       hasMeaningfulValue(getVal(data.inputs?.vals, field.index))
@@ -1081,7 +1118,23 @@ export function CalculationNodeView({
             group.handleGroupSize(groupDef.title, groupDef, false)
           }
           renderField={renderGroupField}
-          headerDivider={options?.headerDivider}
+          headerDivider={
+            options?.headerDivider ?? !isTxTemplatePrimaryGroup(groupDef)
+          }
+          className={
+            isTxTemplatePrimaryGroup(groupDef)
+              ? groupDef.title === TX_TEMPLATE_OUTPUT_GROUP_TITLE
+                ? "-mt-2 mb-2"
+                : "-mt-2 mb-1"
+              : undefined
+          }
+          headerClassName={
+            isTxTemplatePrimaryGroup(groupDef) ? "mb-1" : undefined
+          }
+          titleClassName={
+            isConcatPrimaryGroup(groupDef) ? "text-base" : undefined
+          }
+          compactControls={isConcatPrimaryGroup(groupDef)}
         />
 
         <FieldSection
@@ -1091,7 +1144,8 @@ export function CalculationNodeView({
               | undefined
           }
           scope={`between-${groupDef.title}`}
-          paddingLeft={16}
+          paddingLeft={isTxTemplateNode ? 0 : 16}
+          className={isTxTemplateNode ? "mt-1 mb-1" : undefined}
           renderField={makeRenderSingleField(`between-${groupDef.title}`)}
         />
       </React.Fragment>
@@ -1317,12 +1371,18 @@ export function CalculationNodeView({
           <div
             className={cn(
               "flex flex-col [&>div:last-child]:mb-0",
-              isConcatAll ? "mb-2 gap-4" : "mb-6 gap-6"
+              isTxTemplateNode
+                ? "mb-2 gap-3"
+                : isConcatAll
+                  ? "mb-2 gap-4"
+                  : "mb-6 gap-6"
             )}
           >
             <FieldSection
               fields={visibleInputFields}
               scope="ungrouped"
+              className={isTxTemplateNode ? "space-y-2" : undefined}
+              getItemClassName={txTemplateFieldItemClassName}
               renderField={makeRenderSingleField("ungrouped")}
             />
 

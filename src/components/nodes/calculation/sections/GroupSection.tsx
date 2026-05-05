@@ -10,6 +10,7 @@ import {
   VIRTUAL_MAX_HEIGHT,
   VIRTUAL_OVERSCAN,
 } from "@/lib/nodes/constants";
+import { cn } from "@/lib/utils";
 import type { FieldDefinition, GroupDefinition } from "@/types";
 
 import { EditableLabel } from "../fields/EditableLabel";
@@ -25,6 +26,10 @@ interface GroupSectionProps {
   onDecrement: () => void;
   renderField: (offset: number, field: FieldDefinition, index: number) => React.ReactNode;
   headerDivider?: boolean;
+  className?: string;
+  headerClassName?: string;
+  titleClassName?: string;
+  compactControls?: boolean;
 }
 
 export function GroupSection({
@@ -38,6 +43,10 @@ export function GroupSection({
   onDecrement,
   renderField,
   headerDivider = true,
+  className,
+  headerClassName,
+  titleClassName,
+  compactControls = false,
 }: GroupSectionProps) {
   const totalFields = instanceKeys.length * group.fields.length;
   const hasInstances = instanceKeys.length > 0;
@@ -66,37 +75,50 @@ export function GroupSection({
     );
   };
 
+  const buttonClassName = compactControls
+    ? "h-7 px-2"
+    : !headerDivider
+      ? "h-6 px-2"
+      : undefined;
+  const iconClassName = compactControls
+    ? "h-3.5 w-3.5"
+    : headerDivider
+      ? "h-4 w-4"
+      : "h-3 w-3";
+
   return (
-    <div className="mb-6 space-y-3">
+    <div className={cn("mb-6 space-y-3", className)}>
       <div
-        className={`mb-3 flex items-center justify-between ${
-          headerDivider ? "border-b border-border pb-2" : ""
-        }`}
+        className={cn(
+          "mb-3 flex items-center justify-between",
+          headerDivider && "border-b border-border pb-2",
+          headerClassName
+        )}
       >
         <EditableLabel
           value={title}
           onCommit={onTitleCommit}
-          className={headerDivider ? "text-lg" : "text-sm"}
+          className={titleClassName ?? (headerDivider ? "text-lg" : "text-sm")}
         />
         {group.expandable && (
           <div className="flex gap-2">
             <Button
               size="sm"
               variant="outline"
-              className={!headerDivider ? "h-6 px-2" : undefined}
+              className={buttonClassName}
               onClick={onDecrement}
               disabled={!canDecrement}
             >
-              <Minus className={headerDivider ? "h-4 w-4" : "h-3 w-3"} />
+              <Minus className={iconClassName} />
             </Button>
             <Button
               size="sm"
               variant="outline"
-              className={!headerDivider ? "h-6 px-2" : undefined}
+              className={buttonClassName}
               onClick={onIncrement}
               disabled={!canIncrement}
             >
-              <Plus className={headerDivider ? "h-4 w-4" : "h-3 w-3"} />
+              <Plus className={iconClassName} />
             </Button>
           </div>
         )}
