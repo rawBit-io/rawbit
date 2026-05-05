@@ -1132,7 +1132,8 @@ export function CalculationNodeView({
           }
           renderField={renderGroupField}
           headerDivider={
-            options?.headerDivider ?? !isTxTemplateSectionGroup(groupDef)
+            options?.headerDivider ??
+            !(isTxTemplateSectionGroup(groupDef) || isConcatPrimaryGroup(groupDef))
           }
           className={
             isTxTemplateSectionGroup(groupDef)
@@ -1511,7 +1512,7 @@ export function CalculationNodeView({
                   <div
                     key={handleId}
                     ref={setTxOutputRowRef(handleId)}
-                    className="relative border-b border-border/70 pb-3 last:border-b-0 last:pb-0"
+                    className="relative pb-3 last:pb-0"
                   >
                     <div className="mb-1">
                       <Select
