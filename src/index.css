@@ -191,22 +191,14 @@
 .app-tabbar {
   --tabbar-fade: hsl(var(--background) / 0.96);
   border-bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    hsl(var(--background) / 0.94),
-    hsl(var(--background) / 0.78)
-  );
+  background: hsl(var(--background) / 0.94);
   backdrop-filter: blur(12px);
   box-shadow: 0 10px 28px -28px hsl(var(--foreground) / 0.55);
 }
 
 .dark .app-tabbar {
   --tabbar-fade: hsl(var(--background) / 0.94);
-  background: linear-gradient(
-    to bottom,
-    hsl(var(--background) / 0.92),
-    hsl(var(--background) / 0.78)
-  );
+  background: hsl(var(--background) / 0.92);
 }
 
 .app-tabbar::before,
@@ -1014,20 +1006,12 @@ body[data-large-drag="true"] .rf-node {
 
 [data-skin="shadcn"] .app-tabbar {
   --tabbar-fade: hsl(var(--background) / 0.96);
-  background: linear-gradient(
-    to bottom,
-    hsl(var(--background) / 0.95),
-    hsl(var(--background) / 0.82)
-  );
+  background: hsl(var(--background) / 0.95);
 }
 
 .dark[data-skin="shadcn"] .app-tabbar {
   --tabbar-fade: hsl(var(--background) / 0.94);
-  background: linear-gradient(
-    to bottom,
-    hsl(var(--background) / 0.92),
-    hsl(var(--background) / 0.8)
-  );
+  background: hsl(var(--background) / 0.92);
 }
 
 [data-skin="shadcn"] .react-flow__node-shadcnTextInfo > * {
@@ -1056,22 +1040,14 @@ body[data-large-drag="true"] .rf-node {
 [data-skin="paper"] .app-tabbar {
   --tabbar-fade: hsl(var(--background) / 0.96);
   border-bottom-color: hsl(var(--primary) / 0.2);
-  background: linear-gradient(
-    to bottom,
-    hsl(var(--card) / 0.88),
-    hsl(var(--background) / 0.78)
-  );
+  background: hsl(var(--background) / 0.93);
   box-shadow: 0 10px 24px -28px hsl(27 32% 18% / 0.7);
 }
 
 .dark[data-skin="paper"] .app-tabbar {
   --tabbar-fade: hsl(var(--background) / 0.94);
   border-bottom-color: hsl(var(--primary) / 0.18);
-  background: linear-gradient(
-    to bottom,
-    hsl(var(--card) / 0.72),
-    hsl(var(--background) / 0.76)
-  );
+  background: hsl(var(--background) / 0.9);
 }
 
 [data-skin="paper"] .react-flow__node {
@@ -1208,22 +1184,14 @@ body[data-large-drag="true"] .rf-node {
 [data-skin="midnight"] .app-tabbar {
   --tabbar-fade: hsl(var(--background) / 0.96);
   border-bottom-color: hsl(var(--primary) / 0.18);
-  background: linear-gradient(
-    to bottom,
-    hsl(var(--background) / 0.9),
-    hsl(var(--background) / 0.72)
-  );
+  background: hsl(var(--background) / 0.9);
   box-shadow: 0 10px 24px -28px hsl(191 76% 18% / 0.7);
 }
 
 .dark[data-skin="midnight"] .app-tabbar {
   --tabbar-fade: hsl(var(--background) / 0.95);
   border-bottom-color: hsl(var(--primary) / 0.16);
-  background: linear-gradient(
-    to bottom,
-    hsl(var(--background) / 0.92),
-    hsl(var(--background) / 0.78)
-  );
+  background: hsl(var(--background) / 0.92);
 }
 
 [data-skin="midnight"] .react-flow__node {

@@ -1697,7 +1697,7 @@ export function CalculationNodeView({
         )}
 
         {showComment && (
-          <div className="mt-4 border-t border-border pt-2">
+          <div className="mt-4 pt-2">
             <TerminalField
               label="Node Comment:"
               placeholder="Enter your notes here..."
