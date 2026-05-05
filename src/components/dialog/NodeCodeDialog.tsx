@@ -318,7 +318,7 @@ export function NodeCodeDialog({
           <Button variant="outline" onClick={handleCopy} disabled={!code}>
             {copied ? "Copied!" : "Copy Code"}
           </Button>
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="outline" onClick={onClose}>
             Close
           </Button>
         </DialogFooter>
