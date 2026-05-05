@@ -30,6 +30,7 @@ const allowedNodeTaxonomy = new Map<string, Set<string>>([
   [
     "Transactions",
     new Set([
+      "General",
       "Transaction Templates",
       "Witnesses & Control Blocks",
       "Preimages",
@@ -53,6 +54,7 @@ const allowedNodeTaxonomy = new Map<string, Set<string>>([
   [
     "Signing & Verification",
     new Set([
+      "General",
       "ECDSA",
       "Schnorr",
       "Script Verification",

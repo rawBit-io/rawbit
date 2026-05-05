@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback, useRef } from "react";
 import {
   Edit,
   FileCode,
@@ -135,6 +135,7 @@ const subgroupLabelClass =
 const subgroupContentClass = "pt-1 pb-1";
 const subgroupItemsClass = "space-y-2 pb-1";
 const TOP_LEVEL_FLOW_SECTION = "top-level";
+const SIDEBAR_REVEAL_ITEM_COUNT = 5;
 
 const flowSections = [
   { id: "legacy-foundations", label: "Legacy Foundations" },
@@ -201,13 +202,17 @@ function groupNodesBySubcategory(nodes: NodeTemplate[]) {
 
 function getNodeDisplayGroups(nodes: NodeTemplate[]) {
   const groups = groupNodesBySubcategory(nodes);
+  const generalGroup = groups.find((group) => group.label === "General");
   const namedGroups = groups.filter((group) => group.label !== "General");
 
   if (nodes.length < MIN_NODES_FOR_SUBGROUPS || namedGroups.length === 0) {
     return { subcategoryGroups: [], flatNodes: nodes };
   }
 
-  return { subcategoryGroups: groups, flatNodes: [] };
+  return {
+    subcategoryGroups: namedGroups,
+    flatNodes: generalGroup?.items ?? [],
+  };
 }
 
 function formatNodeCategory(node: NodeTemplate) {
@@ -233,8 +238,17 @@ function getFlowSearchText(flow: CustomFlowTemplate) {
   ].join(" ");
 }
 
+function getSidebarRevealId(...parts: string[]) {
+  return parts
+    .join("--")
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 // Use the existing SidebarProps from your code
 export function Sidebar({ isOpen }: SidebarProps) {
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const [openCategories, setOpenCategories] = useState<string[]>([
     "canvas-inputs",
   ]);
@@ -287,6 +301,56 @@ export function Sidebar({ isOpen }: SidebarProps) {
   }, [searchQuery, visibleFlowTemplates]);
 
   const totalSearchResults = filteredNodes.length + filteredFlows.length;
+
+  const revealSidebarSection = useCallback((revealId: string) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const reveal = () => {
+      const section = container.querySelector<HTMLElement>(
+        `[data-sidebar-reveal-id="${revealId}"]`
+      );
+      if (!section || section.getAttribute("data-state") !== "open") return;
+
+      const trigger =
+        section.querySelector<HTMLElement>("[data-sidebar-reveal-trigger]") ??
+        section;
+      const revealItems = Array.from(
+        section.querySelectorAll<HTMLElement>("[data-sidebar-reveal-item]")
+      ).slice(0, SIDEBAR_REVEAL_ITEM_COUNT);
+      const lastRevealItem = revealItems.at(-1);
+      const containerRect = container.getBoundingClientRect();
+      const triggerRect = trigger.getBoundingClientRect();
+      const bottomRect = lastRevealItem?.getBoundingClientRect() ?? triggerRect;
+      const padding = 8;
+      const revealTop = triggerRect.top;
+      const revealBottom = bottomRect.bottom;
+      const revealHeight = revealBottom - revealTop;
+      const availableHeight = containerRect.height - padding * 2;
+
+      let scrollDelta = 0;
+      if (revealHeight > availableHeight) {
+        scrollDelta = revealTop - containerRect.top - padding;
+      } else if (revealTop < containerRect.top + padding) {
+        scrollDelta = revealTop - containerRect.top - padding;
+      } else if (revealBottom > containerRect.bottom - padding) {
+        scrollDelta = revealBottom - containerRect.bottom + padding;
+      }
+
+      if (Math.abs(scrollDelta) >= 1) {
+        if (typeof container.scrollBy === "function") {
+          container.scrollBy({ top: scrollDelta, behavior: "smooth" });
+        } else {
+          container.scrollTop += scrollDelta;
+        }
+      }
+    };
+
+    window.requestAnimationFrame(() => {
+      reveal();
+      window.setTimeout(reveal, 180);
+    });
+  }, []);
 
   const groupedFlows = useMemo(() => {
     if (HIDE_FLOW_EXAMPLE_SUBGROUPS) return [];
@@ -357,6 +421,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
   const renderNodeCard = (node: NodeTemplate, className?: string) => (
     <div
       key={`${node.functionName}-${node.label}`}
+      data-sidebar-reveal-item
       draggable
       onDragStart={(e) => onDragStart(e, node)}
       className={cn(
@@ -399,6 +464,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
   const renderFlowCard = (flow: CustomFlowTemplate, className?: string) => (
     <div
       key={flow.id}
+      data-sidebar-reveal-item
       draggable
       onDragStart={(event) => onFlowDragStart(event, flow)}
       className={cn(
@@ -421,15 +487,36 @@ export function Sidebar({ isOpen }: SidebarProps) {
       if (prev.includes(value)) {
         return prev.filter((id) => id !== value);
       }
+      revealSidebarSection(getSidebarRevealId("category", value));
       return [...prev, value];
     });
   };
 
   const handleSubcategoryChange = (categoryId: string, value: string[]) => {
-    setOpenSubcategories((prev) => ({
-      ...prev,
-      [categoryId]: value,
-    }));
+    setOpenSubcategories((prev) => {
+      const previousValue = prev[categoryId] ?? [];
+      const newlyOpened = value.find((item) => !previousValue.includes(item));
+      if (newlyOpened) {
+        revealSidebarSection(
+          getSidebarRevealId("subcategory", categoryId, newlyOpened)
+        );
+      }
+
+      return {
+        ...prev,
+        [categoryId]: value,
+      };
+    });
+  };
+
+  const handleFlowSectionChange = (value: string[]) => {
+    setOpenFlowSections((prev) => {
+      const newlyOpened = value.find((item) => !prev.includes(item));
+      if (newlyOpened) {
+        revealSidebarSection(getSidebarRevealId("flow-section", newlyOpened));
+      }
+      return value;
+    });
   };
 
   return (
@@ -495,6 +582,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
       </div>
 
       <div
+        ref={scrollContainerRef}
         className={cn(
           "flex-1 overflow-y-auto p-3 transition-opacity duration-300",
           isOpen ? "opacity-100" : "opacity-0"
@@ -559,9 +647,14 @@ export function Sidebar({ isOpen }: SidebarProps) {
                 <AccordionItem
                   key={cat.id}
                   value={cat.id}
+                  data-sidebar-reveal-id={getSidebarRevealId(
+                    "category",
+                    cat.id
+                  )}
                   className="border-none"
                 >
                   <AccordionTrigger
+                    data-sidebar-reveal-trigger
                     className="flex items-center py-2 pl-2 pr-6 rounded-md hover:bg-accent hover:no-underline"
                     onClick={(e) => {
                       e.preventDefault();
@@ -592,9 +685,16 @@ export function Sidebar({ isOpen }: SidebarProps) {
                               <AccordionItem
                                 key={`${cat.id}-${group.label}`}
                                 value={group.label}
+                                data-sidebar-reveal-id={getSidebarRevealId(
+                                  "subcategory",
+                                  cat.id,
+                                  group.label
+                                )}
                                 className="border-none"
                               >
                                 <AccordionTrigger
+                                  data-sidebar-reveal-trigger
+                                  data-sidebar-reveal-item
                                   className={subgroupTriggerClass}
                                 >
                                   <span className={subgroupLabelClass}>
@@ -629,9 +729,14 @@ export function Sidebar({ isOpen }: SidebarProps) {
             <AccordionItem
               key="my-custom-flows"
               value="my-custom-flows"
+              data-sidebar-reveal-id={getSidebarRevealId(
+                "category",
+                "my-custom-flows"
+              )}
               className="border-none"
             >
               <AccordionTrigger
+                data-sidebar-reveal-trigger
                 className="flex items-center py-2 pl-2 pr-6 rounded-md hover:bg-accent hover:no-underline"
                 onClick={(e) => {
                   e.preventDefault();
@@ -653,16 +758,24 @@ export function Sidebar({ isOpen }: SidebarProps) {
                       <Accordion
                         type="multiple"
                         value={openFlowSections}
-                        onValueChange={setOpenFlowSections}
+                        onValueChange={handleFlowSectionChange}
                         className={cn(subgroupAccordionClass, "pb-0.5")}
                       >
                         {groupedFlows.map((section) => (
                           <AccordionItem
                             key={section.id}
                             value={section.id}
+                            data-sidebar-reveal-id={getSidebarRevealId(
+                              "flow-section",
+                              section.id
+                            )}
                             className="border-none"
                           >
-                            <AccordionTrigger className={subgroupTriggerClass}>
+                            <AccordionTrigger
+                              data-sidebar-reveal-trigger
+                              data-sidebar-reveal-item
+                              className={subgroupTriggerClass}
+                            >
                               <span className={subgroupLabelClass}>
                                 {section.label}
                               </span>

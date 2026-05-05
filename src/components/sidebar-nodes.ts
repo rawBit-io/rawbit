@@ -360,7 +360,7 @@ export const allSidebarNodes: NodeTemplate[] = [
     functionName: "concat_all",
     label: "TX Template legacy",
     category: "Transactions",
-    subcategory: "Transaction Templates",
+    subcategory: "General",
     description:
       "Example specialised concat node with fields for version, input count, etc.",
     type: "calculation",
@@ -504,7 +504,7 @@ export const allSidebarNodes: NodeTemplate[] = [
     functionName: "concat_all",
     label: "TX Template",
     category: "Transactions",
-    subcategory: "Transaction Templates",
+    subcategory: "General",
     description:
       "Assembles any Bitcoin transaction: legacy, SegWit, or mixed. For SegWit/mixed, include marker+flag and witnesses. Legacy inputs need '00' witness.",
     type: "calculation",
@@ -1257,7 +1257,7 @@ export const allSidebarNodes: NodeTemplate[] = [
     functionName: "sign_as_bitcoin_core_low_r",
     label: "Sign TX (Low-R)",
     category: "Signing & Verification",
-    subcategory: "ECDSA",
+    subcategory: "General",
     description: "ECDSA signature with low-R style, like Bitcoin Core",
     type: "calculation",
     nodeData: {
@@ -2288,7 +2288,7 @@ export const allSidebarNodes: NodeTemplate[] = [
     functionName: "script_verification",
     label: "Verify Script",
     category: "Signing & Verification",
-    subcategory: "Script Verification",
+    subcategory: "General",
     description: "Bitcoin script debugger/verifier",
     type: "calculation",
     nodeData: {
