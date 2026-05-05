@@ -28,6 +28,8 @@ export interface FieldWithHandleProps {
   emptyLabel?: string;
   nullLabel?: string;
   comment?: string;
+  className?: string;
+  labelClassName?: string;
 }
 
 import { TerminalField } from "./TerminalField";
@@ -55,7 +57,9 @@ function fieldWithHandlePropsAreEqual(
     prev.allowEmptyBlank === next.allowEmptyBlank &&
     prev.allowNull === next.allowNull &&
     prev.emptyLabel === next.emptyLabel &&
-    prev.nullLabel === next.nullLabel
+    prev.nullLabel === next.nullLabel &&
+    prev.className === next.className &&
+    prev.labelClassName === next.labelClassName
   );
 }
 
@@ -80,6 +84,8 @@ export const FieldWithHandle = React.memo(function FieldWithHandleComponent({
   allowNull = false,
   emptyLabel,
   nullLabel,
+  className,
+  labelClassName,
 }: FieldWithHandleProps) {
   const displayValue =
     value === SENTINEL_EMPTY ||
@@ -138,6 +144,8 @@ export const FieldWithHandle = React.memo(function FieldWithHandleComponent({
         rows={rows}
         autoResizeMaxRows={autoResizeMaxRows}
         comment={comment}
+        className={className}
+        labelClassName={labelClassName}
         onChange={onChange}
         onLabelChange={onLabelChange}
         allowEmpty00={allowEmpty00}

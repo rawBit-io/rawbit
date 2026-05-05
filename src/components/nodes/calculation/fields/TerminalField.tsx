@@ -38,6 +38,8 @@ export interface TerminalFieldProps {
   onToggleBlank?: (checked: boolean) => void;
   onToggleNull?: (checked: boolean) => void;
   fieldHandle?: React.ReactNode;
+  className?: string;
+  labelClassName?: string;
 }
 
 import { EditableLabel } from "./EditableLabel";
@@ -70,7 +72,9 @@ function terminalFieldPropsAreEqual(
     prev.onToggle00 === next.onToggle00 &&
     prev.onToggleBlank === next.onToggleBlank &&
     prev.onToggleNull === next.onToggleNull &&
-    prev.fieldHandle === next.fieldHandle
+    prev.fieldHandle === next.fieldHandle &&
+    prev.className === next.className &&
+    prev.labelClassName === next.labelClassName
   );
 }
 
@@ -102,6 +106,8 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
   onToggleBlank,
   onToggleNull,
   fieldHandle,
+  className,
+  labelClassName,
 }: TerminalFieldProps) {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const textareaRows = autoResizeMaxRows ? 1 : rows ?? 3;
@@ -148,8 +154,13 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="mb-3 cursor-help">
-              <div className="mb-1 flex items-center justify-between font-mono text-sm text-primary">
+            <div className={cn("mb-3 cursor-help", className)}>
+              <div
+                className={cn(
+                  "mb-1 flex items-center justify-between font-mono text-sm text-primary",
+                  labelClassName
+                )}
+              >
                 {onLabelChange ? (
                   <EditableLabel value={label} onCommit={onLabelChange} />
                 ) : (
@@ -250,8 +261,13 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
   }
 
   return (
-    <div className="mb-3">
-      <div className="mb-1 flex items-center justify-between font-mono text-sm text-primary">
+    <div className={cn("mb-3", className)}>
+      <div
+        className={cn(
+          "mb-1 flex items-center justify-between font-mono text-sm text-primary",
+          labelClassName
+        )}
+      >
         {onLabelChange ? (
           <EditableLabel value={label} onCommit={onLabelChange} />
         ) : (

@@ -592,6 +592,7 @@ export function CalculationNodeView({
       const fieldLabel = isScriptVerificationNode
         ? formatScriptVerifyFieldLabel(rawFieldLabel)
         : rawFieldLabel;
+      const isCountField = isTxTemplateCountField(field);
       const handleOffset =
         scope.startsWith("between-") && !isTxTemplateNode ? -32 : -16;
       const allowNull =
@@ -626,6 +627,7 @@ export function CalculationNodeView({
           small={field.small}
           rows={fieldRows}
           autoResizeMaxRows={autoResizeMaxRows}
+          labelClassName={isCountField ? txTemplateCountLabelClassName : undefined}
           handleOffset={handleOffset}
           disableHandle={field.unconnectable}
           allowEmpty00={field.allowEmpty00}
@@ -667,6 +669,7 @@ export function CalculationNodeView({
     const fieldLabel = isScriptVerificationNode
       ? formatScriptVerifyFieldLabel(rawFieldLabel)
       : rawFieldLabel;
+    const isCountField = isTxTemplateCountField(field);
     const allowNull =
       field.allowNull ||
       (data.functionName === "musig2_nonce_gen" && fieldIndex === 2);
@@ -700,6 +703,7 @@ export function CalculationNodeView({
         small={field.small}
         rows={fieldRows}
         autoResizeMaxRows={autoResizeMaxRows}
+        labelClassName={isCountField ? txTemplateCountLabelClassName : undefined}
         handleOffset={-33}
         disableHandle={field.unconnectable}
         allowEmpty00={field.allowEmpty00}
@@ -778,6 +782,11 @@ export function CalculationNodeView({
     isConcatAll &&
     (groupDef.title === TX_TEMPLATE_INPUT_GROUP_TITLE ||
       groupDef.title === TX_TEMPLATE_OUTPUT_GROUP_TITLE);
+  const isTxTemplateCountField = (field: FieldDefinition) =>
+    isTxTemplateNode &&
+    (normalizedFieldLabelIncludes(field.label, "INPUT_COUNT") ||
+      normalizedFieldLabelIncludes(field.label, "OUTPUT_COUNT"));
+  const txTemplateCountLabelClassName = "text-xs text-muted-foreground";
   const txTemplateFieldItemClassName = (field: FieldDefinition) =>
     isTxTemplateNode &&
     normalizedFieldLabelIncludes(field.label, "INPUT_COUNT")
@@ -1095,7 +1104,6 @@ export function CalculationNodeView({
           groupDef.fields as FieldDefinition[]
         )
     );
-
     return (
       <React.Fragment key={groupDef.title}>
         <GroupSection
@@ -1133,6 +1141,11 @@ export function CalculationNodeView({
           }
           titleClassName={
             isConcatPrimaryGroup(groupDef) ? "text-base" : undefined
+          }
+          instanceClassName={
+            isTxTemplatePrimaryGroup(groupDef)
+              ? "rounded-md bg-muted/20 py-3 pr-3"
+              : undefined
           }
           compactControls={isConcatPrimaryGroup(groupDef)}
         />
@@ -1561,7 +1574,11 @@ export function CalculationNodeView({
               isSimpleResultOnly
                 ? "calc-node-result-simple mt-0 pt-0"
                 : "pt-2",
-              isConcatAll ? "mt-1" : !isSimpleResultOnly && "mt-auto"
+              isTxTemplateNode
+                ? "mt-5"
+                : isConcatAll
+                  ? "mt-1"
+                  : !isSimpleResultOnly && "mt-auto"
             )}
           >
             <div className="calc-node-result-label mb-2 text-sm text-primary">

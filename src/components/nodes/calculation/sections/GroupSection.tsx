@@ -29,6 +29,7 @@ interface GroupSectionProps {
   className?: string;
   headerClassName?: string;
   titleClassName?: string;
+  instanceClassName?: string;
   compactControls?: boolean;
 }
 
@@ -46,6 +47,7 @@ export function GroupSection({
   className,
   headerClassName,
   titleClassName,
+  instanceClassName,
   compactControls = false,
 }: GroupSectionProps) {
   const totalFields = instanceKeys.length * group.fields.length;
@@ -137,7 +139,10 @@ export function GroupSection({
           </List>
         ) : (
           instanceKeys.map((offset, instanceIndex) => (
-            <div key={`${group.title}-${offset}`} className="mb-4 space-y-3 pl-4">
+            <div
+              key={`${group.title}-${offset}`}
+              className={cn("mb-4 space-y-3 pl-4", instanceClassName)}
+            >
               {showInstanceLabels && (
                 <div className="text-sm font-semibold text-primary">
                   {`> ${group.instanceLabelPrefix} ${instanceIndex}`}
