@@ -273,7 +273,7 @@ describe("CalculationNodeView", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("renders dynamic TX field extract outputs without the generic result block", async () => {
+  it("renders dynamic TX field extract outputs in a dedicated result block", async () => {
     const clip = createClip({ prettyResult: "hidden summary" });
     const mut = createMut();
     const user = userEvent.setup();
@@ -327,10 +327,9 @@ describe("CalculationNodeView", () => {
       />
     );
 
-    expect(screen.getByText("> Outputs")).toBeInTheDocument();
+    expect(screen.getByText("> EXTRACTED FIELDS")).toBeInTheDocument();
     expect(screen.getByText("abc")).toBeInTheDocument();
     expect(screen.getByText("51")).toBeInTheDocument();
-    expect(screen.queryByText("> Calculation Result:")).not.toBeInTheDocument();
     expect(screen.getAllByTestId("rf-handle")).toHaveLength(4);
 
     await user.click(screen.getByTitle("Copy txid output to clipboard"));

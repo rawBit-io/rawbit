@@ -1265,15 +1265,16 @@ export function CalculationNodeView({
         )}
 
         {isDynamicTxFieldExtract && (
-          <div className="mb-6 space-y-3">
-            <div className="mb-3 flex items-center justify-between border-b border-border pb-2">
-              <div className="font-mono text-lg text-primary">
-                {">"} Outputs
+          <div className="calc-node-result mt-2 border-t border-border pt-2">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div className="calc-node-result-label text-base text-primary">
+                {">"} EXTRACTED FIELDS
               </div>
               <div className="flex gap-2">
                 <Button
                   size="sm"
                   variant="outline"
+                  className="nodrag h-8 w-8 p-0"
                   onClick={() => mut.resizeTxFieldExtractFields(false)}
                   disabled={txExtractFields.length <= 1}
                   title="Remove output"
@@ -1283,6 +1284,7 @@ export function CalculationNodeView({
                 <Button
                   size="sm"
                   variant="outline"
+                  className="nodrag h-8 w-8 p-0"
                   onClick={() => mut.resizeTxFieldExtractFields(true)}
                   disabled={txExtractFields.length >= TX_FIELD_EXTRACT_MAX_OUTPUTS}
                   title="Add output"
@@ -1308,16 +1310,16 @@ export function CalculationNodeView({
                   <div
                     key={handleId}
                     ref={setTxOutputRowRef(handleId)}
-                    className="field-surface relative rounded-md border border-input bg-background p-2"
+                    className="relative border-b border-border/70 pb-3 last:border-b-0 last:pb-0"
                   >
-                    <div className="grid grid-cols-[minmax(0,1fr)_2.5rem] items-center gap-2">
+                    <div className="mb-1">
                       <Select
                         value={field}
                         onValueChange={(value) =>
                           mut.setTxFieldExtractField(index, value)
                         }
                       >
-                        <SelectTrigger className="field-surface h-8 min-w-0 font-mono text-xs">
+                        <SelectTrigger className="field-surface h-7 min-w-0 rounded px-2 font-mono text-xs">
                           <SelectValue placeholder="Choose field" />
                         </SelectTrigger>
                         <SelectContent>
@@ -1332,18 +1334,20 @@ export function CalculationNodeView({
                           ))}
                         </SelectContent>
                       </Select>
-                      <span className="justify-self-center whitespace-nowrap text-[10px] uppercase text-muted-foreground">
-                        out {index + 1}
-                      </span>
                     </div>
-                    <div className="mt-2 grid grid-cols-[minmax(0,1fr)_2.5rem] items-start gap-2">
-                      <div className="max-h-20 min-w-0 overflow-y-auto whitespace-pre-wrap break-all rounded border border-border/70 bg-muted/25 px-2 py-1 text-xs text-muted-foreground">
+                    <div className="grid grid-cols-[minmax(0,1fr)_2.5rem] items-start gap-2">
+                      <div
+                        className={cn(
+                          "max-h-20 min-w-0 overflow-y-auto whitespace-pre-wrap break-all font-mono text-sm leading-relaxed",
+                          canCopy ? "text-primary" : "text-muted-foreground"
+                        )}
+                      >
                         {display}
                       </div>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="nodrag h-7 w-10 justify-self-center"
+                        className="nodrag h-7 w-8 justify-self-center"
                         onPointerDownCapture={(event) => event.stopPropagation()}
                         onClick={() => copyTxExtractOutput(handleId, value)}
                         disabled={!canCopy}
