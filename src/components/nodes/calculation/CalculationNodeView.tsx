@@ -1265,7 +1265,7 @@ export function CalculationNodeView({
         )}
 
         {isDynamicTxFieldExtract && (
-          <div className="calc-node-result mt-2 border-t border-border pt-2">
+          <div className="calc-node-result mt-2 pt-2">
             <div className="mb-3 flex items-center justify-between gap-3">
               <div className="calc-node-result-label text-base text-primary">
                 {">"} EXTRACTED FIELDS
@@ -1377,7 +1377,7 @@ export function CalculationNodeView({
               "calc-node-result",
               isSimpleResultOnly
                 ? "calc-node-result-simple mt-0 pt-0"
-                : "border-t border-border pt-2",
+                : "pt-2",
               isConcatAll ? "mt-1" : !isSimpleResultOnly && "mt-auto"
             )}
           >
