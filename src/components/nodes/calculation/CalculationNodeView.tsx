@@ -601,6 +601,8 @@ export function CalculationNodeView({
         (data.functionName === "musig2_nonce_gen" && fieldIndex === 2);
       const fieldRows = isConcatAll ? 1 : field.rows;
       const autoResizeMaxRows = isConcatAll ? 3 : field.autoResizeMaxRows;
+      const isTxFieldExtractRawTxField =
+        isDynamicTxFieldExtract && fieldIndex === 0;
 
       if (field.options) {
         const current = rawValue ?? field.options[0];
@@ -626,10 +628,15 @@ export function CalculationNodeView({
           placeholder={resolved.placeholder}
           value={resolved.displayValue}
           small={field.small}
-          rows={fieldRows}
-          autoResizeMaxRows={autoResizeMaxRows}
-          labelClassName={isCountField ? txTemplateCountLabelClassName : undefined}
-          handleOffset={handleOffset}
+        rows={fieldRows}
+        autoResizeMaxRows={autoResizeMaxRows}
+        className={cn(
+          isDynamicTxFieldExtract && "mb-1",
+          isTxFieldExtractRawTxField && "tx-field-extract-raw-field"
+        )}
+        wrapperClassName={isDynamicTxFieldExtract ? "mb-2" : undefined}
+        labelClassName={isCountField ? txTemplateCountLabelClassName : undefined}
+        handleOffset={handleOffset}
           disableHandle={field.unconnectable}
           allowEmpty00={field.allowEmpty00}
           allowEmptyBlank={field.allowEmptyBlank}
@@ -1390,7 +1397,7 @@ export function CalculationNodeView({
           <div
             className={cn(
               "flex flex-col [&>div:last-child]:mb-0",
-              isTxTemplateNode
+              isTxTemplateNode || isDynamicTxFieldExtract
                 ? "mb-2 gap-3"
                 : isConcatAll
                   ? "mb-2 gap-4"
@@ -1400,7 +1407,11 @@ export function CalculationNodeView({
             <FieldSection
               fields={visibleInputFields}
               scope="ungrouped"
-              className={isTxTemplateNode ? "space-y-2" : undefined}
+              className={
+                isTxTemplateNode || isDynamicTxFieldExtract
+                  ? "space-y-2"
+                  : undefined
+              }
               getItemClassName={txTemplateFieldItemClassName}
               renderField={makeRenderSingleField("ungrouped")}
             />
@@ -1467,8 +1478,8 @@ export function CalculationNodeView({
         )}
 
         {isDynamicTxFieldExtract && (
-          <div className="calc-node-result mt-2 pt-2">
-            <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="calc-node-result mt-0 pt-1">
+            <div className="mb-2 flex items-center justify-between gap-3">
               <div className="calc-node-result-label text-base text-primary">
                 {">"} EXTRACTED FIELDS
               </div>
@@ -1476,27 +1487,27 @@ export function CalculationNodeView({
                 <Button
                   size="sm"
                   variant="outline"
-                  className="nodrag h-8 w-8 p-0"
+                  className="nodrag h-7 w-7 p-0"
                   onClick={() => mut.resizeTxFieldExtractFields(false)}
                   disabled={txExtractFields.length <= 1}
                   title="Remove output"
                 >
-                  <Minus className="h-4 w-4" />
+                  <Minus className="h-3.5 w-3.5" />
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  className="nodrag h-8 w-8 p-0"
+                  className="nodrag h-7 w-7 p-0"
                   onClick={() => mut.resizeTxFieldExtractFields(true)}
                   disabled={txExtractFields.length >= TX_FIELD_EXTRACT_MAX_OUTPUTS}
                   title="Add output"
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-3.5 w-3.5" />
                 </Button>
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               {txExtractFields.map((field, index) => {
                 const handleId = `output-${index}`;
                 const value = txExtractOutputValues[handleId];
@@ -1512,7 +1523,7 @@ export function CalculationNodeView({
                   <div
                     key={handleId}
                     ref={setTxOutputRowRef(handleId)}
-                    className="relative pb-3 last:pb-0"
+                    className="relative pb-2 last:pb-0"
                   >
                     <div className="mb-1">
                       <Select

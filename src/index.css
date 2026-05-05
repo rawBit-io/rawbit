@@ -630,6 +630,12 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
   line-height: 1.45;
 }
 
+.react-flow__node-calculation .tx-field-extract-raw-field textarea.field-surface {
+  height: calc(3 * 1.45em + 1.3rem + 4px) !important;
+  max-height: calc(3 * 1.45em + 1.3rem + 4px) !important;
+  overflow-y: auto !important;
+}
+
 .react-flow__node-calculation .calc-node-header-simple {
   padding-bottom: 0.25rem;
 }

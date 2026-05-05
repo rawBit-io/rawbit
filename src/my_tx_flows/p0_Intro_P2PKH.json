@@ -1,5 +1,5 @@
 {
-  "name": "flow-1778010784735",
+  "name": "flow-1778011558065",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -88,13 +88,13 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 4135.286304369602,
+        "x": 4024.2863043696016,
         "y": 1943.3513762839802
       },
       "data": {
         "isGroup": true,
-        "width": 2659,
-        "height": 2743,
+        "width": 2770,
+        "height": 2737,
         "title": "Preimage",
         "groupBundlePortOffsets": {
           "source": 1199.26,
@@ -113,8 +113,8 @@
         "borderColor": "#008c86",
         "fontSize": 40
       },
-      "width": 2659,
-      "height": 2743,
+      "width": 2770,
+      "height": 2737,
       "dragHandle": "[data-drag-handle]"
     },
     {
@@ -175,7 +175,7 @@
       "id": "node_8QSOHj19",
       "type": "calculation",
       "position": {
-        "x": 662.7813066010253,
+        "x": 773.7813066010253,
         "y": 112.91950879254955
       },
       "data": {
@@ -210,7 +210,7 @@
       "id": "node_1AL3tCpN",
       "type": "calculation",
       "position": {
-        "x": 656.9058140068641,
+        "x": 767.9058140068641,
         "y": 371.0227876604599
       },
       "data": {
@@ -247,7 +247,7 @@
       "id": "node_kSTGvvaL",
       "type": "calculation",
       "position": {
-        "x": 729.4919836843305,
+        "x": 840.4919836843305,
         "y": 1905.317488064405
       },
       "data": {
@@ -281,7 +281,7 @@
       "id": "node_IRajBmor",
       "type": "calculation",
       "position": {
-        "x": 711.6648029176808,
+        "x": 822.6648029176808,
         "y": 2209.956872247072
       },
       "data": {
@@ -654,8 +654,8 @@
       "id": "node_UIgo6BTD",
       "type": "calculation",
       "position": {
-        "x": 1949.1155084870552,
-        "y": 607.2773328058056
+        "x": 2111.1685497715152,
+        "y": 661.1666541616246
       },
       "data": {
         "functionName": "concat_all",
@@ -1015,7 +1015,7 @@
       "id": "node_CLVgEw37",
       "type": "calculation",
       "position": {
-        "x": 1128.4799644872946,
+        "x": 1239.4799644872946,
         "y": 367.67900747797466
       },
       "data": {
@@ -1038,7 +1038,7 @@
       "id": "node_A97ESBMe",
       "type": "calculation",
       "position": {
-        "x": 1144.0332277191847,
+        "x": 1255.0332277191847,
         "y": 1775.3482747412068
       },
       "data": {
@@ -1084,7 +1084,7 @@
       "id": "node_uc3qXmHd",
       "type": "calculation",
       "position": {
-        "x": 1153.0082072879163,
+        "x": 1264.0082072879163,
         "y": 2151.5806145195056
       },
       "data": {
@@ -1108,7 +1108,7 @@
       "id": "node_NRUA8pnX",
       "type": "calculation",
       "position": {
-        "x": 1160.265846325653,
+        "x": 1271.265846325653,
         "y": 1329.448437792677
       },
       "data": {
@@ -1412,8 +1412,8 @@
       "id": "node_C85oMB8J",
       "type": "calculation",
       "position": {
-        "x": 1141.290176535239,
-        "y": 1117.7155902114273
+        "x": 1262.6503228743723,
+        "y": 1147.1496216252003
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -1436,7 +1436,7 @@
       "id": "node_iG1CdtRQ",
       "type": "calculation",
       "position": {
-        "x": 1129.4354897517733,
+        "x": 1240.4354897517733,
         "y": 120.32581889228368
       },
       "data": {
@@ -1485,7 +1485,7 @@
       "id": "node_v7K1rBTw",
       "type": "calculation",
       "position": {
-        "x": 701.3780963068448,
+        "x": 812.3780963068448,
         "y": 1563.0038709918372
       },
       "data": {
@@ -1521,7 +1521,7 @@
       "id": "node_E7c0t33i",
       "type": "calculation",
       "position": {
-        "x": 1151.0072656352768,
+        "x": 1262.0072656352768,
         "y": 1548.8428583302407
       },
       "data": {
@@ -1671,7 +1671,7 @@
       "id": "node_hHXC5ZW3",
       "type": "calculation",
       "position": {
-        "x": 1166.9746877667744,
+        "x": 1277.9746877667744,
         "y": 2455.137140597439
       },
       "data": {
@@ -1937,8 +1937,8 @@
       "id": "node_ljj3f78",
       "type": "calculation",
       "position": {
-        "x": 167.56554247845042,
-        "y": 1238.9621840629447
+        "x": 162.16620250319465,
+        "y": 1031.910839847831
       },
       "data": {
         "functionName": "identity",
@@ -2004,11 +2004,11 @@
       "extent": "parent"
     },
     {
-      "id": "node_2bp7tnt",
+      "id": "node_kzcs3gx",
       "type": "calculation",
       "position": {
-        "x": 632.7425795167205,
-        "y": 560.5950120025032
+        "x": 768.3090494051621,
+        "y": 624.2406948003882
       },
       "data": {
         "functionName": "extract_tx_field",
@@ -2041,7 +2041,7 @@
             {
               "index": 0,
               "label": "Raw TX (hex):",
-              "rows": 4,
+              "rows": 3,
               "placeholder": "<transaction hex>"
             },
             {
@@ -2056,12 +2056,11 @@
         "totalInputs": 2,
         "unwiredCount": 0,
         "dirty": false,
+        "error": false,
         "outputValues": {
           "output-0": "67d60153be449d7ff8685193eb00bf518969f4a71849e07c53ba8d73eec22f22",
           "output-1": "76a914918976552e1164768fba9ee3ef11d867cfcdfd3188ac"
-        },
-        "error": false,
-        "showComment": false
+        }
       },
       "parentId": "group_7w6adu7",
       "extent": "parent"
@@ -2563,26 +2562,6 @@
       "selected": false
     },
     {
-      "source": "node_xfz2u3e",
-      "target": "node_2bp7tnt",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "xy-edge__node_xfz2u3e-node_2bp7tntinput-0",
-      "data": {
-        "curveControlPointOffset": {
-          "x": 63.59,
-          "y": -70.41
-        }
-      }
-    },
-    {
-      "source": "node_ljj3f78",
-      "target": "node_2bp7tnt",
-      "targetHandle": "input-1",
-      "selected": false,
-      "id": "xy-edge__node_ljj3f78-node_2bp7tntinput-1"
-    },
-    {
       "id": "edge_jn7bwol",
       "source": "node_ljj3f78",
       "target": "node_C85oMB8J",
@@ -2596,55 +2575,43 @@
       "selected": false
     },
     {
-      "id": "edge_e3uldaq",
-      "source": "node_2bp7tnt",
-      "target": "node_UIgo6BTD",
-      "sourceHandle": "output-1",
-      "targetHandle": "input-1030",
+      "id": "edge_pq3003f",
+      "source": "node_ljj3f78",
+      "target": "node_kzcs3gx",
+      "sourceHandle": null,
+      "targetHandle": "input-1",
       "selected": false
     },
     {
-      "id": "edge_3y3374y",
-      "source": "node_2bp7tnt",
-      "target": "node_o6vul7a",
-      "sourceHandle": "output-1",
-      "targetHandle": "input-1",
-      "selected": false,
-      "data": {
-        "curveControlPointOffset": {
-          "x": 124.65,
-          "y": 79.78
-        }
-      }
+      "id": "edge_q2swcx8",
+      "source": "node_xfz2u3e",
+      "target": "node_kzcs3gx",
+      "sourceHandle": null,
+      "targetHandle": "input-0"
     },
     {
-      "source": "node_2bp7tnt",
-      "target": "node_NRUA8pnX",
-      "sourceHandle": "output-1",
-      "targetHandle": "input-0",
-      "data": {
-        "curveControlPointOffset": {
-          "x": -102.96,
-          "y": -103.93
-        }
-      },
-      "selected": false,
-      "id": "xy-edge__node_2bp7tntoutput-1-node_NRUA8pnXinput-0"
-    },
-    {
-      "id": "edge_rteibis",
-      "source": "node_2bp7tnt",
+      "id": "edge_pu5uhu2",
+      "source": "node_kzcs3gx",
       "target": "node_UIgo6BTD",
       "sourceHandle": "output-0",
       "targetHandle": "input-1000",
       "selected": false
     },
     {
-      "id": "edge_1vti0sz",
-      "source": "node_2bp7tnt",
-      "target": "node_qMmh8Zrk",
-      "sourceHandle": "output-0",
-      "targetHandle": "input-1000"
+      "id": "edge_ft6hnvv",
+      "source": "node_kzcs3gx",
+      "target": "node_NRUA8pnX",
+      "sourceHandle": "output-1",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_enhuiox",
+      "source": "node_kzcs3gx",
+      "target": "node_UIgo6BTD",
+      "sourceHandle": "output-1",
+      "targetHandle": "input-1030",
+      "selected": false
     }
   ]
 }

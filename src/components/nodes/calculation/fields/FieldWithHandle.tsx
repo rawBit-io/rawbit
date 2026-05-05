@@ -7,6 +7,7 @@ import {
   SENTINEL_FORCE00,
   SENTINEL_NULL,
 } from "@/lib/nodes/constants";
+import { cn } from "@/lib/utils";
 
 export interface FieldWithHandleProps {
   handleId: string;
@@ -30,6 +31,7 @@ export interface FieldWithHandleProps {
   comment?: string;
   className?: string;
   labelClassName?: string;
+  wrapperClassName?: string;
 }
 
 import { TerminalField } from "./TerminalField";
@@ -59,7 +61,8 @@ function fieldWithHandlePropsAreEqual(
     prev.emptyLabel === next.emptyLabel &&
     prev.nullLabel === next.nullLabel &&
     prev.className === next.className &&
-    prev.labelClassName === next.labelClassName
+    prev.labelClassName === next.labelClassName &&
+    prev.wrapperClassName === next.wrapperClassName
   );
 }
 
@@ -86,6 +89,7 @@ export const FieldWithHandle = React.memo(function FieldWithHandleComponent({
   nullLabel,
   className,
   labelClassName,
+  wrapperClassName,
 }: FieldWithHandleProps) {
   const displayValue =
     value === SENTINEL_EMPTY ||
@@ -120,7 +124,7 @@ export const FieldWithHandle = React.memo(function FieldWithHandleComponent({
     value === SENTINEL_NULL;
 
   return (
-    <div className="mb-3">
+    <div className={cn("mb-3", wrapperClassName)}>
       <TerminalField
         fieldHandle={!disableHandle && (
         <Handle

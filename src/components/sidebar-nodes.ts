@@ -2657,7 +2657,7 @@ export const allSidebarNodes: NodeTemplate[] = [
           {
             index: 0,
             label: "Raw TX (hex):",
-            rows: 4,
+            rows: 3,
             placeholder: "<transaction hex>",
           },
 
