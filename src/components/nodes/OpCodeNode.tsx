@@ -6,10 +6,9 @@
       • ALL_OPS is now a module-level singleton
     --------------------------------------------------------------- */
 
-import React, {
+import {
   useState,
   useCallback,
-  useEffect,
   useMemo,
   useRef,
 } from "react";
@@ -19,8 +18,6 @@ import { Button } from "@/components/ui/button";
 import {
   Copy,
   Check,
-  Maximize2,
-  Minimize2,
   MoreHorizontal,
   FileCode,
   MessageSquare,
@@ -30,10 +27,6 @@ import { cn } from "@/lib/utils";
 import type { FlowNode } from "@/types";
 import { useSnapshotSchedulerContext } from "@/hooks/useSnapshotSchedulerContext";
 import { useClipboardLite } from "@/hooks/nodes/useClipboardLite";
-import {
-  OpcodeExpandedView,
-  SelectedCategory,
-} from "./opcode/OpcodeExpandedView";
 import { OpcodeMiniView } from "./opcode/OpcodeMiniView";
 
 import {
@@ -63,26 +56,6 @@ const ALL_OPS: OpItem[] = (() => {
 })();
 
 function useOpcodeFilters(miniSearch: string) {
-  const [fullSearch, setFullSearch] = useState("");
-  const [category, setCategory] = useState<SelectedCategory>("all");
-
-  const filteredFull = useMemo(() => {
-    const query = fullSearch.trim().toLowerCase();
-    if (query) {
-      return ALL_OPS.filter((op) =>
-        [op.name, op.description, op.hex]
-          .join(" ")
-          .toLowerCase()
-          .includes(query)
-      );
-    }
-    if (category !== "all") {
-      const categorySet = new Set<string>(OP_CODES[category].map((op) => op.name));
-      return ALL_OPS.filter((op) => categorySet.has(op.name));
-    }
-    return ALL_OPS;
-  }, [fullSearch, category]);
-
   const filteredMini = useMemo(() => {
     if (!miniSearch) return [];
     const query = miniSearch.toLowerCase();
@@ -95,11 +68,6 @@ function useOpcodeFilters(miniSearch: string) {
   }, [miniSearch]);
 
   return {
-    fullSearch,
-    setFullSearch,
-    category,
-    setCategory,
-    filteredFull,
     filteredMini,
   };
 }
@@ -117,25 +85,12 @@ export default function OpCodeNode({
     useSnapshotSchedulerContext();
 
   /* ------------ UI state ------------ */
-  const [isExpanded, setIsExpanded] = useState(false);
   const [showCode, setShowCode] = useState(false);
   const [miniSearch, setMiniSearch] = useState("");
   const commentEditStartRef = useRef(
     typeof data.comment === "string" ? data.comment : ""
   );
-  const {
-    fullSearch,
-    setFullSearch,
-    category,
-    setCategory,
-    filteredFull,
-    filteredMini,
-  } = useOpcodeFilters(miniSearch);
-
-  /* ------------ Refs for scroll handling ------------ */
-  const categoryScrollRef = useRef<HTMLDivElement>(null);
-  const opcodeScrollRef = useRef<HTMLDivElement>(null);
-  const sequenceScrollRef = useRef<HTMLDivElement>(null);
+  const { filteredMini } = useOpcodeFilters(miniSearch);
 
   /* ------------ Derive selected opcodes from node data ------------ */
   const selectedOps = useMemo(() => {
@@ -188,9 +143,9 @@ export default function OpCodeNode({
         })
       );
 
-      if (!isExpanded) setMiniSearch("");
+      setMiniSearch("");
     },
-    [id, setNodes, isExpanded]
+    [id, setNodes]
   );
 
   // Remove Opcode directly from node data
@@ -241,16 +196,6 @@ export default function OpCodeNode({
     if (!hex) return;
     clip.copyResult();
   }, [clip, hex]);
-
-  const toggleExpand = useCallback(() => {
-    setIsExpanded((prev) => !prev);
-    if (isExpanded) {
-      setFullSearch("");
-      setCategory("all");
-    } else {
-      setMiniSearch("");
-    }
-  }, [isExpanded, setCategory, setFullSearch, setMiniSearch]);
 
   const toggleComment = useCallback(() => {
     setNodes((nds) =>
@@ -339,26 +284,6 @@ export default function OpCodeNode({
     setNodes,
   ]);
 
-  /* Prevent wheel propagation in scroll areas */
-  useEffect(() => {
-    if (!isExpanded) return;
-    const stop = (e: WheelEvent) => e.stopPropagation();
-    const add = (r: React.RefObject<HTMLDivElement>) => {
-      const el = r.current;
-      if (!el) return () => {};
-      el.addEventListener("wheel", stop, { passive: true });
-      return () => el.removeEventListener("wheel", stop);
-    };
-    const c1 = add(categoryScrollRef);
-    const c2 = add(opcodeScrollRef);
-    const c3 = add(sequenceScrollRef);
-    return () => {
-      c1();
-      c2();
-      c3();
-    };
-  }, [isExpanded]);
-
   /* ====================================================================
                    Render
        ==================================================================== */
@@ -381,13 +306,13 @@ export default function OpCodeNode({
         selectedStyles,
         highlightStyles,
         data.borderColor ? "!border-3" : "border-border",
-        isExpanded ? "w-[350px]" : "w-[280px]"
+        "w-[280px]"
       )}
       style={data.borderColor ? { borderColor: data.borderColor } : {}}
     >
       {/* --- Title bar -------------------------------------------------- */}
 
-      <div className="flex w-full flex-row items-center gap-2 border-b border-border p-2 text-xl">
+      <div className="calc-node-header flex w-full flex-row items-center gap-2 border-b border-border p-2 text-xl">
         <div className="min-w-0 flex-1 break-words leading-tight">
           {data.title || "Opcode Sequence"}
         </div>
@@ -427,60 +352,28 @@ export default function OpCodeNode({
               </DropdownMenuContent>
             </DropdownMenuPortal>
           </DropdownMenu>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 p-1"
-            onClick={toggleExpand}
-            title={isExpanded ? "Collapse" : "Expand"}
-          >
-            {isExpanded ? (
-              <Minimize2 className="h-4 w-4" />
-            ) : (
-              <Maximize2 className="h-4 w-4" />
-            )}
-          </Button>
         </div>
       </div>
 
       {/* --- Body ------------------------------------------------------ */}
       <CardContent className="p-2 flex-grow flex flex-col gap-2 text-xs">
-        {/* ---------------- EXPANDED VIEW ---------------- */}
-        {isExpanded && (
-          <OpcodeExpandedView
-            fullSearch={fullSearch}
-            onFullSearchChange={(value) => setFullSearch(value)}
-            category={category}
-            onCategoryChange={(next) => setCategory(next)}
-            filteredOps={filteredFull}
-            onAddOp={addOp}
-            selectedOps={selectedOps}
-            onRemoveOp={removeOp}
-            categoryScrollRef={categoryScrollRef}
-            opcodeScrollRef={opcodeScrollRef}
-            sequenceScrollRef={sequenceScrollRef}
-          />
-        )}
-
         {/* ---------------- MINI VIEW ---------------- */}
-        {!isExpanded && (
-          <OpcodeMiniView
-            miniSearch={miniSearch}
-            onMiniSearchChange={setMiniSearch}
-            filteredMini={filteredMini}
-            selectedOps={selectedOps}
-            onAddOp={addOp}
-            onRemoveOp={removeOp}
-          />
-        )}
+        <OpcodeMiniView
+          miniSearch={miniSearch}
+          onMiniSearchChange={setMiniSearch}
+          filteredMini={filteredMini}
+          selectedOps={selectedOps}
+          onAddOp={addOp}
+          onRemoveOp={removeOp}
+        />
 
         {/* ---------------- Final hex ---------------- */}
-        <div className="mt-auto border-t border-border pt-2 text-xs">
+        <div className="mt-auto pt-2 text-xs">
           <div className="font-medium text-primary mb-1">
-            {isExpanded ? ">_ Final Hex Output:" : "Final Hex:"}
+            {">"} Calculation Result:
           </div>
           <div className="flex items-center gap-1">
-            <div className="font-mono bg-muted p-1 rounded flex-1 text-xs break-all">
+            <div className="font-mono flex-1 text-xs break-all">
               {hex || "No Opcodes selected"}
             </div>
             <Button

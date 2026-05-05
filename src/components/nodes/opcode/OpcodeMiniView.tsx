@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { OpItem } from "@/lib/opcodes";
 import { X } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 interface OpcodeMiniViewProps {
   miniSearch: string;
@@ -11,6 +12,9 @@ interface OpcodeMiniViewProps {
   onRemoveOp: (index: number) => void;
 }
 
+const SELECTED_OPCODE_ROW_HEIGHT = 32;
+const MAX_VISIBLE_SELECTED_OPCODES = 15;
+
 export function OpcodeMiniView({
   miniSearch,
   onMiniSearchChange,
@@ -19,16 +23,31 @@ export function OpcodeMiniView({
   onAddOp,
   onRemoveOp,
 }: OpcodeMiniViewProps) {
+  const selectedSequenceRef = useRef<HTMLDivElement>(null);
+  const previousSelectedCountRef = useRef(selectedOps.length);
+
+  useEffect(() => {
+    const previousCount = previousSelectedCountRef.current;
+    previousSelectedCountRef.current = selectedOps.length;
+
+    if (selectedOps.length <= previousCount) return;
+
+    const selectedSequence = selectedSequenceRef.current;
+    if (!selectedSequence) return;
+
+    selectedSequence.scrollTop = selectedSequence.scrollHeight;
+  }, [selectedOps.length]);
+
   return (
     <>
       <div>
         <label className="text-xs font-medium text-primary">Search OP</label>
         <input
-          className="nodrag w-full rounded border border-input bg-background px-2 py-1 text-xs text-primary placeholder:text-muted-foreground"
+          className="field-surface nodrag w-full rounded border border-input bg-background px-2 py-1 text-xs text-primary placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
           type="text"
           value={miniSearch}
           onChange={(event) => onMiniSearchChange(event.target.value)}
-          placeholder="Type to see Opcodes…"
+          placeholder="Search Opcodes"
         />
       </div>
 
@@ -60,7 +79,15 @@ export function OpcodeMiniView({
       )}
 
       <div
-        className="nodrag h-16 overflow-auto rounded border border-border text-xs"
+        className={`nodrag overflow-auto rounded border border-border text-xs ${
+          selectedOps.length === 0 ? "h-16" : ""
+        }`}
+        style={
+          selectedOps.length > 0
+            ? { maxHeight: SELECTED_OPCODE_ROW_HEIGHT * MAX_VISIBLE_SELECTED_OPCODES }
+            : undefined
+        }
+        ref={selectedSequenceRef}
         onWheelCapture={(event) => event.stopPropagation()}
       >
         {selectedOps.length === 0 ? (
@@ -72,7 +99,7 @@ export function OpcodeMiniView({
             {selectedOps.map((op, index) => (
               <div
                 key={`${op.name}-${index}`}
-                className="px-1 py-1 pr-3 border-b last:border-b-0 flex items-center justify-between hover:bg-muted/50"
+                className="h-8 px-1 pr-3 border-b last:border-b-0 flex items-center justify-between hover:bg-muted/50"
               >
                 <span className="font-mono truncate flex-1 mr-1">{op.name}</span>
                 <Button

@@ -346,7 +346,8 @@
   transform: translateZ(0);
 }
 
-.react-flow__node-calculation > * > .calc-node-header {
+.react-flow__node-calculation > * > .calc-node-header,
+.react-flow__node-opCodeNode > * > .calc-node-header {
   border-top-left-radius: inherit;
   border-top-right-radius: inherit;
   overflow: hidden;
@@ -961,11 +962,13 @@ body[data-large-drag="true"] .rf-node {
   box-shadow: 0 10px 18px -26px hsl(var(--foreground) / 0.5) !important;
 }
 
-[data-skin="shadcn"] .react-flow__node-calculation > * > :first-child {
+[data-skin="shadcn"] .react-flow__node-calculation > * > :first-child,
+[data-skin="shadcn"] .react-flow__node-opCodeNode > * > :first-child {
   background: hsl(var(--muted) / 0.36);
 }
 
-.dark[data-skin="shadcn"] .react-flow__node-calculation > * > :first-child {
+.dark[data-skin="shadcn"] .react-flow__node-calculation > * > :first-child,
+.dark[data-skin="shadcn"] .react-flow__node-opCodeNode > * > :first-child {
   background: hsl(var(--muted) / 0.36);
 }
 
@@ -1062,13 +1065,15 @@ body[data-large-drag="true"] .rf-node {
   box-shadow: 0 8px 14px -24px hsl(27 32% 18% / 0.72) !important;
 }
 
-[data-skin="paper"] .react-flow__node-calculation > * > :first-child {
+[data-skin="paper"] .react-flow__node-calculation > * > :first-child,
+[data-skin="paper"] .react-flow__node-opCodeNode > * > :first-child {
   border-bottom-color: hsl(var(--border));
   background: hsl(39 43% 87% / 0.5);
   color: hsl(var(--primary));
 }
 
-.dark[data-skin="paper"] .react-flow__node-calculation > * > :first-child {
+.dark[data-skin="paper"] .react-flow__node-calculation > * > :first-child,
+.dark[data-skin="paper"] .react-flow__node-opCodeNode > * > :first-child {
   border-bottom-color: hsl(var(--border));
   background: hsl(29 20% 26% / 0.84);
   color: hsl(var(--primary));
@@ -1234,11 +1239,13 @@ body[data-large-drag="true"] .rf-node {
   background: hsl(var(--card) / 0.94) !important;
 }
 
-[data-skin="midnight"] .react-flow__node-calculation > * > :first-child {
+[data-skin="midnight"] .react-flow__node-calculation > * > :first-child,
+[data-skin="midnight"] .react-flow__node-opCodeNode > * > :first-child {
   background: hsl(var(--secondary) / 0.24);
 }
 
-.dark[data-skin="midnight"] .react-flow__node-calculation > * > :first-child {
+.dark[data-skin="midnight"] .react-flow__node-calculation > * > :first-child,
+.dark[data-skin="midnight"] .react-flow__node-opCodeNode > * > :first-child {
   background: hsl(var(--secondary) / 0.3);
 }
 

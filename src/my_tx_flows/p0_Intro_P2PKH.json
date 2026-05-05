@@ -1,5 +1,5 @@
 {
-  "name": "flow-1778006217806",
+  "name": "flow-1778008787634",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -30,8 +30,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 11056.886882297233,
-        "y": 3993.409235818207
+        "x": 11819.469792884973,
+        "y": 4095.925704674655
       },
       "data": {
         "isGroup": true,
@@ -58,8 +58,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 5809.2903633872775,
-        "y": 1643.3702186719013
+        "x": 6571.873273975018,
+        "y": 1745.8866875283493
       },
       "data": {
         "isGroup": true,
@@ -88,13 +88,13 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 2260.6568365765625,
-        "y": 2059.662837710576
+        "x": 3023.2397471643026,
+        "y": 1993.179306567024
       },
       "data": {
         "isGroup": true,
         "width": 2659,
-        "height": 2574,
+        "height": 2743,
         "title": "Preimage",
         "groupBundlePortOffsets": {
           "source": 1199.26,
@@ -111,18 +111,18 @@
         },
         "dirty": false,
         "borderColor": "#008c86",
-        "fontSize": 44
+        "fontSize": 40
       },
       "width": 2659,
-      "height": 2574,
+      "height": 2743,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": -969.2599550553546,
-        "y": 5120.115379750569
+        "x": -206.67704446761468,
+        "y": 5222.631848607018
       },
       "data": {
         "isGroup": true,
@@ -147,8 +147,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": -417.58291058773995,
-        "y": 197.4835311435519
+        "x": 344.99999999999994,
+        "y": 300
       },
       "data": {
         "isGroup": true,
@@ -175,8 +175,8 @@
       "id": "node_8QSOHj19",
       "type": "calculation",
       "position": {
-        "x": 673.536506995858,
-        "y": 105.24751471504305
+        "x": 662.7813066010253,
+        "y": 112.91950879254955
       },
       "data": {
         "functionName": "identity",
@@ -210,8 +210,8 @@
       "id": "node_1AL3tCpN",
       "type": "calculation",
       "position": {
-        "x": 678.4162147965299,
-        "y": 377.6910607760633
+        "x": 656.9058140068641,
+        "y": 371.0227876604599
       },
       "data": {
         "functionName": "identity",
@@ -248,7 +248,7 @@
       "type": "calculation",
       "position": {
         "x": 729.4919836843305,
-        "y": 1736.317488064405
+        "y": 1905.317488064405
       },
       "data": {
         "functionName": "identity",
@@ -282,7 +282,7 @@
       "type": "calculation",
       "position": {
         "x": 711.6648029176808,
-        "y": 2040.9568722470722
+        "y": 2209.956872247072
       },
       "data": {
         "functionName": "identity",
@@ -476,13 +476,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "0200000001222fc2ee738dba537ce04918a7f4698951bf00eb935168f87f9d44be5301d667010000001976a914918976552e1164768fba9ee3ef11d867cfcdfd3188acfdffffff0158f70500000000001976a914bfa89be8ec6dc6a06e38a43934fc764f9069ceed88ac00000000",
+            "0": "020000000167d60153be449d7ff8685193eb00bf518969f4a71849e07c53ba8d73eec22f22010000001976a914918976552e1164768fba9ee3ef11d867cfcdfd3188acfdffffff0158f70500000000001976a914bfa89be8ec6dc6a06e38a43934fc764f9069ceed88ac00000000",
             "100": "01000000"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "0200000001222fc2ee738dba537ce04918a7f4698951bf00eb935168f87f9d44be5301d667010000001976a914918976552e1164768fba9ee3ef11d867cfcdfd3188acfdffffff0158f70500000000001976a914bfa89be8ec6dc6a06e38a43934fc764f9069ceed88ac0000000001000000",
+        "result": "020000000167d60153be449d7ff8685193eb00bf518969f4a71849e07c53ba8d73eec22f22010000001976a914918976552e1164768fba9ee3ef11d867cfcdfd3188acfdffffff0158f70500000000001976a914bfa89be8ec6dc6a06e38a43934fc764f9069ceed88ac0000000001000000",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -537,13 +537,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "3044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a",
+            "0": "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af",
             "100": "01"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "3044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a01",
+        "result": "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af01",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -599,14 +599,14 @@
         "inputs": {
           "vals": {
             "0": "47",
-            "100": "3044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a01",
+            "100": "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af01",
             "200": "21",
             "300": "03b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "473044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a012103b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b",
+        "result": "473044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af012103b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -654,8 +654,8 @@
       "id": "node_UIgo6BTD",
       "type": "calculation",
       "position": {
-        "x": 1907.1245912316017,
-        "y": 616.885603052463
+        "x": 1981.1996579342995,
+        "y": 612.8867902543043
       },
       "data": {
         "functionName": "concat_all",
@@ -665,7 +665,7 @@
           "vals": {
             "0": "02000000",
             "10": "01",
-            "1000": "222fc2ee738dba537ce04918a7f4698951bf00eb935168f87f9d44be5301d667",
+            "1000": "67d60153be449d7ff8685193eb00bf518969f4a71849e07c53ba8d73eec22f22",
             "1010": "01000000",
             "1020": "19",
             "1030": "76a914918976552e1164768fba9ee3ef11d867cfcdfd3188ac",
@@ -679,7 +679,7 @@
         },
         "dirty": false,
         "version": 0,
-        "result": "0200000001222fc2ee738dba537ce04918a7f4698951bf00eb935168f87f9d44be5301d667010000001976a914918976552e1164768fba9ee3ef11d867cfcdfd3188acfdffffff0158f70500000000001976a914bfa89be8ec6dc6a06e38a43934fc764f9069ceed88ac00000000",
+        "result": "020000000167d60153be449d7ff8685193eb00bf518969f4a71849e07c53ba8d73eec22f22010000001976a914918976552e1164768fba9ee3ef11d867cfcdfd3188acfdffffff0158f70500000000001976a914bfa89be8ec6dc6a06e38a43934fc764f9069ceed88ac00000000",
         "inputStructure": {
           "afterGroups": [
             {
@@ -816,10 +816,10 @@
           "vals": {
             "0": "02000000",
             "10": "01",
-            "1000": "222fc2ee738dba537ce04918a7f4698951bf00eb935168f87f9d44be5301d667",
+            "1000": "67d60153be449d7ff8685193eb00bf518969f4a71849e07c53ba8d73eec22f22",
             "1010": "01000000",
             "1020": "6a",
-            "1030": "473044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a012103b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b",
+            "1030": "473044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af012103b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b",
             "1040": "fdffffff",
             "2000": "01",
             "3000": "58f7050000000000",
@@ -830,7 +830,7 @@
         },
         "dirty": false,
         "version": 0,
-        "result": "0200000001222fc2ee738dba537ce04918a7f4698951bf00eb935168f87f9d44be5301d667010000006a473044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a012103b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7bfdffffff0158f70500000000001976a914bfa89be8ec6dc6a06e38a43934fc764f9069ceed88ac00000000",
+        "result": "020000000167d60153be449d7ff8685193eb00bf518969f4a71849e07c53ba8d73eec22f22010000006a473044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af012103b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7bfdffffff0158f70500000000001976a914bfa89be8ec6dc6a06e38a43934fc764f9069ceed88ac00000000",
         "inputStructure": {
           "afterGroups": [
             {
@@ -1015,8 +1015,8 @@
       "id": "node_CLVgEw37",
       "type": "calculation",
       "position": {
-        "x": 1164.3306324700702,
-        "y": 363.5920801987454
+        "x": 1128.4799644872946,
+        "y": 367.67900747797466
       },
       "data": {
         "functionName": "encode_varint",
@@ -1035,34 +1035,11 @@
       "extent": "parent"
     },
     {
-      "id": "node_JyOxx76F",
-      "type": "calculation",
-      "position": {
-        "x": 1152.1339035611481,
-        "y": 565.984596009168
-      },
-      "data": {
-        "functionName": "reverse_txid_bytes",
-        "title": "TXID → Reversed",
-        "numInputs": 1,
-        "showField": false,
-        "dirty": false,
-        "groupInstances": {},
-        "result": "222fc2ee738dba537ce04918a7f4698951bf00eb935168f87f9d44be5301d667",
-        "inputs": {
-          "val": "67d60153be449d7ff8685193eb00bf518969f4a71849e07c53ba8d73eec22f22"
-        },
-        "error": false
-      },
-      "parentId": "group_7w6adu7",
-      "extent": "parent"
-    },
-    {
       "id": "node_A97ESBMe",
       "type": "calculation",
       "position": {
         "x": 1144.0332277191847,
-        "y": 1606.3482747412068
+        "y": 1775.3482747412068
       },
       "data": {
         "functionName": "encode_varint",
@@ -1108,7 +1085,7 @@
       "type": "calculation",
       "position": {
         "x": 1153.0082072879163,
-        "y": 1982.5806145195056
+        "y": 2151.5806145195056
       },
       "data": {
         "functionName": "satoshi_to_8_le",
@@ -1132,7 +1109,7 @@
       "type": "calculation",
       "position": {
         "x": 1154.299025313614,
-        "y": 1029.004278840921
+        "y": 1323.481616780638
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -1165,9 +1142,9 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "0200000001222fc2ee738dba537ce04918a7f4698951bf00eb935168f87f9d44be5301d667010000001976a914918976552e1164768fba9ee3ef11d867cfcdfd3188acfdffffff0158f70500000000001976a914bfa89be8ec6dc6a06e38a43934fc764f9069ceed88ac0000000001000000"
+          "val": "020000000167d60153be449d7ff8685193eb00bf518969f4a71849e07c53ba8d73eec22f22010000001976a914918976552e1164768fba9ee3ef11d867cfcdfd3188acfdffffff0158f70500000000001976a914bfa89be8ec6dc6a06e38a43934fc764f9069ceed88ac0000000001000000"
         },
-        "result": "10f731a67981e449f7c7154850e8e016ad8de368e57738a7e4961ba8bdbfdab8",
+        "result": "3cfe1f68361180c97f40b338076dfb937559ad7370f7f6a71b59e0ed050b321e",
         "inputStructure": {
           "ungrouped": [
             {
@@ -1199,7 +1176,7 @@
         "inputs": {
           "vals": {
             "0": "0ce7ae59784562c3e19d17d90c7553902a0a50174f03a770d35717918bcf891a",
-            "1": "10f731a67981e449f7c7154850e8e016ad8de368e57738a7e4961ba8bdbfdab8"
+            "1": "3cfe1f68361180c97f40b338076dfb937559ad7370f7f6a71b59e0ed050b321e"
           }
         },
         "inputStructure": {
@@ -1217,7 +1194,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "3044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a",
+        "result": "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af",
         "totalInputs": 2,
         "unwiredCount": 0,
         "error": false
@@ -1240,7 +1217,7 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": "473044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a012103b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b"
+          "val": "473044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af012103b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b"
         },
         "result": "6a",
         "error": false
@@ -1263,9 +1240,9 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "0200000001222fc2ee738dba537ce04918a7f4698951bf00eb935168f87f9d44be5301d667010000006a473044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a012103b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7bfdffffff0158f70500000000001976a914bfa89be8ec6dc6a06e38a43934fc764f9069ceed88ac00000000"
+          "val": "020000000167d60153be449d7ff8685193eb00bf518969f4a71849e07c53ba8d73eec22f22010000006a473044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af012103b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7bfdffffff0158f70500000000001976a914bfa89be8ec6dc6a06e38a43934fc764f9069ceed88ac00000000"
         },
-        "result": "aece6beb188953533cbd53a5271fb0cba2918431781c700385d5120d92f27ba9",
+        "result": "542f8ee9a53c2680e13bed3e30d9170bc3bc5a144a5450dd93eb898db2c6cc45",
         "inputStructure": {
           "ungrouped": [
             {
@@ -1296,9 +1273,9 @@
         "showField": false,
         "dirty": false,
         "groupInstances": {},
-        "result": "a97bf2920d12d58503701c78318491a2cbb01f27a553bd3c53538918eb6bceae",
+        "result": "45ccc6b28d89eb93dd50544a145abcc30b17d9303eed3be180263ca5e98e2f54",
         "inputs": {
-          "val": "aece6beb188953533cbd53a5271fb0cba2918431781c700385d5120d92f27ba9"
+          "val": "542f8ee9a53c2680e13bed3e30d9170bc3bc5a144a5450dd93eb898db2c6cc45"
         },
         "showComment": true,
         "comment": "TXID as displayed by bitcoin clients",
@@ -1322,7 +1299,7 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "3044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a01"
+          "val": "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af01"
         },
         "result": "47",
         "inputStructure": {
@@ -1435,8 +1412,8 @@
       "id": "node_C85oMB8J",
       "type": "calculation",
       "position": {
-        "x": 1147.8794242586837,
-        "y": 831.0408386761901
+        "x": 1127.3675941738138,
+        "y": 1125.671351560813
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -1459,8 +1436,8 @@
       "id": "node_iG1CdtRQ",
       "type": "calculation",
       "position": {
-        "x": 1147.3608237431617,
-        "y": 119.82395841133166
+        "x": 1129.4354897517733,
+        "y": 120.32581889228368
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -1508,8 +1485,8 @@
       "id": "node_v7K1rBTw",
       "type": "calculation",
       "position": {
-        "x": 720.2207217849409,
-        "y": 1473.142897999841
+        "x": 701.3780963068448,
+        "y": 1563.0038709918372
       },
       "data": {
         "functionName": "identity",
@@ -1545,7 +1522,7 @@
       "type": "calculation",
       "position": {
         "x": 1151.0072656352768,
-        "y": 1379.8428583302407
+        "y": 1548.8428583302407
       },
       "data": {
         "functionName": "reverse_bytes_4",
@@ -1695,7 +1672,7 @@
       "type": "calculation",
       "position": {
         "x": 1166.9746877667744,
-        "y": 2286.137140597439
+        "y": 2455.137140597439
       },
       "data": {
         "functionName": "identity",
@@ -1739,9 +1716,9 @@
         "numInputs": 6,
         "inputs": {
           "vals": {
-            "0": "473044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a012103b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b",
+            "0": "473044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af012103b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b",
             "1": "76a914918976552e1164768fba9ee3ef11d867cfcdfd3188ac",
-            "2": "0200000001222fc2ee738dba537ce04918a7f4698951bf00eb935168f87f9d44be5301d667010000006a473044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a012103b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7bfdffffff0158f70500000000001976a914bfa89be8ec6dc6a06e38a43934fc764f9069ceed88ac00000000",
+            "2": "020000000167d60153be449d7ff8685193eb00bf518969f4a71849e07c53ba8d73eec22f22010000006a473044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af012103b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7bfdffffff0158f70500000000001976a914bfa89be8ec6dc6a06e38a43934fc764f9069ceed88ac00000000",
             "3": "0",
             "5": "__EMPTY__"
           }
@@ -1835,7 +1812,7 @@
               "opcode_name": "unknown opcode",
               "stack_before": [],
               "stack_after": [
-                "3044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a01"
+                "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af01"
               ],
               "phase": "scriptSig"
             },
@@ -1844,10 +1821,10 @@
               "opcode": 33,
               "opcode_name": "unknown opcode",
               "stack_before": [
-                "3044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a01"
+                "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af01"
               ],
               "stack_after": [
-                "3044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a01",
+                "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af01",
                 "03b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b"
               ],
               "phase": "scriptSig"
@@ -1857,11 +1834,11 @@
               "opcode": 118,
               "opcode_name": "OP_DUP",
               "stack_before": [
-                "3044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a01",
+                "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af01",
                 "03b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b"
               ],
               "stack_after": [
-                "3044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a01",
+                "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af01",
                 "03b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b",
                 "03b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b"
               ],
@@ -1872,12 +1849,12 @@
               "opcode": 169,
               "opcode_name": "OP_HASH160",
               "stack_before": [
-                "3044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a01",
+                "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af01",
                 "03b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b",
                 "03b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b"
               ],
               "stack_after": [
-                "3044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a01",
+                "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af01",
                 "03b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b",
                 "918976552e1164768fba9ee3ef11d867cfcdfd31"
               ],
@@ -1888,12 +1865,12 @@
               "opcode": 20,
               "opcode_name": "unknown opcode",
               "stack_before": [
-                "3044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a01",
+                "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af01",
                 "03b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b",
                 "918976552e1164768fba9ee3ef11d867cfcdfd31"
               ],
               "stack_after": [
-                "3044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a01",
+                "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af01",
                 "03b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b",
                 "918976552e1164768fba9ee3ef11d867cfcdfd31",
                 "918976552e1164768fba9ee3ef11d867cfcdfd31"
@@ -1905,13 +1882,13 @@
               "opcode": 136,
               "opcode_name": "OP_EQUALVERIFY",
               "stack_before": [
-                "3044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a01",
+                "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af01",
                 "03b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b",
                 "918976552e1164768fba9ee3ef11d867cfcdfd31",
                 "918976552e1164768fba9ee3ef11d867cfcdfd31"
               ],
               "stack_after": [
-                "3044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a01",
+                "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af01",
                 "03b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b"
               ],
               "phase": "scriptPubKey"
@@ -1921,14 +1898,14 @@
               "opcode": 172,
               "opcode_name": "OP_CHECKSIG",
               "stack_before": [
-                "3044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a01",
+                "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af01",
                 "03b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b"
               ],
               "stack_after": ["01"],
               "phase": "scriptPubKey"
             }
           ],
-          "scriptSig": "473044022024156417d3e0149f0fedf38cc9d295be40b54d5d86246eb9bd7b806f2cb3b24d02200f1ad5520f561e4da37a1edac4f8bc52032767a84380619fb34a2898ebb8a92a012103b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b",
+          "scriptSig": "473044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af012103b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b",
           "scriptPubKey": "76a914918976552e1164768fba9ee3ef11d867cfcdfd3188ac",
           "excludedFlags": [],
           "activeFlags": [
@@ -1960,8 +1937,8 @@
       "id": "node_ljj3f78",
       "type": "calculation",
       "position": {
-        "x": 185.49087646983844,
-        "y": 636.1691014713524
+        "x": 167.56554247845042,
+        "y": 1238.9621840629447
       },
       "data": {
         "functionName": "identity",
@@ -2030,8 +2007,8 @@
       "id": "node_2bp7tnt",
       "type": "calculation",
       "position": {
-        "x": 578.3002965049195,
-        "y": 774.634875804576
+        "x": 581.1017697539946,
+        "y": 576.4844919294956
       },
       "data": {
         "functionName": "extract_tx_field",
@@ -2088,6 +2065,22 @@
       },
       "parentId": "group_7w6adu7",
       "extent": "parent"
+    },
+    {
+      "id": "node_q4ltpjp",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 3525,
+        "y": 1530
+      },
+      "data": {
+        "content": "Double-click to edit",
+        "fontSize": 28,
+        "width": 300,
+        "height": 200,
+        "title": "Text Info Node",
+        "dirty": false
+      }
     }
   ],
   "edges": [
@@ -2217,26 +2210,6 @@
       "targetHandle": "input-0",
       "selected": false,
       "id": "edge_0mgeMyj8"
-    },
-    {
-      "source": "node_JyOxx76F",
-      "target": "node_qMmh8Zrk",
-      "targetHandle": "input-1000",
-      "selected": false,
-      "id": "edge_5PJQKF4C",
-      "data": {
-        "curveControlPointOffset": {
-          "x": 124.65,
-          "y": 79.78
-        }
-      }
-    },
-    {
-      "source": "node_JyOxx76F",
-      "target": "node_UIgo6BTD",
-      "targetHandle": "input-1000",
-      "selected": false,
-      "id": "edge_2nKGZk8I"
     },
     {
       "source": "node_kSTGvvaL",
@@ -2639,20 +2612,6 @@
       "selected": false
     },
     {
-      "id": "edge_smer53e",
-      "source": "node_2bp7tnt",
-      "target": "node_JyOxx76F",
-      "sourceHandle": "output-0",
-      "targetHandle": "input-0",
-      "data": {
-        "curveControlPointOffset": {
-          "x": -102.96,
-          "y": -103.93
-        }
-      },
-      "selected": false
-    },
-    {
       "id": "edge_e3uldaq",
       "source": "node_2bp7tnt",
       "target": "node_UIgo6BTD",
@@ -2687,6 +2646,21 @@
       },
       "selected": false,
       "id": "xy-edge__node_2bp7tntoutput-1-node_NRUA8pnXinput-0"
+    },
+    {
+      "id": "edge_rteibis",
+      "source": "node_2bp7tnt",
+      "target": "node_UIgo6BTD",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-1000",
+      "selected": false
+    },
+    {
+      "id": "edge_1vti0sz",
+      "source": "node_2bp7tnt",
+      "target": "node_qMmh8Zrk",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-1000"
     }
   ]
 }
