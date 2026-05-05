@@ -1,5 +1,5 @@
 {
-  "name": "flow-1778011558065",
+  "name": "flow-1778011972080",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -945,7 +945,7 @@
         },
         "baseHeight": 120,
         "totalInputs": 12,
-        "unwiredCount": 0,
+        "unwiredCount": 1,
         "showComment": true,
         "comment": "bitcoin-cli -testnet sendrawtransaction <hex>",
         "title": "Final Raw Transaction ",
@@ -1800,7 +1800,7 @@
         "result": "true",
         "error": false,
         "totalInputs": 4,
-        "unwiredCount": 0,
+        "unwiredCount": 1,
         "dirty": false,
         "showComment": false,
         "scriptDebugSteps": {
@@ -2007,8 +2007,8 @@
       "id": "node_kzcs3gx",
       "type": "calculation",
       "position": {
-        "x": 768.3090494051621,
-        "y": 624.2406948003882
+        "x": 677.6636659282485,
+        "y": 603.991883394428
       },
       "data": {
         "functionName": "extract_tx_field",

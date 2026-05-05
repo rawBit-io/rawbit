@@ -603,6 +603,8 @@ export function CalculationNodeView({
       const autoResizeMaxRows = isConcatAll ? 3 : field.autoResizeMaxRows;
       const isTxFieldExtractRawTxField =
         isDynamicTxFieldExtract && fieldIndex === 0;
+      const isTxFieldExtractIndexField =
+        isDynamicTxFieldExtract && fieldIndex === 1;
 
       if (field.options) {
         const current = rawValue ?? field.options[0];
@@ -628,15 +630,18 @@ export function CalculationNodeView({
           placeholder={resolved.placeholder}
           value={resolved.displayValue}
           small={field.small}
-        rows={fieldRows}
-        autoResizeMaxRows={autoResizeMaxRows}
-        className={cn(
-          isDynamicTxFieldExtract && "mb-1",
-          isTxFieldExtractRawTxField && "tx-field-extract-raw-field"
-        )}
-        wrapperClassName={isDynamicTxFieldExtract ? "mb-2" : undefined}
-        labelClassName={isCountField ? txTemplateCountLabelClassName : undefined}
-        handleOffset={handleOffset}
+          rows={fieldRows}
+          autoResizeMaxRows={autoResizeMaxRows}
+          className={cn(
+            isDynamicTxFieldExtract && "mb-1",
+            isTxFieldExtractRawTxField && "tx-field-extract-raw-field"
+          )}
+          wrapperClassName={cn(
+            isDynamicTxFieldExtract && "mb-2",
+            isTxFieldExtractIndexField && "pt-2"
+          )}
+          labelClassName={isCountField ? txTemplateCountLabelClassName : undefined}
+          handleOffset={handleOffset}
           disableHandle={field.unconnectable}
           allowEmpty00={field.allowEmpty00}
           allowEmptyBlank={field.allowEmptyBlank}
