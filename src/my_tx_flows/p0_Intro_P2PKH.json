@@ -1,5 +1,5 @@
 {
-  "name": "flow-1777922126020",
+  "name": "flow-1777989529389",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -30,8 +30,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 11155.049217963287,
-        "y": 3779.6662103814433
+        "x": 10846.886882297233,
+        "y": 3798.409235818207
       },
       "data": {
         "isGroup": true,
@@ -58,8 +58,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 5907.452699053332,
-        "y": 1429.6271932351376
+        "x": 5599.2903633872775,
+        "y": 1448.3702186719013
       },
       "data": {
         "isGroup": true,
@@ -88,8 +88,8 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 2358.8191722426172,
-        "y": 1845.919812273812
+        "x": 2050.6568365765625,
+        "y": 1864.6628377105758
       },
       "data": {
         "isGroup": true,
@@ -121,8 +121,8 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": -892.3913480404683,
-        "y": 4962.147038691879
+        "x": -1200.5536837065229,
+        "y": 4980.890064128643
       },
       "data": {
         "isGroup": true,
@@ -147,8 +147,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 323.16233566605456,
-        "y": 71.25697456323627
+        "x": 15,
+        "y": 90
       },
       "data": {
         "isGroup": true,
@@ -200,7 +200,8 @@
         },
         "groupInstances": {},
         "title": "Transaction Version",
-        "error": false
+        "error": false,
+        "showComment": false
       },
       "parentId": "group_7w6adu7",
       "extent": "parent"
@@ -1473,7 +1474,8 @@
           "val": 2
         },
         "result": "02000000",
-        "error": false
+        "error": false,
+        "showComment": false
       },
       "parentId": "group_7w6adu7",
       "extent": "parent"
@@ -1991,8 +1993,8 @@
       "id": "node_xfz2u3e",
       "type": "calculation",
       "position": {
-        "x": 637.3276201578155,
-        "y": 787.6591384614619
+        "x": 482.97695539663323,
+        "y": 661.4031543267546
       },
       "data": {
         "functionName": "identity",
@@ -2016,7 +2018,9 @@
         },
         "groupInstances": {},
         "dirty": false,
-        "error": false
+        "error": false,
+        "showComment": true,
+        "comment": "copied from Bitcoin client or a block explorer"
       },
       "parentId": "group_zi8x2qm",
       "extent": "parent"
@@ -2078,7 +2082,8 @@
           "output-0": "efbcb8a25b793c067470ea61edeb2e1d81f979b19f1cd36d7307f162381aebad",
           "output-1": "76a914333d1836c8f4db933eae179bd5bf5ec9209eb78a88ac"
         },
-        "error": false
+        "error": false,
+        "showComment": false
       },
       "parentId": "group_7w6adu7",
       "extent": "parent"

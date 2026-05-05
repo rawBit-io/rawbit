@@ -72,7 +72,7 @@ function createCustomFlows() {
       section: "top-level",
       lessonNo: 0,
       level: "intro",
-      tags: ["intro"],
+      tags: ["intro", "overview"],
     },
   ];
 }
@@ -84,6 +84,7 @@ vi.mock("@/components/sidebar-nodes", () => ({
 }));
 
 vi.mock("@/my_tx_flows/customFlows", () => ({
+  HIDE_FLOW_EXAMPLE_SUBGROUPS: true,
   customFlows: createCustomFlows(),
 }));
 
@@ -115,10 +116,10 @@ describe("Sidebar", () => {
   it("shows matching flow examples in search results", () => {
     renderSidebar();
     const input = screen.getByPlaceholderText("Search nodes...");
-    fireEvent.change(input, { target: { value: "custom" } });
+    fireEvent.change(input, { target: { value: "overview" } });
 
-    const customFlowCard = screen.getByText("1. Custom Flow").closest("div");
-    expect(customFlowCard).not.toBeNull();
+    const introFlowCard = screen.getByText("Intro").closest("div");
+    expect(introFlowCard).not.toBeNull();
     expect(screen.getByText("Drag to place entire subgraph")).toBeInTheDocument();
     expect(screen.getByText(/Found 1 result/i)).toBeInTheDocument();
   });
@@ -163,23 +164,22 @@ describe("Sidebar", () => {
     fireEvent.click(examplesTrigger);
     expect(screen.getByText("Intro")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /Legacy Foundations/i })
-    ).toBeInTheDocument();
+      screen.queryByRole("button", { name: /Legacy Foundations/i })
+    ).not.toBeInTheDocument();
     expect(screen.queryByText("1. Custom Flow")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /Legacy Foundations/i }));
-    const customFlowCard = screen.getByText("1. Custom Flow").closest("div");
-    expect(customFlowCard).not.toBeNull();
+    const introFlowCard = screen.getByText("Intro").closest("div");
+    expect(introFlowCard).not.toBeNull();
 
     const dataTransfer = createDataTransfer();
-    fireEvent.dragStart(customFlowCard!, { dataTransfer });
-    fireEvent.dragEnd(customFlowCard!);
+    fireEvent.dragStart(introFlowCard!, { dataTransfer });
+    fireEvent.dragEnd(introFlowCard!);
     const payload = dataTransfer.getData("application/reactflow");
     const parsed = JSON.parse(payload);
 
     expect(parsed).toMatchObject({
       type: "calculation",
       functionName: "flow_template",
-      nodeData: { flowLabel: "Custom Flow", flowData: customFlowFixture[0].data },
+      nodeData: { flowLabel: "Intro", flowData: customFlowFixture[1].data },
     });
   });
 });

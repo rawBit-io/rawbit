@@ -24,6 +24,7 @@ import { allSidebarNodes } from "@/components/sidebar-nodes";
 
 // Import your array of custom flows
 import {
+  HIDE_FLOW_EXAMPLE_SUBGROUPS,
   customFlows,
   type CustomFlowTemplate,
 } from "@/my_tx_flows/customFlows";
@@ -270,18 +271,28 @@ export function Sidebar({ isOpen }: SidebarProps) {
     });
   }, [searchQuery]);
 
+  const visibleFlowTemplates = useMemo(
+    () =>
+      HIDE_FLOW_EXAMPLE_SUBGROUPS
+        ? customFlows.filter((flow) => flow.section === TOP_LEVEL_FLOW_SECTION)
+        : customFlows,
+    []
+  );
+
   const filteredFlows = useMemo(() => {
     if (!searchQuery.trim()) return [];
-    return customFlows.filter((flow) =>
+    return visibleFlowTemplates.filter((flow) =>
       matchesSidebarSearch(getFlowSearchText(flow), searchQuery)
     );
-  }, [searchQuery]);
+  }, [searchQuery, visibleFlowTemplates]);
 
   const totalSearchResults = filteredNodes.length + filteredFlows.length;
 
   const groupedFlows = useMemo(() => {
+    if (HIDE_FLOW_EXAMPLE_SUBGROUPS) return [];
+
     const groups = new Map<string, typeof customFlows>();
-    customFlows.forEach((flow) => {
+    visibleFlowTemplates.forEach((flow) => {
       if (flow.section === TOP_LEVEL_FLOW_SECTION) return;
       const section = flow.section || "other-flows";
       groups.set(section, [...(groups.get(section) ?? []), flow]);
@@ -300,10 +311,13 @@ export function Sidebar({ isOpen }: SidebarProps) {
     }
 
     return ordered;
-  }, []);
+  }, [visibleFlowTemplates]);
   const topLevelFlows = useMemo(
-    () => customFlows.filter((flow) => flow.section === TOP_LEVEL_FLOW_SECTION),
-    []
+    () =>
+      visibleFlowTemplates.filter(
+        (flow) => flow.section === TOP_LEVEL_FLOW_SECTION
+      ),
+    [visibleFlowTemplates]
   );
 
   // Standard drag logic for normal single nodes

@@ -39,6 +39,9 @@ export interface CustomFlowTemplate {
   tags: string[];
 }
 
+// Set to false to restore the grouped lesson flows in the sidebar.
+export const HIDE_FLOW_EXAMPLE_SUBGROUPS = true;
+
 // Then build the array, casting each import to FlowData:
 export const customFlows: CustomFlowTemplate[] = [
   {
