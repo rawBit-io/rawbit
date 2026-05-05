@@ -91,6 +91,7 @@ const SCRIPT_VERIFY_TAPROOT_PREVOUT_GROUPS = new Set([
 ]);
 const TX_TEMPLATE_INPUT_GROUP_TITLE = "INPUTS[]";
 const TX_TEMPLATE_OUTPUT_GROUP_TITLE = "OUTPUTS[]";
+const TX_TEMPLATE_WITNESS_GROUP_TITLE = "WITNESSES[]";
 
 const isScriptVerifyTaprootGroup = (groupDef: GroupDefinition) =>
   SCRIPT_VERIFY_TAPROOT_PREVOUT_GROUPS.has(groupDef.title);
@@ -778,10 +779,14 @@ export function CalculationNodeView({
     isTxTemplateNode &&
     (groupDef.title === TX_TEMPLATE_INPUT_GROUP_TITLE ||
       groupDef.title === TX_TEMPLATE_OUTPUT_GROUP_TITLE);
+  const isTxTemplateSectionGroup = (groupDef: GroupDefinition) =>
+    isTxTemplatePrimaryGroup(groupDef) ||
+    (isTxTemplateNode && groupDef.title === TX_TEMPLATE_WITNESS_GROUP_TITLE);
   const isConcatPrimaryGroup = (groupDef: GroupDefinition) =>
     isConcatAll &&
     (groupDef.title === TX_TEMPLATE_INPUT_GROUP_TITLE ||
-      groupDef.title === TX_TEMPLATE_OUTPUT_GROUP_TITLE);
+      groupDef.title === TX_TEMPLATE_OUTPUT_GROUP_TITLE ||
+      groupDef.title === TX_TEMPLATE_WITNESS_GROUP_TITLE);
   const isTxTemplateCountField = (field: FieldDefinition) =>
     isTxTemplateNode &&
     (normalizedFieldLabelIncludes(field.label, "INPUT_COUNT") ||
@@ -1127,23 +1132,23 @@ export function CalculationNodeView({
           }
           renderField={renderGroupField}
           headerDivider={
-            options?.headerDivider ?? !isTxTemplatePrimaryGroup(groupDef)
+            options?.headerDivider ?? !isTxTemplateSectionGroup(groupDef)
           }
           className={
-            isTxTemplatePrimaryGroup(groupDef)
+            isTxTemplateSectionGroup(groupDef)
               ? groupDef.title === TX_TEMPLATE_OUTPUT_GROUP_TITLE
                 ? "-mt-2 mb-2"
                 : "-mt-2 mb-1"
               : undefined
           }
           headerClassName={
-            isTxTemplatePrimaryGroup(groupDef) ? "mb-1" : undefined
+            isTxTemplateSectionGroup(groupDef) ? "mb-1" : undefined
           }
           titleClassName={
             isConcatPrimaryGroup(groupDef) ? "text-base" : undefined
           }
           instanceClassName={
-            isTxTemplatePrimaryGroup(groupDef)
+            isTxTemplateSectionGroup(groupDef)
               ? "rounded-md bg-muted/20 py-3 pr-3"
               : undefined
           }

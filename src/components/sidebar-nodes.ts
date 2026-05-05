@@ -534,7 +534,7 @@ export const allSidebarNodes: NodeTemplate[] = [
             small: true,
             allowEmptyBlank: true,
             comment:
-              "Include ONLY if ANY input is SegWit (00), empty for legacy-only",
+              "SegWit marker. Use 00 only if at least one input has witness data; leave empty for legacy-only.",
           },
           {
             index: 20,
@@ -544,11 +544,11 @@ export const allSidebarNodes: NodeTemplate[] = [
             small: true,
             allowEmptyBlank: true,
             comment:
-              "Include ONLY if ANY input is SegWit (01), empty for legacy-only",
+              "SegWit flag. Use 01 only if at least one input has witness data; leave empty for legacy-only.",
           },
           {
             index: 30,
-            label: "INPUT_COUNT:",
+            label: "INPUT_COUNT (VarInt):",
             rows: 1,
             placeholder: "01",
             small: true,
@@ -578,7 +578,7 @@ export const allSidebarNodes: NodeTemplate[] = [
               },
               {
                 index: 20,
-                label: "SCRIPT_LENGTH:",
+                label: "SCRIPT_LENGTH (VarInt):",
                 rows: 1,
                 allowEmpty00: true,
                 placeholder: "00 for SegWit, varies for others",
@@ -587,7 +587,7 @@ export const allSidebarNodes: NodeTemplate[] = [
               },
               {
                 index: 30,
-                label: "SCRIPT_SIG:",
+                label: "SCRIPT_SIG[]:",
                 placeholder: "Empty for native SegWit",
                 rows: 2,
                 allowEmptyBlank: true,
@@ -618,14 +618,14 @@ export const allSidebarNodes: NodeTemplate[] = [
               },
               {
                 index: 10,
-                label: "SCRIPT_LENGTH:",
+                label: "SCRIPT_PUBKEY_LENGTH:",
                 rows: 1,
                 small: true,
                 placeholder: "19",
               },
               {
                 index: 20,
-                label: "SCRIPT_PUBKEY:",
+                label: "SCRIPT_PUBKEY[]:",
                 placeholder: "Locking script",
                 rows: 2,
               },
@@ -641,12 +641,12 @@ export const allSidebarNodes: NodeTemplate[] = [
             fields: [
               {
                 index: 0,
-                label: "WITNESS_DATA:",
-                placeholder: "SegWit: actual witness | Legacy: 00",
+                label: "WITNESS_DATA[]:",
+                placeholder: "Legacy input: 00 | SegWit input: witness stack",
                 rows: 3,
                 allowEmptyBlank: true,
                 comment:
-                  "⚠️ EVERY input needs witness! Legacy='00', SegWit=actual data",
+                  "Every transaction input needs a witness entry when marker+flag are present. Use 00 for legacy inputs; use the serialized witness stack for SegWit inputs.",
               },
             ],
           },
@@ -655,7 +655,7 @@ export const allSidebarNodes: NodeTemplate[] = [
           "INPUTS[]": [
             {
               index: 2000,
-              label: "OUTPUT_COUNT:",
+              label: "OUTPUT_COUNT (VarInt):",
               rows: 1,
               placeholder: "01",
               small: true,
