@@ -58,8 +58,6 @@ const MIN_H = 220;
 
 const BORDER_WIDTH = 10;
 const MENU_WIDTH = 240;
-const GROUP_COMMENT_MAX_LENGTH = 2200;
-const GROUP_COMMENT_SAVE_DEBOUNCE_MS = 350;
 const TITLE_CLICK_MOVE_TOLERANCE = 4;
 
 const normalizeFontSize = (value: unknown) => {
@@ -86,8 +84,6 @@ export default function ShadcnGroupNode({
   const [showMenu, setShowMenu] = useState(false);
   const [showTitleControls, setShowTitleControls] = useState(false);
   const [titlePressActive, setTitlePressActive] = useState(false);
-  const [suppressSelectedTitleControls, setSuppressSelectedTitleControls] =
-    useState(false);
   const menuAnchorRef = useRef<HTMLButtonElement | null>(null);
   const titlePressRef = useRef<{
     pointerId: number;
@@ -103,15 +99,6 @@ export default function ShadcnGroupNode({
       onClose: () => setShowMenu(false),
     });
   const rawTitle = data.title || "Group Node";
-  const currentComment =
-    typeof data.comment === "string" ? data.comment : "";
-  const [commentDraft, setCommentDraft] = useState(currentComment);
-  const commentDraftRef = useRef(commentDraft);
-  commentDraftRef.current = commentDraft;
-  const commentSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null
-  );
-  const wasMenuOpenRef = useRef(false);
   const { copyId, idCopied } = useClipboardLite({
     result: undefined,
     rawTitle,
@@ -157,15 +144,8 @@ export default function ShadcnGroupNode({
     setShowMenu(false);
     setShowTitleControls(false);
     setTitlePressActive(false);
-    setSuppressSelectedTitleControls(false);
     titlePressRef.current = null;
   }, [selected]);
-
-  useEffect(() => {
-    if (!showMenu) {
-      setCommentDraft(currentComment);
-    }
-  }, [currentComment, showMenu]);
 
   /* ----------------------------------------------------------------
        Helper: mutate node data in place (keeps RF internals intact)
@@ -240,7 +220,6 @@ export default function ShadcnGroupNode({
   const handleHeaderControlPointerDown = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
       blurActiveEditableElement();
-      event.preventDefault();
       event.stopPropagation();
       selectGroupNode();
     },
@@ -255,7 +234,6 @@ export default function ShadcnGroupNode({
         return;
       }
       selectGroupNode();
-      setSuppressSelectedTitleControls(false);
       setShowTitleControls(true);
     },
     [selectGroupNode]
@@ -266,7 +244,9 @@ export default function ShadcnGroupNode({
       if (event.button !== 0) return;
       if (
         event.target instanceof HTMLElement &&
-        event.target.closest("input, textarea, [contenteditable='true'], select")
+        event.target.closest(
+          "input, textarea, [contenteditable='true'], select, button"
+        )
       ) {
         return;
       }
@@ -308,12 +288,10 @@ export default function ShadcnGroupNode({
 
       if (press.didDrag) {
         suppressNextTitleClickRef.current = true;
-        setSuppressSelectedTitleControls(true);
         setShowTitleControls(false);
         return;
       }
 
-      setSuppressSelectedTitleControls(false);
       setShowTitleControls(true);
     };
 
@@ -323,7 +301,6 @@ export default function ShadcnGroupNode({
       titlePressRef.current = null;
       suppressNextTitleClickRef.current = true;
       setTitlePressActive(false);
-      setSuppressSelectedTitleControls(true);
       setShowTitleControls(false);
     };
 
@@ -371,58 +348,6 @@ export default function ShadcnGroupNode({
       );
     }
   };
-
-  const commitComment = useCallback(
-    (nextValue: string) => {
-      const normalizedNext = nextValue.trim();
-      const currentNode = rf.getNodes().find((node) => node.id === id);
-      const existingComment =
-        typeof currentNode?.data?.comment === "string"
-          ? currentNode.data.comment
-          : "";
-      const normalizedCurrent = existingComment.trim();
-      if (normalizedNext === normalizedCurrent) return;
-
-      mutateNode((d) => {
-        if (normalizedNext) {
-          d.comment = normalizedNext;
-        } else {
-          delete d.comment;
-        }
-      });
-
-      setTimeout(
-        () => pushState(rf.getNodes(), rf.getEdges(), "Update Group Comment"),
-        0
-      );
-    },
-    [id, mutateNode, pushState, rf]
-  );
-
-  useEffect(() => {
-    if (!showMenu) return;
-    if (commentSaveTimerRef.current) {
-      clearTimeout(commentSaveTimerRef.current);
-    }
-    commentSaveTimerRef.current = setTimeout(() => {
-      commitComment(commentDraftRef.current);
-      commentSaveTimerRef.current = null;
-    }, GROUP_COMMENT_SAVE_DEBOUNCE_MS);
-
-    return () => {
-      if (commentSaveTimerRef.current) {
-        clearTimeout(commentSaveTimerRef.current);
-        commentSaveTimerRef.current = null;
-      }
-    };
-  }, [commentDraft, showMenu, commitComment]);
-
-  useEffect(() => {
-    if (wasMenuOpenRef.current && !showMenu) {
-      commitComment(commentDraftRef.current);
-    }
-    wasMenuOpenRef.current = showMenu;
-  }, [showMenu, commitComment]);
 
   /* ----------------------------------------------------------------
        Resize handlers
@@ -626,10 +551,7 @@ export default function ShadcnGroupNode({
   const h = Number(data.height) || 360;
   const currentFontSize = normalizeFontSize(data.fontSize);
   const titlePillHeight = Math.round(Math.max(56, currentFontSize + 30));
-  const titleControlsVisible =
-    showTitleControls ||
-    showMenu ||
-    (selected && !titlePressActive && !suppressSelectedTitleControls);
+  const titleControlsVisible = showTitleControls || showMenu;
   const titleControlVisualSize = Math.round(currentFontSize);
   const titleControlButtonSize = Math.round(
     Math.max(28, currentFontSize + 12)
@@ -875,25 +797,6 @@ export default function ShadcnGroupNode({
             }}
             onPointerDownCapture={(e) => e.stopPropagation()}
           >
-            <div className="px-1 pb-1">
-              <label
-                htmlFor={`group-comment-${id}`}
-                className="mb-1 block text-xs font-medium text-muted-foreground"
-              >
-                Group Comment
-              </label>
-              <textarea
-                id={`group-comment-${id}`}
-                value={commentDraft}
-                onChange={(event) =>
-                  setCommentDraft(event.target.value.slice(0, GROUP_COMMENT_MAX_LENGTH))
-                }
-                placeholder="Describe what this group does..."
-                className="w-full rounded-sm border border-border bg-background px-2 py-1 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                rows={3}
-              />
-            </div>
-            <div className="my-1 h-px bg-border" />
             <button
               className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
               onClick={handleCopyId}

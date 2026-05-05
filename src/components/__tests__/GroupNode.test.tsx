@@ -191,6 +191,8 @@ describe("GroupNode interactions", () => {
   it("opens menu and copies id", () => {
     renderGroupNode();
 
+    expect(screen.queryByTitle("More")).not.toBeInTheDocument();
+    revealGroupControls();
     expect(screen.getByTitle("More")).toBeInTheDocument();
     fireEvent.click(screen.getByTitle("More"));
     fireEvent.click(screen.getByText(/Copy ID/i));
@@ -244,7 +246,7 @@ describe("GroupNode interactions", () => {
 
     const header = screen.getByTestId("group-header");
     const handlers = getReactHandlers(header);
-    expect(screen.getByTitle("More")).toBeInTheDocument();
+    expect(screen.queryByTitle("More")).not.toBeInTheDocument();
 
     act(() => {
       handlers.onPointerDownCapture?.({
@@ -277,69 +279,13 @@ describe("GroupNode interactions", () => {
     expect(screen.queryByTitle("More")).not.toBeInTheDocument();
   });
 
-  it("saves group comment from the menu and records undo state", () => {
-    renderGroupNode({ comment: "" });
+  it("keeps legacy group comment data but does not show a comment editor", () => {
+    renderGroupNode({ comment: "Saved in an older flow." });
 
     openGroupMenu();
-    const commentInput = screen.getByLabelText("Group Comment");
-    fireEvent.change(commentInput, {
-      target: { value: "Derives sighash preimage components for signing." },
-    });
-    fireEvent.click(screen.getByTitle("More"));
 
-    act(() => {
-      vi.runAllTimers();
-    });
-
-    expect(nodes[0].data.comment).toBe(
-      "Derives sighash preimage components for signing."
-    );
-    expect(pushState).toHaveBeenCalledWith(
-      nodes,
-      edges,
-      "Update Group Comment"
-    );
-  });
-
-  it("autosaves group comment while typing with debounce", () => {
-    renderGroupNode({ comment: "" });
-
-    openGroupMenu();
-    const commentInput = screen.getByLabelText("Group Comment");
-    fireEvent.change(commentInput, {
-      target: { value: "Auto-save comment while typing." },
-    });
-
-    act(() => {
-      vi.advanceTimersByTime(400);
-      vi.runOnlyPendingTimers();
-    });
-
-    expect(nodes[0].data.comment).toBe("Auto-save comment while typing.");
-    expect(pushState).toHaveBeenCalledWith(
-      nodes,
-      edges,
-      "Update Group Comment"
-    );
-  });
-
-  it("supports long group comments beyond the previous 220-char cap", () => {
-    renderGroupNode({ comment: "" });
-
-    const longComment = "A".repeat(500);
-
-    openGroupMenu();
-    const commentInput = screen.getByLabelText("Group Comment");
-    fireEvent.change(commentInput, {
-      target: { value: longComment },
-    });
-
-    act(() => {
-      vi.advanceTimersByTime(400);
-      vi.runOnlyPendingTimers();
-    });
-
-    expect(nodes[0].data.comment).toBe(longComment);
+    expect(screen.queryByLabelText("Group Comment")).not.toBeInTheDocument();
+    expect(nodes[0].data.comment).toBe("Saved in an older flow.");
   });
 
   it("commits title edits and records undo state", () => {
@@ -404,6 +350,7 @@ describe("GroupNode interactions", () => {
 
   it("renders a top title pill without reducing body height", () => {
     renderGroupNode({ fontSize: 48, height: 360 });
+    revealGroupControls();
 
     const header = screen.getByTestId("group-header");
     const body = screen.getByTestId("group-body");
