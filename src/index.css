@@ -629,6 +629,26 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
   background-color: hsl(var(--muted) / 0.18) !important;
 }
 
+.react-flow__node-calculation textarea.field-surface.border-dashed {
+  border-width: 2px !important;
+  border-style: dashed !important;
+  border-radius: 0.45rem;
+  padding: 0.65rem 0.75rem;
+  line-height: 1.45;
+}
+
+.react-flow__node-calculation .calc-node-header-simple {
+  padding-bottom: 0.25rem;
+}
+
+.react-flow__node-calculation .calc-node-content-simple {
+  padding: 0.55rem 1rem 0.95rem;
+}
+
+.react-flow__node-calculation .calc-node-result-simple {
+  line-height: 1.45;
+}
+
 /* ===================== CONTROL OVERRIDES ===================== */
 
 /* The React Flow Controls container */
@@ -1127,6 +1147,10 @@ body[data-large-drag="true"] .rf-node {
 .dark[data-skin="paper"] .field-surface {
   border-color: hsl(var(--input)) !important;
   background-color: hsl(25 16% 24% / 0.88) !important;
+}
+
+[data-skin="paper"] .react-flow__node-calculation .calc-node-header-simple {
+  border-bottom-color: hsl(var(--border) / 0.62);
 }
 
 [data-skin="paper"] .custom-flow-controls .react-flow__controls-button {

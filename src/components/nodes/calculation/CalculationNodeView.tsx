@@ -79,6 +79,9 @@ const ScriptExecutionSteps = React.lazy(
   () => import("@/components/dialog/ScriptExecutionSteps")
 );
 
+const SIMPLE_RESULT_NODE_WIDTH = 270;
+const SIMPLE_RESULT_NODE_MIN_HEIGHT = 158;
+
 function ConcatTypeBadge() {
   return (
     <span
@@ -761,6 +764,8 @@ export function CalculationNodeView({
   })();
   const hideResultForInputNode = showField && data.functionName === "identity";
   const hideGenericResult = hideResultForInputNode || isDynamicTxFieldExtract;
+  const isSimpleResultOnly =
+    !hideGenericResult && !derived.isMultiVal && !showField;
 
   const anchoredPortSources = useMemo(
     () =>
@@ -966,19 +971,30 @@ export function CalculationNodeView({
       ref={cardRef}
       className={cn(
         "relative flex flex-col border-2 bg-card font-mono text-primary shadow-md transition-colors",
+        isSimpleResultOnly && "calc-node-simple",
         selectedStyles,
         highlightStyles,
         data.borderColor ? "!border-3" : "border-border"
       )}
       style={{
-        width: derived.nodeWidth,
-        minHeight: derived.minHeight,
+        width: isSimpleResultOnly
+          ? Math.max(derived.nodeWidth, SIMPLE_RESULT_NODE_WIDTH)
+          : derived.nodeWidth,
+        minHeight: isSimpleResultOnly
+          ? SIMPLE_RESULT_NODE_MIN_HEIGHT
+          : derived.minHeight,
         overflow: "visible",
         contain: "layout",
         ...(data.borderColor ? { borderColor: data.borderColor } : {}),
       }}
     >
-      <div className="calc-node-header flex w-full flex-row items-start gap-2 border-b border-border p-2 text-xl">
+      <div
+        className={cn(
+          "calc-node-header flex w-full flex-row items-start gap-2 p-2 text-xl",
+          isSimpleResultOnly && "calc-node-header-simple",
+          "border-b border-border"
+        )}
+      >
         <div className="min-w-0 flex-1 leading-tight">
           <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
             <div className="min-w-0 break-words">
@@ -1129,7 +1145,12 @@ export function CalculationNodeView({
         </div>
       </div>
 
-      <CardContent className="flex flex-1 flex-col p-4 text-sm">
+      <CardContent
+        className={cn(
+          "flex flex-1 flex-col p-4 text-sm",
+          isSimpleResultOnly && "calc-node-content-simple"
+        )}
+      >
         {!derived.isMultiVal && singleValue && (
           <div className={cn(hideGenericResult ? "mb-0" : "mb-4")}>
             {showField && (
@@ -1349,11 +1370,14 @@ export function CalculationNodeView({
         {!hideGenericResult && (
           <div
             className={cn(
-              "border-t border-border pt-2",
-              isConcatAll ? "mt-1" : "mt-auto"
+              "calc-node-result",
+              isSimpleResultOnly
+                ? "calc-node-result-simple mt-0 pt-0"
+                : "border-t border-border pt-2",
+              isConcatAll ? "mt-1" : !isSimpleResultOnly && "mt-auto"
             )}
           >
-            <div className="mb-2 text-sm text-primary">
+            <div className="calc-node-result-label mb-2 text-sm text-primary">
               {">"} Calculation Result:
             </div>
             {isMusig2NonceGen ? (
