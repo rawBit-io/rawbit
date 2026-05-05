@@ -1,6 +1,7 @@
 import React, {
   Suspense,
   useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -33,6 +34,8 @@ import {
 } from "@/components/ui/tooltip";
 import {
   AlertTriangle,
+  ChevronDown,
+  ChevronRight,
   Check,
   Copy,
   FileCode,
@@ -81,6 +84,19 @@ const ScriptExecutionSteps = React.lazy(
 
 const SIMPLE_RESULT_NODE_WIDTH = 270;
 const SIMPLE_RESULT_NODE_MIN_HEIGHT = 158;
+const SCRIPT_VERIFY_EXCLUDE_FLAGS_INDEX = 4;
+const SCRIPT_VERIFY_TAPROOT_PREVOUT_GROUPS = new Set([
+  "Taproot Prevouts (vin order)",
+  "Taproot prevouts",
+]);
+
+const isScriptVerifyTaprootGroup = (groupDef: GroupDefinition) =>
+  SCRIPT_VERIFY_TAPROOT_PREVOUT_GROUPS.has(groupDef.title);
+
+const hasMeaningfulValue = (value: unknown) =>
+  value !== undefined && value !== null && String(value).trim().length > 0;
+
+const formatScriptVerifyFieldLabel = (label: string) => label.toUpperCase();
 
 function ConcatTypeBadge() {
   return (
@@ -332,6 +348,8 @@ export function CalculationNodeView({
 }: CalculationNodeViewProps) {
   const [showCode, setShowCode] = useState(false);
   const [showSteps, setShowSteps] = useState(false);
+  const [scriptVerifyAdvancedOpen, setScriptVerifyAdvancedOpen] =
+    useState(false);
   const commentEditStartRef = useRef(comment);
 
   const handleCommentFocus = useCallback((value: string) => {
@@ -566,7 +584,10 @@ export function CalculationNodeView({
         connected,
         field.placeholder
       );
-      const fieldLabel = data.customFieldLabels?.[fieldIndex] || field.label;
+      const rawFieldLabel = data.customFieldLabels?.[fieldIndex] || field.label;
+      const fieldLabel = isScriptVerificationNode
+        ? formatScriptVerifyFieldLabel(rawFieldLabel)
+        : rawFieldLabel;
       const handleOffset = scope.startsWith("between-") ? -32 : -16;
       const allowNull =
         field.allowNull ||
@@ -637,7 +658,10 @@ export function CalculationNodeView({
       connected,
       field.placeholder
     );
-    const fieldLabel = data.customFieldLabels?.[fieldIndex] || field.label;
+    const rawFieldLabel = data.customFieldLabels?.[fieldIndex] || field.label;
+    const fieldLabel = isScriptVerificationNode
+      ? formatScriptVerifyFieldLabel(rawFieldLabel)
+      : rawFieldLabel;
     const allowNull =
       field.allowNull ||
       (data.functionName === "musig2_nonce_gen" && fieldIndex === 2);
@@ -701,6 +725,51 @@ export function CalculationNodeView({
       (_, index) => groupDef.baseIndex + index * INSTANCE_STRIDE
     );
   };
+
+  const isScriptVerificationNode = data.functionName === "script_verification";
+  const inputFields =
+    data.inputStructure?.ungrouped as FieldDefinition[] | undefined;
+  const inputGroups = (data.inputStructure?.groups ?? []) as GroupDefinition[];
+  const scriptVerifyAdvancedFields = isScriptVerificationNode
+    ? inputFields?.filter(
+        (field) => field.index === SCRIPT_VERIFY_EXCLUDE_FLAGS_INDEX
+      )
+    : undefined;
+  const visibleInputFields = isScriptVerificationNode
+    ? inputFields?.filter(
+        (field) => field.index !== SCRIPT_VERIFY_EXCLUDE_FLAGS_INDEX
+      )
+    : inputFields;
+  const scriptVerifyAdvancedGroups = isScriptVerificationNode
+    ? inputGroups.filter(isScriptVerifyTaprootGroup)
+    : [];
+  const visibleInputGroups = isScriptVerificationNode
+    ? inputGroups.filter((groupDef) => !isScriptVerifyTaprootGroup(groupDef))
+    : inputGroups;
+  const hasScriptVerifyAdvancedData = Boolean(
+    scriptVerifyAdvancedFields?.some((field) =>
+      hasMeaningfulValue(getVal(data.inputs?.vals, field.index))
+    ) ||
+      scriptVerifyAdvancedGroups.some((groupDef) => {
+        const keys = groupInstanceKeys(groupDef);
+        const instanceCount =
+          data.groupInstances?.[groupDef.title] ?? keys.length;
+        if (instanceCount > (groupDef.minInstances ?? 0)) return true;
+
+        return keys.some((offset) =>
+          groupDef.fields.some((field) =>
+            hasMeaningfulValue(
+              getVal(data.inputs?.vals, offset + (field.index ?? 0))
+            )
+          )
+        );
+      })
+  );
+  const hasScriptVerifyAdvancedControls = Boolean(
+    isScriptVerificationNode &&
+      ((scriptVerifyAdvancedFields?.length ?? 0) > 0 ||
+        scriptVerifyAdvancedGroups.length > 0)
+  );
 
   const taprootLeafLabels = (() => {
     if (!isTaprootTreeBuilder) return [];
@@ -781,6 +850,12 @@ export function CalculationNodeView({
       ),
     [outputPorts]
   );
+
+  useEffect(() => {
+    if (hasScriptVerifyAdvancedData) {
+      setScriptVerifyAdvancedOpen(true);
+    }
+  }, [hasScriptVerifyAdvancedData]);
 
   useLayoutEffect(() => {
     if (!isDynamicTxFieldExtract) return;
@@ -965,6 +1040,63 @@ export function CalculationNodeView({
     result,
     showComment,
   ]);
+
+  const renderInputGroupSection = (
+    groupDef: GroupDefinition,
+    titleOverride?: string,
+    options?: { headerDivider?: boolean }
+  ) => {
+    const keys = groupInstanceKeys(groupDef);
+    const instanceCount = data.groupInstances?.[groupDef.title] ?? keys.length;
+    const canDecrement = instanceCount > (groupDef.minInstances ?? 1);
+    const canIncrement = Boolean(
+      groupDef.expandable &&
+        !(groupDef.maxInstances && instanceCount >= groupDef.maxInstances) &&
+        canGrowGroup(
+          groupDef.baseIndex,
+          keys,
+          groupDef.fields as FieldDefinition[]
+        )
+    );
+
+    return (
+      <React.Fragment key={groupDef.title}>
+        <GroupSection
+          group={groupDef}
+          instanceKeys={keys}
+          title={
+            data.customGroupTitles?.[groupDef.title] ||
+            titleOverride ||
+            groupDef.title
+          }
+          onTitleCommit={(title) =>
+            mut.updateGroupTitle(groupDef.title, title)
+          }
+          canIncrement={canIncrement}
+          canDecrement={canDecrement}
+          onIncrement={() =>
+            group.handleGroupSize(groupDef.title, groupDef, true)
+          }
+          onDecrement={() =>
+            group.handleGroupSize(groupDef.title, groupDef, false)
+          }
+          renderField={renderGroupField}
+          headerDivider={options?.headerDivider}
+        />
+
+        <FieldSection
+          fields={
+            data.inputStructure?.betweenGroups?.[groupDef.title] as
+              | FieldDefinition[]
+              | undefined
+          }
+          scope={`between-${groupDef.title}`}
+          paddingLeft={16}
+          renderField={makeRenderSingleField(`between-${groupDef.title}`)}
+        />
+      </React.Fragment>
+    );
+  };
 
   return (
     <Card
@@ -1189,68 +1321,59 @@ export function CalculationNodeView({
             )}
           >
             <FieldSection
-              fields={
-                data.inputStructure?.ungrouped as FieldDefinition[] | undefined
-              }
+              fields={visibleInputFields}
               scope="ungrouped"
               renderField={makeRenderSingleField("ungrouped")}
             />
 
-            {data.inputStructure?.groups?.map((groupDef) => {
-              const keys = groupInstanceKeys(groupDef);
-              const instanceCount =
-                data.groupInstances?.[groupDef.title] ?? keys.length;
-              const canDecrement = instanceCount > (groupDef.minInstances ?? 1);
-              const canIncrement = Boolean(
-                groupDef.expandable &&
-                  !(
-                    groupDef.maxInstances &&
-                    instanceCount >= groupDef.maxInstances
-                  ) &&
-                  canGrowGroup(
-                    groupDef.baseIndex,
-                    keys,
-                    groupDef.fields as FieldDefinition[]
-                  )
-              );
+            {visibleInputGroups.map((groupDef) =>
+              renderInputGroupSection(groupDef)
+            )}
 
-              return (
-                <React.Fragment key={groupDef.title}>
-                  <GroupSection
-                    group={groupDef}
-                    instanceKeys={keys}
-                    title={
-                      data.customGroupTitles?.[groupDef.title] || groupDef.title
-                    }
-                    onTitleCommit={(title) =>
-                      mut.updateGroupTitle(groupDef.title, title)
-                    }
-                    canIncrement={canIncrement}
-                    canDecrement={canDecrement}
-                    onIncrement={() =>
-                      group.handleGroupSize(groupDef.title, groupDef, true)
-                    }
-                    onDecrement={() =>
-                      group.handleGroupSize(groupDef.title, groupDef, false)
-                    }
-                    renderField={renderGroupField}
-                  />
-
-                  <FieldSection
-                    fields={
-                      data.inputStructure?.betweenGroups?.[groupDef.title] as
-                        | FieldDefinition[]
-                        | undefined
-                    }
-                    scope={`between-${groupDef.title}`}
-                    paddingLeft={16}
-                    renderField={makeRenderSingleField(
-                      `between-${groupDef.title}`
+            {hasScriptVerifyAdvancedControls && (
+              <div className="-mt-2">
+                <button
+                  type="button"
+                  className={cn(
+                    "nodrag flex items-center gap-1 text-left",
+                    "text-xs font-normal text-muted-foreground/70 transition-colors",
+                    "hover:text-muted-foreground"
+                  )}
+                  onPointerDownCapture={(event) => event.stopPropagation()}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setScriptVerifyAdvancedOpen((open) => !open);
+                  }}
+                >
+                  <span className="flex items-center gap-1">
+                    {scriptVerifyAdvancedOpen ? (
+                      <ChevronDown className="h-3 w-3" />
+                    ) : (
+                      <ChevronRight className="h-3 w-3" />
                     )}
-                  />
-                </React.Fragment>
-              );
-            })}
+                    Advanced (Taproot and flags)
+                  </span>
+                </button>
+
+                {scriptVerifyAdvancedOpen && (
+                  <div className="mt-3 space-y-4">
+                    <FieldSection
+                      fields={scriptVerifyAdvancedFields}
+                      scope="script-verify-advanced"
+                      renderField={makeRenderSingleField(
+                        "script-verify-advanced"
+                      )}
+                    />
+
+                    {scriptVerifyAdvancedGroups.map((groupDef) =>
+                      renderInputGroupSection(groupDef, "Taproot prevouts", {
+                        headerDivider: false,
+                      })
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             <FieldSection
               fields={

@@ -24,6 +24,7 @@ interface GroupSectionProps {
   onIncrement: () => void;
   onDecrement: () => void;
   renderField: (offset: number, field: FieldDefinition, index: number) => React.ReactNode;
+  headerDivider?: boolean;
 }
 
 export function GroupSection({
@@ -36,6 +37,7 @@ export function GroupSection({
   onIncrement,
   onDecrement,
   renderField,
+  headerDivider = true,
 }: GroupSectionProps) {
   const totalFields = instanceKeys.length * group.fields.length;
   const hasInstances = instanceKeys.length > 0;
@@ -66,15 +68,35 @@ export function GroupSection({
 
   return (
     <div className="mb-6 space-y-3">
-      <div className="mb-3 flex items-center justify-between border-b border-border pb-2">
-        <EditableLabel value={title} onCommit={onTitleCommit} className="text-lg" />
+      <div
+        className={`mb-3 flex items-center justify-between ${
+          headerDivider ? "border-b border-border pb-2" : ""
+        }`}
+      >
+        <EditableLabel
+          value={title}
+          onCommit={onTitleCommit}
+          className={headerDivider ? "text-lg" : "text-sm"}
+        />
         {group.expandable && (
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" onClick={onDecrement} disabled={!canDecrement}>
-              <Minus className="h-4 w-4" />
+            <Button
+              size="sm"
+              variant="outline"
+              className={!headerDivider ? "h-6 px-2" : undefined}
+              onClick={onDecrement}
+              disabled={!canDecrement}
+            >
+              <Minus className={headerDivider ? "h-4 w-4" : "h-3 w-3"} />
             </Button>
-            <Button size="sm" variant="outline" onClick={onIncrement} disabled={!canIncrement}>
-              <Plus className="h-4 w-4" />
+            <Button
+              size="sm"
+              variant="outline"
+              className={!headerDivider ? "h-6 px-2" : undefined}
+              onClick={onIncrement}
+              disabled={!canIncrement}
+            >
+              <Plus className={headerDivider ? "h-4 w-4" : "h-3 w-3"} />
             </Button>
           </div>
         )}

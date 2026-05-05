@@ -2343,7 +2343,7 @@ export const allSidebarNodes: NodeTemplate[] = [
         ],
         groups: [
           {
-            title: "Taproot Prevouts (vin order)",
+            title: "Taproot prevouts",
             baseIndex: 100,
             expandable: true,
             fieldCountToAdd: 1,

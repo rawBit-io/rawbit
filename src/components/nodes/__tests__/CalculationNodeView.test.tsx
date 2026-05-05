@@ -273,6 +273,96 @@ describe("CalculationNodeView", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("keeps Verify Script focused while hiding flags and Taproot controls by default", async () => {
+    const clip = createClip({ prettyResult: "true" });
+    const mut = createMut();
+    const user = userEvent.setup();
+
+    renderWithProviders(
+      <CalculationNodeView
+        selected={false}
+        data={{
+          functionName: "script_verification",
+          paramExtraction: "multi_val",
+          inputs: { vals: { 3: "0" } },
+          inputStructure: {
+            ungrouped: [
+              { index: 0, label: "scriptSig_hex", rows: 3 },
+              { index: 1, label: "scriptPubKey_hex", rows: 3 },
+              { index: 2, label: "tx_hex", rows: 3 },
+              {
+                index: 3,
+                label: "input_index_to_verify",
+                rows: 1,
+                unconnectable: true,
+              },
+              {
+                index: 4,
+                label: "exclude_flags",
+                rows: 1,
+                unconnectable: true,
+              },
+              {
+                index: 5,
+                label: "spent_amount_sats",
+                rows: 1,
+                allowEmptyBlank: true,
+              },
+            ],
+            groups: [
+              {
+                title: "Taproot Prevouts (vin order)",
+                baseIndex: 100,
+                expandable: true,
+                fieldCountToAdd: 1,
+                minInstances: 0,
+                fields: [
+                  { index: 0, label: "prevout_amount_sats", rows: 1 },
+                  { index: 1, label: "prevout_scriptPubKey_hex", rows: 3 },
+                ],
+              },
+            ],
+          },
+        } as NodeData}
+        rawTitle="Verify Script"
+        derived={{
+          ...derived,
+          isMultiVal: true,
+        }}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        singleValue={undefined}
+        result="true"
+        error={false}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: true,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    expect(screen.getByText(/SCRIPTSIG_HEX/)).toBeInTheDocument();
+    expect(screen.getByText(/SPENT_AMOUNT_SATS/)).toBeInTheDocument();
+    expect(screen.queryByText(/EXCLUDE_FLAGS/)).not.toBeInTheDocument();
+    const taprootGroupTitle = (_content: string, element: Element | null) =>
+      element?.textContent?.trim() === "> Taproot prevouts";
+    expect(screen.queryByText(taprootGroupTitle)).not.toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: /advanced \(taproot and flags\)/i })
+    );
+
+    expect(screen.getByText(/EXCLUDE_FLAGS/)).toBeInTheDocument();
+    expect(screen.getAllByText(taprootGroupTitle).length).toBeGreaterThan(0);
+  });
+
   it("renders dynamic TX field extract outputs in a dedicated result block", async () => {
     const clip = createClip({ prettyResult: "hidden summary" });
     const mut = createMut();
