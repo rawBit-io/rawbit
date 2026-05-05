@@ -36,7 +36,7 @@ const VALID_SKINS: readonly Skin[] = [
 ];
 
 const VALID_THEMES: readonly Theme[] = ["dark", "light", "system"];
-const DEFAULT_SKIN: Skin = "shadcn";
+const DEFAULT_SKIN: Skin = "paper";
 const MOBILE_DEFAULT_SKIN: Skin = "shadcn";
 const BASE_EDGE_STROKE_WIDTH = 1.4;
 const BASE_SELECTED_EDGE_STROKE_WIDTH = 2.4;

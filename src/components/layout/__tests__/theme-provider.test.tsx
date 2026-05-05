@@ -209,7 +209,7 @@ describe("ThemeProvider", () => {
     await waitFor(() =>
       expect(screen.getByTestId("theme-value")).toHaveTextContent("dark")
     );
-    expect(screen.getByTestId("skin-value")).toHaveTextContent("shadcn");
+    expect(screen.getByTestId("skin-value")).toHaveTextContent("paper");
     expect(document.documentElement.classList.contains("dark")).toBe(true);
 
     await act(async () => {
@@ -224,7 +224,7 @@ describe("ThemeProvider", () => {
     setSpy.mockRestore();
   });
 
-  it("defaults skin to shadcn when no saved skin exists", async () => {
+  it("defaults skin to paper on desktop when no saved skin exists", async () => {
     render(
       <ThemeProvider storageKey={STORAGE_KEY} defaultTheme="light">
         <ThemeConsumer />
@@ -232,9 +232,9 @@ describe("ThemeProvider", () => {
     );
 
     await waitFor(() =>
-      expect(screen.getByTestId("skin-value")).toHaveTextContent("shadcn")
+      expect(screen.getByTestId("skin-value")).toHaveTextContent("paper")
     );
-    expect(document.documentElement.dataset.skin).toBe("shadcn");
+    expect(document.documentElement.dataset.skin).toBe("paper");
   });
 
   it("persists edge visibility and applies CSS variables", async () => {
