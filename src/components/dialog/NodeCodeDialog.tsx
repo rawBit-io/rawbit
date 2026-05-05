@@ -315,10 +315,15 @@ export function NodeCodeDialog({
         </div>
 
         <DialogFooter className="mt-4 flex justify-between">
-          <Button variant="outline" onClick={handleCopy} disabled={!code}>
+          <Button
+            variant="outline"
+            className="select-none"
+            onClick={handleCopy}
+            disabled={!code}
+          >
             {copied ? "Copied!" : "Copy Code"}
           </Button>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" className="select-none" onClick={onClose}>
             Close
           </Button>
         </DialogFooter>

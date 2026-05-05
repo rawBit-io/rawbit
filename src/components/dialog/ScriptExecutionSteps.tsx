@@ -28,6 +28,17 @@ import { OP_CODES, OpCodeCategories } from "@/lib/opcodes";
 
 /* ---------- helpers ------------------------------------------------ */
 
+const phaseTextFor = (phase: string) =>
+  phase === "scriptSig"
+    ? "Phase 1 (scriptSig)"
+    : phase === "scriptPubKey"
+    ? "Phase 2 (scriptPubKey)"
+    : phase === "redeemScript"
+    ? "Phase 3 (redeemScript)"
+    : phase === "taproot"
+    ? "Phase 4 (taproot)"
+    : "Phase 4 (witnessScript)";
+
 function WitnessStackPane({
   items,
   consumed,
@@ -363,7 +374,14 @@ export default function ScriptExecutionSteps({
             <DialogDescription>No script trace available.</DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button onClick={onClose}>Close</Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="select-none"
+              onClick={onClose}
+            >
+              Close
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -402,16 +420,7 @@ export default function ScriptExecutionSteps({
   const showWitnessStack =
     (taprootPhase || !witnessHex) && witnessStackDisplay.length > 0;
 
-  const phaseText =
-    phase === "scriptSig"
-      ? "Phase 1 (scriptSig)"
-      : phase === "scriptPubKey"
-      ? "Phase 2 (scriptPubKey)"
-      : phase === "redeemScript"
-      ? "Phase 3 (redeemScript)"
-      : phase === "taproot"
-      ? "Phase 4 (taproot)"
-      : "Phase 4 (witnessScript)";
+  const phaseText = phaseTextFor(phase);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -425,11 +434,11 @@ export default function ScriptExecutionSteps({
 
         <div className="h-[600px] overflow-y-auto px-1">
           {/* navigation */}
-          <div className="sticky top-0 bg-background z-10 pb-3">
-            <div className="flex items-center gap-2 mb-3">
+          <div className="mb-3 flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
+                className="select-none"
                 onClick={prev}
                 disabled={idx === 0}
               >
@@ -438,19 +447,14 @@ export default function ScriptExecutionSteps({
               <Button
                 variant="outline"
                 size="sm"
+                className="select-none"
                 onClick={next}
                 disabled={idx === steps.length - 1}
               >
                 Next
               </Button>
-              <div className="text-sm mx-2">
-                Step {idx + 1}/{steps.length} — {phaseText}
-              </div>
-              <div className="ml-auto">
-                <Button variant="outline" size="sm" onClick={copy}>
-                  {copied ? "Copied!" : "Copy All"}
-                </Button>
-              </div>
+            <div className="text-sm mx-2">
+              Step {idx + 1}/{steps.length} — {phaseText}
             </div>
           </div>
 
@@ -516,9 +520,6 @@ export default function ScriptExecutionSteps({
           {/* details */}
           <div className="space-y-3 text-xs font-mono">
             <div>
-              <strong>PC:</strong> {step.pc}
-            </div>
-            <div>
               <strong>Opcode:</strong>{" "}
               <span className="font-bold">{pretty}</span>
             </div>
@@ -560,15 +561,30 @@ export default function ScriptExecutionSteps({
           </div>
         </div>
 
-        <DialogFooter className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <DialogFooter className="mt-4 gap-2 sm:items-center sm:justify-between sm:space-x-0">
           {scriptResult?.error && (
             <div className="text-sm text-destructive">
               FinalError: {scriptResult.error}
             </div>
           )}
-          <Button variant="secondary" onClick={onClose}>
-            Close
-          </Button>
+          <div className="flex justify-end gap-2 sm:ml-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              className="select-none"
+              onClick={copy}
+            >
+              {copied ? "Copied!" : "Copy All"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="select-none"
+              onClick={onClose}
+            >
+              Close
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
