@@ -61,6 +61,7 @@ const createMockInstance = (
     },
     getIntersectingNodes: () => [] as FlowNode[],
     updateNodeInternals: vi.fn(),
+    setViewport: vi.fn(),
   };
 
   return instance as ReactFlowInstance<FlowNode, Edge>;
@@ -106,6 +107,76 @@ const createMockInstance = (
     });
 
     expect(result.current.nodes.some((n) => n.id === "template-node")).toBe(true);
+    expect(result.current.nodes.find((n) => n.id === "template-node")?.position).toEqual({
+      x: 50,
+      y: 60,
+    });
+    expect(mockRf.setViewport).toHaveBeenCalledWith(
+      { x: 25, y: 30, zoom: 0.5 },
+      { duration: 0 }
+    );
+  });
+
+  it("anchors dropped flow templates by left-most then top-most node", () => {
+    const { result } = renderHook(() => useNodeOperations(), { wrapper });
+    const mockRf = createMockInstance(result);
+
+    act(() => {
+      result.current.onInit(mockRf);
+    });
+
+    const flowData = buildFlowData({
+      nodes: [
+        buildFlowNode({
+          id: "left-lower",
+          type: "calculation",
+          position: { x: 0, y: 100 },
+          data: { functionName: "identity" },
+        }),
+        buildFlowNode({
+          id: "top-right",
+          type: "calculation",
+          position: { x: 10, y: 0 },
+          data: { functionName: "identity" },
+        }),
+      ],
+      edges: [],
+    });
+
+    const event = {
+      preventDefault: vi.fn(),
+      dataTransfer: {
+        getData: (type: string) =>
+          type === "application/reactflow"
+            ? JSON.stringify({
+                functionName: "flow_template",
+                nodeData: { flowData },
+              })
+            : "",
+      },
+      clientX: 50,
+      clientY: 60,
+      currentTarget: {
+        getBoundingClientRect: () => ({ left: 0, top: 0 }),
+      },
+    } as unknown as React.DragEvent<HTMLDivElement>;
+
+    act(() => {
+      result.current.onDrop(event);
+    });
+
+    expect(result.current.nodes.find((n) => n.id === "left-lower")?.position).toEqual({
+      x: 50,
+      y: 60,
+    });
+    expect(result.current.nodes.find((n) => n.id === "top-right")?.position).toEqual({
+      x: 60,
+      y: -40,
+    });
+    expect(mockRf.setViewport).toHaveBeenCalledWith(
+      { x: 25, y: 30, zoom: 0.5 },
+      { duration: 0 }
+    );
   });
 
   it("keeps script steps for remapped ids when dropped template collides", () => {
