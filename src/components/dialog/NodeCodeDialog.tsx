@@ -245,7 +245,7 @@ export function NodeCodeDialog({
       }}
     >
       <DialogContent
-        className="max-w-3xl"
+        className="w-[min(82vw,700px)] max-w-none"
         onPointerDownOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>
@@ -258,7 +258,7 @@ export function NodeCodeDialog({
         </DialogHeader>
 
         <div
-          className="h-[500px] overflow-auto border p-2 bg-muted rounded-md syntax-highlighter-container"
+          className="h-[62vh] min-h-[460px] max-h-[680px] overflow-auto border p-2 bg-muted rounded-md syntax-highlighter-container"
           onKeyDown={(e) => e.stopPropagation()}
         >
           {loading && <div>Loading code...</div>}
