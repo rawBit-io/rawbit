@@ -2398,6 +2398,46 @@ def uint32_to_little_endian_4_bytes(val: int) -> str:
     return packed.hex()
 
 
+def sighash_type_to_le4(val: str) -> str:
+    """
+    Convert a standard legacy/SegWit ECDSA SIGHASH type byte to the
+    4-byte little-endian uint32 suffix appended to the signing preimage.
+
+    This accepts the one-byte hex forms used in signatures, e.g.:
+    - 01: SIGHASH_ALL
+    - 02: SIGHASH_NONE
+    - 03: SIGHASH_SINGLE
+    - 81: SIGHASH_ALL | ANYONECANPAY
+    - 82: SIGHASH_NONE | ANYONECANPAY
+    - 83: SIGHASH_SINGLE | ANYONECANPAY
+    """
+    raw = str(val).strip().lower()
+    if raw.startswith("0x"):
+        raw = raw[2:]
+
+    if not raw:
+        raise ValueError("SIGHASH type is required")
+    if len(raw) != 2:
+        raise ValueError("SIGHASH type must be exactly one byte, e.g. 01 or 81")
+
+    try:
+        sighash_type = int(raw, 16)
+    except ValueError as exc:
+        raise ValueError("SIGHASH type must be hex, e.g. 01 or 81") from exc
+
+    base_type = sighash_type & 0x1F
+    allowed_extra_bits = 0x80
+    extra_bits = sighash_type & ~0x1F
+
+    if base_type not in {0x01, 0x02, 0x03} or extra_bits not in {0, allowed_extra_bits}:
+        raise ValueError(
+            "Unsupported SIGHASH type. Use 01, 02, 03, 81, 82, or 83 "
+            "for legacy/SegWit ECDSA signatures."
+        )
+
+    return sighash_type.to_bytes(4, "little").hex()
+
+
 
 def encode_varint(val: int | str | None) -> str:
     if val == "" or val is None:

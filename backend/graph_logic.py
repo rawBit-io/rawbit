@@ -20,6 +20,7 @@ from calc_functions.calc_func import (
    
  
     uint32_to_little_endian_4_bytes,
+    sighash_type_to_le4,
     encode_varint,
     reverse_txid_bytes,
 
@@ -104,6 +105,7 @@ CALC_FUNCTIONS = {
   
 
     "uint32_to_little_endian_4_bytes": uint32_to_little_endian_4_bytes,
+    "sighash_type_to_le4": sighash_type_to_le4,
     "encode_varint": encode_varint,
     "reverse_txid_bytes": reverse_txid_bytes,
 

@@ -9,6 +9,7 @@
 import {
   useState,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
 } from "react";
@@ -91,10 +92,19 @@ export default function OpCodeNode({
   /* ------------ UI state ------------ */
   const [showCode, setShowCode] = useState(false);
   const [miniSearch, setMiniSearch] = useState("");
+  const currentComment = typeof data.comment === "string" ? data.comment : "";
+  const [commentDraft, setCommentDraft] = useState(currentComment);
+  const [isCommentEditing, setIsCommentEditing] = useState(false);
   const commentEditStartRef = useRef(
-    typeof data.comment === "string" ? data.comment : ""
+    currentComment
   );
   const { filteredMini } = useOpcodeFilters(miniSearch);
+
+  useEffect(() => {
+    if (!isCommentEditing) {
+      setCommentDraft(currentComment);
+    }
+  }, [currentComment, isCommentEditing]);
 
   /* ------------ Derive selected opcodes from node data ------------ */
   const selectedOps = useMemo(() => {
@@ -191,18 +201,8 @@ export default function OpCodeNode({
     );
   }, [id, setNodes]);
 
-  const changeComment = useCallback(
-    (v: string) => {
-      setNodes((nds) =>
-        nds.map((n) =>
-          n.id === id ? { ...n, data: { ...n.data, comment: v } } : n
-        )
-      );
-    },
-    [id, setNodes]
-  );
-
   const handleCommentFocus = useCallback((value: string) => {
+    setIsCommentEditing(true);
     commentEditStartRef.current = value;
   }, []);
 
@@ -210,27 +210,24 @@ export default function OpCodeNode({
     (value: string) => {
       const normalizedStart = commentEditStartRef.current.trim();
       const normalizedNext = value.trim();
-      commentEditStartRef.current = value;
+      setIsCommentEditing(false);
+      setCommentDraft(normalizedNext);
+      commentEditStartRef.current = normalizedNext;
 
       if (normalizedStart === normalizedNext) return;
 
-      const shouldNormalizeStoredValue =
-        value !== normalizedNext || normalizedNext.length === 0;
-
-      if (shouldNormalizeStoredValue) {
-        setNodes((nds) =>
-          nds.map((n) => {
-            if (n.id !== id) return n;
-            const nextData = { ...n.data };
-            if (normalizedNext) {
-              nextData.comment = normalizedNext;
-            } else {
-              delete nextData.comment;
-            }
-            return { ...n, data: nextData };
-          })
-        );
-      }
+      setNodes((nds) =>
+        nds.map((n) => {
+          if (n.id !== id) return n;
+          const nextData = { ...n.data };
+          if (normalizedNext) {
+            nextData.comment = normalizedNext;
+          } else {
+            delete nextData.comment;
+          }
+          return { ...n, data: nextData };
+        })
+      );
 
       scheduleSnapshot("Update Node Comment");
     },
@@ -388,8 +385,8 @@ export default function OpCodeNode({
               className="nodrag w-full resize-none rounded-md border border-input bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring text-xs p-2 font-mono"
               rows={3}
               placeholder="Enter your notes here…"
-              value={data.comment || ""}
-              onChange={(e) => changeComment(e.target.value)}
+              value={commentDraft}
+              onChange={(e) => setCommentDraft(e.target.value)}
               onFocus={(e) => handleCommentFocus(e.target.value)}
               onBlur={(e) => commitCommentOnBlur(e.target.value)}
               style={{ maxHeight: "120px", overflowY: "auto" }}

@@ -28,7 +28,7 @@ Flows 15–16 cover standalone hardware-signing and contributor labs.
 - **Flow 15:** Trezor signing flow (BIP39/BIP32, RFC6979, hardware signing comparison)
 - **Flow 16:** Summer of Bitcoin 2026 PoC flow
 
-All flow transactions were broadcast on **testnet3**, so you can inspect them on-chain and compare the raw bytes yourself.
+All flow transactions were broadcast on **testnet3/4**, so you can inspect them on-chain and compare the raw bytes yourself.
 
 ---
 

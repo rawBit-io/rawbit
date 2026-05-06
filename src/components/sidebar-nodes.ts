@@ -158,6 +158,29 @@ export const allSidebarNodes: NodeTemplate[] = [
     },
   },
   {
+    functionName: "sighash_type_to_le4",
+    label: "SIGHASH Type → LE-4",
+    category: "Encoding & Script Data",
+    subcategory: "Bytes, Integers & Pushdata",
+    description:
+      "Encode a 1-byte SIGHASH type as the 4-byte LE suffix used in signature preimages",
+    type: "calculation",
+    nodeData: {
+      functionName: "sighash_type_to_le4",
+      title: "SIGHASH Type → LE-4",
+      numInputs: 1,
+
+      value: "01",
+
+      groupInstances: {},
+      inputs: { val: "01" },
+      result: "",
+      inputStructure: {
+        ungrouped: [{ index: 0, label: "SIGHASH TYPE:", rows: 1 }],
+      },
+    },
+  },
+  {
     functionName: "encode_varint",
     label: "Int → VarInt",
     category: "Encoding & Script Data",

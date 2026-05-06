@@ -195,6 +195,12 @@ FUNCTION_SPECS = {
             "val": {"type": "integer", "required": True}
         }
     },
+    "sighash_type_to_le4": {
+        "paramExtraction": "single_val",
+        "params": {
+            "val": {"type": "string", "required": True}
+        }
+    },
     "encode_varint": {
         "paramExtraction": "single_val",
         "params": {

@@ -414,6 +414,23 @@ def test_uint32_to_little_endian():
         calc.uint32_to_little_endian_4_bytes(-1)
 
 
+def test_sighash_type_to_le4_standard_flags():
+    assert calc.sighash_type_to_le4("01") == "01000000"
+    assert calc.sighash_type_to_le4("02") == "02000000"
+    assert calc.sighash_type_to_le4("03") == "03000000"
+    assert calc.sighash_type_to_le4("0x81") == "81000000"
+    assert calc.sighash_type_to_le4("82") == "82000000"
+    assert calc.sighash_type_to_le4("83") == "83000000"
+
+
+def test_sighash_type_to_le4_rejects_invalid_flags():
+    invalid_values = ["", "1", "0100", "zz", "00", "04", "80", "84", "c1"]
+
+    for value in invalid_values:
+        with pytest.raises(ValueError):
+            calc.sighash_type_to_le4(value)
+
+
 def test_encode_varint_boundaries():
     assert calc.encode_varint(0) == "00"
     assert calc.encode_varint(0xfc) == "fc"

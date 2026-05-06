@@ -28,6 +28,7 @@ def test_validate_inputs_required_and_numeric_rules():
     assert "must be an integer" in str(not_integer.value)
 
     assert graph_logic.validate_inputs("encode_varint", {"val": ""})
+    assert graph_logic.validate_inputs("sighash_type_to_le4", {"val": "81"})
 
     with pytest.raises(ValueError) as not_number:
         graph_logic.validate_inputs("hours_to_sequence_number", {"val": "n/a"})

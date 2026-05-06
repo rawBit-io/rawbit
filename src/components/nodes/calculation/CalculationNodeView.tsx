@@ -356,15 +356,31 @@ export function CalculationNodeView({
   const [scriptVerifyAdvancedOpen, setScriptVerifyAdvancedOpen] =
     useState(false);
   const commentEditStartRef = useRef(comment);
+  const [commentDraft, setCommentDraft] = useState(comment);
+  const [isCommentEditing, setIsCommentEditing] = useState(false);
+
+  useEffect(() => {
+    if (!isCommentEditing) {
+      setCommentDraft(comment);
+    }
+  }, [comment, isCommentEditing]);
 
   const handleCommentFocus = useCallback((value: string) => {
+    setIsCommentEditing(true);
     commentEditStartRef.current = value;
+  }, []);
+
+  const handleCommentChange = useCallback((value: string) => {
+    setCommentDraft(value);
   }, []);
 
   const handleCommentBlur = useCallback(
     (value: string) => {
+      const normalizedValue = value.trim();
+      setIsCommentEditing(false);
+      setCommentDraft(normalizedValue);
       mut.commitCommentOnBlur(commentEditStartRef.current, value);
-      commentEditStartRef.current = value;
+      commentEditStartRef.current = normalizedValue;
     },
     [mut]
   );
@@ -1800,8 +1816,8 @@ export function CalculationNodeView({
             <TerminalField
               label="Node Comment:"
               placeholder="Enter your notes here..."
-              value={comment}
-              onChange={mut.handleCommentChange}
+              value={commentDraft}
+              onChange={handleCommentChange}
               onFocus={handleCommentFocus}
               onBlur={handleCommentBlur}
             />

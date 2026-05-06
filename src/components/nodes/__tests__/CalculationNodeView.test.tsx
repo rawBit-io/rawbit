@@ -165,13 +165,15 @@ describe("CalculationNodeView", () => {
     );
     expect(commentArea).toHaveClass("field-surface");
     expect(screen.getByRole("combobox")).toHaveClass("field-surface");
-    await user.type(commentArea, " updated");
-    expect(mut.handleCommentChange).toHaveBeenCalled();
-    expect(mut.handleCommentChange.mock.calls.at(-1)?.[0]).not.toBe("Remember");
+    await user.click(commentArea);
+    (commentArea as HTMLTextAreaElement).setSelectionRange(3, 3);
+    await user.keyboard("X");
+    expect(commentArea).toHaveValue("RemXember");
+    expect(mut.handleCommentChange).not.toHaveBeenCalled();
     await user.tab();
     expect(mut.commitCommentOnBlur).toHaveBeenCalledWith(
       "Remember",
-      "Remember"
+      "RemXember"
     );
   });
 
