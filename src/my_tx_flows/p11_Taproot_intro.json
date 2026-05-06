@@ -6909,7 +6909,7 @@
         "y": 22921.831374231948
       },
       "data": {
-        "content": "# Exercises\n\nPractice building Taproot transactions and understanding the efficiency gains.\n\n## Exercise 1 — Fee Comparison: P2TR vs P2WPKH\n\n**Goal:** Compare witness sizes between Taproot and SegWit v0.\n\nUsing flows from Lesson 8 (P2WPKH) and this lesson (P2TR), find:\n\n\n**Calculate:**\n- Witness weight savings (%)\n- Fee savings at 10 sat/vB for a 1-in-1-out transaction\n\n**Why is P2TR smaller?**\nHint: Where is the pubkey in each output type?\n\n---\n\n## Exercise 2 — Chain the Outputs\n\n**Goal:** Spend one of the outputs from the 2-in-2-out transaction.\n\n- Pick output 0 or output 1 \n- Build a new 1-in-1-out P2TR spend\n- Use the matching signing key\n- Verify the transaction\n\n**What to verify:**\n- Correct TXID (from the 2-in-2-out tx)\n- Correct vout (0 or 1)\n- Amount matches (minus fee)\n- Verification passes\n",
+        "content": "# Exercises\n\nPractice building Taproot transactions and understanding the efficiency gains.\n\n## Exercise 1 — Fee Comparison: P2TR vs P2WPKH\n\n**Goal:** Compare witness sizes between Taproot and SegWit v0.\n\nUsing flows from Flow 8 (P2WPKH) and this flow (P2TR), find:\n\n\n**Calculate:**\n- Witness weight savings (%)\n- Fee savings at 10 sat/vB for a 1-in-1-out transaction\n\n**Why is P2TR smaller?**\nHint: Where is the pubkey in each output type?\n\n---\n\n## Exercise 2 — Chain the Outputs\n\n**Goal:** Spend one of the outputs from the 2-in-2-out transaction.\n\n- Pick output 0 or output 1 \n- Build a new 1-in-1-out P2TR spend\n- Use the matching signing key\n- Verify the transaction\n\n**What to verify:**\n- Correct TXID (from the 2-in-2-out tx)\n- Correct vout (0 or 1)\n- Amount matches (minus fee)\n- Verification passes\n",
         "fontSize": 28,
         "width": 1028,
         "height": 1256,
@@ -7569,7 +7569,7 @@
         "y": 854.8344766420367
       },
       "data": {
-        "content": "# Lesson 11: Taproot Key-Path Spends\n\nTaproot is three BIPs working together: BIP340 (Schnorr), BIP341 (P2TR), BIP342 (Tapscript).\n\nThis lesson builds a key-path spend from scratch:\n\n1. Generate 32 cryptographically random bytes as the private key, normalize to even-Y, then derive the x-only pubkey (32 bytes, no prefix)\n2. Tweak it: Q = P + H(\"TapTweak\", P)·G → bech32m address\n3. Build the BIP341 sighash (new structure: commits to ALL inputs' amounts and scripts)\n4. Sign with tweaked privkey → 64-byte Schnorr signature\n5. Witness = just the signature. Done.\n\nAlso covers: multi-input signing, soft-fork compatibility demo, BIP86 proof-of-no-scripts.",
+        "content": "# Flow 11: Taproot Key-Path Spends\n\nTaproot is three BIPs working together: BIP340 (Schnorr), BIP341 (P2TR), BIP342 (Tapscript).\n\nThis flow builds a key-path spend from scratch:\n\n1. Generate 32 cryptographically random bytes as the private key, normalize to even-Y, then derive the x-only pubkey (32 bytes, no prefix)\n2. Tweak it: Q = P + H(\"TapTweak\", P)·G → bech32m address\n3. Build the BIP341 sighash (new structure: commits to ALL inputs' amounts and scripts)\n4. Sign with tweaked privkey → 64-byte Schnorr signature\n5. Witness = just the signature. Done.\n\nAlso covers: multi-input signing, soft-fork compatibility demo, BIP86 proof-of-no-scripts.",
         "fontSize": 28,
         "width": 963,
         "height": 709,

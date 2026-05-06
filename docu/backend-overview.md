@@ -1,10 +1,10 @@
 # Backend Overview
 
-This project ships with a lightweight Python/Flask API that powers the lesson
-flows rendered in the frontend. The backend focuses on three jobs:
+This project ships with a lightweight Python/Flask API that powers the flows
+rendered in the frontend. The backend focuses on three jobs:
 
 - Evaluate calculation graphs submitted by the client.
-- Serve the catalogue of bundled lesson flows.
+- Serve the catalogue of bundled flows.
 - Surface helper metadata (source listings, health checks) so the UI can stay
   in sync with the server version.
 
@@ -14,7 +14,7 @@ flows rendered in the frontend. The backend focuses on three jobs:
   gzip out of the box.
 - **Structure:** Application factory lives in `backend/routes.py`; calculation
   helpers reside under `backend/calc_functions/`.
-- **Data:** Lesson examples are plain JSON files in `src/my_tx_flows/`.
+- **Data:** Flow examples are plain JSON files in `src/my_tx_flows/`.
 
 ## HTTP Endpoints
 
@@ -23,8 +23,8 @@ All endpoints share the same Flask app (`backend/routes.py`):
 | Method | Path | Purpose |
 | --- | --- | --- |
 | `POST` | `/bulk_calculate` | Execute a graph of calculation nodes and return the results (or per-node errors) in the same shape the frontend expects. |
-| `GET` | `/flows` | List the built-in lesson flows bundled with the repository. |
-| `GET` | `/flows/<slug>` | Fetch a single lesson flow JSON by slug. |
+| `GET` | `/flows` | List the built-in flows bundled with the repository. |
+| `GET` | `/flows/<slug>` | Fetch a single flow JSON by slug. |
 | `GET` | `/code` | Return the source for a calculation helper so the UI can display inline docs. |
 | `GET` | `/healthz` | Minimal health probe used by scripts/tests to confirm the API is ready. |
 
@@ -75,7 +75,7 @@ When you add a new calculation helper:
 1. Implement the logic in `backend/calc_functions/calc_func.py`.
 2. Update the specification in `backend/calc_functions/function_specs.py` so the
    evaluator knows the input/output handles.
-3. Add or update lesson JSON files under `src/my_tx_flows/` if the feature needs
+3. Add or update flow JSON files under `src/my_tx_flows/` if the feature needs
    a new example.
 4. Cover the behavior with tests (`backend/tests/`) and ensure `python3
    run_all_tests.py` stays green.

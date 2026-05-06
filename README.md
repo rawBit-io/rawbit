@@ -30,7 +30,7 @@ Flows 15–16 cover standalone hardware-signing and contributor labs.
 
 All flow transactions were broadcast on **testnet3**, so you can inspect them on-chain and compare the raw bytes yourself.
 
-**Flow notes:** [docu/l-sum.md](docu/l-sum.md) summarizes all 16 flows.
+**Flow notes:** [docu/flow-sum.md](docu/flow-sum.md) summarizes all 16 flows.
 
 ---
 
@@ -91,7 +91,7 @@ pip install -r requirements-special.txt
 python3 backend/routes.py      # Flask API → http://localhost:5007/
 ```
 
-Open [http://localhost:3041/](http://localhost:3041/). The frontend bundles lesson flows from `src/my_tx_flows/` and sends calculations to `http://localhost:5007/bulk_calculate`. The backend also exposes `/flows`, `/code`, and `/healthz`.
+Open [http://localhost:3041/](http://localhost:3041/). The frontend bundles flows from `src/my_tx_flows/` and sends calculations to `http://localhost:5007/bulk_calculate`. The backend also exposes `/flows`, `/code`, and `/healthz`.
 
 > The backend uses a forked **python-bitcointx** pinned in `requirements-special.txt`. A virtualenv keeps those bindings isolated.
 
@@ -137,11 +137,11 @@ python3 run_all_tests.py        # add --e2e-browsers=all for FF/WebKit too
 
 ## Contributing
 
-rawBit is a visual lab for Bitcoin transactions. The most useful contributions are **flows and lessons** that help others understand how things work.
+rawBit is a visual lab for Bitcoin transactions. The most useful contributions are **flows** that help others understand how things work.
 For a broader list of possible contribution directions, see [docu/contribute.md](docu/contribute.md).
 Community discussion: [Discord](https://discord.gg/HPSYkT9tq).
 
-### Flows and lessons
+### Flows
 
 - Lightning Network
 - CoinJoin

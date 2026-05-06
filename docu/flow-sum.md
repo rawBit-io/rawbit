@@ -1,4 +1,4 @@
-# Lesson 1: Building and Signing Legacy Transactions (P2PKH, P2PK)
+# Flow 1: Building and Signing Legacy Transactions (P2PKH, P2PK)
 
 - Generate keypairs and derive standard P2PKH addresses.
 - Build and sign a basic P2PKH spend: construct the sighash preimage and produce a valid ECDSA signature for the scriptSig.
@@ -7,7 +7,7 @@
 - Spend from multiple inputs in one transaction, signing each input with its own correct preimage.
 - Verify each example by evaluating scriptSig + scriptPubKey to ensure it’s valid for broadcast.
 
-# Lesson 2: Multisig and P2SH
+# Flow 2: Multisig and P2SH
 
 - Construct a 2‑of‑3 bare multisig (P2MS) locking script with public keys directly in the script.
 - Fund the P2MS output from a standard P2PKH input.
@@ -16,7 +16,7 @@
 - Spend from bare multisig using the required scriptSig format: `OP_0 <sig1> <sig2>` (the leading `OP_0` accounts for the CHECKMULTISIG quirk).
 - Spend from the P2SH multisig by providing `<OP_0> <sigs…> <full redeemScript>` in the scriptSig, then pay back to a single‑sig output.
 
-# Lesson 3: Absolute and Relative Timelocks
+# Flow 3: Absolute and Relative Timelocks
 
 - Absolute lock by block height: set `nLocktime` to a future height.
 - Absolute lock by timestamp: set `nLocktime` to a Unix time (evaluated via Median Time Past).
@@ -25,7 +25,7 @@
 - Activation details: set at least one input’s `nSequence` to a value less than `0xffffffff`; relative timelocks require transaction version 2.
 - Verification: transactions are valid but will be rejected as “non‑final” if broadcast before the lock expires.
 
-# Lesson 4: Script‑Level Locks and Simple Contracts (CLTV, CSV, Hashlocks)
+# Flow 4: Script‑Level Locks and Simple Contracts (CLTV, CSV, Hashlocks)
 
 - Implement `OP_CHECKLOCKTIMEVERIFY` (CLTV) in a P2SH script to enforce an absolute block‑height unlock while allowing immediate funding.
 - Implement `OP_CHECKSEQUENCEVERIFY` (CSV) to enforce a confirmation‑relative delay (e.g., 10 blocks) for controlled “cold → hot” movement.
@@ -34,7 +34,7 @@
 - Combine conditions (hashlock + CSV + branches) to build an HTLC‑style “digital goods” guarantee.
 - Wrap complex scripts in P2SH and verify every spending path.
 
-# Lesson 5: OP_RETURN for On‑Chain Data
+# Flow 5: OP_RETURN for On‑Chain Data
 
 - Explain `OP_RETURN`: create a provably unspendable output to commit data to the chain.
 - Convert a text string to hex and prepare it for push‑data encoding.
@@ -43,7 +43,7 @@
 - Use a zero‑value for `OP_RETURN` outputs (standard relay policy). Any value sent there is effectively burned and cannot be recovered.
 - Sign and verify the full transaction so it’s ready to broadcast and permanently commit the message once mined.
 
-# Lesson 6: Spilman (Unidirectional) Payment Channel
+# Flow 6: Spilman (Unidirectional) Payment Channel
 
 - Create a 2‑of‑2 multisig redeem script and its P2SH address for the channel (Alice + Bob).
 - Prepare a refund transaction from the yet‑to‑be‑funded multisig back to Alice, using a relative timelock (`nSequence`/CSV) as a safety timeout.
@@ -52,7 +52,7 @@
 - Make off‑chain payments by updating a “latest commitment” transaction that splits funds; Alice signs and sends it to Bob.
 - Bob can complete the signature and broadcast the most recent commitment at any time before the timeout to settle on‑chain.
 
-# Lesson 7: Transaction Malleability (Pre‑SegWit) and the Fix
+# Flow 7: Transaction Malleability (Pre‑SegWit) and the Fix
 
 - Build a baseline valid P2PKH transaction and record its TXID.
 - Create functionally identical variants by modifying the scriptSig with benign operations (e.g., `OP_NOP`, `OP_0 OP_DROP`, multiple `OP_NOP`s).
@@ -61,7 +61,7 @@
 - Explain SegWit’s fix: signatures live in the witness (excluded from TXID), so the TXID is stable; the witness hash (wtxid) reflects witness changes.
 - Verify that all variants are still valid under consensus rules, even though their TXIDs differ.
 
-# Lesson 8: Segregated Witness (SegWit) Transactions
+# Flow 8: Segregated Witness (SegWit) Transactions
 
 - **Explain the SegWit soft-fork:** Demonstrate how a P2WPKH (Pay-to-Witness-Public-Key-Hash) output appears as "anyone-can-spend" to legacy nodes but is enforced by SegWit-aware nodes, which require a valid witness.
 - **Build and sign a valid P2WPKH spend:** Construct the full BIP143 sighash preimage, which crucially includes the value of the output being spent to prevent fee attacks.
@@ -70,7 +70,7 @@
 - **Fix transaction malleability:** Show that because the signature is no longer part of the data hashed to create the TXID, third-party signature malleability is eliminated, resulting in stable, predictable transaction IDs.
 - **Handle complex transactions:** Construct and sign transactions with multiple SegWit inputs and outputs, correctly calculating the shared `hashPrevouts`, `hashSequence`, and `hashOutputs` fields for the sighash preimage.
 
-# Lesson 9: Advanced SegWit Scripts (P2WSH)
+# Flow 9: Advanced SegWit Scripts (P2WSH)
 
 - **Fund a P2WSH output:** Create and sign a transaction that spends a standard P2WPKH input to fund the new P2WSH address.
 - **Construct a P2WSH multisig:** Build a 2-of-3 `witnessScript` and derive its 32-byte `SHA256` hash to create a native SegWit multisignature output (`OP_0 <script_hash>`).
@@ -78,9 +78,9 @@
 - **Implement conditional logic with timelocks:** Create a complex inheritance script using `OP_IF`/`OP_ELSE` that allows an owner to spend immediately or an heir to spend only after a specific `OP_CHECKLOCKTIMEVERIFY` timelock has passed.
 - **Spend from a conditional P2WSH script:** Provide the correct witness to satisfy a specific spending path, using either `OP_1` (for the `IF` path) or `OP_0` (for the `ELSE` path) as the selector, along with the required signature(s) and the full `witnessScript`.
 
-# Lesson 10: Fee Savings with Wrapped SegWit (P2SH-P2WPKH & P2SH-P2WSH)
+# Flow 10: Fee Savings with Wrapped SegWit (P2SH-P2WPKH & P2SH-P2WSH)
 
-This lesson demonstrates the fee-saving advantages of Segregated Witness by conducting two similar transactions that compare legacy scripts with their modern "wrapped" SegWit equivalents. It highlights how these wrapped addresses provided a crucial, backward-compatible path for the network to adopt SegWit's efficiencies.
+This flow demonstrates the fee-saving advantages of Segregated Witness by conducting two similar transactions that compare legacy scripts with their modern "wrapped" SegWit equivalents. It highlights how these wrapped addresses provided a crucial, backward-compatible path for the network to adopt SegWit's efficiencies.
 
 ### Part 1: Single-Signature Savings (P2PKH vs. P2SH-P2WPKH)
 
@@ -98,7 +98,7 @@ This flow demonstrates that SegWit's advantages become even more pronounced as s
 - **The Mechanism:** The savings are amplified. Not only are the multiple signatures moved to the discounted witness field, but the **entire 105-byte multisig script (`witnessScript`)** is also moved. In the legacy version, this large script had to be included in the costly `scriptSig`.
 - **The Result:** A dramatic fee reduction of over **46%**. This proves that P2WSH is vastly more efficient for smart contracts, multisig, and other complex transactions than its P2SH predecessor
 
-# Lesson 11: Taproot Key-Path Spends
+# Flow 11: Taproot Key-Path Spends
 
 - Taproot combines three BIPs: BIP340 (Schnorr), BIP341 (P2TR), BIP342 (Tapscript).
 - Generate a key, normalize to even‑Y, and derive the 32‑byte x‑only pubkey.
@@ -107,11 +107,11 @@ This flow demonstrates that SegWit's advantages become even more pronounced as s
 - Sign with the tweaked privkey → 64‑byte Schnorr signature; witness = `[signature]`.
 - Also covers multi‑input signing, soft‑fork compatibility, and the BIP86 proof‑of‑no‑scripts.
 
-# Lesson 12: Taproot Script-Path Spends
+# Flow 12: Taproot Script-Path Spends
 
-Lesson 11 used key-path — just a signature. Now we add scripts.
+Flow 11 used key-path — just a signature. Now we add scripts.
 
-This lesson builds a 3-leaf inheritance tree and spends via script-path:
+This flow builds a 3-leaf inheritance tree and spends via script-path:
 
 1. Create tapleaves (tagged hash of version + script)
 2. Build Merkle tree (sort siblings, hash branches)
@@ -121,7 +121,7 @@ This lesson builds a 3-leaf inheritance tree and spends via script-path:
 
 Covers: control block parity, script-path sighash (SPEND_TYPE = 02).
 
-# Lesson 13: Taproot Multisig
+# Flow 13: Taproot Multisig
 
 ## What We Built
 
@@ -144,7 +144,7 @@ The internal key is a spending condition, not just metadata. Whoever controls it
 
 OP_CHECKSIGADD replaces OP_CHECKMULTISIG — each signature maps to exactly one pubkey. No dummy element bug, no guessing which sig matches which key.
 
-# Lesson 14: MuSig2 Key-Path Multisig (BIP327)
+# Flow 14: MuSig2 Key-Path Multisig (BIP327)
 
 ## N-of-N: When Everyone Must Agree
 

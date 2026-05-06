@@ -223,7 +223,7 @@ function formatNodeCategory(node: NodeTemplate) {
 }
 
 function formatFlowLabel(flow: CustomFlowTemplate) {
-  return flow.lessonNo ? `${flow.lessonNo}. ${flow.label}` : flow.label;
+  return flow.flowNo ? `${flow.flowNo}. ${flow.label}` : flow.label;
 }
 
 function getFlowSearchText(flow: CustomFlowTemplate) {
@@ -231,9 +231,9 @@ function getFlowSearchText(flow: CustomFlowTemplate) {
     flow.id,
     flow.label,
     flow.level,
-    flow.lessonNo ? String(flow.lessonNo) : "",
-    flow.lessonNo ? `lesson ${flow.lessonNo}` : "",
-    flow.lessonNo ? `lesson ${flow.lessonNo} ${flow.label}` : "",
+    flow.flowNo ? String(flow.flowNo) : "",
+    flow.flowNo ? `flow ${flow.flowNo}` : "",
+    flow.flowNo ? `flow ${flow.flowNo} ${flow.label}` : "",
     ...flow.tags,
   ].join(" ");
 }
@@ -614,7 +614,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
                   <div className="space-y-2">
                     {filteredNodes.length > 0 && (
                       <div className="px-2 py-1 text-xs font-medium uppercase text-muted-foreground">
-                        Lessons
+                        Flows
                       </div>
                     )}
                     {filteredFlows.map((flow) => renderFlowCard(flow))}
@@ -623,7 +623,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
               </>
             ) : (
               <div className="p-4 text-sm text-muted-foreground rounded-md bg-muted/50 text-center">
-                No matching nodes or lessons found
+                No matching nodes or flows found
               </div>
             )}
           </div>

@@ -8936,7 +8936,7 @@
         "y": 1194.4743725613034
       },
       "data": {
-        "content": "# Lesson 4: Script‑Level Locks and Simple Contracts (CLTV, CSV, Hashlocks)\n\n- Implement `OP_CHECKLOCKTIMEVERIFY` (CLTV) in a P2SH script to enforce an absolute block‑height unlock while allowing immediate funding.\n- Implement `OP_CHECKSEQUENCEVERIFY` (CSV) to enforce a confirmation‑relative delay (e.g., 10 blocks) for controlled “cold → hot” movement.\n- Add conditional branches with `OP_IF / OP_ELSE` (e.g., owner spends immediately; heir waits for a timelock).\n- Add a hashlock with `OP_HASH160` so spending requires revealing a preimage.\n- Combine conditions (hashlock + CSV + branches) to build an HTLC‑style “digital goods” guarantee.\n- Wrap complex scripts in P2SH and verify every spending path.",
+        "content": "# Flow 4: Script‑Level Locks and Simple Contracts (CLTV, CSV, Hashlocks)\n\n- Implement `OP_CHECKLOCKTIMEVERIFY` (CLTV) in a P2SH script to enforce an absolute block‑height unlock while allowing immediate funding.\n- Implement `OP_CHECKSEQUENCEVERIFY` (CSV) to enforce a confirmation‑relative delay (e.g., 10 blocks) for controlled “cold → hot” movement.\n- Add conditional branches with `OP_IF / OP_ELSE` (e.g., owner spends immediately; heir waits for a timelock).\n- Add a hashlock with `OP_HASH160` so spending requires revealing a preimage.\n- Combine conditions (hashlock + CSV + branches) to build an HTLC‑style “digital goods” guarantee.\n- Wrap complex scripts in P2SH and verify every spending path.",
         "fontSize": 28,
         "width": 1115,
         "height": 599,

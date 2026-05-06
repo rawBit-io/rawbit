@@ -2700,7 +2700,7 @@ export const allSidebarNodes: NodeTemplate[] = [
             label: "Coin:",
             placeholder: "testnet",
             rows: 1,
-            comment: "Trezor Connect coin name/shortcut. Use testnet for this lesson.",
+            comment: "Trezor Connect coin name/shortcut. Use testnet for this flow.",
           },
           {
             index: 2,

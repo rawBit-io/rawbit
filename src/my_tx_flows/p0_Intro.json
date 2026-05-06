@@ -1914,7 +1914,7 @@
         "y": 1453.6310658579923
       },
       "data": {
-        "content": "# Lesson 1: Building and Signing Legacy Transactions (P2PKH, P2PK)\n\n- Generate keypairs and derive standard P2PKH addresses.\n- Build and sign a basic P2PKH spend: construct the sighash preimage and produce a valid ECDSA signature for the scriptSig.\n- Spend to a legacy P2PK output and note the script differences vs. P2PKH.\n- Create a multi‑output transaction (payment + change).\n- Spend from multiple inputs in one transaction, signing each input with its own correct preimage.\n- Verify each example by evaluating scriptSig + scriptPubKey to ensure it’s valid for broadcast.",
+        "content": "# Flow 1: Building and Signing Legacy Transactions (P2PKH, P2PK)\n\n- Generate keypairs and derive standard P2PKH addresses.\n- Build and sign a basic P2PKH spend: construct the sighash preimage and produce a valid ECDSA signature for the scriptSig.\n- Spend to a legacy P2PK output and note the script differences vs. P2PKH.\n- Create a multi‑output transaction (payment + change).\n- Spend from multiple inputs in one transaction, signing each input with its own correct preimage.\n- Verify each example by evaluating scriptSig + scriptPubKey to ensure it’s valid for broadcast.",
         "fontSize": 28,
         "width": 1115,
         "height": 599,

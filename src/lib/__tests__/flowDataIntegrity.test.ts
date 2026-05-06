@@ -101,7 +101,7 @@ function readInputVal(vals: unknown, index: number): unknown {
   return undefined;
 }
 
-describe("public lesson flow data integrity", () => {
+describe("public flow data integrity", () => {
   it("sidebar nodes use the supported category taxonomy", () => {
     const unknown = allSidebarNodes
       .map((node) => {
@@ -120,7 +120,7 @@ describe("public lesson flow data integrity", () => {
     expect(unknown).toEqual([]);
   });
 
-  it("custom flows use the supported lesson sections", () => {
+  it("custom flows use the supported flow sections", () => {
     const unknown = customFlows
       .filter((flow) => !allowedFlowSections.has(flow.section))
       .map((flow) => ({

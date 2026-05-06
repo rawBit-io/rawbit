@@ -1851,7 +1851,7 @@
               "label": "Coin:",
               "placeholder": "testnet",
               "rows": 1,
-              "comment": "Trezor Connect coin name/shortcut. Use testnet for this lesson."
+              "comment": "Trezor Connect coin name/shortcut. Use testnet for this flow."
             },
             {
               "index": 2,
@@ -2537,7 +2537,7 @@
         "y": 225
       },
       "data": {
-        "content": "# Trezor Signing Flow \n\nThis lesson compares a **manually signed** rawBit legacy P2PKH transaction with a transaction **signed through a connected Trezor** using the same public test seed.\n\nHardware Trezor actions work only in Chrome/Chromium, or when Trezor Suite is running and can provide the device bridge.\n\n*This first demo is intentionally narrow: normal Bitcoin testnet single-sig P2PKH signing. The params builder also supports common BIP44/49/84/86 single-sig inputs and change outputs, but not multisig, coinjoin/external inputs, OP_RETURN, PSBT, or custom Trezor request types yet.*\n\nThe goal is to show the full connection between:\n\n- BIP39 mnemonic\n- BIP32 derivation path\n- P2PKH address generation\n- funding transaction fields\n- legacy transaction preimage\n- signature creation\n- Trezor signing parameters\n- final script verification\n\n## What this lesson does\n\nFirst, the flow creates a testnet BIP39 mnemonic and derives a seed.\n\nThen it derives a testnet P2PKH address at:\n\n`m/44'/1'/0'/0/1`\n\nThe same address is requested from the Trezor with **Trezor Get Address**, so the student can compare:\n\n- address derived inside rawBit\n- address shown by Trezor\n\nThen the address is funded with testnet coins.\n\nAfter that, the flow builds a legacy P2PKH spending transaction and compares:\n\n- the transaction signed manually in rawBit\n- the transaction signed by Trezor\n\nFinally, the flow verifies the final script execution.\n\n",
+        "content": "# Trezor Signing Flow \n\nThis flow compares a **manually signed** rawBit legacy P2PKH transaction with a transaction **signed through a connected Trezor** using the same public test seed.\n\nHardware Trezor actions work only in Chrome/Chromium, or when Trezor Suite is running and can provide the device bridge.\n\n*This first demo is intentionally narrow: normal Bitcoin testnet single-sig P2PKH signing. The params builder also supports common BIP44/49/84/86 single-sig inputs and change outputs, but not multisig, coinjoin/external inputs, OP_RETURN, PSBT, or custom Trezor request types yet.*\n\nThe goal is to show the full connection between:\n\n- BIP39 mnemonic\n- BIP32 derivation path\n- P2PKH address generation\n- funding transaction fields\n- legacy transaction preimage\n- signature creation\n- Trezor signing parameters\n- final script verification\n\n## What this flow does\n\nFirst, the flow creates a testnet BIP39 mnemonic and derives a seed.\n\nThen it derives a testnet P2PKH address at:\n\n`m/44'/1'/0'/0/1`\n\nThe same address is requested from the Trezor with **Trezor Get Address**, so the student can compare:\n\n- address derived inside rawBit\n- address shown by Trezor\n\nThen the address is funded with testnet coins.\n\nAfter that, the flow builds a legacy P2PKH spending transaction and compares:\n\n- the transaction signed manually in rawBit\n- the transaction signed by Trezor\n\nFinally, the flow verifies the final script execution.\n\n",
         "fontSize": 28,
         "width": 1222,
         "height": 1661,
@@ -2553,7 +2553,7 @@
         "y": 852.080159849098
       },
       "data": {
-        "content": "# Trezor Address Check\n\nThis lesson starts from a BIP39 mnemonic and derives a legacy testnet P2PKH address.\n\nThe rawBit derivation path is:\n\n`m/44'/1'/0'/0/1`\n\nrawBit derives the address step by step:\n\n`mnemonic -> seed -> private key -> public key -> HASH160 -> P2PKH address`\n\nThe same path is also sent to the Trezor with **Trezor Get Address**.\n\nThe compare node checks:\n\n`rawBit-derived address == Trezor-displayed address`\n\nThis confirms that rawBit and Trezor are working from the same wallet path before signing.",
+        "content": "# Trezor Address Check\n\nThis flow starts from a BIP39 mnemonic and derives a legacy testnet P2PKH address.\n\nThe rawBit derivation path is:\n\n`m/44'/1'/0'/0/1`\n\nrawBit derives the address step by step:\n\n`mnemonic -> seed -> private key -> public key -> HASH160 -> P2PKH address`\n\nThe same path is also sent to the Trezor with **Trezor Get Address**.\n\nThe compare node checks:\n\n`rawBit-derived address == Trezor-displayed address`\n\nThis confirms that rawBit and Trezor are working from the same wallet path before signing.",
         "fontSize": 28,
         "width": 885,
         "height": 920,
@@ -2622,7 +2622,7 @@
         "y": 2197.8603804241366
       },
       "data": {
-        "content": "# Manual Signing Path\n\nThe left side builds the same legacy P2PKH transaction manually in rawBit.\n\nThe funding transaction is parsed with TX Field Extract nodes to get:\n\n- previous TXID\n- previous output scriptPubKey\n\nThe transaction preimage is built the normal legacy way:\n\n`unsigned tx with previous scriptPubKey in the input script field + SIGHASH_ALL`\n\nThen rawBit hashes the preimage with double-SHA256 and signs that hash.\n\nImportant difference from some earlier rawBit lessons:\n\nthis lesson does **not** use Bitcoin Core low-R grinding.\n\nIt uses:\n\n`Sign TX (RFC6979 / Trezor-style)`\n\nThis is done so the manual rawBit signature can match the deterministic signature produced by Trezor.",
+        "content": "# Manual Signing Path\n\nThe left side builds the same legacy P2PKH transaction manually in rawBit.\n\nThe funding transaction is parsed with TX Field Extract nodes to get:\n\n- previous TXID\n- previous output scriptPubKey\n\nThe transaction preimage is built the normal legacy way:\n\n`unsigned tx with previous scriptPubKey in the input script field + SIGHASH_ALL`\n\nThen rawBit hashes the preimage with double-SHA256 and signs that hash.\n\nImportant difference from some earlier rawBit flows:\n\nthis flow does **not** use Bitcoin Core low-R grinding.\n\nIt uses:\n\n`Sign TX (RFC6979 / Trezor-style)`\n\nThis is done so the manual rawBit signature can match the deterministic signature produced by Trezor.",
         "fontSize": 28,
         "width": 917,
         "height": 1054,
@@ -2680,7 +2680,7 @@
               "label": "Coin:",
               "placeholder": "testnet",
               "rows": 1,
-              "comment": "Trezor Connect coin name/shortcut. Use testnet for this lesson."
+              "comment": "Trezor Connect coin name/shortcut. Use testnet for this flow."
             },
             {
               "index": 2,
