@@ -52,14 +52,16 @@ function WitnessStackPane({
 
   return (
     <div className="mb-3 text-xs">
-      <div className="font-bold mb-1">witnessStack (top → first):</div>
-      <div className="h-24 overflow-auto border p-2 break-words font-mono space-y-1">
+      <div className="mb-1 font-semibold text-primary">
+        witnessStack (top → first):
+      </div>
+      <div className="field-surface h-24 overflow-auto rounded-md border p-2 break-words font-mono space-y-1">
         {items.map((it, i) => (
           <div
             key={`${it}-${i}`}
             className={cn(
               "whitespace-pre-wrap",
-              highlighted && consumed?.[i] && "font-bold text-green-700",
+              highlighted && consumed?.[i] && "font-semibold text-primary",
             )}
           >
             {it}
@@ -81,22 +83,22 @@ function StackColumn({
 }) {
   return (
     <div className="min-w-0">
-      <div className="mb-1 font-bold">{title}</div>
+      <div className="mb-1 font-semibold text-primary">{title}</div>
       <div className="space-y-1">
         {items.length ? (
           items.map((it, i) => (
             <div
               key={`${title}-${i}`}
               className={cn(
-                "min-h-9 rounded border p-2 break-words",
-                consumed?.[i] && "font-bold",
+                "field-surface min-h-9 rounded-md border p-2 break-words",
+                consumed?.[i] && "font-semibold text-primary",
               )}
             >
               {it}
             </div>
           ))
         ) : (
-          <div className="min-h-9 rounded border border-dashed p-2 text-muted-foreground">
+          <div className="min-h-9 rounded-md border border-dashed border-border/70 bg-muted/20 p-2 text-muted-foreground">
             empty
           </div>
         )}
@@ -304,24 +306,24 @@ function ScriptPane({
 
   return (
     <div className="mb-3 text-xs">
-      <div className="font-bold mb-1">{label}:</div>
-      <div className="h-16 overflow-auto border p-2 break-words">
+      <div className="mb-1 font-semibold text-primary">{label}:</div>
+      <div className="field-surface h-16 overflow-auto rounded-md border p-2 break-words font-mono leading-relaxed">
         {bytes.map((b, i) => {
           if (!highlighted)
             return (
-              <span key={i} className="text-gray-400">
+              <span key={i} className="text-muted-foreground/55">
                 {b}
               </span>
             );
           if (i === relPC)
             return (
-              <span key={i} className="font-bold text-blue-600">
+              <span key={i} className="rounded-sm bg-primary/10 font-semibold text-primary">
                 {b}
               </span>
             );
           if (len && i > relPC && i <= hiEnd)
             return (
-              <span key={i} className="italic text-green-600">
+              <span key={i} className="italic text-primary/75">
                 {b}
               </span>
             );
@@ -403,7 +405,10 @@ export default function ScriptExecutionSteps({
   if (!open || !scriptResult || !scriptResult.steps?.length) {
     return (
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent onKeyDownCapture={stopKey}>
+      <DialogContent
+        className="border-border bg-card text-card-foreground"
+        onKeyDownCapture={stopKey}
+      >
           <DialogHeader>
             <DialogTitle>Script Execution Steps</DialogTitle>
             <DialogDescription>No script trace available.</DialogDescription>
@@ -458,9 +463,14 @@ export default function ScriptExecutionSteps({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl" onKeyDownCapture={stopKey}>
+      <DialogContent
+        className="max-w-2xl border-border bg-card text-card-foreground shadow-xl shadow-foreground/10"
+        onKeyDownCapture={stopKey}
+      >
         <DialogHeader>
-          <DialogTitle>Script Execution Steps</DialogTitle>
+          <DialogTitle className="text-primary">
+            Script Execution Steps
+          </DialogTitle>
           <DialogDescription>
             Live walk-through of the script execution. Use the navigation.
           </DialogDescription>
@@ -468,7 +478,7 @@ export default function ScriptExecutionSteps({
 
         <div className="h-[600px] overflow-y-auto px-1">
           {/* navigation */}
-          <div className="mb-3 flex items-center gap-2">
+          <div className="mb-3 flex items-center gap-2 rounded-md border border-border/70 bg-muted/30 p-2">
             <Button
               variant="outline"
               size="sm"
@@ -487,13 +497,13 @@ export default function ScriptExecutionSteps({
             >
               Next
             </Button>
-            <div className="text-sm mx-2">
+            <div className="mx-2 text-sm text-muted-foreground">
               Step {idx + 1}/{steps.length} — {phaseText}
             </div>
           </div>
 
           {isTaprootKeyPath && (
-            <div className="mb-3 rounded border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900">
+            <div className="mb-3 rounded-md border border-primary/20 bg-muted/40 p-3 text-xs text-muted-foreground">
               Taproot key-path spend: no witnessScript is executed. The
               pseudo-steps below load the witness stack, compute the Taproot
               tagged sighash, and verify the Schnorr signature against the
@@ -553,10 +563,10 @@ export default function ScriptExecutionSteps({
           )}
 
           {/* details */}
-          <div className="space-y-3 text-xs font-mono">
-            <div>
-              <strong>Opcode:</strong>{" "}
-              <span className="font-bold">{pretty}</span>
+          <div className="space-y-3 rounded-md border border-border/70 bg-background/35 p-3 text-xs font-mono">
+            <div className="rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
+              <strong className="text-foreground">Opcode:</strong>{" "}
+              <span className="font-semibold text-primary">{pretty}</span>
             </div>
             {explain && (
               <div className="text-muted-foreground">
