@@ -251,6 +251,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const [openCategories, setOpenCategories] = useState<string[]>([
     "canvas-inputs",
+    "my-custom-flows",
   ]);
   const [openSubcategories, setOpenSubcategories] = useState<
     Record<string, string[]>

@@ -160,8 +160,6 @@ describe("Sidebar", () => {
   it("renders Flow Examples accordion and drag payload includes subgraph data", () => {
     renderSidebar();
 
-    const examplesTrigger = screen.getByText("Flow Examples");
-    fireEvent.click(examplesTrigger);
     expect(screen.getByText("Intro")).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /Legacy Foundations/i })
