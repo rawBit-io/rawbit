@@ -421,6 +421,30 @@ function FlowContent() {
   const edgesRef = useRef(edges);
   nodesRef.current = nodes;
   edgesRef.current = edges;
+  const [showInfoNodes, setShowInfoNodes] = useState(true);
+  const infoNodeIds = useMemo(
+    () =>
+      new Set(
+        nodes
+          .filter((node) => node.type === "shadcnTextInfo")
+          .map((node) => node.id)
+      ),
+    [nodes]
+  );
+  const hasInfoNodes = infoNodeIds.size > 0;
+  const displayedNodes = useMemo(
+    () =>
+      showInfoNodes
+        ? nodes
+        : nodes.filter((node) => node.type !== "shadcnTextInfo"),
+    [nodes, showInfoNodes]
+  );
+  const displayedEdges = useMemo(() => {
+    if (showInfoNodes) return edges;
+    return edges.filter(
+      (edge) => !infoNodeIds.has(edge.source) && !infoNodeIds.has(edge.target)
+    );
+  }, [edges, infoNodeIds, showInfoNodes]);
 
   const getSavedNodes = useCallback(() => nodesRef.current, []);
   const getSavedEdges = useCallback(() => edgesRef.current, []);
@@ -2082,6 +2106,9 @@ function FlowContent() {
               setShowSearchPanel={setShowSearchPanel}
               showMiniMap={showMiniMap}
               onToggleMiniMap={() => setShowMiniMap((v) => !v)}
+              showInfoNodes={showInfoNodes}
+              hasInfoNodes={hasInfoNodes}
+              onToggleInfoNodes={() => setShowInfoNodes((v) => !v)}
               isSelectionModeActive={isSelectionMode}
               onToggleSelectionMode={() => setIsSelectionLocked((v) => !v)}
               onShare={handleShareClick}
@@ -2125,8 +2152,8 @@ function FlowContent() {
             >
               <FlowCanvas
                 nodeTypes={nodeTypes}
-                nodes={nodes}
-                edges={edges}
+                nodes={displayedNodes}
+                edges={displayedEdges}
                 showMiniMap={showMiniMap}
                 miniMapSize={miniMapSize}
                 miniMapOffset={miniMapOffset}

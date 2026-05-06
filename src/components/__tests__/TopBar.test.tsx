@@ -98,6 +98,9 @@ const baseProps: TopBarProps & ExtraTopBarProps = {
   setShowSearchPanel: vi.fn(),
   showMiniMap: true,
   onToggleMiniMap: vi.fn(),
+  showInfoNodes: true,
+  hasInfoNodes: true,
+  onToggleInfoNodes: vi.fn(),
   isSelectionModeActive: false,
   onToggleSelectionMode: vi.fn(),
 };
@@ -135,6 +138,9 @@ describe("TopBar", () => {
     fireEvent.click(screen.getByRole("button", { name: "Hide minimap" }));
     expect(baseProps.onToggleMiniMap).toHaveBeenCalled();
 
+    fireEvent.click(screen.getByRole("button", { name: "Hide info nodes" }));
+    expect(baseProps.onToggleInfoNodes).toHaveBeenCalled();
+
     fireEvent.click(
       screen.getByRole("button", {
         name: "Selection tool (click to toggle or hold S + drag with LMB)",
@@ -144,6 +150,20 @@ describe("TopBar", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Toggle theme" }));
     expect(setThemeMock).toHaveBeenCalledWith("dark");
+  });
+
+  it("disables the info node toggle when no info nodes exist", () => {
+    render(<TopBar {...baseProps} hasInfoNodes={false} />);
+
+    expect(screen.getByRole("button", { name: "No info nodes" })).toBeDisabled();
+  });
+
+  it("marks the info node toggle active when info nodes are hidden", () => {
+    render(<TopBar {...baseProps} showInfoNodes={false} />);
+
+    const toggle = screen.getByRole("button", { name: "Show info nodes" });
+    expect(toggle).toHaveAttribute("aria-pressed", "true");
+    expect(toggle).toHaveAttribute("data-active", "true");
   });
 
   it("applies skin selection and clears focus from skin trigger on close", () => {

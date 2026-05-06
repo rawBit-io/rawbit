@@ -36,6 +36,7 @@ import {
   Share2,
   Search,
   MapPinned,
+  FileText,
   Share,
   Globe,
   Github,
@@ -143,6 +144,9 @@ export type ExtraTopBarProps = {
   /* mini-map toggle */
   showMiniMap?: boolean;
   onToggleMiniMap?: () => void;
+  showInfoNodes?: boolean;
+  hasInfoNodes?: boolean;
+  onToggleInfoNodes?: () => void;
   isSelectionModeActive?: boolean;
   onToggleSelectionMode?: () => void;
   tabBarRightInset?: number;
@@ -273,6 +277,9 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
     setShowSearchPanel,
     showMiniMap = true,
     onToggleMiniMap,
+    showInfoNodes = true,
+    hasInfoNodes = false,
+    onToggleInfoNodes,
     isSelectionModeActive = false,
     onToggleSelectionMode,
     tabBarRightInset = 0,
@@ -413,6 +420,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
 
   const isGroupDisabled = !(canGroupSelectedNodes?.() ?? false);
   const isUngroupDisabled = !(canUngroupSelectedNodes?.() ?? false);
+  const areInfoNodesHidden = hasInfoNodes && !showInfoNodes;
   const activeEdgeVisibilityMode: EdgeVisibilityMode =
     theme === "dark" ||
     (theme === "system" &&
@@ -643,6 +651,33 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
           </TopBarIconButton>
           {/* 🔍 search panel */}
           <Separator orientation="vertical" className="mx-2 h-8 w-px" />
+          <TopBarIconButton
+            variant="ghost"
+            size="icon"
+            onClick={onToggleInfoNodes}
+            disabled={!hasInfoNodes}
+            tooltip={
+              !hasInfoNodes
+                ? "No info nodes"
+                : showInfoNodes
+                  ? "Hide info nodes"
+                  : "Show info nodes"
+            }
+            aria-pressed={areInfoNodesHidden}
+            data-active={areInfoNodesHidden || undefined}
+          >
+            <span className="relative inline-flex h-7 w-7 items-center justify-center">
+              <FileText className="h-7 w-7" />
+              {areInfoNodesHidden && (
+                <span
+                  aria-hidden="true"
+                  className="absolute right-0 top-0 flex h-3.5 w-3.5 items-center justify-center rounded-full border border-current bg-background text-[10px] leading-none"
+                >
+                  X
+                </span>
+              )}
+            </span>
+          </TopBarIconButton>
           <TopBarIconButton
             variant="ghost"
             size="icon"
