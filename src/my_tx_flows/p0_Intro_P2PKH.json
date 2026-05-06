@@ -1,5 +1,5 @@
 {
-  "name": "flow-1778011972080",
+  "name": "flow-1778056139072",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -30,8 +30,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 12931.516350090273,
-        "y": 4046.0977743916114
+        "x": 11728.646258222878,
+        "y": 3988.4551006883707
       },
       "data": {
         "isGroup": true,
@@ -58,8 +58,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 7683.919831180317,
-        "y": 1696.0587572453055
+        "x": 6481.049739312923,
+        "y": 1638.4160835420648
       },
       "data": {
         "isGroup": true,
@@ -88,13 +88,13 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 4024.2863043696016,
-        "y": 1943.3513762839802
+        "x": 2364.8625814901743,
+        "y": 1923.7421613037
       },
       "data": {
         "isGroup": true,
-        "width": 2770,
-        "height": 2737,
+        "width": 3151,
+        "height": 2537,
         "title": "Preimage",
         "groupBundlePortOffsets": {
           "source": 1199.26,
@@ -111,18 +111,18 @@
         },
         "dirty": false,
         "borderColor": "#008c86",
-        "fontSize": 40
+        "fontSize": 44
       },
-      "width": 2770,
-      "height": 2737,
+      "width": 3151,
+      "height": 2537,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": 905.3695127376845,
-        "y": 5172.803918323974
+        "x": -297.5005791297094,
+        "y": 5115.161244620734
       },
       "data": {
         "isGroup": true,
@@ -147,8 +147,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 1472.870091867394,
-        "y": 297.6426737032407
+        "x": 270,
+        "y": 240
       },
       "data": {
         "isGroup": true,
@@ -175,8 +175,8 @@
       "id": "node_8QSOHj19",
       "type": "calculation",
       "position": {
-        "x": 773.7813066010253,
-        "y": 112.91950879254955
+        "x": 1192.6114036362378,
+        "y": 170.96809248170212
       },
       "data": {
         "functionName": "identity",
@@ -210,8 +210,8 @@
       "id": "node_1AL3tCpN",
       "type": "calculation",
       "position": {
-        "x": 767.9058140068641,
-        "y": 371.0227876604599
+        "x": 1202.0006760768856,
+        "y": 428.87264912302544
       },
       "data": {
         "functionName": "identity",
@@ -247,8 +247,8 @@
       "id": "node_kSTGvvaL",
       "type": "calculation",
       "position": {
-        "x": 840.4919836843305,
-        "y": 1905.317488064405
+        "x": 1268.9769716669816,
+        "y": 1791.3948498648942
       },
       "data": {
         "functionName": "identity",
@@ -281,8 +281,8 @@
       "id": "node_IRajBmor",
       "type": "calculation",
       "position": {
-        "x": 822.6648029176808,
-        "y": 2209.956872247072
+        "x": 1243.6648029176808,
+        "y": 2009.9568722470722
       },
       "data": {
         "functionName": "identity",
@@ -654,8 +654,8 @@
       "id": "node_UIgo6BTD",
       "type": "calculation",
       "position": {
-        "x": 2111.1685497715152,
-        "y": 661.1666541616246
+        "x": 2517.271419873202,
+        "y": 349.4381799242742
       },
       "data": {
         "functionName": "concat_all",
@@ -945,7 +945,7 @@
         },
         "baseHeight": 120,
         "totalInputs": 12,
-        "unwiredCount": 1,
+        "unwiredCount": 0,
         "showComment": true,
         "comment": "bitcoin-cli -testnet sendrawtransaction <hex>",
         "title": "Final Raw Transaction ",
@@ -1015,8 +1015,8 @@
       "id": "node_CLVgEw37",
       "type": "calculation",
       "position": {
-        "x": 1239.4799644872946,
-        "y": 367.67900747797466
+        "x": 1669.550086535659,
+        "y": 456.10985849566396
       },
       "data": {
         "functionName": "encode_varint",
@@ -1038,8 +1038,8 @@
       "id": "node_A97ESBMe",
       "type": "calculation",
       "position": {
-        "x": 1255.0332277191847,
-        "y": 1775.3482747412068
+        "x": 1683.5182157018362,
+        "y": 1633.3569316067542
       },
       "data": {
         "functionName": "encode_varint",
@@ -1084,8 +1084,8 @@
       "id": "node_uc3qXmHd",
       "type": "calculation",
       "position": {
-        "x": 1264.0082072879163,
-        "y": 2151.5806145195056
+        "x": 1685.0082072879163,
+        "y": 1951.5806145195056
       },
       "data": {
         "functionName": "satoshi_to_8_le",
@@ -1108,8 +1108,8 @@
       "id": "node_NRUA8pnX",
       "type": "calculation",
       "position": {
-        "x": 1271.265846325653,
-        "y": 1329.448437792677
+        "x": 1692.265846325653,
+        "y": 1129.448437792677
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -1412,8 +1412,8 @@
       "id": "node_C85oMB8J",
       "type": "calculation",
       "position": {
-        "x": 1262.6503228743723,
-        "y": 1147.1496216252003
+        "x": 1675.0523294915283,
+        "y": 927.804136513801
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -1436,8 +1436,8 @@
       "id": "node_iG1CdtRQ",
       "type": "calculation",
       "position": {
-        "x": 1240.4354897517733,
-        "y": 120.32581889228368
+        "x": 1686.4206036209262,
+        "y": 212.60452772201052
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -1485,8 +1485,8 @@
       "id": "node_v7K1rBTw",
       "type": "calculation",
       "position": {
-        "x": 812.3780963068448,
-        "y": 1563.0038709918372
+        "x": 1233.3780963068448,
+        "y": 1363.0038709918372
       },
       "data": {
         "functionName": "identity",
@@ -1521,8 +1521,8 @@
       "id": "node_E7c0t33i",
       "type": "calculation",
       "position": {
-        "x": 1262.0072656352768,
-        "y": 1548.8428583302407
+        "x": 1683.0072656352768,
+        "y": 1348.8428583302407
       },
       "data": {
         "functionName": "reverse_bytes_4",
@@ -1671,20 +1671,20 @@
       "id": "node_hHXC5ZW3",
       "type": "calculation",
       "position": {
-        "x": 1277.9746877667744,
-        "y": 2455.137140597439
+        "x": 1240.2828387893478,
+        "y": 2262.575386797073
       },
       "data": {
         "functionName": "identity",
         "showField": true,
         "numInputs": 0,
-        "value": "00000000",
+        "value": "0",
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "00000000"
+          "val": "0"
         },
-        "result": "00000000",
+        "result": "0",
         "inputStructure": {
           "ungrouped": [
             {
@@ -1797,12 +1797,12 @@
         },
         "groupInstances": {},
         "groupInstanceKeys": {},
-        "result": "true",
         "error": false,
         "totalInputs": 4,
-        "unwiredCount": 1,
+        "unwiredCount": 0,
         "dirty": false,
         "showComment": false,
+        "result": "true",
         "scriptDebugSteps": {
           "isValid": true,
           "steps": [
@@ -1937,8 +1937,8 @@
       "id": "node_ljj3f78",
       "type": "calculation",
       "position": {
-        "x": 162.16620250319465,
-        "y": 1031.910839847831
+        "x": 167.36610357404334,
+        "y": 893.1462266918384
       },
       "data": {
         "functionName": "identity",
@@ -2007,8 +2007,8 @@
       "id": "node_kzcs3gx",
       "type": "calculation",
       "position": {
-        "x": 677.6636659282485,
-        "y": 603.991883394428
+        "x": 601.3422243649939,
+        "y": 400.0227562371606
       },
       "data": {
         "functionName": "extract_tx_field",
@@ -2061,6 +2061,30 @@
           "output-0": "67d60153be449d7ff8685193eb00bf518969f4a71849e07c53ba8d73eec22f22",
           "output-1": "76a914918976552e1164768fba9ee3ef11d867cfcdfd3188ac"
         }
+      },
+      "parentId": "group_7w6adu7",
+      "extent": "parent"
+    },
+    {
+      "id": "node_Wi6L506K",
+      "type": "calculation",
+      "position": {
+        "x": 1690.1922211585943,
+        "y": 2256.3674439938372
+      },
+      "data": {
+        "functionName": "uint32_to_little_endian_4_bytes",
+        "title": "Uint32 → LE-4",
+        "numInputs": 1,
+        "showField": false,
+        "value": "2",
+        "dirty": false,
+        "groupInstances": {},
+        "inputs": {
+          "val": 0
+        },
+        "result": "00000000",
+        "error": false
       },
       "parentId": "group_7w6adu7",
       "extent": "parent"
@@ -2528,26 +2552,6 @@
       "selected": false
     },
     {
-      "id": "edge_89uwelv",
-      "source": "node_hHXC5ZW3",
-      "target": "node_UIgo6BTD",
-      "targetHandle": "input-4000",
-      "selected": false
-    },
-    {
-      "id": "edge_4ivlhdu",
-      "source": "node_hHXC5ZW3",
-      "target": "node_qMmh8Zrk",
-      "targetHandle": "input-4000",
-      "selected": false,
-      "data": {
-        "curveControlPointOffset": {
-          "x": 124.65,
-          "y": 79.78
-        }
-      }
-    },
-    {
       "id": "enode_gH7sxRGZ-node_o6vul7a-input-0",
       "source": "node_gH7sxRGZ",
       "target": "node_o6vul7a",
@@ -2578,7 +2582,6 @@
       "id": "edge_pq3003f",
       "source": "node_ljj3f78",
       "target": "node_kzcs3gx",
-      "sourceHandle": null,
       "targetHandle": "input-1",
       "selected": false
     },
@@ -2586,7 +2589,6 @@
       "id": "edge_q2swcx8",
       "source": "node_xfz2u3e",
       "target": "node_kzcs3gx",
-      "sourceHandle": null,
       "targetHandle": "input-0"
     },
     {
@@ -2612,6 +2614,43 @@
       "sourceHandle": "output-1",
       "targetHandle": "input-1030",
       "selected": false
+    },
+    {
+      "id": "edge_y33xcw9",
+      "source": "node_kzcs3gx",
+      "target": "node_qMmh8Zrk",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-1000"
+    },
+    {
+      "id": "edge_un9m3vd",
+      "source": "node_kzcs3gx",
+      "target": "node_o6vul7a",
+      "sourceHandle": "output-1",
+      "targetHandle": "input-1"
+    },
+    {
+      "id": "edge_hr5azll",
+      "source": "node_hHXC5ZW3",
+      "target": "node_Wi6L506K",
+      "sourceHandle": null,
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_117ppst",
+      "source": "node_Wi6L506K",
+      "target": "node_UIgo6BTD",
+      "sourceHandle": null,
+      "targetHandle": "input-4000",
+      "selected": false
+    },
+    {
+      "id": "edge_l6dk74v",
+      "source": "node_Wi6L506K",
+      "target": "node_qMmh8Zrk",
+      "sourceHandle": null,
+      "targetHandle": "input-4000"
     }
   ]
 }

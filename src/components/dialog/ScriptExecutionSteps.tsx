@@ -70,6 +70,41 @@ function WitnessStackPane({
   );
 }
 
+function StackColumn({
+  title,
+  items,
+  consumed,
+}: {
+  title: string;
+  items: string[];
+  consumed?: boolean[];
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="mb-1 font-bold">{title}</div>
+      <div className="space-y-1">
+        {items.length ? (
+          items.map((it, i) => (
+            <div
+              key={`${title}-${i}`}
+              className={cn(
+                "min-h-9 rounded border p-2 break-words",
+                consumed?.[i] && "font-bold"
+              )}
+            >
+              {it}
+            </div>
+          ))
+        ) : (
+          <div className="min-h-9 rounded border border-dashed p-2 text-muted-foreground">
+            empty
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ---------- opcode cheat-sheet ----------------------------------- */
 const OPCODES: Record<string, string> = {
   /* constant pushes */
@@ -529,28 +564,16 @@ export default function ScriptExecutionSteps({
               </div>
             )}
 
-            <div>
-              <strong>Stack Before (top → first):</strong>
-              {beforeR.map((it, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    "border p-2 break-words",
-                    consumed[i] && "font-bold"
-                  )}
-                >
-                  {it}
-                </div>
-              ))}
-            </div>
-
-            <div>
-              <strong>Stack After (top → first):</strong>
-              {afterR.map((it, i) => (
-                <div key={i} className="border p-2 break-words">
-                  {it}
-                </div>
-              ))}
+            <div className="grid grid-cols-2 gap-3">
+              <StackColumn
+                title="Stack Before (top → first)"
+                items={beforeR}
+                consumed={consumed}
+              />
+              <StackColumn
+                title="Stack After (top → first)"
+                items={afterR}
+              />
             </div>
 
             {step.failed && step.error && (
