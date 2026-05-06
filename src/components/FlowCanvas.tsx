@@ -71,6 +71,7 @@ const MAX_ZOOM = 10;
 const MOBILE_MIN_ZOOM = 0.21;
 const MOBILE_MAX_ZOOM = 4;
 const PRO_OPTIONS = { hideAttribution: true } as const;
+const CLEAR_BUNDLE_EDGE_SELECTION_EVENT = "rawbit:clear-bundle-edge-selection";
 const edgeTypes = {
   [GROUP_BUNDLE_EDGE_TYPE]: GroupBundleEdge,
 } satisfies ReactFlowProps<FlowNode>["edgeTypes"];
@@ -437,6 +438,38 @@ export function FlowCanvas({
     },
     [edges, nodes, onBundleEdgesSelect, onEdgesChange, onNodesChange]
   );
+
+  const clearBundleEdgeSelection = useCallback(() => {
+    setBundleSelectedEdgeIds([]);
+    if (!onEdgesChange) return;
+
+    const edgeChanges: EdgeChange[] = edges
+      .filter((edge) => edge.selected === true)
+      .map((edge) => ({
+        id: edge.id,
+        type: "select",
+        selected: false,
+      }));
+
+    if (edgeChanges.length > 0) {
+      onEdgesChange(edgeChanges);
+    }
+  }, [edges, onEdgesChange]);
+
+  useEffect(() => {
+    if (isReadOnly) return;
+    window.addEventListener(
+      CLEAR_BUNDLE_EDGE_SELECTION_EVENT,
+      clearBundleEdgeSelection
+    );
+    return () => {
+      window.removeEventListener(
+        CLEAR_BUNDLE_EDGE_SELECTION_EVENT,
+        clearBundleEdgeSelection
+      );
+    };
+  }, [clearBundleEdgeSelection, isReadOnly]);
+
   const renderedEdges = useMemo(() => {
     if (!selectionEnabled) return visualElements.edges;
     return visualElements.edges.map((edge) =>
@@ -449,6 +482,30 @@ export function FlowCanvas({
 
   const handleNodesChange = useCallback(
     (changes: NodeChange<FlowNode>[]) => {
+      const shouldClearSelectedBundleEdges = changes.some(
+        (change) =>
+          change.type === "select" &&
+          change.selected === true &&
+          "id" in change &&
+          !isGroupBundlePortNodeId(change.id)
+      );
+
+      if (shouldClearSelectedBundleEdges) {
+        setBundleSelectedEdgeIds([]);
+        if (onEdgesChange) {
+          const selectedEdgeChanges: EdgeChange[] = edges
+            .filter((edge) => edge.selected === true)
+            .map((edge) => ({
+              id: edge.id,
+              type: "select",
+              selected: false,
+            }));
+          if (selectedEdgeChanges.length > 0) {
+            onEdgesChange(selectedEdgeChanges);
+          }
+        }
+      }
+
       if (!onNodesChange) return;
       const visualNodeById = new Map(
         visualElements.nodes.map((node) => [node.id, node])
@@ -481,7 +538,7 @@ export function FlowCanvas({
       if (forwarded.length === 0) return;
       onNodesChange(forwarded);
     },
-    [isReadOnly, nodes, onNodesChange, visualElements.nodes]
+    [edges, isReadOnly, nodes, onEdgesChange, onNodesChange, visualElements.nodes]
   );
 
   const handleEdgesChange = useCallback(
@@ -490,13 +547,75 @@ export function FlowCanvas({
       if (changes.some((change) => change.type === "select")) {
         setBundleSelectedEdgeIds([]);
       }
+
+      const visualEdgeById = new Map(
+        visualElements.edges.map((edge) => [edge.id, edge])
+      );
+      const deselectedBundledEdgeIds = new Set<string>();
+
+      for (const change of changes) {
+        if (
+          change.type !== "select" ||
+          change.selected !== false ||
+          !("id" in change) ||
+          !isGroupBundleVisualEdgeId(change.id)
+        ) {
+          continue;
+        }
+
+        const visualEdge = visualEdgeById.get(change.id);
+        if (!visualEdge) continue;
+
+        if (isGroupBundleSegmentEdgeId(visualEdge.id)) {
+          const selectedEdgeIds =
+            Array.isArray(visualEdge.data?.selectedEdgeIds) &&
+            visualEdge.data.selectedEdgeIds.length > 0
+              ? visualEdge.data.selectedEdgeIds.filter(
+                  (edgeId): edgeId is string => typeof edgeId === "string"
+                )
+              : visualEdge.selected === true
+                ? getGroupBundleSegmentEdgeIds(visualEdge)
+                : [];
+          selectedEdgeIds.forEach((edgeId) =>
+            deselectedBundledEdgeIds.add(edgeId)
+          );
+          continue;
+        }
+
+        if (isGroupBundleEdgeId(visualEdge.id)) {
+          const data = visualEdge.data as GroupBundleEdgeData | undefined;
+          const selectedEdgeIds =
+            data?.selectedEdgeIds && data.selectedEdgeIds.length > 0
+              ? data.selectedEdgeIds
+              : visualEdge.selected === true
+                ? data?.bundledEdgeIds ?? []
+                : [];
+          selectedEdgeIds.forEach((edgeId) =>
+            deselectedBundledEdgeIds.add(edgeId)
+          );
+        }
+      }
+
       const filtered = changes.filter(
         (change) => !("id" in change) || !isGroupBundleVisualEdgeId(change.id)
       );
-      if (filtered.length === 0) return;
-      onEdgesChange(filtered);
+
+      const translatedDeselections: EdgeChange[] = edges
+        .filter(
+          (edge) =>
+            edge.selected === true && deselectedBundledEdgeIds.has(edge.id)
+        )
+        .map((edge) => ({
+          id: edge.id,
+          type: "select",
+          selected: false,
+        }));
+
+      const forwarded = [...filtered, ...translatedDeselections];
+      if (forwarded.length === 0) return;
+      onEdgesChange(forwarded);
     },
-    [onEdgesChange]
+    [edges, onEdgesChange, visualElements.edges]
   );
   const handleEdgeClick = useCallback<
     NonNullable<ReactFlowProps<FlowNode>["onEdgeClick"]>

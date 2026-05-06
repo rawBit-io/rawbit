@@ -59,6 +59,7 @@ const MIN_H = 220;
 const BORDER_WIDTH = 10;
 const MENU_WIDTH = 240;
 const TITLE_CLICK_MOVE_TOLERANCE = 4;
+const CLEAR_BUNDLE_EDGE_SELECTION_EVENT = "rawbit:clear-bundle-edge-selection";
 
 const normalizeFontSize = (value: unknown) => {
   const numeric = Number(value);
@@ -179,6 +180,10 @@ export default function ShadcnGroupNode({
   };
 
   const clearSelectedEdges = useCallback(() => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event(CLEAR_BUNDLE_EDGE_SELECTION_EVENT));
+    }
+
     rf.setEdges((currentEdges) => {
       let changed = false;
       const next = currentEdges.map((edge) => {

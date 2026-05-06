@@ -800,6 +800,11 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
   opacity: var(--edge-light-dashed-opacity, 0.325) !important;
 }
 
+.react-flow__edge.group-bundle-segment-edge,
+.react-flow__edge.group-bundle-segment-edge .react-flow__edge-interaction {
+  cursor: pointer !important;
+}
+
 .dark .react-flow__edge.group-bundle-segment-edge .react-flow__edge-path {
   stroke-width: var(--edge-dark-dashed-stroke-width, 1.4px) !important;
   opacity: var(--edge-dark-dashed-opacity, 0.325) !important;

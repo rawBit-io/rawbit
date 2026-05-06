@@ -32,12 +32,12 @@ const phaseTextFor = (phase: string) =>
   phase === "scriptSig"
     ? "Phase 1 (scriptSig)"
     : phase === "scriptPubKey"
-    ? "Phase 2 (scriptPubKey)"
-    : phase === "redeemScript"
-    ? "Phase 3 (redeemScript)"
-    : phase === "taproot"
-    ? "Phase 4 (taproot)"
-    : "Phase 4 (witnessScript)";
+      ? "Phase 2 (scriptPubKey)"
+      : phase === "redeemScript"
+        ? "Phase 3 (redeemScript)"
+        : phase === "taproot"
+          ? "Phase 4 (taproot)"
+          : "Phase 4 (witnessScript)";
 
 function WitnessStackPane({
   items,
@@ -59,7 +59,7 @@ function WitnessStackPane({
             key={`${it}-${i}`}
             className={cn(
               "whitespace-pre-wrap",
-              highlighted && consumed?.[i] && "font-bold text-green-700"
+              highlighted && consumed?.[i] && "font-bold text-green-700",
             )}
           >
             {it}
@@ -89,7 +89,7 @@ function StackColumn({
               key={`${title}-${i}`}
               className={cn(
                 "min-h-9 rounded border p-2 break-words",
-                consumed?.[i] && "font-bold"
+                consumed?.[i] && "font-bold",
               )}
             >
               {it}
@@ -234,7 +234,7 @@ const hexToBytes = (hex = "") =>
 function consumedFlags(
   before: string[],
   after: string[],
-  op: string
+  op: string,
 ): boolean[] {
   const afterCopy = [...after];
   return before.map((it, idx) => {
@@ -295,7 +295,7 @@ function ScriptPane({
             bytes[relPC + 3] +
             bytes[relPC + 2] +
             bytes[relPC + 1],
-          16
+          16,
         );
     }
   }
@@ -354,7 +354,7 @@ export default function ScriptExecutionSteps({
   const next = useCallback(
     () =>
       setIdx((p) => Math.min(p + 1, (scriptResult?.steps?.length ?? 1) - 1)),
-    [scriptResult]
+    [scriptResult],
   );
 
   const copy = useCallback(() => {
@@ -369,7 +369,7 @@ export default function ScriptExecutionSteps({
       !scriptResult.witnessScript;
     if (taprootKeyPathCopy) {
       lines.push(
-        "Taproot key-path spend: no witnessScript; pseudo-steps: taproot_witness → taproot_sighash → taproot_schnorr_verify."
+        "Taproot key-path spend: no witnessScript; pseudo-steps: taproot_witness → taproot_sighash → taproot_schnorr_verify.",
       );
     }
     if (scriptResult.witnessStack?.length && !scriptResult.witnessScript) {
@@ -385,7 +385,7 @@ export default function ScriptExecutionSteps({
         `StackBefore: [${stackBefore.join(", ")}]`,
         `StackAfter: [${stackAfter.join(", ")}]`,
         ...(s.failed ? [`ERROR: ${s.error ?? "Unknown error"}`] : []),
-        "-----------"
+        "-----------",
       );
     });
     navigator.clipboard.writeText(lines.join("\n")).then(() => {
@@ -396,7 +396,7 @@ export default function ScriptExecutionSteps({
 
   const stopKey = useCallback(
     (e: KeyboardEvent<HTMLDivElement>) => e.stopPropagation(),
-    []
+    [],
   );
 
   /* placeholder if no trace */
@@ -434,9 +434,8 @@ export default function ScriptExecutionSteps({
   const witnessHex = scriptResult.witnessScript ?? "";
   const witnessStack =
     scriptResult.witnessStack ??
-    steps.find(
-      (s) => s.phase === "taproot" && Array.isArray(s.stack_before)
-    )?.stack_before ??
+    steps.find((s) => s.phase === "taproot" && Array.isArray(s.stack_before))
+      ?.stack_before ??
     [];
 
   const pretty = prettify(step.opcode, step.opcode_name);
@@ -463,31 +462,31 @@ export default function ScriptExecutionSteps({
         <DialogHeader>
           <DialogTitle>Script Execution Steps</DialogTitle>
           <DialogDescription>
-            Live walk-through of every opcode in every phase.
+            Live walk-through of the script execution. Use the navigation.
           </DialogDescription>
         </DialogHeader>
 
         <div className="h-[600px] overflow-y-auto px-1">
           {/* navigation */}
           <div className="mb-3 flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="select-none"
-                onClick={prev}
-                disabled={idx === 0}
-              >
-                Prev
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="select-none"
-                onClick={next}
-                disabled={idx === steps.length - 1}
-              >
-                Next
-              </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="select-none"
+              onClick={prev}
+              disabled={idx === 0}
+            >
+              Prev
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="select-none"
+              onClick={next}
+              disabled={idx === steps.length - 1}
+            >
+              Next
+            </Button>
             <div className="text-sm mx-2">
               Step {idx + 1}/{steps.length} — {phaseText}
             </div>
@@ -495,9 +494,10 @@ export default function ScriptExecutionSteps({
 
           {isTaprootKeyPath && (
             <div className="mb-3 rounded border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900">
-              Taproot key-path spend: no witnessScript is executed. The pseudo-steps
-              below load the witness stack, compute the Taproot tagged sighash, and
-              verify the Schnorr signature against the output key.
+              Taproot key-path spend: no witnessScript is executed. The
+              pseudo-steps below load the witness stack, compute the Taproot
+              tagged sighash, and verify the Schnorr signature against the
+              output key.
             </div>
           )}
 
@@ -570,10 +570,7 @@ export default function ScriptExecutionSteps({
                 items={beforeR}
                 consumed={consumed}
               />
-              <StackColumn
-                title="Stack After (top → first)"
-                items={afterR}
-              />
+              <StackColumn title="Stack After (top → first)" items={afterR} />
             </div>
 
             {step.failed && step.error && (

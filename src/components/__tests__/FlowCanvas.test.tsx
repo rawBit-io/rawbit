@@ -302,6 +302,199 @@ describe("FlowCanvas", () => {
     });
   });
 
+  it("deselects canonical edges when a selected dashed group segment is deselected", () => {
+    const groupedNodes: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "A", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "B", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "a1",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "b1",
+        type: "calculation",
+        parentId: "group-b",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+    ];
+    const onEdgesChange = vi.fn();
+
+    render(
+      <FlowCanvas
+        {...baseProps}
+        nodes={groupedNodes}
+        edges={[
+          { id: "edge-1", source: "a1", target: "b1", selected: true } as Edge,
+        ]}
+        onEdgesChange={onEdgesChange}
+      />
+    );
+
+    const passedEdges = reactFlowSpy.props.edges as Edge[];
+    const segment = passedEdges.find((edge) =>
+      isGroupBundleSegmentEdgeId(edge.id)
+    );
+
+    expect(segment).toBeDefined();
+
+    act(() => {
+      (reactFlowSpy.props.onEdgesChange as (changes: unknown[]) => void)([
+        {
+          id: segment?.id,
+          type: "select",
+          selected: false,
+        },
+      ]);
+    });
+
+    expect(onEdgesChange).toHaveBeenCalledWith([
+      {
+        id: "edge-1",
+        type: "select",
+        selected: false,
+      },
+    ]);
+  });
+
+  it("deselects canonical bundled edges when clicking empty group space selects the group", () => {
+    const groupedNodes: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "A", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "B", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "a1",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "b1",
+        type: "calculation",
+        parentId: "group-b",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+    ];
+    const onEdgesChange = vi.fn();
+    const onNodesChange = vi.fn();
+
+    render(
+      <FlowCanvas
+        {...baseProps}
+        nodes={groupedNodes}
+        edges={[
+          { id: "edge-1", source: "a1", target: "b1", selected: true } as Edge,
+        ]}
+        onEdgesChange={onEdgesChange}
+        onNodesChange={onNodesChange}
+      />
+    );
+
+    act(() => {
+      (reactFlowSpy.props.onNodesChange as (changes: unknown[]) => void)([
+        {
+          id: "group-a",
+          type: "select",
+          selected: true,
+        },
+      ]);
+    });
+
+    expect(onEdgesChange).toHaveBeenCalledWith([
+      {
+        id: "edge-1",
+        type: "select",
+        selected: false,
+      },
+    ]);
+    expect(onNodesChange).toHaveBeenCalledWith([
+      {
+        id: "group-a",
+        type: "select",
+        selected: true,
+      },
+    ]);
+  });
+
+  it("deselects canonical bundled edges from the group body clear event", () => {
+    const groupedNodes: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "A", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "B", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "a1",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "b1",
+        type: "calculation",
+        parentId: "group-b",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+    ];
+    const onEdgesChange = vi.fn();
+
+    render(
+      <FlowCanvas
+        {...baseProps}
+        nodes={groupedNodes}
+        edges={[
+          { id: "edge-1", source: "a1", target: "b1", selected: true } as Edge,
+        ]}
+        onEdgesChange={onEdgesChange}
+      />
+    );
+
+    act(() => {
+      window.dispatchEvent(new Event("rawbit:clear-bundle-edge-selection"));
+    });
+
+    expect(onEdgesChange).toHaveBeenCalledWith([
+      {
+        id: "edge-1",
+        type: "select",
+        selected: false,
+      },
+    ]);
+  });
+
   it("routes group boundary edges even when only one endpoint is grouped", () => {
     const groupedNodes: FlowNode[] = [
       {
