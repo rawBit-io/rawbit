@@ -69,7 +69,9 @@ export function buildOpcodeInputState(names: string[]): Pick<
 
 export function normalizeOpcodeNodeData(data: NodeData): NodeData {
   const names = getOpcodeInputNames(data);
-  const { opSequenceNames: _oldNames, value: _oldValue, ...rest } = data;
+  const rest = { ...data };
+  delete rest.opSequenceNames;
+  delete rest.value;
 
   return {
     ...rest,

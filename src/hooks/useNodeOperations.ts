@@ -60,7 +60,7 @@ type RF = ReactFlowInstance<FlowNode, Edge> & {
 };
 const randomId = () => Math.random().toString(36).slice(2, 9);
 const GROUP_PADDING = 32;
-const FLOW_TEMPLATE_DROP_ZOOM = 0.3;
+const FLOW_TEMPLATE_DROP_ZOOM = 0.5;
 
 type PaletteDragData = {
   type?: string;

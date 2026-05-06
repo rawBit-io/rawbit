@@ -42,29 +42,29 @@ test.describe('Grouping and color palette', () => {
   test('selection mode toggle activates and deactivates marquee selection', async ({ page }) => {
     await gotoEditor(page);
     await loadFixture(page, 'hash-flow.json');
+    await page.getByTitle('Sidebar').click();
 
     const selectionTool = page.getByTitle('Selection tool (click to toggle or hold S + drag with LMB)');
     await selectionTool.click();
     await expect(selectionTool).toHaveAttribute('data-active', 'true');
 
-    const pane = page.locator('.react-flow__pane');
-    const box = await pane.boundingBox();
-    if (!box) throw new Error('Flow pane not ready');
+    const firstBox = await page.locator('[data-id="node_input"]').boundingBox();
+    const secondBox = await page.locator('[data-id="node_hash"]').boundingBox();
+    if (!firstBox || !secondBox) throw new Error('Flow nodes not ready');
 
     const start = {
-      x: Math.max(20, Math.min(box.width - 120, 120)),
-      y: Math.max(20, Math.min(box.height - 160, 120)),
+      x: Math.max(20, Math.min(firstBox.x, secondBox.x) - 30),
+      y: Math.max(80, Math.min(firstBox.y, secondBox.y) - 30),
     };
     const end = {
-      x: Math.min(box.width - 20, start.x + Math.max(80, box.width * 0.5)),
-      y: Math.min(box.height - 40, start.y + Math.max(80, box.height * 0.4)),
+      x: Math.max(firstBox.x + firstBox.width, secondBox.x + secondBox.width) + 30,
+      y: Math.max(firstBox.y + firstBox.height, secondBox.y + secondBox.height) + 30,
     };
 
-    await pane.dragTo(pane, {
-      sourcePosition: start,
-      targetPosition: end,
-      force: true,
-    });
+    await page.mouse.move(start.x, start.y);
+    await page.mouse.down();
+    await page.mouse.move(end.x, end.y, { steps: 8 });
+    await page.mouse.up();
 
     const selectedNodes = page.locator('.react-flow__node.selected');
     await expect(selectedNodes).toHaveCount(2);
@@ -76,6 +76,7 @@ test.describe('Grouping and color palette', () => {
   test('applies and resets node color via palette with undo snapshot', async ({ page }) => {
     await gotoEditor(page);
     await loadFixture(page, 'hash-flow.json');
+    await page.getByTitle('Sidebar').click();
 
     const node = page.locator('[data-id="node_input"]');
     await node.click();
@@ -87,11 +88,10 @@ test.describe('Grouping and color palette', () => {
     const initialBorder = await card.evaluate((el) => getComputedStyle(el).borderColor);
     await paletteButton.click();
 
-    const palette = page.locator('div.nodrag').filter({ has: page.locator('button[title="#3b82f6"]') });
+    const palette = page.locator('div.nodrag').filter({ has: page.getByRole('button', { name: 'Select blue' }) });
     await expect(palette).toBeVisible();
 
-    const targetColor = '#3b82f6';
-    await page.locator(`button[title="${targetColor}"]`).click();
+    await page.getByRole('button', { name: 'Select blue' }).click();
 
     await expect.poll(async () => card.evaluate((el) => getComputedStyle(el).borderColor)).not.toBe(initialBorder);
 

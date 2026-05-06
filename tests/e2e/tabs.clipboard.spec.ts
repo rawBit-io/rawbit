@@ -476,7 +476,7 @@ test.describe('Clipboard and tabs workflows', () => {
     const inputNode = page.locator('[data-id="node_input"]');
     await inputNode.click();
 
-    const saveButton = page.getByTitle('Save (hold S for simplified)');
+    const saveButton = page.getByRole('button', { name: 'Save' }).first();
     await expect(saveButton).toBeEnabled();
 
     await page.keyboard.down('s');

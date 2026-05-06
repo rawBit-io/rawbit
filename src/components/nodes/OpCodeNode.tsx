@@ -126,11 +126,9 @@ export default function OpCodeNode({
           if (node.id !== id) return node;
 
           const names = [...getOpcodeInputNames(node.data), op.name];
-          const {
-            opSequenceNames: _legacyNames,
-            value: _legacyValue,
-            ...restData
-          } = node.data;
+          const restData = { ...node.data };
+          delete restData.opSequenceNames;
+          delete restData.value;
 
           return {
             ...node,
@@ -157,11 +155,9 @@ export default function OpCodeNode({
           if (node.id !== id) return node;
 
           const names = getOpcodeInputNames(node.data).filter((_, i) => i !== idx);
-          const {
-            opSequenceNames: _legacyNames,
-            value: _legacyValue,
-            ...restData
-          } = node.data;
+          const restData = { ...node.data };
+          delete restData.opSequenceNames;
+          delete restData.value;
 
           return {
             ...node,
