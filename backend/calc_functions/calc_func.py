@@ -38,6 +38,7 @@ _CURVE_P = SECP256k1.curve.p()
 _BIP32_HARDENED = 0x80000000
 from bitcointx.core import CTransaction, CTxOut, b2x
 from bitcointx.core.script import CScript
+from .opcodes import opcode_sequence_to_hex
 from bitcointx.core.scripteval import (
     VerifyScriptWithTrace 
 )
@@ -2964,31 +2965,15 @@ def encode_script_push_data(val: str) -> str:
     return "4e" + data_len.to_bytes(4, "little").hex()
 
 
-def op_code_select(val: str) -> str:
+def op_code_select(vals: Any) -> str:
     """
-    Takes a hex string that was pre-concatenated in the frontend
-    and returns it as-is. This allows the OpCodeNode to follow
-    the same pattern as other calculation nodes while avoiding
-    data duplication.
+    Convert an ordered list of opcode names into script hex.
 
-    Args:
-        val: A pre-concatenated hex string
-             Example: "76a988ac" (OP_DUP + OP_HASH160 + OP_EQUALVERIFY + OP_CHECKSIG)
-
-    Returns:
-        The same hex string
-
-    Examples:
-        >>> op_code_select("76a914")
-        "76a914"
-
-        >>> op_code_select("76a91488ac")
-        "76a91488ac"
-
-        >>> op_code_select("6a")  # OP_RETURN
-        "6a"
+    The opcode sequence node now behaves like the other calculation nodes:
+    the frontend stores user-selected opcode names as inputs, and the backend
+    performs the transformation to hex.
     """
-    return val
+    return opcode_sequence_to_hex(vals)
 
 
 def int_to_script_bytes(val: Union[int, str]) -> str:

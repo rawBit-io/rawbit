@@ -115,6 +115,54 @@ def test_build_multi_val_params_precedence(monkeypatch):
     }
 
 
+def test_bulk_calculate_logic_opcode_node_uses_backend_opcode_names():
+    node = {
+        "id": "op",
+        "type": "opCodeNode",
+        "data": {
+            "functionName": "op_code_select",
+            "paramExtraction": "multi_val",
+            "inputStructure": {
+                "ungrouped": [{"index": 0}, {"index": 100}],
+            },
+            "inputs": {"vals": {"0": "OP_DUP", "100": "OP_HASH160"}},
+        },
+    }
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic([node], [])
+
+    assert errors == []
+    updated = list(updated_nodes)[0]
+    assert updated["data"]["result"] == "76a9"
+    assert updated["data"]["inputs"]["vals"] == {
+        "0": "OP_DUP",
+        "100": "OP_HASH160",
+    }
+
+
+def test_bulk_calculate_logic_migrates_legacy_opcode_names():
+    node = {
+        "id": "op",
+        "type": "opCodeNode",
+        "data": {
+            "functionName": "op_code_select",
+            "paramExtraction": "single_val",
+            "value": "76a9",
+            "opSequenceNames": ["OP_DUP", "OP_HASH160"],
+        },
+    }
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic([node], [])
+
+    assert errors == []
+    updated = list(updated_nodes)[0]
+    assert updated["data"]["result"] == "76a9"
+    assert updated["data"]["inputs"]["vals"] == {
+        "0": "OP_DUP",
+        "100": "OP_HASH160",
+    }
+
+
 def test_build_multi_val_indexed_params_keeps_visible_indices():
     source_node = {"id": "src", "data": {"result": "from-edge"}}
     target_node = {

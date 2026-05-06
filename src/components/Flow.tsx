@@ -84,6 +84,7 @@ import {
   sanitizeGroupBundleVisualElementsForState,
   stripGroupBundlePortNodes,
 } from "@/lib/flow/groupEdgeBundling";
+import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
 
 const COLORABLE_NODE_TYPES = new Set([
   "calculation",
@@ -1048,21 +1049,23 @@ function FlowContent() {
 
       restoreScriptSteps([]);
 
-      const normalizedNodes = ingestScriptSteps(
-        nodesFromFlow.map((node) => {
-          const base: FlowNode & { dragHandle?: string } = {
-            ...node,
-            data: node.data ? { ...node.data } : node.data,
-            position: node.position
-              ? { x: node.position.x, y: node.position.y }
-              : node.position,
-            selected: false,
-          };
-          if (base.type === "shadcnGroup" && !base.dragHandle) {
-            base.dragHandle = "[data-drag-handle]";
-          }
-          return base;
-        })
+      const normalizedNodes = stripLegacyFlowMapNodeData(
+        ingestScriptSteps(
+          nodesFromFlow.map((node) => {
+            const base: FlowNode & { dragHandle?: string } = {
+              ...node,
+              data: node.data ? { ...node.data } : node.data,
+              position: node.position
+                ? { x: node.position.x, y: node.position.y }
+                : node.position,
+              selected: false,
+            };
+            if (base.type === "shadcnGroup" && !base.dragHandle) {
+              base.dragHandle = "[data-drag-handle]";
+            }
+            return base;
+          })
+        )
       );
 
       const normalizedEdges = edgesFromFlow.map((edge) => ({

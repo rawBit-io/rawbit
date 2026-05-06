@@ -424,13 +424,12 @@ def build_single_val_params(node, edges, _map, get_res):
     # ── orphan-constant guard ─────────────────────────────────────
     # Check if node has outputs but no inputs, excluding:
     # - identity nodes (they're meant to be value sources)
-    # - op_code_select nodes (Opcode Sequence - user builds values)
     # - nodes with showField=True (they allow manual input)
     if not upstream:
         func_name = node["data"].get("functionName", "")
         show_field = node["data"].get("showField", False)
         
-        if func_name not in ("identity", "op_code_select") and not show_field:
+        if func_name != "identity" and not show_field:
             has_outgoing = any(e["source"] == nid for e in edges)
             if has_outgoing:
                 raise ValueError(
@@ -438,6 +437,14 @@ def build_single_val_params(node, edges, _map, get_res):
                 )
     
     return {"val": val}
+
+
+def _legacy_opcode_names(node):
+    data = node.get("data", {})
+    names = data.get("opSequenceNames")
+    if isinstance(names, list):
+        return [str(name).strip() for name in names if str(name).strip()]
+    return []
 
 
 def _multi_common(node, edges, get_res):
@@ -498,6 +505,18 @@ def _multi_common(node, edges, get_res):
     return sparse_out, ordered
 
 def build_multi_val_params(node, edges, _map, get_res):
+    if (
+        node.get("data", {}).get("functionName") == "op_code_select"
+        and not _visible_field_indices(node)
+    ):
+        names = _legacy_opcode_names(node)
+        return {
+            "vals": names,
+            "_sparseVals": {
+                str(index * 100): name for index, name in enumerate(names)
+            },
+        }
+
     sparse_out, ordered = _multi_common(node, edges, get_res)
     return {"vals": ordered, "_sparseVals": sparse_out}
 

@@ -162,7 +162,15 @@ describe("OpCodeNode", () => {
     await user.type(screen.getByPlaceholderText(/search opcodes/i), "add");
     await user.click(screen.getByText("OP_ADD"));
 
-    expect(nodesState[0].data.opSequenceNames).toEqual(["OP_ADD"]);
+    expect(nodesState[0].data.functionName).toBe("op_code_select");
+    expect(nodesState[0].data.paramExtraction).toBe("multi_val");
+    expect(nodesState[0].data.inputs?.vals).toEqual({ 0: "OP_ADD" });
+    expect(nodesState[0].data.opSequenceNames).toBeUndefined();
+    expect(nodesState[0].data.value).toBeUndefined();
+    expect(nodesState[0].data.dirty).toBe(true);
+
+    nodesState[0].data.result = "93";
+    nodesState[0].data.dirty = false;
 
     view.rerender(
       <OpCodeNode

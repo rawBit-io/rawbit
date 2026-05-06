@@ -264,11 +264,11 @@ FUNCTION_SPECS = {
         }
     },
     "op_code_select": {
-    "paramExtraction": "single_val",
-    "params": {
-        "val": {"type": "string", "required": True}
-    }
-},
+        "paramExtraction": "multi_val",
+        "params": {
+            "vals": {"type": "any", "required": True}
+        }
+    },
 
    "encode_script_push_data": {
     "paramExtraction": "single_val",

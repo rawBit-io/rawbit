@@ -1,4 +1,5 @@
 import type { FlowNode } from "@/types";
+import { normalizeOpcodeNodeData } from "@/lib/opcodeNodeData";
 
 const LEGACY_FLOW_MAP_NODE_DATA_KEYS = ["excludeFromFlowMap"] as const;
 
@@ -22,6 +23,12 @@ export function stripLegacyFlowMapNodeData<TNode extends FlowNode>(
     if (!node.data) return node;
 
     let nextData: Record<string, unknown> | undefined;
+    const isOpcodeNode =
+      node.type === "opCodeNode" || node.data.functionName === "op_code_select";
+    if (isOpcodeNode) {
+      nextData = normalizeOpcodeNodeData(node.data);
+    }
+
     for (const key of LEGACY_FLOW_MAP_NODE_DATA_KEYS) {
       if (!(key in node.data)) continue;
       nextData ??= { ...node.data };

@@ -5,6 +5,7 @@ import {
   DEFAULT_TX_FIELD_EXTRACT_FIELDS,
   buildTxFieldExtractOutputPorts,
 } from "@/lib/nodes/txFieldExtract";
+import { buildOpcodeInputState } from "@/lib/opcodeNodeData";
 
 /**
  * Node templates organized by categories:
@@ -131,15 +132,9 @@ export const allSidebarNodes: NodeTemplate[] = [
     subcategory: "Script Opcodes",
     description: "Build a sequence of Opcodes and output the final hex.",
     nodeData: {
-      functionName: "identity",
-      paramExtraction: "single_val",
       title: "Opcode Sequence",
-      inputs: { val: "" },
       result: "",
-      value: "",
-      opSequenceNames: [],
-
-      groupInstances: {},
+      ...buildOpcodeInputState([]),
     },
   },
   {

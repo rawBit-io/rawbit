@@ -41,6 +41,10 @@ import {
 import NodeCodeDialog from "@/components/dialog/NodeCodeDialog";
 
 import { OP_CODES, OpItem, findOpItemByName } from "@/lib/opcodes";
+import {
+  buildOpcodeInputState,
+  getOpcodeInputNames,
+} from "@/lib/opcodeNodeData";
 
 /* ------------------------------------------------------------------ */
 /*  ALL_OPS – computed once per module load                           */
@@ -94,17 +98,11 @@ export default function OpCodeNode({
 
   /* ------------ Derive selected opcodes from node data ------------ */
   const selectedOps = useMemo(() => {
-    const names = Array.isArray(data.opSequenceNames)
-      ? data.opSequenceNames
-      : [];
+    const names = getOpcodeInputNames(data);
     return names.map(findOpItemByName).filter((i): i is OpItem => i !== null);
-  }, [data.opSequenceNames]);
+  }, [data]);
 
-  /* ------------ Derive hex value directly from selectedOps ------------ */
-  const hex = useMemo(
-    () => selectedOps.map((o) => o.hex).join(""),
-    [selectedOps]
-  );
+  const resultHex = typeof data.result === "string" ? data.result : "";
 
   /* ====================================================================
                    Node Data Update Functions
@@ -117,26 +115,19 @@ export default function OpCodeNode({
         nds.map((node) => {
           if (node.id !== id) return node;
 
-          const names = Array.isArray(node.data.opSequenceNames)
-            ? [...node.data.opSequenceNames, op.name]
-            : [op.name];
+          const names = [...getOpcodeInputNames(node.data), op.name];
+          const {
+            opSequenceNames: _legacyNames,
+            value: _legacyValue,
+            ...restData
+          } = node.data;
 
           return {
             ...node,
             data: {
-              ...node.data,
-              functionName: "op_code_select",
-              paramExtraction: "single_val",
-              opSequenceNames: names,
-              value:
-                names.length > 0
-                  ? names
-                      .map((n) => {
-                        const item = findOpItemByName(n);
-                        return item ? item.hex : "";
-                      })
-                      .join("")
-                  : "",
+              ...restData,
+              ...buildOpcodeInputState(names),
+              result: "",
               dirty: true,
             },
           };
@@ -155,26 +146,19 @@ export default function OpCodeNode({
         nds.map((node) => {
           if (node.id !== id) return node;
 
-          const names = Array.isArray(node.data.opSequenceNames)
-            ? node.data.opSequenceNames.filter((_, i) => i !== idx)
-            : [];
+          const names = getOpcodeInputNames(node.data).filter((_, i) => i !== idx);
+          const {
+            opSequenceNames: _legacyNames,
+            value: _legacyValue,
+            ...restData
+          } = node.data;
 
           return {
             ...node,
             data: {
-              ...node.data,
-              functionName: "op_code_select",
-              paramExtraction: "single_val",
-              opSequenceNames: names,
-              value:
-                names.length > 0
-                  ? names
-                      .map((n) => {
-                        const item = findOpItemByName(n);
-                        return item ? item.hex : "";
-                      })
-                      .join("")
-                  : "",
+              ...restData,
+              ...buildOpcodeInputState(names),
+              result: "",
               dirty: true,
             },
           };
@@ -188,14 +172,14 @@ export default function OpCodeNode({
                    UI Handlers
        ==================================================================== */
   const clip = useClipboardLite({
-    result: hex,
+    result: resultHex,
     rawTitle: data.title || "Opcode Node",
     id,
   });
   const copyHex = useCallback(() => {
-    if (!hex) return;
+    if (!resultHex) return;
     clip.copyResult();
-  }, [clip, hex]);
+  }, [clip, resultHex]);
 
   const toggleComment = useCallback(() => {
     setNodes((nds) =>
@@ -374,14 +358,17 @@ export default function OpCodeNode({
           </div>
           <div className="flex items-center gap-1">
             <div className="font-mono flex-1 text-xs break-all">
-              {hex || "No Opcodes selected"}
+              {resultHex ||
+                (selectedOps.length > 0
+                  ? "Waiting for calculation"
+                  : "No Opcodes selected")}
             </div>
             <Button
               variant="ghost"
               size="icon"
               className="h-5 w-5 p-0"
               onClick={copyHex}
-              disabled={!hex}
+              disabled={!resultHex}
               title={clip.resultCopied ? "Copied!" : "Copy"}
             >
               {clip.resultCopied ? (
