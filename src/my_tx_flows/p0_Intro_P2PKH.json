@@ -1,5 +1,5 @@
 {
-  "name": "flow-1778056139072",
+  "name": "flow-1778073550166",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -30,8 +30,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 11728.646258222878,
-        "y": 3988.4551006883707
+        "x": 11832.544782800722,
+        "y": 4528.365675976247
       },
       "data": {
         "isGroup": true,
@@ -58,8 +58,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 6481.049739312923,
-        "y": 1638.4160835420648
+        "x": 6584.948263890766,
+        "y": 2178.326658829941
       },
       "data": {
         "isGroup": true,
@@ -88,8 +88,8 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 2364.8625814901743,
-        "y": 1923.7421613037
+        "x": 2468.7611060680174,
+        "y": 2463.6527365915763
       },
       "data": {
         "isGroup": true,
@@ -121,14 +121,14 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": -297.5005791297094,
-        "y": 5115.161244620734
+        "x": -193.6020545518661,
+        "y": 5655.0718199086095
       },
       "data": {
         "isGroup": true,
         "width": 2478,
         "height": 1092,
-        "title": "redeem Script",
+        "title": "Locking Script",
         "dirty": false,
         "borderColor": "#a83a32",
         "fontSize": 44,
@@ -147,8 +147,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 270,
-        "y": 240
+        "x": 373.8985245778433,
+        "y": 779.9105752878763
       },
       "data": {
         "isGroup": true,
@@ -316,8 +316,8 @@
       "id": "node_bkJNiVtV",
       "type": "calculation",
       "position": {
-        "x": 58.620496626233034,
-        "y": 945.6862085885634
+        "x": 40.83467964677402,
+        "y": 838.4283660410802
       },
       "data": {
         "functionName": "identity",
@@ -340,8 +340,10 @@
           ]
         },
         "groupInstances": {},
-        "title": "SIGHASH_ALL flag",
-        "error": false
+        "title": "SIGHASH flag",
+        "error": false,
+        "showComment": true,
+        "comment": "SIGHASH_ALL 0x01"
       },
       "parentId": "group_cd0gkcz",
       "extent": "parent"
@@ -355,18 +357,40 @@
       },
       "data": {
         "functionName": "op_code_select",
-        "value": "76a9",
         "inputs": {
-          "val": "76a9"
+          "vals": {
+            "0": "OP_DUP",
+            "100": "OP_HASH160"
+          }
         },
         "dirty": false,
         "version": 0,
         "result": "76a9",
         "groupInstances": {},
-        "paramExtraction": "single_val",
+        "paramExtraction": "multi_val",
         "title": "Opcode Sequence",
-        "opSequenceNames": ["OP_DUP", "OP_HASH160"],
-        "error": false
+        "error": false,
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            },
+            {
+              "index": 100,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ],
+          "groups": [],
+          "betweenGroups": {},
+          "afterGroups": []
+        },
+        "numInputs": 2,
+        "groupInstanceKeys": {}
       },
       "parentId": "group_hegqa99",
       "extent": "parent"
@@ -380,18 +404,40 @@
       },
       "data": {
         "functionName": "op_code_select",
-        "value": "88ac",
         "inputs": {
-          "val": "88ac"
+          "vals": {
+            "0": "OP_EQUALVERIFY",
+            "100": "OP_CHECKSIG"
+          }
         },
         "dirty": false,
         "version": 0,
         "result": "88ac",
         "groupInstances": {},
-        "paramExtraction": "single_val",
+        "paramExtraction": "multi_val",
         "title": "Opcode Sequence",
-        "opSequenceNames": ["OP_EQUALVERIFY", "OP_CHECKSIG"],
-        "error": false
+        "error": false,
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            },
+            {
+              "index": 100,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ],
+          "groups": [],
+          "betweenGroups": {},
+          "afterGroups": []
+        },
+        "numInputs": 2,
+        "groupInstanceKeys": {}
       },
       "parentId": "group_hegqa99",
       "extent": "parent"
@@ -947,7 +993,7 @@
         "totalInputs": 12,
         "unwiredCount": 0,
         "showComment": true,
-        "comment": "bitcoin-cli -testnet sendrawtransaction <hex>",
+        "comment": "bitcoin-cli -testnet4 sendrawtransaction <hex>",
         "title": "Final Raw Transaction ",
         "error": false
       },
@@ -1962,7 +2008,9 @@
         },
         "groupInstances": {},
         "dirty": false,
-        "error": false
+        "error": false,
+        "showComment": true,
+        "comment": "Funding tx output index we spend"
       },
       "parentId": "group_7w6adu7",
       "extent": "parent"
@@ -2088,6 +2136,119 @@
       },
       "parentId": "group_7w6adu7",
       "extent": "parent"
+    },
+    {
+      "id": "node_hg2oxdm",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -875.1162639824006,
+        "y": 767.6072084390374
+      },
+      "data": {
+        "content": "# Overview\n\n**P2PKH** (Pay-to-Public-Key-Hash) is the classic legacy Bitcoin output type.\n\nThis flow shows **step by step how a complete raw P2PKH transaction is constructed** — from private key derivation through the locking script, preimage, signing, scriptSig assembly, and final verification.\n\nThe example transactions in this flow are **real, confirmed testnet4 transactions** — you can look them up on a block explorer and compare the raw bytes with what you see on the canvas.",
+        "fontSize": 36,
+        "width": 875,
+        "height": 836,
+        "title": "Text Info Node",
+        "dirty": false,
+        "borderColor": "#d6a500"
+      }
+    },
+    {
+      "id": "node_67n0qsu",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 375,
+        "y": 225
+      },
+      "data": {
+        "content": "## Step 1: Generate and fund a P2PKH address\n\nWe generate a random private key, derive the public key, compute its HASH160, and create a P2PKH address:\n\n**Address:** `mtnUwuuyf9gLnsG1cDmEghSwB3uvqX5KZK`\n\nThis address was funded on testnet4.\n\nThe `funding rawTX` node contains the complete funding transaction (raw hex).  \nWe will spend the P2PKH UTXO from this transaction in the raw transaction we construct in this flow.",
+        "fontSize": 28,
+        "width": 935,
+        "height": 483,
+        "title": "Text Info Node",
+        "dirty": false
+      }
+    },
+    {
+      "id": "node_xmy6btt",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -1067.2616726823405,
+        "y": 5654.973343205285
+      },
+      "data": {
+        "content": "## Step 2: P2PKH Locking Script\n\nThe funding transaction output and our new spending output use the standard P2PKH **scriptPubKey**:\n```\nOP_DUP\nOP_HASH160\n<pubKeyHash>\nOP_EQUALVERIFY\nOP_CHECKSIG\n```\nTo unlock the coins, the spender must provide a public key whose HASH160 equals `<pubKeyHash>`, plus a valid signature from the matching private key.\n",
+        "fontSize": 28,
+        "width": 763,
+        "height": 647,
+        "title": "Text Info Node",
+        "dirty": false
+      }
+    },
+    {
+      "id": "node_wrvyf56",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 1586.6630571353755,
+        "y": 2458.447529633968
+      },
+      "data": {
+        "content": "## Step 3: Constructing the new transaction\n\nWe now build a complete spending transaction that consumes the funded P2PKH UTXO and creates a new P2PKH output.\n\nThe **Preimage** node assembles the full transaction data (with a placeholder `scriptSig`) that will be hashed for signing.\n\nFor legacy P2PKH signing, that placeholder is the **previous output's scriptPubKey** — a protocol-defined stand-in that gets replaced with the real `scriptSig` in the final tx (Step 5).",
+        "fontSize": 28,
+        "width": 727,
+        "height": 621,
+        "title": "Text Info Node",
+        "dirty": false
+      }
+    },
+    {
+      "id": "node_178877j",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 6573.2918722931345,
+        "y": 1373.6615266168956
+      },
+      "data": {
+        "content": "## Step 4: Signing with ECDSA\n\nThe preimage (the full transaction data with a placeholder `scriptSig`) is first appended with the **SIGHASH_ALL** flag (`01000000`).\n\nThis data is hashed with **double-SHA256**.\n\nThe resulting 32-byte hash is signed with our private key using **ECDSA on the secp256k1 curve**, with low-R grinding to produce a compact DER signature.\n\n\nWe then build the **scriptSig** by pushing:\n- the signature + `SIGHASH_ALL` flag (`0x01`)\n- the public key\n\n`SIGHASH_ALL` ensures the signature commits to **all inputs and all outputs** of the transaction.",
+        "fontSize": 28,
+        "width": 1108,
+        "height": 648,
+        "title": "Text Info Node",
+        "dirty": false
+      }
+    },
+    {
+      "id": "node_5lnacw5",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 11805.024059089877,
+        "y": 3546.1242270326366
+      },
+      "data": {
+        "content": "## Step 5: Final Raw Transaction + Script Verification\n\nWe replace the placeholder `scriptSig` with the real one to produce the complete, broadcastable raw transaction.\n\nBitcoin uses **scripts** to decide whether an input is allowed to spend its previous output: the `scriptPubKey` defines the spending conditions; the `scriptSig` provides the proof (here: signature + public key). \n\nThe **Verify Script** node runs the full Bitcoin Script interpreter:\n\n- executes the `scriptSig` first; its resulting stack is then passed to the `scriptPubKey`\n- runs every opcode step-by-step while watching the stack\n- confirms execution finishes with a single non-zero value (`true`) on top\n\nThis exact transaction was broadcast and confirmed on testnet4 — that's the txid shown in the **TXID → Reversed** node, which you can look up on a block explorer. \n\nThe **Run it with your own UTXO** notes below cover how to swap in your own funding.",
+        "fontSize": 28,
+        "width": 1095,
+        "height": 862,
+        "title": "Text Info Node",
+        "dirty": false
+      }
+    },
+    {
+      "id": "node_dgaldLHe",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 13754.49623419032,
+        "y": 4532.817015002775
+      },
+      "data": {
+        "content": "## Run it with your own UTXO\n\nThis flow is designed as a reusable template. You can easily adapt it to spend any P2PKH UTXO you control and send the funds to a fresh address.\n\n1. **Generate a new spending key** — click the **Random 32 Bytes** node in the **Funding TX** group. The address, public key, and HASH160 will update automatically.\n\n2. **Generate a new receiving key** — click the **Random 32 Bytes** node in the **Locking Script** group. This creates a fresh P2PKH address for the output.\n\n3. **Fund the spending address** — send testnet4 coins to the address shown in the Funding TX group (faucet link is in the address node comment).\n\n4. **Paste your funding transaction** — copy the raw hex of the funding transaction (from a wallet or block explorer) into the **funding rawTX** node.\n\n5. **Set the correct output index** — change the **VOUT** value to match the output that pays your address. The **TX Field Extract** node will show the parsed txid and `scriptPubKey` for confirmation.\n\n6. **Choose the spend amount** — adjust **Output Amount (satoshis)** to a value lower than the funded amount (the difference becomes the miner fee).\n\n7. **Verify and broadcast** — confirm that the **Verify Script** node returns `true`, then copy the final hex from the **Final Raw Transaction** node and broadcast it using `bitcoin-cli -testnet4 sendrawtransaction <hex>` or any testnet4 push service.\n\nAll downstream values (pubkey, scriptPubKey, preimage, signature, final transaction, and TXID) update live as you change the inputs.",
+        "fontSize": 28,
+        "width": 1097,
+        "height": 1239,
+        "title": "Text Info Node",
+        "dirty": false
+      }
     }
   ],
   "edges": [
@@ -2633,7 +2794,6 @@
       "id": "edge_hr5azll",
       "source": "node_hHXC5ZW3",
       "target": "node_Wi6L506K",
-      "sourceHandle": null,
       "targetHandle": "input-0",
       "selected": false
     },
@@ -2641,7 +2801,6 @@
       "id": "edge_117ppst",
       "source": "node_Wi6L506K",
       "target": "node_UIgo6BTD",
-      "sourceHandle": null,
       "targetHandle": "input-4000",
       "selected": false
     },
@@ -2649,7 +2808,6 @@
       "id": "edge_l6dk74v",
       "source": "node_Wi6L506K",
       "target": "node_qMmh8Zrk",
-      "sourceHandle": null,
       "targetHandle": "input-4000"
     }
   ]

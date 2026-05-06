@@ -46,6 +46,14 @@ describe("mdToHtml", () => {
     expect(html).toContain("<ul><li>parent<ul><li>child</li></ul></li><li>next</li></ul>");
   });
 
+  it("keeps ordered list items together when separated by blank lines", () => {
+    const html = mdToHtml("1. First\n\n2. Second\n\n3. Third");
+
+    expect(html).toContain(
+      "<ol><li>First</li><li>Second</li><li>Third</li></ol>"
+    );
+  });
+
   it("sanitizes unsafe links and allows safe/relative ones", () => {
     const html = mdToHtml(
       "[bad](javascript:alert(1)) [safe](https://example.com) [mail](mailto:test@a.com) [rel](/docs) [anchor](#section)"

@@ -154,7 +154,20 @@ function parseListBlock(
 
   while (i < lines.length) {
     const item = parseListLine(lines[i]);
-    if (!item || item.indent < baseIndent) break;
+    if (!item) {
+      if (lines[i].trim() === "") {
+        let next = i + 1;
+        while (next < lines.length && lines[next].trim() === "") next++;
+        const nextItem = next < lines.length ? parseListLine(lines[next]) : null;
+        if (nextItem && nextItem.indent >= baseIndent) {
+          i = next;
+          continue;
+        }
+      }
+      break;
+    }
+
+    if (item.indent < baseIndent) break;
 
     if (item.indent > baseIndent) {
       if (!itemOpen) break;

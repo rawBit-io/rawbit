@@ -30,8 +30,6 @@ Flows 15–16 cover standalone hardware-signing and contributor labs.
 
 All flow transactions were broadcast on **testnet3**, so you can inspect them on-chain and compare the raw bytes yourself.
 
-**Flow notes:** [docu/flow-sum.md](docu/flow-sum.md) summarizes all 16 flows.
-
 ---
 
 ![rawBit editor screenshot](docu/overview.png)
