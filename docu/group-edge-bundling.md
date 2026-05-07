@@ -6,30 +6,30 @@ Edge readability is one of rawBit's core UX problems. Even without groups, dense
 flows become hard to read when nodes fan out to many consumers, many inputs
 converge into one calculation, or long edges cross large parts of the canvas.
 
-rawBit also has the Protocol Map, which gives a higher-level view of grouped
-flows. That helps, but it does not fully solve the problem:
+This needs to be solved on the main canvas itself:
 
-- not every user opens or notices the Protocol Map
-- not every flow is organized enough for the map to carry the experience
+- not every flow is organized enough for a secondary view to carry the
+  experience
 - users still need the main canvas to stay readable while editing and learning
-- overloaded canvas edges remain visually distracting even when a secondary map
-  exists
+- overloaded canvas edges remain visually distracting when they cross large
+  parts of the graph
 
 Group edge bundling is the first concrete implementation in a broader edge
 readability direction. It targets cross-group edges so connections between
-groups leave and enter through stable boundary points. MuSig2 (`flow-14`,
-`p14_MuSig2.json`) is the main regression fixture.
+groups leave and enter through stable boundary points.
 
 ## Design Goals
 
 1. Reduce visual noise without hiding real dependencies.
 2. Keep normal node-to-node edges for ordinary local flow.
-3. Route all group-boundary traffic through ports, even when there is only one
-   edge or only one endpoint is grouped.
-4. Keep one visible outgoing port on the right group boundary and one visible
-   incoming port on the left group boundary.
-5. Let React Flow render and update inside-group edges.
-6. Keep all helper nodes and helper edges out of saved flow data.
+3. Route cross-group traffic through ports, even when there is only one edge in
+   the bundle.
+4. Keep direct edges between grouped nodes and ungrouped nodes readable as
+   ordinary node-to-node edges.
+5. Put generated outgoing ports on the right group boundary and generated
+   incoming ports on the left group boundary.
+6. Let React Flow render and update inside-group edges.
+7. Keep all helper nodes and helper edges out of saved flow data.
 
 ## What We Implemented
 
@@ -46,28 +46,35 @@ Main files:
 
 For every bundleable directed boundary crossing, the builder creates:
 
-- one or two boundary port nodes, depending on which endpoints are grouped
+- two boundary port nodes, one on each involved group boundary
 - no rendered copy of the represented raw boundary-crossing edges
 - normal React Flow segment edges inside each group
 - one custom outside bundle edge from the source side to the target side
 
-An edge is bundleable when it crosses a group boundary. This includes
-group-to-group, group-to-ungrouped, and ungrouped-to-group edges. Single edges
-are still routed through the generated boundary ports so no edge crosses a group
-boundary on its own.
+An edge is bundleable when both endpoints belong to different groups. The
+endpoints can be grouped child nodes or group nodes themselves. Single
+cross-group edges are still routed through generated boundary ports.
+
+Edges between a grouped child node and an ungrouped node remain direct. Edges
+between a grouped child node and a group node also remain direct. These cases do
+not get bundle helpers because the user is connecting a specific node, not
+group-level traffic.
 
 Users can drag the generated incoming and outgoing boundary ports vertically.
 The saved graph still stores only the real nodes and edges; port positions are
-saved as small offsets on the owning group node.
+saved as small offsets on the owning group node. Multiple ports on the same
+group side get small automatic spacing until a user drags a port; dragged ports
+store per-bundle offsets.
 
 ## Implemented So Far
 
-- Group-boundary bundle detection, including single-edge crossings and edges
-  where only one endpoint is grouped.
+- Cross-group bundle detection, including single-edge crossings.
+- Direct rendering for grouped-child-to-ungrouped and ungrouped-to-grouped-child
+  edges.
+- Direct rendering for grouped-child-to-group-node edges.
 - Render-layer removal of the represented raw boundary-crossing edges, with
   their canonical data preserved on the outside bundle edge.
-- One custom outside bundle edge between the generated port side and the other
-  endpoint side.
+- One custom outside bundle edge between the generated boundary ports.
 - Generated boundary port nodes that are visual/editable render helpers, not
   user graph state.
 - Normal React Flow segment edges from source nodes to source boundary ports and
@@ -82,8 +89,9 @@ saved as small offsets on the owning group node.
   as normal edges.
 - Bundle selection is scoped through the local canvas provider, not a global
   browser event, so future secondary canvases do not receive each other's clicks.
-- Tests for bundle construction, render-layer filtering, segment clicks, and
-  outside bundle selection.
+- Tests for bundle construction, direct-edge exemptions, render-layer
+  filtering, segment clicks, outside bundle selection, offset persistence, and
+  idempotent projection.
 
 ## Why Inside Edges Use React Flow
 
@@ -126,8 +134,7 @@ data: {
 }
 ```
 
-This mapping is important for highlighting, debugging, Protocol Map links, and
-future edge tooling.
+This mapping is important for highlighting, debugging, and future edge tooling.
 
 ## Constraints For Future Work
 

@@ -49,11 +49,9 @@ sequentially.
   changes, and undo snapshots.
 - `node.backend.spec.ts` stubs backend validation errors and checks badges,
   error panels, and clipboard feedback.
-- `protocol-diagram.spec.ts` checks the flow-map panel, grouped protocol layout,
-  boundary labels, connection selection, and group focus behavior.
 - `tabs.clipboard.spec.ts` covers tab lifecycle, copy/paste, script-step
   persistence, and selected-node simplified export.
-- `panels.autoclose.spec.ts` verifies search/error/protocol panel coordination.
+- `panels.autoclose.spec.ts` verifies search/error panel coordination.
 - `undo.snapshots.spec.ts` checks drag and edge reconnect undo snapshots.
 - `file.accessibility.spec.ts` covers import validation, full save, keyboard
   access, and ARIA labels.

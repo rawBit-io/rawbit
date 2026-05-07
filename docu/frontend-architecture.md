@@ -1,8 +1,8 @@
 # Frontend Architecture Guide
 
 The frontend is a React + Vite visual editor built on React Flow. Its main job
-is to keep the canvas, tabs, calculations, exports, sharing, and protocol-map
-views in sync without hiding the Bitcoin data being inspected.
+is to keep the canvas, tabs, calculations, exports, sharing, and side panels in
+sync without hiding the Bitcoin data being inspected.
 
 ## Runtime Shape
 
@@ -12,14 +12,14 @@ views in sync without hiding the Bitcoin data being inspected.
 - `UndoRedoProvider` stores per-tab history, calculation state, and script-step
   snapshots.
 - `FlowContent` owns the active canvas state, tab state, dialog state, backend
-  calculation state, and protocol-map state.
+  calculation state, and panel state.
 - `SnapshotProvider` exposes the active snapshot scheduler.
 - `FlowActionsProvider` exposes shared group and ungroup actions to descendants.
 
 The editor surface is split into three shells:
 
 - `FlowCanvas` renders React Flow, nodes, edges, viewport handlers, and minimap.
-- `FlowPanels` renders undo, error, search, and protocol-map panels.
+- `FlowPanels` renders undo, error, and search panels.
 - `FlowDialogLayer` renders confirmation, connect, share, soft-gate, and export
   dialogs.
 
@@ -37,7 +37,7 @@ The editor surface is split into three shells:
 - `useTabs` persists multi-tab metadata and archived graph snapshots in
   `localStorage`.
 - `useSharedFlowLoader` imports `?s=` and `?share=` links, merges shared graphs,
-  restores script steps, and preserves protocol-map layout when present.
+  and restores script steps.
 
 ## Data and Calculation Flow
 
@@ -57,7 +57,7 @@ The editor surface is split into three shells:
 LLM exports.
 
 - Full-flow saves preserve node positions, edges, tab metadata, script steps, and
-  protocol-map layout.
+  canvas layout.
 - Simplified exports omit canvas layout and keep the selected subgraph when
   nodes are selected; otherwise they export the full graph.
 - LLM exports use the simplified shape plus runtime semantics and backend Python
@@ -68,22 +68,6 @@ LLM exports.
 Sharing is handled by `useShareFlow`, `buildSharePayload`, and
 `src/lib/share`. Share links require an external service configured with
 `VITE_SHARE_BASE_URL`; tests stub the share endpoints.
-
-## Protocol Map
-
-The flow-map panel is built from grouped canvas nodes by
-`buildProtocolDiagramModel` and rendered by `ProtocolDiagramPanel`.
-
-- Group cards show boundary inputs and outputs while hiding internal processing
-  nodes.
-- Cross-group edges are bundled into protocol-level connection lines.
-- Clicks on cards, boundary nodes, and connection lines synchronize back to the
-  main canvas.
-- Manual group offsets and comments are persisted in the flow's
-  `protocolDiagramLayout`.
-
-The detailed classification and layout rules live in
-[protocol-diagram-logic-spec.md](./protocol-diagram-logic-spec.md).
 
 ## Source Code Views
 
