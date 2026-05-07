@@ -331,6 +331,42 @@ function FlowContent() {
     () => customFlows.map((flow) => ({ id: flow.id, label: flow.label })),
     []
   );
+  const mobileIntroGraph = useMemo(() => {
+    if (!isMobileReadOnly) return null;
+
+    const entry = exampleFlowMap.get(INTRO_FLOW_ID) ?? customFlows[0];
+    if (!entry) return null;
+
+    const clonedData = cloneFlowData(entry.data);
+    const nodesFromFlow = Array.isArray(clonedData.nodes)
+      ? clonedData.nodes
+      : [];
+    const edgesFromFlow = Array.isArray(clonedData.edges)
+      ? clonedData.edges
+      : [];
+    const normalizedNodes = stripLegacyFlowMapNodeData(
+      nodesFromFlow.map((node) => {
+        const base: FlowNode & { dragHandle?: string } = {
+          ...node,
+          data: node.data ? { ...node.data } : node.data,
+          position: node.position
+            ? { x: node.position.x, y: node.position.y }
+            : node.position,
+          selected: false,
+        };
+        if (base.type === "shadcnGroup" && !base.dragHandle) {
+          base.dragHandle = "[data-drag-handle]";
+        }
+        return base;
+      })
+    );
+    const normalizedEdges = edgesFromFlow.map((edge) => ({ ...edge })) as Edge[];
+
+    return {
+      nodes: normalizedNodes,
+      edges: normalizedEdges,
+    };
+  }, [exampleFlowMap, isMobileReadOnly]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -362,6 +398,22 @@ function FlowContent() {
     window.addEventListener("resize", updateMobileBlock);
     return () => window.removeEventListener("resize", updateMobileBlock);
   }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined" || !isMobileReadOnly) return;
+
+    const root = document.documentElement;
+    const previousSkin = root.dataset.skin;
+    root.dataset.skin = "paper";
+
+    return () => {
+      if (previousSkin) {
+        root.dataset.skin = previousSkin;
+      } else {
+        delete root.dataset.skin;
+      }
+    };
+  }, [isMobileReadOnly]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -473,6 +525,8 @@ function FlowContent() {
       (edge) => !infoNodeIds.has(edge.source) && !infoNodeIds.has(edge.target)
     );
   }, [edges, infoNodeIds, showInfoNodes]);
+  const canvasNodes = mobileIntroGraph?.nodes ?? displayedNodes;
+  const canvasEdges = mobileIntroGraph?.edges ?? displayedEdges;
 
   const getSavedNodes = useCallback(() => nodesRef.current, []);
   const getSavedEdges = useCallback(() => edgesRef.current, []);
@@ -1245,6 +1299,7 @@ function FlowContent() {
 
   useEffect(() => {
     if (!initialHydrationDone) return;
+    if (isMobileReadOnly) return;
     if (welcomeCompleteRef.current) return;
     if (introDropScheduledRef.current) return;
     if (nodes.length > 0 || edges.length > 0) {
@@ -1298,6 +1353,7 @@ function FlowContent() {
     exampleFlowOptions,
     edges.length,
     initialHydrationDone,
+    isMobileReadOnly,
     loadExampleFlow,
     markWelcomeComplete,
     nodes.length,
@@ -2044,7 +2100,7 @@ function FlowContent() {
         } else if (
           !pendingExampleFitRef.current &&
           !hasFitOnInitialLoad &&
-          (nodes.length || edges.length) &&
+          (canvasNodes.length || canvasEdges.length) &&
           activeTabId === "tab-1"
         ) {
           instance.fitView({ padding: 0.2 });
@@ -2079,6 +2135,8 @@ function FlowContent() {
       pushCleanState,
       nodes,
       edges,
+      canvasNodes,
+      canvasEdges,
       history.length,
       initializeTabHistory,
       activeTabId,
@@ -2299,8 +2357,8 @@ function FlowContent() {
             >
               <FlowCanvas
                 nodeTypes={nodeTypes}
-                nodes={displayedNodes}
-                edges={displayedEdges}
+                nodes={canvasNodes}
+                edges={canvasEdges}
                 showMiniMap={showMiniMap}
                 miniMapSize={miniMapSize}
                 miniMapOffset={miniMapOffset}
@@ -2323,50 +2381,39 @@ function FlowContent() {
               />
               {isMobileReadOnly && (
                 <div className="pointer-events-none absolute inset-x-0 top-4 mx-auto w-11/12 max-w-md">
-                  <div className="pointer-events-auto rounded-lg border border-border bg-background/90 px-4 py-3 text-center text-sm font-medium shadow-sm backdrop-blur flex flex-col items-center gap-2">
-                    <span>
-                      raw₿it is optimized for desktop. You’re viewing a read-only
-                      mobile layout.
-                    </span>
-                    <div className="flex w-full items-center gap-2">
-                      <div className="flex-1" />
+                  <div className="pointer-events-auto rounded-lg border border-border bg-background/90 px-4 py-3 text-center text-sm font-medium shadow-sm backdrop-blur">
+                    <div className="leading-snug">
+                      raw₿it is optimized for desktop. This mobile preview shows
+                      Intro P2PKH in read-only mode.
+                    </div>
+                    <div className="mt-2 flex items-center justify-center gap-1">
                       <Button
-                        variant="outline"
+                        asChild
+                        variant="ghost"
                         size="sm"
-                        onClick={() => setShowWelcomeDialog(true)}
-                        className="h-8 px-3 text-xs font-medium"
+                        className="h-8 px-2 text-xs font-medium"
+                        aria-label="GitHub"
                       >
-                        Load example flows
+                        <a
+                          href="https://github.com/rawBit-io/rawbit"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <Github className="h-5 w-5" />
+                        </a>
                       </Button>
-                      <div className="flex flex-1 items-center justify-end gap-2">
-                        <Button
-                          asChild
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 px-2 text-xs font-medium"
-                          aria-label="GitHub"
-                        >
-                          <a
-                            href="https://github.com/rawBit-io/rawbit"
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            <Github className="h-5 w-5" />
-                          </a>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 px-2 text-xs font-medium"
-                          onClick={() =>
-                            setTheme(theme === "light" ? "dark" : "light")
-                          }
-                          aria-label="Toggle theme"
-                        >
-                          <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                          <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                        </Button>
-                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-2 text-xs font-medium"
+                        onClick={() =>
+                          setTheme(theme === "light" ? "dark" : "light")
+                        }
+                        aria-label="Toggle theme"
+                      >
+                        <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                        <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                      </Button>
                     </div>
                   </div>
                 </div>

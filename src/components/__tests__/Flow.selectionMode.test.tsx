@@ -27,6 +27,15 @@ const firstRunDialogProps = {
 const latestFileImportOptions: {
   current?: FileImportCallbacks;
 } = {};
+const flowCanvasProps = {
+  current: null as
+    | ({
+        nodes: FlowNode[];
+        edges: Edge[];
+        isReadOnly?: boolean;
+      } & Record<string, unknown>)
+    | null,
+};
 
 const flowNodesState = { current: [] as FlowNode[] };
 const flowEdgesState = { current: [] as Edge[] };
@@ -97,10 +106,17 @@ vi.mock("@/components/ui/ColorPalette", () => ({
 
 vi.mock("@/components/FlowCanvas", () => ({
   FlowCanvas: ({
+    nodes,
+    edges,
+    isReadOnly,
     onInit,
   }: {
+    nodes: FlowNode[];
+    edges: Edge[];
+    isReadOnly?: boolean;
     onInit?: (instance: ReactFlowInstance) => void;
   }) => {
+    flowCanvasProps.current = { nodes, edges, isReadOnly };
     React.useEffect(() => {
       onInit?.(reactFlowInstanceMock);
     }, [onInit]);
@@ -381,6 +397,7 @@ const renderFlow = () => render(<Flow />);
 beforeEach(() => {
   vi.clearAllMocks();
   firstRunDialogProps.current = null;
+  flowCanvasProps.current = null;
   latestFileImportOptions.current = undefined;
   flowNodesState.current = [];
   flowEdgesState.current = [];
@@ -399,6 +416,11 @@ beforeEach(() => {
       removeEventListener: vi.fn(),
       dispatchEvent: vi.fn(),
     })),
+  });
+  Object.defineProperty(window, "innerWidth", {
+    configurable: true,
+    writable: true,
+    value: 1024,
   });
 });
 
@@ -461,6 +483,45 @@ describe("Flow selection hotkey", () => {
 });
 
 describe("Flow first-run dialog", () => {
+  it("renders the intro flow directly in mobile read-only mode", async () => {
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      writable: true,
+      value: 390,
+    });
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      value: vi.fn().mockImplementation((query: string) => ({
+        matches: query === "(pointer: coarse)",
+        media: query,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    });
+
+    const { getByText, queryByText } = renderFlow();
+
+    await waitFor(() => {
+      expect(flowCanvasProps.current?.isReadOnly).toBe(true);
+    });
+
+    expect(getByText(/mobile preview shows\s+Intro P2PKH/i)).toBeTruthy();
+    expect(queryByText("Load example flows")).toBeNull();
+    expect(flowCanvasProps.current?.nodes.map((node) => node.id)).toEqual([
+      "calc-node",
+      "group-node",
+    ]);
+    expect(flowCanvasProps.current?.edges.map((edge) => edge.id)).toEqual([
+      "edge-1",
+    ]);
+    expect(firstRunDialogProps.current?.open).toBe(false);
+    expect(setNodesMock).not.toHaveBeenCalled();
+    expect(setEdgesMock).not.toHaveBeenCalled();
+  });
+
   it("auto-loads the intro flow when no stored data exists", async () => {
     vi.useFakeTimers();
     const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
