@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 
 import { Sidebar } from "../Sidebar";
@@ -84,7 +85,6 @@ vi.mock("@/components/sidebar-nodes", () => ({
 }));
 
 vi.mock("@/my_tx_flows/customFlows", () => ({
-  HIDE_FLOW_EXAMPLE_SUBGROUPS: true,
   customFlows: createCustomFlows(),
 }));
 
@@ -157,14 +157,30 @@ describe("Sidebar", () => {
     expect(screen.getByText("TX Parser")).toBeInTheDocument();
   });
 
-  it("renders Flow Examples accordion and drag payload includes subgraph data", () => {
+  it("renders Flow Examples accordion and drag payload includes subgraph data", async () => {
+    const user = userEvent.setup();
     renderSidebar();
 
     expect(screen.getByText("Intro")).toBeInTheDocument();
+    expect(screen.getByText(/Older flows hidden/i)).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /Legacy Foundations/i })
     ).not.toBeInTheDocument();
     expect(screen.queryByText("1. Custom Flow")).not.toBeInTheDocument();
+
+    const olderFlowsToggle = screen.getByRole("switch", {
+      name: /Show older flow examples/i,
+    });
+    expect(olderFlowsToggle).toHaveAttribute("aria-checked", "false");
+    await user.click(olderFlowsToggle);
+
+    expect(olderFlowsToggle).toHaveAttribute("aria-checked", "true");
+    expect(
+      screen.getByRole("button", { name: /Legacy Foundations/i })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Legacy Foundations/i }));
+    expect(screen.getByText("1. Custom Flow")).toBeInTheDocument();
+
     const introFlowCard = screen.getByText("Intro").closest("div");
     expect(introFlowCard).not.toBeNull();
 

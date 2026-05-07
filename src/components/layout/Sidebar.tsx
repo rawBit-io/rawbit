@@ -19,15 +19,12 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import type { NodeTemplate } from "@/types";
 import { allSidebarNodes } from "@/components/sidebar-nodes";
 
 // Import your array of custom flows
-import {
-  HIDE_FLOW_EXAMPLE_SUBGROUPS,
-  customFlows,
-  type CustomFlowTemplate,
-} from "@/my_tx_flows/customFlows";
+import { customFlows, type CustomFlowTemplate } from "@/my_tx_flows/customFlows";
 
 export interface SidebarProps {
   isOpen: boolean;
@@ -257,6 +254,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
     Record<string, string[]>
   >({});
   const [openFlowSections, setOpenFlowSections] = useState<string[]>([]);
+  const [showOlderFlowExamples, setShowOlderFlowExamples] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const envBadge =
     (import.meta.env.VITE_ENV_LABEL &&
@@ -288,9 +286,15 @@ export function Sidebar({ isOpen }: SidebarProps) {
 
   const visibleFlowTemplates = useMemo(
     () =>
-      HIDE_FLOW_EXAMPLE_SUBGROUPS
-        ? customFlows.filter((flow) => flow.section === TOP_LEVEL_FLOW_SECTION)
-        : customFlows,
+      showOlderFlowExamples
+        ? customFlows
+        : customFlows.filter((flow) => flow.section === TOP_LEVEL_FLOW_SECTION),
+    [showOlderFlowExamples]
+  );
+  const olderFlowExampleCount = useMemo(
+    () =>
+      customFlows.filter((flow) => flow.section !== TOP_LEVEL_FLOW_SECTION)
+        .length,
     []
   );
 
@@ -354,8 +358,6 @@ export function Sidebar({ isOpen }: SidebarProps) {
   }, []);
 
   const groupedFlows = useMemo(() => {
-    if (HIDE_FLOW_EXAMPLE_SUBGROUPS) return [];
-
     const groups = new Map<string, typeof customFlows>();
     visibleFlowTemplates.forEach((flow) => {
       if (flow.section === TOP_LEVEL_FLOW_SECTION) return;
@@ -481,6 +483,31 @@ export function Sidebar({ isOpen }: SidebarProps) {
       </div>
     </div>
   );
+
+  const renderFlowExampleOptions = () =>
+    olderFlowExampleCount > 0 ? (
+      <div className="ml-8 rounded-md border border-dashed border-border/70 bg-muted/20 p-2 text-xs text-muted-foreground">
+        <div className="flex items-center justify-between gap-3">
+          <span className="font-medium text-foreground">
+            Older flows {showOlderFlowExamples ? "visible" : "hidden"}
+          </span>
+          <div className="flex shrink-0 items-center gap-1.5">
+            <Switch
+              id="show-older-flow-examples"
+              aria-label="Show older flow examples"
+              checked={showOlderFlowExamples}
+              onCheckedChange={setShowOlderFlowExamples}
+              className="h-4 w-7 data-[state=checked]:bg-muted-foreground/70 data-[state=unchecked]:bg-muted"
+              thumbClassName="h-3 w-3 data-[state=checked]:translate-x-3"
+            />
+          </div>
+        </div>
+        <p className="mt-1 leading-snug">
+          Older flows still work, but are being updated with the new layout and
+          explanation nodes.
+        </p>
+      </div>
+    ) : null;
 
   // Expand/collapse logic for categories
   const handleCategoryChange = (value: string) => {
@@ -755,6 +782,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
                 {customFlows.length > 0 ? (
                   <div className="space-y-1.5 pb-0.5">
                     {topLevelFlows.map((flow) => renderFlowCard(flow, "ml-8"))}
+                    {renderFlowExampleOptions()}
                     {groupedFlows.length > 0 && (
                       <Accordion
                         type="multiple"
