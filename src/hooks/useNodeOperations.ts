@@ -61,6 +61,16 @@ type RF = ReactFlowInstance<FlowNode, Edge> & {
 const randomId = () => Math.random().toString(36).slice(2, 9);
 const GROUP_PADDING = 32;
 const FLOW_TEMPLATE_DROP_ZOOM = 0.5;
+const FLOW_LAYOUT_NOTICE_WIDTH = 460;
+const FLOW_LAYOUT_NOTICE_HEIGHT = 230;
+const FLOW_LAYOUT_NOTICE_GAP = 48;
+const FLOW_LAYOUT_NOTICE_CONTENT = `## Flow layout update
+
+Flow examples are being visually reworked with clearer groups, notes, and layout.
+
+The flow remains usable here. The previous layout is temporarily available at [dev.rawbit.io](https://dev.rawbit.io).
+
+Source: [github.com/rawBit-io/rawbit](https://github.com/rawBit-io/rawbit)`;
 
 type PaletteDragData = {
   type?: string;
@@ -104,10 +114,26 @@ function placeFlowDataAtPosition(
         : old.position;
     return { ...old, position: pos, selected: true };
   });
+  const layoutNoticeNode: FlowNode = {
+    id: `flow-layout-notice_${randomId()}`,
+    type: "shadcnTextInfo",
+    position: {
+      x: dropX,
+      y: dropY - FLOW_LAYOUT_NOTICE_HEIGHT - FLOW_LAYOUT_NOTICE_GAP,
+    },
+    selected: true,
+    data: {
+      title: "Flow layout update",
+      content: FLOW_LAYOUT_NOTICE_CONTENT,
+      fontSize: 24,
+      width: FLOW_LAYOUT_NOTICE_WIDTH,
+      height: FLOW_LAYOUT_NOTICE_HEIGHT,
+    },
+  };
 
   // 3) Edges unchanged (IDs unchanged here; we’ll rewrite IDs later if needed)
   return {
-    nodes: translated,
+    nodes: [...translated, layoutNoticeNode],
     edges: flowData.edges,
     anchorPosition: { x: dropX, y: dropY },
   };
