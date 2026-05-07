@@ -681,9 +681,27 @@ export const buildGroupBundledElements = ({
   const bundlesByPair = new Map<string, BundleAccumulator>();
 
   for (const [edgeIndex, edge] of validSourceEdges.entries()) {
+    const sourceNode = nodeById.get(edge.source);
+    const targetNode = nodeById.get(edge.target);
+    const sourceIsGroupNode = groupRects.has(edge.source);
+    const targetIsGroupNode = groupRects.has(edge.target);
+    const sourceIsGroupedChild = Boolean(
+      sourceNode?.parentId && groupRects.has(sourceNode.parentId)
+    );
+    const targetIsGroupedChild = Boolean(
+      targetNode?.parentId && groupRects.has(targetNode.parentId)
+    );
+    if (
+      (sourceIsGroupNode && targetIsGroupedChild) ||
+      (targetIsGroupNode && sourceIsGroupedChild)
+    ) {
+      continue;
+    }
+
     const sourceGroupId = nodeToGroup.get(edge.source);
     const targetGroupId = nodeToGroup.get(edge.target);
     if (!sourceGroupId && !targetGroupId) continue;
+    if (Boolean(sourceGroupId) !== Boolean(targetGroupId)) continue;
     if (sourceGroupId && targetGroupId && sourceGroupId === targetGroupId) {
       continue;
     }

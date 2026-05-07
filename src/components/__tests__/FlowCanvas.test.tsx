@@ -495,7 +495,7 @@ describe("FlowCanvas", () => {
     ]);
   });
 
-  it("routes group boundary edges even when only one endpoint is grouped", () => {
+  it("keeps group boundary edges direct when only one endpoint is grouped", () => {
     const groupedNodes: FlowNode[] = [
       {
         id: "group-a",
@@ -531,26 +531,20 @@ describe("FlowCanvas", () => {
     const passedEdges = reactFlowSpy.props.edges as Edge[];
     const passedNodes = reactFlowSpy.props.nodes as FlowNode[];
 
-    expect(passedEdges.find((edge) => edge.id === "edge-1")).toBeUndefined();
+    expect(passedEdges.find((edge) => edge.id === "edge-1")).toMatchObject({
+      source: "a1",
+      target: "outside",
+    });
     expect(
       passedNodes.filter((node) => node.type === GROUP_BUNDLE_PORT_NODE_TYPE)
-    ).toHaveLength(1);
+    ).toHaveLength(0);
     expect(passedEdges.filter((edge) => isGroupBundleSegmentEdgeId(edge.id)))
-      .toHaveLength(1);
+      .toHaveLength(0);
     expect(
-      passedEdges.find((edge) =>
+      passedEdges.some((edge) =>
         edge.id.startsWith(GROUP_BUNDLE_EDGE_ID_PREFIX)
       )
-    ).toMatchObject({
-      type: "groupBundle",
-      source: "__group_bundle_port__:source:group-a->node:outside:",
-      target: "outside",
-      data: {
-        bundledEdgeIds: ["edge-1"],
-        count: 1,
-        sourceGroupId: "group-a",
-      },
-    });
+    ).toBe(false);
   });
 
   it("stores vertical port drags on the owning group node", () => {
