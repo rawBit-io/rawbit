@@ -231,11 +231,7 @@ function isAutomationEnvironment() {
   return false;
 }
 
-function hasExistingFlowStorage(storage: Storage) {
-  if (TABS_STORAGE_KEYS.some((key) => Boolean(storage.getItem(key)))) {
-    return true;
-  }
-
+function hasExistingTabArchiveStorage(storage: Storage) {
   for (let index = 0; index < storage.length; index += 1) {
     if (storage.key(index)?.startsWith(TAB_ARCHIVE_STORAGE_PREFIX)) {
       return true;
@@ -348,7 +344,26 @@ function FlowContent() {
         return;
       }
 
-      if (hasExistingFlowStorage(window.localStorage)) {
+      // Shared-link URLs take precedence over onboarding: suppress the welcome
+      // dialog so the shared-flow loader can import normally. We do NOT write
+      // FIRST_RUN_STORAGE_KEY here so that a plain (non-shared) reload later
+      // still shows the dialog.
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("s") || params.get("share")) {
+        welcomeCompleteRef.current = true;
+        return;
+      }
+
+      const hasExistingData = TABS_STORAGE_KEYS.some((key) =>
+        Boolean(window.localStorage.getItem(key))
+      );
+      if (hasExistingData) {
+        window.localStorage.setItem(FIRST_RUN_STORAGE_KEY, "1");
+        welcomeCompleteRef.current = true;
+        return;
+      }
+
+      if (hasExistingTabArchiveStorage(window.localStorage)) {
         window.localStorage.setItem(FIRST_RUN_STORAGE_KEY, "1");
         welcomeCompleteRef.current = true;
         return;
@@ -2295,7 +2310,10 @@ function FlowContent() {
             onStartEmpty={handleWelcomeStartEmpty}
             onLoadExample={handleWelcomeLoadExample}
             hideStartEmpty={isMobileReadOnly}
-            onOpenChange={setShowWelcomeDialog}
+            onOpenChange={(open) => {
+              setShowWelcomeDialog(open);
+              if (!open) markWelcomeComplete();
+            }}
           />
         </div>
       </FlowActionsProvider>
