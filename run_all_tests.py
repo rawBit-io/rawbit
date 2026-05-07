@@ -78,6 +78,14 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
             "Use 'chromium' for the fast default run or 'all' for chromium, firefox, and webkit sequentially."
         ),
     )
+    parser.add_argument(
+        "--e2e-workers",
+        default=os.getenv("RUN_ALL_TESTS_E2E_WORKERS", "4"),
+        help=(
+            "Number of Playwright workers for each E2E project. "
+            "Defaults to RUN_ALL_TESTS_E2E_WORKERS or 4."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -153,14 +161,15 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
             if e2e_cmd:
                 return [shlex.split(e2e_cmd)]
 
+            workers_arg = f"--workers={args.e2e_workers}"
             if args.e2e_browsers == "all":
                 return [
-                    ["npm", "run", "test:e2e", "--", "--project=chromium", "--workers=1"],
-                    ["npm", "run", "test:e2e", "--", "--project=firefox", "--workers=1"],
-                    ["npm", "run", "test:e2e", "--", "--project=webkit", "--workers=1"],
+                    ["npm", "run", "test:e2e", "--", "--project=chromium", workers_arg],
+                    ["npm", "run", "test:e2e", "--", "--project=firefox", workers_arg],
+                    ["npm", "run", "test:e2e", "--", "--project=webkit", workers_arg],
                 ]
 
-            return [["npm", "run", "test:e2e", "--", "--project=chromium", "--workers=1"]]
+            return [["npm", "run", "test:e2e", "--", "--project=chromium", workers_arg]]
 
         jobs = [
             TestJob(

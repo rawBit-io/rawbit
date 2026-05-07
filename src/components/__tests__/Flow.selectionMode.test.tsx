@@ -28,6 +28,8 @@ const latestFileImportOptions: {
   current?: FileImportCallbacks;
 } = {};
 
+const flowNodesState = { current: [] as FlowNode[] };
+const flowEdgesState = { current: [] as Edge[] };
 const setNodesMock = vi.fn();
 const setEdgesMock = vi.fn();
 const setTabTooltipMock = vi.fn();
@@ -42,9 +44,11 @@ const scriptStepMocks = vi.hoisted(() => ({
 const ingestScriptStepsMock = scriptStepMocks.ingestScriptSteps;
 const restoreScriptStepsMock = scriptStepMocks.restoreScriptSteps;
 const fitViewMock = vi.fn();
+const setViewportMock = vi.fn();
 
 const reactFlowInstanceMock = {
   fitView: fitViewMock,
+  setViewport: setViewportMock,
 } as unknown as ReactFlowInstance;
 
 const originalStructuredClone = globalThis.structuredClone;
@@ -123,9 +127,9 @@ vi.mock("@/components/dialog/FirstRunDialog", () => ({
 
 vi.mock("@/hooks/useNodeOperations", () => ({
   useNodeOperations: () => ({
-    nodes: [],
+    nodes: flowNodesState.current,
     setNodes: setNodesMock,
-    edges: [],
+    edges: flowEdgesState.current,
     setEdges: setEdgesMock,
     onNodesChange: vi.fn(),
     onEdgesChange: vi.fn(),
@@ -378,6 +382,8 @@ beforeEach(() => {
   vi.clearAllMocks();
   firstRunDialogProps.current = null;
   latestFileImportOptions.current = undefined;
+  flowNodesState.current = [];
+  flowEdgesState.current = [];
   localStorage.clear();
   document.body.innerHTML = "";
   delete document.body.dataset.flowSelectionMode;
@@ -456,32 +462,48 @@ describe("Flow selection hotkey", () => {
 
 describe("Flow first-run dialog", () => {
   it("auto-loads the intro flow when no stored data exists", async () => {
+    vi.useFakeTimers();
     const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
 
-    renderFlow();
+    try {
+      renderFlow();
 
-    await waitFor(() => {
+      expect(firstRunDialogProps.current?.open).toBe(false);
+      expect(setNodesMock).not.toHaveBeenCalled();
+
+      act(() => {
+        vi.advanceTimersByTime(1320);
+      });
+
       expect(firstRunDialogProps.current?.open).toBe(false);
       expect(setNodesMock).toHaveBeenCalledTimes(1);
       expect(setEdgesMock).toHaveBeenCalledTimes(1);
-    });
 
-    expect(restoreScriptStepsMock).toHaveBeenCalledWith([]);
-    expect(ingestScriptStepsMock).toHaveBeenCalledTimes(1);
-    expect(scheduleSnapshotMock).toHaveBeenCalledWith("Load example: Example flow", {
-      refresh: true,
-    });
-    expect(setTabTooltipMock).toHaveBeenCalledWith(
-      "tab-1",
-      "Example: Example flow"
-    );
-    expect(setItemSpy).toHaveBeenCalledWith(FIRST_RUN_STORAGE_KEY, "1");
-
-    setItemSpy.mockRestore();
+      expect(restoreScriptStepsMock).toHaveBeenCalledWith([]);
+      expect(ingestScriptStepsMock).toHaveBeenCalledTimes(1);
+      expect(scheduleSnapshotMock).toHaveBeenCalledWith("Load example: Example flow", {
+        refresh: true,
+      });
+      expect(setTabTooltipMock).toHaveBeenCalledWith(
+        "tab-1",
+        "Example: Example flow"
+      );
+      expect(setItemSpy).toHaveBeenCalledWith(FIRST_RUN_STORAGE_KEY, "1");
+    } finally {
+      setItemSpy.mockRestore();
+      vi.useRealTimers();
+    }
   });
 
-  it("does not auto-load when stored tab data exists", async () => {
-    localStorage.setItem("rawbit.flow.tab.tab-1", "stored-flow");
+  it("does not auto-load when a hydrated graph exists", async () => {
+    flowNodesState.current = [
+      {
+        id: "existing-node",
+        type: "calculation",
+        position: { x: 0, y: 0 },
+        data: { functionName: "identity" },
+      } as FlowNode,
+    ];
     const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
 
     renderFlow();
