@@ -7,7 +7,6 @@ import {
   useEffect,
   useCallback,
   KeyboardEvent,
-  ReactNode,
 } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -55,7 +54,7 @@ function WitnessStackPane({
       <div className="mb-1 font-semibold text-primary">
         witnessStack (top → first):
       </div>
-      <div className="field-surface h-24 overflow-auto rounded-md border p-2 break-words font-mono space-y-1">
+      <div className="field-surface h-28 overflow-auto rounded-md border p-2 break-words font-mono space-y-1">
         {items.map((it, i) => (
           <div
             key={`${it}-${i}`}
@@ -233,6 +232,39 @@ const opcodeExplanation = (n: string) =>
 const hexToBytes = (hex = "") =>
   Array.from({ length: hex.length / 2 }, (_, i) => hex.slice(i * 2, i * 2 + 2));
 
+function scriptByteRange(
+  scriptHex: string,
+  offset: number,
+  pc: number,
+  opcodeName: string,
+) {
+  const bytes = hexToBytes(scriptHex);
+  const relPC = pc - offset;
+
+  let len = pushLenInParens(opcodeName);
+
+  if (len === 0 && relPC >= 0) {
+    if (opcodeName === "OP_PUSHDATA1" && relPC + 1 < bytes.length) {
+      len = 1 + parseInt(bytes[relPC + 1], 16);
+    } else if (opcodeName === "OP_PUSHDATA2" && relPC + 2 < bytes.length) {
+      len = 2 + parseInt(bytes[relPC + 2] + bytes[relPC + 1], 16);
+    } else if (opcodeName === "OP_PUSHDATA4" && relPC + 4 < bytes.length) {
+      len =
+        4 +
+        parseInt(
+          bytes[relPC + 4] +
+            bytes[relPC + 3] +
+            bytes[relPC + 2] +
+            bytes[relPC + 1],
+          16,
+        );
+    }
+  }
+
+  const hiEnd = relPC + len;
+  return { bytes, relPC, len, hiEnd };
+}
+
 function consumedFlags(
   before: string[],
   after: string[],
@@ -265,7 +297,6 @@ function consumedFlags(
 
 type PaneProps = RenderHighlightedScriptProps & {
   highlighted?: boolean;
-  children?: ReactNode;
 };
 
 function ScriptPane({
@@ -278,52 +309,41 @@ function ScriptPane({
 }: PaneProps) {
   if (!scriptHex) return null;
 
-  const bytes = hexToBytes(scriptHex);
-  const relPC = pc - offset;
-
-  /* figure out push-data length (incl. length bytes for 1/2/4) */
-  let len = pushLenInParens(opcodeName);
-
-  if (len === 0 && relPC >= 0) {
-    if (opcodeName === "OP_PUSHDATA1" && relPC + 1 < bytes.length) {
-      len = 1 + parseInt(bytes[relPC + 1], 16);
-    } else if (opcodeName === "OP_PUSHDATA2" && relPC + 2 < bytes.length) {
-      len = 2 + parseInt(bytes[relPC + 2] + bytes[relPC + 1], 16); // little-endian
-    } else if (opcodeName === "OP_PUSHDATA4" && relPC + 4 < bytes.length) {
-      len =
-        4 +
-        parseInt(
-          bytes[relPC + 4] +
-            bytes[relPC + 3] +
-            bytes[relPC + 2] +
-            bytes[relPC + 1],
-          16,
-        );
-    }
-  }
-
-  const hiEnd = relPC + len;
-
+  const { bytes, relPC, len, hiEnd } = scriptByteRange(
+    scriptHex,
+    offset,
+    pc,
+    opcodeName,
+  );
   return (
     <div className="mb-3 text-xs">
       <div className="mb-1 font-semibold text-primary">{label}:</div>
-      <div className="field-surface h-16 overflow-auto rounded-md border p-2 break-words font-mono leading-relaxed">
+      <div className="field-surface h-20 overflow-auto rounded-md border p-2 break-words font-mono leading-relaxed">
         {bytes.map((b, i) => {
           if (!highlighted)
             return (
-              <span key={i} className="text-muted-foreground/55">
+              <span
+                key={i}
+                className="text-muted-foreground/55"
+              >
                 {b}
               </span>
             );
           if (i === relPC)
             return (
-              <span key={i} className="rounded-sm bg-primary/10 font-semibold text-primary">
+              <span
+                key={i}
+                className="rounded-sm border border-primary/50 bg-primary/15 px-0.5 font-semibold text-primary shadow-sm"
+              >
                 {b}
               </span>
             );
           if (len && i > relPC && i <= hiEnd)
             return (
-              <span key={i} className="italic text-primary/75">
+              <span
+                key={i}
+                className="bg-primary/10 italic text-primary/75"
+              >
                 {b}
               </span>
             );
