@@ -11,8 +11,6 @@ Drag and drop nodes on a canvas to build transactions visually — no coding kno
 rawBit ships with **16 hands-on example flows** that you can instantly load, tweak, and inspect.  
 Just drag any flow from the sidebar’s **Flow Examples** section onto the canvas and start exploring.
 
-> Flow examples are being visually reworked with clearer groups, notes, and layout. All flows remain available in rawBit. The previous layout is temporarily available at [dev.rawbit.io](https://dev.rawbit.io).
-
 Flows 1–14 progress from legacy transactions through SegWit and Taproot.  
 Flows 15–16 cover standalone hardware-signing and contributor labs.
 

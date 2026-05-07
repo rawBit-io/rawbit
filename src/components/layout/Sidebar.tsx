@@ -29,6 +29,7 @@ import { customFlows, type CustomFlowTemplate } from "@/my_tx_flows/customFlows"
 export interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
+  introDropFlowId?: string;
 }
 
 function setSidebarDragPreview(
@@ -244,7 +245,7 @@ function getSidebarRevealId(...parts: string[]) {
 }
 
 // Use the existing SidebarProps from your code
-export function Sidebar({ isOpen }: SidebarProps) {
+export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const [openCategories, setOpenCategories] = useState<string[]>([
     "canvas-inputs",
@@ -468,10 +469,13 @@ export function Sidebar({ isOpen }: SidebarProps) {
     <div
       key={flow.id}
       data-sidebar-reveal-item
+      data-flow-template-id={flow.id}
       draggable
       onDragStart={(event) => onFlowDragStart(event, flow)}
       className={cn(
         "flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors",
+        introDropFlowId === flow.id &&
+          "rawbit-intro-source-pulse border-primary/60 bg-primary/5",
         className
       )}
     >

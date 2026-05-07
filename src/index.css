@@ -1414,3 +1414,42 @@ body[data-large-drag="true"] .rf-node {
   --tw-ring-offset-shadow: 0 0 #0000 !important;
   --tw-ring-shadow: 0 0 #0000 !important;
 }
+
+@keyframes rawbit-intro-drop-card {
+  0% {
+    opacity: 0;
+    transform: translate(var(--intro-source-x, 76px), var(--intro-source-y, 780px))
+      scale(0.98);
+  }
+  15% {
+    opacity: 1;
+  }
+  68% {
+    opacity: 1;
+    transform: translate(288px, 118px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(288px, 118px) scale(0.92);
+  }
+}
+
+.rawbit-intro-drop-card {
+  min-width: min(var(--intro-source-width, 196px), 14rem);
+  animation: rawbit-intro-drop-card 1100ms cubic-bezier(0.2, 0.8, 0.2, 1)
+    forwards;
+}
+
+.rawbit-intro-source-pulse {
+  animation: rawbit-intro-source-pulse 1100ms ease-out forwards;
+}
+
+@keyframes rawbit-intro-source-pulse {
+  0%,
+  72% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0.32);
+  }
+  100% {
+    box-shadow: 0 0 0 10px hsl(var(--primary) / 0);
+  }
+}

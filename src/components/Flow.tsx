@@ -85,6 +85,11 @@ import {
   stripGroupBundlePortNodes,
 } from "@/lib/flow/groupEdgeBundling";
 import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
+import {
+  FLOW_TEMPLATE_DROP_ZOOM,
+  getFlowTemplateViewport,
+  placeFlowDataAtPosition,
+} from "@/lib/flow/placeFlowTemplate";
 
 const COLORABLE_NODE_TYPES = new Set([
   "calculation",
@@ -127,12 +132,12 @@ const LIMIT_ERROR_PATTERNS = [
 ];
 
 const FIRST_RUN_STORAGE_KEY = "rawbit.ui.welcomeSeen";
-const TABS_STORAGE_KEYS = [
-  "rawbit.flow.tabs",
-  "rawbit.flow.tabs.archive",
-] as const;
-const TAB_ARCHIVE_STORAGE_PREFIX = "rawbit.flow.tab.";
 const INTRO_FLOW_ID = "flow-0";
+const INTRO_FLOW_DROP_FLOW_POSITION = { x: 0, y: 0 };
+const INTRO_FLOW_DROP_POINT = { x: 32, y: 32 };
+const INTRO_FLOW_DROP_ANIMATION_MS = 1100;
+const INTRO_SOURCE_FALLBACK = { x: 76, y: 780 };
+const INTRO_SOURCE_CARD_SIZE = { width: 196, height: 96 };
 const SHARED_IMPORT_FIT_MIN_ZOOM = 0.2;
 
 function graphIdsMatch(
@@ -231,16 +236,6 @@ function isAutomationEnvironment() {
   return false;
 }
 
-function hasExistingTabArchiveStorage(storage: Storage) {
-  for (let index = 0; index < storage.length; index += 1) {
-    if (storage.key(index)?.startsWith(TAB_ARCHIVE_STORAGE_PREFIX)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 function cloneFlowData(data: FlowData): FlowData {
   try {
     if (typeof structuredClone === "function") {
@@ -252,6 +247,32 @@ function cloneFlowData(data: FlowData): FlowData {
   return JSON.parse(JSON.stringify(data)) as FlowData;
 }
 
+function getIntroDropSourceRect(): {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+} {
+  if (typeof document === "undefined") {
+    return { ...INTRO_SOURCE_FALLBACK, ...INTRO_SOURCE_CARD_SIZE };
+  }
+
+  const source = document.querySelector<HTMLElement>(
+    `[data-flow-template-id="${INTRO_FLOW_ID}"]`
+  );
+  if (!source) {
+    return { ...INTRO_SOURCE_FALLBACK, ...INTRO_SOURCE_CARD_SIZE };
+  }
+
+  const rect = source.getBoundingClientRect();
+  return {
+    x: rect.left,
+    y: rect.top,
+    width: rect.width || INTRO_SOURCE_CARD_SIZE.width,
+    height: rect.height || INTRO_SOURCE_CARD_SIZE.height,
+  };
+}
+
 function FlowContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showUndoRedoPanel, setShowUndoRedoPanel] = useState(false);
@@ -261,6 +282,10 @@ function FlowContent() {
   const [showSearchPanel, setShowSearchPanel] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
+  const [isIntroDropAnimating, setIsIntroDropAnimating] = useState(false);
+  const [introDropSourceRect, setIntroDropSourceRect] = useState(() =>
+    getIntroDropSourceRect()
+  );
 
   const [calcStateByTab, setCalcStateByTab] = useState<
     Record<string, TabCalculationState>
@@ -277,11 +302,14 @@ function FlowContent() {
   const loadingUndoRef = useRef(false);
   const isPastingRef = useRef(false);
   const welcomeCompleteRef = useRef(false);
+  const introDropScheduledRef = useRef(false);
+  const introDropTimeoutIdsRef = useRef<number[]>([]);
   const pendingExampleFitRef = useRef(false);
   const pendingFitOptionsRef = useRef<{
     minZoom?: number;
     settle?: boolean;
   }>({});
+  const pendingExampleViewportRef = useRef<Viewport | null>(null);
   const exampleFitRetryTimeoutIdsRef = useRef<number[]>([]);
   const graphRev = useRef(0); // monotonically-increasing revision counter
   const [revTick, setRevTick] = useState(0);
@@ -350,21 +378,6 @@ function FlowContent() {
       // still shows the dialog.
       const params = new URLSearchParams(window.location.search);
       if (params.get("s") || params.get("share")) {
-        welcomeCompleteRef.current = true;
-        return;
-      }
-
-      const hasExistingData = TABS_STORAGE_KEYS.some((key) =>
-        Boolean(window.localStorage.getItem(key))
-      );
-      if (hasExistingData) {
-        window.localStorage.setItem(FIRST_RUN_STORAGE_KEY, "1");
-        welcomeCompleteRef.current = true;
-        return;
-      }
-
-      if (hasExistingTabArchiveStorage(window.localStorage)) {
-        window.localStorage.setItem(FIRST_RUN_STORAGE_KEY, "1");
         welcomeCompleteRef.current = true;
         return;
       }
@@ -1019,6 +1032,7 @@ function FlowContent() {
       if (typeof window === "undefined") return;
 
       clearExampleFitRetryTimers();
+      pendingExampleViewportRef.current = null;
       pendingExampleFitRef.current = true;
       pendingFitOptionsRef.current = options ?? {};
       const retryDelays = [0, 24, 72, 140, 240, 380, 560, 800];
@@ -1050,6 +1064,47 @@ function FlowContent() {
     [clearExampleFitRetryTimers, fitCurrentGraphIntoView]
   );
 
+  const scheduleExampleFlowViewport = useCallback(
+    (viewport: Viewport) => {
+      if (typeof window === "undefined") return;
+
+      clearExampleFitRetryTimers();
+      pendingExampleFitRef.current = false;
+      pendingFitOptionsRef.current = {};
+      pendingExampleViewportRef.current = viewport;
+
+      const retryDelays = [0, 24, 72, 140, 240, 380, 560, 800];
+      retryDelays.forEach((delay, index) => {
+        const timeoutId = window.setTimeout(() => {
+          const instance = flowInstanceRef.current;
+          if (!instance) {
+            if (index === retryDelays.length - 1) {
+              pendingExampleViewportRef.current = null;
+              clearExampleFitRetryTimers();
+            }
+            return;
+          }
+
+          instance.setViewport(viewport, { duration: 0 });
+          setHasFitOnInitialLoad(true);
+          pendingExampleViewportRef.current = null;
+          clearExampleFitRetryTimers();
+        }, delay);
+        exampleFitRetryTimeoutIdsRef.current.push(timeoutId);
+      });
+    },
+    [clearExampleFitRetryTimers]
+  );
+
+  const clearIntroDropAnimationTimers = useCallback(() => {
+    if (typeof window === "undefined") return;
+    if (introDropTimeoutIdsRef.current.length === 0) return;
+    for (const timeoutId of introDropTimeoutIdsRef.current) {
+      window.clearTimeout(timeoutId);
+    }
+    introDropTimeoutIdsRef.current = [];
+  }, []);
+
   const resetToEmptyCanvas = useCallback(() => {
     restoreScriptSteps([]);
     setNodes(() => []);
@@ -1074,17 +1129,39 @@ function FlowContent() {
   ]);
 
   const loadExampleFlow = useCallback(
-    (flowId: string) => {
+    (
+      flowId: string,
+      options?: { placement?: "fit" | "top-left-drop" }
+    ) => {
       const entry = exampleFlowMap.get(flowId);
       if (!entry) return false;
 
       const clonedData = cloneFlowData(entry.data);
-      const nodesFromFlow = Array.isArray(clonedData.nodes)
+      let nodesFromFlow = Array.isArray(clonedData.nodes)
         ? clonedData.nodes
         : [];
-      const edgesFromFlow = Array.isArray(clonedData.edges)
+      let edgesFromFlow = Array.isArray(clonedData.edges)
         ? clonedData.edges
         : [];
+      let dropViewport: Viewport | null = null;
+
+      if (options?.placement === "top-left-drop") {
+        const placed = placeFlowDataAtPosition(
+          { ...clonedData, nodes: nodesFromFlow, edges: edgesFromFlow },
+          INTRO_FLOW_DROP_FLOW_POSITION.x,
+          INTRO_FLOW_DROP_FLOW_POSITION.y,
+          { includeLayoutNotice: false }
+        );
+        nodesFromFlow = placed.nodes;
+        edgesFromFlow = placed.edges;
+        if (placed.anchorPosition) {
+          dropViewport = getFlowTemplateViewport(
+            INTRO_FLOW_DROP_POINT,
+            placed.anchorPosition,
+            FLOW_TEMPLATE_DROP_ZOOM
+          );
+        }
+      }
 
       restoreScriptSteps([]);
 
@@ -1126,7 +1203,11 @@ function FlowContent() {
         );
       }
 
-      scheduleExampleFlowFit();
+      if (dropViewport) {
+        scheduleExampleFlowViewport(dropViewport);
+      } else {
+        scheduleExampleFlowFit();
+      }
 
       return true;
     },
@@ -1135,6 +1216,7 @@ function FlowContent() {
       exampleFlowMap,
       refreshBanner,
       scheduleExampleFlowFit,
+      scheduleExampleFlowViewport,
       scheduleSnapshot,
       setEdges,
       setNodes,
@@ -1164,6 +1246,11 @@ function FlowContent() {
   useEffect(() => {
     if (!initialHydrationDone) return;
     if (welcomeCompleteRef.current) return;
+    if (introDropScheduledRef.current) return;
+    if (nodes.length > 0 || edges.length > 0) {
+      markWelcomeComplete();
+      return;
+    }
 
     const introFlowId = exampleFlowMap.has(INTRO_FLOW_ID)
       ? INTRO_FLOW_ID
@@ -1174,16 +1261,46 @@ function FlowContent() {
       return;
     }
 
-    const loaded = loadExampleFlow(introFlowId);
-    if (loaded) {
-      markWelcomeComplete();
+    introDropScheduledRef.current = true;
+    setIntroDropSourceRect(getIntroDropSourceRect());
+    setIsIntroDropAnimating(true);
+
+    if (typeof window === "undefined") {
+      const loaded = loadExampleFlow(introFlowId, {
+        placement: "top-left-drop",
+      });
+      if (loaded) markWelcomeComplete();
+      setIsIntroDropAnimating(false);
+      return;
     }
+
+    const loadTimeoutId = window.setTimeout(() => {
+      const loaded = loadExampleFlow(introFlowId, {
+        placement: "top-left-drop",
+      });
+      if (loaded) {
+        markWelcomeComplete();
+      } else {
+        introDropScheduledRef.current = false;
+      }
+    }, INTRO_FLOW_DROP_ANIMATION_MS);
+
+    const releaseTimeoutId = window.setTimeout(() => {
+      setIsIntroDropAnimating(false);
+      introDropTimeoutIdsRef.current = introDropTimeoutIdsRef.current.filter(
+        (id) => id !== loadTimeoutId && id !== releaseTimeoutId
+      );
+    }, INTRO_FLOW_DROP_ANIMATION_MS + 220);
+
+    introDropTimeoutIdsRef.current.push(loadTimeoutId, releaseTimeoutId);
   }, [
     exampleFlowMap,
     exampleFlowOptions,
+    edges.length,
     initialHydrationDone,
     loadExampleFlow,
     markWelcomeComplete,
+    nodes.length,
   ]);
 
   const [, { setIsSearchHighlight, clearHighlights }] = useHighlight({
@@ -1917,7 +2034,14 @@ function FlowContent() {
       rawOnInit(instance);
       flowInstanceRef.current = instance;
       requestAnimationFrame(() => {
-        if (
+        if (pendingExampleViewportRef.current) {
+          instance.setViewport(pendingExampleViewportRef.current, {
+            duration: 0,
+          });
+          pendingExampleViewportRef.current = null;
+          clearExampleFitRetryTimers();
+          setHasFitOnInitialLoad(true);
+        } else if (
           !pendingExampleFitRef.current &&
           !hasFitOnInitialLoad &&
           (nodes.length || edges.length) &&
@@ -1969,10 +2093,17 @@ function FlowContent() {
     () => () => {
       pendingExampleFitRef.current = false;
       pendingFitOptionsRef.current = {};
+      pendingExampleViewportRef.current = null;
+      introDropScheduledRef.current = false;
       clearExampleFitRetryTimers();
+      clearIntroDropAnimationTimers();
       clearSharedGraphRepairTimers();
     },
-    [clearExampleFitRetryTimers, clearSharedGraphRepairTimers]
+    [
+      clearExampleFitRetryTimers,
+      clearIntroDropAnimationTimers,
+      clearSharedGraphRepairTimers,
+    ]
   );
 
   const onMoveEnd = useCallback(
@@ -2137,6 +2268,7 @@ function FlowContent() {
             <Sidebar
               isOpen={isSidebarOpen}
               onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+              introDropFlowId={isIntroDropAnimating ? INTRO_FLOW_ID : undefined}
             />
           )}
 
@@ -2260,6 +2392,36 @@ function FlowContent() {
               />
             )}
           </main>
+
+          {isIntroDropAnimating && (
+            <div
+              className="absolute inset-0 z-[80] cursor-progress bg-background/25 backdrop-blur-[1px]"
+              aria-live="polite"
+              aria-busy="true"
+            >
+              <div
+                className="rawbit-intro-drop-card pointer-events-none absolute rounded-md border border-primary/50 bg-card px-4 py-3 text-card-foreground shadow-lg"
+                style={
+                  {
+                    "--intro-source-x": `${introDropSourceRect.x}px`,
+                    "--intro-source-y": `${introDropSourceRect.y}px`,
+                    "--intro-source-width": `${introDropSourceRect.width}px`,
+                    "--intro-source-height": `${introDropSourceRect.height}px`,
+                    width: `${introDropSourceRect.width}px`,
+                    minHeight: `${introDropSourceRect.height}px`,
+                  } as React.CSSProperties
+                }
+              >
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  Flow Examples
+                </div>
+                <div className="mt-1 text-sm font-semibold">Intro P2PKH</div>
+                <div className="mt-1 text-xs text-muted-foreground">
+                  Dropping onto canvas
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* 🎨 ColorPalette - MOVED HERE, outside ReactFlow, with higher z-index */}
           {!isMobileReadOnly && (

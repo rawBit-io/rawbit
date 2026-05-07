@@ -51,6 +51,11 @@ import {
   stripGroupBundlePortNodes,
 } from "@/lib/flow/groupEdgeBundling";
 import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
+import {
+  FLOW_TEMPLATE_DROP_ZOOM,
+  getFlowTemplateViewport,
+  placeFlowDataAtPosition,
+} from "@/lib/flow/placeFlowTemplate";
 
 /* ------------------------------------------------------------------ */
 /*  Types & tiny utils                                                */
@@ -60,17 +65,6 @@ type RF = ReactFlowInstance<FlowNode, Edge> & {
 };
 const randomId = () => Math.random().toString(36).slice(2, 9);
 const GROUP_PADDING = 32;
-const FLOW_TEMPLATE_DROP_ZOOM = 0.5;
-const FLOW_LAYOUT_NOTICE_WIDTH = 460;
-const FLOW_LAYOUT_NOTICE_HEIGHT = 230;
-const FLOW_LAYOUT_NOTICE_GAP = 48;
-const FLOW_LAYOUT_NOTICE_CONTENT = `## Flow layout update
-
-Flow examples are being visually reworked with clearer groups, notes, and layout.
-
-The flow remains usable here. The previous layout is temporarily available at [dev.rawbit.io](https://dev.rawbit.io).
-
-Source: [github.com/rawBit-io/rawbit](https://github.com/rawBit-io/rawbit)`;
 
 type PaletteDragData = {
   type?: string;
@@ -79,65 +73,6 @@ type PaletteDragData = {
     flowData?: FlowData;
   };
 };
-
-/* ------------------------------------------------------------------ */
-/*  Helper – drop a whole template flow at mouse position             */
-/* ------------------------------------------------------------------ */
-function placeFlowDataAtPosition(
-  flowData: FlowData,
-  dropX: number,
-  dropY: number,
-) {
-  if (!flowData.nodes.length) {
-    return { nodes: [], edges: [], anchorPosition: null };
-  }
-
-  // 1) Find the anchor: left-most first, then top-most among ties.
-  const EPS = 4;
-  const topLevelNodes = flowData.nodes.filter((n) => !n.parentId);
-  const hasTopLevel = topLevelNodes.length > 0;
-  const nodesToConsider = hasTopLevel ? topLevelNodes : flowData.nodes;
-
-  const minX = Math.min(...nodesToConsider.map((n) => n.position.x));
-  const anchor = nodesToConsider
-    .filter((n) => Math.abs(n.position.x - minX) < EPS)
-    .reduce((top, n) => (n.position.y < top.position.y ? n : top));
-
-  const dx = dropX - anchor.position.x;
-  const dy = dropY - anchor.position.y;
-
-  // 2) Translate positions ONLY (keep original IDs)
-  const translated = flowData.nodes.map((old) => {
-    const pos =
-      !old.parentId || !hasTopLevel
-        ? { x: old.position.x + dx, y: old.position.y + dy }
-        : old.position;
-    return { ...old, position: pos, selected: true };
-  });
-  const layoutNoticeNode: FlowNode = {
-    id: `flow-layout-notice_${randomId()}`,
-    type: "shadcnTextInfo",
-    position: {
-      x: dropX,
-      y: dropY - FLOW_LAYOUT_NOTICE_HEIGHT - FLOW_LAYOUT_NOTICE_GAP,
-    },
-    selected: true,
-    data: {
-      title: "Flow layout update",
-      content: FLOW_LAYOUT_NOTICE_CONTENT,
-      fontSize: 24,
-      width: FLOW_LAYOUT_NOTICE_WIDTH,
-      height: FLOW_LAYOUT_NOTICE_HEIGHT,
-    },
-  };
-
-  // 3) Edges unchanged (IDs unchanged here; we’ll rewrite IDs later if needed)
-  return {
-    nodes: [...translated, layoutNoticeNode],
-    edges: flowData.edges,
-    anchorPosition: { x: dropX, y: dropY },
-  };
-}
 
 function getLocalDropPoint(event: React.DragEvent) {
   const target = event.currentTarget as unknown as {
@@ -500,6 +435,9 @@ export function useNodeOperations() {
           maybeFlowData as FlowData,
           pos.x,
           pos.y,
+          {
+            noticeIdFactory: () => `flow-layout-notice_${randomId()}`,
+          },
         );
 
         // ② run the stable-id merge (only rename on conflicts)
@@ -528,15 +466,11 @@ export function useNodeOperations() {
         if (translated.anchorPosition) {
           const dropPoint = getLocalDropPoint(e);
           rf.setViewport(
-            {
-              x:
-                dropPoint.x -
-                translated.anchorPosition.x * FLOW_TEMPLATE_DROP_ZOOM,
-              y:
-                dropPoint.y -
-                translated.anchorPosition.y * FLOW_TEMPLATE_DROP_ZOOM,
-              zoom: FLOW_TEMPLATE_DROP_ZOOM,
-            },
+            getFlowTemplateViewport(
+              dropPoint,
+              translated.anchorPosition,
+              FLOW_TEMPLATE_DROP_ZOOM,
+            ),
             { duration: 0 },
           );
         }
