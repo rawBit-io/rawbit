@@ -7,6 +7,7 @@ import {
   SENTINEL_FORCE00,
   SENTINEL_NULL,
 } from "@/lib/nodes/constants";
+import { cn } from "@/lib/utils";
 
 export interface FieldWithHandleProps {
   handleId: string;
@@ -17,6 +18,7 @@ export interface FieldWithHandleProps {
   readOnly?: boolean;
   small?: boolean;
   rows?: number;
+  autoResizeMaxRows?: number;
   onChange?: (val: string) => void;
   onLabelChange?: (val: string) => void;
   handleOffset?: number;
@@ -27,6 +29,9 @@ export interface FieldWithHandleProps {
   emptyLabel?: string;
   nullLabel?: string;
   comment?: string;
+  className?: string;
+  labelClassName?: string;
+  wrapperClassName?: string;
 }
 
 import { TerminalField } from "./TerminalField";
@@ -44,6 +49,7 @@ function fieldWithHandlePropsAreEqual(
     prev.readOnly === next.readOnly &&
     prev.small === next.small &&
     prev.rows === next.rows &&
+    prev.autoResizeMaxRows === next.autoResizeMaxRows &&
     prev.comment === next.comment &&
     prev.onChange === next.onChange &&
     prev.onLabelChange === next.onLabelChange &&
@@ -53,7 +59,10 @@ function fieldWithHandlePropsAreEqual(
     prev.allowEmptyBlank === next.allowEmptyBlank &&
     prev.allowNull === next.allowNull &&
     prev.emptyLabel === next.emptyLabel &&
-    prev.nullLabel === next.nullLabel
+    prev.nullLabel === next.nullLabel &&
+    prev.className === next.className &&
+    prev.labelClassName === next.labelClassName &&
+    prev.wrapperClassName === next.wrapperClassName
   );
 }
 
@@ -67,6 +76,7 @@ export const FieldWithHandle = React.memo(function FieldWithHandleComponent({
   readOnly,
   small,
   rows,
+  autoResizeMaxRows,
   comment,
   onChange,
   onLabelChange,
@@ -77,6 +87,9 @@ export const FieldWithHandle = React.memo(function FieldWithHandleComponent({
   allowNull = false,
   emptyLabel,
   nullLabel,
+  className,
+  labelClassName,
+  wrapperClassName,
 }: FieldWithHandleProps) {
   const displayValue =
     value === SENTINEL_EMPTY ||
@@ -111,8 +124,9 @@ export const FieldWithHandle = React.memo(function FieldWithHandleComponent({
     value === SENTINEL_NULL;
 
   return (
-    <div className="relative mb-3">
-      {!disableHandle && (
+    <div className={cn("mb-3", wrapperClassName)}>
+      <TerminalField
+        fieldHandle={!disableHandle && (
         <Handle
           type="target"
           position={Position.Left}
@@ -126,15 +140,16 @@ export const FieldWithHandle = React.memo(function FieldWithHandleComponent({
           }}
         />
       )}
-
-      <TerminalField
         label={label}
         placeholder={placeholder}
         value={displayValue}
         readOnly={readOnly || forceReadOnly}
         small={small}
         rows={rows}
+        autoResizeMaxRows={autoResizeMaxRows}
         comment={comment}
+        className={className}
+        labelClassName={labelClassName}
         onChange={onChange}
         onLabelChange={onLabelChange}
         allowEmpty00={allowEmpty00}

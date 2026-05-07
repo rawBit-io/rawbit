@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo } from "react";
 
 import { Edge, useStore } from "@xyflow/react";
 
+import { useCanonicalGraph } from "@/contexts/canonical-graph";
 import { countVisibleInputs } from "@/lib/nodes/fieldUtils";
 import {
   SENTINEL_EMPTY,
@@ -38,12 +39,20 @@ export function useCalcNodeDerived(
   data: NodeData,
   setNodes: (updater: (nodes: FlowNode[]) => FlowNode[]) => void
 ): UseCalcNodeDerivedResult {
+  const canonicalGraph = useCanonicalGraph();
   const selectIncomingEdges = useCallback(
     (state: { edges: Edge[] }) => state.edges.filter((edge) => edge.target === id),
     [id]
   );
 
-  const incomingEdges = useStore(selectIncomingEdges, edgesShallowEqual);
+  const storeIncomingEdges = useStore(selectIncomingEdges, edgesShallowEqual);
+  const incomingEdges = useMemo(
+    () =>
+      canonicalGraph
+        ? canonicalGraph.edges.filter((edge) => edge.target === id)
+        : storeIncomingEdges,
+    [canonicalGraph, id, storeIncomingEdges]
+  );
 
   const wiredHandles = useMemo(() => {
     const handles = new Set<string>();

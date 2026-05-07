@@ -84,6 +84,7 @@ const closeActionMenuItemClass =
   "h-8 gap-2 px-2 !text-sm font-medium leading-none";
 
 const closeActionMenuIconClass = "h-3.5 w-3.5 text-muted-foreground";
+const paletteAccentColorClass = "text-[#a83a32]";
 
 function CloseTabActionPicker({
   selectedAction,
@@ -97,14 +98,17 @@ function CloseTabActionPicker({
           type="button"
           variant="outline"
           size="icon"
-          className="h-9 w-9"
+          className="h-9 w-9 border-0 bg-transparent shadow-none hover:bg-accent/70"
           aria-label="Choose close action"
           title="Choose close action"
         >
           <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-56 p-1 font-sans text-sm">
+      <DropdownMenuContent
+        align="start"
+        className="w-56 border-0 p-1 font-sans text-sm"
+      >
         {selectedAction !== "current" && (
           <DropdownMenuItem
             className={closeActionMenuItemClass}
@@ -137,10 +141,10 @@ function CloseTabActionPicker({
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className={`${closeActionMenuItemClass} text-destructive focus:text-destructive`}
+              className={`${closeActionMenuItemClass} ${paletteAccentColorClass} focus:bg-[#a83a32]/10 focus:text-[#a83a32]`}
               onSelect={() => onSelectAction("reset")}
             >
-              <RotateCcw className="h-3.5 w-3.5" />
+              <RotateCcw className={`h-3.5 w-3.5 ${paletteAccentColorClass}`} />
               Reset workspace
             </DropdownMenuItem>
           </>
@@ -223,7 +227,12 @@ export function FlowDialogLayer({
         title="Close Tab"
         description="Closing deletes this tab's data. Save it as a file or share link first if you need it."
         confirmText={CLOSE_TAB_ACTION_LABELS[closeTabAction]}
-        confirmVariant={closeTabAction === "reset" ? "destructive" : "default"}
+        confirmVariant="default"
+        confirmClassName={
+          closeTabAction === "reset"
+            ? "bg-[#a83a32] text-white shadow-sm hover:bg-[#922f29]"
+            : undefined
+        }
         cancelText="Cancel"
         onConfirm={handleConfirmCloseAction}
         onClose={onCancelTabClose}

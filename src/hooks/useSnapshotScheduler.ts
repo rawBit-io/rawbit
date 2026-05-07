@@ -13,6 +13,7 @@ interface UseSnapshotSchedulerArgs {
   storeApi: {
     getState: () => { nodes: FlowNode[]; edges: Edge[] };
   };
+  getSnapshotState?: () => { nodes: FlowNode[]; edges: Edge[] };
   pushState: (
     nodes: FlowNode[],
     edges: Edge[],
@@ -53,6 +54,7 @@ export interface SnapshotScheduler {
 
 export function useSnapshotScheduler({
   storeApi,
+  getSnapshotState,
   pushState,
   incrementGraphRev,
   skipLoadRef,
@@ -121,7 +123,7 @@ export function useSnapshotScheduler({
           return;
         }
 
-        const state = storeApi.getState();
+        const state = getSnapshotState?.() ?? storeApi.getState();
         log(
           "snapshots",
           `[scheduleSnapshot] executing label='${label}' nodes=${state.nodes.length} edges=${state.edges.length}`
@@ -138,7 +140,7 @@ export function useSnapshotScheduler({
         `[scheduleSnapshot] queued frame id=${frameId} label='${label}'`
       );
     },
-    [pushCleanState, refreshBanner, storeApi]
+    [getSnapshotState, pushCleanState, refreshBanner, storeApi]
   );
 
   const markPendingAfterDirtyChange = useCallback(() => {
@@ -202,7 +204,7 @@ export function useSnapshotScheduler({
       return;
     }
 
-    const state = storeApi.getState();
+    const state = getSnapshotState?.() ?? storeApi.getState();
     const hasDirty = state.nodes.some((node) => node.data?.dirty);
     if (hasDirty) {
       log(
@@ -236,7 +238,7 @@ export function useSnapshotScheduler({
       skipNextEdgeSnapshotRef.current = false;
     }
     log("snapshots", `[afterCalc] pendingSnapshotRef -> false`);
-  }, [autoAfterCalc, pushCleanState, skipLoadRef, storeApi]);
+  }, [autoAfterCalc, getSnapshotState, pushCleanState, skipLoadRef, storeApi]);
 
   return {
     pushCleanState,

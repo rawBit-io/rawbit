@@ -7,11 +7,11 @@ test.describe('Sidebar palette', () => {
     await page.goto('/');
 
     const searchInput = page.getByPlaceholder('Search nodes...');
-    await searchInput.fill('identity');
+    await searchInput.fill('input');
 
     const templateTile = page
       .locator('[draggable="true"]')
-      .filter({ hasText: /Identity/i })
+      .filter({ hasText: /Input/i })
       .first();
     await expect(templateTile).toBeVisible();
 

@@ -8,7 +8,6 @@ interface UsePanelAutoCloseArgs {
   showErrorPanel: boolean;
   setShowErrorPanel: React.Dispatch<React.SetStateAction<boolean>>;
   setShowSearchPanel: React.Dispatch<React.SetStateAction<boolean>>;
-  setShowProtocolDiagramPanel?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function usePanelAutoClose({

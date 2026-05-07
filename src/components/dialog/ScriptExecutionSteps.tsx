@@ -7,7 +7,6 @@ import {
   useEffect,
   useCallback,
   KeyboardEvent,
-  ReactNode,
 } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +27,17 @@ import { OP_CODES, OpCodeCategories } from "@/lib/opcodes";
 
 /* ---------- helpers ------------------------------------------------ */
 
+const phaseTextFor = (phase: string) =>
+  phase === "scriptSig"
+    ? "Phase 1 (scriptSig)"
+    : phase === "scriptPubKey"
+      ? "Phase 2 (scriptPubKey)"
+      : phase === "redeemScript"
+        ? "Phase 3 (redeemScript)"
+        : phase === "taproot"
+          ? "Phase 4 (taproot)"
+          : "Phase 4 (witnessScript)";
+
 function WitnessStackPane({
   items,
   consumed,
@@ -41,19 +51,56 @@ function WitnessStackPane({
 
   return (
     <div className="mb-3 text-xs">
-      <div className="font-bold mb-1">witnessStack (top → first):</div>
-      <div className="h-24 overflow-auto border p-2 break-words font-mono space-y-1">
+      <div className="mb-1 font-semibold text-primary">
+        witnessStack (top → first):
+      </div>
+      <div className="field-surface h-28 overflow-auto rounded-md border p-2 break-words font-mono space-y-1">
         {items.map((it, i) => (
           <div
             key={`${it}-${i}`}
             className={cn(
               "whitespace-pre-wrap",
-              highlighted && consumed?.[i] && "font-bold text-green-700"
+              highlighted && consumed?.[i] && "font-semibold text-primary",
             )}
           >
             {it}
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function StackColumn({
+  title,
+  items,
+  consumed,
+}: {
+  title: string;
+  items: string[];
+  consumed?: boolean[];
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="mb-1 font-semibold text-primary">{title}</div>
+      <div className="space-y-1">
+        {items.length ? (
+          items.map((it, i) => (
+            <div
+              key={`${title}-${i}`}
+              className={cn(
+                "field-surface min-h-9 rounded-md border p-2 break-words",
+                consumed?.[i] && "font-semibold text-primary",
+              )}
+            >
+              {it}
+            </div>
+          ))
+        ) : (
+          <div className="min-h-9 rounded-md border border-dashed border-border/70 bg-muted/20 p-2 text-muted-foreground">
+            empty
+          </div>
+        )}
       </div>
     </div>
   );
@@ -185,10 +232,43 @@ const opcodeExplanation = (n: string) =>
 const hexToBytes = (hex = "") =>
   Array.from({ length: hex.length / 2 }, (_, i) => hex.slice(i * 2, i * 2 + 2));
 
+function scriptByteRange(
+  scriptHex: string,
+  offset: number,
+  pc: number,
+  opcodeName: string,
+) {
+  const bytes = hexToBytes(scriptHex);
+  const relPC = pc - offset;
+
+  let len = pushLenInParens(opcodeName);
+
+  if (len === 0 && relPC >= 0) {
+    if (opcodeName === "OP_PUSHDATA1" && relPC + 1 < bytes.length) {
+      len = 1 + parseInt(bytes[relPC + 1], 16);
+    } else if (opcodeName === "OP_PUSHDATA2" && relPC + 2 < bytes.length) {
+      len = 2 + parseInt(bytes[relPC + 2] + bytes[relPC + 1], 16);
+    } else if (opcodeName === "OP_PUSHDATA4" && relPC + 4 < bytes.length) {
+      len =
+        4 +
+        parseInt(
+          bytes[relPC + 4] +
+            bytes[relPC + 3] +
+            bytes[relPC + 2] +
+            bytes[relPC + 1],
+          16,
+        );
+    }
+  }
+
+  const hiEnd = relPC + len;
+  return { bytes, relPC, len, hiEnd };
+}
+
 function consumedFlags(
   before: string[],
   after: string[],
-  op: string
+  op: string,
 ): boolean[] {
   const afterCopy = [...after];
   return before.map((it, idx) => {
@@ -217,7 +297,6 @@ function consumedFlags(
 
 type PaneProps = RenderHighlightedScriptProps & {
   highlighted?: boolean;
-  children?: ReactNode;
 };
 
 function ScriptPane({
@@ -230,52 +309,41 @@ function ScriptPane({
 }: PaneProps) {
   if (!scriptHex) return null;
 
-  const bytes = hexToBytes(scriptHex);
-  const relPC = pc - offset;
-
-  /* figure out push-data length (incl. length bytes for 1/2/4) */
-  let len = pushLenInParens(opcodeName);
-
-  if (len === 0 && relPC >= 0) {
-    if (opcodeName === "OP_PUSHDATA1" && relPC + 1 < bytes.length) {
-      len = 1 + parseInt(bytes[relPC + 1], 16);
-    } else if (opcodeName === "OP_PUSHDATA2" && relPC + 2 < bytes.length) {
-      len = 2 + parseInt(bytes[relPC + 2] + bytes[relPC + 1], 16); // little-endian
-    } else if (opcodeName === "OP_PUSHDATA4" && relPC + 4 < bytes.length) {
-      len =
-        4 +
-        parseInt(
-          bytes[relPC + 4] +
-            bytes[relPC + 3] +
-            bytes[relPC + 2] +
-            bytes[relPC + 1],
-          16
-        );
-    }
-  }
-
-  const hiEnd = relPC + len;
-
+  const { bytes, relPC, len, hiEnd } = scriptByteRange(
+    scriptHex,
+    offset,
+    pc,
+    opcodeName,
+  );
   return (
     <div className="mb-3 text-xs">
-      <div className="font-bold mb-1">{label}:</div>
-      <div className="h-16 overflow-auto border p-2 break-words">
+      <div className="mb-1 font-semibold text-primary">{label}:</div>
+      <div className="field-surface h-20 overflow-auto rounded-md border p-2 break-words font-mono leading-relaxed">
         {bytes.map((b, i) => {
           if (!highlighted)
             return (
-              <span key={i} className="text-gray-400">
+              <span
+                key={i}
+                className="text-muted-foreground/55"
+              >
                 {b}
               </span>
             );
           if (i === relPC)
             return (
-              <span key={i} className="font-bold text-blue-600">
+              <span
+                key={i}
+                className="rounded-sm border border-primary/50 bg-primary/15 px-0.5 font-semibold text-primary shadow-sm"
+              >
                 {b}
               </span>
             );
           if (len && i > relPC && i <= hiEnd)
             return (
-              <span key={i} className="italic text-green-600">
+              <span
+                key={i}
+                className="bg-primary/10 italic text-primary/75"
+              >
                 {b}
               </span>
             );
@@ -308,7 +376,7 @@ export default function ScriptExecutionSteps({
   const next = useCallback(
     () =>
       setIdx((p) => Math.min(p + 1, (scriptResult?.steps?.length ?? 1) - 1)),
-    [scriptResult]
+    [scriptResult],
   );
 
   const copy = useCallback(() => {
@@ -323,7 +391,7 @@ export default function ScriptExecutionSteps({
       !scriptResult.witnessScript;
     if (taprootKeyPathCopy) {
       lines.push(
-        "Taproot key-path spend: no witnessScript; pseudo-steps: taproot_witness → taproot_sighash → taproot_schnorr_verify."
+        "Taproot key-path spend: no witnessScript; pseudo-steps: taproot_witness → taproot_sighash → taproot_schnorr_verify.",
       );
     }
     if (scriptResult.witnessStack?.length && !scriptResult.witnessScript) {
@@ -339,7 +407,7 @@ export default function ScriptExecutionSteps({
         `StackBefore: [${stackBefore.join(", ")}]`,
         `StackAfter: [${stackAfter.join(", ")}]`,
         ...(s.failed ? [`ERROR: ${s.error ?? "Unknown error"}`] : []),
-        "-----------"
+        "-----------",
       );
     });
     navigator.clipboard.writeText(lines.join("\n")).then(() => {
@@ -350,20 +418,30 @@ export default function ScriptExecutionSteps({
 
   const stopKey = useCallback(
     (e: KeyboardEvent<HTMLDivElement>) => e.stopPropagation(),
-    []
+    [],
   );
 
   /* placeholder if no trace */
   if (!open || !scriptResult || !scriptResult.steps?.length) {
     return (
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent onKeyDownCapture={stopKey}>
+      <DialogContent
+        className="border-border bg-card text-card-foreground"
+        onKeyDownCapture={stopKey}
+      >
           <DialogHeader>
             <DialogTitle>Script Execution Steps</DialogTitle>
             <DialogDescription>No script trace available.</DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button onClick={onClose}>Close</Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="select-none"
+              onClick={onClose}
+            >
+              Close
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -381,9 +459,8 @@ export default function ScriptExecutionSteps({
   const witnessHex = scriptResult.witnessScript ?? "";
   const witnessStack =
     scriptResult.witnessStack ??
-    steps.find(
-      (s) => s.phase === "taproot" && Array.isArray(s.stack_before)
-    )?.stack_before ??
+    steps.find((s) => s.phase === "taproot" && Array.isArray(s.stack_before))
+      ?.stack_before ??
     [];
 
   const pretty = prettify(step.opcode, step.opcode_name);
@@ -402,63 +479,55 @@ export default function ScriptExecutionSteps({
   const showWitnessStack =
     (taprootPhase || !witnessHex) && witnessStackDisplay.length > 0;
 
-  const phaseText =
-    phase === "scriptSig"
-      ? "Phase 1 (scriptSig)"
-      : phase === "scriptPubKey"
-      ? "Phase 2 (scriptPubKey)"
-      : phase === "redeemScript"
-      ? "Phase 3 (redeemScript)"
-      : phase === "taproot"
-      ? "Phase 4 (taproot)"
-      : "Phase 4 (witnessScript)";
+  const phaseText = phaseTextFor(phase);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl" onKeyDownCapture={stopKey}>
+      <DialogContent
+        className="max-w-2xl border-border bg-card text-card-foreground shadow-xl shadow-foreground/10"
+        onKeyDownCapture={stopKey}
+      >
         <DialogHeader>
-          <DialogTitle>Script Execution Steps</DialogTitle>
+          <DialogTitle className="text-primary">
+            Script Execution Steps
+          </DialogTitle>
           <DialogDescription>
-            Live walk-through of every opcode in every phase.
+            Live walk-through of the script execution. Use the navigation.
           </DialogDescription>
         </DialogHeader>
 
         <div className="h-[600px] overflow-y-auto px-1">
           {/* navigation */}
-          <div className="sticky top-0 bg-background z-10 pb-3">
-            <div className="flex items-center gap-2 mb-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={prev}
-                disabled={idx === 0}
-              >
-                Prev
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={next}
-                disabled={idx === steps.length - 1}
-              >
-                Next
-              </Button>
-              <div className="text-sm mx-2">
-                Step {idx + 1}/{steps.length} — {phaseText}
-              </div>
-              <div className="ml-auto">
-                <Button variant="outline" size="sm" onClick={copy}>
-                  {copied ? "Copied!" : "Copy All"}
-                </Button>
-              </div>
+          <div className="mb-3 flex items-center gap-2 rounded-md border border-border/70 bg-muted/30 p-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="select-none"
+              onClick={prev}
+              disabled={idx === 0}
+            >
+              Prev
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="select-none"
+              onClick={next}
+              disabled={idx === steps.length - 1}
+            >
+              Next
+            </Button>
+            <div className="mx-2 text-sm text-muted-foreground">
+              Step {idx + 1}/{steps.length} — {phaseText}
             </div>
           </div>
 
           {isTaprootKeyPath && (
-            <div className="mb-3 rounded border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900">
-              Taproot key-path spend: no witnessScript is executed. The pseudo-steps
-              below load the witness stack, compute the Taproot tagged sighash, and
-              verify the Schnorr signature against the output key.
+            <div className="mb-3 rounded-md border border-primary/20 bg-muted/40 p-3 text-xs text-muted-foreground">
+              Taproot key-path spend: no witnessScript is executed. The
+              pseudo-steps below load the witness stack, compute the Taproot
+              tagged sighash, and verify the Schnorr signature against the
+              output key.
             </div>
           )}
 
@@ -514,13 +583,10 @@ export default function ScriptExecutionSteps({
           )}
 
           {/* details */}
-          <div className="space-y-3 text-xs font-mono">
-            <div>
-              <strong>PC:</strong> {step.pc}
-            </div>
-            <div>
-              <strong>Opcode:</strong>{" "}
-              <span className="font-bold">{pretty}</span>
+          <div className="space-y-3 rounded-md border border-border/70 bg-background/35 p-3 text-xs font-mono">
+            <div className="rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
+              <strong className="text-foreground">Opcode:</strong>{" "}
+              <span className="font-semibold text-primary">{pretty}</span>
             </div>
             {explain && (
               <div className="text-muted-foreground">
@@ -528,28 +594,13 @@ export default function ScriptExecutionSteps({
               </div>
             )}
 
-            <div>
-              <strong>Stack Before (top → first):</strong>
-              {beforeR.map((it, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    "border p-2 break-words",
-                    consumed[i] && "font-bold"
-                  )}
-                >
-                  {it}
-                </div>
-              ))}
-            </div>
-
-            <div>
-              <strong>Stack After (top → first):</strong>
-              {afterR.map((it, i) => (
-                <div key={i} className="border p-2 break-words">
-                  {it}
-                </div>
-              ))}
+            <div className="grid grid-cols-2 gap-3">
+              <StackColumn
+                title="Stack Before (top → first)"
+                items={beforeR}
+                consumed={consumed}
+              />
+              <StackColumn title="Stack After (top → first)" items={afterR} />
             </div>
 
             {step.failed && step.error && (
@@ -560,15 +611,30 @@ export default function ScriptExecutionSteps({
           </div>
         </div>
 
-        <DialogFooter className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <DialogFooter className="mt-4 gap-2 sm:items-center sm:justify-between sm:space-x-0">
           {scriptResult?.error && (
             <div className="text-sm text-destructive">
               FinalError: {scriptResult.error}
             </div>
           )}
-          <Button variant="secondary" onClick={onClose}>
-            Close
-          </Button>
+          <div className="flex justify-end gap-2 sm:ml-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              className="select-none"
+              onClick={copy}
+            >
+              {copied ? "Copied!" : "Copy All"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="select-none"
+              onClick={onClose}
+            >
+              Close
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -11,6 +11,7 @@ import {
   useState,
   type ChangeEvent,
   type MouseEvent,
+  type PointerEvent as ReactPointerEvent,
   type RefObject,
 } from "react";
 
@@ -35,12 +36,12 @@ import {
   Share2,
   Search,
   MapPinned,
+  FileText,
   Share,
   Globe,
   Github,
   Twitter,
   Mail,
-  Network,
   Paintbrush,
   Check,
 } from "lucide-react";
@@ -50,7 +51,9 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTheme } from "@/hooks/useTheme";
 import {
+  EDGE_THICKNESS_STEP,
   EDGE_VISIBILITY_STEP,
+  GROUP_FILL_OPACITY_STEP,
   type EdgeVisibilityMode,
   type Skin,
 } from "@/contexts/theme";
@@ -61,9 +64,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+const GROUP_FILL_REPEAT_DELAY_MS = 350;
+const GROUP_FILL_REPEAT_INTERVAL_MS = 70;
 
 export interface TopBarProps {
   isSidebarOpen: boolean;
@@ -133,14 +140,13 @@ export type ExtraTopBarProps = {
   /* Search panel toggle */
   onSearchClick?: () => void;
   setShowSearchPanel?: (open: boolean) => void;
-  showProtocolDiagramPanel?: boolean;
-  setShowProtocolDiagramPanel?: (open: boolean) => void;
-  hasProtocolDiagram?: boolean;
-  protocolDiagramDisabledTooltip?: string;
 
   /* mini-map toggle */
   showMiniMap?: boolean;
   onToggleMiniMap?: () => void;
+  showInfoNodes?: boolean;
+  hasInfoNodes?: boolean;
+  onToggleInfoNodes?: () => void;
   isSelectionModeActive?: boolean;
   onToggleSelectionMode?: () => void;
   tabBarRightInset?: number;
@@ -269,12 +275,11 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
     /* search panel */
     onSearchClick,
     setShowSearchPanel,
-    showProtocolDiagramPanel = false,
-    setShowProtocolDiagramPanel,
-    hasProtocolDiagram = false,
-    protocolDiagramDisabledTooltip = "Add groups to enable diagram view",
     showMiniMap = true,
     onToggleMiniMap,
+    showInfoNodes = true,
+    hasInfoNodes = false,
+    onToggleInfoNodes,
     isSelectionModeActive = false,
     onToggleSelectionMode,
     tabBarRightInset = 0,
@@ -288,7 +293,13 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
     skin,
     setSkin,
     edgeVisibility,
+    dashedEdgeVisibility,
+    groupFillOpacity,
+    edgeThickness,
     adjustEdgeVisibility,
+    adjustDashedEdgeVisibility,
+    adjustGroupFillOpacity,
+    adjustEdgeThickness,
   } = useTheme();
   const { undo, redo, canUndo, canRedo } = useUndoRedo();
   const saveSimplifiedHotKeyRef = useRef(false);
@@ -297,6 +308,15 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
   const [renameDraft, setRenameDraft] = useState("");
   const renameInputRef = useRef<HTMLInputElement | null>(null);
   const skinTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const groupFillRepeatRef = useRef<{
+    timeout: ReturnType<typeof setTimeout> | null;
+    interval: ReturnType<typeof setInterval> | null;
+    ignoreNextClick: boolean;
+  }>({
+    timeout: null,
+    interval: null,
+    ignoreNextClick: false,
+  });
 
   useEffect(() => {
     if (!renamingTabId) return;
@@ -400,6 +420,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
 
   const isGroupDisabled = !(canGroupSelectedNodes?.() ?? false);
   const isUngroupDisabled = !(canUngroupSelectedNodes?.() ?? false);
+  const areInfoNodesHidden = hasInfoNodes && !showInfoNodes;
   const activeEdgeVisibilityMode: EdgeVisibilityMode =
     theme === "dark" ||
     (theme === "system" &&
@@ -408,6 +429,64 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
       window.matchMedia("(prefers-color-scheme: dark)").matches)
       ? "dark"
       : "light";
+
+  const stopGroupFillRepeat = useCallback(() => {
+    const repeat = groupFillRepeatRef.current;
+    if (repeat.timeout) {
+      clearTimeout(repeat.timeout);
+      repeat.timeout = null;
+    }
+    if (repeat.interval) {
+      clearInterval(repeat.interval);
+      repeat.interval = null;
+    }
+  }, []);
+
+  useEffect(() => stopGroupFillRepeat, [stopGroupFillRepeat]);
+
+  const adjustActiveGroupFillOpacity = useCallback(
+    (delta: number) => {
+      adjustGroupFillOpacity(activeEdgeVisibilityMode, delta);
+    },
+    [activeEdgeVisibilityMode, adjustGroupFillOpacity]
+  );
+
+  const startGroupFillRepeat = useCallback(
+    (event: ReactPointerEvent<HTMLButtonElement>, delta: number) => {
+      event.preventDefault();
+      event.stopPropagation();
+      event.currentTarget.setPointerCapture?.(event.pointerId);
+
+      const repeat = groupFillRepeatRef.current;
+      repeat.ignoreNextClick = true;
+      stopGroupFillRepeat();
+      adjustActiveGroupFillOpacity(delta);
+
+      repeat.timeout = setTimeout(() => {
+        adjustActiveGroupFillOpacity(delta);
+        repeat.interval = setInterval(() => {
+          adjustActiveGroupFillOpacity(delta);
+        }, GROUP_FILL_REPEAT_INTERVAL_MS);
+      }, GROUP_FILL_REPEAT_DELAY_MS);
+    },
+    [adjustActiveGroupFillOpacity, stopGroupFillRepeat]
+  );
+
+  const handleGroupFillClick = useCallback(
+    (event: MouseEvent<HTMLButtonElement>, delta: number) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const repeat = groupFillRepeatRef.current;
+      if (repeat.ignoreNextClick && event.detail > 0) {
+        repeat.ignoreNextClick = false;
+        return;
+      }
+      repeat.ignoreNextClick = false;
+      adjustActiveGroupFillOpacity(delta);
+    },
+    [adjustActiveGroupFillOpacity]
+  );
 
   /* ---------------------------------------------------------------------- */
   /*  UI                                                                    */
@@ -452,7 +531,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
             variant="ghost"
             size="icon"
             onClick={handleSaveClick}
-            tooltip="Save (hold S for simplified)"
+            tooltip="Save (hold S for simplified, hold L for LLM export)"
             aria-label="Save"
             aria-description="Hold S while clicking to download a simplified export, or hold L to include backend function sources for LLM export"
           >
@@ -536,7 +615,6 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
               /* always close the ErrorPanel and SearchPanel when opening History */
               setShowErrorPanel?.(false);
               setShowSearchPanel?.(false);
-              setShowProtocolDiagramPanel?.(false);
               setShowUndoRedoPanel?.(!showUndoRedoPanel);
             }}
             tooltip="History"
@@ -576,35 +654,37 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
           <TopBarIconButton
             variant="ghost"
             size="icon"
-            onClick={onToggleMiniMap}
-            tooltip={showMiniMap ? "Hide minimap" : "Show minimap"}
+            onClick={onToggleInfoNodes}
+            disabled={!hasInfoNodes}
+            tooltip={
+              !hasInfoNodes
+                ? "No info nodes"
+                : showInfoNodes
+                  ? "Hide info nodes"
+                  : "Show info nodes"
+            }
+            aria-pressed={areInfoNodesHidden}
+            data-active={areInfoNodesHidden || undefined}
           >
-            <MapPinned className="h-7 w-7" />
+            <span className="relative inline-flex h-7 w-7 items-center justify-center">
+              <FileText className="h-7 w-7" />
+              {areInfoNodesHidden && (
+                <span
+                  aria-hidden="true"
+                  className="absolute right-0 top-0 flex h-3.5 w-3.5 items-center justify-center rounded-full border border-current bg-background text-[10px] leading-none"
+                >
+                  X
+                </span>
+              )}
+            </span>
           </TopBarIconButton>
           <TopBarIconButton
             variant="ghost"
             size="icon"
-            onClick={() => {
-              setShowUndoRedoPanel?.(false);
-              setShowErrorPanel?.(false);
-              setShowSearchPanel?.(false);
-              setShowProtocolDiagramPanel?.(!showProtocolDiagramPanel);
-            }}
-            disabled={!hasProtocolDiagram}
-            tooltip={
-              hasProtocolDiagram
-                ? showProtocolDiagramPanel
-                  ? "Hide flow map"
-                  : "Show flow map"
-                : protocolDiagramDisabledTooltip
-            }
-            aria-label="Flow map"
-            className={cn(
-              showProtocolDiagramPanel &&
-                "bg-secondary text-secondary-foreground hover:bg-secondary"
-            )}
+            onClick={onToggleMiniMap}
+            tooltip={showMiniMap ? "Hide minimap" : "Show minimap"}
           >
-            <Network className="h-7 w-7" />
+            <MapPinned className="h-7 w-7" />
           </TopBarIconButton>
           <Separator orientation="vertical" className="mx-2 h-8 w-px" />{" "}
           {/* Search shortcut */}
@@ -614,7 +694,6 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
             onClick={() => {
               setShowUndoRedoPanel?.(false);
               setShowErrorPanel?.(false);
-              setShowProtocolDiagramPanel?.(false);
               onSearchClick?.();
             }}
             tooltip="Search nodes"
@@ -640,11 +719,10 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
               variant="ghost"
               size="sm"
               onClick={() => {
-                setShowUndoRedoPanel?.(false);
-                setShowSearchPanel?.(false);
-                setShowProtocolDiagramPanel?.(false);
-                onRetryAll?.();
-              }}
+              setShowUndoRedoPanel?.(false);
+              setShowSearchPanel?.(false);
+              onRetryAll?.();
+            }}
               title="Retry all nodes in this tab"
               className="h-6 px-2 text-xs border border-border"
             >
@@ -659,7 +737,6 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
               onClick={() => {
                 setShowUndoRedoPanel?.(false);
                 setShowSearchPanel?.(false);
-                setShowProtocolDiagramPanel?.(false);
                 setShowErrorPanel?.(!showErrorPanel);
               }}
               title="Show errors"
@@ -671,18 +748,6 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
               error&nbsp;({errorCount})
             </Button>
           )}
-
-          {/* add tab */}
-          <TopBarIconButton
-            variant="ghost"
-            size="icon"
-            onClick={onAddTab}
-            tooltip="New tab"
-          >
-            <Plus className="h-6 w-6" />
-          </TopBarIconButton>
-
-          <Separator orientation="vertical" className="mx-1 h-6 w-px" />
 
           <TopBarIconButton
             variant="ghost"
@@ -710,17 +775,6 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
             <DropdownMenuContent align="end" side="bottom">
               <DropdownMenuItem asChild>
                 <a
-                  href="https://discord.gg/HPSYkT9tq"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2"
-                >
-                  <DiscordIcon className="h-4 w-4" />
-                  <span>Discord</span>
-                </a>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <a
                   href="https://github.com/rawBit-io/rawbit"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -739,6 +793,17 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                 >
                   <Twitter className="h-4 w-4" />
                   <span>X (Twitter)</span>
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a
+                  href="https://discord.gg/HPSYkT9tq"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2"
+                >
+                  <DiscordIcon className="h-4 w-4" />
+                  <span>Discord</span>
                 </a>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
@@ -770,7 +835,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
             <DropdownMenuContent
               align="end"
               side="bottom"
-              className="w-52 p-1 font-sans text-sm"
+              className="w-60 p-1 font-sans text-sm"
               onCloseAutoFocus={(event) => {
                 event.preventDefault();
                 skinTriggerRef.current?.blur();
@@ -798,13 +863,56 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
+              <DropdownMenuLabel className="px-2 pb-0 pt-1 text-[11px] font-medium uppercase tracking-normal text-muted-foreground">
+                Edges
+              </DropdownMenuLabel>
               <div className="flex h-8 items-center justify-between gap-3 rounded-sm px-2 py-1.5 text-sm">
-                <span className="w-20">Edges</span>
+                <span className="w-28">Thickness</span>
                 <div className="flex items-center gap-0.5">
                   <button
                     type="button"
-                    aria-label="Decrease edge visibility"
-                    title="Decrease edge visibility"
+                    aria-label="Decrease edge thickness"
+                    title="Decrease edge thickness"
+                    className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      adjustEdgeThickness(
+                        activeEdgeVisibilityMode,
+                        -EDGE_THICKNESS_STEP
+                      );
+                    }}
+                  >
+                    <Minus className="h-3.5 w-3.5" />
+                  </button>
+                  <span className="w-7 text-center font-mono text-xs text-muted-foreground">
+                    {Math.round(edgeThickness[activeEdgeVisibilityMode] * 100)}
+                  </span>
+                  <button
+                    type="button"
+                    aria-label="Increase edge thickness"
+                    title="Increase edge thickness"
+                    className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      adjustEdgeThickness(
+                        activeEdgeVisibilityMode,
+                        EDGE_THICKNESS_STEP
+                      );
+                    }}
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex h-8 items-center justify-between gap-3 rounded-sm px-2 py-1.5 text-sm">
+                <span className="w-28">Normal opacity</span>
+                <div className="flex items-center gap-0.5">
+                  <button
+                    type="button"
+                    aria-label="Decrease normal edge opacity"
+                    title="Decrease normal edge opacity"
                     className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     onClick={(event) => {
                       event.preventDefault();
@@ -818,14 +926,12 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                     <Minus className="h-3.5 w-3.5" />
                   </button>
                   <span className="w-7 text-center font-mono text-xs text-muted-foreground">
-                    {Math.round(
-                      edgeVisibility[activeEdgeVisibilityMode] * 100
-                    )}
+                    {Math.round(edgeVisibility[activeEdgeVisibilityMode] * 100)}
                   </span>
                   <button
                     type="button"
-                    aria-label="Increase edge visibility"
-                    title="Increase edge visibility"
+                    aria-label="Increase normal edge opacity"
+                    title="Increase normal edge opacity"
                     className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     onClick={(event) => {
                       event.preventDefault();
@@ -835,6 +941,93 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                         EDGE_VISIBILITY_STEP
                       );
                     }}
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex h-8 items-center justify-between gap-3 rounded-sm px-2 py-1.5 text-sm">
+                <span className="w-28">Dashed opacity</span>
+                <div className="flex items-center gap-0.5">
+                  <button
+                    type="button"
+                    aria-label="Decrease dashed edge opacity"
+                    title="Decrease dashed edge opacity"
+                    className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      adjustDashedEdgeVisibility(
+                        activeEdgeVisibilityMode,
+                        -EDGE_VISIBILITY_STEP
+                      );
+                    }}
+                  >
+                    <Minus className="h-3.5 w-3.5" />
+                  </button>
+                  <span className="w-7 text-center font-mono text-xs text-muted-foreground">
+                    {Math.round(
+                      dashedEdgeVisibility[activeEdgeVisibilityMode] * 100
+                    )}
+                  </span>
+                  <button
+                    type="button"
+                    aria-label="Increase dashed edge opacity"
+                    title="Increase dashed edge opacity"
+                    className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      adjustDashedEdgeVisibility(
+                        activeEdgeVisibilityMode,
+                        EDGE_VISIBILITY_STEP
+                      );
+                    }}
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+              <DropdownMenuSeparator />
+              <div className="flex h-8 items-center justify-between gap-3 rounded-sm px-2 py-1.5 text-sm">
+                <span className="w-20">Group fill</span>
+                <div className="flex items-center gap-0.5">
+                  <button
+                    type="button"
+                    aria-label="Decrease group fill opacity"
+                    title="Decrease group fill opacity"
+                    className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    onPointerDown={(event) =>
+                      startGroupFillRepeat(event, -GROUP_FILL_OPACITY_STEP)
+                    }
+                    onPointerUp={stopGroupFillRepeat}
+                    onPointerCancel={stopGroupFillRepeat}
+                    onPointerLeave={stopGroupFillRepeat}
+                    onLostPointerCapture={stopGroupFillRepeat}
+                    onClick={(event) =>
+                      handleGroupFillClick(event, -GROUP_FILL_OPACITY_STEP)
+                    }
+                  >
+                    <Minus className="h-3.5 w-3.5" />
+                  </button>
+                  <span className="w-7 text-center font-mono text-xs text-muted-foreground">
+                    {Math.round(groupFillOpacity[activeEdgeVisibilityMode] * 100)}
+                  </span>
+                  <button
+                    type="button"
+                    aria-label="Increase group fill opacity"
+                    title="Increase group fill opacity"
+                    className="flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    onPointerDown={(event) =>
+                      startGroupFillRepeat(event, GROUP_FILL_OPACITY_STEP)
+                    }
+                    onPointerUp={stopGroupFillRepeat}
+                    onPointerCancel={stopGroupFillRepeat}
+                    onPointerLeave={stopGroupFillRepeat}
+                    onLostPointerCapture={stopGroupFillRepeat}
+                    onClick={(event) =>
+                      handleGroupFillClick(event, GROUP_FILL_OPACITY_STEP)
+                    }
                   >
                     <Plus className="h-3.5 w-3.5" />
                   </button>
@@ -869,16 +1062,19 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
       {tabs.length > 0 && (
         <div
           className={cn(
-            // ⬇︎  just add this utility class
-            "fixed top-14 z-10 h-10 border-b bg-background/80 backdrop-blur-sm select-none transition-[right] duration-300",
+            "app-tabbar fixed top-14 z-10 h-10 select-none transition-[right] duration-300",
             isSidebarOpen ? "left-64" : "left-0"
           )}
           style={{ right: tabBarRightInset }}
         >
-          <div className="tab-strip-scroll h-full w-full overflow-x-auto overflow-y-hidden">
-            <div className="flex h-full min-w-max items-center px-1">
-              <Tabs value={activeTabId} onValueChange={onTabSelect}>
-                <TabsList className="h-full gap-0.5 bg-transparent p-0">
+          <div className="tab-strip-scroll app-tabbar-scroll h-full w-full overflow-x-auto overflow-y-hidden">
+            <div className="app-tabbar-track flex h-full min-w-max items-center px-2">
+              <Tabs
+                value={activeTabId}
+                onValueChange={onTabSelect}
+                className="h-full shrink-0"
+              >
+                <TabsList className="h-full w-max gap-4 rounded-none bg-transparent p-0">
                   {tabs.map((t) => {
                     const isRenaming = renamingTabId === t.id;
                     return (
@@ -886,7 +1082,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                         key={t.id}
                         value={t.id}
                         title={t.tooltip ?? t.title}
-                        className="relative group flex h-8 items-center rounded-none px-3 text-sm after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px after:data-[state=active]:bg-primary"
+                        className="app-tab relative group flex h-full w-auto items-center px-0 text-sm"
                         onDoubleClick={(e) => {
                           if (!onRenameTab) return;
                           e.preventDefault();
@@ -916,16 +1112,16 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                                 cancelRename();
                               }
                             }}
-                            className="w-36 rounded-sm border border-input bg-background px-2 py-0.5 text-sm text-foreground outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                            className="app-tab-rename-input w-36 rounded-sm border border-input bg-background px-2 py-0.5 text-sm text-foreground outline-none focus-visible:ring-1 focus-visible:ring-primary"
                           />
                         ) : (
-                          <span className="flex-grow truncate text-center max-w-[9rem]">
+                          <span className="app-tab-title truncate text-center max-w-[9rem]">
                             {t.title}
                           </span>
                         )}
                         {onCloseTab && !isRenaming && (
                           <span
-                            className="ml-2 cursor-pointer rounded-full p-0.5 opacity-0 group-hover:opacity-100 hover:bg-accent data-[state=active]:text-foreground/70"
+                            className="app-tab-close ml-2 cursor-pointer rounded-full p-0.5"
                             onClick={(e) => {
                               e.stopPropagation();
                               onCloseTab(t.id);
@@ -939,6 +1135,17 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                   })}
                 </TabsList>
               </Tabs>
+              {onAddTab && (
+                <button
+                  type="button"
+                  className="app-tabbar-add ml-1 flex h-8 w-8 shrink-0 items-center justify-center"
+                  title="New tab"
+                  aria-label="New tab"
+                  onClick={onAddTab}
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 //  src/components/nodes/GroupNode.tsx
 //  -------------------------------------------------------------------
-//  Group node with title bar, font +/- and a compact "…" menu
+//  Group node with top title pill and on-demand controls
 //  - Menu renders in a portal (always above children)
 //  - Menu position follows the anchor live while open (handles zoom/pan)
 //  - Deleting from the menu recursively deletes all descendants
@@ -23,7 +23,6 @@ import {
 } from "@xyflow/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   AlertTriangle,
   Minus,
@@ -39,7 +38,7 @@ import { useClipboardLite } from "@/hooks/nodes/useClipboardLite";
 import { useSnapshotSchedulerContext } from "@/hooks/useSnapshotSchedulerContext";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
 import { useFlowActions } from "@/hooks/useFlowActions";
-import type { CalculationNodeData, FlowNode, NodeData } from "@/types";
+import type { CalculationNodeData, FlowNode } from "@/types";
 import { produce, setAutoFreeze } from "immer";
 import { EditableLabel } from "./common/EditableLabel";
 import { BorderDragHandles } from "./common/BorderDragHandles";
@@ -48,21 +47,19 @@ import { useNodePortalMenu } from "@/hooks/nodes/useNodePortalMenu";
 setAutoFreeze(false);
 
 // --- UI constants ---------------------------------------------------
-const MIN_HEADER_H = 36;
-const HEADER_VERTICAL_PADDING = 8;
-const DEFAULT_FONT_SIZE = 20;
+const DEFAULT_FONT_SIZE = 44;
 const MIN_FONT_SIZE = 12;
 const MAX_FONT_SIZE = 150;
 const RESIZE_HANDLE_SIZE = 24;
+const TITLE_PILL_MIN_WIDTH = 220;
 
 const MIN_W = 380;
 const MIN_H = 220;
 
 const BORDER_WIDTH = 10;
-const FILL_OPACITY = 0.1;
 const MENU_WIDTH = 240;
-const GROUP_COMMENT_MAX_LENGTH = 2200;
-const GROUP_COMMENT_SAVE_DEBOUNCE_MS = 350;
+const TITLE_CLICK_MOVE_TOLERANCE = 4;
+const CLEAR_BUNDLE_EDGE_SELECTION_EVENT = "rawbit:clear-bundle-edge-selection";
 
 const normalizeFontSize = (value: unknown) => {
   const numeric = Number(value);
@@ -86,7 +83,16 @@ export default function ShadcnGroupNode({
 
   // menu state
   const [showMenu, setShowMenu] = useState(false);
+  const [showTitleControls, setShowTitleControls] = useState(false);
+  const [titlePressActive, setTitlePressActive] = useState(false);
   const menuAnchorRef = useRef<HTMLButtonElement | null>(null);
+  const titlePressRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    didDrag: boolean;
+  } | null>(null);
+  const suppressNextTitleClickRef = useRef(false);
   const { containerRef: menuContainerRef, position: menuPos } =
     useNodePortalMenu({
       isOpen: showMenu,
@@ -94,16 +100,6 @@ export default function ShadcnGroupNode({
       onClose: () => setShowMenu(false),
     });
   const rawTitle = data.title || "Group Node";
-  const currentComment =
-    typeof data.comment === "string" ? data.comment : "";
-  const excludeFromFlowMap = data.excludeFromFlowMap === true;
-  const [commentDraft, setCommentDraft] = useState(currentComment);
-  const commentDraftRef = useRef(commentDraft);
-  commentDraftRef.current = commentDraft;
-  const commentSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null
-  );
-  const wasMenuOpenRef = useRef(false);
   const { copyId, idCopied } = useClipboardLite({
     result: undefined,
     rawTitle,
@@ -134,7 +130,10 @@ export default function ShadcnGroupNode({
     if (!showMenu) return;
     const pane = document.querySelector(".react-flow__pane");
     if (!pane) return;
-    const handlePanePointerDown = () => setShowMenu(false);
+    const handlePanePointerDown = () => {
+      setShowMenu(false);
+      setShowTitleControls(false);
+    };
     pane.addEventListener("pointerdown", handlePanePointerDown);
     return () => {
       pane.removeEventListener("pointerdown", handlePanePointerDown);
@@ -142,10 +141,12 @@ export default function ShadcnGroupNode({
   }, [showMenu]);
 
   useEffect(() => {
-    if (!showMenu) {
-      setCommentDraft(currentComment);
-    }
-  }, [currentComment, showMenu]);
+    if (selected) return;
+    setShowMenu(false);
+    setShowTitleControls(false);
+    setTitlePressActive(false);
+    titlePressRef.current = null;
+  }, [selected]);
 
   /* ----------------------------------------------------------------
        Helper: mutate node data in place (keeps RF internals intact)
@@ -179,6 +180,10 @@ export default function ShadcnGroupNode({
   };
 
   const clearSelectedEdges = useCallback(() => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event(CLEAR_BUNDLE_EDGE_SELECTION_EVENT));
+    }
+
     rf.setEdges((currentEdges) => {
       let changed = false;
       const next = currentEdges.map((edge) => {
@@ -220,12 +225,100 @@ export default function ShadcnGroupNode({
   const handleHeaderControlPointerDown = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
       blurActiveEditableElement();
-      event.preventDefault();
       event.stopPropagation();
       selectGroupNode();
     },
     [blurActiveEditableElement, selectGroupNode]
   );
+
+  const showGroupChrome = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      event.stopPropagation();
+      if (suppressNextTitleClickRef.current) {
+        suppressNextTitleClickRef.current = false;
+        return;
+      }
+      selectGroupNode();
+      setShowTitleControls(true);
+    },
+    [selectGroupNode]
+  );
+
+  const handleTitlePointerDown = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (event.button !== 0) return;
+      if (
+        event.target instanceof HTMLElement &&
+        event.target.closest(
+          "input, textarea, [contenteditable='true'], select, button"
+        )
+      ) {
+        return;
+      }
+
+      titlePressRef.current = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        didDrag: false,
+      };
+      suppressNextTitleClickRef.current = false;
+      setTitlePressActive(true);
+      setShowMenu(false);
+      setShowTitleControls(false);
+      selectGroupNode();
+    },
+    [selectGroupNode]
+  );
+
+  useEffect(() => {
+    if (!titlePressActive) return;
+
+    const markMovement = (event: PointerEvent) => {
+      const press = titlePressRef.current;
+      if (!press || press.pointerId !== event.pointerId) return;
+      const dx = Math.abs(event.clientX - press.startX);
+      const dy = Math.abs(event.clientY - press.startY);
+      if (dx > TITLE_CLICK_MOVE_TOLERANCE || dy > TITLE_CLICK_MOVE_TOLERANCE) {
+        press.didDrag = true;
+      }
+    };
+
+    const finishPress = (event: PointerEvent) => {
+      const press = titlePressRef.current;
+      if (!press || press.pointerId !== event.pointerId) return;
+
+      titlePressRef.current = null;
+      setTitlePressActive(false);
+
+      if (press.didDrag) {
+        suppressNextTitleClickRef.current = true;
+        setShowTitleControls(false);
+        return;
+      }
+
+      setShowTitleControls(true);
+    };
+
+    const cancelPress = (event: PointerEvent) => {
+      const press = titlePressRef.current;
+      if (!press || press.pointerId !== event.pointerId) return;
+      titlePressRef.current = null;
+      suppressNextTitleClickRef.current = true;
+      setTitlePressActive(false);
+      setShowTitleControls(false);
+    };
+
+    window.addEventListener("pointermove", markMovement);
+    window.addEventListener("pointerup", finishPress);
+    window.addEventListener("pointercancel", cancelPress);
+
+    return () => {
+      window.removeEventListener("pointermove", markMovement);
+      window.removeEventListener("pointerup", finishPress);
+      window.removeEventListener("pointercancel", cancelPress);
+    };
+  }, [titlePressActive]);
 
   const increaseFontSize = () => {
     const currentSize = normalizeFontSize(data.fontSize);
@@ -260,84 +353,6 @@ export default function ShadcnGroupNode({
       );
     }
   };
-
-  const commitComment = useCallback(
-    (nextValue: string) => {
-      const normalizedNext = nextValue.trim();
-      const currentNode = rf.getNodes().find((node) => node.id === id);
-      const existingComment =
-        typeof currentNode?.data?.comment === "string"
-          ? currentNode.data.comment
-          : "";
-      const normalizedCurrent = existingComment.trim();
-      if (normalizedNext === normalizedCurrent) return;
-
-      mutateNode((d) => {
-        if (normalizedNext) {
-          d.comment = normalizedNext;
-        } else {
-          delete d.comment;
-        }
-      });
-
-      setTimeout(
-        () => pushState(rf.getNodes(), rf.getEdges(), "Update Group Comment"),
-        0
-      );
-    },
-    [id, mutateNode, pushState, rf]
-  );
-
-  const toggleExcludeFromFlowMap = useCallback(() => {
-    const currentNode = rf.getNodes().find((node) => node.id === id);
-    const currentlyExcluded =
-      (currentNode?.data as NodeData | undefined)?.excludeFromFlowMap === true;
-    const nextExcluded = !currentlyExcluded;
-    mutateNode((d) => {
-      if (nextExcluded) {
-        d.excludeFromFlowMap = true;
-      } else {
-        delete d.excludeFromFlowMap;
-      }
-    });
-
-    setTimeout(
-      () =>
-        pushState(
-          rf.getNodes(),
-          rf.getEdges(),
-          nextExcluded
-            ? "Exclude Group From Flow Map"
-            : "Include Group In Flow Map"
-        ),
-      0
-    );
-  }, [id, mutateNode, pushState, rf]);
-
-  useEffect(() => {
-    if (!showMenu) return;
-    if (commentSaveTimerRef.current) {
-      clearTimeout(commentSaveTimerRef.current);
-    }
-    commentSaveTimerRef.current = setTimeout(() => {
-      commitComment(commentDraftRef.current);
-      commentSaveTimerRef.current = null;
-    }, GROUP_COMMENT_SAVE_DEBOUNCE_MS);
-
-    return () => {
-      if (commentSaveTimerRef.current) {
-        clearTimeout(commentSaveTimerRef.current);
-        commentSaveTimerRef.current = null;
-      }
-    };
-  }, [commentDraft, showMenu, commitComment]);
-
-  useEffect(() => {
-    if (wasMenuOpenRef.current && !showMenu) {
-      commitComment(commentDraftRef.current);
-    }
-    wasMenuOpenRef.current = showMenu;
-  }, [showMenu, commitComment]);
 
   /* ----------------------------------------------------------------
        Resize handlers
@@ -405,6 +420,8 @@ export default function ShadcnGroupNode({
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (e.button !== 0) return;
       if (isInteractionTargetEditable(e.target)) return;
+      setShowMenu(false);
+      setShowTitleControls(false);
       blurActiveEditableElement();
       clearSelectedEdges();
 
@@ -538,18 +555,38 @@ export default function ShadcnGroupNode({
   const w = Number(data.width) || 600;
   const h = Number(data.height) || 360;
   const currentFontSize = normalizeFontSize(data.fontSize);
-  const headerHeight = Math.max(
-    MIN_HEADER_H,
-    Math.round(currentFontSize + HEADER_VERTICAL_PADDING * 2)
+  const titlePillHeight = Math.round(Math.max(56, currentFontSize + 30));
+  const titleControlsVisible = showTitleControls || showMenu;
+  const titleControlVisualSize = Math.round(currentFontSize);
+  const titleControlButtonSize = Math.round(
+    Math.max(28, currentFontSize + 12)
   );
-  const bodyHeight = Math.max(0, h - headerHeight);
+  const titleControlValueWidth = Math.round(
+    Math.max(34, currentFontSize * 2.15)
+  );
+  const titleControlGap = Math.round(Math.max(4, currentFontSize * 0.12));
+  const titleControlsWidth = titleControlsVisible
+    ? Math.round(
+        titleControlButtonSize * 3 +
+          titleControlValueWidth +
+          titleControlGap * 3 +
+          16
+      )
+    : 0;
+  const titlePillWidth = Math.round(
+    Math.max(
+      TITLE_PILL_MIN_WIDTH,
+      rawTitle.length * currentFontSize * 0.62 + 56 + titleControlsWidth
+    )
+  );
+  const titleTextWidth = Math.max(
+    120,
+    titlePillWidth - 48 - titleControlsWidth
+  );
 
   const borderStyle = data.borderColor
     ? { borderColor: data.borderColor }
     : undefined;
-
-  const headerClasses =
-    "border-b border-border p-2 pl-3 pr-1 flex items-center gap-2 w-full cursor-grab active:cursor-grabbing";
 
   return (
     <Card
@@ -589,93 +626,147 @@ export default function ShadcnGroupNode({
         onResizeEnd={endResize}
       />
 
-      {/* Title bar (drag handle) */}
+      {/* Top title pill (drag handle) */}
       <div
         data-drag-handle
         data-testid="group-header"
-        className={headerClasses}
-        style={{ height: headerHeight }}
-        onPointerDownCapture={selectGroupNode}
+        className="absolute left-1/2 top-0 z-20 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border bg-background/95 shadow-sm cursor-grab active:cursor-grabbing"
+        style={{
+          width: titlePillWidth,
+          height: titlePillHeight,
+          ...borderStyle,
+        }}
+        onPointerDownCapture={handleTitlePointerDown}
+        onClick={showGroupChrome}
       >
-        {/* Font size controls (left aligned, with value between - and +) */}
-        <div className="flex items-center gap-1 pr-2 shrink-0">
-          <Button
-            variant="ghost"
-            size="icon"
-            onPointerDownCapture={handleHeaderControlPointerDown}
-            onClick={decreaseFontSize}
-            disabled={currentFontSize <= MIN_FONT_SIZE}
-            title="Decrease font size"
-            aria-label="Decrease font size"
-            className="h-8 w-8"
+        <div className="flex h-full w-full items-center justify-center gap-2 px-5">
+          <div
+            className="flex min-w-0 items-center justify-center leading-tight"
+            style={{ width: titleTextWidth }}
           >
-            <Minus className="h-4 w-4 text-foreground" />
-          </Button>
+            <EditableLabel
+              value={rawTitle}
+              onCommit={commitTitle}
+              maxLength={100}
+              fontSize={currentFontSize}
+              className="group-node-title font-mono text-center text-primary"
+            />
+          </div>
 
-          <span className="w-9 text-center text-xs text-muted-foreground tabular-nums select-none">
-            {Math.round(currentFontSize)}
-          </span>
+          {titleControlsVisible && (
+            <div
+              className="nodrag flex shrink-0 items-center gap-1 border-l border-border pl-2"
+              style={{
+                columnGap: titleControlGap,
+                paddingLeft: Math.max(8, Math.round(currentFontSize * 0.22)),
+              }}
+              onPointerDownCapture={(event) => {
+                event.stopPropagation();
+              }}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <Button
+                variant="ghost"
+                size="icon"
+                onPointerDownCapture={handleHeaderControlPointerDown}
+                onClick={decreaseFontSize}
+                disabled={currentFontSize <= MIN_FONT_SIZE}
+                title="Decrease font size"
+                aria-label="Decrease font size"
+                className="rounded-full p-0"
+                style={{
+                  width: titleControlButtonSize,
+                  height: titleControlButtonSize,
+                }}
+              >
+                <Minus
+                  className="text-foreground"
+                  style={{
+                    width: titleControlVisualSize,
+                    height: titleControlVisualSize,
+                  }}
+                />
+              </Button>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            onPointerDownCapture={handleHeaderControlPointerDown}
-            onClick={increaseFontSize}
-            disabled={currentFontSize >= MAX_FONT_SIZE}
-            title="Increase font size"
-            aria-label="Increase font size"
-            className="h-8 w-8"
-          >
-            <Plus className="h-4 w-4 text-foreground" />
-          </Button>
+              <span
+                className="text-center text-muted-foreground tabular-nums select-none"
+                style={{
+                  width: titleControlValueWidth,
+                  fontSize: currentFontSize,
+                  lineHeight: 1,
+                }}
+              >
+                {Math.round(currentFontSize)}
+              </span>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                onPointerDownCapture={handleHeaderControlPointerDown}
+                onClick={increaseFontSize}
+                disabled={currentFontSize >= MAX_FONT_SIZE}
+                title="Increase font size"
+                aria-label="Increase font size"
+                className="rounded-full p-0"
+                style={{
+                  width: titleControlButtonSize,
+                  height: titleControlButtonSize,
+                }}
+              >
+                <Plus
+                  className="text-foreground"
+                  style={{
+                    width: titleControlVisualSize,
+                    height: titleControlVisualSize,
+                  }}
+                />
+              </Button>
+
+              <Button
+                ref={menuAnchorRef}
+                variant="ghost"
+                size="icon"
+                className="rounded-full p-0"
+                style={{
+                  width: titleControlButtonSize,
+                  height: titleControlButtonSize,
+                }}
+                onClick={() => setShowMenu((v) => !v)}
+                onPointerDownCapture={handleHeaderControlPointerDown}
+                aria-label="More"
+                title="More"
+              >
+                <MoreHorizontal
+                  className="text-foreground"
+                  style={{
+                    width: titleControlVisualSize,
+                    height: titleControlVisualSize,
+                  }}
+                />
+              </Button>
+            </div>
+          )}
         </div>
-
-        <div className="leading-tight whitespace-normal break-words flex-1 min-w-0">
-          <EditableLabel
-            value={rawTitle}
-            onCommit={commitTitle}
-            maxLength={100}
-            fontSize={currentFontSize}
-            className="font-mono text-primary"
-          />
-        </div>
-
-        {/* Error icon (if present) */}
         {data.error && (
           <div
-            className="cursor-default"
+            className="absolute -right-1 -top-1 cursor-default rounded-full bg-background"
             title={data.extendedError || "Group node error"}
           >
-            <AlertTriangle className="h-6 w-6 text-destructive" />
+            <AlertTriangle className="h-5 w-5 text-destructive" />
           </div>
         )}
-
-        {/* More menu toggle (STOP events so we don't drag the group) */}
-        <Button
-          ref={menuAnchorRef}
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 nodrag"
-          onClick={() => setShowMenu((v) => !v)}
-          onPointerDownCapture={handleHeaderControlPointerDown}
-          aria-label="More"
-          title="More"
-        >
-          <MoreHorizontal className="h-4 w-4 text-foreground" />
-        </Button>
       </div>
 
       {/* Thin 10px invisible border areas act as additional drag handles */}
       <BorderDragHandles
         borderWidth={BORDER_WIDTH}
-        cornerGap={Math.max(headerHeight, RESIZE_HANDLE_SIZE)}
+        cornerGap={RESIZE_HANDLE_SIZE}
       />
 
       {/* Body content background fill (transparent) */}
       <CardContent
         data-testid="group-body"
-        className="p-2 overflow-visible relative nodrag"
-        style={{ height: bodyHeight }}
+        className="absolute inset-0 p-2 overflow-visible nodrag"
         onPointerDownCapture={handleBodyPointerDown}
         onPointerMoveCapture={handleBodyPointerMove}
         onPointerUpCapture={resetBodyPan}
@@ -688,9 +779,9 @@ export default function ShadcnGroupNode({
         <div className="relative z-10 h-full w-full" data-testid="group-body-content" />
         {data.borderColor && (
           <div
-            className="absolute inset-0 pointer-events-none rounded-b-lg z-0"
+            className="group-fill absolute inset-0 pointer-events-none rounded-lg z-0"
             data-testid="group-fill"
-            style={{ backgroundColor: data.borderColor, opacity: FILL_OPACITY }}
+            style={{ backgroundColor: data.borderColor }}
           />
         )}
       </CardContent>
@@ -711,40 +802,6 @@ export default function ShadcnGroupNode({
             }}
             onPointerDownCapture={(e) => e.stopPropagation()}
           >
-            <div className="px-1 pb-1">
-              <label
-                htmlFor={`group-comment-${id}`}
-                className="mb-1 block text-xs font-medium text-muted-foreground"
-              >
-                Group Comment
-              </label>
-              <textarea
-                id={`group-comment-${id}`}
-                value={commentDraft}
-                onChange={(event) =>
-                  setCommentDraft(event.target.value.slice(0, GROUP_COMMENT_MAX_LENGTH))
-                }
-                placeholder="Describe what this group does..."
-                className="w-full rounded-sm border border-border bg-background px-2 py-1 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                rows={3}
-              />
-              <label
-                htmlFor={`group-flow-map-exclude-${id}`}
-                className="mt-2 flex cursor-pointer items-center gap-2 text-xs text-foreground"
-              >
-                <Checkbox
-                  id={`group-flow-map-exclude-${id}`}
-                  checked={excludeFromFlowMap}
-                  onCheckedChange={toggleExcludeFromFlowMap}
-                  className="h-3.5 w-3.5 data-[state=checked]:bg-transparent data-[state=checked]:text-primary"
-                />
-                Exclude from Flow Map
-              </label>
-              <div className="mt-1 text-[10px] text-muted-foreground">
-                Hidden groups and their connections are omitted from Flow Map.
-              </div>
-            </div>
-            <div className="my-1 h-px bg-border" />
             <button
               className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
               onClick={handleCopyId}

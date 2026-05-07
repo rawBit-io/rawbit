@@ -487,14 +487,18 @@ describe("Flow welcome dialog suppression on shared links", () => {
     expect(queryByText("Pick how you would like to get started.")).not.toBeInTheDocument();
   });
 
-  it("shows the welcome dialog on a fresh browser session without a shared link", () => {
-    // No welcomeSeen flag, no share param → dialog should open
+  it("auto-loads the default example flow on a fresh browser session without a shared link", () => {
+    // No welcomeSeen flag, no share param -> current rawBit starts from the intro flow.
     localStorage.clear();
     window.history.replaceState({}, "", window.location.pathname);
 
-    const { getByText } = render(<Flow />);
+    const { queryByText } = render(<Flow />);
 
-    expect(getByText("Pick how you would like to get started.")).toBeInTheDocument();
+    expect(queryByText("Pick how you would like to get started.")).not.toBeInTheDocument();
+    expect(scheduleSnapshotMock).toHaveBeenCalledWith("Load example: Example flow", {
+      refresh: true,
+    });
+    expect(localStorage.getItem("rawbit.ui.welcomeSeen")).toBe("1");
   });
 });
 

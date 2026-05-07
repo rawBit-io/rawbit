@@ -10,6 +10,7 @@ import {
   VIRTUAL_MAX_HEIGHT,
   VIRTUAL_OVERSCAN,
 } from "@/lib/nodes/constants";
+import { cn } from "@/lib/utils";
 import type { FieldDefinition, GroupDefinition } from "@/types";
 
 import { EditableLabel } from "../fields/EditableLabel";
@@ -24,6 +25,12 @@ interface GroupSectionProps {
   onIncrement: () => void;
   onDecrement: () => void;
   renderField: (offset: number, field: FieldDefinition, index: number) => React.ReactNode;
+  headerDivider?: boolean;
+  className?: string;
+  headerClassName?: string;
+  titleClassName?: string;
+  instanceClassName?: string;
+  compactControls?: boolean;
 }
 
 export function GroupSection({
@@ -36,6 +43,12 @@ export function GroupSection({
   onIncrement,
   onDecrement,
   renderField,
+  headerDivider = true,
+  className,
+  headerClassName,
+  titleClassName,
+  instanceClassName,
+  compactControls = false,
 }: GroupSectionProps) {
   const totalFields = instanceKeys.length * group.fields.length;
   const hasInstances = instanceKeys.length > 0;
@@ -64,17 +77,50 @@ export function GroupSection({
     );
   };
 
+  const buttonClassName = compactControls
+    ? "h-7 px-2"
+    : !headerDivider
+      ? "h-6 px-2"
+      : undefined;
+  const iconClassName = compactControls
+    ? "h-3.5 w-3.5"
+    : headerDivider
+      ? "h-4 w-4"
+      : "h-3 w-3";
+
   return (
-    <div className="mb-6 space-y-3">
-      <div className="mb-3 flex items-center justify-between border-b border-border pb-2">
-        <EditableLabel value={title} onCommit={onTitleCommit} className="text-lg" />
+    <div className={cn("mb-6 space-y-3", className)}>
+      <div
+        className={cn(
+          "mb-3 flex items-center justify-between",
+          headerDivider && "border-b border-border pb-2",
+          headerClassName
+        )}
+      >
+        <EditableLabel
+          value={title}
+          onCommit={onTitleCommit}
+          className={titleClassName ?? (headerDivider ? "text-lg" : "text-sm")}
+        />
         {group.expandable && (
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" onClick={onDecrement} disabled={!canDecrement}>
-              <Minus className="h-4 w-4" />
+            <Button
+              size="sm"
+              variant="outline"
+              className={buttonClassName}
+              onClick={onDecrement}
+              disabled={!canDecrement}
+            >
+              <Minus className={iconClassName} />
             </Button>
-            <Button size="sm" variant="outline" onClick={onIncrement} disabled={!canIncrement}>
-              <Plus className="h-4 w-4" />
+            <Button
+              size="sm"
+              variant="outline"
+              className={buttonClassName}
+              onClick={onIncrement}
+              disabled={!canIncrement}
+            >
+              <Plus className={iconClassName} />
             </Button>
           </div>
         )}
@@ -93,7 +139,10 @@ export function GroupSection({
           </List>
         ) : (
           instanceKeys.map((offset, instanceIndex) => (
-            <div key={`${group.title}-${offset}`} className="mb-4 space-y-3 pl-4">
+            <div
+              key={`${group.title}-${offset}`}
+              className={cn("mb-4 space-y-3 pl-4", instanceClassName)}
+            >
               {showInstanceLabels && (
                 <div className="text-sm font-semibold text-primary">
                   {`> ${group.instanceLabelPrefix} ${instanceIndex}`}

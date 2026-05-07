@@ -6,6 +6,7 @@ from __future__ import annotations
 import os
 import re
 import shlex
+import socket
 import subprocess
 import sys
 import time
@@ -87,13 +88,39 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
     # Keep the local gate truly local unless callers override explicitly.
     # Playwright reads PLAYWRIGHT_* and the frontend respects VITE_* envs, so
     # we set localhost defaults here while still allowing env overrides above.
+    if "PLAYWRIGHT_BASE_URL" not in os.environ:
+        run_all_base_url = os.getenv("RUN_ALL_TESTS_BASE_URL")
+        if run_all_base_url:
+            os.environ["PLAYWRIGHT_BASE_URL"] = run_all_base_url
+        else:
+            os.environ["PLAYWRIGHT_BASE_URL"] = (
+                f"http://127.0.0.1:{find_available_port()}"
+            )
+    os.environ.setdefault("PLAYWRIGHT_REUSE_EXISTING_SERVER", "0")
+    if "PLAYWRIGHT_API_URL" not in os.environ:
+        run_all_api_url = os.getenv("RUN_ALL_TESTS_API_URL")
+        if run_all_api_url:
+            os.environ["PLAYWRIGHT_API_URL"] = run_all_api_url
+        else:
+            os.environ["PLAYWRIGHT_API_URL"] = (
+                f"http://localhost:{find_available_port(start=5007)}"
+            )
+    os.environ.setdefault("PORT", str(urlparse(os.environ["PLAYWRIGHT_API_URL"]).port or 5007))
+    os.environ.setdefault("RAWBIT_CALCULATION_BUDGET_SECONDS", "120")
     os.environ.setdefault(
-        "PLAYWRIGHT_BASE_URL", os.getenv("RUN_ALL_TESTS_BASE_URL", "http://127.0.0.1:3041")
+        "CORS_ORIGINS",
+        ",".join(
+            dict.fromkeys(
+                [
+                    "https://rawbit.io",
+                    "https://www.rawbit.io",
+                    "http://localhost:3041",
+                    "http://127.0.0.1:3041",
+                    origin_from_url(os.environ["PLAYWRIGHT_BASE_URL"]),
+                ]
+            )
+        ),
     )
-    os.environ.setdefault(
-        "PLAYWRIGHT_API_URL", os.getenv("RUN_ALL_TESTS_API_URL", "http://localhost:5007")
-    )
-    os.environ.setdefault("VITE_API_BASE_URL", os.environ["PLAYWRIGHT_API_URL"])
 
     backend_proc = None
     try:
@@ -128,12 +155,12 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
 
             if args.e2e_browsers == "all":
                 return [
-                    ["npm", "run", "test:e2e", "--", "--project=chromium", "--workers=2"],
-                    ["npm", "run", "test:e2e", "--", "--project=firefox", "--workers=2"],
-                    ["npm", "run", "test:e2e", "--", "--project=webkit", "--workers=2"],
+                    ["npm", "run", "test:e2e", "--", "--project=chromium", "--workers=1"],
+                    ["npm", "run", "test:e2e", "--", "--project=firefox", "--workers=1"],
+                    ["npm", "run", "test:e2e", "--", "--project=webkit", "--workers=1"],
                 ]
 
-            return [["npm", "run", "test:e2e", "--", "--project=chromium"]]
+            return [["npm", "run", "test:e2e", "--", "--project=chromium", "--workers=1"]]
 
         jobs = [
             TestJob(
@@ -311,6 +338,27 @@ def backend_health_url() -> str:
     return f"{base}/healthz"
 
 
+def find_available_port(
+    host: str = "127.0.0.1", start: int = 3041, attempts: int = 100
+) -> int:
+    for port in range(start, start + attempts):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            try:
+                sock.bind((host, port))
+            except OSError:
+                continue
+            return port
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind((host, 0))
+        return int(sock.getsockname()[1])
+
+
+def origin_from_url(url: str) -> str:
+    parsed = urlparse(url)
+    return f"{parsed.scheme}://{parsed.netloc}"
+
+
 
 def backend_is_local() -> bool:
     parsed = urlparse(os.environ.get("PLAYWRIGHT_API_URL", "http://localhost:5007"))
@@ -378,4 +426,3 @@ def select_backend_python(repo_root: Path) -> str:
 
 if __name__ == "__main__":
     main()
-

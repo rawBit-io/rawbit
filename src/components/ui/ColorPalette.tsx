@@ -8,29 +8,26 @@ import type { XYPosition } from "@xyflow/react";
 
 interface ColorPaletteProps {
   isOpen: boolean;
-  position: XYPosition; // Position calculated in Flow.tsx
+  position: XYPosition;
   onColorSelect: (color: string | undefined) => void;
   onClose: () => void;
 }
 
 // --- Color Palette Definition ---
 const defaultColors = [
-  "#3b82f6",
-  "#22c55e",
-  "#ef4444",
-  "#a855f7",
-  "#f97316",
-  "#ec4899",
-  "#14b8a6",
-  "#eab308",
-  "#6366f1",
+  { name: "yellow", value: "#d6a500" },
+  { name: "teal", value: "#008c86" },
+  { name: "blue", value: "#2d5fb3" },
+  { name: "violet", value: "#7a4ea3" },
+  { name: "accent", value: "#a83a32" },
+  { name: "gray", value: "#6f6a60" },
 ];
 
 // --- Sizing Constants (Original Style with Fixed Width) ---
-const PALETTE_WIDTH = "w-36"; // Fixed width (9rem = 36 × 4 = 144px)
+const PALETTE_WIDTH = "w-48"; // Wide enough for reset plus six swatches
 const SWATCH_SIZE = "w-5 h-5"; // Same small swatches as original
 const ICON_SIZE = "h-3 w-3"; // Same smaller icons as original
-const GRID_COLUMNS = "grid-cols-5"; // Same 5 columns as original
+const GRID_COLUMNS = "grid-cols-7"; // Reset plus six clearly separated colors
 const GAP_SIZE = "gap-1.5"; // Same spacing as original
 const PADDING = "p-1.5"; // Same padding as original
 
@@ -54,7 +51,6 @@ export function ColorPalette({
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
-        transform: "translate(-50%, -50%)", // Center on the position
       }}
       onMouseDown={stopPropagation}
       onClick={stopPropagation}
@@ -75,7 +71,7 @@ export function ColorPalette({
           <Button
             variant="outline"
             className={cn(
-              "p-0 border-dashed flex items-center justify-center",
+              "border-transparent bg-transparent p-0 flex items-center justify-center",
               "hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1",
               SWATCH_SIZE
             )}
@@ -86,18 +82,19 @@ export function ColorPalette({
           </Button>
 
           {/* Color Swatches */}
-          {defaultColors.map((color) => (
+          {defaultColors.map(({ name, value }) => (
             <Button
-              key={color}
+              key={value}
               variant="ghost"
               className={cn(
                 "p-0 border rounded",
                 "hover:ring-1 hover:ring-offset-1 hover:ring-ring/50 focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1",
                 SWATCH_SIZE
               )}
-              style={{ backgroundColor: color }}
-              onClick={() => onColorSelect(color)}
-              title={color}
+              style={{ backgroundColor: value }}
+              onClick={() => onColorSelect(value)}
+              title={name}
+              aria-label={`Select ${name}`}
             />
           ))}
         </div>

@@ -5,6 +5,7 @@ import type { FlowData } from "@/types";
 // Import each JSON file.
 // Make sure your paths match exactly where they live in your project:
 
+import intro from "@/my_tx_flows/p0_Intro_P2PKH.json";
 import intro_p2pkh_p2pk from "@/my_tx_flows/p1_Intro_P2PKH_and_P2PK.json";
 import p2_multisig from "@/my_tx_flows/p2_Bare_P2MS_and_P2SH_MultiSig.json";
 import locktime_tx from "@/my_tx_flows/p3_Locktime_Intro.json";
@@ -22,14 +23,18 @@ import MuSig2 from "@/my_tx_flows/p14_MuSig2.json";
 import TrezorSigningFlow from "@/my_tx_flows/p15_Trezor_signing_flow.json";
 import SummerOfBitcoinPoC from "@/my_tx_flows/p16_Summer_of_Bitcoin_26_PoC.json";
 
-export type CustomFlowLevel = "intro" | "intermediate" | "advanced" | "challenge";
+export type CustomFlowLevel =
+  | "intro"
+  | "intermediate"
+  | "advanced"
+  | "challenge";
 
 export interface CustomFlowTemplate {
   id: string;
   label: string;
   data: FlowData;
   section: string;
-  lessonNo?: number;
+  flowNo?: number;
   level: CustomFlowLevel;
   tags: string[];
 }
@@ -37,11 +42,20 @@ export interface CustomFlowTemplate {
 // Then build the array, casting each import to FlowData:
 export const customFlows: CustomFlowTemplate[] = [
   {
+    id: "flow-0",
+    label: "Intro P2PKH",
+    data: intro as unknown as FlowData,
+    section: "top-level",
+    flowNo: 0,
+    level: "intro",
+    tags: ["intro", "overview"],
+  },
+  {
     id: "flow-1",
     label: "Intro P2PKH and P2PK",
     data: intro_p2pkh_p2pk as unknown as FlowData,
     section: "legacy-foundations",
-    lessonNo: 1,
+    flowNo: 1,
     level: "intro",
     tags: ["legacy", "p2pkh", "p2pk"],
   },
@@ -51,7 +65,7 @@ export const customFlows: CustomFlowTemplate[] = [
     label: "Multisig: Bare P2MS and P2SH Multisig",
     data: p2_multisig as unknown as FlowData,
     section: "legacy-foundations",
-    lessonNo: 2,
+    flowNo: 2,
     level: "intro",
     tags: ["legacy", "multisig", "p2sh"],
   },
@@ -60,7 +74,7 @@ export const customFlows: CustomFlowTemplate[] = [
     label: "Transaction Time Locks (nLocktime & nSequence)",
     data: locktime_tx as unknown as FlowData,
     section: "scripts-timelocks-commitments",
-    lessonNo: 3,
+    flowNo: 3,
     level: "intermediate",
     tags: ["locktime", "nsequence", "transaction"],
   },
@@ -69,7 +83,7 @@ export const customFlows: CustomFlowTemplate[] = [
     label: "Script Time Locks (CLTV & CSV)",
     data: locktime_script as unknown as FlowData,
     section: "scripts-timelocks-commitments",
-    lessonNo: 4,
+    flowNo: 4,
     level: "intermediate",
     tags: ["script", "cltv", "csv"],
   },
@@ -78,7 +92,7 @@ export const customFlows: CustomFlowTemplate[] = [
     label: "OP_RETURN",
     data: op_return as unknown as FlowData,
     section: "scripts-timelocks-commitments",
-    lessonNo: 5,
+    flowNo: 5,
     level: "intermediate",
     tags: ["script", "op-return", "commitment"],
   },
@@ -87,7 +101,7 @@ export const customFlows: CustomFlowTemplate[] = [
     label: "Spilman channel",
     data: Spilman_channel as unknown as FlowData,
     section: "channels",
-    lessonNo: 6,
+    flowNo: 6,
     level: "intermediate",
     tags: ["channel", "payment-channel", "legacy"],
   },
@@ -96,7 +110,7 @@ export const customFlows: CustomFlowTemplate[] = [
     label: "TX malleability",
     data: TX_Malleability as unknown as FlowData,
     section: "segwit",
-    lessonNo: 7,
+    flowNo: 7,
     level: "intermediate",
     tags: ["malleability", "txid", "legacy"],
   },
@@ -105,7 +119,7 @@ export const customFlows: CustomFlowTemplate[] = [
     label: "SegWit intro",
     data: SegWit_Intro as unknown as FlowData,
     section: "segwit",
-    lessonNo: 8,
+    flowNo: 8,
     level: "intermediate",
     tags: ["segwit", "p2wpkh", "bip143"],
   },
@@ -114,7 +128,7 @@ export const customFlows: CustomFlowTemplate[] = [
     label: "SegWit P2WSH",
     data: SegWit_P2WSH as unknown as FlowData,
     section: "segwit",
-    lessonNo: 9,
+    flowNo: 9,
     level: "intermediate",
     tags: ["segwit", "p2wsh", "script"],
   },
@@ -123,7 +137,7 @@ export const customFlows: CustomFlowTemplate[] = [
     label: "Wrapped Addresses",
     data: Wrapped_Addresses as unknown as FlowData,
     section: "segwit",
-    lessonNo: 10,
+    flowNo: 10,
     level: "intermediate",
     tags: ["segwit", "wrapped", "p2sh"],
   },
@@ -132,7 +146,7 @@ export const customFlows: CustomFlowTemplate[] = [
     label: "Taproot intro",
     data: Taproot_Intro as unknown as FlowData,
     section: "taproot-schnorr-musig",
-    lessonNo: 11,
+    flowNo: 11,
     level: "advanced",
     tags: ["taproot", "schnorr", "p2tr"],
   },
@@ -141,7 +155,7 @@ export const customFlows: CustomFlowTemplate[] = [
     label: "Taproot Script",
     data: Taproot_Script as unknown as FlowData,
     section: "taproot-schnorr-musig",
-    lessonNo: 12,
+    flowNo: 12,
     level: "advanced",
     tags: ["taproot", "tapscript", "control-block"],
   },
@@ -150,7 +164,7 @@ export const customFlows: CustomFlowTemplate[] = [
     label: "Taproot MultiSig",
     data: Taproot_MultiSig as unknown as FlowData,
     section: "taproot-schnorr-musig",
-    lessonNo: 13,
+    flowNo: 13,
     level: "advanced",
     tags: ["taproot", "multisig", "op-checksigadd"],
   },
@@ -159,7 +173,7 @@ export const customFlows: CustomFlowTemplate[] = [
     label: "MuSig2",
     data: MuSig2 as unknown as FlowData,
     section: "taproot-schnorr-musig",
-    lessonNo: 14,
+    flowNo: 14,
     level: "advanced",
     tags: ["musig2", "bip327", "schnorr"],
   },
@@ -168,7 +182,7 @@ export const customFlows: CustomFlowTemplate[] = [
     label: "Trezor Signing Flow",
     data: TrezorSigningFlow as unknown as FlowData,
     section: "wallet-signing-labs",
-    lessonNo: 15,
+    flowNo: 15,
     level: "advanced",
     tags: ["trezor", "hardware", "bip39", "bip32", "rfc6979"],
   },
@@ -177,7 +191,7 @@ export const customFlows: CustomFlowTemplate[] = [
     label: "Summer of Bitcoin 2026 PoC",
     data: SummerOfBitcoinPoC as unknown as FlowData,
     section: "contributor-challenges",
-    lessonNo: 16,
+    flowNo: 16,
     level: "challenge",
     tags: ["summer-of-bitcoin", "proof-of-competence", "challenge"],
   },

@@ -2,7 +2,7 @@
 
 _A powerful, node-based visual editor for constructing and understanding Bitcoin transactions._
 
-Drag and drop components on a canvas to build transactions visually — no coding knowledge required for most flows. At the same time, rawBit is built for power users who want to inspect the exact code behind every node, step through Bitcoin Script execution opcode-by-opcode, and watch the stack change in real time.
+Drag and drop nodes on a canvas to build transactions visually — no coding knowledge required for most flows. At the same time, rawBit is built for power users who want to inspect the exact code behind every node and step through Bitcoin Script execution opcode by opcode.
 
 **Try rawBit online:** [rawbit.io](https://rawbit.io) | **Run locally:** [Quick start](#quick-start-local)
 
@@ -10,6 +10,8 @@ Drag and drop components on a canvas to build transactions visually — no codin
 
 rawBit ships with **16 hands-on example flows** that you can instantly load, tweak, and inspect.  
 Just drag any flow from the sidebar’s **Flow Examples** section onto the canvas and start exploring.
+
+> Flow examples are being visually reworked with clearer groups, notes, and layout. All flows remain available in rawBit. The previous layout is temporarily available at [dev.rawbit.io](https://dev.rawbit.io).
 
 Flows 1–14 progress from legacy transactions through SegWit and Taproot.  
 Flows 15–16 cover standalone hardware-signing and contributor labs.
@@ -28,13 +30,11 @@ Flows 15–16 cover standalone hardware-signing and contributor labs.
 - **Flow 15:** Trezor signing flow (BIP39/BIP32, RFC6979, hardware signing comparison)
 - **Flow 16:** Summer of Bitcoin 2026 PoC flow
 
-All flow transactions were broadcast on **testnet3**, so you can inspect them on-chain and compare the raw bytes yourself.
-
-**Flow notes:** [docu/l-sum.md](docu/l-sum.md) summarizes all 16 flows.
+All flow transactions were broadcast on **testnet3/4**, so you can inspect them on-chain and compare the raw bytes yourself.
 
 ---
 
-![rawBit editor screenshot](docu/overview.jpg)
+![rawBit editor screenshot](docu/overview.png)
 
 ---
 
@@ -44,7 +44,7 @@ All flow transactions were broadcast on **testnet3**, so you can inspect them on
 - **Live updates on every change** — Modify keys, amounts, scripts, or witness data and instantly watch preimages, signatures, TXID/WTXID, fees, and weight recalculate in real time.
 - **Inspect the exact code** — Click any calculation node to see the precise Python function that powers its result.
 - **Integrated Script debugger** — Step through Bitcoin Script opcode by opcode, watch the stack change live, and instantly spot validation failures.
-- **Powerful canvas tools** — Organize complex flows with groups, tabs, templates, clipboard, undo/redo history, search, minimap, and the protocol flow map.
+- **Powerful canvas tools** — Organize complex flows with groups, tabs, templates, clipboard, undo/redo history, search and minimap
 - **Learn with built-in flows** — Explore P2PKH, P2SH, SegWit, Taproot, MuSig2, hardware signing, and contributor flows.
 - **Export and share** — Save/load full graphs, create share links, export selected nodes, or generate LLM-ready bundles that include the backend code.
 
@@ -91,7 +91,7 @@ pip install -r requirements-special.txt
 python3 backend/routes.py      # Flask API → http://localhost:5007/
 ```
 
-Open [http://localhost:3041/](http://localhost:3041/). The frontend bundles lesson flows from `src/my_tx_flows/` and sends calculations to `http://localhost:5007/bulk_calculate`. The backend also exposes `/flows`, `/code`, and `/healthz`.
+Open [http://localhost:3041/](http://localhost:3041/). The frontend bundles flows from `src/my_tx_flows/` and sends calculations to `http://localhost:5007/bulk_calculate`. The backend also exposes `/flows`, `/code`, and `/healthz`.
 
 > The backend uses a forked **python-bitcointx** pinned in `requirements-special.txt`. A virtualenv keeps those bindings isolated.
 
@@ -103,7 +103,7 @@ The tracked `.env` file provides local defaults for the app and tests. For priva
 
 ## Architecture (at a glance)
 
-- **Frontend:** React + Vite + Tailwind + `@xyflow/react`. Handles the canvas, tabs, panels, templates, clipboard, protocol flow map, search/minimap, and per-tab undo/redo.
+- **Frontend:** React + Vite + Tailwind + `@xyflow/react`. Handles the canvas, tabs, panels, templates, clipboard, search/minimap, and per-tab undo/redo.
 - **Backend:** Flask + Python (with `python-bitcointx`). Evaluates calculation nodes, validates scripts/signatures, enforces a sliding computation-time budget, and exposes `/bulk_calculate`, `/flows`, `/code`, and `/healthz`.
 
 See `/docu` for the deeper tours:
@@ -137,11 +137,11 @@ python3 run_all_tests.py        # add --e2e-browsers=all for FF/WebKit too
 
 ## Contributing
 
-rawBit is a visual lab for Bitcoin transactions. The most useful contributions are **flows and lessons** that help others understand how things work.
+rawBit is a visual lab for Bitcoin transactions. The most useful contributions are **flows** that help others understand how things work.
 For a broader list of possible contribution directions, see [docu/contribute.md](docu/contribute.md).
 Community discussion: [Discord](https://discord.gg/HPSYkT9tq).
 
-### Flows and lessons
+### Flows
 
 - Lightning Network
 - CoinJoin

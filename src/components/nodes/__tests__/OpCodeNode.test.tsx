@@ -126,7 +126,7 @@ describe("OpCodeNode", () => {
     clipboardHook.mockReset();
   });
 
-  it("expands, adds opcodes, and copies hex output", async () => {
+  it("adds opcodes and copies hex output", async () => {
     const clipboardMock = {
       prettyResult: "",
       copyResult: vi.fn(),
@@ -155,16 +155,22 @@ describe("OpCodeNode", () => {
       { snapshotScheduler: scheduler }
     );
 
+    expect(screen.getByPlaceholderText(/search opcodes/i)).toBeInTheDocument();
+    expect(screen.getByText(/sequence empty/i)).toBeInTheDocument();
     expect(screen.getByText(/no opcodes selected/i)).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /expand/i }));
-    expect(
-      screen.getByPlaceholderText("Search all Opcodes...")
-    ).toBeInTheDocument();
-
+    await user.type(screen.getByPlaceholderText(/search opcodes/i), "add");
     await user.click(screen.getByText("OP_ADD"));
 
-    expect(nodesState[0].data.opSequenceNames).toEqual(["OP_ADD"]);
+    expect(nodesState[0].data.functionName).toBe("op_code_select");
+    expect(nodesState[0].data.paramExtraction).toBe("multi_val");
+    expect(nodesState[0].data.inputs?.vals).toEqual({ 0: "OP_ADD" });
+    expect(nodesState[0].data.opSequenceNames).toBeUndefined();
+    expect(nodesState[0].data.value).toBeUndefined();
+    expect(nodesState[0].data.dirty).toBe(true);
+
+    nodesState[0].data.result = "93";
+    nodesState[0].data.dirty = false;
 
     view.rerender(
       <OpCodeNode

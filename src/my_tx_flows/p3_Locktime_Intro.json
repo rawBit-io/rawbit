@@ -6668,7 +6668,7 @@
         "y": 219.8639482579788
       },
       "data": {
-        "content": "# Lesson 3: Absolute and Relative Timelocks\n\n- Absolute lock by block height: set `nLocktime` to a future height.\n- Absolute lock by timestamp: set `nLocktime` to a Unix time (evaluated via Median Time Past).\n- Relative lock by blocks: use BIP68 semantics in `nSequence` so the spend is valid only after N blocks since confirmation.\n- Relative lock by time: use the time‑based BIP68 form (units of 512 seconds).\n- Activation details: set at least one input’s `nSequence` to a value less than `0xffffffff`; relative timelocks require transaction version 2.\n- Verification: transactions are valid but will be rejected as “non‑final” if broadcast before the lock expires.",
+        "content": "# Flow 3: Absolute and Relative Timelocks\n\n- Absolute lock by block height: set `nLocktime` to a future height.\n- Absolute lock by timestamp: set `nLocktime` to a Unix time (evaluated via Median Time Past).\n- Relative lock by blocks: use BIP68 semantics in `nSequence` so the spend is valid only after N blocks since confirmation.\n- Relative lock by time: use the time‑based BIP68 form (units of 512 seconds).\n- Activation details: set at least one input’s `nSequence` to a value less than `0xffffffff`; relative timelocks require transaction version 2.\n- Verification: transactions are valid but will be rejected as “non‑final” if broadcast before the lock expires.",
         "fontSize": 28,
         "width": 300,
         "height": 200,

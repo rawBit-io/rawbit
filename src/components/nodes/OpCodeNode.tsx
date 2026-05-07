@@ -6,7 +6,7 @@
       • ALL_OPS is now a module-level singleton
     --------------------------------------------------------------- */
 
-import React, {
+import {
   useState,
   useCallback,
   useEffect,
@@ -19,8 +19,6 @@ import { Button } from "@/components/ui/button";
 import {
   Copy,
   Check,
-  Maximize2,
-  Minimize2,
   MoreHorizontal,
   FileCode,
   MessageSquare,
@@ -30,10 +28,6 @@ import { cn } from "@/lib/utils";
 import type { FlowNode } from "@/types";
 import { useSnapshotSchedulerContext } from "@/hooks/useSnapshotSchedulerContext";
 import { useClipboardLite } from "@/hooks/nodes/useClipboardLite";
-import {
-  OpcodeExpandedView,
-  SelectedCategory,
-} from "./opcode/OpcodeExpandedView";
 import { OpcodeMiniView } from "./opcode/OpcodeMiniView";
 
 import {
@@ -48,6 +42,10 @@ import {
 import NodeCodeDialog from "@/components/dialog/NodeCodeDialog";
 
 import { OP_CODES, OpItem, findOpItemByName } from "@/lib/opcodes";
+import {
+  buildOpcodeInputState,
+  getOpcodeInputNames,
+} from "@/lib/opcodeNodeData";
 
 /* ------------------------------------------------------------------ */
 /*  ALL_OPS – computed once per module load                           */
@@ -63,26 +61,6 @@ const ALL_OPS: OpItem[] = (() => {
 })();
 
 function useOpcodeFilters(miniSearch: string) {
-  const [fullSearch, setFullSearch] = useState("");
-  const [category, setCategory] = useState<SelectedCategory>("all");
-
-  const filteredFull = useMemo(() => {
-    const query = fullSearch.trim().toLowerCase();
-    if (query) {
-      return ALL_OPS.filter((op) =>
-        [op.name, op.description, op.hex]
-          .join(" ")
-          .toLowerCase()
-          .includes(query)
-      );
-    }
-    if (category !== "all") {
-      const categorySet = new Set<string>(OP_CODES[category].map((op) => op.name));
-      return ALL_OPS.filter((op) => categorySet.has(op.name));
-    }
-    return ALL_OPS;
-  }, [fullSearch, category]);
-
   const filteredMini = useMemo(() => {
     if (!miniSearch) return [];
     const query = miniSearch.toLowerCase();
@@ -95,11 +73,6 @@ function useOpcodeFilters(miniSearch: string) {
   }, [miniSearch]);
 
   return {
-    fullSearch,
-    setFullSearch,
-    category,
-    setCategory,
-    filteredFull,
     filteredMini,
   };
 }
@@ -117,39 +90,29 @@ export default function OpCodeNode({
     useSnapshotSchedulerContext();
 
   /* ------------ UI state ------------ */
-  const [isExpanded, setIsExpanded] = useState(false);
   const [showCode, setShowCode] = useState(false);
   const [miniSearch, setMiniSearch] = useState("");
+  const currentComment = typeof data.comment === "string" ? data.comment : "";
+  const [commentDraft, setCommentDraft] = useState(currentComment);
+  const [isCommentEditing, setIsCommentEditing] = useState(false);
   const commentEditStartRef = useRef(
-    typeof data.comment === "string" ? data.comment : ""
+    currentComment
   );
-  const {
-    fullSearch,
-    setFullSearch,
-    category,
-    setCategory,
-    filteredFull,
-    filteredMini,
-  } = useOpcodeFilters(miniSearch);
+  const { filteredMini } = useOpcodeFilters(miniSearch);
 
-  /* ------------ Refs for scroll handling ------------ */
-  const categoryScrollRef = useRef<HTMLDivElement>(null);
-  const opcodeScrollRef = useRef<HTMLDivElement>(null);
-  const sequenceScrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!isCommentEditing) {
+      setCommentDraft(currentComment);
+    }
+  }, [currentComment, isCommentEditing]);
 
   /* ------------ Derive selected opcodes from node data ------------ */
   const selectedOps = useMemo(() => {
-    const names = Array.isArray(data.opSequenceNames)
-      ? data.opSequenceNames
-      : [];
+    const names = getOpcodeInputNames(data);
     return names.map(findOpItemByName).filter((i): i is OpItem => i !== null);
-  }, [data.opSequenceNames]);
+  }, [data]);
 
-  /* ------------ Derive hex value directly from selectedOps ------------ */
-  const hex = useMemo(
-    () => selectedOps.map((o) => o.hex).join(""),
-    [selectedOps]
-  );
+  const resultHex = typeof data.result === "string" ? data.result : "";
 
   /* ====================================================================
                    Node Data Update Functions
@@ -162,35 +125,26 @@ export default function OpCodeNode({
         nds.map((node) => {
           if (node.id !== id) return node;
 
-          const names = Array.isArray(node.data.opSequenceNames)
-            ? [...node.data.opSequenceNames, op.name]
-            : [op.name];
+          const names = [...getOpcodeInputNames(node.data), op.name];
+          const restData = { ...node.data };
+          delete restData.opSequenceNames;
+          delete restData.value;
 
           return {
             ...node,
             data: {
-              ...node.data,
-              functionName: "op_code_select",
-              paramExtraction: "single_val",
-              opSequenceNames: names,
-              value:
-                names.length > 0
-                  ? names
-                      .map((n) => {
-                        const item = findOpItemByName(n);
-                        return item ? item.hex : "";
-                      })
-                      .join("")
-                  : "",
+              ...restData,
+              ...buildOpcodeInputState(names),
+              result: "",
               dirty: true,
             },
           };
         })
       );
 
-      if (!isExpanded) setMiniSearch("");
+      setMiniSearch("");
     },
-    [id, setNodes, isExpanded]
+    [id, setNodes]
   );
 
   // Remove Opcode directly from node data
@@ -200,26 +154,17 @@ export default function OpCodeNode({
         nds.map((node) => {
           if (node.id !== id) return node;
 
-          const names = Array.isArray(node.data.opSequenceNames)
-            ? node.data.opSequenceNames.filter((_, i) => i !== idx)
-            : [];
+          const names = getOpcodeInputNames(node.data).filter((_, i) => i !== idx);
+          const restData = { ...node.data };
+          delete restData.opSequenceNames;
+          delete restData.value;
 
           return {
             ...node,
             data: {
-              ...node.data,
-              functionName: "op_code_select",
-              paramExtraction: "single_val",
-              opSequenceNames: names,
-              value:
-                names.length > 0
-                  ? names
-                      .map((n) => {
-                        const item = findOpItemByName(n);
-                        return item ? item.hex : "";
-                      })
-                      .join("")
-                  : "",
+              ...restData,
+              ...buildOpcodeInputState(names),
+              result: "",
               dirty: true,
             },
           };
@@ -233,24 +178,14 @@ export default function OpCodeNode({
                    UI Handlers
        ==================================================================== */
   const clip = useClipboardLite({
-    result: hex,
+    result: resultHex,
     rawTitle: data.title || "Opcode Node",
     id,
   });
   const copyHex = useCallback(() => {
-    if (!hex) return;
+    if (!resultHex) return;
     clip.copyResult();
-  }, [clip, hex]);
-
-  const toggleExpand = useCallback(() => {
-    setIsExpanded((prev) => !prev);
-    if (isExpanded) {
-      setFullSearch("");
-      setCategory("all");
-    } else {
-      setMiniSearch("");
-    }
-  }, [isExpanded, setCategory, setFullSearch, setMiniSearch]);
+  }, [clip, resultHex]);
 
   const toggleComment = useCallback(() => {
     setNodes((nds) =>
@@ -262,18 +197,8 @@ export default function OpCodeNode({
     );
   }, [id, setNodes]);
 
-  const changeComment = useCallback(
-    (v: string) => {
-      setNodes((nds) =>
-        nds.map((n) =>
-          n.id === id ? { ...n, data: { ...n.data, comment: v } } : n
-        )
-      );
-    },
-    [id, setNodes]
-  );
-
   const handleCommentFocus = useCallback((value: string) => {
+    setIsCommentEditing(true);
     commentEditStartRef.current = value;
   }, []);
 
@@ -281,27 +206,24 @@ export default function OpCodeNode({
     (value: string) => {
       const normalizedStart = commentEditStartRef.current.trim();
       const normalizedNext = value.trim();
-      commentEditStartRef.current = value;
+      setIsCommentEditing(false);
+      setCommentDraft(normalizedNext);
+      commentEditStartRef.current = normalizedNext;
 
       if (normalizedStart === normalizedNext) return;
 
-      const shouldNormalizeStoredValue =
-        value !== normalizedNext || normalizedNext.length === 0;
-
-      if (shouldNormalizeStoredValue) {
-        setNodes((nds) =>
-          nds.map((n) => {
-            if (n.id !== id) return n;
-            const nextData = { ...n.data };
-            if (normalizedNext) {
-              nextData.comment = normalizedNext;
-            } else {
-              delete nextData.comment;
-            }
-            return { ...n, data: nextData };
-          })
-        );
-      }
+      setNodes((nds) =>
+        nds.map((n) => {
+          if (n.id !== id) return n;
+          const nextData = { ...n.data };
+          if (normalizedNext) {
+            nextData.comment = normalizedNext;
+          } else {
+            delete nextData.comment;
+          }
+          return { ...n, data: nextData };
+        })
+      );
 
       scheduleSnapshot("Update Node Comment");
     },
@@ -339,26 +261,6 @@ export default function OpCodeNode({
     setNodes,
   ]);
 
-  /* Prevent wheel propagation in scroll areas */
-  useEffect(() => {
-    if (!isExpanded) return;
-    const stop = (e: WheelEvent) => e.stopPropagation();
-    const add = (r: React.RefObject<HTMLDivElement>) => {
-      const el = r.current;
-      if (!el) return () => {};
-      el.addEventListener("wheel", stop, { passive: true });
-      return () => el.removeEventListener("wheel", stop);
-    };
-    const c1 = add(categoryScrollRef);
-    const c2 = add(opcodeScrollRef);
-    const c3 = add(sequenceScrollRef);
-    return () => {
-      c1();
-      c2();
-      c3();
-    };
-  }, [isExpanded]);
-
   /* ====================================================================
                    Render
        ==================================================================== */
@@ -381,13 +283,13 @@ export default function OpCodeNode({
         selectedStyles,
         highlightStyles,
         data.borderColor ? "!border-3" : "border-border",
-        isExpanded ? "w-[350px]" : "w-[280px]"
+        "w-[280px]"
       )}
       style={data.borderColor ? { borderColor: data.borderColor } : {}}
     >
       {/* --- Title bar -------------------------------------------------- */}
 
-      <div className="flex w-full flex-row items-center gap-2 border-b border-border p-2 text-xl">
+      <div className="calc-node-header flex w-full flex-row items-center gap-2 border-b border-border p-2 text-xl">
         <div className="min-w-0 flex-1 break-words leading-tight">
           {data.title || "Opcode Sequence"}
         </div>
@@ -427,68 +329,39 @@ export default function OpCodeNode({
               </DropdownMenuContent>
             </DropdownMenuPortal>
           </DropdownMenu>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 p-1"
-            onClick={toggleExpand}
-            title={isExpanded ? "Collapse" : "Expand"}
-          >
-            {isExpanded ? (
-              <Minimize2 className="h-4 w-4" />
-            ) : (
-              <Maximize2 className="h-4 w-4" />
-            )}
-          </Button>
         </div>
       </div>
 
       {/* --- Body ------------------------------------------------------ */}
       <CardContent className="p-2 flex-grow flex flex-col gap-2 text-xs">
-        {/* ---------------- EXPANDED VIEW ---------------- */}
-        {isExpanded && (
-          <OpcodeExpandedView
-            fullSearch={fullSearch}
-            onFullSearchChange={(value) => setFullSearch(value)}
-            category={category}
-            onCategoryChange={(next) => setCategory(next)}
-            filteredOps={filteredFull}
-            onAddOp={addOp}
-            selectedOps={selectedOps}
-            onRemoveOp={removeOp}
-            categoryScrollRef={categoryScrollRef}
-            opcodeScrollRef={opcodeScrollRef}
-            sequenceScrollRef={sequenceScrollRef}
-          />
-        )}
-
         {/* ---------------- MINI VIEW ---------------- */}
-        {!isExpanded && (
-          <OpcodeMiniView
-            miniSearch={miniSearch}
-            onMiniSearchChange={setMiniSearch}
-            filteredMini={filteredMini}
-            selectedOps={selectedOps}
-            onAddOp={addOp}
-            onRemoveOp={removeOp}
-          />
-        )}
+        <OpcodeMiniView
+          miniSearch={miniSearch}
+          onMiniSearchChange={setMiniSearch}
+          filteredMini={filteredMini}
+          selectedOps={selectedOps}
+          onAddOp={addOp}
+          onRemoveOp={removeOp}
+        />
 
         {/* ---------------- Final hex ---------------- */}
-        <div className="mt-auto border-t border-border pt-2 text-xs">
+        <div className="mt-auto pt-2 text-xs">
           <div className="font-medium text-primary mb-1">
-            {isExpanded ? ">_ Final Hex Output:" : "Final Hex:"}
+            {">"} Calculation Result:
           </div>
           <div className="flex items-center gap-1">
-            <div className="font-mono bg-muted p-1 rounded flex-1 text-xs break-all">
-              {hex || "No Opcodes selected"}
+            <div className="font-mono flex-1 text-xs break-all">
+              {resultHex ||
+                (selectedOps.length > 0
+                  ? "Waiting for calculation"
+                  : "No Opcodes selected")}
             </div>
             <Button
               variant="ghost"
               size="icon"
               className="h-5 w-5 p-0"
               onClick={copyHex}
-              disabled={!hex}
+              disabled={!resultHex}
               title={clip.resultCopied ? "Copied!" : "Copy"}
             >
               {clip.resultCopied ? (
@@ -508,8 +381,8 @@ export default function OpCodeNode({
               className="nodrag w-full resize-none rounded-md border border-input bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring text-xs p-2 font-mono"
               rows={3}
               placeholder="Enter your notes here…"
-              value={data.comment || ""}
-              onChange={(e) => changeComment(e.target.value)}
+              value={commentDraft}
+              onChange={(e) => setCommentDraft(e.target.value)}
               onFocus={(e) => handleCommentFocus(e.target.value)}
               onBlur={(e) => commitCommentOnBlur(e.target.value)}
               style={{ maxHeight: "120px", overflowY: "auto" }}

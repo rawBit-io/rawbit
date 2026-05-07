@@ -12,6 +12,7 @@ export interface FieldDefinition {
   placeholder?: string;
   small?: boolean;
   rows?: number;
+  autoResizeMaxRows?: number;
   allowEmpty00?: boolean;
   allowEmptyBlank?: boolean;
   allowNull?: boolean;
@@ -57,6 +58,13 @@ export interface OutputPortDefinition {
   handleTopSource?: string;
 }
 
+export interface GroupBundlePortOffsets {
+  source?: number;
+  target?: number;
+  sourceByBundle?: Record<string, number>;
+  targetByBundle?: Record<string, number>;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Calculation-node-specific data                                    */
 /* ------------------------------------------------------------------ */
@@ -94,7 +102,6 @@ export interface CalculationNodeData extends Record<string, unknown> {
   extendedError?: string;
   comment?: string;
   showComment?: boolean;
-  excludeFromFlowMap?: boolean;
   title?: string; // editable display name
   customFieldLabels?: Record<number, string>;
   customGroupTitles?: Record<string, string>;
@@ -106,8 +113,10 @@ export interface CalculationNodeData extends Record<string, unknown> {
   groupFlash?: boolean;
   borderColor?: string;
   locked?: boolean;
+  groupBundlePortOffsets?: GroupBundlePortOffsets;
   isHighlighted?: boolean;
   isConcatAll?: boolean;
+  compactConcatInputs?: boolean;
   searchMark?: {
     term: string;
     ts: number;
@@ -116,6 +125,7 @@ export interface CalculationNodeData extends Record<string, unknown> {
   /** TextInfoNode */
   content?: string;
   fontSize?: number;
+  textInfoFill?: "none";
 
   totalInputs?: number; // how many input handles the node *should* render
   unwiredCount?: number; // how many of those handles are currently *unwired*
@@ -126,6 +136,8 @@ export interface CalculationNodeData extends Record<string, unknown> {
   outputLayout?: OutputLayoutMode;
   outputPorts?: OutputPortDefinition[];
   outputValues?: Record<string, unknown>;
+  txFieldExtractMode?: "dynamic";
+  txExtractFields?: string[];
   banner?: unknown;
   tooltip?: unknown;
 }
@@ -167,20 +179,6 @@ export type FlowGraph<
 /*  Flow & persistent-storage                                         */
 /* ------------------------------------------------------------------ */
 
-export interface ProtocolDiagramGroupOffset {
-  dx: number;
-  dy: number;
-}
-
-export type ProtocolDiagramGroupOffsets = Record<
-  string,
-  ProtocolDiagramGroupOffset
->;
-
-export interface ProtocolDiagramLayout {
-  groupOffsets?: ProtocolDiagramGroupOffsets;
-}
-
 export interface FlowData<
   TNode extends FlowNode = FlowNode,
   TEdge extends Edge = Edge
@@ -189,7 +187,6 @@ export interface FlowData<
   edges: TEdge[];
   name?: string;
   schemaVersion?: number;
-  protocolDiagramLayout?: ProtocolDiagramLayout;
 }
 
 /* ------------------------------------------------------------------ */

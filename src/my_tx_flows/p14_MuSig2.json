@@ -1,13 +1,37 @@
 {
-  "name": "flow-1773319984253",
+  "name": "flow-1777970572908",
   "schemaVersion": 1,
+  "runtimeSemantics": {
+    "version": 1,
+    "inputResolution": {
+      "precedence": [
+        "__FORCE00__",
+        "__EMPTY__",
+        "__NULL__",
+        "edge value",
+        "manual text"
+      ],
+      "sentinels": {
+        "__FORCE00__": "Forces effective input value to the hex string '00'.",
+        "__EMPTY__": "Forces effective input value to an empty string.",
+        "__NULL__": "Marker value interpreted by function-specific runtime rules."
+      },
+      "functionSpecificRules": [
+        "musig2_nonce_gen: vals[2] '__NULL__' is translated to null before function call."
+      ]
+    },
+    "typeCoercion": {
+      "integerParams": "Parameters declared as 'integer' in function specs are cast to int when non-empty.",
+      "numberParams": "Parameters declared as 'number' in function specs are cast to float when non-empty."
+    }
+  },
   "nodes": [
     {
       "id": "group_tx0ykme",
       "type": "shadcnGroup",
       "position": {
-        "x": 7551.412360418239,
-        "y": 3974.141698946932
+        "x": -3930.332073836071,
+        "y": 7299.280791247082
       },
       "data": {
         "isGroup": true,
@@ -17,7 +41,13 @@
         "fontSize": 72,
         "borderColor": "#6366f1",
         "dirty": false,
-        "comment": "Build the BIP341 sighash message that all three signers will sign."
+        "comment": "Build the BIP341 sighash message that all three signers will sign.",
+        "groupBundlePortOffsets": {
+          "sourceByBundle": {
+            "group_tx0ykme->group_i7x4pdl": -150.06,
+            "group_tx0ykme->group_i2gl8h4": 245.55
+          }
+        }
       },
       "width": 7217.048832629336,
       "height": 3824,
@@ -27,8 +57,8 @@
       "id": "group_i7x4pdl",
       "type": "shadcnGroup",
       "position": {
-        "x": 16481.061746672738,
-        "y": 1705.8114893233915
+        "x": 6833.839060990422,
+        "y": 2156.120768312549
       },
       "data": {
         "isGroup": true,
@@ -38,7 +68,14 @@
         "fontSize": 44,
         "borderColor": "#6366f1",
         "dirty": false,
-        "comment": "Each signer generates a nonce pair. Public nonces are aggregated into one shared nonce."
+        "comment": "Each signer generates a nonce pair. Public nonces are aggregated into one shared nonce.",
+        "groupBundlePortOffsets": {
+          "targetByBundle": {
+            "group_szv9zyq->group_i7x4pdl": -127.53,
+            "group_tx0ykme->group_i7x4pdl": 319.95,
+            "group_yopq40l->group_i7x4pdl": 85.02
+          }
+        }
       },
       "dragHandle": "[data-drag-handle]"
     },
@@ -46,8 +83,8 @@
       "id": "group_nxevfsq",
       "type": "shadcnGroup",
       "position": {
-        "x": 23189.22030006647,
-        "y": 2881.9390704327416
+        "x": 14235.536324210154,
+        "y": 3981.0426263558975
       },
       "data": {
         "isGroup": true,
@@ -57,7 +94,13 @@
         "borderColor": "#a855f7",
         "fontSize": 44,
         "dirty": false,
-        "comment": "Place the signature into a Taproot key-path witness and verify the spend."
+        "comment": "Place the signature into a Taproot key-path witness and verify the spend.",
+        "groupBundlePortOffsets": {
+          "targetByBundle": {
+            "group_i2gl8h4->group_nxevfsq": 1056.54,
+            "group_tx0ykme->group_nxevfsq": -312.3
+          }
+        }
       },
       "width": 5052,
       "height": 3006,
@@ -67,8 +110,8 @@
       "id": "group_i2gl8h4",
       "type": "shadcnGroup",
       "position": {
-        "x": 19489.09964078681,
-        "y": 4647.614335473922
+        "x": 10636.090638937492,
+        "y": 8945.944843175068
       },
       "data": {
         "isGroup": true,
@@ -78,7 +121,15 @@
         "dirty": false,
         "fontSize": 44,
         "borderColor": "#f97316",
-        "comment": "Each signer computes a partial signature. The coordinator combines all three into one 64-byte Schnorr signature."
+        "comment": "Each signer computes a partial signature. The coordinator combines all three into one 64-byte Schnorr signature.",
+        "groupBundlePortOffsets": {
+          "targetByBundle": {
+            "group_szv9zyq->group_i2gl8h4": 1.05,
+            "group_yopq40l->group_i2gl8h4": 501.14,
+            "group_tx0ykme->group_i2gl8h4": 995.01,
+            "group_i7x4pdl->group_i2gl8h4": -250.95
+          }
+        }
       },
       "width": 2542,
       "height": 3252,
@@ -88,8 +139,8 @@
       "id": "group_szv9zyq",
       "type": "shadcnGroup",
       "position": {
-        "x": 9876.036577459317,
-        "y": 287.22677724784216
+        "x": 240,
+        "y": 525.0000000000002
       },
       "data": {
         "isGroup": true,
@@ -99,7 +150,13 @@
         "dirty": false,
         "borderColor": "#22c55e",
         "fontSize": 44,
-        "comment": "Aggregate three pubkeys into one key, apply Taproot tweak, derive P2TR address."
+        "comment": "Aggregate three pubkeys into one key, apply Taproot tweak, derive P2TR address.",
+        "groupBundlePortOffsets": {
+          "sourceByBundle": {
+            "group_szv9zyq->group_i7x4pdl": -796.9,
+            "group_szv9zyq->group_i2gl8h4": 617.61
+          }
+        }
       },
       "width": 2133,
       "height": 2191,
@@ -109,8 +166,8 @@
       "id": "group_yopq40l",
       "type": "shadcnGroup",
       "position": {
-        "x": 7352.738576755997,
-        "y": 373.99916175161866
+        "x": -2740.654615574981,
+        "y": 3026.8569625255946
       },
       "data": {
         "isGroup": true,
@@ -120,7 +177,14 @@
         "dirty": false,
         "borderColor": "#22c55e",
         "fontSize": 44,
-        "comment": "Three signers each generate a secret key and compressed public key."
+        "comment": "Three signers each generate a secret key and compressed public key.",
+        "groupBundlePortOffsets": {
+          "sourceByBundle": {
+            "group_yopq40l->group_szv9zyq": -226.94,
+            "group_yopq40l->group_i7x4pdl": 183.51,
+            "group_yopq40l->group_i2gl8h4": 509.04
+          }
+        }
       },
       "width": 1184,
       "height": 1453,
@@ -939,9 +1003,7 @@
           "PREVOUTS[]": 1
         },
         "groupInstanceKeys": {
-          "PREVOUTS[]": [
-            0
-          ]
+          "PREVOUTS[]": [0]
         },
         "baseHeight": 100,
         "totalInputs": 2,
@@ -999,9 +1061,7 @@
           "SEQUENCES[]": 1
         },
         "groupInstanceKeys": {
-          "SEQUENCES[]": [
-            0
-          ]
+          "SEQUENCES[]": [0]
         },
         "baseHeight": 80,
         "totalInputs": 1,
@@ -1076,9 +1136,7 @@
           "OUTPUTS[]": 1
         },
         "groupInstanceKeys": {
-          "OUTPUTS[]": [
-            0
-          ]
+          "OUTPUTS[]": [0]
         },
         "baseHeight": 100,
         "totalInputs": 3,
@@ -1279,15 +1337,9 @@
           "WITNESSES[]": 1
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            1000
-          ],
-          "OUTPUTS[]": [
-            3000
-          ],
-          "WITNESSES[]": [
-            5000
-          ]
+          "INPUTS[]": [1000],
+          "OUTPUTS[]": [3000],
+          "WITNESSES[]": [5000]
         },
         "baseHeight": 150,
         "totalInputs": 15,
@@ -1700,9 +1752,7 @@
           "INPUTS[]": 1
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0
-          ]
+          "INPUTS[]": [0]
         },
         "baseHeight": 80,
         "totalInputs": 1,
@@ -2181,18 +2231,14 @@
               "opcode": 81,
               "opcode_name": "OP_1",
               "stack_before": [],
-              "stack_after": [
-                "01"
-              ],
+              "stack_after": ["01"],
               "phase": "scriptPubKey"
             },
             {
               "pc": 1,
               "opcode": 32,
               "opcode_name": "unknown opcode",
-              "stack_before": [
-                "01"
-              ],
+              "stack_before": ["01"],
               "stack_after": [
                 "01",
                 "06fedb06df0699b7f416b12b6014210e36b7a7a9f2ac1a6a6c27cd43ed49e144"
@@ -2240,9 +2286,7 @@
               "stack_before": [
                 "48c39cd760a6bc86a269cee513e5d685f8b423250bf95b7641cba61b092035c52104c972a095fd8ae2e23ff240fa1c89b9265e1758214496949206b19f783716"
               ],
-              "stack_after": [
-                "01"
-              ]
+              "stack_after": ["01"]
             }
           ],
           "scriptSig": "",
@@ -2323,11 +2367,7 @@
           "INPUTS[]": 3
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100,
-            200
-          ]
+          "INPUTS[]": [0, 100, 200]
         },
         "baseHeight": 80,
         "totalInputs": 3,
@@ -2735,15 +2775,9 @@
           "WITNESSES[]": 1
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            1000
-          ],
-          "OUTPUTS[]": [
-            3000
-          ],
-          "WITNESSES[]": [
-            5000
-          ]
+          "INPUTS[]": [1000],
+          "OUTPUTS[]": [3000],
+          "WITNESSES[]": [5000]
         },
         "baseHeight": 150,
         "totalInputs": 15,
@@ -2866,9 +2900,7 @@
           "scriptPubKeys": 1
         },
         "groupInstanceKeys": {
-          "scriptPubKeys": [
-            0
-          ]
+          "scriptPubKeys": [0]
         },
         "baseHeight": 120,
         "totalInputs": 2,
@@ -2899,9 +2931,7 @@
         "groupInstances": {},
         "paramExtraction": "single_val",
         "title": "Opcode Sequence",
-        "opSequenceNames": [
-          "OP_1"
-        ],
+        "opSequenceNames": ["OP_1"],
         "borderColor": "#22c55e",
         "error": false
       },
@@ -2955,11 +2985,7 @@
           "INPUTS[]": 3
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100,
-            200
-          ]
+          "INPUTS[]": [0, 100, 200]
         },
         "baseHeight": 80,
         "title": "scriptPubKey P2TR",
@@ -3211,11 +3237,7 @@
           "PUBNONCES[]": 3
         },
         "groupInstanceKeys": {
-          "PUBNONCES[]": [
-            0,
-            100,
-            200
-          ]
+          "PUBNONCES[]": [0, 100, 200]
         },
         "result": "03d4b514d0698e5920940e795df4512711fd1e52b751a7d13df874b74b304bb09a029e1782610d501fdec3473596b0092b209cd02c591d087cae892e4df807947800",
         "totalInputs": 3,
@@ -3230,8 +3252,8 @@
       "id": "node_7yp85o1",
       "type": "calculation",
       "position": {
-        "x": 95,
-        "y": 175
+        "x": 173.18076290304634,
+        "y": 187.60980046823352
       },
       "data": {
         "functionName": "musig2_partial_sign",
@@ -3308,11 +3330,7 @@
           "PUBKEYS[]": 3
         },
         "groupInstanceKeys": {
-          "PUBKEYS[]": [
-            100,
-            200,
-            300
-          ]
+          "PUBKEYS[]": [100, 200, 300]
         },
         "result": "43d3d082757dc48c9408741624c508a426881d27aa27be6437048531a6a07a80",
         "totalInputs": 8,
@@ -3472,11 +3490,7 @@
           "INPUTS[]": 3
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100,
-            200
-          ]
+          "INPUTS[]": [0, 100, 200]
         },
         "baseHeight": 80,
         "totalInputs": 3,
@@ -3603,11 +3617,7 @@
           "PUBKEYS[]": 3
         },
         "groupInstanceKeys": {
-          "PUBKEYS[]": [
-            100,
-            200,
-            300
-          ]
+          "PUBKEYS[]": [100, 200, 300]
         },
         "result": "ca2bfbf8150d8cc1f0d6c7c54d043ddaa0ef2db2f032373970a6c532894103eb",
         "totalInputs": 8,
@@ -3700,11 +3710,7 @@
           "PUBKEYS[]": 3
         },
         "groupInstanceKeys": {
-          "PUBKEYS[]": [
-            100,
-            200,
-            300
-          ]
+          "PUBKEYS[]": [100, 200, 300]
         },
         "result": "469e3e504d85f14e00f0cf9a9003eb62c0b15cc12899218f7399b35d131ddb27",
         "totalInputs": 8,
@@ -3806,16 +3812,8 @@
           "PARTIAL_SIGS[]": 3
         },
         "groupInstanceKeys": {
-          "PUBKEYS[]": [
-            100,
-            200,
-            300
-          ],
-          "PARTIAL_SIGS[]": [
-            1000,
-            1100,
-            1200
-          ]
+          "PUBKEYS[]": [100, 200, 300],
+          "PARTIAL_SIGS[]": [1000, 1100, 1200]
         },
         "result": "48c39cd760a6bc86a269cee513e5d685f8b423250bf95b7641cba61b092035c52104c972a095fd8ae2e23ff240fa1c89b9265e1758214496949206b19f783716",
         "totalInputs": 9,
@@ -3833,11 +3831,11 @@
       "id": "node_vjbeza6",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 210,
-        "y": 255
+        "x": -9996.528096832315,
+        "y": 2439.156053554152
       },
       "data": {
-        "content": "# Lesson 14: MuSig2 Key-Path Multisig (BIP327)\n\n## N-of-N: When Everyone Must Agree\n\nSome Bitcoin setups require all parties to sign every spend:\njoint custody between partners, corporate treasury, or\nLightning channels where both sides agree on every state update.\n\nFor these n-of-n cases, Taproot offers something powerful:\naggregate all keys into one output key with MuSig2, spend via\nkey-path. One signature, 64 bytes, nothing revealed on-chain.\nIndistinguishable from a single-signer spend — compared to\n~271 bytes and full policy disclosure with CHECKSIGADD (L13).\n\nFor fallback — someone unavailable — define script leaves with\nsmaller quorums, timelocks, or recovery keys (see previous flow examples).\nNone visible unless used.\n\n## Why It Works\n\nSchnorr signatures have a property called linearity: partial\nsignatures from multiple signers can be summed into one valid\nsignature for the aggregate key — without anyone ever knowing\nthat key's private key. Each signer uses only their own secret.\n\nECDSA doesn't have this property — which is why MuSig2\nrequires Schnorr (BIP340) and wasn't possible before Taproot.\n\n## Drawbacks\n\nAll signers must be online together for two interactive rounds.\nIf anyone drops out mid-session, it restarts. CHECKSIGADD\nsigners act independently — no coordination needed.\n\nEach signing session requires fresh random nonces — generated,\nused once, destroyed. Nonce reuse across different transactions can expose the signer's private key (see Exercise 2 below).\n\n## What This Flow Builds\n\nA complete 3-of-3 MuSig2 key-path spend in six stages:\n\n    SIGNERS → KEYAGG → PREIMAGE → ROUND 1 → ROUND 2 → TRANSACTION\n\n\n",
+        "content": "# Flow 14: MuSig2 Key-Path Multisig (BIP327)\n\n## N-of-N: When Everyone Must Agree\n\nSome Bitcoin setups require all parties to sign every spend:\njoint custody between partners, corporate treasury, or\nLightning channels where both sides agree on every state update.\n\nFor these n-of-n cases, Taproot offers something powerful:\naggregate all keys into one output key with MuSig2, spend via\nkey-path. One signature, 64 bytes, nothing revealed on-chain.\nIndistinguishable from a single-signer spend — compared to\n~271 bytes and full policy disclosure with CHECKSIGADD (L13).\n\nFor fallback — someone unavailable — define script leaves with\nsmaller quorums, timelocks, or recovery keys (see previous flow examples).\nNone visible unless used.\n\n## Why It Works\n\nSchnorr signatures have a property called linearity: partial\nsignatures from multiple signers can be summed into one valid\nsignature for the aggregate key — without anyone ever knowing\nthat key's private key. Each signer uses only their own secret.\n\nECDSA doesn't have this property — which is why MuSig2\nrequires Schnorr (BIP340) and wasn't possible before Taproot.\n\n## Drawbacks\n\nAll signers must be online together for two interactive rounds.\nIf anyone drops out mid-session, it restarts. CHECKSIGADD\nsigners act independently — no coordination needed.\n\nEach signing session requires fresh random nonces — generated,\nused once, destroyed. Nonce reuse across different transactions can expose the signer's private key (see Exercise 2 below).\n\n## What This Flow Builds\n\nA complete 3-of-3 MuSig2 key-path spend in six stages:\n\n    SIGNERS → KEYAGG → PREIMAGE → ROUND 1 → ROUND 2 → TRANSACTION\n\n\n",
         "fontSize": 32,
         "width": 1223,
         "height": 1768,
@@ -4148,11 +4146,7 @@
           "PUBKEYS[]": 3
         },
         "groupInstanceKeys": {
-          "PUBKEYS[]": [
-            0,
-            100,
-            200
-          ]
+          "PUBKEYS[]": [0, 100, 200]
         },
         "outputPorts": [
           {
@@ -4313,11 +4307,11 @@
       "id": "node_mskhxoe",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 2137.112210473449,
-        "y": 279.5799726979526
+        "x": -8069.4158863588655,
+        "y": 2463.7360262521047
       },
       "data": {
-        "content": "# The Flow — Step by Step\n\n## SIGNERS\n\nThree participants — Alice, Bob, Charlie — each generate\ntheir own private key and public key. Same key generation\nas every prior lesson. MuSig2 doesn't require special keys.\n\nNo one ever sees anyone else's private key — not during\nkey aggregation, not during signing, not ever.\n\n## KEYAGG\n\nCombine three public keys into a single aggregate key, then\nderive a standard Taproot address from it. On-chain, the\nresult looks exactly like a single-signer address.\n\nWhy not just add the three keys together? Because a\nmalicious signer could craft a fake key that cancels out\nthe others — taking sole control of the \"shared\" funds.\nBIP327 derives each signer's coefficient from the ordered\nfull key list, then computes the aggregate key as a weighted\nsum. That binds every contribution to the entire participant\nset and prevents rogue-key cancellation.\n\nSame keys, different order → different coefficients →\ndifferent aggregate key. All signers must agree on one\nexact ordering before they aggregate.\n\nAfter aggregation, the aggregate key P gets the same\nTaproot tweak as Lesson 11 to produce the output key Q\nand the P2TR address. Fund this address on testnet.\n\nTapTweak hashes build Q; TapSighash hashes (in PREIMAGE)\nbuild msg. Same SHA-256, different tags, different jobs.\n\nWhat leaves this group:\n- Output key Q → used in both signing rounds\n- Tweak scalar t → needed by ROUND 2 for signature correction\n- P2TR address → fund this on testnet\n\n## PREIMAGE\n\nBefore anyone can sign, all parties need to agree on\nexactly what they're signing. This group builds the\nsighash message — a 32-byte hash that commits to every\ndetail of the transaction: prevout TXID, amounts, outputs,\nscriptPubKeys, sequence, locktime, version.\n\nChange any single field and msg changes — which means all\nexisting nonces and partial signatures become useless and\nmust be redone.\n\nThis is the same BIP341 sighash construction from\nLesson 11. MuSig2 can sign any message at the protocol\nlevel, but in a Taproot key-path spend the message must\nbe the BIP341 TapSighash digest that verifiers will\nrecompute.\n\nThe group also constructs the destination output — where\nthe funds go after spending.\n\n## ROUND 1: NONCES\n\nThis is the first of two interactive rounds — and the first\ntime a nonce appears explicitly on the canvas.\n\nWhat is a nonce? Every digital signature — ECDSA and\nSchnorr alike — uses a secret random value called a nonce\nduring signing. It masks the private key inside the\nsignature equation. Without it, anyone could extract the\nprivate key from a single signature using basic algebra.\n\nIn every previous lesson, you never saw the nonce because\nit was generated and used entirely inside the signing\nfunction (Schnorr Sign, ECDSA Sign). Even in Lesson 13\nwith three signers, each produced their own independent\nsignature — each with its own hidden nonce. No coordination\nneeded.\n\nMuSig2 is different. All three signers produce one shared\nsignature, which means they need one shared nonce. No\nsingle signer can produce it alone — all three must\ncontribute a piece, then combine those pieces before\nanyone can sign. That's why the nonce appears on the\ncanvas for the first time, and why this exchange step\nexists.\n\nOn the canvas, each signer feeds one fresh random seed\ninto NonceGen (along with their secret key, the output\nkey Q, and msg). NonceGen internally derives two secret\nnonce values from that single seed — this is standard\nBIP327, not specific to our implementation. Two nonce\ncomponents let MuSig2 stay secure even when multiple\nsigning sessions run at the same time.\n\nNonceGen outputs:\n- secnonce — secret, kept locally\n- pubnonce — public, shared with others\n\nA coordinator collects all three pubnonces and combines\nthem into one aggregate nonce (aggnonce) via NonceAgg.\n\n⚠️ The random seed must be fresh every session. Reusing a secnonce across different transactions can expose the signer's private key — see Exercise 2.\n\nsecnonce must be stored between rounds — it is needed\nin ROUND 2 for partial signing — then erased immediately\nafter use.\n\n## ROUND 2: SIGN\n\nEach signer now has everything they need: the message,\nthe aggregate nonce, and the key aggregation context.\nThey each independently compute a partial signature\nusing their own secret key and secret nonce.\n\nEach signer must independently validate the transaction\ndetails that produced msg before signing — otherwise a\nmalicious coordinator could trick them into signing a\ndifferent spend.\n\nThe coordinator collects the three partial signatures\nand combines them into one standard 64-byte Schnorr\nsignature. The Taproot tweak is accounted for during\nthis aggregation — the final signature is valid under\nthe output key Q, not the raw aggregate key P.\n\nThe coordinator only handles public data. A malicious\ncoordinator can stall or abort a session, but cannot\nforge a valid signature — even colluding with all but\none signer.\n\nThe result is indistinguishable from a single-signer\nBIP340 signature. No verifier can tell that three\nparties were involved.\n\n## TRANSACTION\n\nThe signature from ROUND 2 is placed into a Taproot\nkey-path witness — just the signature, nothing else.\nNo script, no control block, no public keys revealed.\n\nIn this lesson the signature is 64 bytes because\nSIGHASH_DEFAULT is implied. If a non-default sighash\nbyte were appended, it would become 65 bytes.\n\nThe transaction is serialized in two forms: one with\nthe witness (for broadcast and WTXID), one without\n(for the TXID, which must be malleability-free).\n\nVerify Script confirms everything is consistent: the\nsignature is valid under Q, the scriptPubKey matches,\nTaproot consensus rules are satisfied.\n\nTRUE means the entire flow worked — three independent\nsigners cooperated across two rounds to produce a\nspend that looks exactly like a single person paying.",
+        "content": "# The Flow — Step by Step\n\n## SIGNERS\n\nThree participants — Alice, Bob, Charlie — each generate\ntheir own private key and public key. Same key generation\nas every prior flow. MuSig2 doesn't require special keys.\n\nNo one ever sees anyone else's private key — not during\nkey aggregation, not during signing, not ever.\n\n## KEYAGG\n\nCombine three public keys into a single aggregate key, then\nderive a standard Taproot address from it. On-chain, the\nresult looks exactly like a single-signer address.\n\nWhy not just add the three keys together? Because a\nmalicious signer could craft a fake key that cancels out\nthe others — taking sole control of the \"shared\" funds.\nBIP327 derives each signer's coefficient from the ordered\nfull key list, then computes the aggregate key as a weighted\nsum. That binds every contribution to the entire participant\nset and prevents rogue-key cancellation.\n\nSame keys, different order → different coefficients →\ndifferent aggregate key. All signers must agree on one\nexact ordering before they aggregate.\n\nAfter aggregation, the aggregate key P gets the same\nTaproot tweak as Flow 11 to produce the output key Q\nand the P2TR address. Fund this address on testnet.\n\nTapTweak hashes build Q; TapSighash hashes (in PREIMAGE)\nbuild msg. Same SHA-256, different tags, different jobs.\n\nWhat leaves this group:\n- Output key Q → used in both signing rounds\n- Tweak scalar t → needed by ROUND 2 for signature correction\n- P2TR address → fund this on testnet\n\n## PREIMAGE\n\nBefore anyone can sign, all parties need to agree on\nexactly what they're signing. This group builds the\nsighash message — a 32-byte hash that commits to every\ndetail of the transaction: prevout TXID, amounts, outputs,\nscriptPubKeys, sequence, locktime, version.\n\nChange any single field and msg changes — which means all\nexisting nonces and partial signatures become useless and\nmust be redone.\n\nThis is the same BIP341 sighash construction from\nFlow 11. MuSig2 can sign any message at the protocol\nlevel, but in a Taproot key-path spend the message must\nbe the BIP341 TapSighash digest that verifiers will\nrecompute.\n\nThe group also constructs the destination output — where\nthe funds go after spending.\n\n## ROUND 1: NONCES\n\nThis is the first of two interactive rounds — and the first\ntime a nonce appears explicitly on the canvas.\n\nWhat is a nonce? Every digital signature — ECDSA and\nSchnorr alike — uses a secret random value called a nonce\nduring signing. It masks the private key inside the\nsignature equation. Without it, anyone could extract the\nprivate key from a single signature using basic algebra.\n\nIn every previous flow, you never saw the nonce because\nit was generated and used entirely inside the signing\nfunction (Schnorr Sign, ECDSA Sign). Even in Flow 13\nwith three signers, each produced their own independent\nsignature — each with its own hidden nonce. No coordination\nneeded.\n\nMuSig2 is different. All three signers produce one shared\nsignature, which means they need one shared nonce. No\nsingle signer can produce it alone — all three must\ncontribute a piece, then combine those pieces before\nanyone can sign. That's why the nonce appears on the\ncanvas for the first time, and why this exchange step\nexists.\n\nOn the canvas, each signer feeds one fresh random seed\ninto NonceGen (along with their secret key, the output\nkey Q, and msg). NonceGen internally derives two secret\nnonce values from that single seed — this is standard\nBIP327, not specific to our implementation. Two nonce\ncomponents let MuSig2 stay secure even when multiple\nsigning sessions run at the same time.\n\nNonceGen outputs:\n- secnonce — secret, kept locally\n- pubnonce — public, shared with others\n\nA coordinator collects all three pubnonces and combines\nthem into one aggregate nonce (aggnonce) via NonceAgg.\n\n⚠️ The random seed must be fresh every session. Reusing a secnonce across different transactions can expose the signer's private key — see Exercise 2.\n\nsecnonce must be stored between rounds — it is needed\nin ROUND 2 for partial signing — then erased immediately\nafter use.\n\n## ROUND 2: SIGN\n\nEach signer now has everything they need: the message,\nthe aggregate nonce, and the key aggregation context.\nThey each independently compute a partial signature\nusing their own secret key and secret nonce.\n\nEach signer must independently validate the transaction\ndetails that produced msg before signing — otherwise a\nmalicious coordinator could trick them into signing a\ndifferent spend.\n\nThe coordinator collects the three partial signatures\nand combines them into one standard 64-byte Schnorr\nsignature. The Taproot tweak is accounted for during\nthis aggregation — the final signature is valid under\nthe output key Q, not the raw aggregate key P.\n\nThe coordinator only handles public data. A malicious\ncoordinator can stall or abort a session, but cannot\nforge a valid signature — even colluding with all but\none signer.\n\nThe result is indistinguishable from a single-signer\nBIP340 signature. No verifier can tell that three\nparties were involved.\n\n## TRANSACTION\n\nThe signature from ROUND 2 is placed into a Taproot\nkey-path witness — just the signature, nothing else.\nNo script, no control block, no public keys revealed.\n\nIn this flow the signature is 64 bytes because\nSIGHASH_DEFAULT is implied. If a non-default sighash\nbyte were appended, it would become 65 bytes.\n\nThe transaction is serialized in two forms: one with\nthe witness (for broadcast and WTXID), one without\n(for the TXID, which must be malleability-free).\n\nVerify Script confirms everything is consistent: the\nsignature is valid under Q, the scriptPubKey matches,\nTaproot consensus rules are satisfied.\n\nTRUE means the entire flow worked — three independent\nsigners cooperated across two rounds to produce a\nspend that looks exactly like a single person paying.",
         "fontSize": 32,
         "width": 1727,
         "height": 4704,
@@ -4347,11 +4341,11 @@
       "id": "node_bvrngp4",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 4882.269819559913,
-        "y": 1946.8744405257337
+        "x": -5324.258277272402,
+        "y": 4131.030494079886
       },
       "data": {
-        "content": "# BIP327 Compliance Notes\n\nThis flow implements a BIP327-compliant MuSig2 Taproot\nkey-path spend. The core signing math — KeyAgg, NonceGen,\nNonceAgg, Sign (with internal self-check), and PartialSigAgg\n— follows the spec algorithms, uses the correct tagged hashes,\nand passes the official BIP327 test vectors.\n\nThe following are deliberate scope choices, all explicitly\npermitted by BIP327.\n\n## Single Taproot Tweak\n\nThis flow applies one x-only tweak (TapTweak) to the aggregate\nkey. BIP327 defines a general interface that accepts an ordered\nlist of tweaks, each flagged as x-only or plain, applied in\nsequence. This supports advanced protocols that layer multiple\nkey derivation steps before the final Taproot commitment.\n\nrawBit's signing nodes accept a single optional Taproot tweak.\nThe underlying accumulator math (gacc, tacc) is the full BIP327\nformula and would generalize, but the canvas interface is scoped\nto the common Taproot key-path case.\n\n## No Visible Session Context\n\nBIP327 specifies a session_ctx tuple that bundles the aggregate\nnonce, pubkey list, tweak list, and message. The spec itself\nnotes that this is for clarity only: real implementations may\ncache, reshape, or eliminate it entirely. rawBit's Sign and\nSigAgg nodes recompute session values internally from their\ninputs — the math is identical, only the packaging differs.\n\n## PartialSigVerify Is Available as Exercise Node\n\nBIP327 defines PartialSigVerify so honest signers can identify\nwho sent a bad partial signature and abort with blame. The spec\ntreats this as an optional application-level feature for\nidentifiable aborts, not a required step in the signing path.\n\nrawBit includes PartialSigVerify as a node in the sidebar, but\nit is intentionally not placed on the main path. Students add\nand wire it in Exercise 1.\n\nrawBit's Sign function still includes the spec-mandated internal\nself-check (PartialSigVerifyInternal) — each signer verifies\ntheir own partial signature before returning it.\n\n## Fixed Key Order, No KeySort\n\nBIP327 key aggregation is order-dependent: the same set of\npubkeys in a different order produces a different aggregate key.\nThe spec provides an optional KeySort algorithm for applications\nthat want a canonical order.\n\nThis flow uses a fixed Alice, Bob, Charlie order agreed upon\nfor the lesson. That is the default BIP327 behavior — sorting\nis opt-in, not required.\n\n## 32-Byte Messages Only\n\nBIP327 allows arbitrary-length messages. This flow always signs\na 32-byte BIP341 TapSighash, which is the correct application\nmessage for a Taproot key-path spend. The backend functions do\nsupport variable-length messages for BIP327 vector testing.\n\n## Frozen Demo Nonces\n\nBIP327 requires fresh auxiliary randomness for every signing\nsession and mandates that secnonces are used once and erased.\nThis flow surfaces randomness as explicit nodes so the flow is\ndeterministic and reproducible. All keys and nonces here are\nthrowaway testnet demo data — never reuse them.",
+        "content": "# BIP327 Compliance Notes\n\nThis flow implements a BIP327-compliant MuSig2 Taproot\nkey-path spend. The core signing math — KeyAgg, NonceGen,\nNonceAgg, Sign (with internal self-check), and PartialSigAgg\n— follows the spec algorithms, uses the correct tagged hashes,\nand passes the official BIP327 test vectors.\n\nThe following are deliberate scope choices, all explicitly\npermitted by BIP327.\n\n## Single Taproot Tweak\n\nThis flow applies one x-only tweak (TapTweak) to the aggregate\nkey. BIP327 defines a general interface that accepts an ordered\nlist of tweaks, each flagged as x-only or plain, applied in\nsequence. This supports advanced protocols that layer multiple\nkey derivation steps before the final Taproot commitment.\n\nrawBit's signing nodes accept a single optional Taproot tweak.\nThe underlying accumulator math (gacc, tacc) is the full BIP327\nformula and would generalize, but the canvas interface is scoped\nto the common Taproot key-path case.\n\n## No Visible Session Context\n\nBIP327 specifies a session_ctx tuple that bundles the aggregate\nnonce, pubkey list, tweak list, and message. The spec itself\nnotes that this is for clarity only: real implementations may\ncache, reshape, or eliminate it entirely. rawBit's Sign and\nSigAgg nodes recompute session values internally from their\ninputs — the math is identical, only the packaging differs.\n\n## PartialSigVerify Is Available as Exercise Node\n\nBIP327 defines PartialSigVerify so honest signers can identify\nwho sent a bad partial signature and abort with blame. The spec\ntreats this as an optional application-level feature for\nidentifiable aborts, not a required step in the signing path.\n\nrawBit includes PartialSigVerify as a node in the sidebar, but\nit is intentionally not placed on the main path. Students add\nand wire it in Exercise 1.\n\nrawBit's Sign function still includes the spec-mandated internal\nself-check (PartialSigVerifyInternal) — each signer verifies\ntheir own partial signature before returning it.\n\n## Fixed Key Order, No KeySort\n\nBIP327 key aggregation is order-dependent: the same set of\npubkeys in a different order produces a different aggregate key.\nThe spec provides an optional KeySort algorithm for applications\nthat want a canonical order.\n\nThis flow uses a fixed Alice, Bob, Charlie order agreed upon\nfor the flow. That is the default BIP327 behavior — sorting\nis opt-in, not required.\n\n## 32-Byte Messages Only\n\nBIP327 allows arbitrary-length messages. This flow always signs\na 32-byte BIP341 TapSighash, which is the correct application\nmessage for a Taproot key-path spend. The backend functions do\nsupport variable-length messages for BIP327 vector testing.\n\n## Frozen Demo Nonces\n\nBIP327 requires fresh auxiliary randomness for every signing\nsession and mandates that secnonces are used once and erased.\nThis flow surfaces randomness as explicit nodes so the flow is\ndeterministic and reproducible. All keys and nonces here are\nthrowaway testnet demo data — never reuse them.",
         "fontSize": 32,
         "width": 1585,
         "height": 2376,
@@ -4363,11 +4357,11 @@
       "id": "node_1gisevc",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 23519.0655483699,
-        "y": 9177.198267440834
+        "x": 13751.269915007486,
+        "y": 11263.858218001675
       },
       "data": {
-        "content": "## Exercises\n\n### Exercise 1: Add PartialSigVerify Nodes\n\nAdd three PartialSigVerify nodes to the ROUND 2 group — one\nper signer. Wire each node with:\n- The partial signature (from the corresponding Sign node)\n- The signer's pubnonce (from their NonceGen, default output)\n- The signer's compressed pubkey\n- The aggnonce (from NonceAgg)\n- The TapSighash message\n- The TapTweak hash\n- All three compressed pubkeys (same order as KeyAgg)\n\nWiring pattern is intentionally similar to MuSig2 Partial\nSign: aggnonce/message/tweak and PUBKEYS[] use the same\nhandle numbering. Copy that shape, then swap in the\nsigner-specific partial signature, pubnonce, and pubkey.\n\nAll three should return true. Now try changing one partial\nsignature by a single hex digit and re-verify. The modified\nsigner's PartialSigVerify returns false — identifying exactly\nwho sent a bad partial. That is how MuSig2 enables blame\nwithout revealing anyone's secret key.\n\n### Exercise 2: Nonce Reuse Key Extraction (Advanced)\n\nDuplicate the ROUND 2 group three times. Keep the same\nsecnonces but change the message each time — for example,\nmodify the output amount so the TapSighash changes.\n\nIn single-signer Schnorr, two signatures with the same\nnonce directly reveal the private key. MuSig2 is harder:\nthe partial signature equation is\n\n    s = k1 + b * k2 + e * a * d    (mod n)\n\nwhere b depends on the message. Two sessions with the same\nsecnonce give one equation with two unknowns (k2 and d) —\nnot enough. But three sessions give two independent\nequations, solvable with basic linear algebra.\n\nHint: subtract pairs of signatures to eliminate k1, then\nsolve the 2x2 system for k2 and d. Remember that d here\nis the effective signing scalar g * gacc * d', where g and\ngacc are publicly computable.\n\nThis is why BIP327 demands fresh randomness every session\nand why secnonces must be erased immediately after signing.\n### Exercise 3: Script-Path Fallback \n\nBuild a new flow that uses MuSig2 as the Taproot internal\nkey but adds a script-path fallback: a 2-of-3 CHECKSIGADD\nleaf (from Lesson 13) as a single taptree leaf.\n\nCreate two spending paths:\n- Key-path: all three signers cooperate via MuSig2.\n  One 64-byte signature, no script revealed.\n- Script-path: only two of three signers available.\n  Reveal the CHECKSIGADD script and control block.\n\nCompare the witness sizes side by side. The key-path spend\nis ~66 bytes. The script-path spend is ~200+ bytes and\nreveals the fallback policy on-chain. This is the real-world\narchitecture: MuSig2 for the common case, script leaves\nfor recovery.",
+        "content": "## Exercises\n\n### Exercise 1: Add PartialSigVerify Nodes\n\nAdd three PartialSigVerify nodes to the ROUND 2 group — one\nper signer. Wire each node with:\n- The partial signature (from the corresponding Sign node)\n- The signer's pubnonce (from their NonceGen, default output)\n- The signer's compressed pubkey\n- The aggnonce (from NonceAgg)\n- The TapSighash message\n- The TapTweak hash\n- All three compressed pubkeys (same order as KeyAgg)\n\nWiring pattern is intentionally similar to MuSig2 Partial\nSign: aggnonce/message/tweak and PUBKEYS[] use the same\nhandle numbering. Copy that shape, then swap in the\nsigner-specific partial signature, pubnonce, and pubkey.\n\nAll three should return true. Now try changing one partial\nsignature by a single hex digit and re-verify. The modified\nsigner's PartialSigVerify returns false — identifying exactly\nwho sent a bad partial. That is how MuSig2 enables blame\nwithout revealing anyone's secret key.\n\n### Exercise 2: Nonce Reuse Key Extraction (Advanced)\n\nDuplicate the ROUND 2 group three times. Keep the same\nsecnonces but change the message each time — for example,\nmodify the output amount so the TapSighash changes.\n\nIn single-signer Schnorr, two signatures with the same\nnonce directly reveal the private key. MuSig2 is harder:\nthe partial signature equation is\n\n    s = k1 + b * k2 + e * a * d    (mod n)\n\nwhere b depends on the message. Two sessions with the same\nsecnonce give one equation with two unknowns (k2 and d) —\nnot enough. But three sessions give two independent\nequations, solvable with basic linear algebra.\n\nHint: subtract pairs of signatures to eliminate k1, then\nsolve the 2x2 system for k2 and d. Remember that d here\nis the effective signing scalar g * gacc * d', where g and\ngacc are publicly computable.\n\nThis is why BIP327 demands fresh randomness every session\nand why secnonces must be erased immediately after signing.\n### Exercise 3: Script-Path Fallback \n\nBuild a new flow that uses MuSig2 as the Taproot internal\nkey but adds a script-path fallback: a 2-of-3 CHECKSIGADD\nleaf (from Flow 13) as a single taptree leaf.\n\nCreate two spending paths:\n- Key-path: all three signers cooperate via MuSig2.\n  One 64-byte signature, no script revealed.\n- Script-path: only two of three signers available.\n  Reveal the CHECKSIGADD script and control block.\n\nCompare the witness sizes side by side. The key-path spend\nis ~66 bytes. The script-path spend is ~200+ bytes and\nreveals the fallback policy on-chain. This is the real-world\narchitecture: MuSig2 for the common case, script leaves\nfor recovery.",
         "fontSize": 32,
         "width": 1763,
         "height": 2330,
@@ -5437,33 +5431,5 @@
       "selected": false,
       "id": "xy-edge__node_g7Ow0MfU-node_x5r8s31input-0"
     }
-  ],
-  "protocolDiagramLayout": {
-    "groupOffsets": {
-      "group_yopq40l": {
-        "dx": 53.51006182982299,
-        "dy": -157.51530089926578
-      },
-      "group_i7x4pdl": {
-        "dx": 338.0842980213877,
-        "dy": 652.0179964637159
-      },
-      "group_szv9zyq": {
-        "dx": 281.2704092713026,
-        "dy": -433.68900344690076
-      },
-      "group_tx0ykme": {
-        "dx": 52.566295254097135,
-        "dy": -3.4334921367707096
-      },
-      "group_nxevfsq": {
-        "dx": 402.0364272774706,
-        "dy": 422.4950759946318
-      },
-      "group_i2gl8h4": {
-        "dx": 333.8872617567757,
-        "dy": 152.5933811419801
-      }
-    }
-  }
+  ]
 }

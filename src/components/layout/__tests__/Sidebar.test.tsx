@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 
 import { Sidebar } from "../Sidebar";
@@ -58,9 +59,21 @@ function createCustomFlows() {
         edges: [],
       },
       section: "legacy-foundations",
-      lessonNo: 1,
+      flowNo: 1,
       level: "intro",
       tags: ["legacy"],
+    },
+    {
+      id: "intro-flow",
+      label: "Intro",
+      data: {
+        nodes: [],
+        edges: [],
+      },
+      section: "top-level",
+      flowNo: 0,
+      level: "intro",
+      tags: ["intro", "overview"],
     },
   ];
 }
@@ -89,6 +102,7 @@ describe("Sidebar", () => {
   it("shows environment badge when label is set", () => {
     renderSidebar();
     expect(screen.getByText(/raw/i)).toHaveTextContent(/raw₿it\s*\(staging\)/i);
+    expect(screen.getByTestId("sidebar-brand-bit")).toHaveClass("text-primary");
   });
 
   it("supports typo-tolerant search results", () => {
@@ -102,10 +116,10 @@ describe("Sidebar", () => {
   it("shows matching flow examples in search results", () => {
     renderSidebar();
     const input = screen.getByPlaceholderText("Search nodes...");
-    fireEvent.change(input, { target: { value: "custom" } });
+    fireEvent.change(input, { target: { value: "overview" } });
 
-    const customFlowCard = screen.getByText("1. Custom Flow").closest("div");
-    expect(customFlowCard).not.toBeNull();
+    const introFlowCard = screen.getByText("Intro").closest("div");
+    expect(introFlowCard).not.toBeNull();
     expect(screen.getByText("Drag to place entire subgraph")).toBeInTheDocument();
     expect(screen.getByText(/Found 1 result/i)).toBeInTheDocument();
   });
@@ -143,29 +157,43 @@ describe("Sidebar", () => {
     expect(screen.getByText("TX Parser")).toBeInTheDocument();
   });
 
-  it("renders Flow Examples accordion and drag payload includes subgraph data", () => {
+  it("renders Flow Examples accordion and drag payload includes subgraph data", async () => {
+    const user = userEvent.setup();
     renderSidebar();
 
-    const examplesTrigger = screen.getByText("Flow Examples");
-    fireEvent.click(examplesTrigger);
+    expect(screen.getByText("Intro")).toBeInTheDocument();
+    expect(screen.getByText(/Older flows hidden/i)).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Legacy Foundations/i })
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("1. Custom Flow")).not.toBeInTheDocument();
+
+    const olderFlowsToggle = screen.getByRole("switch", {
+      name: /Show older flow examples/i,
+    });
+    expect(olderFlowsToggle).toHaveAttribute("aria-checked", "false");
+    await user.click(olderFlowsToggle);
+
+    expect(olderFlowsToggle).toHaveAttribute("aria-checked", "true");
     expect(
       screen.getByRole("button", { name: /Legacy Foundations/i })
     ).toBeInTheDocument();
-    expect(screen.queryByText("1. Custom Flow")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Legacy Foundations/i }));
-    const customFlowCard = screen.getByText("1. Custom Flow").closest("div");
-    expect(customFlowCard).not.toBeNull();
+    expect(screen.getByText("1. Custom Flow")).toBeInTheDocument();
+
+    const introFlowCard = screen.getByText("Intro").closest("div");
+    expect(introFlowCard).not.toBeNull();
 
     const dataTransfer = createDataTransfer();
-    fireEvent.dragStart(customFlowCard!, { dataTransfer });
-    fireEvent.dragEnd(customFlowCard!);
+    fireEvent.dragStart(introFlowCard!, { dataTransfer });
+    fireEvent.dragEnd(introFlowCard!);
     const payload = dataTransfer.getData("application/reactflow");
     const parsed = JSON.parse(payload);
 
     expect(parsed).toMatchObject({
       type: "calculation",
       functionName: "flow_template",
-      nodeData: { flowLabel: "Custom Flow", flowData: customFlowFixture[0].data },
+      nodeData: { flowLabel: "Intro", flowData: customFlowFixture[1].data },
     });
   });
 });

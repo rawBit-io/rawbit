@@ -17,6 +17,7 @@ vi.mock("@/lib/share/scriptStepsCache", () => ({
 
 import { UndoRedoProvider } from "../UndoRedoContext";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
+import { buildGroupBundledElements } from "@/lib/flow/groupEdgeBundling";
 
 const wrapper = ({ children }: { children: ReactNode }) => (
   <UndoRedoProvider>{children}</UndoRedoProvider>
@@ -142,6 +143,57 @@ describe("UndoRedoProvider", () => {
     expect(stored).toEqual(calcState);
     expect(stored).not.toBe(calcState);
     expect(stored?.errors).not.toBe(calcState.errors);
+  });
+
+  it("keeps generated group bundle elements out of history snapshots", async () => {
+    const { result } = renderHook(() => useUndoRedo(), { wrapper });
+    const nodes: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "A", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "B", width: 300, height: 200 },
+      } as FlowNode,
+      makeNode("a1"),
+      makeNode("a2"),
+      makeNode("b1"),
+    ].map((node) =>
+      node.id === "a1" || node.id === "a2"
+        ? { ...node, parentId: "group-a" }
+        : node.id === "b1"
+          ? { ...node, parentId: "group-b" }
+          : node
+    ) as FlowNode[];
+    const bundledEdges: Edge[] = [
+      { id: "e1", source: "a1", target: "b1" } as Edge,
+      { id: "e2", source: "a2", target: "b1" } as Edge,
+    ];
+    const visual = buildGroupBundledElements({ nodes, edges: bundledEdges });
+
+    await act(async () => {
+      result.current.pushState(visual.nodes, visual.edges, "Visual graph");
+    });
+
+    const snapshot = result.current.history.at(-1);
+    expect(snapshot?.nodes).toHaveLength(nodes.length);
+    expect(snapshot?.edges).toHaveLength(bundledEdges.length);
+    expect(
+      snapshot?.nodes.some((node) => node.id.startsWith("__group_bundle_port__:"))
+    ).toBe(false);
+    expect(
+      snapshot?.edges.some(
+        (edge) =>
+          edge.id.startsWith("__group_bundle__:") ||
+          edge.id.startsWith("__group_bundle_segment__:") ||
+          edge.hidden === true
+      )
+    ).toBe(false);
   });
 
   it("throws when useUndoRedo is used without a provider", () => {

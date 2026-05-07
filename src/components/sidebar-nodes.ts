@@ -1,6 +1,11 @@
 // src/components/sidebar-nodes.ts
 
 import type { NodeTemplate } from "@/types";
+import {
+  DEFAULT_TX_FIELD_EXTRACT_FIELDS,
+  buildTxFieldExtractOutputPorts,
+} from "@/lib/nodes/txFieldExtract";
+import { buildOpcodeInputState } from "@/lib/opcodeNodeData";
 
 /**
  * Node templates organized by categories:
@@ -18,14 +23,14 @@ export const allSidebarNodes: NodeTemplate[] = [
   // ------------------------------------------------------------------
   {
     functionName: "identity",
-    label: "Identity",
+    label: "Input",
     category: "Canvas & Inputs",
     subcategory: "General",
     description: "Simple data entry node to accept raw user input",
     type: "calculation",
     nodeData: {
       functionName: "identity",
-      title: "Identity",
+      title: "Input",
       showField: true,
       numInputs: 0,
       value: "",
@@ -52,6 +57,7 @@ export const allSidebarNodes: NodeTemplate[] = [
       width: 380,
       height: 220,
       title: "Group Node",
+      fontSize: 44,
     },
   },
   {
@@ -62,7 +68,7 @@ export const allSidebarNodes: NodeTemplate[] = [
     description: "Displays markdown text with adjustable font size",
     type: "shadcnTextInfo",
     nodeData: {
-      content: "...",
+      content: "Double-click to edit",
       fontSize: 28,
       width: 300,
       height: 200,
@@ -82,6 +88,7 @@ export const allSidebarNodes: NodeTemplate[] = [
       paramExtraction: "multi_val",
       numInputs: 2,
       inputs: { vals: [] },
+      compactConcatInputs: true,
 
       version: 0,
       result: "",
@@ -99,7 +106,8 @@ export const allSidebarNodes: NodeTemplate[] = [
                 index: 0,
                 label: "Value:",
                 placeholder: "<input>",
-                rows: 3,
+                rows: 1,
+                autoResizeMaxRows: 3,
               },
             ],
           },
@@ -124,15 +132,9 @@ export const allSidebarNodes: NodeTemplate[] = [
     subcategory: "Script Opcodes",
     description: "Build a sequence of Opcodes and output the final hex.",
     nodeData: {
-      functionName: "identity",
-      paramExtraction: "single_val",
       title: "Opcode Sequence",
-      inputs: { val: "" },
       result: "",
-      value: "",
-      opSequenceNames: [],
-
-      groupInstances: {},
+      ...buildOpcodeInputState([]),
     },
   },
   {
@@ -153,6 +155,29 @@ export const allSidebarNodes: NodeTemplate[] = [
       groupInstances: {},
       inputs: { val: "2" },
       result: "",
+    },
+  },
+  {
+    functionName: "sighash_type_to_le4",
+    label: "SIGHASH Type → LE-4",
+    category: "Encoding & Script Data",
+    subcategory: "Bytes, Integers & Pushdata",
+    description:
+      "Encode a 1-byte SIGHASH type as the 4-byte LE suffix used in signature preimages",
+    type: "calculation",
+    nodeData: {
+      functionName: "sighash_type_to_le4",
+      title: "SIGHASH Type → LE-4",
+      numInputs: 1,
+
+      value: "01",
+
+      groupInstances: {},
+      inputs: { val: "01" },
+      result: "",
+      inputStructure: {
+        ungrouped: [{ index: 0, label: "SIGHASH TYPE:", rows: 1 }],
+      },
     },
   },
   {
@@ -353,7 +378,7 @@ export const allSidebarNodes: NodeTemplate[] = [
     functionName: "concat_all",
     label: "TX Template legacy",
     category: "Transactions",
-    subcategory: "Transaction Templates",
+    subcategory: "General",
     description:
       "Example specialised concat node with fields for version, input count, etc.",
     type: "calculation",
@@ -497,7 +522,7 @@ export const allSidebarNodes: NodeTemplate[] = [
     functionName: "concat_all",
     label: "TX Template",
     category: "Transactions",
-    subcategory: "Transaction Templates",
+    subcategory: "General",
     description:
       "Assembles any Bitcoin transaction: legacy, SegWit, or mixed. For SegWit/mixed, include marker+flag and witnesses. Legacy inputs need '00' witness.",
     type: "calculation",
@@ -527,7 +552,7 @@ export const allSidebarNodes: NodeTemplate[] = [
             small: true,
             allowEmptyBlank: true,
             comment:
-              "Include ONLY if ANY input is SegWit (00), empty for legacy-only",
+              "SegWit marker. Use 00 only if at least one input has witness data; leave empty for legacy-only.",
           },
           {
             index: 20,
@@ -537,11 +562,11 @@ export const allSidebarNodes: NodeTemplate[] = [
             small: true,
             allowEmptyBlank: true,
             comment:
-              "Include ONLY if ANY input is SegWit (01), empty for legacy-only",
+              "SegWit flag. Use 01 only if at least one input has witness data; leave empty for legacy-only.",
           },
           {
             index: 30,
-            label: "INPUT_COUNT:",
+            label: "INPUT_COUNT (VarInt):",
             rows: 1,
             placeholder: "01",
             small: true,
@@ -571,7 +596,7 @@ export const allSidebarNodes: NodeTemplate[] = [
               },
               {
                 index: 20,
-                label: "SCRIPT_LENGTH:",
+                label: "SCRIPT_LENGTH (VarInt):",
                 rows: 1,
                 allowEmpty00: true,
                 placeholder: "00 for SegWit, varies for others",
@@ -580,7 +605,7 @@ export const allSidebarNodes: NodeTemplate[] = [
               },
               {
                 index: 30,
-                label: "SCRIPT_SIG:",
+                label: "SCRIPT_SIG[]:",
                 placeholder: "Empty for native SegWit",
                 rows: 2,
                 allowEmptyBlank: true,
@@ -611,14 +636,14 @@ export const allSidebarNodes: NodeTemplate[] = [
               },
               {
                 index: 10,
-                label: "SCRIPT_LENGTH:",
+                label: "SCRIPT_PUBKEY_LENGTH:",
                 rows: 1,
                 small: true,
                 placeholder: "19",
               },
               {
                 index: 20,
-                label: "SCRIPT_PUBKEY:",
+                label: "SCRIPT_PUBKEY[]:",
                 placeholder: "Locking script",
                 rows: 2,
               },
@@ -634,12 +659,12 @@ export const allSidebarNodes: NodeTemplate[] = [
             fields: [
               {
                 index: 0,
-                label: "WITNESS_DATA:",
-                placeholder: "SegWit: actual witness | Legacy: 00",
+                label: "WITNESS_DATA[]:",
+                placeholder: "Legacy input: 00 | SegWit input: witness stack",
                 rows: 3,
                 allowEmptyBlank: true,
                 comment:
-                  "⚠️ EVERY input needs witness! Legacy='00', SegWit=actual data",
+                  "Every transaction input needs a witness entry when marker+flag are present. Use 00 for legacy inputs; use the serialized witness stack for SegWit inputs.",
               },
             ],
           },
@@ -648,7 +673,7 @@ export const allSidebarNodes: NodeTemplate[] = [
           "INPUTS[]": [
             {
               index: 2000,
-              label: "OUTPUT_COUNT:",
+              label: "OUTPUT_COUNT (VarInt):",
               rows: 1,
               placeholder: "01",
               small: true,
@@ -1250,7 +1275,7 @@ export const allSidebarNodes: NodeTemplate[] = [
     functionName: "sign_as_bitcoin_core_low_r",
     label: "Sign TX (Low-R)",
     category: "Signing & Verification",
-    subcategory: "ECDSA",
+    subcategory: "General",
     description: "ECDSA signature with low-R style, like Bitcoin Core",
     type: "calculation",
     nodeData: {
@@ -2281,7 +2306,7 @@ export const allSidebarNodes: NodeTemplate[] = [
     functionName: "script_verification",
     label: "Verify Script",
     category: "Signing & Verification",
-    subcategory: "Script Verification",
+    subcategory: "General",
     description: "Bitcoin script debugger/verifier",
     type: "calculation",
     nodeData: {
@@ -2336,7 +2361,7 @@ export const allSidebarNodes: NodeTemplate[] = [
         ],
         groups: [
           {
-            title: "Taproot Prevouts (vin order)",
+            title: "Taproot prevouts",
             baseIndex: 100,
             expandable: true,
             fieldCountToAdd: 1,
@@ -2628,16 +2653,21 @@ export const allSidebarNodes: NodeTemplate[] = [
     label: "TX Field Extract",
     category: "Transactions",
     subcategory: "Parsing & Inspection",
-    description: "Pull a single value out of a raw Bitcoin transaction",
+    description: "Pull selected fields out of a raw Bitcoin transaction",
     type: "calculation", // still rendered by CalculationNode
     nodeData: {
       functionName: "extract_tx_field",
       title: "TX Field Extract",
       paramExtraction: "multi_val",
-      numInputs: 3, // [rawTx, fieldName, index]
+      numInputs: 2, // [rawTx, index]
 
       result: "",
-      inputs: { vals: ["", "txid", ""] }, // index starts blank
+      inputs: { vals: ["", "0"] },
+      txFieldExtractMode: "dynamic",
+      txExtractFields: [...DEFAULT_TX_FIELD_EXTRACT_FIELDS],
+      outputPorts: buildTxFieldExtractOutputPorts([
+        ...DEFAULT_TX_FIELD_EXTRACT_FIELDS,
+      ]),
 
       inputStructure: {
         ungrouped: [
@@ -2645,39 +2675,16 @@ export const allSidebarNodes: NodeTemplate[] = [
           {
             index: 0,
             label: "Raw TX (hex):",
-            rows: 4,
+            rows: 3,
             placeholder: "<transaction hex>",
           },
 
-          /* 1 ─ dropdown selector (no cables) */
+          /* 1 ─ vin/vout index used by per-input/per-output fields */
           {
             index: 1,
-            label: "Field name:",
-            unconnectable: true,
-            options: [
-              "version",
-              "locktime",
-              "txid",
-              "input_count",
-              "output_count",
-              "vin.txid",
-              "vin.vout",
-              "vin.scriptSig",
-              "vin.sequence",
-              "vout.value",
-              "vout.scriptPubKey",
-              "raw_no_witness",
-            ],
-          },
-
-          /* 2 ─ optional index (manual only, no checkbox, no handle) */
-          {
-            index: 2,
-            label: "Index (opt):",
+            label: "VIN/VOUT Index:",
             rows: 1,
             placeholder: "0",
-            unconnectable: true, // ← removes the input handle
-            // no allowEmptyBlank → the “Ø” checkbox disappears
           },
         ],
       },
@@ -2716,7 +2723,7 @@ export const allSidebarNodes: NodeTemplate[] = [
             label: "Coin:",
             placeholder: "testnet",
             rows: 1,
-            comment: "Trezor Connect coin name/shortcut. Use testnet for this lesson.",
+            comment: "Trezor Connect coin name/shortcut. Use testnet for this flow.",
           },
           {
             index: 2,

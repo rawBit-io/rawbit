@@ -19,8 +19,8 @@ test.describe('Connect dialog', () => {
     await page.goto('/');
 
     const searchInput = page.getByPlaceholder('Search nodes...');
-    await searchInput.fill('identity');
-    const identityTile = page.locator('[draggable="true"]').filter({ hasText: /Identity/i }).first();
+    await searchInput.fill('input');
+    const identityTile = page.locator('[draggable="true"]').filter({ hasText: /Input/i }).first();
     await expect(identityTile).toBeVisible();
 
     const canvas = page.locator('.react-flow__pane');
@@ -39,7 +39,7 @@ test.describe('Connect dialog', () => {
       await delay(50);
     }
 
-    const identityNode = page.locator('.react-flow__node').filter({ hasText: /Identity/ }).first();
+    const identityNode = page.locator('.react-flow__node').filter({ hasText: /Input/ }).first();
     const shaNode = page.locator('.react-flow__node').filter({ hasText: /SHA-256d/ }).first();
     const identityBox = await identityNode.boundingBox();
     const shaBox = await shaNode.boundingBox();

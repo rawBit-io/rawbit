@@ -157,7 +157,8 @@ test.describe('Keyboard navigation & accessibility', () => {
     const groupNode = page.locator('.react-flow__node-shadcnGroup');
     await page.keyboard.press(`${modifier}+g`);
     await expect(groupNode).toHaveCount(1, { timeout: 10_000 });
-    await groupNode.first().click({ position: { x: 20, y: 20 } });
+    await page.getByTitle('Sidebar').click();
+    await groupNode.first().click({ position: { x: 20, y: 20 }, force: true });
     await blurActiveElement(page);
 
     await page.keyboard.press(`${modifier}+u`);

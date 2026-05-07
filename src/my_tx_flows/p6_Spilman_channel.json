@@ -16,8 +16,7 @@
         "title": "                            Bob",
         "dirty": false,
         "fontSize": 96,
-        "borderColor": "#a855f7",
-        "excludeFromFlowMap": true
+        "borderColor": "#a855f7"
       },
       "dragHandle": "[data-drag-handle]"
     },
@@ -35,8 +34,7 @@
         "title": "                                                                            Alice",
         "dirty": false,
         "fontSize": 96,
-        "borderColor": "#22c55e",
-        "excludeFromFlowMap": true
+        "borderColor": "#22c55e"
       },
       "dragHandle": "[data-drag-handle]"
     },
@@ -54,8 +52,7 @@
         "title": "    Exchange/Publish",
         "dirty": false,
         "fontSize": 96,
-        "borderColor": "#eab308",
-        "excludeFromFlowMap": true
+        "borderColor": "#eab308"
       },
       "dragHandle": "[data-drag-handle]"
     },
@@ -72,8 +69,7 @@
         "height": 22702,
         "title": "            Step",
         "dirty": false,
-        "fontSize": 96,
-        "excludeFromFlowMap": true
+        "fontSize": 96
       },
       "dragHandle": "[data-drag-handle]"
     },
@@ -7002,7 +6998,7 @@
         "y": 195
       },
       "data": {
-        "content": "# Spilman Channels — Bitcoin’s First Payment Channel\n\nAn intro to **unidirectional** payment channels: pay many times off‑chain, touch the blockchain twice (open/close), and stay safe with a pre‑signed refund.\n\n## Why this exists\nBlocks are scarce and slow. Channels batch thousands of updates off‑chain:\n- **Throughput**: many updates, two on‑chain txs\n- **Finality for users**: instant receipts off‑chain; eventual settlement on‑chain\n\n## Sequence numbers, fixed\nSatoshi's original `nSequence` idea for replacement didn't work—miners could always choose any valid version based on fees, not sequence numbers. In 2016:\n- **BIP‑68**: repurposes `nSequence` as a **relative timelock** (CSV)\n- **BIP‑112**: script‑level CSV (`OP_CHECKSEQUENCEVERIFY`)\nSpilman channels rely on a **CSV‑delayed refund** so Alice can reclaim funds if Bob disappears.\n\n## How a Spilman channel works (high level)\n1) **Set up** a 2‑of‑2 multisig (Alice + Bob)  \n\n2) **Safety first**: Bob signs a **refund tx** spending the funding output, with `nSequence = delay`  \n\n3) **Fund**: Alice broadcasts the funding tx to the multisig  \n\n4) **Pay**: for each payment, Alice creates a **new commitment tx** paying Bob more, signs it, and sends it to Bob  \n\n5) **Close**: Bob broadcasts the **latest** commitment; or Alice uses the **refund** after the delay\n\n## What you’ll build in this lesson\n- Generate keys, build the 2‑of‑2 **redeem script**\n- Construct & validate the **refund** (CSV) before funding\n- Fund the channel and verify on‑chain\n- Produce **commitment transactions** for payments and verify them\n- Close cooperatively (Bob broadcasts latest commit) or via timeout (Alice’s refund)\n\n## Limits that point to Lightning\n- **Unidirectional** (Alice → Bob only)  \n- **No routing** (only direct peers)  \n- **Refund path has fixed delay** (if Bob disappears, Alice waits the CSV timeout before reclaiming funds)\n- **Pre‑SegWit malleability risk** (funding TXID changes break pre‑sigs)\n\n*Learning Spilman cements the core ideas behind modern bidirectional channels and HTLCs.*\n",
+        "content": "# Spilman Channels — Bitcoin’s First Payment Channel\n\nAn intro to **unidirectional** payment channels: pay many times off‑chain, touch the blockchain twice (open/close), and stay safe with a pre‑signed refund.\n\n## Why this exists\nBlocks are scarce and slow. Channels batch thousands of updates off‑chain:\n- **Throughput**: many updates, two on‑chain txs\n- **Finality for users**: instant receipts off‑chain; eventual settlement on‑chain\n\n## Sequence numbers, fixed\nSatoshi's original `nSequence` idea for replacement didn't work—miners could always choose any valid version based on fees, not sequence numbers. In 2016:\n- **BIP‑68**: repurposes `nSequence` as a **relative timelock** (CSV)\n- **BIP‑112**: script‑level CSV (`OP_CHECKSEQUENCEVERIFY`)\nSpilman channels rely on a **CSV‑delayed refund** so Alice can reclaim funds if Bob disappears.\n\n## How a Spilman channel works (high level)\n1) **Set up** a 2‑of‑2 multisig (Alice + Bob)  \n\n2) **Safety first**: Bob signs a **refund tx** spending the funding output, with `nSequence = delay`  \n\n3) **Fund**: Alice broadcasts the funding tx to the multisig  \n\n4) **Pay**: for each payment, Alice creates a **new commitment tx** paying Bob more, signs it, and sends it to Bob  \n\n5) **Close**: Bob broadcasts the **latest** commitment; or Alice uses the **refund** after the delay\n\n## What you’ll build in this flow\n- Generate keys, build the 2‑of‑2 **redeem script**\n- Construct & validate the **refund** (CSV) before funding\n- Fund the channel and verify on‑chain\n- Produce **commitment transactions** for payments and verify them\n- Close cooperatively (Bob broadcasts latest commit) or via timeout (Alice’s refund)\n\n## Limits that point to Lightning\n- **Unidirectional** (Alice → Bob only)  \n- **No routing** (only direct peers)  \n- **Refund path has fixed delay** (if Bob disappears, Alice waits the CSV timeout before reclaiming funds)\n- **Pre‑SegWit malleability risk** (funding TXID changes break pre‑sigs)\n\n*Learning Spilman cements the core ideas behind modern bidirectional channels and HTLCs.*\n",
         "fontSize": 36,
         "width": 1496,
         "height": 2452,
@@ -7404,7 +7400,7 @@
         "y": 206.79224649882485
       },
       "data": {
-        "content": "# Lesson 6: Spilman (Unidirectional) Payment Channel\n\n- Create a 2‑of‑2 multisig redeem script and its P2SH address for the channel (Alice + Bob).\n- Prepare a refund transaction from the yet‑to‑be‑funded multisig back to Alice, using a relative timelock (`nSequence`/CSV) as a safety timeout.\n- Have Bob verify and co‑sign the refund before any funds are committed.\n- Fund the multisig on‑chain after the refund is secured.\n- Make off‑chain payments by updating a “latest commitment” transaction that splits funds; Alice signs and sends it to Bob.\n- Bob can complete the signature and broadcast the most recent commitment at any time before the timeout to settle on‑chain.",
+        "content": "# Flow 6: Spilman (Unidirectional) Payment Channel\n\n- Create a 2‑of‑2 multisig redeem script and its P2SH address for the channel (Alice + Bob).\n- Prepare a refund transaction from the yet‑to‑be‑funded multisig back to Alice, using a relative timelock (`nSequence`/CSV) as a safety timeout.\n- Have Bob verify and co‑sign the refund before any funds are committed.\n- Fund the multisig on‑chain after the refund is secured.\n- Make off‑chain payments by updating a “latest commitment” transaction that splits funds; Alice signs and sends it to Bob.\n- Bob can complete the signature and broadcast the most recent commitment at any time before the timeout to settle on‑chain.",
         "fontSize": 36,
         "width": 300,
         "height": 200,

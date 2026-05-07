@@ -13,6 +13,10 @@ import {
   getScriptSteps,
   setScriptSteps,
 } from "@/lib/share/scriptStepsCache";
+import {
+  sanitizeGroupBundleRenderEdgesForState,
+  stripGroupBundlePortNodes,
+} from "@/lib/flow/groupEdgeBundling";
 
 /* ----------------------------------------------------------------
    LOCAL types
@@ -101,8 +105,8 @@ export function useCopyPaste() {
 
   /* ---------- COPY ----------------------------------------------------- */
   const copyNodes = useCallback(() => {
-    const allNodes = getNodes();
-    const allEdges = getEdges();
+    const allNodes = stripGroupBundlePortNodes(getNodes() as FlowNode[]);
+    const allEdges = sanitizeGroupBundleRenderEdgesForState(getEdges() as Edge[]);
     const selected = allNodes.filter((n) => n.selected);
     if (!selected.length) {
       log("copyPaste", "No nodes selected to copy");

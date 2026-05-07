@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button, type ButtonProps } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 interface ConfirmationDialogProps {
@@ -18,6 +19,7 @@ interface ConfirmationDialogProps {
   children?: ReactNode;
   footerAction?: ReactNode;
   confirmVariant?: ButtonProps["variant"];
+  confirmClassName?: string;
   confirmText?: string;
   cancelText?: string;
 }
@@ -31,6 +33,7 @@ export function ConfirmationDialog({
   children,
   footerAction,
   confirmVariant = "default",
+  confirmClassName,
   confirmText = "Confirm",
   cancelText = "Cancel",
 }: ConfirmationDialogProps) {
@@ -52,7 +55,11 @@ export function ConfirmationDialog({
             </Button>
           )}
 
-          <Button variant={confirmVariant} onClick={onConfirm}>
+          <Button
+            variant={confirmVariant}
+            className={cn(confirmClassName)}
+            onClick={onConfirm}
+          >
             {confirmText}
           </Button>
         </DialogFooter>

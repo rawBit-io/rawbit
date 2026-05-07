@@ -38,6 +38,7 @@ _CURVE_P = SECP256k1.curve.p()
 _BIP32_HARDENED = 0x80000000
 from bitcointx.core import CTransaction, CTxOut, b2x
 from bitcointx.core.script import CScript
+from .opcodes import opcode_sequence_to_hex
 from bitcointx.core.scripteval import (
     VerifyScriptWithTrace 
 )
@@ -2397,6 +2398,46 @@ def uint32_to_little_endian_4_bytes(val: int) -> str:
     return packed.hex()
 
 
+def sighash_type_to_le4(val: str) -> str:
+    """
+    Convert a standard legacy/SegWit ECDSA SIGHASH type byte to the
+    4-byte little-endian uint32 suffix appended to the signing preimage.
+
+    This accepts the one-byte hex forms used in signatures, e.g.:
+    - 01: SIGHASH_ALL
+    - 02: SIGHASH_NONE
+    - 03: SIGHASH_SINGLE
+    - 81: SIGHASH_ALL | ANYONECANPAY
+    - 82: SIGHASH_NONE | ANYONECANPAY
+    - 83: SIGHASH_SINGLE | ANYONECANPAY
+    """
+    raw = str(val).strip().lower()
+    if raw.startswith("0x"):
+        raw = raw[2:]
+
+    if not raw:
+        raise ValueError("SIGHASH type is required")
+    if len(raw) != 2:
+        raise ValueError("SIGHASH type must be exactly one byte, e.g. 01 or 81")
+
+    try:
+        sighash_type = int(raw, 16)
+    except ValueError as exc:
+        raise ValueError("SIGHASH type must be hex, e.g. 01 or 81") from exc
+
+    base_type = sighash_type & 0x1F
+    allowed_extra_bits = 0x80
+    extra_bits = sighash_type & ~0x1F
+
+    if base_type not in {0x01, 0x02, 0x03} or extra_bits not in {0, allowed_extra_bits}:
+        raise ValueError(
+            "Unsupported SIGHASH type. Use 01, 02, 03, 81, 82, or 83 "
+            "for legacy/SegWit ECDSA signatures."
+        )
+
+    return sighash_type.to_bytes(4, "little").hex()
+
+
 
 def encode_varint(val: int | str | None) -> str:
     if val == "" or val is None:
@@ -2964,31 +3005,15 @@ def encode_script_push_data(val: str) -> str:
     return "4e" + data_len.to_bytes(4, "little").hex()
 
 
-def op_code_select(val: str) -> str:
+def op_code_select(vals: Any) -> str:
     """
-    Takes a hex string that was pre-concatenated in the frontend
-    and returns it as-is. This allows the OpCodeNode to follow
-    the same pattern as other calculation nodes while avoiding
-    data duplication.
+    Convert an ordered list of opcode names into script hex.
 
-    Args:
-        val: A pre-concatenated hex string
-             Example: "76a988ac" (OP_DUP + OP_HASH160 + OP_EQUALVERIFY + OP_CHECKSIG)
-
-    Returns:
-        The same hex string
-
-    Examples:
-        >>> op_code_select("76a914")
-        "76a914"
-
-        >>> op_code_select("76a91488ac")
-        "76a91488ac"
-
-        >>> op_code_select("6a")  # OP_RETURN
-        "6a"
+    The opcode sequence node now behaves like the other calculation nodes:
+    the frontend stores user-selected opcode names as inputs, and the backend
+    performs the transformation to hex.
     """
-    return val
+    return opcode_sequence_to_hex(vals)
 
 
 def int_to_script_bytes(val: Union[int, str]) -> str:

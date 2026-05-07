@@ -20,6 +20,7 @@ from calc_functions.calc_func import (
    
  
     uint32_to_little_endian_4_bytes,
+    sighash_type_to_le4,
     encode_varint,
     reverse_txid_bytes,
 
@@ -104,6 +105,7 @@ CALC_FUNCTIONS = {
   
 
     "uint32_to_little_endian_4_bytes": uint32_to_little_endian_4_bytes,
+    "sighash_type_to_le4": sighash_type_to_le4,
     "encode_varint": encode_varint,
     "reverse_txid_bytes": reverse_txid_bytes,
 
@@ -424,13 +426,12 @@ def build_single_val_params(node, edges, _map, get_res):
     # ── orphan-constant guard ─────────────────────────────────────
     # Check if node has outputs but no inputs, excluding:
     # - identity nodes (they're meant to be value sources)
-    # - op_code_select nodes (Opcode Sequence - user builds values)
     # - nodes with showField=True (they allow manual input)
     if not upstream:
         func_name = node["data"].get("functionName", "")
         show_field = node["data"].get("showField", False)
         
-        if func_name not in ("identity", "op_code_select") and not show_field:
+        if func_name != "identity" and not show_field:
             has_outgoing = any(e["source"] == nid for e in edges)
             if has_outgoing:
                 raise ValueError(
@@ -438,6 +439,14 @@ def build_single_val_params(node, edges, _map, get_res):
                 )
     
     return {"val": val}
+
+
+def _legacy_opcode_names(node):
+    data = node.get("data", {})
+    names = data.get("opSequenceNames")
+    if isinstance(names, list):
+        return [str(name).strip() for name in names if str(name).strip()]
+    return []
 
 
 def _multi_common(node, edges, get_res):
@@ -498,6 +507,18 @@ def _multi_common(node, edges, get_res):
     return sparse_out, ordered
 
 def build_multi_val_params(node, edges, _map, get_res):
+    if (
+        node.get("data", {}).get("functionName") == "op_code_select"
+        and not _visible_field_indices(node)
+    ):
+        names = _legacy_opcode_names(node)
+        return {
+            "vals": names,
+            "_sparseVals": {
+                str(index * 100): name for index, name in enumerate(names)
+            },
+        }
+
     sparse_out, ordered = _multi_common(node, edges, get_res)
     return {"vals": ordered, "_sparseVals": sparse_out}
 
@@ -571,6 +592,46 @@ def build_multi_val_with_network_params(node, edges, _map, get_res):
         "val": base_val,
         "selectedNetwork": node["data"].get("selectedNetwork", "regtest"),
     }
+
+
+def _tx_field_extract_fields(data):
+    fields = data.get("txExtractFields")
+    if not isinstance(fields, list):
+        return ["txid", "vout.scriptPubKey"]
+
+    normalized = [str(field).strip() for field in fields if str(field).strip()]
+    return normalized or ["txid", "vout.scriptPubKey"]
+
+
+def _tx_field_extract_output_ports(fields):
+    return [
+        {
+            "label": field,
+            "handleId": f"output-{index}",
+            "showLabel": False,
+        }
+        for index, field in enumerate(fields)
+    ]
+
+
+def _calculate_dynamic_tx_field_extract(data, inp_dict):
+    vals = inp_dict.get("vals") or []
+    raw_tx_hex = vals[0] if len(vals) > 0 else ""
+    index = vals[1] if len(vals) > 1 else ""
+    fields = _tx_field_extract_fields(data)
+
+    output_values = {}
+    result_lines = []
+    for output_index, field in enumerate(fields):
+        handle_id = f"output-{output_index}"
+        value = extract_tx_field([str(raw_tx_hex), field, str(index or "")])
+        output_values[handle_id] = value
+        result_lines.append(f"{field}: {value}")
+
+    data["txExtractFields"] = fields
+    data["outputPorts"] = _tx_field_extract_output_ports(fields)
+    data["outputValues"] = output_values
+    data["result"] = "\n".join(result_lines)
 
 
 PARAM_BUILDERS = {
@@ -696,6 +757,18 @@ def bulk_calculate_logic(nodes, edges):
                             vals_copy[2] = None
                             inp_dict["vals"] = vals_copy
                     validate_inputs(fn_name, inp_dict)
+
+                    if (
+                        fn_name == "extract_tx_field"
+                        and data.get("txFieldExtractMode") == "dynamic"
+                    ):
+                        _calculate_dynamic_tx_field_extract(data, inp_dict)
+                        store_inputs = inp_dict.copy()
+                        if "_sparseVals" in store_inputs:
+                            store_inputs["vals"] = store_inputs.pop("_sparseVals")
+                        data.update({"inputs": store_inputs, "dirty": False})
+                        data.pop("error", None)
+                        continue
 
                     # numeric casts according to spec
                     for p, spec in FUNCTION_SPECS.get(fn_name, {}).get(

@@ -195,6 +195,12 @@ FUNCTION_SPECS = {
             "val": {"type": "integer", "required": True}
         }
     },
+    "sighash_type_to_le4": {
+        "paramExtraction": "single_val",
+        "params": {
+            "val": {"type": "string", "required": True}
+        }
+    },
     "encode_varint": {
         "paramExtraction": "single_val",
         "params": {
@@ -264,11 +270,11 @@ FUNCTION_SPECS = {
         }
     },
     "op_code_select": {
-    "paramExtraction": "single_val",
-    "params": {
-        "val": {"type": "string", "required": True}
-    }
-},
+        "paramExtraction": "multi_val",
+        "params": {
+            "vals": {"type": "any", "required": True}
+        }
+    },
 
    "encode_script_push_data": {
     "paramExtraction": "single_val",

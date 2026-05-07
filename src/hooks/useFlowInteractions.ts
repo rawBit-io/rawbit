@@ -36,6 +36,45 @@ interface DragStartInfo {
   parentId?: string | null;
 }
 
+const removedNodeIdsFromChanges = (
+  changes: NodeChange<FlowNode>[]
+): Set<string> => {
+  const removedIds = new Set<string>();
+  for (const change of changes) {
+    if (change.type === "remove") {
+      removedIds.add(change.id);
+    }
+  }
+  return removedIds;
+};
+
+const expandRemovedNodeIdsWithDescendants = (
+  removedIds: Set<string>,
+  nodes: FlowNode[]
+): Set<string> => {
+  if (!removedIds.size) return removedIds;
+
+  const expanded = new Set(removedIds);
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const node of nodes) {
+      if (!node.parentId || !expanded.has(node.parentId)) continue;
+      if (expanded.has(node.id)) continue;
+      expanded.add(node.id);
+      changed = true;
+    }
+  }
+
+  return expanded;
+};
+
+const edgeTouchesRemovedNode = (
+  edge: Edge,
+  removedNodeIds: ReadonlySet<string>
+): boolean =>
+  removedNodeIds.has(edge.source) || removedNodeIds.has(edge.target);
+
 interface UseFlowInteractionsOptions {
   rawOnNodesChange: (changes: NodeChange<FlowNode>[]) => void;
   rawOnEdgesChange: (changes: EdgeChange[]) => void;
@@ -310,6 +349,26 @@ export function useFlowInteractions({
     };
   }, [rawOnNodesChange]);
 
+  const removeEdgesForRemovedNodes = useCallback(
+    (changes: NodeChange<FlowNode>[], beforeNodes: FlowNode[]) => {
+      const removedIds = removedNodeIdsFromChanges(changes);
+      if (!removedIds.size) return;
+
+      const removedWithDescendants = expandRemovedNodeIdsWithDescendants(
+        removedIds,
+        beforeNodes
+      );
+
+      setEdges((edges) => {
+        const nextEdges = edges.filter(
+          (edge) => !edgeTouchesRemovedNode(edge, removedWithDescendants)
+        );
+        return nextEdges.length === edges.length ? edges : nextEdges;
+      });
+    },
+    [setEdges]
+  );
+
   useEffect(() => {
     return () => {
       exitLargeDragMode(false, false);
@@ -381,6 +440,8 @@ export function useFlowInteractions({
         rawOnNodesChange(changes);
         return;
       }
+
+      removeEdgesForRemovedNodes(changes, beforeNodes);
 
       const selectedCount = beforeNodes.reduce(
         (acc, node) => (node.selected ? acc + 1 : acc),
@@ -523,6 +584,7 @@ export function useFlowInteractions({
       releaseNodeRemovalSnapshotSkip,
       skipNextNodeRemovalRef,
       exitLargeDragMode,
+      removeEdgesForRemovedNodes,
     ]
   );
 
@@ -550,9 +612,16 @@ export function useFlowInteractions({
 
       const hasAdd = filteredChanges.some((change) => change.type === "add");
       const hasRemove = filteredChanges.some((change) => change.type === "remove");
+      const hasReplace = filteredChanges.some(
+        (change) => change.type === "replace"
+      );
 
-      if (!selectionOnly && (hasAdd || hasRemove)) {
-        const label = hasAdd ? "Edge(s) added" : "Edge(s) removed";
+      if (!selectionOnly && (hasAdd || hasRemove || hasReplace)) {
+        const label = hasAdd
+          ? "Edge(s) added"
+          : hasRemove
+            ? "Edge(s) removed"
+            : "Edge shape changed";
         scheduleSnapshot(label, {
           before: () => {
             if (hasRemove && skipNextEdgeSnapshotRef.current) {

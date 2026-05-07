@@ -245,7 +245,7 @@ export function NodeCodeDialog({
       }}
     >
       <DialogContent
-        className="max-w-3xl"
+        className="w-[min(82vw,700px)] max-w-none"
         onPointerDownOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>
@@ -258,7 +258,7 @@ export function NodeCodeDialog({
         </DialogHeader>
 
         <div
-          className="h-[500px] overflow-auto border p-2 bg-muted rounded-md syntax-highlighter-container"
+          className="h-[62vh] min-h-[460px] max-h-[680px] overflow-auto border p-2 bg-muted rounded-md syntax-highlighter-container"
           onKeyDown={(e) => e.stopPropagation()}
         >
           {loading && <div>Loading code...</div>}
@@ -315,10 +315,15 @@ export function NodeCodeDialog({
         </div>
 
         <DialogFooter className="mt-4 flex justify-between">
-          <Button variant="outline" onClick={handleCopy} disabled={!code}>
+          <Button
+            variant="outline"
+            className="select-none"
+            onClick={handleCopy}
+            disabled={!code}
+          >
             {copied ? "Copied!" : "Copy Code"}
           </Button>
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="outline" className="select-none" onClick={onClose}>
             Close
           </Button>
         </DialogFooter>

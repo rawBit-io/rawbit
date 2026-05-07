@@ -1,4 +1,8 @@
-import React, { useEffect, useRef } from "react";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from "react";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -16,6 +20,7 @@ export interface TerminalFieldProps {
   readOnly?: boolean;
   small?: boolean;
   rows?: number;
+  autoResizeMaxRows?: number;
   onChange?: (val: string) => void;
   onFocus?: (val: string) => void;
   onBlur?: (val: string) => void;
@@ -32,6 +37,9 @@ export interface TerminalFieldProps {
   onToggle00?: (checked: boolean) => void;
   onToggleBlank?: (checked: boolean) => void;
   onToggleNull?: (checked: boolean) => void;
+  fieldHandle?: React.ReactNode;
+  className?: string;
+  labelClassName?: string;
 }
 
 import { EditableLabel } from "./EditableLabel";
@@ -47,6 +55,7 @@ function terminalFieldPropsAreEqual(
     prev.readOnly === next.readOnly &&
     prev.small === next.small &&
     prev.rows === next.rows &&
+    prev.autoResizeMaxRows === next.autoResizeMaxRows &&
     prev.allowEmpty00 === next.allowEmpty00 &&
     prev.allowEmptyBlank === next.allowEmptyBlank &&
     prev.allowNull === next.allowNull &&
@@ -62,7 +71,10 @@ function terminalFieldPropsAreEqual(
     prev.onLabelChange === next.onLabelChange &&
     prev.onToggle00 === next.onToggle00 &&
     prev.onToggleBlank === next.onToggleBlank &&
-    prev.onToggleNull === next.onToggleNull
+    prev.onToggleNull === next.onToggleNull &&
+    prev.fieldHandle === next.fieldHandle &&
+    prev.className === next.className &&
+    prev.labelClassName === next.labelClassName
   );
 }
 
@@ -76,6 +88,7 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
   readOnly,
   small,
   rows,
+  autoResizeMaxRows,
   onChange,
   onFocus,
   onBlur,
@@ -92,8 +105,12 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
   onToggle00,
   onToggleBlank,
   onToggleNull,
+  fieldHandle,
+  className,
+  labelClassName,
 }: TerminalFieldProps) {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const textareaRows = autoResizeMaxRows ? 1 : rows ?? 3;
 
   useEffect(() => {
     const ta = textareaRef.current;
@@ -110,13 +127,40 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
     return () => ta.removeEventListener("wheel", onWheel);
   }, []);
 
+  useLayoutEffect(() => {
+    const ta = textareaRef.current;
+    if (!ta || !autoResizeMaxRows) return;
+
+    const computed = window.getComputedStyle(ta);
+    const lineHeight = Number.parseFloat(computed.lineHeight) || 20;
+    const paddingTop = Number.parseFloat(computed.paddingTop) || 0;
+    const paddingBottom = Number.parseFloat(computed.paddingBottom) || 0;
+    const borderTop = Number.parseFloat(computed.borderTopWidth) || 0;
+    const borderBottom = Number.parseFloat(computed.borderBottomWidth) || 0;
+    const maxHeight =
+      lineHeight * autoResizeMaxRows +
+      paddingTop +
+      paddingBottom +
+      borderTop +
+      borderBottom;
+
+    ta.style.height = "auto";
+    ta.style.height = `${Math.min(ta.scrollHeight, maxHeight)}px`;
+    ta.style.overflowY = ta.scrollHeight > maxHeight ? "auto" : "hidden";
+  }, [autoResizeMaxRows, value]);
+
   if (comment) {
     return (
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="mb-3 cursor-help">
-              <div className="mb-1 flex items-center justify-between font-mono text-sm text-primary">
+            <div className={cn("mb-3 cursor-help", className)}>
+              <div
+                className={cn(
+                  "mb-1 flex items-center justify-between font-mono text-sm text-primary",
+                  labelClassName
+                )}
+              >
                 {onLabelChange ? (
                   <EditableLabel value={label} onCommit={onLabelChange} />
                 ) : (
@@ -179,30 +223,32 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
                 </div>
               </div>
 
-              <textarea
-                ref={textareaRef}
-                className={cn(
-                  "nodrag w-full resize-none rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring",
-                  "text-sm p-2 font-mono transition-colors",
-                  small ? "w-32" : "w-full",
-                  (isBlank || is00 || isNull) &&
-                    "text-muted-foreground",
-                  readOnly ? "border-input" : "border-dashed border-input"
-                )}
-                placeholder={placeholder}
-                value={value ?? ""}
-                readOnly={readOnly}
-                rows={rows ?? 3}
-                spellCheck={false}
-                onChange={(event) => onChange?.(event.target.value)}
-                onFocus={(event) => onFocus?.(event.target.value)}
-                onBlur={(event) => onBlur?.(event.target.value)}
-                style={{
-                  maxHeight: "200px",
-                  overflowY: "auto",
-                  cursor: readOnly ? "not-allowed" : "text",
-                }}
-              />
+              <div className="relative">
+                {fieldHandle}
+                <textarea
+                  ref={textareaRef}
+                  className={cn(
+                    "field-surface nodrag block w-full resize-none rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring",
+                    "text-sm p-2 font-mono transition-colors",
+                    small ? "w-32" : "w-full",
+                    (isBlank || is00 || isNull) && "text-muted-foreground",
+                    readOnly ? "border-input" : "border-dashed border-input"
+                  )}
+                  placeholder={placeholder}
+                  value={value ?? ""}
+                  readOnly={readOnly}
+                  rows={textareaRows}
+                  spellCheck={false}
+                  onChange={(event) => onChange?.(event.target.value)}
+                  onFocus={(event) => onFocus?.(event.target.value)}
+                  onBlur={(event) => onBlur?.(event.target.value)}
+                  style={{
+                    maxHeight: autoResizeMaxRows ? undefined : "200px",
+                    overflowY: autoResizeMaxRows ? "hidden" : "auto",
+                    cursor: readOnly ? "not-allowed" : "text",
+                  }}
+                />
+              </div>
             </div>
           </TooltipTrigger>
 
@@ -215,8 +261,13 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
   }
 
   return (
-    <div className="mb-3">
-      <div className="mb-1 flex items-center justify-between font-mono text-sm text-primary">
+    <div className={cn("mb-3", className)}>
+      <div
+        className={cn(
+          "mb-1 flex items-center justify-between font-mono text-sm text-primary",
+          labelClassName
+        )}
+      >
         {onLabelChange ? (
           <EditableLabel value={label} onCommit={onLabelChange} />
         ) : (
@@ -277,29 +328,32 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
         </div>
       </div>
 
-      <textarea
-        ref={textareaRef}
-        className={cn(
-          "nodrag w-full resize-none rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring",
-          "text-sm p-2 font-mono transition-colors",
-          small ? "w-32" : "w-full",
-          (is00 || isBlank || isNull) && "text-muted-foreground",
-          readOnly ? "border-input" : "border-dashed border-input"
-        )}
-        placeholder={placeholder}
-        value={value ?? ""}
-        readOnly={readOnly}
-        rows={rows ?? 3}
-        spellCheck={false}
-        onChange={(event) => onChange?.(event.target.value)}
-        onFocus={(event) => onFocus?.(event.target.value)}
-        onBlur={(event) => onBlur?.(event.target.value)}
-        style={{
-          maxHeight: "200px",
-          overflowY: "auto",
-          cursor: readOnly ? "not-allowed" : "text",
-        }}
-      />
+      <div className="relative">
+        {fieldHandle}
+        <textarea
+          ref={textareaRef}
+          className={cn(
+            "field-surface nodrag block w-full resize-none rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring",
+            "text-sm p-2 font-mono transition-colors",
+            small ? "w-32" : "w-full",
+            (is00 || isBlank || isNull) && "text-muted-foreground",
+            readOnly ? "border-input" : "border-dashed border-input"
+          )}
+          placeholder={placeholder}
+          value={value ?? ""}
+          readOnly={readOnly}
+          rows={textareaRows}
+          spellCheck={false}
+          onChange={(event) => onChange?.(event.target.value)}
+          onFocus={(event) => onFocus?.(event.target.value)}
+          onBlur={(event) => onBlur?.(event.target.value)}
+          style={{
+            maxHeight: autoResizeMaxRows ? undefined : "200px",
+            overflowY: autoResizeMaxRows ? "hidden" : "auto",
+            cursor: readOnly ? "not-allowed" : "text",
+          }}
+        />
+      </div>
     </div>
   );
 },

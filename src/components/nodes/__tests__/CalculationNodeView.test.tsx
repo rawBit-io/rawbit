@@ -32,6 +32,8 @@ function createMut() {
   return {
     setFieldValue: vi.fn(),
     setTaprootLeafIndex: vi.fn(),
+    setTxFieldExtractField: vi.fn(),
+    resizeTxFieldExtractFields: vi.fn(),
     updateFieldLabel: vi.fn(),
     updateGroupTitle: vi.fn(),
     handleNetworkChange: vi.fn(),
@@ -161,13 +163,17 @@ describe("CalculationNodeView", () => {
     const commentArea = await screen.findByPlaceholderText(
       "Enter your notes here..."
     );
-    await user.type(commentArea, " updated");
-    expect(mut.handleCommentChange).toHaveBeenCalled();
-    expect(mut.handleCommentChange.mock.calls.at(-1)?.[0]).not.toBe("Remember");
+    expect(commentArea).toHaveClass("field-surface");
+    expect(screen.getByRole("combobox")).toHaveClass("field-surface");
+    await user.click(commentArea);
+    (commentArea as HTMLTextAreaElement).setSelectionRange(3, 3);
+    await user.keyboard("X");
+    expect(commentArea).toHaveValue("RemXember");
+    expect(mut.handleCommentChange).not.toHaveBeenCalled();
     await user.tab();
     expect(mut.commitCommentOnBlur).toHaveBeenCalledWith(
       "Remember",
-      "Remember"
+      "RemXember"
     );
   });
 
@@ -267,5 +273,271 @@ describe("CalculationNodeView", () => {
     expect(
       screen.queryByDisplayValue("m/44'/1'/0'/0/0")
     ).not.toBeInTheDocument();
+  });
+
+  it("keeps Verify Script focused while hiding flags and Taproot controls by default", async () => {
+    const clip = createClip({ prettyResult: "true" });
+    const mut = createMut();
+    const user = userEvent.setup();
+
+    renderWithProviders(
+      <CalculationNodeView
+        selected={false}
+        data={{
+          functionName: "script_verification",
+          paramExtraction: "multi_val",
+          inputs: { vals: { 3: "0" } },
+          inputStructure: {
+            ungrouped: [
+              { index: 0, label: "scriptSig_hex", rows: 3 },
+              { index: 1, label: "scriptPubKey_hex", rows: 3 },
+              { index: 2, label: "tx_hex", rows: 3 },
+              {
+                index: 3,
+                label: "input_index_to_verify",
+                rows: 1,
+                unconnectable: true,
+              },
+              {
+                index: 4,
+                label: "exclude_flags",
+                rows: 1,
+                unconnectable: true,
+              },
+              {
+                index: 5,
+                label: "spent_amount_sats",
+                rows: 1,
+                allowEmptyBlank: true,
+              },
+            ],
+            groups: [
+              {
+                title: "Taproot Prevouts (vin order)",
+                baseIndex: 100,
+                expandable: true,
+                fieldCountToAdd: 1,
+                minInstances: 0,
+                fields: [
+                  { index: 0, label: "prevout_amount_sats", rows: 1 },
+                  { index: 1, label: "prevout_scriptPubKey_hex", rows: 3 },
+                ],
+              },
+            ],
+          },
+        } as NodeData}
+        rawTitle="Verify Script"
+        derived={{
+          ...derived,
+          isMultiVal: true,
+        }}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        singleValue={undefined}
+        result="true"
+        error={false}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: true,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    expect(screen.getByText(/SCRIPTSIG_HEX/)).toBeInTheDocument();
+    expect(screen.getByText(/SPENT_AMOUNT_SATS/)).toBeInTheDocument();
+    expect(screen.queryByText(/EXCLUDE_FLAGS/)).not.toBeInTheDocument();
+    const taprootGroupTitle = (_content: string, element: Element | null) =>
+      element?.textContent?.trim() === "> Taproot prevouts";
+    expect(screen.queryByText(taprootGroupTitle)).not.toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: /advanced \(taproot and flags\)/i })
+    );
+
+    expect(screen.getByText(/EXCLUDE_FLAGS/)).toBeInTheDocument();
+    expect(screen.getAllByText(taprootGroupTitle).length).toBeGreaterThan(0);
+  });
+
+  it("renders dynamic TX field extract outputs in a dedicated result block", async () => {
+    const clip = createClip({ prettyResult: "hidden summary" });
+    const mut = createMut();
+    const user = userEvent.setup();
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText },
+      configurable: true,
+    });
+
+    renderWithProviders(
+      <CalculationNodeView
+        selected={false}
+        data={{
+          functionName: "extract_tx_field",
+          paramExtraction: "multi_val",
+          txFieldExtractMode: "dynamic",
+          txExtractFields: ["txid", "vout.scriptPubKey"],
+          outputValues: {
+            "output-0": "abc",
+            "output-1": "51",
+          },
+          inputStructure: {
+            ungrouped: [
+              { index: 0, label: "Raw TX (hex):", rows: 4 },
+              { index: 1, label: "VIN/VOUT Index:", rows: 1 },
+            ],
+          },
+          inputs: { vals: { 1: "0" } },
+        } as NodeData}
+        rawTitle="TX Field Extract"
+        derived={{
+          ...derived,
+          isMultiVal: true,
+        }}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        singleValue={undefined}
+        result="hidden summary"
+        error={false}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: false,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    expect(screen.getByText("> EXTRACTED FIELDS")).toBeInTheDocument();
+    expect(screen.getByText("abc")).toBeInTheDocument();
+    expect(screen.getByText("51")).toBeInTheDocument();
+    expect(screen.getAllByTestId("rf-handle")).toHaveLength(4);
+
+    await user.click(screen.getByTitle("Copy txid output to clipboard"));
+    expect(writeText).toHaveBeenCalledWith("abc");
+    expect(await screen.findByTitle("Copied!")).toBeInTheDocument();
+
+    await user.click(screen.getByTitle("Add output"));
+    expect(mut.resizeTxFieldExtractFields).toHaveBeenCalledWith(true);
+
+    await user.click(screen.getByTitle("Remove output"));
+    expect(mut.resizeTxFieldExtractFields).toHaveBeenCalledWith(false);
+  });
+
+  it("renders concat_all inputs as one-line auto-growing fields even when renamed", () => {
+    const clip = createClip({ prettyResult: "aabb" });
+    const mut = createMut();
+
+    renderWithProviders(
+      <CalculationNodeView
+        selected={false}
+        data={{
+          functionName: "concat_all",
+          title: "scriptPubKey",
+          paramExtraction: "multi_val",
+          inputs: {
+            vals: {
+              0: "aa",
+              100: "bb",
+            },
+          },
+          inputStructure: {
+            groups: [
+              {
+                title: "INPUTS[]",
+                baseIndex: 0,
+                fields: [{ index: 0, label: "Value:", rows: 3 }],
+              },
+            ],
+          },
+          groupInstanceKeys: { "INPUTS[]": [0, 100] },
+        } as NodeData}
+        rawTitle="scriptPubKey"
+        derived={{
+          ...derived,
+          isMultiVal: true,
+        }}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        singleValue={undefined}
+        result="aabb"
+        error={false}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: false,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    expect(screen.getByDisplayValue("aa")).toHaveAttribute("rows", "1");
+    expect(screen.getByDisplayValue("bb")).toHaveAttribute("rows", "1");
+    expect(
+      screen.getByTitle("Aggregator node: concatenates ordered input parts")
+    ).toHaveTextContent("concat");
+  });
+
+  it("hides duplicate result output on identity input nodes", () => {
+    const clip = createClip({ prettyResult: "abc123" });
+    const mut = createMut();
+
+    renderWithProviders(
+      <CalculationNodeView
+        selected={false}
+        data={{
+          functionName: "identity",
+          paramExtraction: "single_val",
+          showField: true,
+        } as NodeData}
+        rawTitle="Input"
+        derived={derived}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        singleValue={{
+          showField: true,
+          showHandle: false,
+          value: "abc123",
+          onChange: vi.fn(),
+        }}
+        result="abc123"
+        error={false}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: false,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    expect(screen.getByDisplayValue("abc123")).toHaveAttribute("rows", "1");
+    expect(
+      screen.queryByTitle("Aggregator node: concatenates ordered input parts")
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("> Calculation Result:")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("node-result")).not.toBeInTheDocument();
+    expect(screen.queryByTitle("Copy result to clipboard")).not.toBeInTheDocument();
   });
 });

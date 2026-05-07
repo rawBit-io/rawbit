@@ -22,6 +22,7 @@ import CalculationNode from "@/components/nodes/CalculationNode";
 import ShadcnGroupNode from "@/components/nodes/GroupNode";
 import TextInfoNode from "@/components/nodes/TextInfoNode";
 import OpCodeNode from "@/components/nodes/OpCodeNode";
+import { GroupBundlePortNode } from "@/components/nodes/GroupBundlePortNode";
 
 import { TopBar } from "@/components/layout/TopBar";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -47,7 +48,6 @@ import type {
   CalcStatus,
   FlowData,
   FlowNode,
-  ProtocolDiagramLayout,
 } from "@/types";
 import type { FlowValidationIssue } from "@/lib/flow/validate";
 import { isCalculableNode } from "@/lib/flow/nonCalculableNodes";
@@ -78,12 +78,13 @@ import { useSearchHighlights } from "@/hooks/useSearchHighlights";
 import { useSharedFlowLoader } from "@/hooks/useSharedFlowLoader";
 import { useSimplifiedSave } from "@/hooks/useSimplifiedSave";
 import { shouldBlockMobile } from "@/lib/device";
-import { buildProtocolDiagramModel } from "@/lib/protocolDiagram/buildProtocolDiagramModel";
-import { getDefaultProtocolPanelWidth } from "@/lib/protocolDiagram/panelSizing";
 import {
-  collectGroupNodeIds,
-  sanitizeProtocolDiagramLayout,
-} from "@/lib/protocolDiagram/layoutPersistence";
+  buildGroupBundledElements,
+  GROUP_BUNDLE_PORT_NODE_TYPE,
+  sanitizeGroupBundleVisualElementsForState,
+  stripGroupBundlePortNodes,
+} from "@/lib/flow/groupEdgeBundling";
+import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
 
 const COLORABLE_NODE_TYPES = new Set([
   "calculation",
@@ -99,6 +100,7 @@ const nodeTypes = {
   shadcnGroup: ShadcnGroupNode,
   shadcnTextInfo: TextInfoNode,
   opCodeNode: OpCodeNode,
+  [GROUP_BUNDLE_PORT_NODE_TYPE]: GroupBundlePortNode,
 };
 
 type TabCalculationState = {
@@ -110,7 +112,6 @@ type PendingSharedGraph = {
   tabId: string;
   nodes: FlowNode[];
   edges: Edge[];
-  protocolDiagramLayout?: ProtocolDiagramLayout;
   expiresAt: number;
 };
 
@@ -130,6 +131,8 @@ const TABS_STORAGE_KEYS = [
   "rawbit.flow.tabs",
   "rawbit.flow.tabs.archive",
 ] as const;
+const TAB_ARCHIVE_STORAGE_PREFIX = "rawbit.flow.tab.";
+const INTRO_FLOW_ID = "flow-0";
 const SHARED_IMPORT_FIT_MIN_ZOOM = 0.2;
 
 function graphIdsMatch(
@@ -160,6 +163,36 @@ function edgeIdsMatch(currentEdges: Edge[], expectedEdges: Edge[]) {
     if (currentEdges[index]?.id !== expectedEdges[index]?.id) return false;
   }
   return true;
+}
+
+function graphIdsMatchCanonicalOrProjection(
+  currentNodes: FlowNode[],
+  currentEdges: Edge[],
+  expectedNodes: FlowNode[],
+  expectedEdges: Edge[]
+) {
+  if (graphIdsMatch(currentNodes, currentEdges, expectedNodes, expectedEdges)) {
+    return true;
+  }
+  const canonical = sanitizeGroupBundleVisualElementsForState({
+    nodes: currentNodes,
+    edges: currentEdges,
+  });
+  if (
+    graphIdsMatch(canonical.nodes, canonical.edges, expectedNodes, expectedEdges)
+  ) {
+    return true;
+  }
+  const projected = buildGroupBundledElements({
+    nodes: expectedNodes,
+    edges: expectedEdges,
+  });
+  return graphIdsMatch(
+    currentNodes,
+    currentEdges,
+    projected.nodes,
+    projected.edges
+  );
 }
 
 function nodesNeedMeasurement(nodesToInspect: FlowNode[]) {
@@ -198,6 +231,16 @@ function isAutomationEnvironment() {
   return false;
 }
 
+function hasExistingTabArchiveStorage(storage: Storage) {
+  for (let index = 0; index < storage.length; index += 1) {
+    if (storage.key(index)?.startsWith(TAB_ARCHIVE_STORAGE_PREFIX)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function cloneFlowData(data: FlowData): FlowData {
   try {
     if (typeof structuredClone === "function") {
@@ -216,10 +259,6 @@ function FlowContent() {
 
   // 🔍 search-panel state
   const [showSearchPanel, setShowSearchPanel] = useState(false);
-  const [showProtocolDiagramPanel, setShowProtocolDiagramPanel] = useState(false);
-  const [protocolDiagramLayout, setProtocolDiagramLayout] = useState<
-    ProtocolDiagramLayout | undefined
-  >(undefined);
   const [searchQuery, setSearchQuery] = useState("");
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
 
@@ -324,6 +363,12 @@ function FlowContent() {
         return;
       }
 
+      if (hasExistingTabArchiveStorage(window.localStorage)) {
+        window.localStorage.setItem(FIRST_RUN_STORAGE_KEY, "1");
+        welcomeCompleteRef.current = true;
+        return;
+      }
+
       if (isAutomationEnvironment()) {
         window.localStorage.setItem(FIRST_RUN_STORAGE_KEY, "1");
         welcomeCompleteRef.current = true;
@@ -337,7 +382,6 @@ function FlowContent() {
       }
     }
 
-    setShowWelcomeDialog(true);
   }, []);
 
   const markWelcomeComplete = useCallback(() => {
@@ -354,21 +398,11 @@ function FlowContent() {
   const RHS_PANEL_W = 256; // default right panels (=16rem)
   const MM_GAP = 44.8; // 2.8 rem  (space beside controls)
 
-  // Track dynamic protocol panel width
-  const [protocolPanelWidth, setProtocolPanelWidth] = useState(() =>
-    getDefaultProtocolPanelWidth()
-  );
-
   const showUndoRedoPanelUI = isMobileReadOnly ? false : showUndoRedoPanel;
   const showErrorPanelUI = isMobileReadOnly ? false : showErrorPanel;
   const showSearchPanelUI = isMobileReadOnly ? false : showSearchPanel;
-  const showProtocolDiagramPanelUI = isMobileReadOnly
-    ? false
-    : showProtocolDiagramPanel;
   let rightPanelWidth = 0;
-  if (showProtocolDiagramPanelUI) {
-    rightPanelWidth = protocolPanelWidth; // Use dynamic width
-  } else if (showUndoRedoPanelUI || showErrorPanelUI || showSearchPanelUI) {
+  if (showUndoRedoPanelUI || showErrorPanelUI || showSearchPanelUI) {
     rightPanelWidth = RHS_PANEL_W;
   }
   const rightPanelOpen = rightPanelWidth > 0;
@@ -397,35 +431,38 @@ function FlowContent() {
     ungroupSelectedNodes,
     canGroupSelectedNodes,
     canUngroupSelectedNodes,
-  } = useNodeOperations({
-    getProtocolDiagramLayout: () => protocolDiagramLayout,
-    setProtocolDiagramLayout,
-  });
+  } = useNodeOperations();
   const nodesRef = useRef(nodes);
   const edgesRef = useRef(edges);
   nodesRef.current = nodes;
   edgesRef.current = edges;
+  const [showInfoNodes, setShowInfoNodes] = useState(true);
+  const infoNodeIds = useMemo(
+    () =>
+      new Set(
+        nodes
+          .filter((node) => node.type === "shadcnTextInfo")
+          .map((node) => node.id)
+      ),
+    [nodes]
+  );
+  const hasInfoNodes = infoNodeIds.size > 0;
+  const displayedNodes = useMemo(
+    () =>
+      showInfoNodes
+        ? nodes
+        : nodes.filter((node) => node.type !== "shadcnTextInfo"),
+    [nodes, showInfoNodes]
+  );
+  const displayedEdges = useMemo(() => {
+    if (showInfoNodes) return edges;
+    return edges.filter(
+      (edge) => !infoNodeIds.has(edge.source) && !infoNodeIds.has(edge.target)
+    );
+  }, [edges, infoNodeIds, showInfoNodes]);
 
   const getSavedNodes = useCallback(() => nodesRef.current, []);
   const getSavedEdges = useCallback(() => edgesRef.current, []);
-
-  const protocolDiagramModel = useMemo(
-    () => buildProtocolDiagramModel({ nodes, edges }),
-    [nodes, edges]
-  );
-  const hasProtocolDiagram = protocolDiagramModel.hasGroups;
-
-  const handleProtocolDiagramOffsetsChange = useCallback(
-    (groupOffsets: NonNullable<ProtocolDiagramLayout["groupOffsets"]>) => {
-      const groupIds = collectGroupNodeIds(nodes);
-      const nextLayout = sanitizeProtocolDiagramLayout(
-        { groupOffsets },
-        groupIds
-      );
-      setProtocolDiagramLayout(nextLayout);
-    },
-    [nodes]
-  );
 
   const {
     copyNodes,
@@ -562,13 +599,6 @@ function FlowContent() {
   const ungroupWithUndoRef = useRef<(() => void) | null>(null);
   const hasSelection = useStore((s) => s.nodes.some((n) => n.selected));
   const hasSelectionRef = useRef(hasSelection);
-  const canvasSelectedEdgeIds = useStore(
-    useCallback(
-      (s: { edges: Edge[] }) => s.edges.filter((e) => e.selected).map((e) => e.id),
-      []
-    ),
-    (a, b) => a.length === b.length && a.every((id, i) => id === b[i])
-  );
   useEffect(() => {
     hasSelectionRef.current = hasSelection;
   }, [hasSelection]);
@@ -710,8 +740,6 @@ function FlowContent() {
   } = useTabs({
     getNodes: getSavedNodes,
     getEdges: getSavedEdges,
-    getProtocolDiagramLayout: () => protocolDiagramLayout,
-    setProtocolDiagramLayout,
     baseSetNodes,
     baseSetEdges,
     graphRevRef: graphRev,
@@ -747,11 +775,13 @@ function FlowContent() {
     const storeState = storeApi.getState();
     const storeNodes = storeState.nodes as FlowNode[];
     const storeEdges = storeState.edges;
-    const storeNodesStale =
-      storeNodes.length !== pending.nodes.length ||
-      !storeNodes.every((node, index) => node.id === pending.nodes[index]?.id);
-    const storeEdgesStale = !edgeIdsMatch(storeEdges, pending.edges);
-    const storeNeedsResync = storeNodesStale || storeEdgesStale;
+    const storeGraphMatches = graphIdsMatchCanonicalOrProjection(
+      storeNodes,
+      storeEdges,
+      pending.nodes,
+      pending.edges
+    );
+    const storeNeedsResync = !storeGraphMatches;
 
     if (parentMatches && !storeNeedsResync) {
       pendingSharedGraphRef.current = null;
@@ -761,25 +791,19 @@ function FlowContent() {
     if (!parentMatches) {
       setNodes(() => pending.nodes);
       setEdges(() => cloneEdgesForRender(pending.edges));
-      setProtocolDiagramLayout(pending.protocolDiagramLayout);
       saveTabData(pending.tabId, {
         force: true,
         immediate: true,
         data: {
           nodes: pending.nodes,
           edges: pending.edges,
-          protocolDiagramLayout: pending.protocolDiagramLayout,
         },
       });
     }
 
     if (storeNeedsResync) {
-      if (storeNodesStale) {
-        rfSetNodes(pending.nodes);
-      }
-      if (storeEdgesStale) {
-        rfSetEdges(cloneEdgesForRender(pending.edges));
-      }
+      rfSetNodes(pending.nodes);
+      rfSetEdges(cloneEdgesForRender(pending.edges));
       const ids = pending.nodes.map((node) => node.id);
       if (ids.length > 0) updateNodeInternals(ids);
     }
@@ -789,7 +813,6 @@ function FlowContent() {
     saveTabData,
     setEdges,
     setNodes,
-    setProtocolDiagramLayout,
     storeApi,
     updateNodeInternals,
   ]);
@@ -819,27 +842,24 @@ function FlowContent() {
         // state — this is the actual failure mode for the Safari edge bug.
         const storeState = storeApi.getState();
         const storeNodes = storeState.nodes as FlowNode[];
-        const storeEdges = storeState.edges;
-        const storeNodesStale =
-          storeNodes.length !== expectedNodes.length ||
-          !storeNodes.every(
-            (node, index) => node.id === expectedNodes[index]?.id
-          );
-        const storeEdgesStale = !edgeIdsMatch(storeEdges, expectedEdges);
+        const storeGraphMatches = graphIdsMatchCanonicalOrProjection(
+          storeNodes,
+          storeState.edges,
+          expectedNodes,
+          expectedEdges
+        );
         const storeNodesUnmeasured =
-          storeNodes.length === expectedNodes.length &&
-          nodesNeedMeasurement(storeNodes);
+          stripGroupBundlePortNodes(storeNodes).length === expectedNodes.length &&
+          nodesNeedMeasurement(stripGroupBundlePortNodes(storeNodes));
         const storeNeedsRepair =
-          storeNodesStale || storeEdgesStale || storeNodesUnmeasured;
+          !storeGraphMatches || storeNodesUnmeasured;
         if (!storeNeedsRepair) return;
 
-        if (storeNodesStale) {
+        if (!storeGraphMatches) {
           rfSetNodes(expectedNodes);
-        }
-        if (storeEdgesStale) {
           rfSetEdges(cloneEdgesForRender(expectedEdges));
         }
-        if (storeNodesStale || storeNodesUnmeasured) {
+        if (!storeGraphMatches || storeNodesUnmeasured) {
           const ids = expectedNodes.map((node) => node.id);
           if (ids.length > 0) updateNodeInternals(ids);
         }
@@ -942,6 +962,10 @@ function FlowContent() {
 
   const snapshotScheduler = useSnapshotScheduler({
     storeApi,
+    getSnapshotState: () => ({
+      nodes: getSavedNodes(),
+      edges: getSavedEdges(),
+    }),
     pushState,
     incrementGraphRev,
     skipLoadRef,
@@ -1030,7 +1054,6 @@ function FlowContent() {
     restoreScriptSteps([]);
     setNodes(() => []);
     setEdges(() => []);
-    setProtocolDiagramLayout(undefined);
 
     refreshBanner([], activeTabId, {
       immediate: true,
@@ -1047,7 +1070,6 @@ function FlowContent() {
     scheduleSnapshot,
     setEdges,
     setNodes,
-    setProtocolDiagramLayout,
     setTabTooltip,
   ]);
 
@@ -1066,35 +1088,30 @@ function FlowContent() {
 
       restoreScriptSteps([]);
 
-      const normalizedNodes = ingestScriptSteps(
-        nodesFromFlow.map((node) => {
-          const base: FlowNode & { dragHandle?: string } = {
-            ...node,
-            data: node.data ? { ...node.data } : node.data,
-            position: node.position
-              ? { x: node.position.x, y: node.position.y }
-              : node.position,
-            selected: false,
-          };
-          if (base.type === "shadcnGroup" && !base.dragHandle) {
-            base.dragHandle = "[data-drag-handle]";
-          }
-          return base;
-        })
+      const normalizedNodes = stripLegacyFlowMapNodeData(
+        ingestScriptSteps(
+          nodesFromFlow.map((node) => {
+            const base: FlowNode & { dragHandle?: string } = {
+              ...node,
+              data: node.data ? { ...node.data } : node.data,
+              position: node.position
+                ? { x: node.position.x, y: node.position.y }
+                : node.position,
+              selected: false,
+            };
+            if (base.type === "shadcnGroup" && !base.dragHandle) {
+              base.dragHandle = "[data-drag-handle]";
+            }
+            return base;
+          })
+        )
       );
 
       const normalizedEdges = edgesFromFlow.map((edge) => ({
         ...edge,
       })) as Edge[];
-      const groupIds = collectGroupNodeIds(normalizedNodes);
-      const normalizedLayout = sanitizeProtocolDiagramLayout(
-        clonedData.protocolDiagramLayout,
-        groupIds
-      );
-
       setNodes(() => normalizedNodes);
       setEdges(() => normalizedEdges);
-      setProtocolDiagramLayout(normalizedLayout);
 
       refreshBanner(normalizedNodes, activeTabId, {
         immediate: true,
@@ -1121,7 +1138,6 @@ function FlowContent() {
       scheduleSnapshot,
       setEdges,
       setNodes,
-      setProtocolDiagramLayout,
       setTabTooltip,
     ]
   );
@@ -1144,6 +1160,31 @@ function FlowContent() {
     },
     [loadExampleFlow, markWelcomeComplete, setShowWelcomeDialog]
   );
+
+  useEffect(() => {
+    if (!initialHydrationDone) return;
+    if (welcomeCompleteRef.current) return;
+
+    const introFlowId = exampleFlowMap.has(INTRO_FLOW_ID)
+      ? INTRO_FLOW_ID
+      : exampleFlowOptions[0]?.id;
+
+    if (!introFlowId) {
+      markWelcomeComplete();
+      return;
+    }
+
+    const loaded = loadExampleFlow(introFlowId);
+    if (loaded) {
+      markWelcomeComplete();
+    }
+  }, [
+    exampleFlowMap,
+    exampleFlowOptions,
+    initialHydrationDone,
+    loadExampleFlow,
+    markWelcomeComplete,
+  ]);
 
   const [, { setIsSearchHighlight, clearHighlights }] = useHighlight({
     setNodes,
@@ -1168,7 +1209,6 @@ function FlowContent() {
   } = useShareFlow({
     getNodes: getSavedNodes,
     getEdges: getSavedEdges,
-    getProtocolDiagramLayout: () => protocolDiagramLayout,
   });
 
   const isNodeColorable = useCallback(
@@ -1188,8 +1228,6 @@ function FlowContent() {
     getNodes,
     setNodes,
     scheduleSnapshot,
-    isSidebarOpen,
-    tabsCount: tabs.length,
     isColorable: isNodeColorable,
   });
 
@@ -1221,25 +1259,21 @@ function FlowContent() {
     ({
       nodes: nextNodes,
       edges: nextEdges,
-      protocolDiagramLayout: nextLayout,
       tabId,
     }: {
       nodes: FlowNode[];
       edges: Edge[];
-      protocolDiagramLayout?: ProtocolDiagramLayout;
       tabId?: string;
     }) => {
       const targetTabId = tabId ?? activeTabIdRef.current ?? activeTabId;
 
       setNodes(() => nextNodes);
       setEdges(() => cloneEdgesForRender(nextEdges));
-      setProtocolDiagramLayout(nextLayout);
 
       pendingSharedGraphRef.current = {
         tabId: targetTabId,
         nodes: nextNodes,
         edges: nextEdges,
-        protocolDiagramLayout: nextLayout,
         expiresAt: Date.now() + 5_000,
       };
       clearSharedGraphRepairTimers();
@@ -1250,7 +1284,6 @@ function FlowContent() {
         data: {
           nodes: nextNodes,
           edges: nextEdges,
-          protocolDiagramLayout: nextLayout,
         },
       });
 
@@ -1287,7 +1320,6 @@ function FlowContent() {
       scheduleSharedEdgeRenderRefresh,
       setEdges,
       setNodes,
-      setProtocolDiagramLayout,
       updateNodeInternals,
     ]
   );
@@ -1324,8 +1356,6 @@ function FlowContent() {
     fitView: fitImportedFlow,
     onTooltip: handleImportTooltip,
     onError: handleImportError,
-    getProtocolDiagramLayout: () => protocolDiagramLayout,
-    setProtocolDiagramLayout,
     getActiveTabTitle: () => {
       const tabId = activeTabIdRef.current ?? activeTabId;
       const activeTab = tabs.find((tab) => tab.id === tabId);
@@ -1379,153 +1409,6 @@ function FlowContent() {
     [getNodes, setEdges, setNodes]
   );
 
-  const focusDiagramNode = useCallback(
-    (nodeId: string) => {
-      const instance = flowInstanceRef.current;
-      if (!instance) return;
-      const node = getNodes().find((entry) => entry.id === nodeId);
-      if (!node) return;
-
-      setNodes((currentNodes) => {
-        let mutated = false;
-        const next = currentNodes.map((entry) => {
-          const shouldSelect = entry.id === nodeId;
-          if (entry.selected === shouldSelect) return entry;
-          mutated = true;
-          return { ...entry, selected: shouldSelect };
-        });
-        return mutated ? next : currentNodes;
-      });
-
-      setEdges((currentEdges) => {
-        let mutated = false;
-        const next = currentEdges.map((edge) => {
-          if (!edge.selected) return edge;
-          mutated = true;
-          return { ...edge, selected: false };
-        });
-        return mutated ? next : currentEdges;
-      });
-
-      instance.fitView({
-        nodes: [node],
-        padding: 0.05,
-        maxZoom: 2.6,
-        duration: 320,
-      });
-    },
-    [getNodes, setEdges, setNodes]
-  );
-
-  const centerOnGroup = useCallback(
-    (groupId: string) => {
-      const instance = flowInstanceRef.current;
-      if (!instance) return;
-
-      const allNodes = getNodes();
-      const groupNode = allNodes.find((node) => node.id === groupId);
-      const groupChildren = allNodes.filter((node) => node.parentId === groupId);
-      const targetNodes =
-        groupNode ? [groupNode] : groupChildren.length > 0 ? groupChildren : [];
-      if (targetNodes.length === 0) return;
-
-      instance.fitView({
-        nodes: targetNodes,
-        padding: 0.05,
-        maxZoom: 2.6,
-        duration: 320,
-      });
-    },
-    [getNodes]
-  );
-
-  const updateProtocolDiagramGroupComment = useCallback(
-    (groupId: string, comment: string) => {
-      const normalizedComment = comment.trim();
-      const currentGroup = getNodes().find(
-        (node) => node.id === groupId && node.type === "shadcnGroup"
-      );
-      if (!currentGroup) return;
-      const currentComment =
-        typeof currentGroup?.data?.comment === "string"
-          ? currentGroup.data.comment
-          : "";
-      if (currentComment.trim() === normalizedComment) return;
-
-      setNodes((currentNodes) => {
-        const nextNodes = currentNodes.map((node) => {
-          if (node.id !== groupId || node.type !== "shadcnGroup") return node;
-
-          const currentComment =
-            typeof node.data?.comment === "string" ? node.data.comment : "";
-          if (currentComment.trim() === normalizedComment) return node;
-
-          const nextData = { ...(node.data ?? {}) };
-          if (normalizedComment) {
-            nextData.comment = normalizedComment;
-          } else {
-            delete nextData.comment;
-          }
-          return { ...node, data: nextData };
-        });
-        return nextNodes;
-      });
-
-      setTimeout(() => {
-        pushState(getNodes(), getEdges(), "Update Group Comment (Flow Map)");
-      }, 0);
-    },
-    [getEdges, getNodes, pushState, setNodes]
-  );
-
-  const focusConnectionEndpoints = useCallback(
-    (edgeIds: string[], nodeIds: string[]) => {
-      const edgeIdSet = new Set(edgeIds);
-
-      // When selecting edges, deselect all nodes first
-      if (edgeIds.length > 0) {
-        setNodes((currentNodes) => {
-          let mutated = false;
-          const next = currentNodes.map((entry) => {
-            if (!entry.selected) return entry;
-            mutated = true;
-            return { ...entry, selected: false };
-          });
-          return mutated ? next : currentNodes;
-        });
-      }
-
-      // Select/deselect edges
-      setEdges((currentEdges) => {
-        let mutated = false;
-        const next = currentEdges.map((edge) => {
-          const shouldSelect = edgeIdSet.has(edge.id);
-          if (edge.selected === shouldSelect) return edge;
-          mutated = true;
-          return { ...edge, selected: shouldSelect };
-        });
-        return mutated ? next : currentEdges;
-      });
-
-      // Fit view to show endpoints when selecting
-      if (nodeIds.length > 0) {
-        const instance = flowInstanceRef.current;
-        if (!instance) return;
-        const nodeIdSet = new Set(nodeIds);
-        const toFit = getNodes().filter((n) => nodeIdSet.has(n.id));
-        if (toFit.length) {
-          instance.fitView({
-            nodes: toFit,
-            padding: 0.2,
-            maxZoom: 2,
-            duration: 350,
-          });
-        }
-      }
-    },
-    [getNodes, setEdges, setNodes]
-  );
-
   const miniMapSize = useMiniMapSize(nodes, showMiniMap, {
     longSide: MINIMAP_LONG,
     shortSideMin: MINIMAP_SHORT_MIN,
@@ -1533,7 +1416,10 @@ function FlowContent() {
   });
 
   const nodeClassName = useCallback(
-    (n: Node) => (n.type === "shadcnGroup" ? "minimap-group" : ""),
+    (n: Node) => {
+      if (n.type === GROUP_BUNDLE_PORT_NODE_TYPE) return "minimap-hidden";
+      return n.type === "shadcnGroup" ? "minimap-group" : "";
+    },
     []
   );
 
@@ -1544,7 +1430,6 @@ function FlowContent() {
     showErrorPanel,
     setShowErrorPanel,
     setShowSearchPanel,
-    setShowProtocolDiagramPanel,
   });
 
   const handleSelectTab = useCallback(
@@ -1644,7 +1529,6 @@ function FlowContent() {
     activeTabId,
     initialHydrationDone,
     loadingUndoRef,
-    protocolDiagramLayout,
     saveTabDataGuardingSharedImport,
     skipLoadRef,
   ]);
@@ -1746,6 +1630,34 @@ function FlowContent() {
     setEdges,
   ]);
 
+  const handleBundleEdgesSelect = useCallback(
+    (edgeIds: string[]) => {
+      const selectedEdgeIds = new Set(edgeIds);
+
+      setNodes((existing) => {
+        let mutated = false;
+        const next = existing.map((node) => {
+          if (!node.selected) return node;
+          mutated = true;
+          return { ...node, selected: false };
+        });
+        return mutated ? next : existing;
+      });
+
+      setEdges((existing) => {
+        let mutated = false;
+        const next = existing.map((edge) => {
+          const shouldSelect = selectedEdgeIds.has(edge.id);
+          if ((edge.selected === true) === shouldSelect) return edge;
+          mutated = true;
+          return { ...edge, selected: shouldSelect };
+        });
+        return mutated ? next : existing;
+      });
+    },
+    [setEdges, setNodes]
+  );
+
   const {
     onNodesChange,
     onEdgesChange,
@@ -1828,8 +1740,6 @@ function FlowContent() {
     getNodes: getSavedNodes,
     getEdges: getSavedEdges,
     fitView: fitSharedImportedFlow,
-    getProtocolDiagramLayout: () => protocolDiagramLayout,
-    setProtocolDiagramLayout,
     replaceGraph: replaceSharedGraph,
     onNodesChange: rawOnNodesChange,
     onEdgesChange: rawOnEdgesChange,
@@ -1904,11 +1814,15 @@ function FlowContent() {
     pendingSnapshotRef.current = false;
     skipNextEdgeSnapshotRef.current = false;
     clearHighlights();
-    const restoredNodes = snap.nodes.map((n: FlowNode) => ({
+    const canonicalSnap = sanitizeGroupBundleVisualElementsForState({
+      nodes: snap.nodes,
+      edges: snap.edges,
+    });
+    const restoredNodes = canonicalSnap.nodes.map((n: FlowNode) => ({
       ...n,
       data: { ...n.data, dirty: false },
     }));
-    const restoredEdges = snap.edges.map((e: Edge) => ({
+    const restoredEdges = canonicalSnap.edges.map((e: Edge) => ({
       ...e,
       ...(e.data ? { data: { ...e.data } } : {}),
     }));
@@ -2184,10 +2098,6 @@ function FlowContent() {
               hasLimitErrors={hasLimitErrors}
               showUndoRedoPanel={showUndoRedoPanel}
               setShowUndoRedoPanel={setShowUndoRedoPanel}
-              showProtocolDiagramPanel={showProtocolDiagramPanel}
-              setShowProtocolDiagramPanel={setShowProtocolDiagramPanel}
-              hasProtocolDiagram={hasProtocolDiagram}
-              protocolDiagramDisabledTooltip="Add groups to enable diagram view"
               onToggleColorPalette={handleToggleColorPalette}
               isColorPaletteOpen={isColorPaletteOpen}
               canColorSelection={canColorSelection}
@@ -2206,12 +2116,14 @@ function FlowContent() {
               onSearchClick={() => {
                 setShowUndoRedoPanel(false); // never overlap
                 setShowErrorPanel(false);
-                setShowProtocolDiagramPanel(false);
                 setShowSearchPanel((v) => !v); // toggle
               }}
               setShowSearchPanel={setShowSearchPanel}
               showMiniMap={showMiniMap}
               onToggleMiniMap={() => setShowMiniMap((v) => !v)}
+              showInfoNodes={showInfoNodes}
+              hasInfoNodes={hasInfoNodes}
+              onToggleInfoNodes={() => setShowInfoNodes((v) => !v)}
               isSelectionModeActive={isSelectionMode}
               onToggleSelectionMode={() => setIsSelectionLocked((v) => !v)}
               onShare={handleShareClick}
@@ -2255,8 +2167,8 @@ function FlowContent() {
             >
               <FlowCanvas
                 nodeTypes={nodeTypes}
-                nodes={nodes}
-                edges={edges}
+                nodes={displayedNodes}
+                edges={displayedEdges}
                 showMiniMap={showMiniMap}
                 miniMapSize={miniMapSize}
                 miniMapOffset={miniMapOffset}
@@ -2271,6 +2183,7 @@ function FlowContent() {
                 onDragOver={onDragOver}
                 onNodeDragStop={onNodeDragStopWithUndo}
                 onPaneClick={handlePaneClick}
+                onBundleEdgesSelect={handleBundleEdgesSelect}
                 onMoveEnd={onMoveEnd}
                 isSelectionModeActive={isSelectionMode}
                 isReadOnly={isMobileReadOnly}
@@ -2338,25 +2251,12 @@ function FlowContent() {
                 nodes={nodes}
                 showSearchPanel={showSearchPanel}
                 setShowSearchPanel={setShowSearchPanel}
-                showProtocolDiagramPanel={showProtocolDiagramPanel}
-                setShowProtocolDiagramPanel={setShowProtocolDiagramPanel}
-                protocolDiagramModel={protocolDiagramModel}
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
                 edges={edges}
                 centerOnNode={centerOnNode}
-                focusDiagramNode={focusDiagramNode}
-                centerOnGroup={centerOnGroup}
-                focusConnectionEndpoints={focusConnectionEndpoints}
-                canvasSelectedEdgeIds={canvasSelectedEdgeIds}
                 focusSearchHit={focusSearchHit}
                 hasMultipleTabs={tabs.length > 0}
-                protocolDiagramOffsets={protocolDiagramLayout?.groupOffsets}
-                onProtocolDiagramOffsetsChange={
-                  handleProtocolDiagramOffsetsChange
-                }
-                onProtocolPanelWidthChange={setProtocolPanelWidth}
-                onUpdateGroupComment={updateProtocolDiagramGroupComment}
               />
             )}
           </main>

@@ -8,6 +8,7 @@ import { useCalcNodeMutations } from "@/hooks/nodes/useCalcNodeMutations";
 import { useClipboardLite } from "@/hooks/nodes/useClipboardLite";
 import { useGroupInstances } from "@/hooks/nodes/useGroupInstances";
 import { CalculationNodeView } from "./calculation/CalculationNodeView";
+import { useCanonicalGraph } from "@/contexts/canonical-graph";
 import { getScriptSteps } from "@/lib/share/scriptStepsCache";
 import type { FlowNode, NodeData } from "@/types";
 import { useSnapshotSchedulerContext } from "@/hooks/useSnapshotSchedulerContext";
@@ -23,6 +24,7 @@ import {
 function CalculationNode({ id, data, selected }: NodeProps<FlowNode>) {
   const { setNodes, setEdges, getEdges } = useReactFlow<FlowNode>();
   const snapshotScheduler = useSnapshotSchedulerContext();
+  const canonicalGraph = useCanonicalGraph();
 
   const derived = useCalcNodeDerived(id, data as NodeData, setNodes);
   const connectedInputMeta = useStore(
@@ -32,10 +34,12 @@ function CalculationNode({ id, data, selected }: NodeProps<FlowNode>) {
           number,
           { value: unknown; error: boolean; message?: string }
         >();
-        if (!state.edges.length) return meta;
+        const graphEdges = canonicalGraph?.edges ?? state.edges;
+        const graphNodes = canonicalGraph?.nodes ?? state.nodes;
+        if (!graphEdges.length) return meta;
 
-        const nodesById = new Map(state.nodes.map((node) => [node.id, node]));
-        state.edges.forEach((edge) => {
+        const nodesById = new Map(graphNodes.map((node) => [node.id, node]));
+        graphEdges.forEach((edge) => {
           if (edge.target !== id || !edge.targetHandle) return;
           if (!edge.targetHandle.startsWith("input-")) return;
           const index = parseInt(
@@ -68,7 +72,7 @@ function CalculationNode({ id, data, selected }: NodeProps<FlowNode>) {
 
         return meta;
       },
-      [id]
+      [canonicalGraph, id]
     )
   );
   const group = useGroupInstances(
@@ -280,7 +284,7 @@ function CalculationNode({ id, data, selected }: NodeProps<FlowNode>) {
   }, [hardwareAction, hardwareInputIndices, readHardwareInput]);
 
   const downstreamNodeIds = useCallback(() => {
-    const edges = getEdges();
+    const edges = canonicalGraph?.edges ?? getEdges();
     const forward = new Map<string, string[]>();
     edges.forEach((edge) => {
       const existing = forward.get(edge.source) ?? [];
@@ -297,7 +301,7 @@ function CalculationNode({ id, data, selected }: NodeProps<FlowNode>) {
       queue.push(...(forward.get(next) ?? []));
     }
     return seen;
-  }, [getEdges, id]);
+  }, [canonicalGraph, getEdges, id]);
 
   useEffect(() => {
     if (!hardwareAction) return;

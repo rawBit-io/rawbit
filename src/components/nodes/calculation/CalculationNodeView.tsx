@@ -1,6 +1,7 @@
 import React, {
   Suspense,
   useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -33,11 +34,15 @@ import {
 } from "@/components/ui/tooltip";
 import {
   AlertTriangle,
+  ChevronDown,
+  ChevronRight,
   Check,
   Copy,
   FileCode,
   MessageSquare,
+  Minus,
   MoreHorizontal,
+  Plus,
   RefreshCw,
   Trash2,
   Usb,
@@ -56,6 +61,11 @@ import {
   SENTINEL_NULL,
 } from "@/lib/nodes/constants";
 import { canGrowGroup } from "@/lib/nodes/fieldUtils";
+import {
+  TX_FIELD_EXTRACT_MAX_OUTPUTS,
+  TX_FIELD_EXTRACT_OPTIONS,
+  normalizeTxFieldExtractFields,
+} from "@/lib/nodes/txFieldExtract";
 import { INSTANCE_STRIDE, cn, getVal } from "@/lib/utils";
 import type {
   FieldDefinition as BaseFieldDefinition,
@@ -71,6 +81,41 @@ import type { ClipboardLiteResult } from "@/hooks/nodes/useClipboardLite";
 const ScriptExecutionSteps = React.lazy(
   () => import("@/components/dialog/ScriptExecutionSteps")
 );
+
+const SIMPLE_RESULT_NODE_WIDTH = 270;
+const SIMPLE_RESULT_NODE_MIN_HEIGHT = 158;
+const SCRIPT_VERIFY_EXCLUDE_FLAGS_INDEX = 4;
+const SCRIPT_VERIFY_TAPROOT_PREVOUT_GROUPS = new Set([
+  "Taproot Prevouts (vin order)",
+  "Taproot prevouts",
+]);
+const TX_TEMPLATE_INPUT_GROUP_TITLE = "INPUTS[]";
+const TX_TEMPLATE_OUTPUT_GROUP_TITLE = "OUTPUTS[]";
+const TX_TEMPLATE_WITNESS_GROUP_TITLE = "WITNESSES[]";
+
+const isScriptVerifyTaprootGroup = (groupDef: GroupDefinition) =>
+  SCRIPT_VERIFY_TAPROOT_PREVOUT_GROUPS.has(groupDef.title);
+
+const hasMeaningfulValue = (value: unknown) =>
+  value !== undefined && value !== null && String(value).trim().length > 0;
+
+const formatScriptVerifyFieldLabel = (label: string) => label.toUpperCase();
+const normalizedFieldLabelIncludes = (label: string, token: string) =>
+  label.toUpperCase().replace(/\s+/g, "_").includes(token);
+
+function ConcatTypeBadge() {
+  return (
+    <span
+      className={cn(
+        "node-type-chip inline-flex h-6 flex-shrink-0 items-center rounded-full border px-2",
+        "border-border/70 bg-muted/40 text-[0.65rem] font-semibold leading-none text-muted-foreground"
+      )}
+      title="Aggregator node: concatenates ordered input parts"
+    >
+      concat
+    </span>
+  );
+}
 const NodeCodeDialog = React.lazy(
   () => import("@/components/dialog/NodeCodeDialog")
 );
@@ -122,6 +167,7 @@ type FieldDefinition = BaseFieldDefinition & {
   allowEmptyBlank?: boolean;
   allowNull?: boolean;
   nullLabel?: string;
+  autoResizeMaxRows?: number;
 };
 
 type AsciiTreeNode = {
@@ -307,16 +353,34 @@ export function CalculationNodeView({
 }: CalculationNodeViewProps) {
   const [showCode, setShowCode] = useState(false);
   const [showSteps, setShowSteps] = useState(false);
+  const [scriptVerifyAdvancedOpen, setScriptVerifyAdvancedOpen] =
+    useState(false);
   const commentEditStartRef = useRef(comment);
+  const [commentDraft, setCommentDraft] = useState(comment);
+  const [isCommentEditing, setIsCommentEditing] = useState(false);
+
+  useEffect(() => {
+    if (!isCommentEditing) {
+      setCommentDraft(comment);
+    }
+  }, [comment, isCommentEditing]);
 
   const handleCommentFocus = useCallback((value: string) => {
+    setIsCommentEditing(true);
     commentEditStartRef.current = value;
+  }, []);
+
+  const handleCommentChange = useCallback((value: string) => {
+    setCommentDraft(value);
   }, []);
 
   const handleCommentBlur = useCallback(
     (value: string) => {
+      const normalizedValue = value.trim();
+      setIsCommentEditing(false);
+      setCommentDraft(normalizedValue);
       mut.commitCommentOnBlur(commentEditStartRef.current, value);
-      commentEditStartRef.current = value;
+      commentEditStartRef.current = normalizedValue;
     },
     [mut]
   );
@@ -324,7 +388,14 @@ export function CalculationNodeView({
     Record<string, number | null>
   >({});
   const [musig2SecnonceCopied, setMusig2SecnonceCopied] = useState(false);
+  const [txCopiedOutputHandle, setTxCopiedOutputHandle] = useState<
+    string | null
+  >(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
+  const txOutputRowRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [txOutputHandleTops, setTxOutputHandleTops] = useState<
+    Record<string, number>
+  >({});
   const pathRowRef = useRef<HTMLDivElement | null>(null);
   const pathTriggerRef =
     useRef<React.ElementRef<typeof SelectTrigger> | null>(null);
@@ -350,6 +421,18 @@ export function CalculationNodeView({
   const isTaprootTreeBuilder = outputLayout === "taproot_tree_builder";
   const isTaprootTweakXonly = outputLayout === "taproot_tweak_xonly_pubkey";
   const isMusig2NonceGen = outputLayout === "musig2_nonce_gen";
+  const isDynamicTxFieldExtract =
+    data.functionName === "extract_tx_field" &&
+    data.txFieldExtractMode === "dynamic";
+  const isConcatAll = data.functionName === "concat_all";
+  const txExtractFields = useMemo(
+    () => normalizeTxFieldExtractFields(data.txExtractFields),
+    [data.txExtractFields]
+  );
+  const txExtractOutputValues =
+    data.outputValues && typeof data.outputValues === "object"
+      ? (data.outputValues as Record<string, unknown>)
+      : {};
   const outputPorts = useMemo(
     () =>
       Array.isArray(data.outputPorts) && data.outputPorts.length > 0
@@ -403,19 +486,7 @@ export function CalculationNodeView({
       ? JSON.stringify(musig2SecnonceValue, null, 2)
       : String(musig2SecnonceValue);
 
-  const copyMusig2Secnonce = () => {
-    if (musig2SecnonceValue === undefined || musig2SecnonceValue === null) return;
-    const text =
-      typeof musig2SecnonceValue === "object"
-        ? JSON.stringify(musig2SecnonceValue, null, 2)
-        : String(musig2SecnonceValue);
-    if (!text) return;
-
-    const onSuccess = () => {
-      setMusig2SecnonceCopied(true);
-      window.setTimeout(() => setMusig2SecnonceCopied(false), 1000);
-    };
-
+  const copyTextToClipboard = useCallback((text: string, onSuccess: () => void) => {
     if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(text).then(onSuccess, () => fallback());
     } else {
@@ -436,7 +507,47 @@ export function CalculationNodeView({
         document.body.removeChild(textarea);
       }
     }
+  }, []);
+
+  const copyMusig2Secnonce = () => {
+    if (musig2SecnonceValue === undefined || musig2SecnonceValue === null) return;
+    const text =
+      typeof musig2SecnonceValue === "object"
+        ? JSON.stringify(musig2SecnonceValue, null, 2)
+        : String(musig2SecnonceValue);
+    if (!text) return;
+
+    copyTextToClipboard(text, () => {
+      setMusig2SecnonceCopied(true);
+      window.setTimeout(() => setMusig2SecnonceCopied(false), 1000);
+    });
   };
+
+  const copyTxExtractOutput = useCallback(
+    (handleId: string, value: unknown) => {
+      if (value === undefined || value === null || value === "") return;
+      const text =
+        typeof value === "object" ? JSON.stringify(value, null, 2) : String(value);
+      if (!text) return;
+
+      copyTextToClipboard(text, () => {
+        setTxCopiedOutputHandle(handleId);
+        window.setTimeout(() => {
+          setTxCopiedOutputHandle((current) =>
+            current === handleId ? null : current
+          );
+        }, 1000);
+      });
+    },
+    [copyTextToClipboard]
+  );
+
+  const setTxOutputRowRef = useCallback(
+    (handleId: string) => (element: HTMLDivElement | null) => {
+      txOutputRowRefs.current[handleId] = element;
+    },
+    []
+  );
 
   const handleCopyId = () => {
     clip.copyId();
@@ -494,11 +605,22 @@ export function CalculationNodeView({
         connected,
         field.placeholder
       );
-      const fieldLabel = data.customFieldLabels?.[fieldIndex] || field.label;
-      const handleOffset = scope.startsWith("between-") ? -32 : -16;
+      const rawFieldLabel = data.customFieldLabels?.[fieldIndex] || field.label;
+      const fieldLabel = isScriptVerificationNode
+        ? formatScriptVerifyFieldLabel(rawFieldLabel)
+        : rawFieldLabel;
+      const isCountField = isTxTemplateCountField(field);
+      const handleOffset =
+        scope.startsWith("between-") && !isTxTemplateNode ? -32 : -16;
       const allowNull =
         field.allowNull ||
         (data.functionName === "musig2_nonce_gen" && fieldIndex === 2);
+      const fieldRows = isConcatAll ? 1 : field.rows;
+      const autoResizeMaxRows = isConcatAll ? 3 : field.autoResizeMaxRows;
+      const isTxFieldExtractRawTxField =
+        isDynamicTxFieldExtract && fieldIndex === 0;
+      const isTxFieldExtractIndexField =
+        isDynamicTxFieldExtract && fieldIndex === 1;
 
       if (field.options) {
         const current = rawValue ?? field.options[0];
@@ -524,7 +646,17 @@ export function CalculationNodeView({
           placeholder={resolved.placeholder}
           value={resolved.displayValue}
           small={field.small}
-          rows={field.rows}
+          rows={fieldRows}
+          autoResizeMaxRows={autoResizeMaxRows}
+          className={cn(
+            isDynamicTxFieldExtract && "mb-1",
+            isTxFieldExtractRawTxField && "tx-field-extract-raw-field"
+          )}
+          wrapperClassName={cn(
+            isDynamicTxFieldExtract && "mb-2",
+            isTxFieldExtractIndexField && "pt-2"
+          )}
+          labelClassName={isCountField ? txTemplateCountLabelClassName : undefined}
           handleOffset={handleOffset}
           disableHandle={field.unconnectable}
           allowEmpty00={field.allowEmpty00}
@@ -562,10 +694,16 @@ export function CalculationNodeView({
       connected,
       field.placeholder
     );
-    const fieldLabel = data.customFieldLabels?.[fieldIndex] || field.label;
+    const rawFieldLabel = data.customFieldLabels?.[fieldIndex] || field.label;
+    const fieldLabel = isScriptVerificationNode
+      ? formatScriptVerifyFieldLabel(rawFieldLabel)
+      : rawFieldLabel;
+    const isCountField = isTxTemplateCountField(field);
     const allowNull =
       field.allowNull ||
       (data.functionName === "musig2_nonce_gen" && fieldIndex === 2);
+    const fieldRows = isConcatAll ? 1 : field.rows;
+    const autoResizeMaxRows = isConcatAll ? 3 : field.autoResizeMaxRows;
 
     if (field.options) {
       const current = rawValue ?? field.options[0];
@@ -592,7 +730,9 @@ export function CalculationNodeView({
         placeholder={resolved.placeholder}
         value={resolved.displayValue}
         small={field.small}
-        rows={field.rows}
+        rows={fieldRows}
+        autoResizeMaxRows={autoResizeMaxRows}
+        labelClassName={isCountField ? txTemplateCountLabelClassName : undefined}
         handleOffset={-33}
         disableHandle={field.unconnectable}
         allowEmpty00={field.allowEmpty00}
@@ -623,6 +763,92 @@ export function CalculationNodeView({
       (_, index) => groupDef.baseIndex + index * INSTANCE_STRIDE
     );
   };
+
+  const isScriptVerificationNode = data.functionName === "script_verification";
+  const inputFields =
+    data.inputStructure?.ungrouped as FieldDefinition[] | undefined;
+  const inputGroups = (data.inputStructure?.groups ?? []) as GroupDefinition[];
+  const scriptVerifyAdvancedFields = isScriptVerificationNode
+    ? inputFields?.filter(
+        (field) => field.index === SCRIPT_VERIFY_EXCLUDE_FLAGS_INDEX
+      )
+    : undefined;
+  const visibleInputFields = isScriptVerificationNode
+    ? inputFields?.filter(
+        (field) => field.index !== SCRIPT_VERIFY_EXCLUDE_FLAGS_INDEX
+      )
+    : inputFields;
+  const scriptVerifyAdvancedGroups = isScriptVerificationNode
+    ? inputGroups.filter(isScriptVerifyTaprootGroup)
+    : [];
+  const visibleInputGroups = isScriptVerificationNode
+    ? inputGroups.filter((groupDef) => !isScriptVerifyTaprootGroup(groupDef))
+    : inputGroups;
+  const isTxTemplateNode = Boolean(
+    isConcatAll &&
+      visibleInputFields?.some((field) =>
+        normalizedFieldLabelIncludes(field.label, "INPUT_COUNT")
+      ) &&
+      visibleInputGroups.some(
+        (groupDef) => groupDef.title === TX_TEMPLATE_INPUT_GROUP_TITLE
+      ) &&
+      visibleInputGroups.some(
+        (groupDef) => groupDef.title === TX_TEMPLATE_OUTPUT_GROUP_TITLE
+      ) &&
+      (
+        data.inputStructure?.betweenGroups?.[
+          TX_TEMPLATE_INPUT_GROUP_TITLE
+        ] as FieldDefinition[] | undefined
+      )?.some((field) =>
+        normalizedFieldLabelIncludes(field.label, "OUTPUT_COUNT")
+      )
+  );
+  const isTxTemplatePrimaryGroup = (groupDef: GroupDefinition) =>
+    isTxTemplateNode &&
+    (groupDef.title === TX_TEMPLATE_INPUT_GROUP_TITLE ||
+      groupDef.title === TX_TEMPLATE_OUTPUT_GROUP_TITLE);
+  const isTxTemplateSectionGroup = (groupDef: GroupDefinition) =>
+    isTxTemplatePrimaryGroup(groupDef) ||
+    (isTxTemplateNode && groupDef.title === TX_TEMPLATE_WITNESS_GROUP_TITLE);
+  const isConcatPrimaryGroup = (groupDef: GroupDefinition) =>
+    isConcatAll &&
+    (groupDef.title === TX_TEMPLATE_INPUT_GROUP_TITLE ||
+      groupDef.title === TX_TEMPLATE_OUTPUT_GROUP_TITLE ||
+      groupDef.title === TX_TEMPLATE_WITNESS_GROUP_TITLE);
+  const isTxTemplateCountField = (field: FieldDefinition) =>
+    isTxTemplateNode &&
+    (normalizedFieldLabelIncludes(field.label, "INPUT_COUNT") ||
+      normalizedFieldLabelIncludes(field.label, "OUTPUT_COUNT"));
+  const txTemplateCountLabelClassName = "text-xs text-muted-foreground";
+  const txTemplateFieldItemClassName = (field: FieldDefinition) =>
+    isTxTemplateNode &&
+    normalizedFieldLabelIncludes(field.label, "INPUT_COUNT")
+      ? "pt-4 mb-1"
+      : undefined;
+  const hasScriptVerifyAdvancedData = Boolean(
+    scriptVerifyAdvancedFields?.some((field) =>
+      hasMeaningfulValue(getVal(data.inputs?.vals, field.index))
+    ) ||
+      scriptVerifyAdvancedGroups.some((groupDef) => {
+        const keys = groupInstanceKeys(groupDef);
+        const instanceCount =
+          data.groupInstances?.[groupDef.title] ?? keys.length;
+        if (instanceCount > (groupDef.minInstances ?? 0)) return true;
+
+        return keys.some((offset) =>
+          groupDef.fields.some((field) =>
+            hasMeaningfulValue(
+              getVal(data.inputs?.vals, offset + (field.index ?? 0))
+            )
+          )
+        );
+      })
+  );
+  const hasScriptVerifyAdvancedControls = Boolean(
+    isScriptVerificationNode &&
+      ((scriptVerifyAdvancedFields?.length ?? 0) > 0 ||
+        scriptVerifyAdvancedGroups.length > 0)
+  );
 
   const taprootLeafLabels = (() => {
     if (!isTaprootTreeBuilder) return [];
@@ -684,6 +910,10 @@ export function CalculationNodeView({
     tree.label = "root";
     return renderAsciiTree(tree);
   })();
+  const hideResultForInputNode = showField && data.functionName === "identity";
+  const hideGenericResult = hideResultForInputNode || isDynamicTxFieldExtract;
+  const isSimpleResultOnly =
+    !hideGenericResult && !derived.isMultiVal && !showField;
 
   const anchoredPortSources = useMemo(
     () =>
@@ -699,6 +929,85 @@ export function CalculationNodeView({
       ),
     [outputPorts]
   );
+
+  useEffect(() => {
+    if (hasScriptVerifyAdvancedData) {
+      setScriptVerifyAdvancedOpen(true);
+    }
+  }, [hasScriptVerifyAdvancedData]);
+
+  useLayoutEffect(() => {
+    if (!isDynamicTxFieldExtract) return;
+    const cardEl = cardRef.current;
+    if (!cardEl) return;
+
+    let frame = 0;
+    const updatePosition = () => {
+      const cardHeight = cardEl.offsetHeight;
+      if (!cardHeight) return;
+      const cardRect = cardEl.getBoundingClientRect();
+      if (!cardRect.height) return;
+      const scaleY = cardRect.height / cardHeight;
+      const next: Record<string, number> = {};
+
+      txExtractFields.forEach((_, index) => {
+        const handleId = `output-${index}`;
+        const row = txOutputRowRefs.current[handleId];
+        if (!row) return;
+        const rowRect = row.getBoundingClientRect();
+        if (!rowRect.height) return;
+        const rawTop = rowRect.top - cardRect.top + rowRect.height / 2;
+        const top = scaleY ? rawTop / scaleY : rawTop;
+        if (Number.isFinite(top)) {
+          next[handleId] = Math.round(Math.min(Math.max(top, 0), cardHeight));
+        }
+      });
+
+      setTxOutputHandleTops((prev) => {
+        const nextKeys = Object.keys(next);
+        const prevKeys = Object.keys(prev);
+        if (
+          nextKeys.length === prevKeys.length &&
+          nextKeys.every((key) => prev[key] === next[key])
+        ) {
+          return prev;
+        }
+        return next;
+      });
+    };
+    const schedule = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        updatePosition();
+      });
+    };
+
+    updatePosition();
+    schedule();
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", schedule);
+      return () => {
+        if (frame) window.cancelAnimationFrame(frame);
+        window.removeEventListener("resize", schedule);
+      };
+    }
+
+    const observer = new ResizeObserver(schedule);
+    observer.observe(cardEl);
+    txExtractFields.forEach((_, index) => {
+      const row = txOutputRowRefs.current[`output-${index}`];
+      if (row) observer.observe(row);
+    });
+    window.addEventListener("resize", schedule);
+
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener("resize", schedule);
+    };
+  }, [isDynamicTxFieldExtract, txExtractFields]);
 
   useLayoutEffect(() => {
     if (!anchoredPortSources.length) return;
@@ -811,34 +1120,130 @@ export function CalculationNodeView({
     showComment,
   ]);
 
+  const renderInputGroupSection = (
+    groupDef: GroupDefinition,
+    titleOverride?: string,
+    options?: { headerDivider?: boolean }
+  ) => {
+    const keys = groupInstanceKeys(groupDef);
+    const instanceCount = data.groupInstances?.[groupDef.title] ?? keys.length;
+    const canDecrement = instanceCount > (groupDef.minInstances ?? 1);
+    const canIncrement = Boolean(
+      groupDef.expandable &&
+        !(groupDef.maxInstances && instanceCount >= groupDef.maxInstances) &&
+        canGrowGroup(
+          groupDef.baseIndex,
+          keys,
+          groupDef.fields as FieldDefinition[]
+        )
+    );
+    return (
+      <React.Fragment key={groupDef.title}>
+        <GroupSection
+          group={groupDef}
+          instanceKeys={keys}
+          title={
+            data.customGroupTitles?.[groupDef.title] ||
+            titleOverride ||
+            groupDef.title
+          }
+          onTitleCommit={(title) =>
+            mut.updateGroupTitle(groupDef.title, title)
+          }
+          canIncrement={canIncrement}
+          canDecrement={canDecrement}
+          onIncrement={() =>
+            group.handleGroupSize(groupDef.title, groupDef, true)
+          }
+          onDecrement={() =>
+            group.handleGroupSize(groupDef.title, groupDef, false)
+          }
+          renderField={renderGroupField}
+          headerDivider={
+            options?.headerDivider ??
+            !(isTxTemplateSectionGroup(groupDef) || isConcatPrimaryGroup(groupDef))
+          }
+          className={
+            isTxTemplateSectionGroup(groupDef)
+              ? groupDef.title === TX_TEMPLATE_OUTPUT_GROUP_TITLE
+                ? "-mt-2 mb-2"
+                : "-mt-2 mb-1"
+              : undefined
+          }
+          headerClassName={
+            isTxTemplateSectionGroup(groupDef) ? "mb-1" : undefined
+          }
+          titleClassName={
+            isConcatPrimaryGroup(groupDef) ? "text-base" : undefined
+          }
+          instanceClassName={
+            isTxTemplateSectionGroup(groupDef)
+              ? "rounded-md bg-muted/20 py-3 pr-3"
+              : undefined
+          }
+          compactControls={isConcatPrimaryGroup(groupDef)}
+        />
+
+        <FieldSection
+          fields={
+            data.inputStructure?.betweenGroups?.[groupDef.title] as
+              | FieldDefinition[]
+              | undefined
+          }
+          scope={`between-${groupDef.title}`}
+          paddingLeft={isTxTemplateNode ? 0 : 16}
+          className={isTxTemplateNode ? "mt-1 mb-1" : undefined}
+          renderField={makeRenderSingleField(`between-${groupDef.title}`)}
+        />
+      </React.Fragment>
+    );
+  };
+
   return (
     <Card
       ref={cardRef}
       className={cn(
         "relative flex flex-col border-2 bg-card font-mono text-primary shadow-md transition-colors",
+        isSimpleResultOnly && "calc-node-simple",
         selectedStyles,
         highlightStyles,
         data.borderColor ? "!border-3" : "border-border"
       )}
       style={{
-        width: derived.nodeWidth,
-        minHeight: derived.minHeight,
+        width: isSimpleResultOnly
+          ? Math.max(derived.nodeWidth, SIMPLE_RESULT_NODE_WIDTH)
+          : derived.nodeWidth,
+        minHeight: isSimpleResultOnly
+          ? SIMPLE_RESULT_NODE_MIN_HEIGHT
+          : derived.minHeight,
         overflow: "visible",
         contain: "layout",
         ...(data.borderColor ? { borderColor: data.borderColor } : {}),
       }}
     >
-      <div className="flex w-full flex-row items-start gap-2 border-b border-border p-2 text-xl">
-        <div className="min-w-0 flex-1 break-words leading-tight">
-          <EditableLabel
-            value={rawTitle}
-            onCommit={mut.handleTitleUpdate}
-            className="text-xl"
-            maxLength={100}
-          />
+      <div
+        className={cn(
+          "calc-node-header flex w-full flex-row items-start gap-2 p-2 text-xl",
+          isSimpleResultOnly && "calc-node-header-simple",
+          "border-b border-border"
+        )}
+      >
+        <div className="min-w-0 flex-1 leading-tight">
+          <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+            <div className="min-w-0 break-words">
+              <EditableLabel
+                value={rawTitle}
+                onCommit={mut.handleTitleUpdate}
+                className="node-title text-xl"
+                maxLength={100}
+              />
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-shrink-0 items-center space-x-2">
+          {isConcatAll && <ConcatTypeBadge />}
+
           {derived.connectionStatus.shouldShow && (
             <ConnectionStatusBadge
               connected={derived.connectionStatus.connected}
@@ -973,9 +1378,14 @@ export function CalculationNodeView({
         </div>
       </div>
 
-      <CardContent className="flex flex-1 flex-col p-4 text-sm">
+      <CardContent
+        className={cn(
+          "flex flex-1 flex-col p-4 text-sm",
+          isSimpleResultOnly && "calc-node-content-simple"
+        )}
+      >
         {!derived.isMultiVal && singleValue && (
-          <div className="mb-4">
+          <div className={cn(hideGenericResult ? "mb-0" : "mb-4")}>
             {showField && (
               <FieldWithHandle
                 handleId="input-0"
@@ -983,6 +1393,8 @@ export function CalculationNodeView({
                 label={data.customFieldLabels?.[0] || "INPUT VALUE:"}
                 placeholder="Type a value..."
                 value={singleValue.value}
+                rows={hideResultForInputNode ? 1 : undefined}
+                autoResizeMaxRows={hideResultForInputNode ? 3 : undefined}
                 onChange={singleValue.onChange}
                 disableHandle={!showHandle}
                 handleOffset={-16}
@@ -1003,70 +1415,76 @@ export function CalculationNodeView({
         )}
 
         {derived.isMultiVal && (
-          <div className="mb-6 flex flex-col gap-6">
+          <div
+            className={cn(
+              "flex flex-col [&>div:last-child]:mb-0",
+              isTxTemplateNode || isDynamicTxFieldExtract
+                ? "mb-2 gap-3"
+                : isConcatAll
+                  ? "mb-2 gap-4"
+                  : "mb-6 gap-6"
+            )}
+          >
             <FieldSection
-              fields={
-                data.inputStructure?.ungrouped as FieldDefinition[] | undefined
-              }
+              fields={visibleInputFields}
               scope="ungrouped"
+              className={
+                isTxTemplateNode || isDynamicTxFieldExtract
+                  ? "space-y-2"
+                  : undefined
+              }
+              getItemClassName={txTemplateFieldItemClassName}
               renderField={makeRenderSingleField("ungrouped")}
             />
 
-            {data.inputStructure?.groups?.map((groupDef) => {
-              const keys = groupInstanceKeys(groupDef);
-              const instanceCount =
-                data.groupInstances?.[groupDef.title] ?? keys.length;
-              const canDecrement = instanceCount > (groupDef.minInstances ?? 1);
-              const canIncrement = Boolean(
-                groupDef.expandable &&
-                  !(
-                    groupDef.maxInstances &&
-                    instanceCount >= groupDef.maxInstances
-                  ) &&
-                  canGrowGroup(
-                    groupDef.baseIndex,
-                    keys,
-                    groupDef.fields as FieldDefinition[]
-                  )
-              );
+            {visibleInputGroups.map((groupDef) =>
+              renderInputGroupSection(groupDef)
+            )}
 
-              return (
-                <React.Fragment key={groupDef.title}>
-                  <GroupSection
-                    group={groupDef}
-                    instanceKeys={keys}
-                    title={
-                      data.customGroupTitles?.[groupDef.title] || groupDef.title
-                    }
-                    onTitleCommit={(title) =>
-                      mut.updateGroupTitle(groupDef.title, title)
-                    }
-                    canIncrement={canIncrement}
-                    canDecrement={canDecrement}
-                    onIncrement={() =>
-                      group.handleGroupSize(groupDef.title, groupDef, true)
-                    }
-                    onDecrement={() =>
-                      group.handleGroupSize(groupDef.title, groupDef, false)
-                    }
-                    renderField={renderGroupField}
-                  />
-
-                  <FieldSection
-                    fields={
-                      data.inputStructure?.betweenGroups?.[groupDef.title] as
-                        | FieldDefinition[]
-                        | undefined
-                    }
-                    scope={`between-${groupDef.title}`}
-                    paddingLeft={16}
-                    renderField={makeRenderSingleField(
-                      `between-${groupDef.title}`
+            {hasScriptVerifyAdvancedControls && (
+              <div className="-mt-2">
+                <button
+                  type="button"
+                  className={cn(
+                    "nodrag flex items-center gap-1 text-left",
+                    "text-xs font-normal text-muted-foreground/70 transition-colors",
+                    "hover:text-muted-foreground"
+                  )}
+                  onPointerDownCapture={(event) => event.stopPropagation()}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setScriptVerifyAdvancedOpen((open) => !open);
+                  }}
+                >
+                  <span className="flex items-center gap-1">
+                    {scriptVerifyAdvancedOpen ? (
+                      <ChevronDown className="h-3 w-3" />
+                    ) : (
+                      <ChevronRight className="h-3 w-3" />
                     )}
-                  />
-                </React.Fragment>
-              );
-            })}
+                    Advanced (Taproot and flags)
+                  </span>
+                </button>
+
+                {scriptVerifyAdvancedOpen && (
+                  <div className="mt-3 space-y-4">
+                    <FieldSection
+                      fields={scriptVerifyAdvancedFields}
+                      scope="script-verify-advanced"
+                      renderField={makeRenderSingleField(
+                        "script-verify-advanced"
+                      )}
+                    />
+
+                    {scriptVerifyAdvancedGroups.map((groupDef) =>
+                      renderInputGroupSection(groupDef, "Taproot prevouts", {
+                        headerDivider: false,
+                      })
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             <FieldSection
               fields={
@@ -1080,20 +1498,203 @@ export function CalculationNodeView({
           </div>
         )}
 
-        <div className="mt-auto border-t border-border pt-2">
-          <div className="mb-2 text-sm text-primary">
-            {">"} Calculation Result:
+        {isDynamicTxFieldExtract && (
+          <div className="calc-node-result mt-0 pt-1">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <div className="calc-node-result-label text-base text-primary">
+                {">"} EXTRACTED FIELDS
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="nodrag h-7 w-7 p-0"
+                  onClick={() => mut.resizeTxFieldExtractFields(false)}
+                  disabled={txExtractFields.length <= 1}
+                  title="Remove output"
+                >
+                  <Minus className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="nodrag h-7 w-7 p-0"
+                  onClick={() => mut.resizeTxFieldExtractFields(true)}
+                  disabled={txExtractFields.length >= TX_FIELD_EXTRACT_MAX_OUTPUTS}
+                  title="Add output"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              {txExtractFields.map((field, index) => {
+                const handleId = `output-${index}`;
+                const value = txExtractOutputValues[handleId];
+                const display =
+                  value === undefined || value === null || value === ""
+                    ? "--"
+                    : String(value);
+                const canCopy =
+                  value !== undefined && value !== null && value !== "";
+                const copied = txCopiedOutputHandle === handleId;
+
+                return (
+                  <div
+                    key={handleId}
+                    ref={setTxOutputRowRef(handleId)}
+                    className="relative pb-2 last:pb-0"
+                  >
+                    <div className="mb-1">
+                      <Select
+                        value={field}
+                        onValueChange={(value) =>
+                          mut.setTxFieldExtractField(index, value)
+                        }
+                      >
+                        <SelectTrigger className="field-surface h-7 min-w-0 rounded px-2 font-mono text-xs">
+                          <SelectValue placeholder="Choose field" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {TX_FIELD_EXTRACT_OPTIONS.map((option) => (
+                            <SelectItem
+                              key={option}
+                              value={option}
+                              className="font-mono text-xs"
+                            >
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid grid-cols-[minmax(0,1fr)_2.5rem] items-start gap-2">
+                      <div
+                        className={cn(
+                          "max-h-20 min-w-0 overflow-y-auto whitespace-pre-wrap break-all font-mono text-sm leading-relaxed",
+                          canCopy ? "text-primary" : "text-muted-foreground"
+                        )}
+                      >
+                        {display}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="nodrag h-7 w-8 justify-self-center"
+                        onPointerDownCapture={(event) => event.stopPropagation()}
+                        onClick={() => copyTxExtractOutput(handleId, value)}
+                        disabled={!canCopy}
+                        title={
+                          copied
+                            ? "Copied!"
+                            : `Copy ${field} output to clipboard`
+                        }
+                      >
+                        {copied ? (
+                          <Check className="h-3.5 w-3.5" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          {isMusig2NonceGen ? (
-            <div className="space-y-3 text-sm">
-              <div
-                ref={musig2PubnonceRowRef}
-                className="flex items-start justify-between gap-2"
-              >
+        )}
+
+        {!hideGenericResult && (
+          <div
+            className={cn(
+              "calc-node-result",
+              isSimpleResultOnly
+                ? "calc-node-result-simple mt-0 pt-0"
+                : "pt-2",
+              isTxTemplateNode
+                ? "mt-5"
+                : isConcatAll
+                  ? "mt-1"
+                  : !isSimpleResultOnly && "mt-auto"
+            )}
+          >
+            <div className="calc-node-result-label mb-2 text-sm text-primary">
+              {">"} Calculation Result:
+            </div>
+            {isMusig2NonceGen ? (
+              <div className="space-y-3 text-sm">
+                <div
+                  ref={musig2PubnonceRowRef}
+                  className="flex items-start justify-between gap-2"
+                >
+                  <div className="flex-1 min-w-0" data-testid="node-result">
+                    <div className="mb-1 text-xs font-medium">Pubnonce:</div>
+                    <span className="block whitespace-pre-wrap break-all">
+                      {musig2PubnonceDisplay}
+                    </span>
+                  </div>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="nodrag shrink-0 self-start"
+                    onPointerDownCapture={(event) => event.stopPropagation()}
+                    onClick={clip.copyResult}
+                    disabled={result === undefined}
+                    title={
+                      clip.resultCopied ? "Copied!" : "Copy pubnonce to clipboard"
+                    }
+                  >
+                    {clip.resultCopied ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+
+                <div
+                  ref={musig2SecnonceRowRef}
+                  className="flex items-start justify-between gap-2"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="mb-1 text-xs font-medium">Secnonce:</div>
+                    <span className="block whitespace-pre-wrap break-all">
+                      {musig2SecnonceDisplay}
+                    </span>
+                  </div>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="nodrag shrink-0 self-start"
+                    onPointerDownCapture={(event) => event.stopPropagation()}
+                    onClick={copyMusig2Secnonce}
+                    disabled={
+                      musig2SecnonceValue === undefined ||
+                      musig2SecnonceValue === null ||
+                      musig2SecnonceValue === ""
+                    }
+                    title={
+                      musig2SecnonceCopied
+                        ? "Copied!"
+                        : "Copy secnonce to clipboard"
+                    }
+                  >
+                    {musig2SecnonceCopied ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-start justify-between gap-2 text-sm">
                 <div className="flex-1 min-w-0" data-testid="node-result">
-                  <div className="mb-1 text-xs font-medium">Pubnonce:</div>
                   <span className="block whitespace-pre-wrap break-all">
-                    {musig2PubnonceDisplay}
+                    {clip.prettyResult}
                   </span>
                 </div>
 
@@ -1104,9 +1705,7 @@ export function CalculationNodeView({
                   onPointerDownCapture={(event) => event.stopPropagation()}
                   onClick={clip.copyResult}
                   disabled={result === undefined}
-                  title={
-                    clip.resultCopied ? "Copied!" : "Copy pubnonce to clipboard"
-                  }
+                  title={clip.resultCopied ? "Copied!" : "Copy result to clipboard"}
                 >
                   {clip.resultCopied ? (
                     <Check className="h-4 w-4" />
@@ -1115,170 +1714,110 @@ export function CalculationNodeView({
                   )}
                 </Button>
               </div>
+            )}
 
+            {isTaprootTreeBuilder && taprootLeafLabels.length > 0 ? (
               <div
-                ref={musig2SecnonceRowRef}
-                className="flex items-start justify-between gap-2"
+                ref={pathRowRef}
+                className="relative mt-3 flex items-center justify-between"
               >
-                <div className="flex-1 min-w-0">
-                  <div className="mb-1 text-xs font-medium">Secnonce:</div>
-                  <span className="block whitespace-pre-wrap break-all">
-                    {musig2SecnonceDisplay}
-                  </span>
+                <span className="text-xs font-medium">Merkle Path Leaf:</span>
+                <Select
+                  value={String(taprootLeafIndex)}
+                  onValueChange={(value) =>
+                    mut.setTaprootLeafIndex(Number(value))
+                  }
+                >
+                  <SelectTrigger
+                    ref={pathTriggerRef}
+                    className="field-surface h-7 w-40"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {taprootLeafLabels.map((label, index) => (
+                      <SelectItem key={`${label}-${index}`} value={String(index)}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : null}
+
+            {isTaprootTweakXonly ? (
+              <div
+                ref={parityRowRef}
+                className="relative mt-3 flex items-center justify-between"
+              >
+                <span className="text-xs font-medium">Output Key Parity:</span>
+                <div
+                  ref={parityValueRef}
+                  className="field-surface flex h-7 min-w-[3.5rem] items-center justify-center rounded-md border border-input bg-background px-2 text-xs font-mono"
+                >
+                  {parityDisplay}
                 </div>
+              </div>
+            ) : null}
 
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="nodrag shrink-0 self-start"
-                  onPointerDownCapture={(event) => event.stopPropagation()}
-                  onClick={copyMusig2Secnonce}
-                  disabled={
-                    musig2SecnonceValue === undefined ||
-                    musig2SecnonceValue === null ||
-                    musig2SecnonceValue === ""
-                  }
-                  title={
-                    musig2SecnonceCopied
-                      ? "Copied!"
-                      : "Copy secnonce to clipboard"
-                  }
-                >
-                  {musig2SecnonceCopied ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
+            {taprootTreeDisplay ? (
+              <div className="mt-3 border-t border-border pt-2">
+                <TerminalField
+                  label="Taproot Tree:"
+                  value={taprootTreeDisplay}
+                  readOnly={true}
+                  rows={Math.min(
+                    12,
+                    Math.max(4, taprootTreeDisplay.split("\n").length)
                   )}
-                </Button>
+                />
               </div>
-            </div>
-          ) : (
-            <div className="flex items-start justify-between gap-2 text-sm">
-              <div className="flex-1 min-w-0" data-testid="node-result">
-                <span className="block whitespace-pre-wrap break-all">
-                  {clip.prettyResult}
-                </span>
-              </div>
+            ) : null}
 
-              <Button
-                variant="ghost"
-                size="icon"
-                className="nodrag shrink-0 self-start"
-                onPointerDownCapture={(event) => event.stopPropagation()}
-                onClick={clip.copyResult}
-                disabled={result === undefined}
-                title={clip.resultCopied ? "Copied!" : "Copy result to clipboard"}
-              >
-                {clip.resultCopied ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          )}
-
-          {isTaprootTreeBuilder && taprootLeafLabels.length > 0 ? (
-            <div
-              ref={pathRowRef}
-              className="relative mt-3 flex items-center justify-between"
-            >
-              <span className="text-xs font-medium">Merkle Path Leaf:</span>
-              <Select
-                value={String(taprootLeafIndex)}
-                onValueChange={(value) =>
-                  mut.setTaprootLeafIndex(Number(value))
-                }
-              >
-                <SelectTrigger
-                  ref={pathTriggerRef}
-                  className="h-7 w-40"
+            {data.networkDependent && (
+              <div className="mt-3 flex items-center justify-between">
+                <span className="text-xs font-medium">Network:</span>
+                <Select
+                  value={data.selectedNetwork || "testnet"}
+                  onValueChange={mut.handleNetworkChange}
                 >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {taprootLeafLabels.map((label, index) => (
-                    <SelectItem key={`${label}-${index}`} value={String(index)}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          ) : null}
-
-          {isTaprootTweakXonly ? (
-            <div
-              ref={parityRowRef}
-              className="relative mt-3 flex items-center justify-between"
-            >
-              <span className="text-xs font-medium">Output Key Parity:</span>
-              <div
-                ref={parityValueRef}
-                className="flex h-7 min-w-[3.5rem] items-center justify-center rounded-md border border-input bg-background px-2 text-xs font-mono"
-              >
-                {parityDisplay}
+                  <SelectTrigger className="field-surface h-7 w-28">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mainnet">Mainnet</SelectItem>
+                    <SelectItem value="testnet">Testnet</SelectItem>
+                    <SelectItem value="regtest">Regtest</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
-          ) : null}
+            )}
 
-          {taprootTreeDisplay ? (
-            <div className="mt-3 border-t border-border pt-2">
-              <TerminalField
-                label="Taproot Tree:"
-                value={taprootTreeDisplay}
-                readOnly={true}
-                rows={Math.min(
-                  12,
-                  Math.max(4, taprootTreeDisplay.split("\n").length)
-                )}
-              />
-            </div>
-          ) : null}
-
-          {data.networkDependent && (
-            <div className="mt-3 flex items-center justify-between">
-              <span className="text-xs font-medium">Network:</span>
-              <Select
-                value={data.selectedNetwork || "testnet"}
-                onValueChange={mut.handleNetworkChange}
+            {script.isScriptVerification && script.scriptResult !== null ? (
+              <Button
+                variant="outline"
+                className="mt-3"
+                onClick={() => setShowSteps(true)}
               >
-                <SelectTrigger className="h-7 w-28">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mainnet">Mainnet</SelectItem>
-                  <SelectItem value="testnet">Testnet</SelectItem>
-                  <SelectItem value="regtest">Regtest</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+                View Script Steps
+              </Button>
+            ) : null}
 
-          {script.isScriptVerification && script.scriptResult !== null ? (
-            <Button
-              variant="outline"
-              className="mt-3"
-              onClick={() => setShowSteps(true)}
-            >
-              View Script Steps
-            </Button>
-          ) : null}
-
-          {isHardwareAction && hardwareStatusText ? (
-            <div className="mt-3 rounded border border-border bg-muted/40 px-2 py-1 text-xs text-muted-foreground">
-              {hardwareStatusText}
-            </div>
-          ) : null}
-        </div>
+            {isHardwareAction && hardwareStatusText ? (
+              <div className="mt-3 rounded border border-border bg-muted/40 px-2 py-1 text-xs text-muted-foreground">
+                {hardwareStatusText}
+              </div>
+            ) : null}
+          </div>
+        )}
 
         {showComment && (
-          <div className="mt-4 border-t border-border pt-2">
+          <div className="mt-4 pt-2">
             <TerminalField
               label="Node Comment:"
               placeholder="Enter your notes here..."
-              value={comment}
-              onChange={mut.handleCommentChange}
+              value={commentDraft}
+              onChange={handleCommentChange}
               onFocus={handleCommentFocus}
               onBlur={handleCommentBlur}
             />
@@ -1286,7 +1825,26 @@ export function CalculationNodeView({
         )}
       </CardContent>
 
-      {outputPorts
+      {isDynamicTxFieldExtract &&
+        txExtractFields.map((_, index, visiblePorts) => {
+          const handleId = `output-${index}`;
+          const top =
+            txOutputHandleTops[handleId] !== undefined
+              ? `${txOutputHandleTops[handleId]}px`
+              : `${((index + 1) / (visiblePorts.length + 1)) * 100}%`;
+          return (
+            <Handle
+              key={handleId}
+              type="source"
+              id={handleId}
+              position={Position.Right}
+              className="!h-3 !w-3 !border-2 !border-primary !bg-background"
+              style={{ top, transform: "translate(50%, -50%)" }}
+            />
+          );
+        })}
+
+      {!isDynamicTxFieldExtract && outputPorts
         .filter((port) => port.showHandle !== false)
         .map((port, index, visiblePorts) => {
           const anchoredTop =

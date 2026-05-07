@@ -1,14 +1,14 @@
 # Backend Overview
 
 The backend is a lightweight Python/Flask API that powers rawBit's canvas
-calculations and lesson catalogue. It is designed for education: given a graph
+calculations and flow catalogue. It is designed for education: given a graph
 of calculation nodes, it resolves inputs, runs the matching Python helpers, and
 returns updated node data for the frontend to render.
 
 ## Responsibilities
 
 - Evaluate calculation graphs submitted by the client.
-- Serve the bundled lesson-flow catalogue from `src/my_tx_flows/`.
+- Serve the bundled flow catalogue from `src/my_tx_flows/`.
 - Return backend helper source code for node code views and LLM exports.
 - Expose health and limit metadata for local scripts and deployed clients.
 - Enforce payload, rate, timeout, and computation-budget limits.
@@ -29,7 +29,7 @@ All endpoints share the Flask app in `backend/routes.py`.
 | Method | Path | Purpose |
 | --- | --- | --- |
 | `POST` | `/bulk_calculate` | Evaluate a graph and return updated nodes, version, and per-node errors. |
-| `GET` | `/flows` | List bundled lesson flows with labels and API paths. |
+| `GET` | `/flows` | List bundled flows with labels and API paths. |
 | `GET` | `/flows/<slug>` | Return one bundled flow JSON by safe slug. |
 | `GET` | `/code?functionName=...` | Return Python source for a calculation helper, with selected support code expanded. |
 | `GET` | `/healthz` | Return health, app version, and public calculation limits. |
@@ -114,5 +114,5 @@ When adding a calculation helper:
 3. Add or update its entry in `backend/calc_functions/function_specs.py`.
 4. Add or update frontend node metadata when the node needs a visible palette
    entry or custom UI.
-5. Add backend tests and, for user-facing flows, update or add lesson JSON under
+5. Add backend tests and, for user-facing flows, update or add flow JSON under
    `src/my_tx_flows/`.

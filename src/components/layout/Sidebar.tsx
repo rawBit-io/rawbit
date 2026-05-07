@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback, useRef } from "react";
 import {
   Edit,
   FileCode,
@@ -19,14 +19,12 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import type { NodeTemplate } from "@/types";
 import { allSidebarNodes } from "@/components/sidebar-nodes";
 
 // Import your array of custom flows
-import {
-  customFlows,
-  type CustomFlowTemplate,
-} from "@/my_tx_flows/customFlows";
+import { customFlows, type CustomFlowTemplate } from "@/my_tx_flows/customFlows";
 
 export interface SidebarProps {
   isOpen: boolean;
@@ -125,6 +123,16 @@ const categories = [
 ];
 
 const MIN_NODES_FOR_SUBGROUPS = 5;
+const subgroupAccordionClass =
+  "ml-7 pl-2 space-y-1";
+const subgroupTriggerClass =
+  "rounded-md py-1.5 pl-2 pr-6 text-[14px] font-medium text-foreground hover:bg-accent/60 hover:no-underline data-[state=open]:bg-accent/40";
+const subgroupLabelClass =
+  "min-w-0 flex-1 whitespace-normal break-words pr-3 text-left leading-snug";
+const subgroupContentClass = "pt-1 pb-1";
+const subgroupItemsClass = "space-y-2 pb-1";
+const TOP_LEVEL_FLOW_SECTION = "top-level";
+const SIDEBAR_REVEAL_ITEM_COUNT = 5;
 
 const flowSections = [
   { id: "legacy-foundations", label: "Legacy Foundations" },
@@ -191,13 +199,17 @@ function groupNodesBySubcategory(nodes: NodeTemplate[]) {
 
 function getNodeDisplayGroups(nodes: NodeTemplate[]) {
   const groups = groupNodesBySubcategory(nodes);
+  const generalGroup = groups.find((group) => group.label === "General");
   const namedGroups = groups.filter((group) => group.label !== "General");
 
   if (nodes.length < MIN_NODES_FOR_SUBGROUPS || namedGroups.length === 0) {
     return { subcategoryGroups: [], flatNodes: nodes };
   }
 
-  return { subcategoryGroups: groups, flatNodes: [] };
+  return {
+    subcategoryGroups: namedGroups,
+    flatNodes: generalGroup?.items ?? [],
+  };
 }
 
 function formatNodeCategory(node: NodeTemplate) {
@@ -208,7 +220,7 @@ function formatNodeCategory(node: NodeTemplate) {
 }
 
 function formatFlowLabel(flow: CustomFlowTemplate) {
-  return flow.lessonNo ? `${flow.lessonNo}. ${flow.label}` : flow.label;
+  return flow.flowNo ? `${flow.flowNo}. ${flow.label}` : flow.label;
 }
 
 function getFlowSearchText(flow: CustomFlowTemplate) {
@@ -216,22 +228,33 @@ function getFlowSearchText(flow: CustomFlowTemplate) {
     flow.id,
     flow.label,
     flow.level,
-    flow.lessonNo ? String(flow.lessonNo) : "",
-    flow.lessonNo ? `lesson ${flow.lessonNo}` : "",
-    flow.lessonNo ? `lesson ${flow.lessonNo} ${flow.label}` : "",
+    flow.flowNo ? String(flow.flowNo) : "",
+    flow.flowNo ? `flow ${flow.flowNo}` : "",
+    flow.flowNo ? `flow ${flow.flowNo} ${flow.label}` : "",
     ...flow.tags,
   ].join(" ");
 }
 
+function getSidebarRevealId(...parts: string[]) {
+  return parts
+    .join("--")
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 // Use the existing SidebarProps from your code
 export function Sidebar({ isOpen }: SidebarProps) {
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const [openCategories, setOpenCategories] = useState<string[]>([
     "canvas-inputs",
+    "my-custom-flows",
   ]);
   const [openSubcategories, setOpenSubcategories] = useState<
     Record<string, string[]>
   >({});
   const [openFlowSections, setOpenFlowSections] = useState<string[]>([]);
+  const [showOlderFlowExamples, setShowOlderFlowExamples] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const envBadge =
     (import.meta.env.VITE_ENV_LABEL &&
@@ -261,18 +284,83 @@ export function Sidebar({ isOpen }: SidebarProps) {
     });
   }, [searchQuery]);
 
+  const visibleFlowTemplates = useMemo(
+    () =>
+      showOlderFlowExamples
+        ? customFlows
+        : customFlows.filter((flow) => flow.section === TOP_LEVEL_FLOW_SECTION),
+    [showOlderFlowExamples]
+  );
+  const olderFlowExampleCount = useMemo(
+    () =>
+      customFlows.filter((flow) => flow.section !== TOP_LEVEL_FLOW_SECTION)
+        .length,
+    []
+  );
+
   const filteredFlows = useMemo(() => {
     if (!searchQuery.trim()) return [];
-    return customFlows.filter((flow) =>
+    return visibleFlowTemplates.filter((flow) =>
       matchesSidebarSearch(getFlowSearchText(flow), searchQuery)
     );
-  }, [searchQuery]);
+  }, [searchQuery, visibleFlowTemplates]);
 
   const totalSearchResults = filteredNodes.length + filteredFlows.length;
 
+  const revealSidebarSection = useCallback((revealId: string) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const reveal = () => {
+      const section = container.querySelector<HTMLElement>(
+        `[data-sidebar-reveal-id="${revealId}"]`
+      );
+      if (!section || section.getAttribute("data-state") !== "open") return;
+
+      const trigger =
+        section.querySelector<HTMLElement>("[data-sidebar-reveal-trigger]") ??
+        section;
+      const revealItems = Array.from(
+        section.querySelectorAll<HTMLElement>("[data-sidebar-reveal-item]")
+      ).slice(0, SIDEBAR_REVEAL_ITEM_COUNT);
+      const lastRevealItem = revealItems.at(-1);
+      const containerRect = container.getBoundingClientRect();
+      const triggerRect = trigger.getBoundingClientRect();
+      const bottomRect = lastRevealItem?.getBoundingClientRect() ?? triggerRect;
+      const padding = 8;
+      const revealTop = triggerRect.top;
+      const revealBottom = bottomRect.bottom;
+      const revealHeight = revealBottom - revealTop;
+      const availableHeight = containerRect.height - padding * 2;
+
+      let scrollDelta = 0;
+      if (revealHeight > availableHeight) {
+        scrollDelta = revealTop - containerRect.top - padding;
+      } else if (revealTop < containerRect.top + padding) {
+        scrollDelta = revealTop - containerRect.top - padding;
+      } else if (revealBottom > containerRect.bottom - padding) {
+        scrollDelta = revealBottom - containerRect.bottom + padding;
+      }
+
+      if (Math.abs(scrollDelta) >= 1) {
+        if (typeof container.scrollBy === "function") {
+          container.scrollBy({ top: scrollDelta, behavior: "smooth" });
+        } else {
+          container.scrollTop += scrollDelta;
+        }
+      }
+    };
+
+    window.requestAnimationFrame(() => {
+      reveal();
+      window.setTimeout(reveal, 180);
+    });
+  }, []);
+
   const groupedFlows = useMemo(() => {
     const groups = new Map<string, typeof customFlows>();
-    customFlows.forEach((flow) => {
+    visibleFlowTemplates.forEach((flow) => {
+      if (flow.section === TOP_LEVEL_FLOW_SECTION) return;
       const section = flow.section || "other-flows";
       groups.set(section, [...(groups.get(section) ?? []), flow]);
     });
@@ -290,7 +378,14 @@ export function Sidebar({ isOpen }: SidebarProps) {
     }
 
     return ordered;
-  }, []);
+  }, [visibleFlowTemplates]);
+  const topLevelFlows = useMemo(
+    () =>
+      visibleFlowTemplates.filter(
+        (flow) => flow.section === TOP_LEVEL_FLOW_SECTION
+      ),
+    [visibleFlowTemplates]
+  );
 
   // Standard drag logic for normal single nodes
   const onDragStart = (event: React.DragEvent, node: NodeTemplate) => {
@@ -329,6 +424,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
   const renderNodeCard = (node: NodeTemplate, className?: string) => (
     <div
       key={`${node.functionName}-${node.label}`}
+      data-sidebar-reveal-item
       draggable
       onDragStart={(e) => onDragStart(e, node)}
       className={cn(
@@ -368,12 +464,16 @@ export function Sidebar({ isOpen }: SidebarProps) {
     </div>
   );
 
-  const renderFlowCard = (flow: CustomFlowTemplate) => (
+  const renderFlowCard = (flow: CustomFlowTemplate, className?: string) => (
     <div
       key={flow.id}
+      data-sidebar-reveal-item
       draggable
       onDragStart={(event) => onFlowDragStart(event, flow)}
-      className="flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors"
+      className={cn(
+        "flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors",
+        className
+      )}
     >
       <div className="flex flex-col">
         <span className="text-sm font-medium">{formatFlowLabel(flow)}</span>
@@ -384,21 +484,67 @@ export function Sidebar({ isOpen }: SidebarProps) {
     </div>
   );
 
+  const renderFlowExampleOptions = () =>
+    olderFlowExampleCount > 0 ? (
+      <div className="ml-8 rounded-md border border-dashed border-border/70 bg-muted/20 p-2 text-xs text-muted-foreground">
+        <div className="flex items-center justify-between gap-3">
+          <span className="font-medium text-foreground">
+            Older flows {showOlderFlowExamples ? "visible" : "hidden"}
+          </span>
+          <div className="flex shrink-0 items-center gap-1.5">
+            <Switch
+              id="show-older-flow-examples"
+              aria-label="Show older flow examples"
+              checked={showOlderFlowExamples}
+              onCheckedChange={setShowOlderFlowExamples}
+              className="h-4 w-7 data-[state=checked]:bg-muted-foreground/70 data-[state=unchecked]:bg-muted"
+              thumbClassName="h-3 w-3 data-[state=checked]:translate-x-3"
+            />
+          </div>
+        </div>
+        <p className="mt-1 leading-snug">
+          Older flows still work, but are being updated with the new layout and
+          explanation nodes.
+        </p>
+      </div>
+    ) : null;
+
   // Expand/collapse logic for categories
   const handleCategoryChange = (value: string) => {
     setOpenCategories((prev) => {
       if (prev.includes(value)) {
         return prev.filter((id) => id !== value);
       }
+      revealSidebarSection(getSidebarRevealId("category", value));
       return [...prev, value];
     });
   };
 
   const handleSubcategoryChange = (categoryId: string, value: string[]) => {
-    setOpenSubcategories((prev) => ({
-      ...prev,
-      [categoryId]: value,
-    }));
+    setOpenSubcategories((prev) => {
+      const previousValue = prev[categoryId] ?? [];
+      const newlyOpened = value.find((item) => !previousValue.includes(item));
+      if (newlyOpened) {
+        revealSidebarSection(
+          getSidebarRevealId("subcategory", categoryId, newlyOpened)
+        );
+      }
+
+      return {
+        ...prev,
+        [categoryId]: value,
+      };
+    });
+  };
+
+  const handleFlowSectionChange = (value: string[]) => {
+    setOpenFlowSections((prev) => {
+      const newlyOpened = value.find((item) => !prev.includes(item));
+      if (newlyOpened) {
+        revealSidebarSection(getSidebarRevealId("flow-section", newlyOpened));
+      }
+      return value;
+    });
   };
 
   return (
@@ -418,7 +564,13 @@ export function Sidebar({ isOpen }: SidebarProps) {
             isOpen ? "opacity-100" : "opacity-0"
           )}
         >
-          raw<span className="inline-block rotate-[14deg]">₿</span>it
+          raw
+          <span
+            className="text-primary"
+            data-testid="sidebar-brand-bit"
+          >
+            <span className="inline-block rotate-[14deg]">₿</span>it
+          </span>
           {envLabel && (
             <span className="ml-2 text-sm font-normal text-muted-foreground">
               {envLabel}
@@ -458,6 +610,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
       </div>
 
       <div
+        ref={scrollContainerRef}
         className={cn(
           "flex-1 overflow-y-auto p-3 transition-opacity duration-300",
           isOpen ? "opacity-100" : "opacity-0"
@@ -489,7 +642,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
                   <div className="space-y-2">
                     {filteredNodes.length > 0 && (
                       <div className="px-2 py-1 text-xs font-medium uppercase text-muted-foreground">
-                        Lessons
+                        Flows
                       </div>
                     )}
                     {filteredFlows.map((flow) => renderFlowCard(flow))}
@@ -498,7 +651,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
               </>
             ) : (
               <div className="p-4 text-sm text-muted-foreground rounded-md bg-muted/50 text-center">
-                No matching nodes or lessons found
+                No matching nodes or flows found
               </div>
             )}
           </div>
@@ -522,9 +675,14 @@ export function Sidebar({ isOpen }: SidebarProps) {
                 <AccordionItem
                   key={cat.id}
                   value={cat.id}
+                  data-sidebar-reveal-id={getSidebarRevealId(
+                    "category",
+                    cat.id
+                  )}
                   className="border-none"
                 >
                   <AccordionTrigger
+                    data-sidebar-reveal-trigger
                     className="flex items-center py-2 pl-2 pr-6 rounded-md hover:bg-accent hover:no-underline"
                     onClick={(e) => {
                       e.preventDefault();
@@ -538,10 +696,10 @@ export function Sidebar({ isOpen }: SidebarProps) {
                       </span>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="pt-1 pb-0 px-0">
+                  <AccordionContent className="pt-0 pb-0 px-0">
                     {catNodes.length > 0 ? (
-                      <div className="space-y-2 py-1">
-                        {flatNodes.map((node) => renderNodeCard(node, "ml-5"))}
+                      <div className="space-y-1.5 pb-0.5">
+                        {flatNodes.map((node) => renderNodeCard(node, "ml-8"))}
                         {useSubgroups && (
                           <Accordion
                             type="multiple"
@@ -549,21 +707,32 @@ export function Sidebar({ isOpen }: SidebarProps) {
                             onValueChange={(value) =>
                               handleSubcategoryChange(cat.id, value)
                             }
-                            className="space-y-0.5"
+                            className={subgroupAccordionClass}
                           >
                             {subcategoryGroups.map((group) => (
                               <AccordionItem
                                 key={`${cat.id}-${group.label}`}
                                 value={group.label}
+                                data-sidebar-reveal-id={getSidebarRevealId(
+                                  "subcategory",
+                                  cat.id,
+                                  group.label
+                                )}
                                 className="border-none"
                               >
-                                <AccordionTrigger className="py-2 pl-2 pr-6 text-[15px] font-medium text-muted-foreground hover:text-foreground hover:no-underline">
-                                  <span className="min-w-0 flex-1 whitespace-normal break-words pl-6 pr-4 text-left">
+                                <AccordionTrigger
+                                  data-sidebar-reveal-trigger
+                                  data-sidebar-reveal-item
+                                  className={subgroupTriggerClass}
+                                >
+                                  <span className={subgroupLabelClass}>
                                     {group.label}
                                   </span>
                                 </AccordionTrigger>
-                                <AccordionContent className="pt-1 pb-1">
-                                  <div className="ml-8 space-y-2">
+                                <AccordionContent
+                                  className={subgroupContentClass}
+                                >
+                                  <div className={subgroupItemsClass}>
                                     {group.items.map((node) =>
                                       renderNodeCard(node)
                                     )}
@@ -588,9 +757,14 @@ export function Sidebar({ isOpen }: SidebarProps) {
             <AccordionItem
               key="my-custom-flows"
               value="my-custom-flows"
+              data-sidebar-reveal-id={getSidebarRevealId(
+                "category",
+                "my-custom-flows"
+              )}
               className="border-none"
             >
               <AccordionTrigger
+                data-sidebar-reveal-trigger
                 className="flex items-center py-2 pl-2 pr-6 rounded-md hover:bg-accent hover:no-underline"
                 onClick={(e) => {
                   e.preventDefault();
@@ -604,33 +778,49 @@ export function Sidebar({ isOpen }: SidebarProps) {
                   </span>
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="pt-1 pb-0 px-0">
+              <AccordionContent className="pt-0 pb-0 px-0">
                 {customFlows.length > 0 ? (
-                  <Accordion
-                    type="multiple"
-                    value={openFlowSections}
-                    onValueChange={setOpenFlowSections}
-                    className="space-y-0.5 py-1"
-                  >
-                    {groupedFlows.map((section) => (
-                      <AccordionItem
-                        key={section.id}
-                        value={section.id}
-                        className="border-none"
+                  <div className="space-y-1.5 pb-0.5">
+                    {topLevelFlows.map((flow) => renderFlowCard(flow, "ml-8"))}
+                    {renderFlowExampleOptions()}
+                    {groupedFlows.length > 0 && (
+                      <Accordion
+                        type="multiple"
+                        value={openFlowSections}
+                        onValueChange={handleFlowSectionChange}
+                        className={cn(subgroupAccordionClass, "pb-0.5")}
                       >
-                        <AccordionTrigger className="py-2 pl-2 pr-6 text-[15px] font-medium text-muted-foreground hover:text-foreground hover:no-underline">
-                          <span className="min-w-0 flex-1 whitespace-normal break-words pl-6 pr-4 text-left">
-                            {section.label}
-                          </span>
-                        </AccordionTrigger>
-                        <AccordionContent className="pt-1 pb-1">
-                          <div className="ml-8 space-y-2">
-                            {section.items.map((flow) => renderFlowCard(flow))}
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
+                        {groupedFlows.map((section) => (
+                          <AccordionItem
+                            key={section.id}
+                            value={section.id}
+                            data-sidebar-reveal-id={getSidebarRevealId(
+                              "flow-section",
+                              section.id
+                            )}
+                            className="border-none"
+                          >
+                            <AccordionTrigger
+                              data-sidebar-reveal-trigger
+                              data-sidebar-reveal-item
+                              className={subgroupTriggerClass}
+                            >
+                              <span className={subgroupLabelClass}>
+                                {section.label}
+                              </span>
+                            </AccordionTrigger>
+                            <AccordionContent className={subgroupContentClass}>
+                              <div className={subgroupItemsClass}>
+                                {section.items.map((flow) =>
+                                  renderFlowCard(flow)
+                                )}
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    )}
+                  </div>
                 ) : (
                   <div className="ml-4 p-3 text-sm text-muted-foreground rounded-md bg-muted/50">
                     No custom flows found

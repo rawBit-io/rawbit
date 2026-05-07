@@ -414,6 +414,23 @@ def test_uint32_to_little_endian():
         calc.uint32_to_little_endian_4_bytes(-1)
 
 
+def test_sighash_type_to_le4_standard_flags():
+    assert calc.sighash_type_to_le4("01") == "01000000"
+    assert calc.sighash_type_to_le4("02") == "02000000"
+    assert calc.sighash_type_to_le4("03") == "03000000"
+    assert calc.sighash_type_to_le4("0x81") == "81000000"
+    assert calc.sighash_type_to_le4("82") == "82000000"
+    assert calc.sighash_type_to_le4("83") == "83000000"
+
+
+def test_sighash_type_to_le4_rejects_invalid_flags():
+    invalid_values = ["", "1", "0100", "zz", "00", "04", "80", "84", "c1"]
+
+    for value in invalid_values:
+        with pytest.raises(ValueError):
+            calc.sighash_type_to_le4(value)
+
+
 def test_encode_varint_boundaries():
     assert calc.encode_varint(0) == "00"
     assert calc.encode_varint(0xfc) == "fc"
@@ -1011,7 +1028,10 @@ def test_encode_script_push_data_cases():
 
 
 def test_opcode_select_and_int_to_script_bytes():
-    assert calc.op_code_select("76a914") == "76a914"
+    assert calc.op_code_select(["OP_DUP", "OP_HASH160"]) == "76a9"
+    assert calc.op_code_select(["P2PKH_PREFIX", "P2PKH_SUFFIX"]) == "76a91488ac"
+    with pytest.raises(ValueError, match="Unknown opcode"):
+        calc.op_code_select(["OP_NOPE"])
     assert calc.int_to_script_bytes(0) == ""
     assert calc.int_to_script_bytes(4404774) == "263643"
     with pytest.raises(ValueError):

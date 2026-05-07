@@ -455,43 +455,43 @@ describe("Flow selection hotkey", () => {
 });
 
 describe("Flow first-run dialog", () => {
-  it("opens the welcome dialog when no stored data exists", async () => {
+  it("auto-loads the intro flow when no stored data exists", async () => {
+    const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
+
     renderFlow();
 
     await waitFor(() => {
-      expect(firstRunDialogProps.current?.open).toBe(true);
+      expect(firstRunDialogProps.current?.open).toBe(false);
+      expect(setNodesMock).toHaveBeenCalledTimes(1);
+      expect(setEdgesMock).toHaveBeenCalledTimes(1);
     });
+
+    expect(restoreScriptStepsMock).toHaveBeenCalledWith([]);
+    expect(ingestScriptStepsMock).toHaveBeenCalledTimes(1);
+    expect(scheduleSnapshotMock).toHaveBeenCalledWith("Load example: Example flow", {
+      refresh: true,
+    });
+    expect(setTabTooltipMock).toHaveBeenCalledWith(
+      "tab-1",
+      "Example: Example flow"
+    );
+    expect(setItemSpy).toHaveBeenCalledWith(FIRST_RUN_STORAGE_KEY, "1");
+
+    setItemSpy.mockRestore();
   });
 
-  it("resets the canvas and marks onboarding complete when starting empty", async () => {
+  it("does not auto-load when stored tab data exists", async () => {
+    localStorage.setItem("rawbit.flow.tab.tab-1", "stored-flow");
     const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
 
     renderFlow();
     await waitFor(() => {
-      expect(firstRunDialogProps.current?.open).toBe(true);
+      expect(firstRunDialogProps.current).not.toBeNull();
     });
 
-    restoreScriptStepsMock.mockClear();
-    setNodesMock.mockClear();
-    setEdgesMock.mockClear();
-    scheduleSnapshotMock.mockClear();
-    setTabTooltipMock.mockClear();
-
-    act(() => {
-      firstRunDialogProps.current?.onStartEmpty();
-    });
-
-    await waitFor(() => {
-      expect(firstRunDialogProps.current?.open).toBe(false);
-    });
-
-    expect(restoreScriptStepsMock).toHaveBeenCalledWith([]);
-    expect(setNodesMock).toHaveBeenCalledTimes(1);
-    expect(setEdgesMock).toHaveBeenCalledTimes(1);
-    expect(scheduleSnapshotMock).toHaveBeenCalledWith("Start empty canvas", {
-      refresh: true,
-    });
-    expect(setTabTooltipMock).toHaveBeenCalledWith("tab-1", "Empty canvas");
+    expect(firstRunDialogProps.current?.open).toBe(false);
+    expect(setNodesMock).not.toHaveBeenCalled();
+    expect(setEdgesMock).not.toHaveBeenCalled();
     expect(setItemSpy).toHaveBeenCalledWith(FIRST_RUN_STORAGE_KEY, "1");
 
     setItemSpy.mockRestore();
@@ -535,6 +535,7 @@ describe("Flow first-run dialog", () => {
 
 describe("Flow example loading", () => {
   it("loads an example flow, schedules a snapshot, and fits the viewport", async () => {
+    localStorage.setItem(FIRST_RUN_STORAGE_KEY, "1");
     const rafSpy = vi
       .spyOn(window, "requestAnimationFrame")
       .mockImplementation((cb: FrameRequestCallback) => {
@@ -544,7 +545,7 @@ describe("Flow example loading", () => {
 
     renderFlow();
     await waitFor(() => {
-      expect(firstRunDialogProps.current?.open).toBe(true);
+      expect(firstRunDialogProps.current).not.toBeNull();
     });
 
     restoreScriptStepsMock.mockClear();
@@ -586,6 +587,7 @@ describe("Flow example loading", () => {
   });
 
   it("falls back to JSON cloning when structuredClone throws", async () => {
+    localStorage.setItem(FIRST_RUN_STORAGE_KEY, "1");
     const throwingClone = vi.fn(() => {
       throw new Error("fail");
     });
@@ -593,7 +595,7 @@ describe("Flow example loading", () => {
 
     renderFlow();
     await waitFor(() => {
-      expect(firstRunDialogProps.current?.open).toBe(true);
+      expect(firstRunDialogProps.current).not.toBeNull();
     });
 
     setNodesMock.mockClear();

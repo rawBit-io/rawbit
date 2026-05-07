@@ -12,7 +12,7 @@ export function SelectField({ value, onChange, label, options }: SelectFieldProp
     <div className="mb-3">
       <div className="mb-1 font-mono text-sm text-primary">{label}</div>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="h-8 w-full font-mono text-xs">
+        <SelectTrigger className="field-surface h-8 w-full font-mono text-xs">
           <SelectValue placeholder="Choose…" />
         </SelectTrigger>
         <SelectContent>

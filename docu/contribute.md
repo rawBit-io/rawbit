@@ -1,7 +1,6 @@
 # Contributing to rawBit
 
-rawBit is a visual educational tool for constructing Bitcoin transactions and
-protocol flows on a canvas. It is not a wallet and not a production tool.
+rawBit is a visual educational tool for constructing Bitcoin transactions and protocol flows on a canvas. It is not a wallet and not a production tool.
 
 The goal is educational:
 
@@ -9,17 +8,16 @@ The goal is educational:
 - make Script execution visible step by step
 - make preimages, witnesses, scripts, weights, and stack states easier to inspect
 
-The best contributions make **one specific Bitcoin concept much clearer**. Size
-does not matter; a small, sharp lesson is more valuable than a sprawling one.
+The best contributions make **one specific Bitcoin concept much clearer**. Size does not matter — a small, sharp flow is more valuable than a sprawling one.
 
 ---
 
 ## What makes a strong contribution
 
-- **Educationally useful** - helps someone understand Bitcoin better
-- **Concrete** - focused on one flow, mechanism, or failure mode
-- **Inspectable** - values, scripts, witnesses, and stack states can be examined
-- **Visually manageable** - does not overload the canvas without a clear reason
+- **Educationally useful** — helps someone understand Bitcoin better
+- **Concrete** — focused on one flow, mechanism, or failure mode
+- **Inspectable** — values, scripts, witnesses, and stack states can be meaningfully examined
+- **Visually manageable** — does not overload the canvas without a clear reason
 
 ---
 
@@ -27,7 +25,7 @@ does not matter; a small, sharp lesson is more valuable than a sprawling one.
 
 ### 1. New educational flows
 
-A flow is an interactive lesson built on the canvas, focused on one concept.
+A flow is an interactive canvas example focused on one concept.
 
 Promising directions:
 
@@ -37,31 +35,27 @@ Promising directions:
 - PSBT workflows
 - Miniscript basics
 - Covenant proposal demos: OP_CAT, CTV-style
-- "Why this transaction is invalid" debugging lessons
+- “Why this transaction is invalid” debugging flows
 
-These are directions, not assignments. A focused proposal is better than broad
-topic interest.
+These are directions, not assignments. A focused proposal is better than broad topic interest.
 
-### 2. Review of existing lessons
+### 2. Review of existing flows
 
-A proper review means walking through a lesson on the canvas and giving
-detailed, concrete feedback:
+A proper review means walking through a flow on the canvas and giving detailed, concrete feedback:
 
 - which steps are unclear
 - where naming or grouping is off
 - where the canvas is overloaded
-- where a lesson should be split
-- whether the final verification proves the lesson goal
+- where a flow should be split
+- whether the final verification proves the flow goal
 
-Complex flows like Taproot script-path and MuSig2 benefit most. Generic praise
-or generic criticism is not useful; specifics are.
+Complex flows like Taproot script-path and MuSig2 benefit most. Generic praise or generic criticism is not useful — specifics are.
 
 ### 3. Video and PDF tutorials
 
 Short, focused tutorials are welcome when they explain an actual rawBit flow.
 
-A 3-5 minute screen recording with voiceover, or a tightly written PDF
-walkthrough of a single mechanism, is often more useful than long-form material.
+A 3–5 minute screen recording with voiceover, or a tightly written PDF walkthrough of a single mechanism, is often more useful than long-form material.
 
 One concept per tutorial.
 
@@ -69,48 +63,27 @@ One concept per tutorial.
 
 ## Design philosophy
 
-One node represents one operation: hashing, signing, serialization,
-verification, or script execution. Template nodes combine inputs into a
-structured artifact.
+One node represents one operation: hashing, signing, serialization, verification, or script execution. Template nodes combine inputs into a structured artifact.
 
-This works well for simpler flows like P2PKH, P2WPKH, and P2SH. Complex flows
-like MuSig2 and future Lightning lessons can easily become overloaded.
+This works well for simpler flows like P2PKH, P2WPKH, and P2SH. Complex flows like MuSig2 — and future Lightning flows — can easily become overloaded.
 
-Design for education, not compression. Split concepts across multiple lessons when one canvas gets too dense.
+Design for education, not compression. Split concepts across multiple flows when one canvas gets too dense.
 
 ---
 
 ## What a strong proposal includes
 
 - the concept and why it is educationally useful
-- which existing rawBit lesson is closest to it
+- which existing rawBit flow is closest to it
 - a rough sketch of how the flow would be structured visually
 - what backend logic would be needed
 - where the hard parts or risks are
 
 ---
 
-## What a strong PR includes
-
-- a focused flow, feature, fix, or documentation change
-- tests for changed backend or frontend behavior
-- updated docs when user-facing behavior changes
-- a short explanation of how you checked the result locally
-
-Useful references:
-
-- [Developer setup](./dev_setup.md)
-- [Lesson summary](./l-sum.md)
-- [Frontend architecture](./frontend-architecture.md)
-- [Backend overview](./backend-overview.md)
-- [Run-all-tests script](./run-all-tests.md)
-
----
-
 ## What not to do
 
-- Do not submit proposals, reviews, tutorials, or documentation generated by an
-  LLM without hands-on use of rawBit.
+- Do not submit proposals, reviews, tutorials, or documentation generated by an LLM without hands-on use of rawBit.
 - Do not add generic Bitcoin explanations that are not tied to a rawBit flow.
 - Do not model an entire protocol on one canvas. Pick one mechanism and make it clear.
 - Do not optimize for novelty or volume over clarity.
@@ -119,7 +92,6 @@ Useful references:
 
 ## Getting started
 
-Run rawBit locally, explore several lessons, then discuss your idea on Discord
-or open a GitHub issue before starting a large PR.
+Run rawBit locally, explore several flows, then discuss your idea on Discord or open a GitHub issue before starting a large PR.
 
 Discord: https://discord.gg/HPSYkT9tq

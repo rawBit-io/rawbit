@@ -3,7 +3,7 @@ import { renderHook, act } from "@testing-library/react";
 import { ReactFlowProvider } from "@xyflow/react";
 import type { Edge, ReactFlowInstance } from "@xyflow/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { FlowNode, ProtocolDiagramLayout } from "@/types";
+import type { FlowNode } from "@/types";
 import {
   buildFlowData,
   buildFlowNode,
@@ -61,6 +61,7 @@ const createMockInstance = (
     },
     getIntersectingNodes: () => [] as FlowNode[],
     updateNodeInternals: vi.fn(),
+    setViewport: vi.fn(),
   };
 
   return instance as ReactFlowInstance<FlowNode, Edge>;
@@ -106,6 +107,81 @@ const createMockInstance = (
     });
 
     expect(result.current.nodes.some((n) => n.id === "template-node")).toBe(true);
+    expect(result.current.nodes.find((n) => n.id === "template-node")?.position).toEqual({
+      x: 50,
+      y: 60,
+    });
+    const noticeNode = result.current.nodes.find(
+      (n) => n.type === "shadcnTextInfo" && n.data?.title === "Flow layout update"
+    );
+    expect(noticeNode?.position).toEqual({ x: 50, y: -218 });
+    expect(noticeNode?.data?.content).toContain("dev.rawbit.io");
+    expect(mockRf.setViewport).toHaveBeenCalledWith(
+      { x: 25, y: 30, zoom: 0.5 },
+      { duration: 0 }
+    );
+  });
+
+  it("anchors dropped flow templates by left-most then top-most node", () => {
+    const { result } = renderHook(() => useNodeOperations(), { wrapper });
+    const mockRf = createMockInstance(result);
+
+    act(() => {
+      result.current.onInit(mockRf);
+    });
+
+    const flowData = buildFlowData({
+      nodes: [
+        buildFlowNode({
+          id: "left-lower",
+          type: "calculation",
+          position: { x: 0, y: 100 },
+          data: { functionName: "identity" },
+        }),
+        buildFlowNode({
+          id: "top-right",
+          type: "calculation",
+          position: { x: 10, y: 0 },
+          data: { functionName: "identity" },
+        }),
+      ],
+      edges: [],
+    });
+
+    const event = {
+      preventDefault: vi.fn(),
+      dataTransfer: {
+        getData: (type: string) =>
+          type === "application/reactflow"
+            ? JSON.stringify({
+                functionName: "flow_template",
+                nodeData: { flowData },
+              })
+            : "",
+      },
+      clientX: 50,
+      clientY: 60,
+      currentTarget: {
+        getBoundingClientRect: () => ({ left: 0, top: 0 }),
+      },
+    } as unknown as React.DragEvent<HTMLDivElement>;
+
+    act(() => {
+      result.current.onDrop(event);
+    });
+
+    expect(result.current.nodes.find((n) => n.id === "left-lower")?.position).toEqual({
+      x: 50,
+      y: 60,
+    });
+    expect(result.current.nodes.find((n) => n.id === "top-right")?.position).toEqual({
+      x: 60,
+      y: -40,
+    });
+    expect(mockRf.setViewport).toHaveBeenCalledWith(
+      { x: 25, y: 30, zoom: 0.5 },
+      { duration: 0 }
+    );
   });
 
   it("keeps script steps for remapped ids when dropped template collides", () => {
@@ -176,93 +252,6 @@ const createMockInstance = (
     expect(getScriptSteps(importedVerifyNode!.id)).toEqual(scriptResult);
   });
 
-  it("imports protocol diagram layout when dropping flow templates", () => {
-    let protocolDiagramLayout: ProtocolDiagramLayout | undefined;
-    const setProtocolDiagramLayout = vi.fn(
-      (layout: ProtocolDiagramLayout | undefined) => {
-        protocolDiagramLayout = layout;
-      }
-    );
-
-    const { result } = renderHook(
-      () =>
-        useNodeOperations({
-          getProtocolDiagramLayout: () => protocolDiagramLayout,
-          setProtocolDiagramLayout,
-        }),
-      { wrapper }
-    );
-    const mockRf = createMockInstance(result);
-
-    act(() => {
-      result.current.onInit(mockRf);
-    });
-
-    const flowData = buildFlowData({
-      nodes: [
-        buildFlowNode({
-          id: "group-template",
-          type: "shadcnGroup",
-          position: { x: 20, y: 20 },
-          data: {
-            title: "Template Group",
-            width: 320,
-            height: 220,
-            isGroup: true,
-          },
-        }),
-        buildFlowNode({
-          id: "child-template",
-          type: "calculation",
-          parentId: "group-template",
-          extent: "parent",
-          position: { x: 40, y: 40 },
-          data: { functionName: "identity" },
-        }),
-      ],
-      edges: [],
-      protocolDiagramLayout: {
-        groupOffsets: {
-          "group-template": {
-            dx: 111,
-            dy: -42,
-          },
-        },
-      },
-    });
-
-    const event = {
-      preventDefault: vi.fn(),
-      dataTransfer: {
-        getData: (type: string) =>
-          type === "application/reactflow"
-            ? JSON.stringify({
-                functionName: "flow_template",
-                nodeData: { flowData },
-              })
-            : "",
-      },
-      clientX: 100,
-      clientY: 120,
-    } as unknown as React.DragEvent<HTMLDivElement>;
-
-    act(() => {
-      result.current.onDrop(event);
-    });
-
-    const importedGroup = result.current.nodes.find(
-      (node) =>
-        node.type === "shadcnGroup" &&
-        node.data?.title === "Template Group"
-    );
-    expect(importedGroup).toBeDefined();
-    expect(setProtocolDiagramLayout).toHaveBeenCalled();
-    expect(protocolDiagramLayout?.groupOffsets?.[importedGroup!.id]).toEqual({
-      dx: 111,
-      dy: -42,
-    });
-  });
-
   it("groups selected nodes into a new group", () => {
     const { result } = renderHook(() => useNodeOperations(), { wrapper });
     const mockRf = createMockInstance(result);
@@ -304,6 +293,7 @@ const createMockInstance = (
 
     const group = result.current.nodes.find((n) => n.type === "shadcnGroup");
     expect(group).toBeDefined();
+    expect(group?.data.fontSize).toBe(44);
     expect(result.current.nodes.filter((n) => n.parentId === group?.id)).toHaveLength(2);
   });
 

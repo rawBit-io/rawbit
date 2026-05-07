@@ -4,25 +4,25 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --background: 0 0% 99%;
+    --foreground: 0 0% 13%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: 0 0% 13%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
+    --popover-foreground: 0 0% 13%;
+    --primary: 0 0% 16%;
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
+    --secondary-foreground: 0 0% 16%;
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
     --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
+    --accent-foreground: 0 0% 16%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
+    --ring: 0 0% 16%;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -38,25 +38,25 @@
     --controls-color: #6b7280; /* Tailwind gray-500, adjust as needed */
   }
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
+    --background: 220 8% 9%;
+    --foreground: 220 9% 90%;
+    --card: 220 8% 11%;
+    --card-foreground: 220 9% 90%;
+    --popover: 220 8% 11%;
+    --popover-foreground: 220 9% 90%;
+    --primary: 220 9% 88%;
+    --primary-foreground: 220 8% 9%;
+    --secondary: 220 7% 17%;
+    --secondary-foreground: 220 9% 90%;
+    --muted: 220 7% 17%;
+    --muted-foreground: 220 6% 66%;
+    --accent: 220 7% 18%;
+    --accent-foreground: 220 9% 90%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    --destructive-foreground: 220 9% 90%;
+    --border: 220 7% 24%;
+    --input: 220 7% 25%;
+    --ring: 220 8% 70%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -75,22 +75,22 @@
   [data-skin="paper"] {
     --radius: 0.5rem;
     --background: 42 43% 94%;
-    --foreground: 26 24% 20%;
-    --card: 40 48% 97%;
-    --card-foreground: 26 24% 20%;
-    --popover: 40 48% 97%;
-    --popover-foreground: 26 24% 20%;
-    --primary: 22 58% 37%;
+    --foreground: 24 28% 15%;
+    --card: 42 60% 98%;
+    --card-foreground: 24 28% 15%;
+    --popover: 42 60% 98%;
+    --popover-foreground: 24 28% 15%;
+    --primary: 21 64% 31%;
     --primary-foreground: 42 48% 96%;
     --secondary: 38 34% 88%;
     --secondary-foreground: 26 24% 20%;
     --muted: 38 32% 89%;
-    --muted-foreground: 28 16% 44%;
+    --muted-foreground: 27 20% 32%;
     --accent: 36 20% 86%;
     --accent-foreground: 26 24% 20%;
-    --border: 35 27% 74%;
-    --input: 35 27% 74%;
-    --ring: 22 58% 41%;
+    --border: 31 28% 58%;
+    --input: 31 28% 58%;
+    --ring: 22 62% 36%;
     --controls-color: #6b4d34;
     --skin-accent-hover-alpha: 0.42;
   }
@@ -98,22 +98,22 @@
   /* ===================== Paper Ledger skin — dark ===================== */
   [data-skin="paper"].dark {
     --background: 24 16% 13%;
-    --foreground: 42 35% 89%;
-    --card: 24 14% 17%;
-    --card-foreground: 42 35% 89%;
-    --popover: 24 14% 17%;
-    --popover-foreground: 42 35% 89%;
-    --primary: 33 74% 62%;
+    --foreground: 42 42% 92%;
+    --card: 24 13% 19%;
+    --card-foreground: 42 42% 92%;
+    --popover: 24 13% 19%;
+    --popover-foreground: 42 42% 92%;
+    --primary: 34 84% 70%;
     --primary-foreground: 24 16% 13%;
     --secondary: 23 12% 23%;
     --secondary-foreground: 42 35% 89%;
     --muted: 23 12% 23%;
-    --muted-foreground: 34 16% 63%;
+    --muted-foreground: 36 22% 74%;
     --accent: 24 10% 30%;
     --accent-foreground: 42 35% 89%;
-    --border: 24 12% 32%;
-    --input: 24 12% 34%;
-    --ring: 33 74% 58%;
+    --border: 31 18% 46%;
+    --input: 31 18% 48%;
+    --ring: 34 82% 64%;
     --controls-color: #d7c09a;
     --skin-accent-hover-alpha: 0.34;
   }
@@ -121,48 +121,48 @@
   /* ===================== Midnight Signal skin — light ===================== */
   [data-skin="midnight"] {
     --radius: 0.75rem;
-    --background: 223 27% 96%;
-    --foreground: 228 36% 19%;
+    --background: 218 20% 97%;
+    --foreground: 226 24% 18%;
     --card: 0 0% 100%;
-    --card-foreground: 228 36% 19%;
+    --card-foreground: 226 24% 18%;
     --popover: 0 0% 100%;
-    --popover-foreground: 228 36% 19%;
-    --primary: 224 62% 47%;
+    --popover-foreground: 226 24% 18%;
+    --primary: 191 76% 38%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 225 22% 90%;
-    --secondary-foreground: 228 36% 19%;
-    --muted: 225 20% 91%;
-    --muted-foreground: 224 14% 45%;
-    --accent: 224 22% 86%;
-    --accent-foreground: 228 36% 19%;
-    --border: 224 20% 81%;
-    --input: 224 20% 82%;
-    --ring: 196 74% 42%;
-    --controls-color: #304c75;
-    --skin-accent-hover-alpha: 0.4;
+    --secondary: 218 16% 91%;
+    --secondary-foreground: 226 24% 18%;
+    --muted: 218 15% 92%;
+    --muted-foreground: 222 12% 45%;
+    --accent: 190 28% 88%;
+    --accent-foreground: 226 24% 18%;
+    --border: 218 15% 80%;
+    --input: 218 15% 82%;
+    --ring: 191 76% 40%;
+    --controls-color: #2d5568;
+    --skin-accent-hover-alpha: 0.34;
   }
 
   /* ===================== Midnight Signal skin — dark ===================== */
   [data-skin="midnight"].dark {
-    --background: 226 28% 8%;
-    --foreground: 214 21% 92%;
-    --card: 226 24% 12%;
-    --card-foreground: 214 21% 92%;
-    --popover: 226 24% 12%;
-    --popover-foreground: 214 21% 92%;
-    --primary: 191 93% 60%;
-    --primary-foreground: 226 28% 8%;
-    --secondary: 226 16% 19%;
-    --secondary-foreground: 214 21% 92%;
-    --muted: 226 16% 19%;
-    --muted-foreground: 218 14% 64%;
-    --accent: 224 14% 24%;
-    --accent-foreground: 214 21% 92%;
-    --border: 224 14% 25%;
-    --input: 224 14% 28%;
-    --ring: 191 93% 60%;
-    --controls-color: #89a7d2;
-    --skin-accent-hover-alpha: 0.32;
+    --background: 222 18% 9%;
+    --foreground: 210 24% 92%;
+    --card: 222 15% 14%;
+    --card-foreground: 210 24% 92%;
+    --popover: 222 15% 14%;
+    --popover-foreground: 210 24% 92%;
+    --primary: 189 92% 59%;
+    --primary-foreground: 222 18% 9%;
+    --secondary: 220 12% 20%;
+    --secondary-foreground: 210 24% 92%;
+    --muted: 220 12% 18%;
+    --muted-foreground: 215 13% 66%;
+    --accent: 188 24% 18%;
+    --accent-foreground: 210 24% 92%;
+    --border: 218 13% 27%;
+    --input: 218 13% 30%;
+    --ring: 189 92% 59%;
+    --controls-color: #91dff0;
+    --skin-accent-hover-alpha: 0.28;
   }
 
 }
@@ -188,6 +188,147 @@
   display: none;
 }
 
+.app-tabbar {
+  --tabbar-fade: hsl(var(--background) / 0.96);
+  border-bottom: 0;
+  background: hsl(var(--background) / 0.94);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 28px -28px hsl(var(--foreground) / 0.55);
+}
+
+.dark .app-tabbar {
+  --tabbar-fade: hsl(var(--background) / 0.94);
+  background: hsl(var(--background) / 0.92);
+}
+
+.app-tabbar::before,
+.app-tabbar::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.app-tabbar::before {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: hsl(var(--border) / 0.58);
+  z-index: 1;
+}
+
+.dark .app-tabbar::before {
+  background: hsl(var(--border) / 0.48);
+}
+
+.app-tabbar::after {
+  top: 0;
+  bottom: 0;
+  width: 1.1rem;
+  z-index: 3;
+}
+
+.app-tabbar::after {
+  right: 0;
+  background: linear-gradient(to left, var(--tabbar-fade), transparent);
+}
+
+.app-tabbar-scroll,
+.app-tabbar-track {
+  position: relative;
+  z-index: 2;
+}
+
+.app-tab {
+  min-width: 0;
+  max-width: 13rem;
+  color: hsl(var(--muted-foreground));
+  transition:
+    background-color 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+.app-tab:hover {
+  color: hsl(var(--foreground));
+}
+
+.app-tab[data-state="active"] {
+  color: hsl(var(--foreground));
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.app-tab[data-state="active"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.72;
+}
+
+.app-tab-title {
+  min-width: 0;
+}
+
+.app-tab-close {
+  display: inline-flex;
+  color: currentColor;
+  opacity: 0;
+  transform: scale(0.94);
+  transition:
+    background-color 140ms ease,
+    opacity 140ms ease,
+    transform 140ms ease;
+}
+
+.app-tab[data-state="active"] .app-tab-close {
+  opacity: 0.42;
+}
+
+.app-tab:hover .app-tab-close,
+.app-tab:focus-within .app-tab-close,
+.app-tab-close:hover {
+  opacity: 0.9;
+  transform: scale(1);
+}
+
+.app-tab-close:hover {
+  background: hsl(var(--accent) / 0.92);
+}
+
+.app-tab-rename-input {
+  height: 1.6rem;
+}
+
+.app-tabbar-add {
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    transform 140ms ease;
+}
+
+.app-tabbar-add:hover,
+.app-tabbar-add:focus-visible {
+  border-color: transparent;
+  background: hsl(var(--muted) / 0.7);
+  color: hsl(var(--foreground));
+}
+
+.app-tabbar-add:active {
+  transform: scale(0.96);
+}
+
 /* 
    By default, React Flow puts edges behind nodes. 
    We only want to push *this group node* behind the edges, 
@@ -205,9 +346,30 @@
   transform: translateZ(0);
 }
 
+.react-flow__node-calculation > * > .calc-node-header,
+.react-flow__node-opCodeNode > * > .calc-node-header {
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  overflow: hidden;
+}
+
 /* The group node => behind edges: z-index: 0 */
 .react-flow__node-shadcnGroup {
+  --group-node-radius: 2rem;
   z-index: 0 !important;
+}
+
+.react-flow__node-shadcnGroup > * {
+  border-radius: var(--group-node-radius) !important;
+}
+
+.react-flow__node-shadcnGroup [data-testid="group-fill"] {
+  opacity: var(--group-light-fill-opacity, 0.07);
+  border-radius: var(--group-node-radius) !important;
+}
+
+.dark .react-flow__node-shadcnGroup [data-testid="group-fill"] {
+  opacity: var(--group-dark-fill-opacity, 0.07);
 }
 
 /* Edges => in the middle: z-index: 1 (so above group, but below normal nodes) */
@@ -248,7 +410,242 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
 /* Make sure the handle is visible and clickable */
 .react-flow__node-shadcnTextInfo {
   /* Ensure node itself doesn't clip the handles */
+  --text-info-node-radius: 2rem;
   overflow: visible !important;
+}
+
+.react-flow__node-shadcnTextInfo > * {
+  border-radius: var(--text-info-node-radius) !important;
+}
+
+.text-info-fill {
+  background-color: #eab308;
+  opacity: var(--group-light-fill-opacity, 0.07);
+  border-radius: var(--text-info-node-radius, 2rem) !important;
+}
+
+.dark .text-info-fill {
+  background-color: hsl(var(--card) / 0.42);
+  opacity: 1;
+}
+
+.has-palette-fill {
+  background-color: currentColor;
+  opacity: var(--group-light-fill-opacity, 0.07);
+}
+
+.dark .has-palette-fill {
+  opacity: var(--group-dark-fill-opacity, 0.07);
+}
+
+.text-info-markdown {
+  max-width: 72ch;
+  color: hsl(var(--foreground));
+  font-family: inherit;
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+.text-info-markdown :where(*) {
+  letter-spacing: 0;
+}
+
+.text-info-markdown :where(:first-child) {
+  margin-top: 0;
+}
+
+.text-info-markdown :where(:last-child) {
+  margin-bottom: 0;
+}
+
+.text-info-markdown :where(h1, h2, h3) {
+  color: hsl(var(--primary));
+  font-weight: 700;
+  line-height: 1.18;
+  text-wrap: balance;
+}
+
+.text-info-markdown h1 {
+  margin: 0.05em 0 0.42em;
+  font-size: 1.25em;
+}
+
+.text-info-markdown h2 {
+  margin: 0.68em 0 0.3em;
+  font-size: 1.08em;
+}
+
+.text-info-markdown h3 {
+  margin: 0.58em 0 0.25em;
+  font-size: 1em;
+}
+
+.text-info-markdown :where(p, ul, ol, blockquote, pre) {
+  margin: 0.38em 0;
+}
+
+.text-info-markdown :where(p) {
+  max-width: 68ch;
+}
+
+.text-info-markdown :where(strong) {
+  font-weight: 700;
+}
+
+.text-info-markdown :where(em) {
+  color: hsl(var(--foreground) / 0.82);
+}
+
+.text-info-markdown :where(ul, ol) {
+  list-style-position: outside;
+  padding-left: 1.12em;
+}
+
+.text-info-markdown :where(ul) {
+  list-style-type: disc;
+}
+
+.text-info-markdown :where(ol) {
+  list-style-type: decimal;
+}
+
+.text-info-markdown :where(ul ul) {
+  list-style-type: circle;
+}
+
+.text-info-markdown :where(ol ol) {
+  list-style-type: lower-alpha;
+}
+
+.text-info-markdown :where(ul ul, ul ol, ol ul, ol ol) {
+  margin: 0.18em 0 0.22em;
+  padding-left: 1em;
+}
+
+.text-info-markdown :where(li) {
+  padding-left: 0.06em;
+}
+
+.text-info-markdown :where(li + li) {
+  margin-top: 0.16em;
+}
+
+.text-info-markdown :where(li)::marker {
+  color: hsl(var(--primary) / 0.82);
+  font-size: 0.84em;
+}
+
+.text-info-markdown :where(code) {
+  border: 1px solid hsl(var(--border) / 0.42);
+  border-radius: 0.28rem;
+  background: hsl(var(--muted) / 0.34);
+  padding: 0.02em 0.24em;
+  font-family: "JetBrains Mono", "Fira Code", SFMono-Regular, Consolas, monospace;
+  font-size: 0.9em;
+}
+
+.text-info-markdown :where(pre) {
+  border: 1px solid hsl(var(--border) / 0.55);
+  border-radius: 0.6rem;
+  background: hsl(var(--muted) / 0.28);
+  padding: 0.62em 0.72em;
+  overflow: auto;
+  box-shadow: inset 0 0 0 1px hsl(var(--background) / 0.24);
+}
+
+.text-info-markdown :where(pre code) {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 0.84em;
+  line-height: 1.48;
+  white-space: pre;
+  overflow-wrap: normal;
+}
+
+.text-info-markdown :where(a) {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.text-info-markdown :where(blockquote) {
+  border-left: 3px solid hsl(var(--primary) / 0.5);
+  border-radius: 0.45rem;
+  background: hsl(var(--muted) / 0.26);
+  padding: 0.5em 0.7em;
+  color: hsl(var(--foreground) / 0.86);
+}
+
+.text-info-markdown :where(table) {
+  width: 100%;
+  margin: 0.5em 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border: 1px solid hsl(var(--border) / 0.56);
+  border-radius: 0.55rem;
+  font-size: 0.9em;
+}
+
+.text-info-markdown :where(th, td) {
+  border-bottom: 1px solid hsl(var(--border) / 0.44);
+  padding: 0.42em 0.55em;
+  text-align: left;
+  vertical-align: top;
+}
+
+.text-info-markdown :where(th) {
+  background: hsl(var(--muted) / 0.28);
+  color: hsl(var(--primary));
+  font-weight: 700;
+}
+
+.text-info-markdown :where(tr:last-child td) {
+  border-bottom: 0;
+}
+
+.text-info-placeholder {
+  color: hsl(var(--muted-foreground) / 0.52) !important;
+  font-style: italic;
+}
+
+.text-info-placeholder :where(*) {
+  color: inherit !important;
+}
+
+.field-surface {
+  background-color: hsl(var(--muted) / 0.22) !important;
+}
+
+.dark .field-surface {
+  background-color: hsl(var(--muted) / 0.18) !important;
+}
+
+.react-flow__node-calculation textarea.field-surface.border-dashed {
+  border-width: 2px !important;
+  border-style: dashed !important;
+  border-radius: 0.45rem;
+  padding: 0.65rem 0.75rem;
+  line-height: 1.45;
+}
+
+.react-flow__node-calculation .tx-field-extract-raw-field textarea.field-surface {
+  height: calc(3 * 1.45em + 1.3rem + 4px) !important;
+  max-height: calc(3 * 1.45em + 1.3rem + 4px) !important;
+  overflow-y: auto !important;
+}
+
+.react-flow__node-calculation .calc-node-header-simple {
+  padding-bottom: 0.25rem;
+}
+
+.react-flow__node-calculation .calc-node-content-simple {
+  padding: 0.55rem 1rem 0.95rem;
+}
+
+.react-flow__node-calculation .calc-node-result-simple {
+  line-height: 1.45;
 }
 
 /* ===================== CONTROL OVERRIDES ===================== */
@@ -287,28 +684,238 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
   stroke-width: 1;
 }
 
+.minimap-hidden {
+  display: none !important;
+}
+
 /* Diagram-bundle edge highlighting uses React Flow selection state. */
 .react-flow__edge .react-flow__edge-path {
-  stroke-width: 1.4 !important;
+  stroke-width: var(--edge-light-stroke-width, 1.4px) !important;
   stroke-linecap: round !important;
 }
 
 .react-flow__edge.selected .react-flow__edge-path {
   stroke: #2563eb !important;
-  stroke-width: 2.4 !important;
+  stroke-width: var(--edge-light-selected-stroke-width, 2.4px) !important;
+}
+
+.dark .react-flow__edge .react-flow__edge-path {
+  stroke-width: var(--edge-dark-stroke-width, 1.4px) !important;
 }
 
 .dark .react-flow__edge.selected .react-flow__edge-path {
   stroke: #60a5fa !important;
+  stroke-width: var(--edge-dark-selected-stroke-width, 2.4px) !important;
 }
 
 /* Non-selected edge visibility is shared across skins. */
 .react-flow__edge:not(.selected) .react-flow__edge-path {
-  opacity: var(--edge-light-opacity, 0.45) !important;
+  opacity: var(--edge-light-opacity, 0.65) !important;
 }
 
 .dark .react-flow__edge:not(.selected) .react-flow__edge-path {
-  opacity: var(--edge-dark-opacity, 0.45) !important;
+  opacity: var(--edge-dark-opacity, 0.65) !important;
+}
+
+.editable-edge-control-point {
+  position: absolute;
+  z-index: 5;
+  width: 14px;
+  height: 14px;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  border: 1.4px solid hsl(var(--foreground) / 0.58);
+  background: hsl(var(--background) / 0.94);
+  box-shadow: 0 0 0 2px hsl(var(--background) / 0.82);
+  cursor: grab;
+  opacity: 0.46;
+  pointer-events: all;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    opacity 120ms ease;
+}
+
+.editable-edge-control-point > span {
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: 0.82;
+}
+
+.editable-edge-control-point:hover,
+.editable-edge-control-point:focus-visible,
+.editable-edge-control-point-active {
+  border-color: hsl(var(--primary));
+  box-shadow:
+    0 0 0 2px hsl(var(--background)),
+    0 0 0 5px hsl(var(--primary) / 0.16);
+  opacity: 0.95;
+}
+
+.editable-edge-control-point:active {
+  cursor: grabbing;
+}
+
+.group-bundle-curve-control-point {
+  width: 22px;
+  height: 22px;
+  border: 2px solid hsl(var(--muted-foreground) / 0.82);
+  background: hsl(var(--background) / 0.92);
+  box-shadow: 0 0 0 2px hsl(var(--background) / 0.92);
+  cursor: pointer;
+  opacity: 0.96;
+}
+
+.group-bundle-curve-control-point > span {
+  display: none;
+}
+
+.group-bundle-curve-control-point:hover,
+.group-bundle-curve-control-point:focus-visible,
+.group-bundle-curve-control-point.editable-edge-control-point-active {
+  border-color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  box-shadow:
+    0 0 0 2px hsl(var(--background)),
+    0 0 0 6px hsl(var(--primary) / 0.16);
+  opacity: 1;
+}
+
+.group-bundle-curve-control-point:active {
+  cursor: pointer;
+}
+
+/* Group-to-group bundle edges are derived render helpers for dense flows. */
+.group-bundle-outside-path {
+  opacity: var(--edge-light-opacity, 0.65);
+  stroke-width: var(--group-bundle-light-outside-edge-width, 2px);
+}
+
+.react-flow__edge.group-bundle-segment-edge .react-flow__edge-path {
+  stroke-width: var(--edge-light-dashed-stroke-width, 1.4px) !important;
+  stroke-dasharray: 6 5 !important;
+  opacity: var(--edge-light-dashed-opacity, 0.325) !important;
+}
+
+.react-flow__edge.group-bundle-segment-edge,
+.react-flow__edge.group-bundle-segment-edge .react-flow__edge-interaction {
+  cursor: pointer !important;
+}
+
+.dark .react-flow__edge.group-bundle-segment-edge .react-flow__edge-path {
+  stroke-width: var(--edge-dark-dashed-stroke-width, 1.4px) !important;
+  opacity: var(--edge-dark-dashed-opacity, 0.325) !important;
+}
+
+.react-flow__edge.group-bundle-segment-edge.selected .react-flow__edge-path,
+.react-flow__edge.group-bundle-segment-edge.group-bundle-edge-path-selected
+  .react-flow__edge-path {
+  stroke-width: var(--edge-light-dashed-selected-stroke-width, 2.1px) !important;
+  stroke-dasharray: 7 5 !important;
+  opacity: 0.95 !important;
+}
+
+.dark .react-flow__edge.group-bundle-segment-edge.selected .react-flow__edge-path,
+.dark
+  .react-flow__edge.group-bundle-segment-edge.group-bundle-edge-path-selected
+  .react-flow__edge-path {
+  stroke-width: var(--edge-dark-dashed-selected-stroke-width, 2.1px) !important;
+}
+
+.react-flow__node-groupBundlePort {
+  cursor: ns-resize !important;
+}
+
+.group-bundle-port-node {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  border: 1.5px solid hsl(var(--foreground) / 0.65);
+  background: hsl(var(--background) / 0.92);
+  box-shadow: 0 0 0 2px hsl(var(--background) / 0.85);
+  cursor: ns-resize;
+  pointer-events: auto;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    transform 120ms ease;
+}
+
+.group-bundle-port-node::before {
+  content: "";
+  width: 2px;
+  height: 10px;
+  border-top: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.react-flow__node-groupBundlePort:hover .group-bundle-port-node {
+  border-color: hsl(var(--primary));
+  box-shadow:
+    0 0 0 2px hsl(var(--background)),
+    0 0 0 5px hsl(var(--primary) / 0.18);
+  transform: scale(1.12);
+}
+
+.react-flow__node-groupBundlePort:hover .group-bundle-port-node::before {
+  opacity: 0.85;
+}
+
+.group-bundle-port-handle {
+  left: 50% !important;
+  right: auto !important;
+  top: 50% !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  width: 2px !important;
+  height: 2px !important;
+  min-width: 2px !important;
+  min-height: 2px !important;
+  border: 0 !important;
+  background: transparent !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.group-bundle-port {
+  opacity: calc(var(--edge-light-opacity, 0.65) + 0.08);
+}
+
+.group-bundle-hit-path {
+  pointer-events: stroke;
+}
+
+.dark .group-bundle-outside-path {
+  opacity: var(--edge-dark-opacity, 0.65);
+  stroke-width: var(--group-bundle-dark-outside-edge-width, 2px);
+}
+
+.dark .group-bundle-port {
+  opacity: calc(var(--edge-dark-opacity, 0.65) + 0.08);
+}
+
+.group-bundle-edge-path-selected {
+  stroke: #2563eb !important;
+  opacity: 0.95 !important;
+}
+
+.group-bundle-outside-path.group-bundle-edge-path-selected {
+  stroke-width: var(--group-bundle-light-outside-selected-edge-width, 3.1px);
+}
+
+.dark .group-bundle-edge-path-selected {
+  stroke: #60a5fa !important;
+}
+
+.dark .group-bundle-outside-path.group-bundle-edge-path-selected {
+  stroke-width: var(--group-bundle-dark-outside-selected-edge-width, 3.1px);
 }
 
 /* ===================== Large-drag low-detail mode ===================== */
@@ -330,6 +937,131 @@ body[data-large-drag="true"] .rf-node {
   will-change: transform;
 }
 
+/* ===================== Shadcn skin — class overrides ===================== */
+
+[data-skin="shadcn"] {
+  --background: 36 18% 97%;
+  --foreground: 222 13% 17%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 13% 17%;
+  --muted: 36 15% 91%;
+  --muted-foreground: 220 7% 43%;
+  --accent: 36 18% 91%;
+  --accent-foreground: 222 13% 17%;
+  --border: 32 12% 82%;
+  --input: 32 12% 80%;
+  --ring: 222 12% 34%;
+}
+
+.dark[data-skin="shadcn"] {
+  --background: 222 10% 11%;
+  --foreground: 220 8% 88%;
+  --card: 222 9% 14%;
+  --card-foreground: 220 8% 88%;
+  --muted: 222 8% 19%;
+  --muted-foreground: 220 6% 64%;
+  --accent: 222 8% 20%;
+  --accent-foreground: 220 8% 88%;
+  --border: 222 7% 27%;
+  --input: 222 7% 29%;
+  --ring: 220 7% 68%;
+}
+
+[data-skin="shadcn"] .react-flow__node-calculation > * {
+  border-color: hsl(var(--border) / 0.76);
+  background: hsl(var(--card)) !important;
+  box-shadow: 0 10px 18px -26px hsl(var(--foreground) / 0.5) !important;
+}
+
+[data-skin="shadcn"] .react-flow__node-calculation > * > :first-child,
+[data-skin="shadcn"] .react-flow__node-opCodeNode > * > :first-child {
+  background: hsl(var(--muted) / 0.36);
+}
+
+.dark[data-skin="shadcn"] .react-flow__node-calculation > * > :first-child,
+.dark[data-skin="shadcn"] .react-flow__node-opCodeNode > * > :first-child {
+  background: hsl(var(--muted) / 0.36);
+}
+
+[data-skin="shadcn"] .react-flow__node-shadcnGroup > * {
+  border-color: hsl(var(--border) / 0.88);
+  background-color: hsl(var(--background) / 0.62) !important;
+}
+
+.dark[data-skin="shadcn"] .react-flow__node-shadcnGroup > * {
+  border-color: hsl(var(--border) / 0.72);
+  background-color: hsl(var(--card) / 0.46) !important;
+}
+
+[data-skin="shadcn"] .react-flow__node-shadcnTextInfo [data-testid="text-info-fill"]:not(.has-palette-fill) {
+  background-color: hsl(var(--muted));
+  opacity: 0.62 !important;
+}
+
+.dark[data-skin="shadcn"] .react-flow__node-shadcnTextInfo [data-testid="text-info-fill"]:not(.has-palette-fill) {
+  background-color: hsl(var(--muted) / 0.62);
+  opacity: 1 !important;
+}
+
+[data-skin="shadcn"] .react-flow__node.selected:not(.is-highlighted) > * {
+  border-color: hsl(var(--primary) / 0.58) !important;
+}
+
+[data-skin="shadcn"] .minimap-group {
+  fill: hsl(var(--foreground) / 0.045) !important;
+  stroke: hsl(var(--foreground) / 0.22);
+  stroke-width: 1.1;
+}
+
+.dark[data-skin="shadcn"] .minimap-group {
+  fill: hsl(var(--foreground) / 0.06) !important;
+  stroke: hsl(var(--foreground) / 0.26);
+}
+
+[data-skin="shadcn"] .app-tabbar {
+  --tabbar-fade: hsl(var(--background) / 0.96);
+  background: hsl(var(--background) / 0.95);
+}
+
+.dark[data-skin="shadcn"] .app-tabbar {
+  --tabbar-fade: hsl(var(--background) / 0.94);
+  background: hsl(var(--background) / 0.92);
+}
+
+[data-skin="shadcn"] .react-flow__node-shadcnTextInfo > * {
+  border-color: hsl(var(--foreground) / 0.22);
+  box-shadow: 0 12px 24px -22px hsl(var(--foreground) / 0.62) !important;
+}
+
+.dark[data-skin="shadcn"] .react-flow__node-shadcnTextInfo > * {
+  border-color: hsl(var(--foreground) / 0.2);
+  box-shadow: 0 14px 30px -22px hsl(0 0% 0% / 0.86) !important;
+}
+
+[data-skin="shadcn"] .react-flow__node-shadcnTextInfo:hover > * {
+  border-color: hsl(var(--foreground) / 0.34);
+}
+
+.dark[data-skin="shadcn"] .react-flow__node-shadcnTextInfo:hover > * {
+  border-color: hsl(var(--foreground) / 0.42);
+}
+
+[data-skin="shadcn"] .react-flow__node-shadcnTextInfo [data-testid="text-info-header"] {
+  border-color: hsl(var(--border) / 0.96);
+  background-color: hsl(var(--background) / 0.98);
+  box-shadow: 0 8px 18px -14px hsl(var(--foreground) / 0.4);
+}
+
+.dark[data-skin="shadcn"] .react-flow__node-shadcnTextInfo [data-testid="text-info-header"] {
+  border-color: hsl(var(--border) / 0.9);
+  background-color: hsl(var(--background) / 0.98);
+  box-shadow: 0 10px 22px -16px hsl(0 0% 0% / 0.8);
+}
+
+[data-skin="shadcn"] .field-surface {
+  background-color: hsl(var(--muted) / 0.24) !important;
+}
+
 /* ===================== Paper Ledger skin — class overrides ===================== */
 
 [data-skin="paper"] body {
@@ -344,35 +1076,113 @@ body[data-large-drag="true"] .rf-node {
     );
 }
 
+[data-skin="paper"] .app-tabbar {
+  --tabbar-fade: hsl(var(--background) / 0.96);
+  border-bottom-color: hsl(var(--primary) / 0.2);
+  background: hsl(var(--background) / 0.93);
+  box-shadow: 0 10px 24px -28px hsl(27 32% 18% / 0.7);
+}
+
+.dark[data-skin="paper"] .app-tabbar {
+  --tabbar-fade: hsl(var(--background) / 0.94);
+  border-bottom-color: hsl(var(--primary) / 0.18);
+  background: hsl(var(--background) / 0.9);
+}
+
 [data-skin="paper"] .react-flow__node {
   font-family: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", serif !important;
 }
 
 [data-skin="paper"] .react-flow__node > * {
   border-radius: 0.5rem !important;
-  border-width: 1.25px !important;
+  border-width: 1.5px !important;
   border-color: hsl(var(--border));
   background: hsl(var(--card) / 0.98) !important;
-  box-shadow: 0 10px 18px -22px hsl(27 32% 18% / 0.9) !important;
+  box-shadow: 0 8px 14px -24px hsl(27 32% 18% / 0.72) !important;
+}
+
+[data-skin="paper"] .react-flow__node-calculation > * > :first-child,
+[data-skin="paper"] .react-flow__node-opCodeNode > * > :first-child {
+  border-bottom-color: hsl(var(--border));
+  background: hsl(39 43% 87% / 0.5);
+  color: hsl(var(--primary));
+}
+
+.dark[data-skin="paper"] .react-flow__node-calculation > * > :first-child,
+.dark[data-skin="paper"] .react-flow__node-opCodeNode > * > :first-child {
+  border-bottom-color: hsl(var(--border));
+  background: hsl(29 20% 26% / 0.84);
+  color: hsl(var(--primary));
 }
 
 [data-skin="paper"] .react-flow__node-shadcnGroup > * {
-  border-radius: 0.625rem !important;
+  border-radius: var(--group-node-radius) !important;
   border-width: 1.5px !important;
-  border-color: hsl(var(--primary) / 0.5);
-  background-color: hsl(var(--background) / 0.8) !important;
+  border-color: hsl(var(--primary) / 0.38);
+  background-color: hsl(var(--background) / 0.74) !important;
 }
 
-[data-skin="paper"] .react-flow__node-shadcnGroup [data-drag-handle] {
-  border-bottom-color: hsl(var(--primary) / 0.28) !important;
+.dark[data-skin="paper"] .react-flow__node-shadcnGroup > * {
+  border-color: hsl(var(--primary) / 0.32);
+  background-color: hsl(var(--card) / 0.42) !important;
 }
 
 [data-skin="paper"] .react-flow__node-shadcnGroup [data-testid="group-fill"] {
-  opacity: 0.08 !important;
+  opacity: calc(var(--group-light-fill-opacity, 0.07) * 0.68) !important;
+}
+
+.dark[data-skin="paper"] .react-flow__node-shadcnGroup [data-testid="group-fill"] {
+  opacity: calc(var(--group-dark-fill-opacity, 0.07) * 0.68) !important;
+}
+
+[data-skin="paper"] .react-flow__node-shadcnTextInfo > * {
+  border-radius: var(--text-info-node-radius) !important;
+}
+
+[data-skin="paper"] .react-flow__node-shadcnTextInfo [data-testid="text-info-fill"] {
+  opacity: var(--group-light-fill-opacity, 0.07) !important;
+}
+
+.dark[data-skin="paper"] .react-flow__node-shadcnTextInfo [data-testid="text-info-fill"] {
+  background-color: hsl(var(--primary) / 0.08);
+  opacity: 1 !important;
+}
+
+[data-skin="paper"] .react-flow__node-shadcnTextInfo [data-testid="text-info-fill"].has-palette-fill {
+  opacity: var(--group-light-fill-opacity, 0.07) !important;
+}
+
+.dark[data-skin="paper"] .react-flow__node-shadcnTextInfo [data-testid="text-info-fill"].has-palette-fill {
+  opacity: var(--group-dark-fill-opacity, 0.07) !important;
+}
+
+[data-skin="paper"] .field-surface {
+  border-color: hsl(var(--input)) !important;
+  background-color: hsl(42 56% 96% / 0.94) !important;
+}
+
+.dark[data-skin="paper"] .field-surface {
+  border-color: hsl(var(--input)) !important;
+  background-color: hsl(25 16% 24% / 0.88) !important;
+}
+
+[data-skin="paper"] .react-flow__node-calculation .calc-node-header-simple {
+  border-bottom-color: hsl(var(--border) / 0.62);
 }
 
 [data-skin="paper"] .custom-flow-controls .react-flow__controls-button {
   border-radius: 6px !important;
+}
+
+[data-skin="paper"] .minimap-group {
+  fill: hsl(var(--primary) / 0.055) !important;
+  stroke: hsl(var(--primary) / 0.36);
+  stroke-width: 1.15;
+}
+
+.dark[data-skin="paper"] .minimap-group {
+  fill: hsl(var(--primary) / 0.07) !important;
+  stroke: hsl(var(--primary) / 0.32);
 }
 
 [data-skin="paper"] .react-flow__handle {
@@ -400,44 +1210,135 @@ body[data-large-drag="true"] .rf-node {
 /* ===================== Midnight Signal skin — class overrides ===================== */
 
 [data-skin="midnight"] body {
-  font-family: "Sora", "IBM Plex Sans", "Ubuntu", sans-serif;
+  font-family: Inter, "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   background-image:
-    radial-gradient(64rem 38rem at 50% -18%, hsl(194 95% 54% / 0.15), transparent 60%),
-    radial-gradient(48rem 28rem at 98% 98%, hsl(42 92% 57% / 0.12), transparent 56%);
+    radial-gradient(64rem 38rem at 50% -18%, hsl(var(--primary) / 0.09), transparent 62%),
+    radial-gradient(48rem 28rem at 98% 98%, hsl(42 92% 57% / 0.06), transparent 58%);
+}
+
+.dark[data-skin="midnight"] body {
+  background-image:
+    radial-gradient(64rem 38rem at 50% -18%, hsl(var(--primary) / 0.075), transparent 64%),
+    radial-gradient(48rem 28rem at 98% 98%, hsl(42 92% 57% / 0.035), transparent 60%);
+}
+
+[data-skin="midnight"] .app-tabbar {
+  --tabbar-fade: hsl(var(--background) / 0.96);
+  border-bottom-color: hsl(var(--primary) / 0.18);
+  background: hsl(var(--background) / 0.9);
+  box-shadow: 0 10px 24px -28px hsl(191 76% 18% / 0.7);
+}
+
+.dark[data-skin="midnight"] .app-tabbar {
+  --tabbar-fade: hsl(var(--background) / 0.95);
+  border-bottom-color: hsl(var(--primary) / 0.16);
+  background: hsl(var(--background) / 0.92);
 }
 
 [data-skin="midnight"] .react-flow__node {
-  font-family: "Sora", "IBM Plex Sans", "Ubuntu", sans-serif !important;
-  letter-spacing: 0.01em;
+  font-family: Inter, "IBM Plex Sans", "Segoe UI", system-ui, sans-serif !important;
+  letter-spacing: 0;
+}
+
+[data-skin="midnight"] .react-flow__node-shadcnTextInfo {
+  font-family: Inter, "IBM Plex Sans", "Segoe UI", system-ui, sans-serif !important;
+  letter-spacing: 0;
+}
+
+[data-skin="midnight"] [data-testid="sidebar"] {
+  font-family: Inter, "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0;
+}
+
+[data-skin="midnight"] .react-flow__node .font-mono {
+  font-family: "JetBrains Mono", "Fira Code", SFMono-Regular, Consolas, monospace !important;
+  letter-spacing: 0;
+}
+
+[data-skin="midnight"] .node-title,
+[data-skin="midnight"] .group-node-title {
+  font-family: "JetBrains Mono", "Fira Code", SFMono-Regular, Consolas, monospace !important;
+  font-weight: 500;
+  letter-spacing: 0;
 }
 
 [data-skin="midnight"] .react-flow__node > * {
   border-radius: 0.75rem !important;
   border-width: 1.25px !important;
-  border-color: hsl(var(--primary) / 0.45);
-  background: linear-gradient(
-    180deg,
-    hsl(var(--card) / 0.95) 0%,
-    hsl(var(--background) / 0.96) 100%
-  ) !important;
-  box-shadow:
-    0 0 0 1px hsl(var(--primary) / 0.14),
-    0 16px 28px -24px hsl(224 45% 4% / 0.95) !important;
+  border-color: hsl(var(--primary) / 0.34);
+  background: hsl(var(--card) / 0.98) !important;
+  box-shadow: none !important;
+}
+
+.dark[data-skin="midnight"] .react-flow__node > * {
+  border-color: hsl(var(--primary) / 0.3);
+  background: hsl(var(--card) / 0.94) !important;
+}
+
+[data-skin="midnight"] .react-flow__node-calculation > * > :first-child,
+[data-skin="midnight"] .react-flow__node-opCodeNode > * > :first-child {
+  background: hsl(var(--secondary) / 0.24);
+}
+
+.dark[data-skin="midnight"] .react-flow__node-calculation > * > :first-child,
+.dark[data-skin="midnight"] .react-flow__node-opCodeNode > * > :first-child {
+  background: hsl(var(--secondary) / 0.3);
 }
 
 [data-skin="midnight"] .react-flow__node-shadcnGroup > * {
-  border-radius: 0.875rem !important;
+  border-radius: var(--group-node-radius) !important;
   border-width: 1.5px !important;
-  border-color: hsl(var(--accent) / 0.5);
-  background-color: hsl(var(--card) / 0.7) !important;
+  border-color: hsl(var(--primary) / 0.24);
+  background-color: hsl(var(--background) / 0.72) !important;
 }
 
-[data-skin="midnight"] .react-flow__node-shadcnGroup [data-drag-handle] {
-  border-bottom-color: hsl(var(--accent) / 0.32) !important;
+.dark[data-skin="midnight"] .react-flow__node-shadcnGroup > * {
+  border-color: hsl(var(--primary) / 0.22);
+  background-color: hsl(var(--card) / 0.38) !important;
 }
 
 [data-skin="midnight"] .react-flow__node-shadcnGroup [data-testid="group-fill"] {
-  opacity: 0.1 !important;
+  opacity: var(--group-light-fill-opacity, 0.07) !important;
+}
+
+.dark[data-skin="midnight"] .react-flow__node-shadcnGroup [data-testid="group-fill"] {
+  opacity: var(--group-dark-fill-opacity, 0.07) !important;
+}
+
+[data-skin="midnight"] .react-flow__node-shadcnTextInfo > * {
+  border-radius: var(--text-info-node-radius) !important;
+}
+
+[data-skin="midnight"] .react-flow__node-shadcnTextInfo [data-testid="text-info-fill"] {
+  background-color: hsl(var(--primary) / 0.12);
+  opacity: 1 !important;
+}
+
+.dark[data-skin="midnight"] .react-flow__node-shadcnTextInfo [data-testid="text-info-fill"] {
+  background-color: hsl(var(--secondary) / 0.62);
+  opacity: 1 !important;
+}
+
+[data-skin="midnight"] .react-flow__node-shadcnTextInfo [data-testid="text-info-fill"].has-palette-fill {
+  opacity: var(--group-light-fill-opacity, 0.07) !important;
+}
+
+.dark[data-skin="midnight"] .react-flow__node-shadcnTextInfo [data-testid="text-info-fill"].has-palette-fill {
+  opacity: var(--group-dark-fill-opacity, 0.07) !important;
+}
+
+[data-skin] .react-flow__node-shadcnTextInfo [data-testid="text-info-fill"].no-text-info-fill,
+.text-info-fill.no-text-info-fill {
+  background-color: transparent !important;
+  opacity: 0 !important;
+}
+
+[data-skin="midnight"] .field-surface {
+  background-color: hsl(var(--muted) / 0.46) !important;
+}
+
+.dark[data-skin="midnight"] .field-surface {
+  background-color: hsl(var(--secondary) / 0.5) !important;
 }
 
 [data-skin="midnight"] .custom-flow-controls .react-flow__controls-button {
@@ -446,6 +1347,8 @@ body[data-large-drag="true"] .rf-node {
 
 [data-skin="midnight"] .react-flow__handle {
   border-width: 2px !important;
+  border-color: hsl(var(--background)) !important;
+  background-color: hsl(var(--primary)) !important;
 }
 
 [data-skin="midnight"] .react-flow__node.selected > * {
@@ -461,7 +1364,7 @@ body[data-large-drag="true"] .rf-node {
   border-radius: inherit;
   box-shadow:
     0 0 0 2px hsl(var(--background)),
-    0 0 0 5px hsl(var(--ring));
+    0 0 0 4px hsl(var(--ring) / 0.86);
   z-index: 2;
 }
 

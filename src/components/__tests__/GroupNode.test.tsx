@@ -91,7 +91,7 @@ const createNode = (
     selected: true,
     data: {
       title: "Group Node",
-      fontSize: 20,
+      fontSize: 44,
       width: 600,
       height: 360,
       ...dataOverrides,
@@ -116,6 +116,47 @@ const renderGroupNode = (
   render(<ShadcnGroupNode {...buildNodeProps(node)} />);
 
   return node;
+};
+
+const revealGroupControls = () => {
+  fireEvent.click(screen.getByRole("button", { name: "Group Node" }));
+};
+
+const openGroupMenu = () => {
+  revealGroupControls();
+  fireEvent.click(screen.getByTitle("More"));
+};
+
+type PointerHandlerEvent = PointerEventInit & {
+  pointerId: number;
+  target?: EventTarget | null;
+  currentTarget?: EventTarget | null;
+  stopPropagation?: () => void;
+  preventDefault?: () => void;
+};
+
+const getReactHandlers = (
+  element: HTMLElement
+): Partial<Record<string, (event: PointerHandlerEvent) => void>> => {
+  const reactKey = Object.keys(element).find((key) =>
+    key.startsWith("__reactProps$")
+  );
+  return reactKey
+    ? ((element as unknown as Record<string, unknown>)[reactKey] as Partial<
+        Record<string, (event: PointerHandlerEvent) => void>
+      >)
+    : {};
+};
+
+const dispatchWindowPointerEvent = (
+  type: string,
+  overrides: PointerEventInit & { pointerId: number }
+) => {
+  const event = Object.assign(
+    new Event(type, { bubbles: true, cancelable: true }),
+    overrides
+  );
+  window.dispatchEvent(event);
 };
 
 beforeEach(() => {
@@ -150,106 +191,101 @@ describe("GroupNode interactions", () => {
   it("opens menu and copies id", () => {
     renderGroupNode();
 
+    expect(screen.queryByTitle("More")).not.toBeInTheDocument();
+    revealGroupControls();
+    expect(screen.getByTitle("More")).toBeInTheDocument();
     fireEvent.click(screen.getByTitle("More"));
     fireEvent.click(screen.getByText(/Copy ID/i));
 
     expect(clipboardMock.copyId).toHaveBeenCalledTimes(1);
   });
 
-  it("saves group comment from the menu and records undo state", () => {
-    renderGroupNode({ comment: "" });
+  it("shows controls after clicking the title on an unselected group", () => {
+    renderGroupNode({}, { selected: false });
 
-    fireEvent.click(screen.getByTitle("More"));
-    const commentInput = screen.getByLabelText("Group Comment");
-    fireEvent.change(commentInput, {
-      target: { value: "Derives sighash preimage components for signing." },
-    });
-    fireEvent.click(screen.getByTitle("More"));
+    expect(screen.queryByTitle("More")).not.toBeInTheDocument();
+    revealGroupControls();
 
-    act(() => {
-      vi.runAllTimers();
-    });
-
-    expect(nodes[0].data.comment).toBe(
-      "Derives sighash preimage components for signing."
-    );
-    expect(pushState).toHaveBeenCalledWith(
-      nodes,
-      edges,
-      "Update Group Comment"
-    );
+    expect(screen.getByTitle("More")).toBeInTheDocument();
   });
 
-  it("autosaves group comment while typing with debounce", () => {
-    renderGroupNode({ comment: "" });
+  it("reveals title controls on pointer release instead of pointer down", () => {
+    renderGroupNode({}, { selected: false });
 
-    fireEvent.click(screen.getByTitle("More"));
-    const commentInput = screen.getByLabelText("Group Comment");
-    fireEvent.change(commentInput, {
-      target: { value: "Auto-save comment while typing." },
-    });
+    const header = screen.getByTestId("group-header");
+    const handlers = getReactHandlers(header);
 
     act(() => {
-      vi.advanceTimersByTime(400);
-      vi.runOnlyPendingTimers();
+      handlers.onPointerDownCapture?.({
+        button: 0,
+        buttons: 1,
+        pointerId: 11,
+        clientX: 100,
+        clientY: 100,
+        target: header,
+        currentTarget: header,
+        stopPropagation: vi.fn(),
+      });
     });
 
-    expect(nodes[0].data.comment).toBe("Auto-save comment while typing.");
-    expect(pushState).toHaveBeenCalledWith(
-      nodes,
-      edges,
-      "Update Group Comment"
-    );
+    expect(screen.queryByTitle("More")).not.toBeInTheDocument();
+
+    act(() => {
+      dispatchWindowPointerEvent("pointerup", {
+        pointerId: 11,
+        clientX: 101,
+        clientY: 100,
+      });
+    });
+
+    expect(screen.getByTitle("More")).toBeInTheDocument();
   });
 
-  it("toggles flow map exclusion from the group menu and records undo state", () => {
-    renderGroupNode({ excludeFromFlowMap: false });
+  it("keeps title controls hidden after dragging from the title", () => {
+    renderGroupNode();
 
-    fireEvent.click(screen.getByTitle("More"));
-    const excludeCheckbox = screen.getByLabelText("Exclude from Flow Map");
-    fireEvent.click(excludeCheckbox);
+    const header = screen.getByTestId("group-header");
+    const handlers = getReactHandlers(header);
+    expect(screen.queryByTitle("More")).not.toBeInTheDocument();
 
     act(() => {
-      vi.runAllTimers();
+      handlers.onPointerDownCapture?.({
+        button: 0,
+        buttons: 1,
+        pointerId: 12,
+        clientX: 100,
+        clientY: 100,
+        target: header,
+        currentTarget: header,
+        stopPropagation: vi.fn(),
+      });
     });
 
-    expect(nodes[0].data.excludeFromFlowMap).toBe(true);
-    expect(pushState).toHaveBeenCalledWith(
-      nodes,
-      edges,
-      "Exclude Group From Flow Map"
-    );
+    expect(screen.queryByTitle("More")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByLabelText("Exclude from Flow Map"));
     act(() => {
-      vi.runAllTimers();
+      dispatchWindowPointerEvent("pointermove", {
+        pointerId: 12,
+        clientX: 120,
+        clientY: 100,
+      });
+      dispatchWindowPointerEvent("pointerup", {
+        pointerId: 12,
+        clientX: 120,
+        clientY: 100,
+      });
     });
 
-    expect(nodes[0].data.excludeFromFlowMap).toBeUndefined();
-    expect(pushState).toHaveBeenCalledWith(
-      nodes,
-      edges,
-      "Include Group In Flow Map"
-    );
+    expect(screen.queryByTitle("More")).not.toBeInTheDocument();
   });
 
-  it("supports long group comments beyond the previous 220-char cap", () => {
-    renderGroupNode({ comment: "" });
+  it("keeps legacy group comment data but does not show a comment editor", () => {
+    renderGroupNode({ comment: "Saved in an older flow." });
 
-    const longComment = "A".repeat(500);
+    openGroupMenu();
 
-    fireEvent.click(screen.getByTitle("More"));
-    const commentInput = screen.getByLabelText("Group Comment");
-    fireEvent.change(commentInput, {
-      target: { value: longComment },
-    });
-
-    act(() => {
-      vi.advanceTimersByTime(400);
-      vi.runOnlyPendingTimers();
-    });
-
-    expect(nodes[0].data.comment).toBe(longComment);
+    expect(screen.queryByLabelText("Group Comment")).not.toBeInTheDocument();
+    expect(nodes[0].data.comment).toBe("Saved in an older flow.");
   });
 
   it("commits title edits and records undo state", () => {
@@ -301,6 +337,7 @@ describe("GroupNode interactions", () => {
   it("increases font size with dynamic step", () => {
     renderGroupNode({ fontSize: 32 });
 
+    revealGroupControls();
     fireEvent.click(screen.getByRole("button", { name: "Increase font size" }));
 
     act(() => {
@@ -311,23 +348,32 @@ describe("GroupNode interactions", () => {
     expect(pushState).toHaveBeenCalledWith(nodes, edges, "Increase Font Size");
   });
 
-  it("grows header height as title font increases", () => {
+  it("renders a top title pill without reducing body height", () => {
     renderGroupNode({ fontSize: 48, height: 360 });
+    revealGroupControls();
 
     const header = screen.getByTestId("group-header");
     const body = screen.getByTestId("group-body");
 
     const headerHeight = parseInt(header.style.height, 10);
-    const bodyHeight = parseInt(body.style.height, 10);
-    const nodeHeight = nodes[0].data.height as number;
+    const headerWidth = parseInt(header.style.width, 10);
+    const fontSizeValue = screen.getByText("48");
+    const moreIcon = screen.getByTitle("More").querySelector("svg");
 
-    expect(headerHeight).toBeGreaterThan(36);
-    expect(bodyHeight).toBe(nodeHeight - headerHeight);
+    expect(headerHeight).toBeGreaterThan(70);
+    expect(headerWidth).toBeGreaterThan(240);
+    expect(fontSizeValue.style.fontSize).toBe("48px");
+    expect(moreIcon?.getAttribute("style")).toContain("width: 48px");
+    expect(moreIcon?.getAttribute("style")).toContain("height: 48px");
+    expect(header.className).toContain("-translate-y-1/2");
+    expect(header.className).not.toContain("border-b");
+    expect(body.className).toContain("inset-0");
   });
 
   it("decreases font size respecting minimum", () => {
     renderGroupNode({ fontSize: 12 });
 
+    revealGroupControls();
     fireEvent.click(screen.getByRole("button", { name: "Decrease font size" }));
 
     act(() => {
@@ -522,7 +568,7 @@ describe("GroupNode interactions", () => {
 
     renderGroupNode({}, { selected: false });
 
-    fireEvent.click(screen.getByTitle("More"));
+    openGroupMenu();
     fireEvent.click(screen.getByText(/Ungroup/i));
 
     expect(flowActionsMock.ungroupWithUndo).toHaveBeenCalledTimes(1);
@@ -548,7 +594,7 @@ describe("GroupNode interactions", () => {
 
     render(<ShadcnGroupNode {...buildNodeProps(parent)} />);
 
-    fireEvent.click(screen.getByTitle("More"));
+    openGroupMenu();
     fireEvent.click(screen.getByText(/Delete Node/i));
 
     expect(nodes).toEqual([]);
@@ -572,10 +618,11 @@ describe("GroupNode interactions", () => {
     const fill = screen.getByTestId("group-fill");
     expect(fill).toBeInTheDocument();
     expect(fill).toHaveStyle({ backgroundColor: "#ffaa00" });
-    expect(parseFloat(fill.style.opacity)).toBeGreaterThan(0);
+    expect(fill.style.opacity).toBe("");
 
     const bodyContent = screen.getByTestId("group-body-content");
     expect(bodyContent.className).toContain("z-10");
+    expect(fill.className).toContain("group-fill");
     expect(fill.className).toContain("pointer-events-none");
   });
 });

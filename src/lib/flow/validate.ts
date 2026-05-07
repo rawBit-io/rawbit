@@ -434,60 +434,6 @@ export function validateFlowData(
     }
   });
 
-  const protocolDiagramLayout = rawFlow.protocolDiagramLayout;
-  if (protocolDiagramLayout !== undefined) {
-    if (!isPlainObject(protocolDiagramLayout)) {
-      issues.push({
-        level: "warning",
-        code: "PROTOCOL_LAYOUT_INVALID",
-        message: "Protocol diagram layout is invalid and will be ignored.",
-      });
-    } else {
-      const groupOffsets = protocolDiagramLayout.groupOffsets;
-      if (groupOffsets !== undefined) {
-        if (!isPlainObject(groupOffsets)) {
-          issues.push({
-            level: "warning",
-            code: "PROTOCOL_LAYOUT_OFFSETS_INVALID",
-            message: "Protocol diagram group offsets are invalid and will be ignored.",
-          });
-        } else {
-          for (const [groupId, offset] of Object.entries(groupOffsets)) {
-            if (!nodeIds.has(groupId)) {
-              issues.push({
-                level: "warning",
-                code: "PROTOCOL_LAYOUT_GROUP_MISSING",
-                message: `Protocol diagram layout references missing group ${groupId}.`,
-                nodeId: groupId,
-              });
-              continue;
-            }
-            if (nodeTypeById.get(groupId) !== "shadcnGroup") {
-              issues.push({
-                level: "warning",
-                code: "PROTOCOL_LAYOUT_GROUP_INVALID",
-                message: `Protocol diagram layout references non-group node ${groupId}.`,
-                nodeId: groupId,
-              });
-            }
-            if (
-              !isPlainObject(offset) ||
-              !isFiniteNumber(offset.dx) ||
-              !isFiniteNumber(offset.dy)
-            ) {
-              issues.push({
-                level: "warning",
-                code: "PROTOCOL_LAYOUT_OFFSET_INVALID",
-                message: `Protocol diagram layout has invalid offset for group ${groupId}.`,
-                nodeId: groupId,
-              });
-            }
-          }
-        }
-      }
-    }
-  }
-
   const scriptSteps = (rawFlow as { scriptSteps?: unknown }).scriptSteps;
   if (scriptSteps !== undefined) {
     if (!Array.isArray(scriptSteps)) {

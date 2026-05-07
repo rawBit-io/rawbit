@@ -10,6 +10,12 @@ import {
 import type { SnapshotOptions } from "@/hooks/useSnapshotScheduler";
 import { setVal } from "@/lib/utils";
 import { removeScriptSteps } from "@/lib/share/scriptStepsCache";
+import {
+  TX_FIELD_EXTRACT_MAX_OUTPUTS,
+  buildTxFieldExtractOutputPorts,
+  nextTxFieldExtractField,
+  normalizeTxFieldExtractFields,
+} from "@/lib/nodes/txFieldExtract";
 import type { FlowNode, NodeData } from "@/types";
 
 export interface UseCalcNodeMutationsResult {
@@ -20,6 +26,8 @@ export interface UseCalcNodeMutationsResult {
     allowEmpty: boolean
   ) => void;
   setTaprootLeafIndex: (index: number) => void;
+  setTxFieldExtractField: (index: number, field: string) => void;
+  resizeTxFieldExtractFields: (increment: boolean) => void;
   updateFieldLabel: (fieldIndex: number, label: string) => void;
   updateGroupTitle: (group: string, title: string) => void;
   handleNetworkChange: (network: string) => void;
@@ -119,6 +127,91 @@ export function useCalcNodeMutations(
         )
       ),
     [id, setNodes]
+  );
+
+  const setTxFieldExtractField = useCallback(
+    (index: number, field: string) =>
+      setNodes((nodes) =>
+        nodes.map((node) => {
+          if (node.id !== id) return node;
+
+          const current = node.data as NodeData;
+          const fields = normalizeTxFieldExtractFields(current.txExtractFields);
+          if (index < 0 || index >= fields.length) return node;
+
+          const nextFields = [...fields];
+          nextFields[index] = field;
+
+          return {
+            ...node,
+            data: {
+              ...current,
+              txExtractFields: nextFields,
+              outputPorts: buildTxFieldExtractOutputPorts(nextFields),
+              dirty: true,
+              error: false,
+              extendedError: undefined,
+            },
+          };
+        })
+      ),
+    [id, setNodes]
+  );
+
+  const resizeTxFieldExtractFields = useCallback(
+    (increment: boolean) => {
+      let removedHandle: string | undefined;
+
+      setNodes((nodes) =>
+        nodes.map((node) => {
+          if (node.id !== id) return node;
+
+          const current = node.data as NodeData;
+          const fields = normalizeTxFieldExtractFields(current.txExtractFields);
+          let nextFields = fields;
+
+          if (increment) {
+            if (fields.length >= TX_FIELD_EXTRACT_MAX_OUTPUTS) return node;
+            nextFields = [...fields, nextTxFieldExtractField(fields.length)];
+          } else {
+            if (fields.length <= 1) return node;
+            removedHandle = `output-${fields.length - 1}`;
+            nextFields = fields.slice(0, -1);
+          }
+
+          const outputValues =
+            current.outputValues && typeof current.outputValues === "object"
+              ? { ...current.outputValues }
+              : undefined;
+          if (removedHandle && outputValues) {
+            delete outputValues[removedHandle];
+          }
+
+          return {
+            ...node,
+            data: {
+              ...current,
+              txExtractFields: nextFields,
+              outputPorts: buildTxFieldExtractOutputPorts(nextFields),
+              outputValues,
+              dirty: true,
+              error: false,
+              extendedError: undefined,
+            },
+          };
+        })
+      );
+
+      if (!increment && removedHandle) {
+        setEdges((edges) =>
+          edges.filter(
+            (edge) =>
+              !(edge.source === id && edge.sourceHandle === removedHandle)
+          )
+        );
+      }
+    },
+    [id, setEdges, setNodes]
   );
 
   const updateGroupTitle = useCallback(
@@ -224,23 +317,18 @@ export function useCalcNodeMutations(
       const normalizedNext = nextValue.trim();
       if (normalizedPrevious === normalizedNext) return;
 
-      const shouldNormalizeStoredValue =
-        nextValue !== normalizedNext || normalizedNext.length === 0;
-
-      if (shouldNormalizeStoredValue) {
-        setNodes((nodes) =>
-          nodes.map((node) => {
-            if (node.id !== id) return node;
-            const nextData: NodeData = { ...(node.data as NodeData) };
-            if (normalizedNext) {
-              nextData.comment = normalizedNext;
-            } else {
-              delete nextData.comment;
-            }
-            return { ...node, data: nextData };
-          })
-        );
-      }
+      setNodes((nodes) =>
+        nodes.map((node) => {
+          if (node.id !== id) return node;
+          const nextData: NodeData = { ...(node.data as NodeData) };
+          if (normalizedNext) {
+            nextData.comment = normalizedNext;
+          } else {
+            delete nextData.comment;
+          }
+          return { ...node, data: nextData };
+        })
+      );
 
       snapshotHooks?.scheduleSnapshot?.("Update Node Comment");
     },
@@ -280,6 +368,8 @@ export function useCalcNodeMutations(
   return {
     setFieldValue,
     setTaprootLeafIndex,
+    setTxFieldExtractField,
+    resizeTxFieldExtractFields,
     updateFieldLabel,
     updateGroupTitle,
     handleNetworkChange,

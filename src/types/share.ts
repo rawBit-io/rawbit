@@ -1,5 +1,4 @@
 import type { XYPosition } from "@xyflow/react";
-import type { ProtocolDiagramLayout } from "./flow";
 
 export type SharedNodeData = Record<string, unknown>;
 
@@ -39,5 +38,4 @@ export interface SharePayload<
   schemaVersion: number;
   nodes: SharedNodes<TNode>;
   edges: SharedEdges<TEdge>;
-  protocolDiagramLayout?: ProtocolDiagramLayout;
 }

@@ -30,6 +30,7 @@ const allowedNodeTaxonomy = new Map<string, Set<string>>([
   [
     "Transactions",
     new Set([
+      "General",
       "Transaction Templates",
       "Witnesses & Control Blocks",
       "Preimages",
@@ -53,6 +54,7 @@ const allowedNodeTaxonomy = new Map<string, Set<string>>([
   [
     "Signing & Verification",
     new Set([
+      "General",
       "ECDSA",
       "Schnorr",
       "Script Verification",
@@ -66,6 +68,7 @@ const allowedNodeTaxonomy = new Map<string, Set<string>>([
   ],
 ]);
 const allowedFlowSections = new Set([
+  "top-level",
   "legacy-foundations",
   "scripts-timelocks-commitments",
   "channels",
@@ -98,7 +101,7 @@ function readInputVal(vals: unknown, index: number): unknown {
   return undefined;
 }
 
-describe("public lesson flow data integrity", () => {
+describe("public flow data integrity", () => {
   it("sidebar nodes use the supported category taxonomy", () => {
     const unknown = allSidebarNodes
       .map((node) => {
@@ -117,7 +120,7 @@ describe("public lesson flow data integrity", () => {
     expect(unknown).toEqual([]);
   });
 
-  it("custom flows use the supported lesson sections", () => {
+  it("custom flows use the supported flow sections", () => {
     const unknown = customFlows
       .filter((flow) => !allowedFlowSections.has(flow.section))
       .map((flow) => ({

@@ -12,6 +12,11 @@ from config import (
     CALCULATION_TIMEOUT_NODE_ID,
 )
 
+SAMPLE_TX_HEX = (
+    "02000000010000000000000000000000000000000000000000000000000000000000000000000000000151"
+    "ffffffff01e803000000000000015100000000"
+)
+
 
 def test_validate_inputs_required_and_numeric_rules():
     with pytest.raises(ValueError) as missing:
@@ -23,6 +28,7 @@ def test_validate_inputs_required_and_numeric_rules():
     assert "must be an integer" in str(not_integer.value)
 
     assert graph_logic.validate_inputs("encode_varint", {"val": ""})
+    assert graph_logic.validate_inputs("sighash_type_to_le4", {"val": "81"})
 
     with pytest.raises(ValueError) as not_number:
         graph_logic.validate_inputs("hours_to_sequence_number", {"val": "n/a"})
@@ -107,6 +113,54 @@ def test_build_multi_val_params_precedence(monkeypatch):
         "1": graph_logic.SENTINEL_EMPTY,
         "2": "from-edge",
         "3": "manual",
+    }
+
+
+def test_bulk_calculate_logic_opcode_node_uses_backend_opcode_names():
+    node = {
+        "id": "op",
+        "type": "opCodeNode",
+        "data": {
+            "functionName": "op_code_select",
+            "paramExtraction": "multi_val",
+            "inputStructure": {
+                "ungrouped": [{"index": 0}, {"index": 100}],
+            },
+            "inputs": {"vals": {"0": "OP_DUP", "100": "OP_HASH160"}},
+        },
+    }
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic([node], [])
+
+    assert errors == []
+    updated = list(updated_nodes)[0]
+    assert updated["data"]["result"] == "76a9"
+    assert updated["data"]["inputs"]["vals"] == {
+        "0": "OP_DUP",
+        "100": "OP_HASH160",
+    }
+
+
+def test_bulk_calculate_logic_migrates_legacy_opcode_names():
+    node = {
+        "id": "op",
+        "type": "opCodeNode",
+        "data": {
+            "functionName": "op_code_select",
+            "paramExtraction": "single_val",
+            "value": "76a9",
+            "opSequenceNames": ["OP_DUP", "OP_HASH160"],
+        },
+    }
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic([node], [])
+
+    assert errors == []
+    updated = list(updated_nodes)[0]
+    assert updated["data"]["result"] == "76a9"
+    assert updated["data"]["inputs"]["vals"] == {
+        "0": "OP_DUP",
+        "100": "OP_HASH160",
     }
 
 
@@ -774,6 +828,50 @@ def test_bulk_calculate_logic_missing_function_sets_error():
     assert updated["bad"]["data"]["error"] is True
     assert "No such function" in updated["bad"]["data"]["extendedError"]
     assert updated["bad"]["data"].get("dirty") is False
+
+
+def test_bulk_calculate_logic_dynamic_tx_field_extract_outputs():
+    nodes = [
+        {
+            "id": "extract",
+            "type": "calculation",
+            "data": {
+                "functionName": "extract_tx_field",
+                "paramExtraction": "multi_val",
+                "txFieldExtractMode": "dynamic",
+                "txExtractFields": ["txid", "vout.scriptPubKey", "vout.value"],
+                "inputStructure": {
+                    "ungrouped": [
+                        {"index": 0, "label": "Raw TX (hex):"},
+                        {"index": 1, "label": "VIN/VOUT Index:"},
+                    ]
+                },
+                "inputs": {"vals": {"0": SAMPLE_TX_HEX, "1": "0"}},
+                "dirty": True,
+            },
+        }
+    ]
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic(copy.deepcopy(nodes), [])
+    data = list(updated_nodes)[0]["data"]
+
+    assert errors == []
+    assert data["dirty"] is False
+    assert data["outputValues"] == {
+        "output-0": calc.extract_tx_field([SAMPLE_TX_HEX, "txid", "0"]),
+        "output-1": "51",
+        "output-2": "1000",
+    }
+    assert data["outputPorts"] == [
+        {"label": "txid", "handleId": "output-0", "showLabel": False},
+        {
+            "label": "vout.scriptPubKey",
+            "handleId": "output-1",
+            "showLabel": False,
+        },
+        {"label": "vout.value", "handleId": "output-2", "showLabel": False},
+    ]
+    assert "vout.scriptPubKey: 51" in data["result"]
 
 
 def test_build_val_with_network_params_includes_selected_network():

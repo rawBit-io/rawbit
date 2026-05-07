@@ -236,9 +236,13 @@ export function SearchPanel(props: SearchPanelFullProps) {
             <div className="relative">
               <Input
                 id="search-panel-input"
-                name="searchPanelInput"
+                name="rawbitSearchPanelNoAutocomplete"
                 value={draft}
                 placeholder="Search node id, name, text"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="none"
+                aria-autocomplete="none"
                 spellCheck={false}
                 onChange={(e) => handleChange(e.target.value)}
                 className="h-8 pr-7 select-text"
@@ -305,7 +309,7 @@ export function SearchPanel(props: SearchPanelFullProps) {
                         <strong className="block truncate">
                           {labelFor(n.id)}
                         </strong>
-                        <span className="block text-xs truncate" title={n.id}>
+                        <span className="block text-xs truncate">
                           {n.id}
                         </span>
                       </div>
@@ -314,7 +318,6 @@ export function SearchPanel(props: SearchPanelFullProps) {
                       <button
                         type="button"
                         onClick={(e) => copyNodeInfo(n.id, e)} // stops propagation
-                        title={`Copy: ${labelFor(n.id)} ${n.id}`}
                         aria-label={`Copy: ${labelFor(n.id)} ${n.id}`}
                         className="shrink-0 p-1.5 rounded border border-border bg-background
                                    opacity-0 group-hover:opacity-100 group-focus-within:opacity-100

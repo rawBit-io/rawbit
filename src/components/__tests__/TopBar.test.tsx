@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { act, render, screen, fireEvent } from "@testing-library/react";
 import type { MutableRefObject } from "react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
@@ -7,13 +7,24 @@ import {
   type TopBarProps,
   type ExtraTopBarProps,
 } from "@/components/layout/TopBar";
-import { EDGE_VISIBILITY_STEP } from "@/contexts/theme";
+import {
+  EDGE_THICKNESS_STEP,
+  EDGE_VISIBILITY_STEP,
+  GROUP_FILL_OPACITY_STEP,
+} from "@/contexts/theme";
 
 const undoMock = vi.fn();
 const redoMock = vi.fn();
 const setThemeMock = vi.fn<(theme: string) => void>();
 const setSkinMock = vi.fn<(skin: string) => void>();
 const adjustEdgeVisibilityMock = vi.fn<(mode: string, delta: number) => void>();
+const adjustDashedEdgeVisibilityMock = vi.fn<
+  (mode: string, delta: number) => void
+>();
+const adjustGroupFillOpacityMock = vi.fn<
+  (mode: string, delta: number) => void
+>();
+const adjustEdgeThicknessMock = vi.fn<(mode: string, delta: number) => void>();
 let themeMock: "light" | "dark" | "system" = "light";
 
 vi.mock("@/hooks/useUndoRedo", () => ({
@@ -31,8 +42,14 @@ vi.mock("@/hooks/useTheme", () => ({
     setTheme: setThemeMock,
     skin: "shadcn",
     setSkin: setSkinMock,
-    edgeVisibility: { light: 0.45, dark: 0.45 },
+    edgeVisibility: { light: 0.65, dark: 0.65 },
+    dashedEdgeVisibility: { light: 0.325, dark: 0.325 },
+    groupFillOpacity: { light: 0.07, dark: 0.07 },
+    edgeThickness: { light: 1, dark: 1 },
     adjustEdgeVisibility: adjustEdgeVisibilityMock,
+    adjustDashedEdgeVisibility: adjustDashedEdgeVisibilityMock,
+    adjustGroupFillOpacity: adjustGroupFillOpacityMock,
+    adjustEdgeThickness: adjustEdgeThicknessMock,
   }),
 }));
 
@@ -79,15 +96,19 @@ const baseProps: TopBarProps & ExtraTopBarProps = {
   connectDisabled: true,
   onSearchClick: vi.fn(),
   setShowSearchPanel: vi.fn(),
-  showProtocolDiagramPanel: false,
-  setShowProtocolDiagramPanel: vi.fn(),
-  hasProtocolDiagram: true,
-  protocolDiagramDisabledTooltip: "Add groups to enable diagram view",
   showMiniMap: true,
   onToggleMiniMap: vi.fn(),
+  showInfoNodes: true,
+  hasInfoNodes: true,
+  onToggleInfoNodes: vi.fn(),
   isSelectionModeActive: false,
   onToggleSelectionMode: vi.fn(),
 };
+
+function openSkinMenu() {
+  const trigger = screen.getByRole("button", { name: "Skin: shadcn" });
+  fireEvent.keyDown(trigger, { key: "Enter" });
+}
 
 describe("TopBar", () => {
   beforeEach(() => {
@@ -95,6 +116,9 @@ describe("TopBar", () => {
     setThemeMock.mockClear();
     setSkinMock.mockClear();
     adjustEdgeVisibilityMock.mockClear();
+    adjustDashedEdgeVisibilityMock.mockClear();
+    adjustGroupFillOpacityMock.mockClear();
+    adjustEdgeThicknessMock.mockClear();
     themeMock = "light";
   });
 
@@ -114,6 +138,9 @@ describe("TopBar", () => {
     fireEvent.click(screen.getByRole("button", { name: "Hide minimap" }));
     expect(baseProps.onToggleMiniMap).toHaveBeenCalled();
 
+    fireEvent.click(screen.getByRole("button", { name: "Hide info nodes" }));
+    expect(baseProps.onToggleInfoNodes).toHaveBeenCalled();
+
     fireEvent.click(
       screen.getByRole("button", {
         name: "Selection tool (click to toggle or hold S + drag with LMB)",
@@ -123,6 +150,20 @@ describe("TopBar", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Toggle theme" }));
     expect(setThemeMock).toHaveBeenCalledWith("dark");
+  });
+
+  it("disables the info node toggle when no info nodes exist", () => {
+    render(<TopBar {...baseProps} hasInfoNodes={false} />);
+
+    expect(screen.getByRole("button", { name: "No info nodes" })).toBeDisabled();
+  });
+
+  it("marks the info node toggle active when info nodes are hidden", () => {
+    render(<TopBar {...baseProps} showInfoNodes={false} />);
+
+    const toggle = screen.getByRole("button", { name: "Show info nodes" });
+    expect(toggle).toHaveAttribute("aria-pressed", "true");
+    expect(toggle).toHaveAttribute("data-active", "true");
   });
 
   it("applies skin selection and clears focus from skin trigger on close", () => {
@@ -142,17 +183,20 @@ describe("TopBar", () => {
   it("adjusts the active light edge visibility from the skin menu", () => {
     render(<TopBar {...baseProps} />);
 
-    const trigger = screen.getByRole("button", { name: "Skin: shadcn" });
-    fireEvent.keyDown(trigger, { key: "Enter" });
+    openSkinMenu();
 
     expect(screen.getByText("Edges")).toBeInTheDocument();
+    expect(screen.getByText("Thickness")).toBeInTheDocument();
+    expect(screen.getByText("Normal opacity")).toBeInTheDocument();
+    expect(screen.getByText("Dashed opacity")).toBeInTheDocument();
+    expect(screen.getByText("Group fill")).toBeInTheDocument();
     expect(screen.queryByText("Edge visibility")).not.toBeInTheDocument();
     expect(screen.queryByText("Light mode")).not.toBeInTheDocument();
     expect(screen.queryByText("Dark mode")).not.toBeInTheDocument();
 
     fireEvent.click(
       screen.getByRole("button", {
-        name: "Increase edge visibility",
+        name: "Increase normal edge opacity",
       })
     );
     expect(adjustEdgeVisibilityMock).toHaveBeenCalledWith(
@@ -162,7 +206,7 @@ describe("TopBar", () => {
 
     fireEvent.click(
       screen.getByRole("button", {
-        name: "Decrease edge visibility",
+        name: "Decrease normal edge opacity",
       })
     );
     expect(adjustEdgeVisibilityMock).toHaveBeenCalledWith(
@@ -174,25 +218,156 @@ describe("TopBar", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("adjusts the active dark edge visibility from the skin menu", () => {
-    themeMock = "dark";
+  it("adjusts the active edge thickness from the skin menu", () => {
+    render(<TopBar {...baseProps} />);
+
+    openSkinMenu();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Increase edge thickness",
+      })
+    );
+    expect(adjustEdgeThicknessMock).toHaveBeenCalledWith(
+      "light",
+      EDGE_THICKNESS_STEP
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Decrease edge thickness",
+      })
+    );
+    expect(adjustEdgeThicknessMock).toHaveBeenCalledWith(
+      "light",
+      -EDGE_THICKNESS_STEP
+    );
+  });
+
+  it("adjusts the active dashed edge visibility from the skin menu", () => {
+    render(<TopBar {...baseProps} />);
+
+    openSkinMenu();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Increase dashed edge opacity",
+      })
+    );
+    expect(adjustDashedEdgeVisibilityMock).toHaveBeenCalledWith(
+      "light",
+      EDGE_VISIBILITY_STEP
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Decrease dashed edge opacity",
+      })
+    );
+    expect(adjustDashedEdgeVisibilityMock).toHaveBeenCalledWith(
+      "light",
+      -EDGE_VISIBILITY_STEP
+    );
+  });
+
+  it("adjusts the active group fill opacity from the skin menu", () => {
     render(<TopBar {...baseProps} />);
 
     const trigger = screen.getByRole("button", { name: "Skin: shadcn" });
     fireEvent.keyDown(trigger, { key: "Enter" });
 
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Increase group fill opacity",
+      })
+    );
+    expect(adjustGroupFillOpacityMock).toHaveBeenCalledWith(
+      "light",
+      GROUP_FILL_OPACITY_STEP
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Decrease group fill opacity",
+      })
+    );
+    expect(adjustGroupFillOpacityMock).toHaveBeenCalledWith(
+      "light",
+      -GROUP_FILL_OPACITY_STEP
+    );
+  });
+
+  it("repeats group fill opacity adjustment while held", () => {
+    vi.useFakeTimers();
+    try {
+      render(<TopBar {...baseProps} />);
+
+      const trigger = screen.getByRole("button", { name: "Skin: shadcn" });
+      fireEvent.keyDown(trigger, { key: "Enter" });
+
+      const increase = screen.getByRole("button", {
+        name: "Increase group fill opacity",
+      });
+      fireEvent.pointerDown(increase, { pointerId: 1 });
+
+      expect(adjustGroupFillOpacityMock).toHaveBeenCalledTimes(1);
+      expect(adjustGroupFillOpacityMock).toHaveBeenLastCalledWith(
+        "light",
+        GROUP_FILL_OPACITY_STEP
+      );
+
+      act(() => {
+        vi.advanceTimersByTime(350);
+      });
+      expect(adjustGroupFillOpacityMock).toHaveBeenCalledTimes(2);
+
+      act(() => {
+        vi.advanceTimersByTime(140);
+      });
+      expect(adjustGroupFillOpacityMock).toHaveBeenCalledTimes(4);
+
+      fireEvent.pointerUp(increase, { pointerId: 1 });
+      act(() => {
+        vi.advanceTimersByTime(210);
+      });
+      expect(adjustGroupFillOpacityMock).toHaveBeenCalledTimes(4);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("adjusts the active dark edge visibility from the skin menu", () => {
+    themeMock = "dark";
+    render(<TopBar {...baseProps} />);
+
+    openSkinMenu();
+
     expect(screen.getByText("Edges")).toBeInTheDocument();
+    expect(screen.getByText("Thickness")).toBeInTheDocument();
+    expect(screen.getByText("Normal opacity")).toBeInTheDocument();
+    expect(screen.getByText("Dashed opacity")).toBeInTheDocument();
+    expect(screen.getByText("Group fill")).toBeInTheDocument();
     expect(screen.queryByText("Light mode")).not.toBeInTheDocument();
     expect(screen.queryByText("Dark mode")).not.toBeInTheDocument();
 
     fireEvent.click(
       screen.getByRole("button", {
-        name: "Decrease edge visibility",
+        name: "Decrease normal edge opacity",
       })
     );
     expect(adjustEdgeVisibilityMock).toHaveBeenCalledWith(
       "dark",
       -EDGE_VISIBILITY_STEP
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Increase edge thickness",
+      })
+    );
+    expect(adjustEdgeThicknessMock).toHaveBeenCalledWith(
+      "dark",
+      EDGE_THICKNESS_STEP
     );
   });
 
@@ -239,7 +414,6 @@ describe("TopBar", () => {
   it("closes other panels before showing search", () => {
     const setShowUndoRedoPanel = vi.fn();
     const setShowErrorPanel = vi.fn();
-    const setShowProtocolDiagramPanel = vi.fn();
     const onSearchClick = vi.fn();
 
     render(
@@ -247,7 +421,6 @@ describe("TopBar", () => {
         {...baseProps}
         setShowUndoRedoPanel={setShowUndoRedoPanel}
         setShowErrorPanel={setShowErrorPanel}
-        setShowProtocolDiagramPanel={setShowProtocolDiagramPanel}
         onSearchClick={onSearchClick}
       />
     );
@@ -256,7 +429,6 @@ describe("TopBar", () => {
 
     expect(setShowUndoRedoPanel).toHaveBeenCalledWith(false);
     expect(setShowErrorPanel).toHaveBeenCalledWith(false);
-    expect(setShowProtocolDiagramPanel).toHaveBeenCalledWith(false);
     expect(onSearchClick).toHaveBeenCalled();
   });
 
@@ -280,37 +452,6 @@ describe("TopBar", () => {
     expect(setShowErrorPanel).toHaveBeenCalledWith(true);
   });
 
-  it("disables protocol diagram button when no groups exist", () => {
-    render(<TopBar {...baseProps} hasProtocolDiagram={false} />);
-    expect(screen.getByRole("button", { name: "Flow map" })).toBeDisabled();
-  });
-
-  it("toggles protocol diagram and closes other right-side panels", () => {
-    const setShowUndoRedoPanel = vi.fn();
-    const setShowErrorPanel = vi.fn();
-    const setShowSearchPanel = vi.fn();
-    const setShowProtocolDiagramPanel = vi.fn();
-
-    render(
-      <TopBar
-        {...baseProps}
-        showProtocolDiagramPanel={false}
-        setShowUndoRedoPanel={setShowUndoRedoPanel}
-        setShowErrorPanel={setShowErrorPanel}
-        setShowSearchPanel={setShowSearchPanel}
-        setShowProtocolDiagramPanel={setShowProtocolDiagramPanel}
-        hasProtocolDiagram
-      />
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: "Flow map" }));
-
-    expect(setShowUndoRedoPanel).toHaveBeenCalledWith(false);
-    expect(setShowErrorPanel).toHaveBeenCalledWith(false);
-    expect(setShowSearchPanel).toHaveBeenCalledWith(false);
-    expect(setShowProtocolDiagramPanel).toHaveBeenCalledWith(true);
-  });
-
   it("invokes simplified save when holding the S key", () => {
     const onSave = vi.fn();
     const onSaveSimplified = vi.fn();
@@ -331,6 +472,15 @@ describe("TopBar", () => {
     fireEvent.keyUp(window, { key: "s" });
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
     expect(onSave).toHaveBeenCalled();
+  });
+
+  it("shows both save shortcut hints in the hover title", () => {
+    render(<TopBar {...baseProps} />);
+
+    expect(screen.getByRole("button", { name: "Save" })).toHaveAttribute(
+      "title",
+      "Save (hold S for simplified, hold L for LLM export)"
+    );
   });
 
   it("invokes LLM export when holding the L key", () => {
