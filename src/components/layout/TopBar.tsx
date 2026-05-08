@@ -741,8 +741,8 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
               }}
               title="Show errors"
               className={cn(
-                "h-6 px-2 text-xs border border-border",
-                "text-black dark:text-white"
+                "h-6 border border-primary/55 bg-primary/10 px-2 text-xs font-semibold text-primary shadow-sm",
+                "hover:bg-primary/15 hover:text-primary focus-visible:ring-primary/45"
               )}
             >
               error&nbsp;({errorCount})

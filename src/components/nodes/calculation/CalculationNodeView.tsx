@@ -1256,7 +1256,7 @@ export function CalculationNodeView({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="cursor-pointer">
-                    <AlertTriangle className="h-7 w-7 text-destructive" />
+                    <AlertTriangle className="node-error-icon h-7 w-7" />
                   </div>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-md">

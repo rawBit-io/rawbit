@@ -1415,6 +1415,16 @@ body[data-large-drag="true"] .rf-node {
   --tw-ring-shadow: 0 0 #0000 !important;
 }
 
+.node-error-icon {
+  color: hsl(var(--destructive));
+  filter: drop-shadow(0 0 0 hsl(var(--destructive) / 0));
+}
+
+.dark .node-error-icon {
+  color: hsl(0 88% 64%);
+  filter: drop-shadow(0 0 4px hsl(0 88% 56% / 0.38));
+}
+
 @keyframes rawbit-intro-drop-card {
   0% {
     opacity: 0;

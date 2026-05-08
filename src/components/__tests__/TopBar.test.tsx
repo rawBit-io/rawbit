@@ -383,6 +383,15 @@ describe("TopBar", () => {
     expect(retry).not.toBeInTheDocument();
   });
 
+  it("uses themed emphasis for the error badge", () => {
+    render(<TopBar {...baseProps} calcStatus="ERROR" errorCount={2} />);
+
+    const errorBadge = screen.getByTitle("Show errors");
+    expect(errorBadge).toHaveClass("text-primary");
+    expect(errorBadge).toHaveClass("font-semibold");
+    expect(errorBadge.className).not.toContain("text-black");
+  });
+
   it("enables retry-all button and fires callback when limit errors exist", () => {
     render(
       <TopBar
