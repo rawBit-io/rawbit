@@ -160,6 +160,52 @@ describe("ScriptExecutionSteps", () => {
     ).toBeInTheDocument();
   });
 
+  it("summarizes verification failure without duplicating the raw final error", async () => {
+    const user = userEvent.setup();
+    const failedSteps = Array.from({ length: 7 }, (_, index) => ({
+      pc: index,
+      opcode: index === 6 ? 172 : 118,
+      opcode_name: index === 6 ? "OP_CHECKSIG" : "OP_DUP",
+      stack_before: index === 6 ? ["03", "30"] : ["02"],
+      stack_after: index === 6 ? ["03", "30"] : ["02", "02"],
+      phase: index === 0 ? "scriptSig" : "scriptPubKey",
+      failed: index === 6,
+      error:
+        index === 6
+          ? "signature check failed, and signature is not empty"
+          : undefined,
+    }));
+
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: false,
+          error:
+            "signature check failed, and signature is not empty (Note: SegWit/Taproot verification requires the spent amount in satoshis)",
+          steps: failedSteps,
+        }}
+        scriptSigInputHex="47"
+        scriptPubKeyInputHex="ac"
+      />
+    );
+
+    expect(
+      screen.getByText("FAILED STEP 7: OP_CHECKSIG")
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/FinalError:/i)).not.toBeInTheDocument();
+
+    const nextButton = screen.getByRole("button", { name: /Next/i });
+    for (let i = 0; i < 6; i += 1) {
+      await user.click(nextButton);
+    }
+
+    expect(
+      screen.getByText(/ERROR: signature check failed/i)
+    ).toBeInTheDocument();
+  });
+
   it("copies the trace to the clipboard with feedback", async () => {
     render(
       <ScriptExecutionSteps

@@ -233,6 +233,19 @@ const opcodeExplanation = (n: string) =>
     ? OPCODES.OP_PUSHDATA
     : OPCODES[n.split("(")[0].trim()] || "";
 
+const verificationFailureSummary = (steps: StepData[], fallback?: string) => {
+  if (!fallback) return null;
+
+  const failedStepIndex = steps.findIndex((candidate) => candidate.failed);
+  if (failedStepIndex === -1) return "Verification failed";
+
+  const failedStep = steps[failedStepIndex];
+  return `FAILED STEP ${failedStepIndex + 1}: ${prettify(
+    failedStep.opcode,
+    failedStep.opcode_name,
+  )}`;
+};
+
 const hexToBytes = (hex = "") =>
   Array.from({ length: hex.length / 2 }, (_, i) => hex.slice(i * 2, i * 2 + 2));
 
@@ -484,6 +497,7 @@ export default function ScriptExecutionSteps({
     (taprootPhase || !witnessHex) && witnessStackDisplay.length > 0;
 
   const phaseText = phaseTextFor(phase);
+  const failureSummary = verificationFailureSummary(steps, scriptResult.error);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -615,10 +629,10 @@ export default function ScriptExecutionSteps({
           </div>
         </div>
 
-        <DialogFooter className="mt-4 gap-2 sm:items-center sm:justify-between sm:space-x-0">
-          {scriptResult?.error && (
-            <div className="text-sm text-destructive">
-              FinalError: {scriptResult.error}
+        <DialogFooter className="mt-4 flex-col gap-2 px-1 sm:flex-row sm:items-center sm:justify-between sm:space-x-0">
+          {failureSummary && (
+            <div className="px-1 py-1 text-xs italic text-destructive/80">
+              {failureSummary}
             </div>
           )}
           <div className="flex justify-end gap-2 sm:ml-auto">
