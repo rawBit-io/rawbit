@@ -2660,6 +2660,40 @@ def _build_taproot_prevouts(extra_vals: Sequence[Any], expected_inputs: int) -> 
     return outputs
 
 
+def _script_pushes_witness_program(script: CScript) -> bool:
+    """Return true when a script pushes a witness program, as in P2SH-P2WPKH/P2WSH."""
+    try:
+        for item in script:
+            if isinstance(item, bytes) and CScript(item).is_witness_scriptpubkey():
+                return True
+    except Exception:
+        return False
+    return False
+
+
+def _has_witness_stack_items(witness: Any) -> bool:
+    try:
+        return bool(getattr(witness, "stack", []))
+    except Exception:
+        return False
+
+
+def _normalize_script_trace_steps(steps: list) -> list:
+    normalized = []
+    for step in steps:
+        next_step = dict(step)
+        opcode = next_step.get("opcode")
+        opcode_name = str(next_step.get("opcode_name", ""))
+        if (
+            isinstance(opcode, int)
+            and 1 <= opcode <= 0x4B
+            and opcode_name.lower() == "unknown opcode"
+        ):
+            next_step["opcode_name"] = f"PUSH {opcode} bytes"
+        normalized.append(next_step)
+    return normalized
+
+
 def script_verification(vals: list) -> str:
     """
     vals[0] – scriptSig hex
@@ -2713,8 +2747,9 @@ def script_verification(vals: list) -> str:
           "witnessScript": "<hex>",     # SegWit / Taproot script-path only
           "excludedFlags": ["..."],     # Which flags were excluded
           "activeFlags": ["..."],       # Which flags remain active
-          "usesWitness": <bool>,        # Whether witness rules are active
-          "amountUsed": <int>,          # Amount used in verification (if witness active)
+          "usesWitness": <bool>,        # Whether this spend actually uses witness data/rules
+          "witnessRulesEnabled": <bool>, # Whether witness verification rules were enabled
+          "amountUsed": <int>,          # Amount used in verification (if witness is used)
           "error": "<message>"          # present only when isValid == False
         }
     """
@@ -2873,9 +2908,9 @@ def script_verification(vals: list) -> str:
     # 3.5  Extract witness AFTER flags are defined
     # ------------------------------------------------------------------
     witness_obj = None
-    uses_witness = SCRIPT_VERIFY_WITNESS in flags
+    witness_rules_enabled = SCRIPT_VERIFY_WITNESS in flags
     
-    if uses_witness and hasattr(tx, 'wit') and tx.wit is not None:
+    if witness_rules_enabled and hasattr(tx, 'wit') and tx.wit is not None:
         try:
             # Cast to Any to bypass type checker
             wit = cast(Any, tx.wit)
@@ -2894,8 +2929,19 @@ def script_verification(vals: list) -> str:
     is_witness_program = script_pubkey_obj.is_witness_scriptpubkey()
     wit_version = script_pubkey_obj.witness_version() if is_witness_program else None
     wit_program = script_pubkey_obj.witness_program() if is_witness_program else b""
+    is_p2sh_wrapped_witness = (
+        script_pubkey_obj.is_p2sh() and _script_pushes_witness_program(script_sig_obj)
+    )
+    actual_uses_witness = (
+        witness_rules_enabled
+        and (
+            is_witness_program
+            or is_p2sh_wrapped_witness
+            or _has_witness_stack_items(witness_obj)
+        )
+    )
     needs_taproot_prevouts = (
-        uses_witness
+        witness_rules_enabled
         and SCRIPT_VERIFY_TAPROOT in flags
         and is_witness_program
         and wit_version == 1
@@ -2915,8 +2961,8 @@ def script_verification(vals: list) -> str:
     # ------------------------------------------------------------------
     # 4.  Execute with tracing - include amount if witness active
     # ------------------------------------------------------------------
-    amount = amount_param if uses_witness else 0
-    if uses_witness and amount == 0 and spent_outputs is not None:
+    amount = amount_param if witness_rules_enabled else 0
+    if witness_rules_enabled and amount == 0 and spent_outputs is not None:
         try:
             amount = spent_outputs[in_idx].nValue
         except IndexError:
@@ -2932,6 +2978,7 @@ def script_verification(vals: list) -> str:
         amount=amount,
         spent_outputs=spent_outputs
     )
+    steps = _normalize_script_trace_steps(steps)
 
     # ------------------------------------------------------------------
     # 5.  Assemble JSON for the UI
@@ -2943,15 +2990,16 @@ def script_verification(vals: list) -> str:
         "scriptPubKey": scriptPubKey_hex,
         "excludedFlags": sorted(excluded_names),
         "activeFlags":   active_flags,
-        "usesWitness":   uses_witness,  # For UI highlighting
+        "usesWitness":   actual_uses_witness,
+        "witnessRulesEnabled": witness_rules_enabled,
     }
     
-    # Add amount info if witness is active
-    if uses_witness:
+    # Add amount info if this spend actually uses witness validation.
+    if actual_uses_witness:
         result["amountUsed"] = amount
 
     # Surface the raw witness stack (useful for Taproot key-path flows)
-    if uses_witness and witness_obj is not None:
+    if actual_uses_witness and witness_obj is not None:
         try:
             stack_items = getattr(witness_obj, "stack", [])
             if stack_items:
@@ -2972,8 +3020,8 @@ def script_verification(vals: list) -> str:
     if not is_valid:
         result["error"] = err_msg or "Unknown script verification error"
         
-        # Add helpful hint if witness is active but no amount provided
-        if uses_witness and not amount_supplied and not spent_outputs:
+        # Add helpful hint if this spend uses witness validation but no amount was provided.
+        if actual_uses_witness and not amount_supplied and not spent_outputs:
             result["error"] += " (Note: SegWit/Taproot verification requires the spent amount in satoshis)"
 
     return json.dumps(result)

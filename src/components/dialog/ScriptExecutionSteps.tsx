@@ -216,16 +216,20 @@ const OPCODE_NAME_BY_BYTE = (() => {
 
 const prettify = (code: number, name: string) => {
   if (!name.toLowerCase().includes("unknown opcode")) return name;
-  if (code >= 1 && code <= 0x4b) return `OP_PUSHDATA(${code} bytes)`;
+  if (code >= 1 && code <= 0x4b) return `PUSH ${code} bytes`;
   const known = OPCODE_NAME_BY_BYTE.get(code);
   return known ?? name;
 };
 
 const pushLenInParens = (n: string) =>
-  Number((/\((\d+)\s*bytes?\)/i.exec(n) || [])[1] ?? 0);
+  Number(
+    (/\((\d+)\s*bytes?\)/i.exec(n) ||
+      /^PUSH\s+(\d+)\s*bytes?$/i.exec(n) ||
+      [])[1] ?? 0
+  );
 
 const opcodeExplanation = (n: string) =>
-  n.startsWith("OP_PUSHDATA(")
+  n.startsWith("OP_PUSHDATA(") || /^PUSH\s+\d+\s*bytes?$/i.test(n)
     ? OPCODES.OP_PUSHDATA
     : OPCODES[n.split("(")[0].trim()] || "";
 

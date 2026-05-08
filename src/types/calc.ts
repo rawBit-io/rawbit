@@ -87,6 +87,9 @@ export interface ScriptExecutionResult {
   /** Raw witness stack items as supplied (Taproot key-path, etc.) */
   witnessStack?: string[];
   isValid?: boolean;
+  usesWitness?: boolean;
+  witnessRulesEnabled?: boolean;
+  amountUsed?: number;
   steps?: StepData[];
   error?: string;
 }

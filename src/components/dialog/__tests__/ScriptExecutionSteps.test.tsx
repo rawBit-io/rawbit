@@ -112,6 +112,33 @@ describe("ScriptExecutionSteps", () => {
     expect(screen.queryByText(/witnessStack/i)).not.toBeInTheDocument();
   });
 
+  it("explains direct push opcodes by byte count", () => {
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: true,
+          steps: [
+            {
+              pc: 0,
+              opcode: 2,
+              opcode_name: "PUSH 2 bytes",
+              stack_before: [],
+              stack_after: ["abcd"],
+              phase: "scriptSig",
+            },
+          ],
+        }}
+        scriptSigInputHex="02abcd"
+        scriptPubKeyInputHex=""
+      />
+    );
+
+    expect(screen.getByText("PUSH 2 bytes")).toBeInTheDocument();
+    expect(screen.getByText(/Push raw bytes onto the stack/i)).toBeInTheDocument();
+  });
+
   it("shows a taproot key-path explainer banner", () => {
     render(
       <ScriptExecutionSteps

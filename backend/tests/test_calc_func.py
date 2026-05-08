@@ -1018,6 +1018,16 @@ def test_script_verification_simple_true():
     result = json.loads(result_json)
     assert result["isValid"] is True
     assert result["scriptPubKey"] == "51"
+    assert result["witnessRulesEnabled"] is True
+    assert result["usesWitness"] is False
+    assert "amountUsed" not in result
+
+
+def test_script_verification_names_direct_push_opcodes():
+    tx_hex = build_sample_tx_hex()
+    result = json.loads(calc.script_verification(["02abcd", "51", tx_hex, 0, "CLEANSTACK"]))
+    assert result["steps"][0]["opcode"] == 2
+    assert result["steps"][0]["opcode_name"] == "PUSH 2 bytes"
 
 
 def test_encode_script_push_data_cases():
@@ -1334,25 +1344,28 @@ def test_script_verification_excluding_witness_clears_dependents():
         "WITNESS_PUBKEYTYPE",
     }
     assert "WITNESS_PUBKEYTYPE" not in result["activeFlags"]
+    assert result["witnessRulesEnabled"] is False
     assert result["usesWitness"] is False
 
 
-def test_script_verification_witness_missing_amount_hints():
+def test_script_verification_legacy_false_spend_does_not_report_witness():
     tx_hex = build_sample_tx_hex()
     result = json.loads(calc.script_verification(["51", "00", tx_hex, 0, ""]))
-    assert result["usesWitness"] is True
+    assert result["witnessRulesEnabled"] is True
+    assert result["usesWitness"] is False
     assert result["isValid"] is False
-    assert "requires the spent amount" in result.get("error", "")
+    assert "requires the spent amount" not in result.get("error", "")
 
 
-def test_script_verification_witness_amount_echo():
+def test_script_verification_legacy_amount_is_not_witness_amount():
     tx_hex = build_sample_tx_hex()
     amount = 1234
     result = json.loads(
         calc.script_verification(["", "51", tx_hex, 0, "", str(amount)])
     )
-    assert result["usesWitness"] is True
-    assert result.get("amountUsed") == amount
+    assert result["witnessRulesEnabled"] is True
+    assert result["usesWitness"] is False
+    assert "amountUsed" not in result
 
 
 def test_script_verification_p2wsh_op_true_succeeds():
@@ -1364,9 +1377,33 @@ def test_script_verification_p2wsh_op_true_succeeds():
     )
 
     assert result["isValid"] is True
+    assert result["witnessRulesEnabled"] is True
     assert result["usesWitness"] is True
     assert any(step.get("phase") == "witnessScript" for step in result["steps"])
     assert result.get("amountUsed") == 1000
+
+
+def test_script_verification_p2sh_wrapped_witness_reports_witness_use():
+    witness_script = CScript([1])
+    wsh = hashlib.sha256(bytes(witness_script)).hexdigest()
+    redeem_hex = "0020" + wsh
+    script_sig_hex = calc.encode_script_push_data(redeem_hex) + redeem_hex
+    script_pubkey_hex = "a914" + calc.hash160_hex(redeem_hex) + "87"
+
+    txin = CMutableTxIn(COutPoint(b"\x00" * 32, 0))
+    txout = CMutableTxOut(0, CScript([0]))
+    tx = CMutableTransaction(vin=[txin], vout=[txout])
+    tx.wit.vtxinwit = (CTxInWitness(scriptWitness=CScriptWitness([bytes(witness_script)])),)
+
+    result = json.loads(
+        calc.script_verification([script_sig_hex, script_pubkey_hex, b2x(tx.serialize()), 0, "", "1000"])
+    )
+
+    assert result["isValid"] is True
+    assert result["witnessRulesEnabled"] is True
+    assert result["usesWitness"] is True
+    assert result.get("amountUsed") == 1000
+    assert any(step.get("phase") == "witnessScript" for step in result["steps"])
 
 
 def test_script_verification_taproot_keypath_single_input():
@@ -1393,6 +1430,7 @@ def test_script_verification_taproot_keypath_single_input():
     )
 
     assert result["isValid"] is True
+    assert result["witnessRulesEnabled"] is True
     assert result["usesWitness"] is True
     assert result.get("amountUsed") == 5000
 
