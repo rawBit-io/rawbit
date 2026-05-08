@@ -302,6 +302,176 @@ describe("FlowCanvas", () => {
     });
   });
 
+  it("translates source reconnects from dashed group segments to the canonical edge", () => {
+    const groupedNodes: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "A", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "B", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "a1",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "a2",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 120 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "b1",
+        type: "calculation",
+        parentId: "group-b",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+    ];
+    const canonicalEdge = {
+      id: "edge-1",
+      source: "a1",
+      sourceHandle: "out",
+      target: "b1",
+      targetHandle: "in",
+    } as Edge;
+    const onReconnect = vi.fn();
+
+    render(
+      <FlowCanvas
+        {...baseProps}
+        nodes={groupedNodes}
+        edges={[canonicalEdge]}
+        onReconnect={onReconnect}
+      />
+    );
+
+    const passedEdges = reactFlowSpy.props.edges as Edge[];
+    const sourceSegment = passedEdges.find(
+      (edge) =>
+        isGroupBundleSegmentEdgeId(edge.id) && edge.data?.side === "source"
+    );
+
+    expect(sourceSegment).toMatchObject({
+      reconnectable: "source",
+      data: { bundledEdgeIds: ["edge-1"], side: "source" },
+    });
+
+    act(() => {
+      (reactFlowSpy.props.onReconnect as (oldEdge: Edge, connection: unknown) => void)(
+        sourceSegment as Edge,
+        {
+          source: "a2",
+          sourceHandle: "out-2",
+          target: sourceSegment?.target,
+          targetHandle: sourceSegment?.targetHandle,
+        }
+      );
+    });
+
+    expect(onReconnect).toHaveBeenCalledWith(canonicalEdge, {
+      source: "a2",
+      sourceHandle: "out-2",
+      target: "b1",
+      targetHandle: "in",
+    });
+  });
+
+  it("translates target reconnects from dashed group segments to the canonical edge", () => {
+    const groupedNodes: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "A", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "B", width: 300, height: 200 },
+      } as FlowNode,
+      {
+        id: "a1",
+        type: "calculation",
+        parentId: "group-a",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "b1",
+        type: "calculation",
+        parentId: "group-b",
+        position: { x: 40, y: 40 },
+        data: {},
+      } as FlowNode,
+      {
+        id: "b2",
+        type: "calculation",
+        parentId: "group-b",
+        position: { x: 40, y: 120 },
+        data: {},
+      } as FlowNode,
+    ];
+    const canonicalEdge = {
+      id: "edge-1",
+      source: "a1",
+      sourceHandle: "out",
+      target: "b1",
+      targetHandle: "in",
+    } as Edge;
+    const onReconnect = vi.fn();
+
+    render(
+      <FlowCanvas
+        {...baseProps}
+        nodes={groupedNodes}
+        edges={[canonicalEdge]}
+        onReconnect={onReconnect}
+      />
+    );
+
+    const passedEdges = reactFlowSpy.props.edges as Edge[];
+    const targetSegment = passedEdges.find(
+      (edge) =>
+        isGroupBundleSegmentEdgeId(edge.id) && edge.data?.side === "target"
+    );
+
+    expect(targetSegment).toMatchObject({
+      reconnectable: "target",
+      data: { bundledEdgeIds: ["edge-1"], side: "target" },
+    });
+
+    act(() => {
+      (reactFlowSpy.props.onReconnect as (oldEdge: Edge, connection: unknown) => void)(
+        targetSegment as Edge,
+        {
+          source: targetSegment?.source,
+          sourceHandle: targetSegment?.sourceHandle,
+          target: "b2",
+          targetHandle: "in-2",
+        }
+      );
+    });
+
+    expect(onReconnect).toHaveBeenCalledWith(canonicalEdge, {
+      source: "a1",
+      sourceHandle: "out",
+      target: "b2",
+      targetHandle: "in-2",
+    });
+  });
+
   it("deselects canonical edges when a selected dashed group segment is deselected", () => {
     const groupedNodes: FlowNode[] = [
       {

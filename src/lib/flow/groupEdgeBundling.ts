@@ -85,6 +85,7 @@ export interface GroupBundleEdgeData extends Record<string, unknown> {
 export interface GroupBundleSegmentEdgeData extends Record<string, unknown> {
   bundledEdgeIds: string[];
   selectedEdgeIds: string[];
+  side: "source" | "target";
 }
 
 interface GroupBundleRepresentedEdge {
@@ -903,12 +904,14 @@ export const buildGroupBundledElements = ({
           targetHandle: GROUP_BUNDLE_PORT_TARGET_HANDLE,
           selectable: false,
           deletable: false,
-          reconnectable: false,
+          reconnectable:
+            sourceSegmentEdgeIds.length === 1 ? "source" : false,
           focusable: false,
           selected: sourceSelectedEdgeIds.length > 0,
           data: {
             bundledEdgeIds: sourceSegmentEdgeIds,
             selectedEdgeIds: sourceSelectedEdgeIds,
+            side: "source",
           },
           className: "group-bundle-segment-edge",
           interactionWidth: 18,
@@ -939,12 +942,14 @@ export const buildGroupBundledElements = ({
           targetHandle: targetSegment.handle,
           selectable: false,
           deletable: false,
-          reconnectable: false,
+          reconnectable:
+            targetSegmentEdgeIds.length === 1 ? "target" : false,
           focusable: false,
           selected: targetSelectedEdgeIds.length > 0,
           data: {
             bundledEdgeIds: targetSegmentEdgeIds,
             selectedEdgeIds: targetSelectedEdgeIds,
+            side: "target",
           },
           className: "group-bundle-segment-edge",
           interactionWidth: 18,

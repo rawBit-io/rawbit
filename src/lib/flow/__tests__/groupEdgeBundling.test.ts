@@ -55,6 +55,16 @@ describe("buildGroupBundledEdges", () => {
         edge.id.startsWith(GROUP_BUNDLE_SEGMENT_EDGE_ID_PREFIX)
       )
     ).toHaveLength(4);
+    expect(
+      rendered
+        .filter((edge) =>
+          edge.id.startsWith(GROUP_BUNDLE_SEGMENT_EDGE_ID_PREFIX)
+        )
+        .every(
+          (edge) =>
+            edge.reconnectable === "source" || edge.reconnectable === "target"
+        )
+    ).toBe(true);
     expect(bundle).toMatchObject({
       id: "__group_bundle__:group-a->group-b",
       type: "groupBundle",
@@ -102,6 +112,32 @@ describe("buildGroupBundledEdges", () => {
         edge.id.startsWith(GROUP_BUNDLE_SEGMENT_EDGE_ID_PREFIX)
       )
     ).toHaveLength(2);
+    expect(
+      rendered.find(
+        (edge) =>
+          edge.id.startsWith(GROUP_BUNDLE_SEGMENT_EDGE_ID_PREFIX) &&
+          edge.data?.side === "source"
+      )
+    ).toMatchObject({
+      reconnectable: "source",
+      data: {
+        bundledEdgeIds: ["e1"],
+        side: "source",
+      },
+    });
+    expect(
+      rendered.find(
+        (edge) =>
+          edge.id.startsWith(GROUP_BUNDLE_SEGMENT_EDGE_ID_PREFIX) &&
+          edge.data?.side === "target"
+      )
+    ).toMatchObject({
+      reconnectable: "target",
+      data: {
+        bundledEdgeIds: ["e1"],
+        side: "target",
+      },
+    });
     expect(bundle).toMatchObject({
       id: "__group_bundle__:group-a->group-b",
       data: {

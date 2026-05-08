@@ -1,4 +1,5 @@
 import type {
+  Connection,
   Edge,
   EdgeChange,
   NodeChange,
@@ -32,6 +33,7 @@ import {
   getGroupBundleSegmentEdgeIds,
   GROUP_BUNDLE_EDGE_TYPE,
   type GroupBundleEdgeData,
+  type GroupBundleSegmentEdgeData,
   isGroupBundleEdgeId,
   isGroupBundlePortNodeId,
   isGroupBundleSegmentEdgeId,
@@ -121,6 +123,13 @@ const hasCurveControlPointOffset = (edge: Edge): boolean =>
         "curveControlPointOffset"
       )
   );
+
+const segmentReconnectSide = (
+  edge: Edge
+): "source" | "target" | undefined => {
+  const side = (edge.data as GroupBundleSegmentEdgeData | undefined)?.side;
+  return side === "source" || side === "target" ? side : undefined;
+};
 
 const buildClearCurveOffsetChange = (edge: Edge): EdgeChange => {
   const data = {
@@ -617,6 +626,49 @@ export function FlowCanvas({
     },
     [edges, onEdgesChange, visualElements.edges]
   );
+
+  const handleReconnect = useCallback<OnReconnect>(
+    (oldEdge, newConnection) => {
+      if (!isGroupBundleSegmentEdgeId(oldEdge.id)) {
+        onReconnect?.(oldEdge, newConnection);
+        return;
+      }
+
+      const segmentEdgeIds = getGroupBundleSegmentEdgeIds(oldEdge);
+      const [canonicalEdgeId] = segmentEdgeIds;
+      if (!canonicalEdgeId || segmentEdgeIds.length !== 1) {
+        return;
+      }
+
+      const canonicalEdge = edges.find((edge) => edge.id === canonicalEdgeId);
+      const side = segmentReconnectSide(oldEdge);
+      if (!canonicalEdge || !side) return;
+
+      let translatedConnection: Connection | undefined;
+      if (side === "source" && newConnection.source) {
+        translatedConnection = {
+          source: newConnection.source,
+          sourceHandle: newConnection.sourceHandle,
+          target: canonicalEdge.target,
+          targetHandle: canonicalEdge.targetHandle ?? null,
+        };
+      }
+      if (side === "target" && newConnection.target) {
+        translatedConnection = {
+          source: canonicalEdge.source,
+          sourceHandle: canonicalEdge.sourceHandle ?? null,
+          target: newConnection.target,
+          targetHandle: newConnection.targetHandle,
+        };
+      }
+
+      if (!translatedConnection) return;
+      setBundleSelectedEdgeIds([]);
+      onReconnect?.(canonicalEdge, translatedConnection);
+    },
+    [edges, onReconnect]
+  );
+
   const handleEdgeClick = useCallback<
     NonNullable<ReactFlowProps<FlowNode>["onEdgeClick"]>
   >(
@@ -656,7 +708,7 @@ export function FlowCanvas({
           onEdgesChange={handleEdgesChange}
           onEdgeClick={handleEdgeClick}
           onConnect={onConnect}
-          onReconnect={onReconnect}
+          onReconnect={handleReconnect}
           onDrop={onDrop}
           onDragOver={onDragOver}
           onNodeDragStop={onNodeDragStop}
