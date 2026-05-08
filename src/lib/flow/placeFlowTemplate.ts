@@ -4,27 +4,10 @@ import type { FlowData, FlowNode } from "@/types";
 
 export const FLOW_TEMPLATE_DROP_ZOOM = 0.5;
 
-const FLOW_LAYOUT_NOTICE_WIDTH = 460;
-const FLOW_LAYOUT_NOTICE_HEIGHT = 230;
-const FLOW_LAYOUT_NOTICE_GAP = 48;
-const FLOW_LAYOUT_NOTICE_CONTENT = `## Flow layout update
-
-Flow examples are being visually reworked with clearer groups, notes, and layout.
-
-The flow remains usable here. The previous layout is temporarily available at [dev.rawbit.io](https://dev.rawbit.io).
-
-Source: [github.com/rawBit-io/rawbit](https://github.com/rawBit-io/rawbit)`;
-
-type PlaceFlowOptions = {
-  includeLayoutNotice?: boolean;
-  noticeIdFactory?: () => string;
-};
-
 export function placeFlowDataAtPosition(
   flowData: FlowData,
   dropX: number,
   dropY: number,
-  options: PlaceFlowOptions = {}
 ): {
   nodes: FlowNode[];
   edges: Edge[];
@@ -57,35 +40,8 @@ export function placeFlowDataAtPosition(
     return { ...old, position, selected: true };
   });
 
-  if (options.includeLayoutNotice === false) {
-    return {
-      nodes: translated,
-      edges: flowData.edges,
-      anchorPosition: { x: dropX, y: dropY },
-    };
-  }
-
-  const layoutNoticeNode: FlowNode = {
-    id:
-      options.noticeIdFactory?.() ??
-      `flow-layout-notice_${Math.random().toString(36).slice(2, 9)}`,
-    type: "shadcnTextInfo",
-    position: {
-      x: dropX,
-      y: dropY - FLOW_LAYOUT_NOTICE_HEIGHT - FLOW_LAYOUT_NOTICE_GAP,
-    },
-    selected: true,
-    data: {
-      title: "Flow layout update",
-      content: FLOW_LAYOUT_NOTICE_CONTENT,
-      fontSize: 24,
-      width: FLOW_LAYOUT_NOTICE_WIDTH,
-      height: FLOW_LAYOUT_NOTICE_HEIGHT,
-    },
-  };
-
   return {
-    nodes: [...translated, layoutNoticeNode],
+    nodes: translated,
     edges: flowData.edges,
     anchorPosition: { x: dropX, y: dropY },
   };

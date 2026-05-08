@@ -1233,8 +1233,7 @@ function FlowContent() {
         const placed = placeFlowDataAtPosition(
           { ...clonedData, nodes: nodesFromFlow, edges: edgesFromFlow },
           INTRO_FLOW_DROP_FLOW_POSITION.x,
-          INTRO_FLOW_DROP_FLOW_POSITION.y,
-          { includeLayoutNotice: false }
+          INTRO_FLOW_DROP_FLOW_POSITION.y
         );
         nodesFromFlow = placed.nodes;
         edgesFromFlow = placed.edges;

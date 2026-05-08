@@ -111,11 +111,7 @@ const createMockInstance = (
       x: 50,
       y: 60,
     });
-    const noticeNode = result.current.nodes.find(
-      (n) => n.type === "shadcnTextInfo" && n.data?.title === "Flow layout update"
-    );
-    expect(noticeNode?.position).toEqual({ x: 50, y: -218 });
-    expect(noticeNode?.data?.content).toContain("dev.rawbit.io");
+    expect(result.current.nodes.filter((n) => n.type === "shadcnTextInfo")).toHaveLength(0);
     expect(mockRf.setViewport).toHaveBeenCalledWith(
       { x: 25, y: 30, zoom: 0.5 },
       { duration: 0 }

@@ -435,9 +435,6 @@ export function useNodeOperations() {
           maybeFlowData as FlowData,
           pos.x,
           pos.y,
-          {
-            noticeIdFactory: () => `flow-layout-notice_${randomId()}`,
-          },
         );
 
         // ② run the stable-id merge (only rename on conflicts)
