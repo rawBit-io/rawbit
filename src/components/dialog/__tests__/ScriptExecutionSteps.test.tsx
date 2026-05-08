@@ -237,19 +237,18 @@ describe("ScriptExecutionSteps", () => {
       await user.click(nextButton);
     }
 
-    expect(
-      screen.getByText(/ERROR: signature check failed/i)
-    ).toBeInTheDocument();
-    expect(screen.getByText(/ERROR: signature check failed/i)).toHaveClass(
+    expect(screen.getByText("Failed")).toHaveClass("script-execution-error");
+    expect(screen.getByText(/signature check failed/i)).toBeInTheDocument();
+    expect(screen.getByText(/signature check failed/i)).toHaveClass(
       "script-execution-error"
     );
     const explanation = screen.getByText(
       /Check a signature against a public key/i
     );
-    const stepError = screen.getByText(/ERROR: signature check failed/i);
+    const stepError = screen.getByText(/signature check failed/i);
     const stackBefore = screen.getByText("Stack Before (top → first)");
     expect(
-      explanation.compareDocumentPosition(stepError) &
+      stepError.compareDocumentPosition(explanation) &
         Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy();
     expect(
