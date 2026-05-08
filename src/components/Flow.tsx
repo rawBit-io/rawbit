@@ -86,7 +86,6 @@ import {
 } from "@/lib/flow/groupEdgeBundling";
 import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
 import {
-  FLOW_TEMPLATE_DROP_ZOOM,
   getFlowTemplateViewport,
   placeFlowDataAtPosition,
 } from "@/lib/flow/placeFlowTemplate";
@@ -133,8 +132,12 @@ const LIMIT_ERROR_PATTERNS = [
 
 const FIRST_RUN_STORAGE_KEY = "rawbit.ui.welcomeSeen";
 const INTRO_FLOW_ID = "flow-0";
+const TOP_LEVEL_FLOW_SECTION = "top-level";
 const INTRO_FLOW_DROP_FLOW_POSITION = { x: 0, y: 0 };
-const INTRO_FLOW_DROP_POINT = { x: 32, y: 32 };
+const INTRO_FLOW_DROP_POINT = { x: 0, y: 0 };
+const INTRO_FLOW_DROP_ZOOM = 0.2;
+const MOBILE_INTRO_OVERVIEW_POINT = { x: 16, y: 150 };
+const MOBILE_INTRO_OVERVIEW_ZOOM = 0.2;
 const INTRO_FLOW_DROP_ANIMATION_MS = 1100;
 const INTRO_SOURCE_FALLBACK = { x: 76, y: 780 };
 const INTRO_SOURCE_CARD_SIZE = { width: 196, height: 96 };
@@ -236,6 +239,40 @@ function isAutomationEnvironment() {
   return false;
 }
 
+type ExtendedNavigator = Navigator & {
+  userAgentData?: { mobile?: boolean };
+};
+
+function getCurrentMobileBlockState() {
+  if (typeof window === "undefined") return false;
+
+  const nav: ExtendedNavigator | undefined =
+    typeof window.navigator !== "undefined"
+      ? (window.navigator as ExtendedNavigator)
+      : undefined;
+  const coarsePointer =
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(pointer: coarse)").matches;
+
+  return shouldBlockMobile({
+    width: window.innerWidth,
+    coarsePointer,
+    userAgent: nav?.userAgent,
+    userAgentDataMobile: nav?.userAgentData?.mobile,
+  });
+}
+
+function findOverviewNode(nodesToInspect: FlowNode[]) {
+  return nodesToInspect.find((node) => {
+    const data = node.data as { title?: unknown; content?: unknown } | undefined;
+    return (
+      node.type === "shadcnTextInfo" &&
+      (String(data?.content ?? "").includes("# Overview") ||
+        String(data?.title ?? "").toLowerCase() === "overview")
+    );
+  });
+}
+
 function cloneFlowData(data: FlowData): FlowData {
   try {
     if (typeof structuredClone === "function") {
@@ -294,8 +331,15 @@ function FlowContent() {
   const [showMiniMap, setShowMiniMap] = useState(false);
   const [isSelectionLocked, setIsSelectionLocked] = useState(false);
   const [isSelectionHotKeyActive, setIsSelectionHotKeyActive] = useState(false);
-  const [isMobileBlocked, setIsMobileBlocked] = useState(false);
+  const [isMobileBlocked, setIsMobileBlocked] = useState(() =>
+    getCurrentMobileBlockState()
+  );
+  const [mobileCanvasMode, setMobileCanvasMode] = useState<"intro" | "canvas">(
+    "intro"
+  );
   const isMobileReadOnly = isMobileBlocked;
+  const showMobileIntroPreview =
+    isMobileReadOnly && mobileCanvasMode === "intro";
   const isSelectionMode = isSelectionLocked || isSelectionHotKeyActive;
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const activeTabIdRef = useRef<string | null>(null);
@@ -331,8 +375,18 @@ function FlowContent() {
     () => customFlows.map((flow) => ({ id: flow.id, label: flow.label })),
     []
   );
+  const visibleExampleFlowOptions = useMemo(
+    () =>
+      customFlows
+        .filter((flow) => flow.section === TOP_LEVEL_FLOW_SECTION)
+        .map((flow) => ({ id: flow.id, label: flow.label })),
+    []
+  );
+  const mobileExampleFlowOptions = visibleExampleFlowOptions.length
+    ? visibleExampleFlowOptions
+    : exampleFlowOptions;
   const mobileIntroGraph = useMemo(() => {
-    if (!isMobileReadOnly) return null;
+    if (!showMobileIntroPreview) return null;
 
     const entry = exampleFlowMap.get(INTRO_FLOW_ID) ?? customFlows[0];
     if (!entry) return null;
@@ -366,32 +420,13 @@ function FlowContent() {
       nodes: normalizedNodes,
       edges: normalizedEdges,
     };
-  }, [exampleFlowMap, isMobileReadOnly]);
+  }, [exampleFlowMap, showMobileIntroPreview]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    type ExtendedNavigator = Navigator & {
-      userAgentData?: { mobile?: boolean };
-    };
-    const nav: ExtendedNavigator | undefined =
-      typeof window.navigator !== "undefined"
-        ? (window.navigator as ExtendedNavigator)
-        : undefined;
-
-    const hasCoarsePointer = () =>
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(pointer: coarse)").matches;
-
     const updateMobileBlock = () => {
-      setIsMobileBlocked(
-        shouldBlockMobile({
-          width: window.innerWidth,
-          coarsePointer: hasCoarsePointer(),
-          userAgent: nav?.userAgent,
-          userAgentDataMobile: nav?.userAgentData?.mobile,
-        })
-      );
+      setIsMobileBlocked(getCurrentMobileBlockState());
     };
 
     updateMobileBlock();
@@ -963,20 +998,6 @@ function FlowContent() {
     activeTabIdRef.current = activeTabId;
   }, [activeTabId]);
 
-  const ensureShareImportTab = useCallback(async () => {
-    const newId = addTab();
-    await new Promise<void>((resolve) => {
-      requestAnimationFrame(() => resolve());
-    });
-    if (activeTabIdRef.current !== newId) {
-      selectTab(newId);
-      await new Promise<void>((resolve) => {
-        requestAnimationFrame(() => resolve());
-      });
-    }
-    return newId;
-  }, [addTab, selectTab]);
-
   const activeCalcState = calcStateByTab[activeTabId] ?? DEFAULT_TAB_CALC_STATE;
   const calcStatus = activeCalcState.status;
   const errorInfo = activeCalcState.errors;
@@ -1212,7 +1233,7 @@ function FlowContent() {
           dropViewport = getFlowTemplateViewport(
             INTRO_FLOW_DROP_POINT,
             placed.anchorPosition,
-            FLOW_TEMPLATE_DROP_ZOOM
+            INTRO_FLOW_DROP_ZOOM
           );
         }
       }
@@ -1241,6 +1262,7 @@ function FlowContent() {
       const normalizedEdges = edgesFromFlow.map((edge) => ({
         ...edge,
       })) as Edge[];
+      setMobileCanvasMode("canvas");
       setNodes(() => normalizedNodes);
       setEdges(() => normalizedEdges);
 
@@ -1440,6 +1462,7 @@ function FlowContent() {
     }) => {
       const targetTabId = tabId ?? activeTabIdRef.current ?? activeTabId;
 
+      setMobileCanvasMode("canvas");
       setNodes(() => nextNodes);
       setEdges(() => cloneEdgesForRender(nextEdges));
 
@@ -1922,7 +1945,6 @@ function FlowContent() {
     activeTabId,
     setInfoDialog,
     flowInstanceRef,
-    ensureShareImportTab,
   });
   useEffect(() => {
     window.addEventListener("mousemove", handleMouseMove);
@@ -2097,6 +2119,19 @@ function FlowContent() {
           pendingExampleViewportRef.current = null;
           clearExampleFitRetryTimers();
           setHasFitOnInitialLoad(true);
+        } else if (showMobileIntroPreview) {
+          const overviewNode = findOverviewNode(canvasNodes);
+          if (overviewNode) {
+            instance.setViewport(
+              getFlowTemplateViewport(
+                MOBILE_INTRO_OVERVIEW_POINT,
+                overviewNode.position,
+                MOBILE_INTRO_OVERVIEW_ZOOM
+              ),
+              { duration: 0 }
+            );
+            setHasFitOnInitialLoad(true);
+          }
         } else if (
           !pendingExampleFitRef.current &&
           !hasFitOnInitialLoad &&
@@ -2142,6 +2177,7 @@ function FlowContent() {
       activeTabId,
       hasFitOnInitialLoad,
       initialHydrationDone,
+      showMobileIntroPreview,
       clearExampleFitRetryTimers,
       fitCurrentGraphIntoView,
     ]
@@ -2383,37 +2419,48 @@ function FlowContent() {
                 <div className="pointer-events-none absolute inset-x-0 top-4 mx-auto w-11/12 max-w-md">
                   <div className="pointer-events-auto rounded-lg border border-border bg-background/90 px-4 py-3 text-center text-sm font-medium shadow-sm backdrop-blur">
                     <div className="leading-snug">
-                      raw₿it is optimized for desktop. This mobile preview shows
-                      Intro P2PKH in read-only mode.
+                      raw₿it is optimized for desktop. Mobile opens flows in
+                      read-only mode.
                     </div>
-                    <div className="mt-2 flex items-center justify-center gap-1">
+                    <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                      <div aria-hidden="true" />
                       <Button
-                        asChild
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
-                        className="h-8 px-2 text-xs font-medium"
-                        aria-label="GitHub"
+                        className="h-8 px-3 text-xs font-medium"
+                        onClick={() => setShowWelcomeDialog(true)}
                       >
-                        <a
-                          href="https://github.com/rawBit-io/rawbit"
-                          target="_blank"
-                          rel="noreferrer"
+                        Load example flow
+                      </Button>
+                      <div className="flex shrink-0 items-center justify-end gap-1">
+                        <Button
+                          asChild
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-2 text-xs font-medium"
+                          aria-label="GitHub"
                         >
-                          <Github className="h-5 w-5" />
-                        </a>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 px-2 text-xs font-medium"
-                        onClick={() =>
-                          setTheme(theme === "light" ? "dark" : "light")
-                        }
-                        aria-label="Toggle theme"
-                      >
-                        <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                        <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                      </Button>
+                          <a
+                            href="https://github.com/rawBit-io/rawbit"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <Github className="h-5 w-5" />
+                          </a>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-2 text-xs font-medium"
+                          onClick={() =>
+                            setTheme(theme === "light" ? "dark" : "light")
+                          }
+                          aria-label="Toggle theme"
+                        >
+                          <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                          <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2515,7 +2562,9 @@ function FlowContent() {
           />
           <FirstRunDialog
             open={showWelcomeDialog}
-            flows={exampleFlowOptions}
+            flows={
+              isMobileReadOnly ? mobileExampleFlowOptions : exampleFlowOptions
+            }
             onStartEmpty={handleWelcomeStartEmpty}
             onLoadExample={handleWelcomeLoadExample}
             hideStartEmpty={isMobileReadOnly}

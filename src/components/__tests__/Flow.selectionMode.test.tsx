@@ -20,6 +20,15 @@ type FileImportCallbacks = {
   onError?: (message: string, details?: unknown[]) => void;
 };
 
+type SharedFlowLoaderMockOptions = {
+  replaceGraph?: (graph: {
+    nodes: FlowNode[];
+    edges: Edge[];
+    tabId?: string;
+  }) => void;
+  ensureShareImportTab?: () => string | null | Promise<string | null>;
+};
+
 const firstRunDialogProps = {
   current: null as FirstRunDialogMockProps | null,
 };
@@ -35,6 +44,9 @@ const flowCanvasProps = {
         isReadOnly?: boolean;
       } & Record<string, unknown>)
     | null,
+};
+const sharedFlowLoaderOptions = {
+  current: null as SharedFlowLoaderMockOptions | null,
 };
 
 const flowNodesState = { current: [] as FlowNode[] };
@@ -205,8 +217,19 @@ vi.mock("@/my_tx_flows/customFlows", () => ({
     {
       id: "example-flow",
       label: "Example flow",
+      section: "top-level",
       data: {
         nodes: [
+          {
+            id: "overview-node",
+            type: "shadcnTextInfo",
+            position: { x: 375, y: 225 },
+            data: {
+              content: "# Overview\n\nIntro text",
+              width: 875,
+              height: 836,
+            },
+          } as FlowNode,
           {
             id: "calc-node",
             type: "calculation",
@@ -229,6 +252,24 @@ vi.mock("@/my_tx_flows/customFlows", () => ({
         ],
         schemaVersion: 1,
         name: "Example flow data",
+      } as FlowData,
+    },
+    {
+      id: "older-flow",
+      label: "Older flow",
+      section: "legacy-foundations",
+      data: {
+        nodes: [
+          {
+            id: "older-node",
+            type: "calculation",
+            position: { x: 0, y: 0 },
+            data: { functionName: "identity", numInputs: 1 },
+          } as FlowNode,
+        ],
+        edges: [],
+        schemaVersion: 1,
+        name: "Older flow data",
       } as FlowData,
     },
   ],
@@ -340,7 +381,9 @@ vi.mock("@/hooks/useFlowHotkeys", () => ({
 }));
 
 vi.mock("@/hooks/useSharedFlowLoader", () => ({
-  useSharedFlowLoader: vi.fn(),
+  useSharedFlowLoader: vi.fn((options: SharedFlowLoaderMockOptions) => {
+    sharedFlowLoaderOptions.current = options;
+  }),
 }));
 
 vi.mock("@/hooks/useSimplifiedSave", () => ({
@@ -398,10 +441,28 @@ beforeEach(() => {
   vi.clearAllMocks();
   firstRunDialogProps.current = null;
   flowCanvasProps.current = null;
+  sharedFlowLoaderOptions.current = null;
   latestFileImportOptions.current = undefined;
   flowNodesState.current = [];
   flowEdgesState.current = [];
+  setNodesMock.mockImplementation(
+    (updater: FlowNode[] | ((nodes: FlowNode[]) => FlowNode[])) => {
+      flowNodesState.current =
+        typeof updater === "function"
+          ? updater(flowNodesState.current)
+          : updater;
+    }
+  );
+  setEdgesMock.mockImplementation(
+    (updater: Edge[] | ((edges: Edge[]) => Edge[])) => {
+      flowEdgesState.current =
+        typeof updater === "function"
+          ? updater(flowEdgesState.current)
+          : updater;
+    }
+  );
   localStorage.clear();
+  window.history.replaceState({}, "", "/");
   document.body.innerHTML = "";
   delete document.body.dataset.flowSelectionMode;
   setNavigatorWebdriver(false);
@@ -508,18 +569,136 @@ describe("Flow first-run dialog", () => {
       expect(flowCanvasProps.current?.isReadOnly).toBe(true);
     });
 
-    expect(getByText(/mobile preview shows\s+Intro P2PKH/i)).toBeTruthy();
-    expect(queryByText("Load example flows")).toBeNull();
+    expect(getByText(/Mobile opens flows in\s+read-only mode/i)).toBeTruthy();
+    expect(getByText("Load example flow")).toBeTruthy();
+    expect(firstRunDialogProps.current?.flows.map((flow) => flow.label)).toEqual([
+      "Example flow",
+    ]);
+    expect(queryByText("Older flow")).toBeNull();
     expect(flowCanvasProps.current?.nodes.map((node) => node.id)).toEqual([
+      "overview-node",
       "calc-node",
       "group-node",
     ]);
+    await waitFor(() => {
+      expect(setViewportMock).toHaveBeenCalledWith(
+        { x: -59, y: 105, zoom: 0.2 },
+        { duration: 0 }
+      );
+    });
     expect(flowCanvasProps.current?.edges.map((edge) => edge.id)).toEqual([
       "edge-1",
     ]);
     expect(firstRunDialogProps.current?.open).toBe(false);
     expect(setNodesMock).not.toHaveBeenCalled();
     expect(setEdgesMock).not.toHaveBeenCalled();
+  });
+
+  it("opens the example loader on mobile and loads the selected flow", async () => {
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      writable: true,
+      value: 390,
+    });
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      value: vi.fn().mockImplementation((query: string) => ({
+        matches: query === "(pointer: coarse)",
+        media: query,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    });
+
+    const { getByText, rerender } = renderFlow();
+
+    await waitFor(() => {
+      expect(flowCanvasProps.current?.isReadOnly).toBe(true);
+    });
+
+    act(() => {
+      getByText("Load example flow").click();
+    });
+
+    await waitFor(() => {
+      expect(firstRunDialogProps.current?.open).toBe(true);
+    });
+
+    act(() => {
+      firstRunDialogProps.current?.onLoadExample("example-flow");
+    });
+    rerender(<Flow />);
+
+    await waitFor(() => {
+      expect(flowCanvasProps.current?.nodes.map((node) => node.id)).toEqual([
+        "overview-node",
+        "calc-node",
+        "group-node",
+      ]);
+    });
+    expect(flowCanvasProps.current?.isReadOnly).toBe(true);
+    expect(setNodesMock).toHaveBeenCalledTimes(1);
+    expect(setEdgesMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("replaces the mobile intro preview with shared-link imports", async () => {
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      writable: true,
+      value: 390,
+    });
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      value: vi.fn().mockImplementation((query: string) => ({
+        matches: query === "(pointer: coarse)",
+        media: query,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    });
+
+    const sharedNode = {
+      id: "shared-node",
+      type: "calculation",
+      position: { x: 0, y: 0 },
+      data: { functionName: "identity" },
+    } as FlowNode;
+    const { rerender } = renderFlow();
+
+    await waitFor(() => {
+      expect(flowCanvasProps.current?.isReadOnly).toBe(true);
+    });
+
+    expect(sharedFlowLoaderOptions.current?.ensureShareImportTab).toBeUndefined();
+
+    act(() => {
+      sharedFlowLoaderOptions.current?.replaceGraph?.({
+        nodes: [sharedNode],
+        edges: [],
+      });
+    });
+    rerender(<Flow />);
+
+    await waitFor(() => {
+      expect(flowCanvasProps.current?.nodes.map((node) => node.id)).toEqual([
+        "shared-node",
+      ]);
+    });
+    expect(flowCanvasProps.current?.isReadOnly).toBe(true);
+    expect(saveTabDataMock).toHaveBeenCalledWith("tab-1", {
+      force: true,
+      immediate: true,
+      data: {
+        nodes: [sharedNode],
+        edges: [],
+      },
+    });
   });
 
   it("auto-loads the intro flow when no stored data exists", async () => {
@@ -539,6 +718,10 @@ describe("Flow first-run dialog", () => {
       expect(firstRunDialogProps.current?.open).toBe(false);
       expect(setNodesMock).toHaveBeenCalledTimes(1);
       expect(setEdgesMock).toHaveBeenCalledTimes(1);
+      expect(setViewportMock).toHaveBeenCalledWith(
+        { x: 0, y: 0, zoom: 0.2 },
+        { duration: 0 }
+      );
 
       expect(restoreScriptStepsMock).toHaveBeenCalledWith([]);
       expect(ingestScriptStepsMock).toHaveBeenCalledTimes(1);
