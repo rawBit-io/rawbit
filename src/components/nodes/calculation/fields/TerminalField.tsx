@@ -1,7 +1,9 @@
 import React, {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
+  useState,
 } from "react";
 
 import { Checkbox } from "@/components/ui/checkbox";
@@ -110,7 +112,13 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
   labelClassName,
 }: TerminalFieldProps) {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const focusedRef = useRef(false);
+  const pendingSelectionRef = useRef<{ start: number; end: number } | null>(
+    null
+  );
   const textareaRows = autoResizeMaxRows ? 1 : rows ?? 3;
+  const normalizedValue = value ?? "";
+  const [draftValue, setDraftValue] = useState(normalizedValue);
 
   useEffect(() => {
     const ta = textareaRef.current;
@@ -126,6 +134,12 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
     ta.addEventListener("wheel", onWheel, { passive: false });
     return () => ta.removeEventListener("wheel", onWheel);
   }, []);
+
+  useEffect(() => {
+    if (!focusedRef.current || readOnly) {
+      setDraftValue(normalizedValue);
+    }
+  }, [normalizedValue, readOnly]);
 
   useLayoutEffect(() => {
     const ta = textareaRef.current;
@@ -147,7 +161,50 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
     ta.style.height = "auto";
     ta.style.height = `${Math.min(ta.scrollHeight, maxHeight)}px`;
     ta.style.overflowY = ta.scrollHeight > maxHeight ? "auto" : "hidden";
-  }, [autoResizeMaxRows, value]);
+  }, [autoResizeMaxRows, draftValue]);
+
+  useLayoutEffect(() => {
+    const ta = textareaRef.current;
+    const selection = pendingSelectionRef.current;
+    if (!ta || document.activeElement !== ta || !selection) return;
+
+    const start = Math.min(selection.start, ta.value.length);
+    const end = Math.min(selection.end, ta.value.length);
+    ta.setSelectionRange(start, end);
+    pendingSelectionRef.current = null;
+  }, [draftValue]);
+
+  const handleTextareaChange = useCallback(
+    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const nextValue = event.target.value;
+      pendingSelectionRef.current = {
+        start: event.target.selectionStart ?? nextValue.length,
+        end: event.target.selectionEnd ?? nextValue.length,
+      };
+      setDraftValue(nextValue);
+      onChange?.(nextValue);
+    },
+    [onChange]
+  );
+
+  const handleTextareaFocus = useCallback(
+    (event: React.FocusEvent<HTMLTextAreaElement>) => {
+      focusedRef.current = true;
+      setDraftValue(event.target.value);
+      onFocus?.(event.target.value);
+    },
+    [onFocus]
+  );
+
+  const handleTextareaBlur = useCallback(
+    (event: React.FocusEvent<HTMLTextAreaElement>) => {
+      focusedRef.current = false;
+      pendingSelectionRef.current = null;
+      setDraftValue(event.target.value);
+      onBlur?.(event.target.value);
+    },
+    [onBlur]
+  );
 
   if (comment) {
     return (
@@ -235,13 +292,13 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
                     readOnly ? "border-input" : "border-dashed border-input"
                   )}
                   placeholder={placeholder}
-                  value={value ?? ""}
+                  value={draftValue}
                   readOnly={readOnly}
                   rows={textareaRows}
                   spellCheck={false}
-                  onChange={(event) => onChange?.(event.target.value)}
-                  onFocus={(event) => onFocus?.(event.target.value)}
-                  onBlur={(event) => onBlur?.(event.target.value)}
+                  onChange={handleTextareaChange}
+                  onFocus={handleTextareaFocus}
+                  onBlur={handleTextareaBlur}
                   style={{
                     maxHeight: autoResizeMaxRows ? undefined : "200px",
                     overflowY: autoResizeMaxRows ? "hidden" : "auto",
@@ -340,13 +397,13 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
             readOnly ? "border-input" : "border-dashed border-input"
           )}
           placeholder={placeholder}
-          value={value ?? ""}
+          value={draftValue}
           readOnly={readOnly}
           rows={textareaRows}
           spellCheck={false}
-          onChange={(event) => onChange?.(event.target.value)}
-          onFocus={(event) => onFocus?.(event.target.value)}
-          onBlur={(event) => onBlur?.(event.target.value)}
+          onChange={handleTextareaChange}
+          onFocus={handleTextareaFocus}
+          onBlur={handleTextareaBlur}
           style={{
             maxHeight: autoResizeMaxRows ? undefined : "200px",
             overflowY: autoResizeMaxRows ? "hidden" : "auto",
