@@ -1,5 +1,5 @@
 {
-  "name": "flow-1774020828936",
+  "name": "Transaction Time Locks (nLocktime & nSequence)",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,

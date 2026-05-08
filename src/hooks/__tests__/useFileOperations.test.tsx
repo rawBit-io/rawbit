@@ -622,6 +622,9 @@ describe("useFileOperations", () => {
       expect(full.runtimeSemantics).toEqual(semanticsMatcher);
       expect(simplified.runtimeSemantics).toEqual(semanticsMatcher);
       expect(llm.runtimeSemantics).toEqual(semanticsMatcher);
+      expect(full.name).toBe("Runtime Semantics");
+      expect(simplified.name).toBe("Runtime Semantics - simplified");
+      expect(llm.name).toBe("Runtime Semantics - llm");
       const llmContext = llm.llmContext as { whatIsExported?: string[] } | undefined;
       expect(llmContext?.whatIsExported).toEqual(
         expect.arrayContaining([expect.stringContaining("Runtime semantics:")])

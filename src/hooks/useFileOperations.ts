@@ -323,6 +323,15 @@ export function useFileOperations(
     return "Flow";
   }, [importOptions]);
 
+  const getExportName = useCallback((): string => {
+    const raw = importOptions?.getActiveTabTitle?.();
+    if (typeof raw === "string") {
+      const trimmed = raw.trim();
+      if (trimmed) return trimmed;
+    }
+    return getTabBaseTitle();
+  }, [getTabBaseTitle, importOptions]);
+
   const nextDownloadName = useCallback(
     (rawBase: string, extension = ".json"): string => {
       const ext = extension.startsWith(".") ? extension : `.${extension}`;
@@ -346,7 +355,7 @@ export function useFileOperations(
     );
 
     const payload: FullExportPayload = {
-      name: `flow-${Date.now()}`,
+      name: getExportName(),
       schemaVersion: FLOW_SCHEMA_VERSION,
       runtimeSemantics: EXPORT_RUNTIME_SEMANTICS,
       nodes: nodesWithSteps.map((n) => ({
@@ -393,7 +402,14 @@ export function useFileOperations(
     URL.revokeObjectURL(url);
 
     log("fileOps", "Flow saved to JSON file.");
-  }, [nodes, edges, importOptions, getTabBaseTitle, nextDownloadName]);
+  }, [
+    nodes,
+    edges,
+    importOptions,
+    getExportName,
+    getTabBaseTitle,
+    nextDownloadName,
+  ]);
 
   /* ─────────────────────────  FILE PICKER  ────────────────────────────── */
   const openFileDialog = useCallback(() => {
@@ -848,7 +864,7 @@ export function useFileOperations(
   const saveSimplifiedFlow = useCallback(() => {
     const snapshot = buildSimplifiedSnapshot();
     const slim: SimplifiedExportPayload = {
-      name: `flow-${Date.now()}-simple`,
+      name: `${getExportName()} - simplified`,
       schemaVersion: FLOW_SCHEMA_VERSION,
       nodes: snapshot.nodes,
       edges: snapshot.edges,
@@ -890,7 +906,13 @@ export function useFileOperations(
       "fileOps",
       `Simplified flow saved (${snapshot.selectedCount ? "selection" : "full graph"}; labels inline).`
     );
-  }, [buildSimplifiedSnapshot, importOptions, getTabBaseTitle, nextDownloadName]);
+  }, [
+    buildSimplifiedSnapshot,
+    importOptions,
+    getExportName,
+    getTabBaseTitle,
+    nextDownloadName,
+  ]);
 
   /* ────────────────────────  SAVE LLM EXPORT  ───────────────────────── */
   const saveLlmExport = useCallback(async () => {
@@ -913,7 +935,7 @@ export function useFileOperations(
           "Backend source code: unique Python function implementations for exported node function names (deduplicated).",
         ],
       },
-      name: `flow-${Date.now()}-llm`,
+      name: `${getExportName()} - llm`,
       schemaVersion: FLOW_SCHEMA_VERSION,
       exportedAt: new Date().toISOString(),
       nodes: snapshot.nodes,
@@ -963,7 +985,13 @@ export function useFileOperations(
       "fileOps",
       `LLM export saved (${snapshot.selectedCount ? "selection" : "full graph"}; ${sourceCount} function sources; ${sourceErrorCount} source lookup errors).`
     );
-  }, [buildSimplifiedSnapshot, importOptions, getTabBaseTitle, nextDownloadName]);
+  }, [
+    buildSimplifiedSnapshot,
+    importOptions,
+    getExportName,
+    getTabBaseTitle,
+    nextDownloadName,
+  ]);
 
   return {
     fileInputRef,

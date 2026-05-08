@@ -273,6 +273,14 @@ function findOverviewNode(nodesToInspect: FlowNode[]) {
   });
 }
 
+function getFlowDisplayTitle(label: string, flowName: unknown) {
+  if (typeof flowName === "string") {
+    const trimmed = flowName.trim();
+    if (trimmed) return trimmed;
+  }
+  return label;
+}
+
 function cloneFlowData(data: FlowData): FlowData {
   try {
     if (typeof structuredClone === "function") {
@@ -1212,6 +1220,7 @@ function FlowContent() {
       if (!entry) return false;
 
       const clonedData = cloneFlowData(entry.data);
+      const displayTitle = getFlowDisplayTitle(entry.label, clonedData.name);
       let nodesFromFlow = Array.isArray(clonedData.nodes)
         ? clonedData.nodes
         : [];
@@ -1271,12 +1280,10 @@ function FlowContent() {
         sticky: false,
       });
 
-      scheduleSnapshot(`Load example: ${entry.label}`, { refresh: true });
+      scheduleSnapshot(`Load example: ${displayTitle}`, { refresh: true });
       if (activeTabId) {
-        setTabTooltip(
-          activeTabId,
-          entry.label ? `Example: ${entry.label}` : "Example flow"
-        );
+        setTabTooltip(activeTabId, `Example: ${displayTitle}`);
+        renameTab(activeTabId, displayTitle);
       }
 
       if (dropViewport) {
@@ -1290,6 +1297,7 @@ function FlowContent() {
     [
       activeTabId,
       exampleFlowMap,
+      renameTab,
       refreshBanner,
       scheduleExampleFlowFit,
       scheduleExampleFlowViewport,

@@ -725,12 +725,19 @@ describe("Flow first-run dialog", () => {
 
       expect(restoreScriptStepsMock).toHaveBeenCalledWith([]);
       expect(ingestScriptStepsMock).toHaveBeenCalledTimes(1);
-      expect(scheduleSnapshotMock).toHaveBeenCalledWith("Load example: Example flow", {
-        refresh: true,
-      });
+      expect(scheduleSnapshotMock).toHaveBeenCalledWith(
+        "Load example: Example flow data",
+        {
+          refresh: true,
+        }
+      );
       expect(setTabTooltipMock).toHaveBeenCalledWith(
         "tab-1",
-        "Example: Example flow"
+        "Example: Example flow data"
+      );
+      expect(renameTabMock).toHaveBeenCalledWith(
+        "tab-1",
+        "Example flow data"
       );
       expect(setItemSpy).toHaveBeenCalledWith(FIRST_RUN_STORAGE_KEY, "1");
     } finally {
@@ -820,6 +827,7 @@ describe("Flow example loading", () => {
     setEdgesMock.mockClear();
     scheduleSnapshotMock.mockClear();
     setTabTooltipMock.mockClear();
+    renameTabMock.mockClear();
     fitViewMock.mockClear();
 
     act(() => {
@@ -834,12 +842,19 @@ describe("Flow example loading", () => {
     expect(ingestScriptStepsMock).toHaveBeenCalledTimes(1);
     expect(setNodesMock).toHaveBeenCalledTimes(1);
     expect(setEdgesMock).toHaveBeenCalledTimes(1);
-    expect(scheduleSnapshotMock).toHaveBeenCalledWith("Load example: Example flow", {
-      refresh: true,
-    });
+    expect(scheduleSnapshotMock).toHaveBeenCalledWith(
+      "Load example: Example flow data",
+      {
+        refresh: true,
+      }
+    );
     expect(setTabTooltipMock).toHaveBeenCalledWith(
       "tab-1",
-      "Example: Example flow"
+      "Example: Example flow data"
+    );
+    expect(renameTabMock).toHaveBeenCalledWith(
+      "tab-1",
+      "Example flow data"
     );
     await waitFor(() => {
       expect(fitViewMock).toHaveBeenCalledWith({

@@ -132,6 +132,21 @@ describe("public flow data integrity", () => {
     expect(unknown).toEqual([]);
   });
 
+  it("custom flows have human-readable export names", () => {
+    const generic = customFlows
+      .filter((flow) => {
+        const name = flow.data.name?.trim() ?? "";
+        return !name || /^flow-\d+(?:-|$)/.test(name);
+      })
+      .map((flow) => ({
+        id: flow.id,
+        label: flow.label,
+        name: flow.data.name,
+      }));
+
+    expect(generic).toEqual([]);
+  });
+
   it.each(publicFlowFiles)("%s has valid graph data and runtime metadata", (fileName) => {
     const flow = loadFlow(fileName);
     const result = validateFlowData(flow, {
