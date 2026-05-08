@@ -17,22 +17,22 @@ export const OP_CODES = {
     {
       name: "OP_EQUALVERIFY",
       hex: "88",
-      description: "Equality check that errors if false",
+      description: "Consumes and compares two byte arrays; fails if they differ",
     },
     {
       name: "OP_CHECKSIG",
       hex: "ac",
-      description: "Verifies a signature against a pubkey (Schnorr in Tapscript)",
+      description: "Checks a signature against a public key and transaction digest",
     },
     {
       name: "OP_EQUAL",
       hex: "87",
-      description: "Checks if two values are equal",
+      description: "Compares two byte arrays",
     },
     {
       name: "OP_RETURN",
       hex: "6a",
-      description: "Makes tx invalid; used for data storage",
+      description: "Fails the script; used for unspendable data outputs",
     },
     { name: "OP_0", hex: "00", description: "Pushes empty value onto stack" },
     { name: "OP_1", hex: "51", description: "Pushes 1 onto stack" },
@@ -41,7 +41,7 @@ export const OP_CODES = {
     {
       name: "OP_CHECKMULTISIG",
       hex: "ae",
-      description: "Checks multiple signatures (disabled in Tapscript)",
+      description: "Checks m-of-n ECDSA signatures (disabled in Tapscript)",
     },
   ],
   scriptTemplates: [
@@ -117,12 +117,12 @@ export const OP_CODES = {
     {
       name: "OP_IF",
       hex: "63",
-      description: "Execute statements if top stack value is not 0",
+      description: "Consumes top value; executes branch if true",
     },
     {
       name: "OP_NOTIF",
       hex: "64",
-      description: "Execute statements if top stack value is 0",
+      description: "Consumes top value; executes branch if false",
     },
     {
       name: "OP_ELSE",
@@ -133,9 +133,9 @@ export const OP_CODES = {
     {
       name: "OP_VERIFY",
       hex: "69",
-      description: "Fails if top value is not true",
+      description: "Consumes top value; fails if false",
     },
-    { name: "OP_RETURN", hex: "6a", description: "Makes transaction invalid" },
+    { name: "OP_RETURN", hex: "6a", description: "Fails the script immediately" },
   ],
   stackOperations: [
     {
@@ -191,12 +191,12 @@ export const OP_CODES = {
     {
       name: "OP_PICK",
       hex: "79",
-      description: "Copies the nth item to the top",
+      description: "Consumes n, then copies item n positions back to the top",
     },
     {
       name: "OP_ROLL",
       hex: "7a",
-      description: "Moves the nth item to the top",
+      description: "Consumes n, then moves item n positions back to the top",
     },
     { name: "OP_ROT", hex: "7b", description: "Rotates the top three items" },
     { name: "OP_SWAP", hex: "7c", description: "Swaps the top two items" },
@@ -210,15 +210,19 @@ export const OP_CODES = {
     {
       name: "OP_SIZE",
       hex: "82",
-      description: "Pushes the size of the top item",
+      description: "Pushes byte length of top item without removing it",
     },
   ],
   bitwiseLogic: [
-    { name: "OP_EQUAL", hex: "87", description: "1 if inputs exactly equal" },
+    {
+      name: "OP_EQUAL",
+      hex: "87",
+      description: "Compares top two byte arrays; pushes true or false",
+    },
     {
       name: "OP_EQUALVERIFY",
       hex: "88",
-      description: "Same as OP_EQUAL but with VERIFY",
+      description: "Consumes and compares top two byte arrays; fails if they differ",
     },
   ],
   arithmetic: [
@@ -249,7 +253,11 @@ export const OP_CODES = {
     { name: "OP_BOOLAND", hex: "9a", description: "1 if both items are not 0" },
     { name: "OP_BOOLOR", hex: "9b", description: "1 if either item is not 0" },
     { name: "OP_NUMEQUAL", hex: "9c", description: "1 if numbers are equal" },
-    { name: "OP_NUMEQUALVERIFY", hex: "9d", description: "NUMEQUAL + VERIFY" },
+    {
+      name: "OP_NUMEQUALVERIFY",
+      hex: "9d",
+      description: "Compares top two numbers and fails if they differ",
+    },
     {
       name: "OP_NUMNOTEQUAL",
       hex: "9e",
@@ -257,8 +265,16 @@ export const OP_CODES = {
     },
     { name: "OP_LESSTHAN", hex: "9f", description: "1 if second-top < top" },
     { name: "OP_GREATERTHAN", hex: "a0", description: "1 if second-top > top" },
-    { name: "OP_LESSTHANOREQUAL", hex: "a1", description: "1 if ≤" },
-    { name: "OP_GREATERTHANOREQUAL", hex: "a2", description: "1 if ≥" },
+    {
+      name: "OP_LESSTHANOREQUAL",
+      hex: "a1",
+      description: "1 if second-top <= top",
+    },
+    {
+      name: "OP_GREATERTHANOREQUAL",
+      hex: "a2",
+      description: "1 if second-top >= top",
+    },
     {
       name: "OP_MIN",
       hex: "a3",
@@ -268,7 +284,7 @@ export const OP_CODES = {
     {
       name: "OP_WITHIN",
       hex: "a5",
-      description: "1 if top <= third-top < second-top",
+      description: "Checks x in range min <= x < max",
     },
   ],
   cryptographic: [
@@ -289,41 +305,42 @@ export const OP_CODES = {
     {
       name: "OP_CHECKSIG",
       hex: "ac",
-      description: "Checks signature against pubkey (Schnorr in Tapscript)",
+      description: "Checks a signature against a public key and transaction digest",
     },
     {
       name: "OP_CHECKSIGVERIFY",
       hex: "ad",
-      description: "CHECKSIG + VERIFY (Schnorr in Tapscript)",
+      description: "Runs OP_CHECKSIG, then fails if false",
     },
     {
       name: "OP_CHECKMULTISIG",
       hex: "ae",
-      description: "Checks multiple signatures (disabled in Tapscript)",
+      description: "Checks m-of-n ECDSA signatures (disabled in Tapscript)",
     },
     {
       name: "OP_CHECKMULTISIGVERIFY",
       hex: "af",
-      description: "MULTISIG + VERIFY (disabled in Tapscript)",
+      description: "Runs OP_CHECKMULTISIG, then fails if false",
     },
   ],
   tapscript: [
     {
       name: "OP_CHECKSIGADD",
       hex: "ba",
-      description: "Tapscript: adds 1 to a counter if signature is valid",
+      description:
+        "Tapscript: valid signature increments counter; empty signature leaves it unchanged; invalid signature fails",
     },
   ],
   timelock: [
     {
       name: "OP_CHECKLOCKTIMEVERIFY",
       hex: "b1",
-      description: "Fails if nLockTime not satisfied",
+      description: "Fails if transaction nLockTime does not satisfy top value",
     },
     {
       name: "OP_CHECKSEQUENCEVERIFY",
       hex: "b2",
-      description: "Fails if relative lock not satisfied",
+      description: "Fails if input relative locktime does not satisfy top value",
     },
   ],
   reserved: [

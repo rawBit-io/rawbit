@@ -109,8 +109,8 @@ function StackColumn({
 /* ---------- opcode cheat-sheet ----------------------------------- */
 const OPCODES: Record<string, string> = {
   /* constant pushes */
-  OP_0: "Push number 0 (empty byte array).",
-  OP_1NEGATE: "Push -1.",
+  OP_0: "Push an empty byte array, interpreted as false / 0.",
+  OP_1NEGATE: "Push the number -1.",
   OP_1: "Push number 1.", // OP_TRUE
   OP_2: "Push number 2.",
   OP_3: "Push number 3.",
@@ -131,57 +131,66 @@ const OPCODES: Record<string, string> = {
   /* stack operations */
   OP_DUP: "Duplicate the top stack item.",
   OP_DROP: "Remove the top stack item.",
-  OP_NIP: "Drop the 2nd item from the top.",
-  OP_OVER: "Copy the 2nd item to the top.",
-  OP_PICK: "Copy Nth stack item to top (leave in place).",
-  OP_ROLL: "Move Nth item to top (remove from original).",
-  OP_SWAP: "Swap top two items.",
-  OP_TUCK: "Copy top item beneath second item.",
-  OP_2DROP: "Remove top two items.",
-  OP_2DUP: "Duplicate top two items.",
-  OP_3DUP: "Duplicate top three items.",
-  OP_2OVER: "Copy items #3‒4 to top of stack.",
-  OP_2ROT: "Rotate top six items left twice.",
-  OP_2SWAP: "Swap the top two pairs.",
+  OP_NIP: "Remove the second item from the top of the stack.",
+  OP_OVER: "Copy the second item from the top onto the top.",
+  OP_PICK: "Consume n, then copy the item n positions back to the top.",
+  OP_ROLL: "Consume n, then move the item n positions back to the top.",
+  OP_SWAP: "Swap the top two stack items.",
+  OP_TUCK: "Copy the top item beneath the second item.",
+  OP_2DROP: "Remove the top two stack items.",
+  OP_2DUP: "Duplicate the top two stack items.",
+  OP_3DUP: "Duplicate the top three stack items.",
+  OP_2OVER: "Copy the 3rd and 4th stack items to the top.",
+  OP_2ROT: "Move the 5th and 6th stack items to the top.",
+  OP_2SWAP: "Swap the top two pairs of stack items.",
 
   /* splice */
-  OP_SIZE: "Push size (bytes) of top item.",
+  OP_SIZE: "Push the byte length of the top item without removing it.",
 
   /* logic */
-  OP_EQUAL: "Push 1 if top two items are byte-equal.",
-  OP_EQUALVERIFY: "Equal then OP_VERIFY.",
-  OP_VERIFY: "Fail the script if top item is false.",
-  OP_IF: "If (bool) execute the THEN branch.",
-  OP_NOTIF: "If NOT bool execute the THEN branch.",
+  OP_EQUAL: "Compare the top two byte arrays; push true if equal, else false.",
+  OP_EQUALVERIFY:
+    "Consume and compare the top two byte arrays; fail immediately if they differ.",
+  OP_VERIFY:
+    "Consume the top item; continue only if it is true, otherwise fail.",
+  OP_IF: "Consume a boolean; execute the THEN branch if it is true.",
+  OP_NOTIF: "Consume a boolean; execute the THEN branch if it is false.",
   OP_ELSE: "Start the ELSE branch.",
   OP_ENDIF: "End IF/ELSE.",
-  OP_BOOLOR: "Boolean OR.",
-  OP_BOOLAND: "Boolean AND.",
-  OP_NUMEQUAL: "Numeric equality (deprecated for consensus).",
-  OP_WITHIN: "x min ≤ x < max ? 1 : 0",
+  OP_BOOLOR: "Push true if either of the top two numbers is non-zero.",
+  OP_BOOLAND: "Push true if both of the top two numbers are non-zero.",
+  OP_NUMEQUAL: "Compare the top two numbers; push true if equal, else false.",
+  OP_WITHIN:
+    "Check whether x is in range: min <= x < max; push true or false.",
 
   /* arithmetic (minimal encode rules apply) */
-  OP_ADD: "a + b",
-  OP_SUB: "a − b",
-  OP_NEGATE: "Unary minus.",
-  OP_ABS: "Absolute value.",
-  OP_1ADD: "Add 1.",
-  OP_1SUB: "Subtract 1.",
+  OP_ADD: "Add the top two numbers and push the result.",
+  OP_SUB: "Subtract the top number from the second number.",
+  OP_NEGATE: "Negate the top number.",
+  OP_ABS: "Replace the top number with its absolute value.",
+  OP_1ADD: "Add 1 to the top number.",
+  OP_1SUB: "Subtract 1 from the top number.",
 
   /* crypto */
-  OP_SHA256: "SHA-256 hash.",
-  OP_HASH160: "RIPEMD-160(SHA-256(x)).",
-  OP_RIPEMD160: "RIPEMD-160 hash.",
-  OP_SHA1: "SHA-1 hash.",
-  OP_HASH256: "Double SHA-256.",
-  OP_CHECKSIG: "Verify signature against pubkey & tx hash.",
-  OP_CHECKSIGVERIFY: "CHECKSIG then VERIFY.",
+  OP_SHA256: "Replace the top item with SHA-256(item).",
+  OP_HASH160: "Replace the top item with RIPEMD-160(SHA-256(item)).",
+  OP_RIPEMD160: "Replace the top item with RIPEMD-160(item).",
+  OP_SHA1: "Replace the top item with SHA-1(item).",
+  OP_HASH256: "Replace the top item with SHA-256(SHA-256(item)).",
+  OP_CHECKSIG:
+    "Check a signature against a public key and the transaction digest; push true or false.",
+  OP_CHECKSIGVERIFY:
+    "Run OP_CHECKSIG, then fail immediately if the result is false.",
   OP_CHECKSIGADD:
-    "Pop sig, counter, pubkey. Valid sig → counter+1; empty sig → counter unchanged; invalid non-empty → FAIL.",
-  OP_CHECKMULTISIG: "m-of-n multisig validation.",
-  OP_CHECKMULTISIGVERIFY: "CHECKMULTISIG then VERIFY.",
-  OP_CHECKLOCKTIMEVERIFY: "Require nLockTime ≥ value.",
-  OP_CHECKSEQUENCEVERIFY: "Require relative-locktime ≥ value.",
+    "Taproot multisig helper: valid signature increments the counter, empty signature leaves it unchanged, invalid signature fails.",
+  OP_CHECKMULTISIG:
+    "Validate m-of-n ECDSA signatures against public keys; push true or false.",
+  OP_CHECKMULTISIGVERIFY:
+    "Run OP_CHECKMULTISIG, then fail immediately if the result is false.",
+  OP_CHECKLOCKTIMEVERIFY:
+    "Require the transaction nLockTime to satisfy the top stack value.",
+  OP_CHECKSEQUENCEVERIFY:
+    "Require the input relative locktime to satisfy the top stack value.",
 
   /* pseudo-op for all small pushes handled in code */
   OP_PUSHDATA: "Push raw bytes onto the stack.",
@@ -197,7 +206,7 @@ const OPCODES: Record<string, string> = {
   OP_NOP8: "Reserved NOP.",
   OP_NOP9: "Reserved NOP.",
   OP_NOP10: "Reserved NOP.",
-  OP_RETURN: "Mark transaction output as provably unspendable.",
+  OP_RETURN: "Fail immediately; commonly used to make outputs unspendable.",
   /* you can continue with OP_CODESEPARATOR, OP_CAT (disabled)… */
 };
 
@@ -514,32 +523,35 @@ export default function ScriptExecutionSteps({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="h-[600px] overflow-y-auto px-1">
-          {/* navigation */}
-          <div className="mb-3 flex items-center gap-2 rounded-md border border-border/70 bg-muted/30 p-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="select-none"
-              onClick={prev}
-              disabled={idx === 0}
-            >
-              Prev
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="select-none"
-              onClick={next}
-              disabled={idx === steps.length - 1}
-            >
-              Next
-            </Button>
-            <div className="mx-2 text-sm text-muted-foreground">
-              Step {idx + 1}/{steps.length} — {phaseText}
-            </div>
+        {/* navigation stays outside the scroll area */}
+        <div
+          data-testid="script-step-navigation"
+          className="mb-3 flex items-center gap-2 rounded-md border border-border/70 bg-muted/30 p-2"
+        >
+          <Button
+            variant="outline"
+            size="sm"
+            className="select-none"
+            onClick={prev}
+            disabled={idx === 0}
+          >
+            Prev
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="select-none"
+            onClick={next}
+            disabled={idx === steps.length - 1}
+          >
+            Next
+          </Button>
+          <div className="mx-2 text-sm text-muted-foreground">
+            Step {idx + 1}/{steps.length} — {phaseText}
           </div>
+        </div>
 
+        <div data-testid="script-step-scroll" className="h-[540px] overflow-y-auto px-1">
           {isTaprootKeyPath && (
             <div className="mb-3 rounded-md border border-primary/20 bg-muted/40 p-3 text-xs text-muted-foreground">
               Taproot key-path spend: no witnessScript is executed. The
@@ -612,6 +624,12 @@ export default function ScriptExecutionSteps({
               </div>
             )}
 
+            {step.failed && step.error && (
+              <div className="script-execution-error font-semibold">
+                ERROR: {step.error}
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-3">
               <StackColumn
                 title="Stack Before (top → first)"
@@ -620,18 +638,12 @@ export default function ScriptExecutionSteps({
               />
               <StackColumn title="Stack After (top → first)" items={afterR} />
             </div>
-
-            {step.failed && step.error && (
-              <div className="text-red-600 font-semibold">
-                ERROR: {step.error}
-              </div>
-            )}
           </div>
         </div>
 
         <DialogFooter className="mt-4 flex-col gap-2 px-1 sm:flex-row sm:items-center sm:justify-between sm:space-x-0">
           {failureSummary && (
-            <div className="px-1 py-1 text-xs italic text-destructive/80">
+            <div className="script-execution-error px-1 py-1 text-xs italic opacity-85">
               {failureSummary}
             </div>
           )}

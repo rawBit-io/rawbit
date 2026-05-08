@@ -52,9 +52,15 @@ describe("ScriptExecutionSteps", () => {
     );
 
     expect(screen.getByText(/Step 1\/2 — Phase 1/i)).toBeInTheDocument();
+    expect(screen.getByTestId("script-step-scroll")).not.toContainElement(
+      screen.getByTestId("script-step-navigation")
+    );
 
     await user.click(screen.getByRole("button", { name: /Next/i }));
     expect(screen.getByText(/Step 2\/2 — Phase 2/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/fail immediately if they differ/i)
+    ).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /Prev/i }));
     expect(screen.getByText(/Step 1\/2 — Phase 1/i)).toBeInTheDocument();
@@ -139,6 +145,33 @@ describe("ScriptExecutionSteps", () => {
     expect(screen.getByText(/Push raw bytes onto the stack/i)).toBeInTheDocument();
   });
 
+  it("explains numeric equality without deprecated wording", () => {
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: true,
+          steps: [
+            {
+              pc: 0,
+              opcode: 156,
+              opcode_name: "OP_NUMEQUAL",
+              stack_before: ["02", "02"],
+              stack_after: ["01"],
+              phase: "scriptPubKey",
+            },
+          ],
+        }}
+      />
+    );
+
+    expect(
+      screen.getByText(/Compare the top two numbers/i)
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/deprecated/i)).not.toBeInTheDocument();
+  });
+
   it("shows a taproot key-path explainer banner", () => {
     render(
       <ScriptExecutionSteps
@@ -194,6 +227,9 @@ describe("ScriptExecutionSteps", () => {
     expect(
       screen.getByText("FAILED STEP 7: OP_CHECKSIG")
     ).toBeInTheDocument();
+    expect(screen.getByText("FAILED STEP 7: OP_CHECKSIG")).toHaveClass(
+      "script-execution-error"
+    );
     expect(screen.queryByText(/FinalError:/i)).not.toBeInTheDocument();
 
     const nextButton = screen.getByRole("button", { name: /Next/i });
@@ -204,6 +240,22 @@ describe("ScriptExecutionSteps", () => {
     expect(
       screen.getByText(/ERROR: signature check failed/i)
     ).toBeInTheDocument();
+    expect(screen.getByText(/ERROR: signature check failed/i)).toHaveClass(
+      "script-execution-error"
+    );
+    const explanation = screen.getByText(
+      /Check a signature against a public key/i
+    );
+    const stepError = screen.getByText(/ERROR: signature check failed/i);
+    const stackBefore = screen.getByText("Stack Before (top → first)");
+    expect(
+      explanation.compareDocumentPosition(stepError) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    expect(
+      stepError.compareDocumentPosition(stackBefore) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
   });
 
   it("copies the trace to the clipboard with feedback", async () => {

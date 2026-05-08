@@ -1425,6 +1425,15 @@ body[data-large-drag="true"] .rf-node {
   filter: drop-shadow(0 0 4px hsl(0 88% 56% / 0.38));
 }
 
+.script-execution-error {
+  color: hsl(var(--destructive));
+}
+
+.dark .script-execution-error {
+  color: hsl(0 88% 64%);
+  text-shadow: 0 0 5px hsl(0 88% 56% / 0.26);
+}
+
 @keyframes rawbit-intro-drop-card {
   0% {
     opacity: 0;
