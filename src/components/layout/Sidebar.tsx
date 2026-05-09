@@ -24,7 +24,10 @@ import type { NodeTemplate } from "@/types";
 import { allSidebarNodes } from "@/components/sidebar-nodes";
 
 // Import your array of custom flows
-import { customFlows, type CustomFlowTemplate } from "@/my_tx_flows/customFlows";
+import {
+  customFlows,
+  type CustomFlowTemplate,
+} from "@/my_tx_flows/customFlows";
 
 export interface SidebarProps {
   isOpen: boolean;
@@ -32,10 +35,7 @@ export interface SidebarProps {
   introDropFlowId?: string;
 }
 
-function setSidebarDragPreview(
-  dataTransfer: DataTransfer,
-  sourceEl: Element
-) {
+function setSidebarDragPreview(dataTransfer: DataTransfer, sourceEl: Element) {
   if (typeof document === "undefined" || !(sourceEl instanceof HTMLElement)) {
     return;
   }
@@ -65,7 +65,7 @@ function setSidebarDragPreview(
   dataTransfer.setDragImage(
     ghost,
     Math.min(18, Math.max(8, rect.width / 6)),
-    Math.min(18, Math.max(8, rect.height / 4))
+    Math.min(18, Math.max(8, rect.height / 4)),
   );
 
   const cleanup = () => {
@@ -124,8 +124,7 @@ const categories = [
 ];
 
 const MIN_NODES_FOR_SUBGROUPS = 5;
-const subgroupAccordionClass =
-  "ml-7 pl-2 space-y-1";
+const subgroupAccordionClass = "ml-7 pl-2 space-y-1";
 const subgroupTriggerClass =
   "rounded-md py-1.5 pl-2 pr-6 text-[14px] font-medium text-foreground hover:bg-accent/60 hover:no-underline data-[state=open]:bg-accent/40";
 const subgroupLabelClass =
@@ -258,8 +257,7 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
   const [showOlderFlowExamples, setShowOlderFlowExamples] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const envBadge =
-    (import.meta.env.VITE_ENV_LABEL &&
-      import.meta.env.VITE_ENV_LABEL.trim()) ||
+    (import.meta.env.VITE_ENV_LABEL && import.meta.env.VITE_ENV_LABEL.trim()) ||
     (import.meta.env.DEV ? "local" : "");
   const envLabel = envBadge ? `(${envBadge})` : "";
 
@@ -290,19 +288,19 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
       showOlderFlowExamples
         ? customFlows
         : customFlows.filter((flow) => flow.section === TOP_LEVEL_FLOW_SECTION),
-    [showOlderFlowExamples]
+    [showOlderFlowExamples],
   );
   const olderFlowExampleCount = useMemo(
     () =>
       customFlows.filter((flow) => flow.section !== TOP_LEVEL_FLOW_SECTION)
         .length,
-    []
+    [],
   );
 
   const filteredFlows = useMemo(() => {
     if (!searchQuery.trim()) return [];
     return visibleFlowTemplates.filter((flow) =>
-      matchesSidebarSearch(getFlowSearchText(flow), searchQuery)
+      matchesSidebarSearch(getFlowSearchText(flow), searchQuery),
     );
   }, [searchQuery, visibleFlowTemplates]);
 
@@ -314,7 +312,7 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
 
     const reveal = () => {
       const section = container.querySelector<HTMLElement>(
-        `[data-sidebar-reveal-id="${revealId}"]`
+        `[data-sidebar-reveal-id="${revealId}"]`,
       );
       if (!section || section.getAttribute("data-state") !== "open") return;
 
@@ -322,7 +320,7 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
         section.querySelector<HTMLElement>("[data-sidebar-reveal-trigger]") ??
         section;
       const revealItems = Array.from(
-        section.querySelectorAll<HTMLElement>("[data-sidebar-reveal-item]")
+        section.querySelectorAll<HTMLElement>("[data-sidebar-reveal-item]"),
       ).slice(0, SIDEBAR_REVEAL_ITEM_COUNT);
       const lastRevealItem = revealItems.at(-1);
       const containerRect = container.getBoundingClientRect();
@@ -375,7 +373,11 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
 
     const otherFlows = groups.get("other-flows") ?? [];
     if (otherFlows.length) {
-      ordered.push({ id: "other-flows", label: "Other Flows", items: otherFlows });
+      ordered.push({
+        id: "other-flows",
+        label: "Other Flows",
+        items: otherFlows,
+      });
     }
 
     return ordered;
@@ -383,9 +385,9 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
   const topLevelFlows = useMemo(
     () =>
       visibleFlowTemplates.filter(
-        (flow) => flow.section === TOP_LEVEL_FLOW_SECTION
+        (flow) => flow.section === TOP_LEVEL_FLOW_SECTION,
       ),
-    [visibleFlowTemplates]
+    [visibleFlowTemplates],
   );
 
   // Standard drag logic for normal single nodes
@@ -397,7 +399,7 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
     };
     event.dataTransfer.setData(
       "application/reactflow",
-      JSON.stringify(dragData)
+      JSON.stringify(dragData),
     );
     event.dataTransfer.effectAllowed = "move";
     setSidebarDragPreview(event.dataTransfer, event.currentTarget);
@@ -405,7 +407,7 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
 
   const onFlowDragStart = (
     event: React.DragEvent,
-    flow: CustomFlowTemplate
+    flow: CustomFlowTemplate,
   ) => {
     const dragObj = {
       type: "calculation",
@@ -415,7 +417,10 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
         flowLabel: flow.label,
       },
     };
-    event.dataTransfer.setData("application/reactflow", JSON.stringify(dragObj));
+    event.dataTransfer.setData(
+      "application/reactflow",
+      JSON.stringify(dragObj),
+    );
     event.dataTransfer.effectAllowed = "move";
     setSidebarDragPreview(event.dataTransfer, event.currentTarget);
   };
@@ -430,7 +435,7 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
       onDragStart={(e) => onDragStart(e, node)}
       className={cn(
         "flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors",
-        className
+        className,
       )}
     >
       <div className="flex flex-col">
@@ -476,7 +481,7 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
         "flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors",
         introDropFlowId === flow.id &&
           "rawbit-intro-source-pulse border-primary/60 bg-primary/5",
-        className
+        className,
       )}
     >
       <div className="flex flex-col">
@@ -508,7 +513,7 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
         </div>
         <p className="mt-1 leading-snug">
           Older flows still work, but are being updated with the new layout and
-          explanation nodes.
+          info nodes.
         </p>
       </div>
     ) : null;
@@ -530,7 +535,7 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
       const newlyOpened = value.find((item) => !previousValue.includes(item));
       if (newlyOpened) {
         revealSidebarSection(
-          getSidebarRevealId("subcategory", categoryId, newlyOpened)
+          getSidebarRevealId("subcategory", categoryId, newlyOpened),
         );
       }
 
@@ -555,7 +560,7 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
     <div
       className={cn(
         "fixed left-0 top-0 z-20 h-screen flex flex-col transition-all duration-300 border-r bg-background select-none overflow-hidden",
-        isOpen ? "w-64" : "w-0"
+        isOpen ? "w-64" : "w-0",
       )}
       data-testid="sidebar"
       style={{ pointerEvents: isOpen ? "auto" : "none" }}
@@ -565,14 +570,11 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
         <span
           className={cn(
             "text-xl font-medium tracking-tight transition-opacity duration-300",
-            isOpen ? "opacity-100" : "opacity-0"
+            isOpen ? "opacity-100" : "opacity-0",
           )}
         >
           raw
-          <span
-            className="text-primary"
-            data-testid="sidebar-brand-bit"
-          >
+          <span className="text-primary" data-testid="sidebar-brand-bit">
             <span className="inline-block rotate-[14deg]">₿</span>it
           </span>
           {envLabel && (
@@ -617,7 +619,7 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
         ref={scrollContainerRef}
         className={cn(
           "flex-1 overflow-y-auto p-3 transition-opacity duration-300",
-          isOpen ? "opacity-100" : "opacity-0"
+          isOpen ? "opacity-100" : "opacity-0",
         )}
         style={{
           maxHeight: "calc(100vh - 6.5rem)",
@@ -681,7 +683,7 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
                   value={cat.id}
                   data-sidebar-reveal-id={getSidebarRevealId(
                     "category",
-                    cat.id
+                    cat.id,
                   )}
                   className="border-none"
                 >
@@ -720,7 +722,7 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
                                 data-sidebar-reveal-id={getSidebarRevealId(
                                   "subcategory",
                                   cat.id,
-                                  group.label
+                                  group.label,
                                 )}
                                 className="border-none"
                               >
@@ -738,7 +740,7 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
                                 >
                                   <div className={subgroupItemsClass}>
                                     {group.items.map((node) =>
-                                      renderNodeCard(node)
+                                      renderNodeCard(node),
                                     )}
                                   </div>
                                 </AccordionContent>
@@ -763,7 +765,7 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
               value="my-custom-flows"
               data-sidebar-reveal-id={getSidebarRevealId(
                 "category",
-                "my-custom-flows"
+                "my-custom-flows",
               )}
               className="border-none"
             >
@@ -800,7 +802,7 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
                             value={section.id}
                             data-sidebar-reveal-id={getSidebarRevealId(
                               "flow-section",
-                              section.id
+                              section.id,
                             )}
                             className="border-none"
                           >
@@ -816,7 +818,7 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
                             <AccordionContent className={subgroupContentClass}>
                               <div className={subgroupItemsClass}>
                                 {section.items.map((flow) =>
-                                  renderFlowCard(flow)
+                                  renderFlowCard(flow),
                                 )}
                               </div>
                             </AccordionContent>

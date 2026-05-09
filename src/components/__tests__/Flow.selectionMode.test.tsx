@@ -99,10 +99,29 @@ vi.mock("@/components/nodes/OpCodeNode", () => ({
 }));
 
 vi.mock("@/components/layout/TopBar", () => ({
-  TopBar: ({ onToggleSidebar }: { onToggleSidebar?: () => void }) => (
-    <button data-testid="topbar" onClick={onToggleSidebar}>
-      topbar
-    </button>
+  TopBar: ({
+    onToggleSidebar,
+    onToggleInfoNodes,
+    showInfoNodes,
+    hasInfoNodes,
+  }: {
+    onToggleSidebar?: () => void;
+    onToggleInfoNodes?: () => void;
+    showInfoNodes?: boolean;
+    hasInfoNodes?: boolean;
+  }) => (
+    <>
+      <button data-testid="topbar" onClick={onToggleSidebar}>
+        topbar
+      </button>
+      <button
+        data-testid="toggle-info-nodes"
+        disabled={!hasInfoNodes}
+        onClick={onToggleInfoNodes}
+      >
+        {showInfoNodes ? "hide info" : "show info"}
+      </button>
+    </>
   ),
 }));
 
@@ -540,6 +559,81 @@ describe("Flow selection hotkey", () => {
     unmount();
 
     expect(document.body.dataset.flowSelectionMode).toBeUndefined();
+  });
+});
+
+describe("Flow info node visibility", () => {
+  it("keeps hidden info nodes recoverable after visible node updates", async () => {
+    localStorage.setItem(FIRST_RUN_STORAGE_KEY, "1");
+    flowNodesState.current = [
+      {
+        id: "info-node",
+        type: "shadcnTextInfo",
+        position: { x: 0, y: 0 },
+        data: { content: "# Notes" },
+      } as FlowNode,
+      {
+        id: "group-node",
+        type: "shadcnGroup",
+        position: { x: 120, y: 80 },
+        data: { title: "Group", fontSize: 44 },
+      } as FlowNode,
+    ];
+    flowEdgesState.current = [
+      {
+        id: "info-edge",
+        source: "info-node",
+        target: "group-node",
+      } as Edge,
+    ];
+
+    const { getByTestId, rerender } = renderFlow();
+
+    await waitFor(() => {
+      expect(flowCanvasProps.current?.nodes.map((node) => node.id)).toEqual([
+        "info-node",
+        "group-node",
+      ]);
+    });
+
+    act(() => {
+      getByTestId("toggle-info-nodes").click();
+    });
+
+    await waitFor(() => {
+      const infoNode = flowCanvasProps.current?.nodes.find(
+        (node) => node.id === "info-node"
+      );
+      expect(infoNode).toBeDefined();
+      expect(infoNode?.hidden).toBe(true);
+    });
+    expect(
+      flowCanvasProps.current?.edges.find((edge) => edge.id === "info-edge")
+        ?.hidden
+    ).toBe(true);
+
+    act(() => {
+      flowNodesState.current = (flowCanvasProps.current?.nodes ?? []).map(
+        (node) =>
+          node.id === "group-node"
+            ? { ...node, data: { ...node.data, fontSize: 48 } }
+            : node
+      );
+    });
+    rerender(<Flow />);
+
+    await waitFor(() => {
+      expect(
+        flowCanvasProps.current?.nodes.some((node) => node.id === "info-node")
+      ).toBe(true);
+    });
+    expect(
+      (getByTestId("toggle-info-nodes") as HTMLButtonElement).disabled
+    ).toBe(false);
+    expect(
+      flowCanvasProps.current?.nodes.find((node) => node.id === "info-node")
+        ?.hidden
+    ).toBe(true);
   });
 });
 

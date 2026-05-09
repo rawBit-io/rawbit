@@ -166,6 +166,45 @@ describe("FlowCanvas", () => {
     expect(passedEdges[0]?.selected).toBe(false);
   });
 
+  it("does not render hidden edges while keeping hidden nodes in the canvas graph", () => {
+    render(
+      <FlowCanvas
+        {...baseProps}
+        nodes={[
+          {
+            id: "info-node",
+            type: "shadcnTextInfo",
+            position: { x: 0, y: 0 },
+            hidden: true,
+            data: {},
+          } as FlowNode,
+          {
+            id: "node-b",
+            type: "calculation",
+            position: { x: 120, y: 0 },
+            data: {},
+          } as FlowNode,
+        ]}
+        edges={[
+          {
+            id: "info-edge",
+            source: "info-node",
+            target: "node-b",
+            hidden: true,
+          } as Edge,
+        ]}
+      />
+    );
+
+    const passedEdges = reactFlowSpy.props.edges as Edge[];
+    const passedNodes = reactFlowSpy.props.nodes as FlowNode[];
+    expect(passedNodes.map((node) => node.id)).toEqual([
+      "info-node",
+      "node-b",
+    ]);
+    expect(passedEdges).toEqual([]);
+  });
+
   it("bundles repeated cross-group edges for the canvas render layer", () => {
     const groupedNodes: FlowNode[] = [
       {

@@ -657,10 +657,18 @@ export const buildGroupBundledElements = ({
   edges: Edge[];
 }): GroupBundledElements => {
   const sourceNodes = stripGroupBundlePortNodes(nodes);
+  const hiddenEdgeIds = new Set(
+    edges
+      .filter((edge) => edge.hidden === true)
+      .map((edge) => edge.id || edgeFallbackId(edge))
+  );
   const sourceEdges = sanitizeGroupBundleRenderEdgesForState(edges);
   const nodeById = new Map(sourceNodes.map((node) => [node.id, node]));
   const validSourceEdges = sourceEdges.filter(
-    (edge) => nodeById.has(edge.source) && nodeById.has(edge.target)
+    (edge) =>
+      !hiddenEdgeIds.has(edge.id || edgeFallbackId(edge)) &&
+      nodeById.has(edge.source) &&
+      nodeById.has(edge.target)
   );
   const groupRects = new Map<string, GroupRect>();
   const nodeToGroup = new Map<string, string>();

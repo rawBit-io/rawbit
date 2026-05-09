@@ -97,6 +97,7 @@ const COLORABLE_NODE_TYPES = new Set([
   "opCodeNode",
   "trezorAction",
 ]);
+const INFO_NODE_TYPE = "shadcnTextInfo";
 
 const nodeTypes = {
   calculation: CalculationNode,
@@ -106,6 +107,73 @@ const nodeTypes = {
   opCodeNode: OpCodeNode,
   [GROUP_BUNDLE_PORT_NODE_TYPE]: GroupBundlePortNode,
 };
+
+function stripTransientInfoNodeVisibility(nodes: FlowNode[]): FlowNode[] {
+  let changed = false;
+  const nextNodes = nodes.map((node) => {
+    if (node.type !== INFO_NODE_TYPE || node.hidden !== true) return node;
+    changed = true;
+    const nextNode = { ...node };
+    delete nextNode.hidden;
+    return nextNode;
+  });
+  return changed ? nextNodes : nodes;
+}
+
+function stripTransientInfoEdgeVisibility(
+  edges: Edge[],
+  infoNodeIds: Set<string>
+): Edge[] {
+  if (infoNodeIds.size === 0) return edges;
+  let changed = false;
+  const nextEdges = edges.map((edge) => {
+    if (
+      edge.hidden !== true ||
+      (!infoNodeIds.has(edge.source) && !infoNodeIds.has(edge.target))
+    ) {
+      return edge;
+    }
+    changed = true;
+    const nextEdge = { ...edge };
+    delete nextEdge.hidden;
+    return nextEdge;
+  });
+  return changed ? nextEdges : edges;
+}
+
+function applyInfoNodeVisibility(
+  nodes: FlowNode[],
+  showInfoNodes: boolean
+): FlowNode[] {
+  if (showInfoNodes) return stripTransientInfoNodeVisibility(nodes);
+  let changed = false;
+  const nextNodes = nodes.map((node) => {
+    if (node.type !== INFO_NODE_TYPE) return node;
+    changed = true;
+    return node.hidden === true ? node : { ...node, hidden: true };
+  });
+  return changed ? nextNodes : nodes;
+}
+
+function applyInfoEdgeVisibility(
+  edges: Edge[],
+  infoNodeIds: Set<string>,
+  showInfoNodes: boolean
+): Edge[] {
+  if (showInfoNodes) {
+    return stripTransientInfoEdgeVisibility(edges, infoNodeIds);
+  }
+  if (infoNodeIds.size === 0) return edges;
+  let changed = false;
+  const nextEdges = edges.map((edge) => {
+    if (!infoNodeIds.has(edge.source) && !infoNodeIds.has(edge.target)) {
+      return edge;
+    }
+    changed = true;
+    return edge.hidden === true ? edge : { ...edge, hidden: true };
+  });
+  return changed ? nextEdges : edges;
+}
 
 type TabCalculationState = {
   status: CalcStatus;
@@ -549,25 +617,20 @@ function FlowContent() {
     () =>
       new Set(
         nodes
-          .filter((node) => node.type === "shadcnTextInfo")
+          .filter((node) => node.type === INFO_NODE_TYPE)
           .map((node) => node.id)
       ),
     [nodes]
   );
   const hasInfoNodes = infoNodeIds.size > 0;
   const displayedNodes = useMemo(
-    () =>
-      showInfoNodes
-        ? nodes
-        : nodes.filter((node) => node.type !== "shadcnTextInfo"),
+    () => applyInfoNodeVisibility(nodes, showInfoNodes),
     [nodes, showInfoNodes]
   );
-  const displayedEdges = useMemo(() => {
-    if (showInfoNodes) return edges;
-    return edges.filter(
-      (edge) => !infoNodeIds.has(edge.source) && !infoNodeIds.has(edge.target)
-    );
-  }, [edges, infoNodeIds, showInfoNodes]);
+  const displayedEdges = useMemo(
+    () => applyInfoEdgeVisibility(edges, infoNodeIds, showInfoNodes),
+    [edges, infoNodeIds, showInfoNodes]
+  );
   const canvasNodes = mobileIntroGraph?.nodes ?? displayedNodes;
   const canvasEdges = mobileIntroGraph?.edges ?? displayedEdges;
 
@@ -662,10 +725,11 @@ function FlowContent() {
   const setNodes: typeof baseSetNodes = useCallback(
     (updater) =>
       baseSetNodes((prev) => {
-        const next =
+        const rawNext =
           typeof updater === "function"
             ? (updater as (prev: FlowNode[]) => FlowNode[])(prev)
             : updater;
+        const next = stripTransientInfoNodeVisibility(rawNext);
         if (next !== prev) incRev();
         return next;
       }),
@@ -675,10 +739,18 @@ function FlowContent() {
   const setEdges: typeof baseSetEdges = useCallback(
     (updater) =>
       baseSetEdges((prev) => {
-        const next =
+        const rawNext =
           typeof updater === "function"
             ? (updater as (prev: Edge[]) => Edge[])(prev)
             : updater;
+        const next = stripTransientInfoEdgeVisibility(
+          rawNext,
+          new Set(
+            nodesRef.current
+              .filter((node) => node.type === INFO_NODE_TYPE)
+              .map((node) => node.id)
+          )
+        );
         if (next !== prev) incRev();
         return next;
       }),
