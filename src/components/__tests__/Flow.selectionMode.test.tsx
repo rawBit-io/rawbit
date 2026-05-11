@@ -7,6 +7,7 @@ import Flow from "@/components/Flow";
 import type { FlowData, FlowNode } from "@/types";
 
 const FIRST_RUN_STORAGE_KEY = "rawbit.ui.welcomeSeen";
+const WALKTHROUGH_STORAGE_KEY = "rawbit.ui.walkthroughSeen";
 
 type FirstRunDialogMockProps = {
   open: boolean;
@@ -31,6 +32,16 @@ type SharedFlowLoaderMockOptions = {
 
 const firstRunDialogProps = {
   current: null as FirstRunDialogMockProps | null,
+};
+const walkthroughProps = {
+  current: null as
+    | {
+        open: boolean;
+        onSkip: () => void;
+        onFinish: () => void;
+        onStepChange?: (stepIndex: number) => void;
+      }
+    | null,
 };
 
 const latestFileImportOptions: {
@@ -168,6 +179,22 @@ vi.mock("@/components/dialog/FirstRunDialog", () => ({
     firstRunDialogProps.current = props;
     return (
       <div data-testid="first-run-dialog">{props.open ? "open" : "closed"}</div>
+    );
+  },
+}));
+
+vi.mock("@/components/walkthrough/Walkthrough", () => ({
+  Walkthrough: (props: {
+    open: boolean;
+    onSkip: () => void;
+    onFinish: () => void;
+    onStepChange?: (stepIndex: number) => void;
+  }) => {
+    walkthroughProps.current = props;
+    return (
+      <div data-testid="walkthrough">
+        {props.open ? "open" : "closed"}
+      </div>
     );
   },
 }));
@@ -459,6 +486,7 @@ const renderFlow = () => render(<Flow />);
 beforeEach(() => {
   vi.clearAllMocks();
   firstRunDialogProps.current = null;
+  walkthroughProps.current = null;
   flowCanvasProps.current = null;
   sharedFlowLoaderOptions.current = null;
   latestFileImportOptions.current = undefined;
@@ -795,48 +823,33 @@ describe("Flow first-run dialog", () => {
     });
   });
 
-  it("auto-loads the intro flow when no stored data exists", async () => {
-    vi.useFakeTimers();
+  it("opens the walkthrough when no stored data exists", async () => {
     const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
 
     try {
       renderFlow();
 
       expect(firstRunDialogProps.current?.open).toBe(false);
+      expect(walkthroughProps.current?.open).toBe(true);
       expect(setNodesMock).not.toHaveBeenCalled();
 
+      expect(firstRunDialogProps.current?.open).toBe(false);
+      expect(setNodesMock).not.toHaveBeenCalled();
+      expect(setEdgesMock).not.toHaveBeenCalled();
+      expect(setViewportMock).not.toHaveBeenCalled();
+      expect(setItemSpy).toHaveBeenCalledWith(FIRST_RUN_STORAGE_KEY, "1");
+      expect(setItemSpy).not.toHaveBeenCalledWith(
+        WALKTHROUGH_STORAGE_KEY,
+        "1"
+      );
+
       act(() => {
-        vi.advanceTimersByTime(1320);
+        walkthroughProps.current?.onFinish();
       });
 
-      expect(firstRunDialogProps.current?.open).toBe(false);
-      expect(setNodesMock).toHaveBeenCalledTimes(1);
-      expect(setEdgesMock).toHaveBeenCalledTimes(1);
-      expect(setViewportMock).toHaveBeenCalledWith(
-        { x: 0, y: 0, zoom: 0.2 },
-        { duration: 0 }
-      );
-
-      expect(restoreScriptStepsMock).toHaveBeenCalledWith([]);
-      expect(ingestScriptStepsMock).toHaveBeenCalledTimes(1);
-      expect(scheduleSnapshotMock).toHaveBeenCalledWith(
-        "Load example: Example flow data",
-        {
-          refresh: true,
-        }
-      );
-      expect(setTabTooltipMock).toHaveBeenCalledWith(
-        "tab-1",
-        "Example: Example flow data"
-      );
-      expect(renameTabMock).toHaveBeenCalledWith(
-        "tab-1",
-        "Example flow data"
-      );
-      expect(setItemSpy).toHaveBeenCalledWith(FIRST_RUN_STORAGE_KEY, "1");
+      expect(setItemSpy).toHaveBeenCalledWith(WALKTHROUGH_STORAGE_KEY, "1");
     } finally {
       setItemSpy.mockRestore();
-      vi.useRealTimers();
     }
   });
 
@@ -857,6 +870,7 @@ describe("Flow first-run dialog", () => {
     });
 
     expect(firstRunDialogProps.current?.open).toBe(false);
+    expect(walkthroughProps.current?.open).toBe(false);
     expect(setNodesMock).not.toHaveBeenCalled();
     expect(setEdgesMock).not.toHaveBeenCalled();
     expect(setItemSpy).toHaveBeenCalledWith(FIRST_RUN_STORAGE_KEY, "1");

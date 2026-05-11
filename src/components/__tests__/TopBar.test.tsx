@@ -103,6 +103,7 @@ const baseProps: TopBarProps & ExtraTopBarProps = {
   onToggleInfoNodes: vi.fn(),
   isSelectionModeActive: false,
   onToggleSelectionMode: vi.fn(),
+  onWalkthroughClick: vi.fn(),
 };
 
 function openSkinMenu() {
@@ -150,6 +151,14 @@ describe("TopBar", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Toggle theme" }));
     expect(setThemeMock).toHaveBeenCalledWith("dark");
+  });
+
+  it("opens the walkthrough from the topbar button", () => {
+    render(<TopBar {...baseProps} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Walkthrough" }));
+
+    expect(baseProps.onWalkthroughClick).toHaveBeenCalledTimes(1);
   });
 
   it("disables the info node toggle when no info nodes exist", () => {

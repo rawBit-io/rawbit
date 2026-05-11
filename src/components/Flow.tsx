@@ -32,6 +32,11 @@ import { FlowCanvas } from "@/components/FlowCanvas";
 import { FlowDialogLayer } from "@/components/FlowDialogLayer";
 import { FlowPanels } from "@/components/FlowPanels";
 import { FirstRunDialog } from "@/components/dialog/FirstRunDialog";
+import { Walkthrough } from "@/components/walkthrough/Walkthrough";
+import {
+  AutoDemoOverlay,
+  type AutoDemoOverlayState,
+} from "@/components/AutoDemoOverlay";
 import { Sun, Moon, Github } from "lucide-react";
 
 import { useNodeOperations } from "@/hooks/useNodeOperations";
@@ -77,6 +82,7 @@ import { useFlowInteractions } from "@/hooks/useFlowInteractions";
 import { useSearchHighlights } from "@/hooks/useSearchHighlights";
 import { useSharedFlowLoader } from "@/hooks/useSharedFlowLoader";
 import { useSimplifiedSave } from "@/hooks/useSimplifiedSave";
+import { allSidebarNodes } from "@/components/sidebar-nodes";
 import { shouldBlockMobile } from "@/lib/device";
 import {
   buildGroupBundledElements,
@@ -210,6 +216,26 @@ const INTRO_FLOW_DROP_ANIMATION_MS = 1100;
 const INTRO_SOURCE_FALLBACK = { x: 76, y: 780 };
 const INTRO_SOURCE_CARD_SIZE = { width: 196, height: 96 };
 const SHARED_IMPORT_FIT_MIN_ZOOM = 0.2;
+const WALKTHROUGH_STORAGE_KEY = "rawbit.ui.walkthroughSeen";
+const WALKTHROUGH_TEMPLATE_LABEL = "TX Template legacy";
+const WALKTHROUGH_INPUT_LABEL = "Input";
+const WALKTHROUGH_TAB_TITLE = "Walkthrough";
+const WALKTHROUGH_INPUT_STEP_INDEX = 1;
+const WALKTHROUGH_TX_TEMPLATE_STEP_INDEX = 2;
+const WALKTHROUGH_FIELDS_STEP_INDEX = 3;
+const WALKTHROUGH_CONNECT_STEP_INDEX = 4;
+const WALKTHROUGH_INPUT_NODE_ID = "node_walkthrough_input_version";
+const WALKTHROUGH_TEMPLATE_NODE_ID = "node_walkthrough_tx_template_legacy";
+const WALKTHROUGH_EDGE_ID = "edge_walkthrough_input_to_tx_version";
+const WALKTHROUGH_INPUT_POSITION = { x: 120, y: 120 };
+const WALKTHROUGH_TEMPLATE_POSITION = { x: 430, y: 110 };
+const WALKTHROUGH_FIELD_VALUES: Record<number, string> = {
+  0: "01000000",
+  10: "01",
+  2000: "01",
+  4000: "00000000",
+};
+const WALKTHROUGH_DROP_ANIMATION_MS = 980;
 
 function graphIdsMatch(
   currentNodes: FlowNode[],
@@ -349,15 +375,19 @@ function getFlowDisplayTitle(label: string, flowName: unknown) {
   return label;
 }
 
-function cloneFlowData(data: FlowData): FlowData {
+function cloneStructuredData<T>(data: T): T {
   try {
     if (typeof structuredClone === "function") {
-      return structuredClone(data) as FlowData;
+      return structuredClone(data) as T;
     }
   } catch {
     /* structuredClone not available; fall back to JSON copy */
   }
-  return JSON.parse(JSON.stringify(data)) as FlowData;
+  return JSON.parse(JSON.stringify(data)) as T;
+}
+
+function cloneFlowData(data: FlowData): FlowData {
+  return cloneStructuredData(data);
 }
 
 function getIntroDropSourceRect(): {
@@ -386,6 +416,33 @@ function getIntroDropSourceRect(): {
   };
 }
 
+function getSidebarNodeSourceRect(label: string): {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+} {
+  if (typeof document === "undefined") {
+    return { ...INTRO_SOURCE_FALLBACK, ...INTRO_SOURCE_CARD_SIZE };
+  }
+
+  const source = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-node-template-label]")
+  ).find((element) => element.dataset.nodeTemplateLabel === label);
+
+  if (!source) {
+    return { ...INTRO_SOURCE_FALLBACK, ...INTRO_SOURCE_CARD_SIZE };
+  }
+
+  const rect = source.getBoundingClientRect();
+  return {
+    x: rect.left,
+    y: rect.top,
+    width: rect.width || INTRO_SOURCE_CARD_SIZE.width,
+    height: rect.height || INTRO_SOURCE_CARD_SIZE.height,
+  };
+}
+
 function FlowContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showUndoRedoPanel, setShowUndoRedoPanel] = useState(false);
@@ -395,10 +452,25 @@ function FlowContent() {
   const [showSearchPanel, setShowSearchPanel] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
+  const [showWalkthrough, setShowWalkthrough] = useState(false);
   const [isIntroDropAnimating, setIsIntroDropAnimating] = useState(false);
   const [introDropSourceRect, setIntroDropSourceRect] = useState(() =>
     getIntroDropSourceRect()
   );
+  const [walkthroughDropNodeLabel, setWalkthroughDropNodeLabel] = useState<
+    string | undefined
+  >();
+  const [walkthroughDropAnimation, setWalkthroughDropAnimation] = useState<{
+    label: string;
+    title: string;
+    detail: string;
+    sourceRect: { x: number; y: number; width: number; height: number };
+    targetRect: { x: number; y: number };
+  } | null>(null);
+  const [autoDemoState, setAutoDemoState] =
+    useState<AutoDemoOverlayState | null>(null);
+  const autoDemoTimeoutIdsRef = useRef<number[]>([]);
+  const autoDemoRunningRef = useRef(false);
 
   const [calcStateByTab, setCalcStateByTab] = useState<
     Record<string, TabCalculationState>
@@ -422,8 +494,13 @@ function FlowContent() {
   const loadingUndoRef = useRef(false);
   const isPastingRef = useRef(false);
   const welcomeCompleteRef = useRef(false);
+  const walkthroughAutoStartedRef = useRef(false);
+  const walkthroughTabCreatedRef = useRef(false);
+  const walkthroughLastAppliedStepRef = useRef<number | null>(null);
+  const walkthroughAnimatedStepsRef = useRef<Set<number>>(new Set());
   const introDropScheduledRef = useRef(false);
   const introDropTimeoutIdsRef = useRef<number[]>([]);
+  const walkthroughDropTimeoutIdsRef = useRef<number[]>([]);
   const pendingExampleFitRef = useRef(false);
   const pendingFitOptionsRef = useRef<{
     minZoom?: number;
@@ -445,6 +522,17 @@ function FlowContent() {
       window.matchMedia("(prefers-color-scheme: dark)").matches);
   const exampleFlowMap = useMemo(
     () => new Map(customFlows.map((flow) => [flow.id, flow])),
+    []
+  );
+  const walkthroughTxTemplate = useMemo(
+    () =>
+      allSidebarNodes.find(
+        (node) => node.label === WALKTHROUGH_TEMPLATE_LABEL
+      ),
+    []
+  );
+  const walkthroughInputTemplate = useMemo(
+    () => allSidebarNodes.find((node) => node.label === WALKTHROUGH_INPUT_LABEL),
     []
   );
   const exampleFlowOptions = useMemo(
@@ -566,6 +654,15 @@ function FlowContent() {
     if (typeof window === "undefined") return;
     try {
       window.localStorage.setItem(FIRST_RUN_STORAGE_KEY, "1");
+    } catch {
+      /* ignore storage write failures */
+    }
+  }, []);
+
+  const markWalkthroughComplete = useCallback(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(WALKTHROUGH_STORAGE_KEY, "1");
     } catch {
       /* ignore storage write failures */
     }
@@ -1260,6 +1357,15 @@ function FlowContent() {
     introDropTimeoutIdsRef.current = [];
   }, []);
 
+  const clearWalkthroughDropAnimationTimers = useCallback(() => {
+    if (typeof window === "undefined") return;
+    if (walkthroughDropTimeoutIdsRef.current.length === 0) return;
+    for (const timeoutId of walkthroughDropTimeoutIdsRef.current) {
+      window.clearTimeout(timeoutId);
+    }
+    walkthroughDropTimeoutIdsRef.current = [];
+  }, []);
+
   const resetToEmptyCanvas = useCallback(() => {
     restoreScriptSteps([]);
     setNodes(() => []);
@@ -1397,6 +1503,493 @@ function FlowContent() {
     },
     [loadExampleFlow, markWelcomeComplete, setShowWelcomeDialog]
   );
+
+  const closeWalkthrough = useCallback(() => {
+    setShowWalkthrough(false);
+    setWalkthroughDropNodeLabel(undefined);
+    setWalkthroughDropAnimation(null);
+    clearWalkthroughDropAnimationTimers();
+    markWalkthroughComplete();
+  }, [clearWalkthroughDropAnimationTimers, markWalkthroughComplete]);
+
+  const openWalkthrough = useCallback(() => {
+    walkthroughTabCreatedRef.current = false;
+    walkthroughLastAppliedStepRef.current = null;
+    walkthroughAnimatedStepsRef.current = new Set();
+    clearWalkthroughDropAnimationTimers();
+    setWalkthroughDropNodeLabel(undefined);
+    setWalkthroughDropAnimation(null);
+    setIsSidebarOpen(true);
+    setShowUndoRedoPanel(false);
+    setShowErrorPanel(false);
+    setShowSearchPanel(false);
+    setShowWalkthrough(true);
+  }, [clearWalkthroughDropAnimationTimers]);
+
+  const triggerWalkthroughDropAnimation = useCallback(
+    (
+      stepIndex: number,
+      label: string,
+      targetPosition: { x: number; y: number },
+      title: string,
+      detail: string
+    ) => {
+      if (typeof window === "undefined") return;
+      if (walkthroughAnimatedStepsRef.current.has(stepIndex)) return;
+
+      walkthroughAnimatedStepsRef.current.add(stepIndex);
+      clearWalkthroughDropAnimationTimers();
+      setWalkthroughDropNodeLabel(label);
+
+      const startTimeoutId = window.setTimeout(() => {
+        const sourceRect = getSidebarNodeSourceRect(label);
+        const wrapperRect = reactFlowWrapper.current?.getBoundingClientRect();
+        const targetRect = wrapperRect
+          ? {
+              x: wrapperRect.left + targetPosition.x,
+              y: wrapperRect.top + targetPosition.y,
+            }
+          : { x: 320, y: 180 };
+
+        setWalkthroughDropAnimation({
+          label,
+          title,
+          detail,
+          sourceRect,
+          targetRect,
+        });
+      }, 120);
+
+      const stopTimeoutId = window.setTimeout(() => {
+        setWalkthroughDropAnimation(null);
+        setWalkthroughDropNodeLabel(undefined);
+        walkthroughDropTimeoutIdsRef.current =
+          walkthroughDropTimeoutIdsRef.current.filter(
+            (id) => id !== startTimeoutId && id !== stopTimeoutId
+          );
+      }, WALKTHROUGH_DROP_ANIMATION_MS + 260);
+
+      walkthroughDropTimeoutIdsRef.current.push(
+        startTimeoutId,
+        stopTimeoutId
+      );
+    },
+    [clearWalkthroughDropAnimationTimers]
+  );
+
+  const buildWalkthroughDemoGraph = useCallback(
+    (stepIndex: number) => {
+      const nodesForStep: FlowNode[] = [];
+      const edgesForStep: Edge[] = [];
+
+      if (stepIndex >= WALKTHROUGH_INPUT_STEP_INDEX && walkthroughInputTemplate) {
+        const inputData = cloneStructuredData(walkthroughInputTemplate.nodeData);
+        nodesForStep.push({
+          id: WALKTHROUGH_INPUT_NODE_ID,
+          type: walkthroughInputTemplate.type,
+          position: WALKTHROUGH_INPUT_POSITION,
+          selected: stepIndex === WALKTHROUGH_INPUT_STEP_INDEX,
+          data: {
+            ...inputData,
+            value: "01000000",
+            inputs: { ...(inputData.inputs ?? {}), val: "01000000" },
+            result: "01000000",
+            dirty: false,
+          },
+        });
+      }
+
+      if (stepIndex >= WALKTHROUGH_TX_TEMPLATE_STEP_INDEX && walkthroughTxTemplate) {
+        const txData = cloneStructuredData(walkthroughTxTemplate.nodeData);
+        const filledValues =
+          stepIndex >= WALKTHROUGH_FIELDS_STEP_INDEX
+            ? WALKTHROUGH_FIELD_VALUES
+            : txData.inputs?.vals ?? {};
+        nodesForStep.push({
+          id: WALKTHROUGH_TEMPLATE_NODE_ID,
+          type: walkthroughTxTemplate.type,
+          position: WALKTHROUGH_TEMPLATE_POSITION,
+          selected: stepIndex >= WALKTHROUGH_TX_TEMPLATE_STEP_INDEX,
+          data: {
+            ...txData,
+            inputs: {
+              ...(txData.inputs ?? {}),
+              vals: filledValues,
+            },
+            dirty: stepIndex >= WALKTHROUGH_CONNECT_STEP_INDEX,
+          },
+        });
+      }
+
+      if (stepIndex >= WALKTHROUGH_CONNECT_STEP_INDEX) {
+        edgesForStep.push({
+          id: WALKTHROUGH_EDGE_ID,
+          source: WALKTHROUGH_INPUT_NODE_ID,
+          target: WALKTHROUGH_TEMPLATE_NODE_ID,
+          targetHandle: "input-0",
+        });
+      }
+
+      return { nodes: nodesForStep, edges: edgesForStep };
+    },
+    [walkthroughInputTemplate, walkthroughTxTemplate]
+  );
+
+  const applyWalkthroughDemoStep = useCallback(
+    (stepIndex: number) => {
+      if (stepIndex < WALKTHROUGH_INPUT_STEP_INDEX) return;
+      if (!walkthroughInputTemplate || !walkthroughTxTemplate) return;
+      if (walkthroughLastAppliedStepRef.current === stepIndex) return;
+      walkthroughLastAppliedStepRef.current = stepIndex;
+
+      if (!walkthroughTabCreatedRef.current) {
+        walkthroughTabCreatedRef.current = true;
+        const tabId = addTab();
+        renameTab(tabId, WALKTHROUGH_TAB_TITLE);
+        setTabTooltip(tabId, "Walkthrough demo");
+      }
+
+      const graph = buildWalkthroughDemoGraph(stepIndex);
+      setNodes(() => graph.nodes);
+      setEdges(() => graph.edges);
+      scheduleSnapshot(`Walkthrough: step ${stepIndex + 1}`, {
+        refresh: true,
+      });
+
+      if (stepIndex === WALKTHROUGH_INPUT_STEP_INDEX) {
+        triggerWalkthroughDropAnimation(
+          stepIndex,
+          WALKTHROUGH_INPUT_LABEL,
+          WALKTHROUGH_INPUT_POSITION,
+          "Input",
+          "Dropping onto canvas"
+        );
+      } else if (stepIndex === WALKTHROUGH_TX_TEMPLATE_STEP_INDEX) {
+        triggerWalkthroughDropAnimation(
+          stepIndex,
+          WALKTHROUGH_TEMPLATE_LABEL,
+          WALKTHROUGH_TEMPLATE_POSITION,
+          "TX Template legacy",
+          "Dropping onto canvas"
+        );
+      }
+    },
+    [
+      addTab,
+      buildWalkthroughDemoGraph,
+      renameTab,
+      scheduleSnapshot,
+      setEdges,
+      setNodes,
+      setTabTooltip,
+      triggerWalkthroughDropAnimation,
+      walkthroughInputTemplate,
+      walkthroughTxTemplate,
+    ]
+  );
+
+  const handleWalkthroughStepChange = useCallback(
+    (stepIndex: number) => {
+      applyWalkthroughDemoStep(stepIndex);
+    },
+    [applyWalkthroughDemoStep]
+  );
+
+  /* ---------------------------------------------------------------------- */
+  /*  Auto demo — animates a fake cursor that drops a node and types into   */
+  /*  its value field, so a first-time user can watch the workflow happen.  */
+  /* ---------------------------------------------------------------------- */
+
+  const clearAutoDemoTimers = useCallback(() => {
+    if (typeof window === "undefined") return;
+    for (const id of autoDemoTimeoutIdsRef.current) {
+      window.clearTimeout(id);
+    }
+    autoDemoTimeoutIdsRef.current = [];
+  }, []);
+
+  const scheduleAutoDemoStep = useCallback(
+    (delay: number, fn: () => void) => {
+      if (typeof window === "undefined") {
+        fn();
+        return;
+      }
+      const id = window.setTimeout(() => {
+        autoDemoTimeoutIdsRef.current = autoDemoTimeoutIdsRef.current.filter(
+          (existing) => existing !== id
+        );
+        fn();
+      }, delay);
+      autoDemoTimeoutIdsRef.current.push(id);
+    },
+    []
+  );
+
+  const stopAutoDemo = useCallback(() => {
+    clearAutoDemoTimers();
+    autoDemoRunningRef.current = false;
+    setAutoDemoState(null);
+    setWalkthroughDropNodeLabel(undefined);
+  }, [clearAutoDemoTimers]);
+
+  const runAutoDemo = useCallback(() => {
+    if (autoDemoRunningRef.current) return;
+    if (!walkthroughInputTemplate) return;
+    if (typeof window === "undefined") return;
+
+    autoDemoRunningRef.current = true;
+    clearAutoDemoTimers();
+
+    setIsSidebarOpen(true);
+    setShowUndoRedoPanel(false);
+    setShowErrorPanel(false);
+    setShowSearchPanel(false);
+    setShowWalkthrough(false);
+
+    const tabId = addTab();
+    renameTab(tabId, "Auto Demo");
+    setTabTooltip(tabId, "Auto demo");
+
+    // Highlight the Input sidebar card so the category expands & it scrolls
+    // into view before the fake cursor reaches it.
+    setWalkthroughDropNodeLabel(WALKTHROUGH_INPUT_LABEL);
+
+    // Resting position (off-screen-ish, lower right) for the cursor to fly
+    // in from. Using fixed-coord screen positions everywhere.
+    const startX = window.innerWidth * 0.55;
+    const startY = window.innerHeight - 80;
+
+    // Show cursor at the starting position immediately. CSS transitions on
+    // the overlay handle smooth interpolation to every next waypoint.
+    setAutoDemoState({
+      cursor: { x: startX, y: startY },
+      ghost: null,
+    });
+
+    const inputTemplate = walkthroughInputTemplate;
+    const dropFlowPosition = { x: 220, y: 180 };
+    const demoNodeId = "node_auto_demo_input";
+    const typedValue = "01000000";
+
+    // t=350ms: snap to the sidebar Input card. The card may not be in view
+    // yet (the category was just expanded), so we read its rect lazily.
+    scheduleAutoDemoStep(350, () => {
+      const sidebarRect = getSidebarNodeSourceRect(WALKTHROUGH_INPUT_LABEL);
+      const sidebarCenter = {
+        x: sidebarRect.x + sidebarRect.width / 2 - 4,
+        y: sidebarRect.y + sidebarRect.height / 2 - 4,
+      };
+      setAutoDemoState({ cursor: sidebarCenter, ghost: null });
+    });
+
+    // t=1050ms: press down — show the press animation. No ghost yet.
+    scheduleAutoDemoStep(1050, () => {
+      const sidebarRect = getSidebarNodeSourceRect(WALKTHROUGH_INPUT_LABEL);
+      const sidebarCenter = {
+        x: sidebarRect.x + sidebarRect.width / 2 - 4,
+        y: sidebarRect.y + sidebarRect.height / 2 - 4,
+      };
+      setAutoDemoState({
+        cursor: sidebarCenter,
+        ghost: null,
+        pressing: true,
+      });
+    });
+
+    // t=1250ms: pickup — ghost card appears under the cursor.
+    scheduleAutoDemoStep(1250, () => {
+      const sidebarRect = getSidebarNodeSourceRect(WALKTHROUGH_INPUT_LABEL);
+      const sidebarCenter = {
+        x: sidebarRect.x + sidebarRect.width / 2 - 4,
+        y: sidebarRect.y + sidebarRect.height / 2 - 4,
+      };
+      setAutoDemoState({
+        cursor: sidebarCenter,
+        ghost: {
+          x: sidebarCenter.x - 20,
+          y: sidebarCenter.y - 18,
+          label: inputTemplate.label,
+        },
+      });
+    });
+
+    // t=1500ms: drag — cursor + ghost glide to the canvas target.
+    scheduleAutoDemoStep(1500, () => {
+      const wrapperRect = reactFlowWrapper.current?.getBoundingClientRect();
+      const instance = flowInstanceRef.current;
+      let targetScreen: { x: number; y: number };
+      if (instance && wrapperRect) {
+        const projected = instance.flowToScreenPosition(dropFlowPosition);
+        targetScreen = { x: projected.x, y: projected.y };
+      } else {
+        targetScreen = {
+          x: (wrapperRect?.left ?? 256) + 380,
+          y: (wrapperRect?.top ?? 96) + 160,
+        };
+      }
+      setAutoDemoState({
+        cursor: targetScreen,
+        ghost: {
+          x: targetScreen.x - 20,
+          y: targetScreen.y - 18,
+          label: inputTemplate.label,
+        },
+      });
+    });
+
+    // t=2250ms: drop — add the real node, hide the ghost, press tick.
+    scheduleAutoDemoStep(2250, () => {
+      const baseData = cloneStructuredData(inputTemplate.nodeData) as Record<
+        string,
+        unknown
+      >;
+      const dropped: FlowNode = {
+        id: demoNodeId,
+        type: inputTemplate.type,
+        position: dropFlowPosition,
+        selected: true,
+        data: {
+          ...baseData,
+          value: "",
+          inputs: { ...(baseData.inputs as object | undefined ?? {}), val: "" },
+          result: "",
+          dirty: false,
+        } as FlowNode["data"],
+      };
+      setNodes(() => [dropped]);
+      setEdges(() => []);
+
+      const wrapperRect = reactFlowWrapper.current?.getBoundingClientRect();
+      const instance = flowInstanceRef.current;
+      const projected =
+        instance && wrapperRect
+          ? instance.flowToScreenPosition(dropFlowPosition)
+          : {
+              x: (wrapperRect?.left ?? 256) + 380,
+              y: (wrapperRect?.top ?? 96) + 160,
+            };
+      setAutoDemoState({
+        cursor: { x: projected.x, y: projected.y },
+        ghost: null,
+        pressing: true,
+      });
+      setWalkthroughDropNodeLabel(undefined);
+    });
+
+    // t=2700ms: move cursor onto the node's value input field
+    scheduleAutoDemoStep(2700, () => {
+      const wrapperRect = reactFlowWrapper.current?.getBoundingClientRect();
+      const instance = flowInstanceRef.current;
+      const projected =
+        instance && wrapperRect
+          ? instance.flowToScreenPosition({
+              x: dropFlowPosition.x + 70,
+              y: dropFlowPosition.y + 95,
+            })
+          : {
+              x: (wrapperRect?.left ?? 256) + 450,
+              y: (wrapperRect?.top ?? 96) + 255,
+            };
+      setAutoDemoState({
+        cursor: { x: projected.x, y: projected.y },
+        ghost: null,
+      });
+    });
+
+    // t=3200ms+: type characters one at a time (~130ms cadence) by mutating
+    // the node's `value` / `inputs.val` / `result` fields. CalculationNode
+    // reads from `data` so the typed characters appear progressively.
+    const typingStart = 3200;
+    const charDelay = 130;
+    for (let i = 1; i <= typedValue.length; i += 1) {
+      const partial = typedValue.slice(0, i);
+      scheduleAutoDemoStep(typingStart + i * charDelay, () => {
+        setNodes((nds) =>
+          nds.map((n) => {
+            if (n.id !== demoNodeId) return n;
+            const existing = (n.data ?? {}) as Record<string, unknown>;
+            const existingInputs =
+              (existing.inputs as Record<string, unknown> | undefined) ?? {};
+            return {
+              ...n,
+              data: {
+                ...existing,
+                value: partial,
+                inputs: { ...existingInputs, val: partial },
+                result: partial,
+                dirty: false,
+              } as FlowNode["data"],
+            };
+          })
+        );
+      });
+    }
+
+    // Final: clear the overlay after the user has had a moment to see the
+    // typed value.
+    const finishAt = typingStart + typedValue.length * charDelay + 1100;
+    scheduleAutoDemoStep(finishAt, () => {
+      autoDemoRunningRef.current = false;
+      setAutoDemoState(null);
+    });
+  }, [
+    addTab,
+    clearAutoDemoTimers,
+    renameTab,
+    scheduleAutoDemoStep,
+    setEdges,
+    setNodes,
+    setTabTooltip,
+    walkthroughInputTemplate,
+  ]);
+
+  // Cancel any pending auto-demo timers when the component unmounts.
+  useEffect(() => stopAutoDemo, [stopAutoDemo]);
+
+  useEffect(() => {
+    if (!initialHydrationDone) return;
+    if (isMobileReadOnly) return;
+    if (showWalkthrough) return;
+    if (walkthroughAutoStartedRef.current) return;
+    if (nodes.length > 0 || edges.length > 0) return;
+
+    try {
+      if (
+        window.localStorage.getItem(WALKTHROUGH_STORAGE_KEY) ||
+        window.localStorage.getItem(FIRST_RUN_STORAGE_KEY)
+      ) {
+        return;
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("s") || params.get("share")) {
+        return;
+      }
+
+      if (isAutomationEnvironment()) {
+        window.localStorage.setItem(WALKTHROUGH_STORAGE_KEY, "1");
+        return;
+      }
+    } catch {
+      if (isAutomationEnvironment()) {
+        return;
+      }
+    }
+
+    walkthroughAutoStartedRef.current = true;
+    markWelcomeComplete();
+    walkthroughTabCreatedRef.current = false;
+    walkthroughLastAppliedStepRef.current = null;
+    walkthroughAnimatedStepsRef.current = new Set();
+    setShowWalkthrough(true);
+  }, [
+    edges.length,
+    initialHydrationDone,
+    isMobileReadOnly,
+    markWelcomeComplete,
+    nodes.length,
+    showWalkthrough,
+  ]);
 
   useEffect(() => {
     if (!initialHydrationDone) return;
@@ -2270,11 +2863,13 @@ function FlowContent() {
       introDropScheduledRef.current = false;
       clearExampleFitRetryTimers();
       clearIntroDropAnimationTimers();
+      clearWalkthroughDropAnimationTimers();
       clearSharedGraphRepairTimers();
     },
     [
       clearExampleFitRetryTimers,
       clearIntroDropAnimationTimers,
+      clearWalkthroughDropAnimationTimers,
       clearSharedGraphRepairTimers,
     ]
   );
@@ -2430,6 +3025,8 @@ function FlowContent() {
               onToggleInfoNodes={() => setShowInfoNodes((v) => !v)}
               isSelectionModeActive={isSelectionMode}
               onToggleSelectionMode={() => setIsSelectionLocked((v) => !v)}
+              onWalkthroughClick={openWalkthrough}
+              onAutoDemoClick={runAutoDemo}
               onShare={handleShareClick}
               shareDisabled={nodes.length === 0}
               tabBarRightInset={rightPanelWidth}
@@ -2442,6 +3039,7 @@ function FlowContent() {
               isOpen={isSidebarOpen}
               onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
               introDropFlowId={isIntroDropAnimating ? INTRO_FLOW_ID : undefined}
+              introDropNodeLabel={walkthroughDropNodeLabel}
             />
           )}
 
@@ -2596,6 +3194,40 @@ function FlowContent() {
             </div>
           )}
 
+          {walkthroughDropAnimation && (
+            <div
+              className="pointer-events-none absolute inset-0 z-[80]"
+              aria-live="polite"
+            >
+              <div
+                className="rawbit-walkthrough-drop-card pointer-events-none absolute rounded-md border border-primary/50 bg-card px-4 py-3 text-card-foreground shadow-lg"
+                style={
+                  {
+                    "--walkthrough-source-x": `${walkthroughDropAnimation.sourceRect.x}px`,
+                    "--walkthrough-source-y": `${walkthroughDropAnimation.sourceRect.y}px`,
+                    "--walkthrough-source-width": `${walkthroughDropAnimation.sourceRect.width}px`,
+                    "--walkthrough-target-x": `${walkthroughDropAnimation.targetRect.x}px`,
+                    "--walkthrough-target-y": `${walkthroughDropAnimation.targetRect.y}px`,
+                    width: `${walkthroughDropAnimation.sourceRect.width}px`,
+                    minHeight: `${walkthroughDropAnimation.sourceRect.height}px`,
+                  } as React.CSSProperties
+                }
+              >
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  {walkthroughDropAnimation.label}
+                </div>
+                <div className="mt-1 text-sm font-semibold">
+                  {walkthroughDropAnimation.title}
+                </div>
+                <div className="mt-1 text-xs text-muted-foreground">
+                  {walkthroughDropAnimation.detail}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <AutoDemoOverlay state={autoDemoState} />
+
           {/* 🎨 ColorPalette - MOVED HERE, outside ReactFlow, with higher z-index */}
           {!isMobileReadOnly && (
             <ColorPalette
@@ -2651,6 +3283,12 @@ function FlowContent() {
               setShowWelcomeDialog(open);
               if (!open) markWelcomeComplete();
             }}
+          />
+          <Walkthrough
+            open={showWalkthrough}
+            onSkip={closeWalkthrough}
+            onFinish={closeWalkthrough}
+            onStepChange={handleWalkthroughStepChange}
           />
         </div>
       </FlowActionsProvider>

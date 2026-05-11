@@ -1,5 +1,5 @@
 import React from "react";
-import { act, cleanup, render, waitFor } from "@testing-library/react";
+import { act, cleanup, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { MockInstance } from "vitest";
 import type { TopBarProps, ExtraTopBarProps } from "@/components/layout/TopBar";
@@ -17,6 +17,16 @@ type FileImportCallbacks = {
 
 const topBarProps = {
   current: null as (TopBarProps & ExtraTopBarProps) | null,
+};
+const walkthroughProps = {
+  current: null as
+    | {
+        open: boolean;
+        onSkip: () => void;
+        onFinish: () => void;
+        onStepChange?: (stepIndex: number) => void;
+      }
+    | null,
 };
 
 const flowCanvasProps = {
@@ -47,6 +57,7 @@ const clearHighlightsMock = vi.fn();
 const setInfoDialogMock = vi.fn();
 const setTabTooltipMock = vi.fn();
 const renameTabMock = vi.fn();
+const addTabMock = vi.fn(() => "tab-2");
 const markPendingAfterDirtyChangeMock = vi.fn();
 const saveLlmExportMock = vi.fn();
 const saveSimplifiedFlowMock = vi.fn();
@@ -171,6 +182,22 @@ vi.mock("@/components/FlowPanels", () => ({
   FlowPanels: () => <div data-testid="flow-panels" />,
 }));
 
+vi.mock("@/components/walkthrough/Walkthrough", () => ({
+  Walkthrough: (props: {
+    open: boolean;
+    onSkip: () => void;
+    onFinish: () => void;
+    onStepChange?: (stepIndex: number) => void;
+  }) => {
+    walkthroughProps.current = props;
+    return (
+      <div data-testid="walkthrough">
+        {props.open ? "open" : "closed"}
+      </div>
+    );
+  },
+}));
+
 vi.mock("@/hooks/useNodeOperations", () => ({
   useNodeOperations: () => ({
     nodes: mockNodesState.current,
@@ -236,7 +263,7 @@ vi.mock("@/hooks/useTabs", () => ({
     initialHydrationDone: true,
     closeDialog: { open: false, tabId: null },
     selectTab: vi.fn(),
-    addTab: vi.fn(() => "tab-2"),
+    addTab: addTabMock,
     requestCloseTab: vi.fn(),
     confirmCloseTab: vi.fn(),
     cancelCloseTab: vi.fn(),
@@ -451,10 +478,12 @@ beforeEach(() => {
   rfSetNodesMock.mockClear();
   rfSetEdgesMock.mockClear();
   updateNodeInternalsMock.mockClear();
+  addTabMock.mockClear();
   saveConfirmationHookCalls.length = 0;
   skipLoadRef.current = false;
   localStorage.clear();
   localStorage.setItem("rawbit.ui.welcomeSeen", "1");
+  walkthroughProps.current = null;
 });
 
 afterEach(() => {
@@ -488,33 +517,27 @@ describe("Flow welcome dialog suppression on shared links", () => {
     expect(queryByText("Pick how you would like to get started.")).not.toBeInTheDocument();
   });
 
-  it("animates and auto-loads the default example flow on a fresh browser session without a shared link", async () => {
-    // No welcomeSeen flag, no share param -> current rawBit starts from the intro flow.
+  it("opens the walkthrough on a fresh browser session without a shared link", async () => {
+    // No welcomeSeen flag, no share param -> rawBit starts from the walkthrough.
     localStorage.clear();
     localStorage.setItem("rawbit.flow.tabs", "default-empty-tab");
     window.history.replaceState({}, "", window.location.pathname);
 
-    const { getByText, queryByText } = render(<Flow />);
+    const { getByTestId, queryByText } = render(<Flow />);
 
     expect(queryByText("Pick how you would like to get started.")).not.toBeInTheDocument();
-    expect(getByText("Dropping onto canvas")).toBeInTheDocument();
+    expect(getByTestId("walkthrough")).toHaveTextContent("open");
     expect(scheduleSnapshotMock).not.toHaveBeenCalledWith("Load example: Example flow", {
       refresh: true,
     });
-
-    await waitFor(
-      () => {
-        expect(scheduleSnapshotMock).toHaveBeenCalledWith("Load example: Example flow", {
-          refresh: true,
-        });
-      },
-      { timeout: 1600 }
-    );
-    await waitFor(
-      () => expect(queryByText("Dropping onto canvas")).not.toBeInTheDocument(),
-      { timeout: 1600 }
-    );
     expect(localStorage.getItem("rawbit.ui.welcomeSeen")).toBe("1");
+    expect(localStorage.getItem("rawbit.ui.walkthroughSeen")).toBeNull();
+
+    act(() => {
+      walkthroughProps.current?.onSkip();
+    });
+
+    expect(localStorage.getItem("rawbit.ui.walkthroughSeen")).toBe("1");
   });
 });
 

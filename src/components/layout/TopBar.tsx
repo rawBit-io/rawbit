@@ -44,6 +44,8 @@ import {
   Mail,
   Paintbrush,
   Check,
+  CircleHelp,
+  Wand2,
 } from "lucide-react";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -149,6 +151,9 @@ export type ExtraTopBarProps = {
   onToggleInfoNodes?: () => void;
   isSelectionModeActive?: boolean;
   onToggleSelectionMode?: () => void;
+  onWalkthroughClick?: () => void;
+  onAutoDemoClick?: () => void;
+  autoDemoDisabled?: boolean;
   tabBarRightInset?: number;
 };
 
@@ -282,6 +287,9 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
     onToggleInfoNodes,
     isSelectionModeActive = false,
     onToggleSelectionMode,
+    onWalkthroughClick,
+    onAutoDemoClick,
+    autoDemoDisabled = false,
     tabBarRightInset = 0,
   } = props;
 
@@ -757,6 +765,24 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
             tooltip="Share snapshot"
           >
             <Share className="h-7 w-7" />
+          </TopBarIconButton>
+          <TopBarIconButton
+            variant="ghost"
+            size="icon"
+            onClick={onWalkthroughClick}
+            tooltip="Walkthrough"
+          >
+            <CircleHelp className="h-7 w-7" />
+          </TopBarIconButton>
+          <TopBarIconButton
+            variant="ghost"
+            size="icon"
+            onClick={onAutoDemoClick}
+            disabled={autoDemoDisabled}
+            tooltip="Auto demo (drop + connect + type as a real user)"
+            data-testid="auto-demo-button"
+          >
+            <Wand2 className="h-7 w-7" />
           </TopBarIconButton>
 
           {/* community links */}
