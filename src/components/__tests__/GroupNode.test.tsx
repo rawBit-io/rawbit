@@ -241,6 +241,57 @@ describe("GroupNode interactions", () => {
     expect(screen.getByTitle("More")).toBeInTheDocument();
   });
 
+  it("starts title editing on the second title press after the first click reveals controls", () => {
+    renderGroupNode();
+
+    const header = screen.getByTestId("group-header");
+    const handlers = getReactHandlers(header);
+
+    act(() => {
+      handlers.onPointerDownCapture?.({
+        button: 0,
+        buttons: 1,
+        pointerId: 21,
+        clientX: 100,
+        clientY: 100,
+        target: header,
+        currentTarget: header,
+        stopPropagation: vi.fn(),
+      });
+    });
+
+    act(() => {
+      dispatchWindowPointerEvent("pointerup", {
+        pointerId: 21,
+        clientX: 100,
+        clientY: 100,
+      });
+    });
+
+    const moreButton = screen.getByTitle("More");
+    const preventDefault = vi.fn();
+    const stopPropagation = vi.fn();
+
+    act(() => {
+      handlers.onPointerDownCapture?.({
+        button: 0,
+        buttons: 1,
+        pointerId: 22,
+        clientX: 100,
+        clientY: 100,
+        target: moreButton,
+        currentTarget: header,
+        preventDefault,
+        stopPropagation,
+      });
+    });
+
+    expect(screen.getByDisplayValue("Group Node")).toBeInTheDocument();
+    expect(screen.queryByTitle("More")).not.toBeInTheDocument();
+    expect(preventDefault).toHaveBeenCalledTimes(1);
+    expect(stopPropagation).toHaveBeenCalledTimes(1);
+  });
+
   it("keeps title controls hidden after dragging from the title", () => {
     renderGroupNode();
 
@@ -302,6 +353,36 @@ describe("GroupNode interactions", () => {
 
     expect(nodes[0].data.title).toBe("Renamed");
     expect(pushState).toHaveBeenCalledWith(nodes, edges, "Change Group Title");
+  });
+
+  it("starts title editing when double-clicking the title area outside the text button", () => {
+    renderGroupNode();
+
+    fireEvent.doubleClick(screen.getByTestId("group-title-area"));
+
+    expect(screen.getByDisplayValue("Group Node")).toBeInTheDocument();
+  });
+
+  it("resizes the title pill while editing the title draft", () => {
+    renderGroupNode();
+
+    const header = screen.getByTestId("group-header");
+    const initialWidth = parseInt(header.style.width, 10);
+
+    fireEvent.doubleClick(screen.getByRole("button", { name: "Group Node" }));
+    const input = screen.getByDisplayValue("Group Node");
+
+    fireEvent.change(input, {
+      target: { value: "A much longer group label while editing" },
+    });
+    const expandedWidth = parseInt(header.style.width, 10);
+
+    fireEvent.change(input, { target: { value: "A" } });
+    const compactWidth = parseInt(header.style.width, 10);
+
+    expect(expandedWidth).toBeGreaterThan(initialWidth);
+    expect(compactWidth).toBeLessThan(expandedWidth);
+    expect(compactWidth).toBeLessThan(initialWidth);
   });
 
   it("preserves leading spaces when committing title", () => {

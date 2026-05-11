@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
 interface EditableLabelProps {
   value: string;
   onCommit: (value: string) => void;
+  onDraftChange?: (value: string | null) => void;
+  editSignal?: number;
   maxLength?: number;
   className?: string;
   fontSize?: number;
@@ -19,6 +21,8 @@ interface EditableLabelProps {
 export function EditableLabel({
   value,
   onCommit,
+  onDraftChange,
+  editSignal,
   maxLength = 100,
   className = "",
   fontSize = 16,
@@ -26,6 +30,7 @@ export function EditableLabel({
 }: EditableLabelProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
+  const lastEditSignalRef = useRef(editSignal);
 
   useEffect(() => setTempValue(value), [value]);
 
@@ -33,6 +38,29 @@ export function EditableLabel({
     fontSize,
     fontWeight: 400,
   };
+
+  const startEditing = useCallback(() => {
+    setTempValue(value);
+    setIsEditing(true);
+    onDraftChange?.(value);
+  }, [onDraftChange, value]);
+
+  const stopEditing = useCallback(() => {
+    setIsEditing(false);
+    onDraftChange?.(null);
+  }, [onDraftChange]);
+
+  const commit = useCallback(() => {
+    onCommit(tempValue.trim().length ? tempValue : fallback);
+    stopEditing();
+  }, [fallback, onCommit, stopEditing, tempValue]);
+
+  useEffect(() => {
+    if (lastEditSignalRef.current === editSignal) return;
+    lastEditSignalRef.current = editSignal;
+    if (editSignal == null) return;
+    startEditing();
+  }, [editSignal, startEditing]);
 
   if (!isEditing) {
     return (
@@ -42,7 +70,10 @@ export function EditableLabel({
           className
         )}
         style={{ ...labelStyle, userSelect: "text", whiteSpace: "pre" }}
-        onDoubleClick={() => setIsEditing(true)}
+        onDoubleClick={(event) => {
+          event.stopPropagation();
+          startEditing();
+        }}
         title="Double-click to rename"
       >
         {value || fallback}
@@ -61,23 +92,18 @@ export function EditableLabel({
       autoFocus
       value={tempValue}
       maxLength={maxLength}
-      onChange={(event) => setTempValue(event.target.value)}
+      onChange={(event) => {
+        setTempValue(event.target.value);
+        onDraftChange?.(event.target.value);
+      }}
       onKeyDown={(event) => {
         if (event.key === "Enter") {
-          onCommit(
-            tempValue.trim().length ? tempValue : fallback
-          );
-          setIsEditing(false);
+          commit();
         } else if (event.key === "Escape") {
-          setIsEditing(false);
+          stopEditing();
         }
       }}
-      onBlur={() => {
-        onCommit(
-          tempValue.trim().length ? tempValue : fallback
-        );
-        setIsEditing(false);
-      }}
+      onBlur={commit}
     />
   );
 }

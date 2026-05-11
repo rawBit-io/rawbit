@@ -59,6 +59,7 @@ const MIN_H = 220;
 const BORDER_WIDTH = 10;
 const MENU_WIDTH = 240;
 const TITLE_CLICK_MOVE_TOLERANCE = 4;
+const TITLE_DOUBLE_CLICK_MS = 360;
 const CLEAR_BUNDLE_EDGE_SELECTION_EVENT = "rawbit:clear-bundle-edge-selection";
 
 const normalizeFontSize = (value: unknown) => {
@@ -85,12 +86,19 @@ export default function ShadcnGroupNode({
   const [showMenu, setShowMenu] = useState(false);
   const [showTitleControls, setShowTitleControls] = useState(false);
   const [titlePressActive, setTitlePressActive] = useState(false);
+  const [titleDraft, setTitleDraft] = useState<string | null>(null);
+  const [titleEditSignal, setTitleEditSignal] = useState(0);
   const menuAnchorRef = useRef<HTMLButtonElement | null>(null);
   const titlePressRef = useRef<{
     pointerId: number;
     startX: number;
     startY: number;
     didDrag: boolean;
+  } | null>(null);
+  const lastTitleClickRef = useRef<{
+    time: number;
+    x: number;
+    y: number;
   } | null>(null);
   const suppressNextTitleClickRef = useRef(false);
   const { containerRef: menuContainerRef, position: menuPos } =
@@ -146,6 +154,7 @@ export default function ShadcnGroupNode({
     setShowTitleControls(false);
     setTitlePressActive(false);
     titlePressRef.current = null;
+    lastTitleClickRef.current = null;
   }, [selected]);
 
   /* ----------------------------------------------------------------
@@ -244,9 +253,56 @@ export default function ShadcnGroupNode({
     [selectGroupNode]
   );
 
+  const startTitleEdit = useCallback(
+    () => {
+      setShowMenu(false);
+      setShowTitleControls(false);
+      selectGroupNode();
+      setTitleEditSignal((signal) => signal + 1);
+    },
+    [selectGroupNode]
+  );
+
+  const requestTitleEdit = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      event.stopPropagation();
+      if (
+        event.target instanceof HTMLElement &&
+        event.target.closest(
+          "input, textarea, [contenteditable='true'], select, button"
+        )
+      ) {
+        return;
+      }
+
+      startTitleEdit();
+    },
+    [startTitleEdit]
+  );
+
   const handleTitlePointerDown = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
       if (event.button !== 0) return;
+      const eventTime =
+        typeof event.timeStamp === "number" ? event.timeStamp : Date.now();
+      const lastClick = lastTitleClickRef.current;
+      const isSecondTitleClick =
+        lastClick !== null &&
+        eventTime - lastClick.time <= TITLE_DOUBLE_CLICK_MS &&
+        Math.abs(event.clientX - lastClick.x) <= TITLE_CLICK_MOVE_TOLERANCE &&
+        Math.abs(event.clientY - lastClick.y) <= TITLE_CLICK_MOVE_TOLERANCE;
+
+      if (isSecondTitleClick) {
+        event.preventDefault();
+        event.stopPropagation();
+        titlePressRef.current = null;
+        lastTitleClickRef.current = null;
+        suppressNextTitleClickRef.current = true;
+        setTitlePressActive(false);
+        startTitleEdit();
+        return;
+      }
+
       if (
         event.target instanceof HTMLElement &&
         event.target.closest(
@@ -268,7 +324,7 @@ export default function ShadcnGroupNode({
       setShowTitleControls(false);
       selectGroupNode();
     },
-    [selectGroupNode]
+    [selectGroupNode, startTitleEdit]
   );
 
   useEffect(() => {
@@ -293,10 +349,17 @@ export default function ShadcnGroupNode({
 
       if (press.didDrag) {
         suppressNextTitleClickRef.current = true;
+        lastTitleClickRef.current = null;
         setShowTitleControls(false);
         return;
       }
 
+      lastTitleClickRef.current = {
+        time:
+          typeof event.timeStamp === "number" ? event.timeStamp : Date.now(),
+        x: event.clientX,
+        y: event.clientY,
+      };
       setShowTitleControls(true);
     };
 
@@ -304,6 +367,7 @@ export default function ShadcnGroupNode({
       const press = titlePressRef.current;
       if (!press || press.pointerId !== event.pointerId) return;
       titlePressRef.current = null;
+      lastTitleClickRef.current = null;
       suppressNextTitleClickRef.current = true;
       setTitlePressActive(false);
       setShowTitleControls(false);
@@ -555,6 +619,7 @@ export default function ShadcnGroupNode({
   const w = Number(data.width) || 600;
   const h = Number(data.height) || 360;
   const currentFontSize = normalizeFontSize(data.fontSize);
+  const titleForSizing = titleDraft ?? rawTitle;
   const titlePillHeight = Math.round(Math.max(56, currentFontSize + 30));
   const titleControlsVisible = showTitleControls || showMenu;
   const titleControlVisualSize = Math.round(currentFontSize);
@@ -576,7 +641,9 @@ export default function ShadcnGroupNode({
   const titlePillWidth = Math.round(
     Math.max(
       TITLE_PILL_MIN_WIDTH,
-      rawTitle.length * currentFontSize * 0.62 + 56 + titleControlsWidth
+      titleForSizing.length * currentFontSize * 0.62 +
+        56 +
+        titleControlsWidth
     )
   );
   const titleTextWidth = Math.max(
@@ -641,12 +708,16 @@ export default function ShadcnGroupNode({
       >
         <div className="flex h-full w-full items-center justify-center gap-2 px-5">
           <div
-            className="flex min-w-0 items-center justify-center leading-tight"
+            data-testid="group-title-area"
+            className="flex h-full min-w-0 cursor-text items-center justify-center leading-tight"
             style={{ width: titleTextWidth }}
+            onDoubleClick={requestTitleEdit}
           >
             <EditableLabel
               value={rawTitle}
               onCommit={commitTitle}
+              onDraftChange={setTitleDraft}
+              editSignal={titleEditSignal}
               maxLength={100}
               fontSize={currentFontSize}
               className="group-node-title font-mono text-center text-primary"
