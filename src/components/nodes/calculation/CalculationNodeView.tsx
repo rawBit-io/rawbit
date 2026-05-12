@@ -116,6 +116,20 @@ function ConcatTypeBadge() {
     </span>
   );
 }
+
+function InputTypeBadge() {
+  return (
+    <span
+      className={cn(
+        "node-type-chip inline-flex h-6 flex-shrink-0 items-center rounded-full border px-2",
+        "border-border/70 bg-muted/40 text-[0.65rem] font-semibold leading-none text-muted-foreground"
+      )}
+      title="Input node: manually entered source value"
+    >
+      in
+    </span>
+  );
+}
 const NodeCodeDialog = React.lazy(
   () => import("@/components/dialog/NodeCodeDialog")
 );
@@ -425,6 +439,7 @@ export function CalculationNodeView({
     data.functionName === "extract_tx_field" &&
     data.txFieldExtractMode === "dynamic";
   const isConcatAll = data.functionName === "concat_all";
+  const isInputNode = data.functionName === "identity" && showField;
   const txExtractFields = useMemo(
     () => normalizeTxFieldExtractFields(data.txExtractFields),
     [data.txExtractFields]
@@ -1242,6 +1257,7 @@ export function CalculationNodeView({
         </div>
 
         <div className="flex flex-shrink-0 items-center space-x-2">
+          {isInputNode && <InputTypeBadge />}
           {isConcatAll && <ConcatTypeBadge />}
 
           {derived.connectionStatus.shouldShow && (

@@ -526,7 +526,7 @@ describe("CalculationNodeView", () => {
     ).toHaveTextContent("concat");
   });
 
-  it("hides duplicate result output on identity input nodes", () => {
+  it("marks renamed identity input nodes and hides duplicate result output", () => {
     const clip = createClip({ prettyResult: "abc123" });
     const mut = createMut();
 
@@ -538,7 +538,7 @@ describe("CalculationNodeView", () => {
           paramExtraction: "single_val",
           showField: true,
         } as NodeData}
-        rawTitle="Input"
+        rawTitle="Funding hash"
         derived={derived}
         isInputConnected={() => false}
         mut={mut}
@@ -568,6 +568,9 @@ describe("CalculationNodeView", () => {
     expect(
       screen.queryByTitle("Aggregator node: concatenates ordered input parts")
     ).not.toBeInTheDocument();
+    expect(
+      screen.getByTitle("Input node: manually entered source value")
+    ).toHaveTextContent("in");
     expect(screen.queryByText("> Calculation Result:")).not.toBeInTheDocument();
     expect(screen.queryByTestId("node-result")).not.toBeInTheDocument();
     expect(screen.queryByTitle("Copy result to clipboard")).not.toBeInTheDocument();
