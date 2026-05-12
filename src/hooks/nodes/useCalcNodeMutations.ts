@@ -244,7 +244,11 @@ export function useCalcNodeMutations(
                 ...node,
                 data: {
                   ...node.data,
-                  selectedNetwork: network as "regtest" | "testnet" | "mainnet",
+                  selectedNetwork: network as
+                    | "regtest"
+                    | "signet"
+                    | "testnet"
+                    | "mainnet",
                   dirty: true,
                 },
               }

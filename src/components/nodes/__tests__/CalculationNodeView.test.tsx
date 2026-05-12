@@ -216,6 +216,38 @@ describe("CalculationNodeView", () => {
     expect(copyIdItem).toBeInTheDocument();
   });
 
+  it("renders signet for network-dependent nodes", () => {
+    const clip = createClip();
+    const mut = createMut();
+
+    renderWithProviders(
+      <CalculationNodeView
+        selected={false}
+        data={{ ...data, selectedNetwork: "signet" } as NodeData}
+        rawTitle="Calc Node"
+        derived={derived}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        singleValue={undefined}
+        result={undefined}
+        error={false}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: false,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    expect(screen.getByRole("combobox")).toHaveTextContent("Signet");
+  });
+
   it("shows live upstream values on connected fields instead of stale stored values", () => {
     const clip = createClip();
     const mut = createMut();

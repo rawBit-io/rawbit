@@ -1787,6 +1787,7 @@ export function CalculationNodeView({
                   <SelectContent>
                     <SelectItem value="mainnet">Mainnet</SelectItem>
                     <SelectItem value="testnet">Testnet</SelectItem>
+                    <SelectItem value="signet">Signet</SelectItem>
                     <SelectItem value="regtest">Regtest</SelectItem>
                   </SelectContent>
                 </Select>

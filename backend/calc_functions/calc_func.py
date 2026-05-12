@@ -211,6 +211,7 @@ def _hrp_for_network(selectedNetwork: str) -> str:
     return {
         "mainnet": "bc",
         "testnet": "tb",
+        "signet": "tb",
         "regtest": "bcrt",
     }.get(selectedNetwork, "bcrt")
 # ===== END ADDRESS ENCODING HELPERS =====
@@ -3124,7 +3125,7 @@ def blocks_to_sequence_number(val: int) -> int:
 def hash160_to_p2sh_address(val: str, selectedNetwork: str = "regtest") -> str:
     """
     Generate a Base58Check P2SH address from a 20-byte HASH160.
-    mainnet: 0x05, testnet/regtest: 0xc4
+    mainnet: 0x05, testnet/signet/regtest: 0xc4
     """
     script_hash = _bytes_from_even_hex(val, name="script hash")
     if len(script_hash) != 20:
@@ -3651,7 +3652,7 @@ def math_operation(vals: list[str]) -> str:
 def hash160_to_p2pkh_address(val: str, selectedNetwork: str = "regtest") -> str:
     """
     Generate a Base58Check P2PKH address from a 20-byte HASH160.
-    mainnet: 0x00, testnet/regtest: 0x6f
+    mainnet: 0x00, testnet/signet/regtest: 0x6f
     """
     h160 = _bytes_from_even_hex(val, name="hash160")
     if len(h160) != 20:

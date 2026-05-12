@@ -98,7 +98,7 @@ export interface CalculationNodeData extends Record<string, unknown> {
 
   /** UX helpers */
   networkDependent?: boolean;
-  selectedNetwork?: "regtest" | "testnet" | "mainnet";
+  selectedNetwork?: "regtest" | "signet" | "testnet" | "mainnet";
   extendedError?: string;
   comment?: string;
   showComment?: boolean;

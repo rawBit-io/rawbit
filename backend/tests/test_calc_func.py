@@ -126,6 +126,7 @@ def test_bech32_encode_decode_roundtrip():
 def test_hrp_for_network_variants():
     assert calc._hrp_for_network("mainnet") == "bc"
     assert calc._hrp_for_network("testnet") == "tb"
+    assert calc._hrp_for_network("signet") == "tb"
     assert calc._hrp_for_network("unknown") == "bcrt"
 
 
@@ -1060,6 +1061,28 @@ def test_hash160_addresses_conversions():
     assert calc.hash160_to_p2pkh_address(GENESIS_HASH160, "mainnet") == "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
     assert calc.hash160_to_p2wpkh_address(GENESIS_HASH160, "mainnet") == "bc1qvt5s0v2uhuna2sjnn84ldu8m2r4m3rcc4048ry"
     assert calc.sha256_to_p2wsh_address("0" * 64, "mainnet") == "bc1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqthqst8"
+
+
+def test_signet_address_outputs_match_testnet():
+    xonly = "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+    script_hash = "f" * 40
+    script_sha = "0" * 64
+
+    assert calc.p2tr_address_from_xonly(
+        xonly, "signet"
+    ) == calc.p2tr_address_from_xonly(xonly, "testnet")
+    assert calc.hash160_to_p2sh_address(
+        script_hash, "signet"
+    ) == calc.hash160_to_p2sh_address(script_hash, "testnet")
+    assert calc.hash160_to_p2pkh_address(
+        GENESIS_HASH160, "signet"
+    ) == calc.hash160_to_p2pkh_address(GENESIS_HASH160, "testnet")
+    assert calc.hash160_to_p2wpkh_address(
+        GENESIS_HASH160, "signet"
+    ) == calc.hash160_to_p2wpkh_address(GENESIS_HASH160, "testnet")
+    assert calc.sha256_to_p2wsh_address(
+        script_sha, "signet"
+    ) == calc.sha256_to_p2wsh_address(script_sha, "testnet")
 
 
 def test_date_to_unix_timestamp_parsing():
