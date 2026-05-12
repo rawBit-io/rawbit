@@ -813,7 +813,7 @@ describe("Flow first-run dialog", () => {
       expect(setNodesMock).toHaveBeenCalledTimes(1);
       expect(setEdgesMock).toHaveBeenCalledTimes(1);
       expect(setViewportMock).toHaveBeenCalledWith(
-        { x: 0, y: 0, zoom: 0.2 },
+        { x: 76, y: 76, zoom: 0.3 },
         { duration: 0 }
       );
 
