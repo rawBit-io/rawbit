@@ -5,6 +5,7 @@ describe("resetWorkspaceStorageAndReload", () => {
   it("clears browser storage and reloads", async () => {
     const localStorageClear = vi.fn();
     const sessionStorageClear = vi.fn();
+    const sessionStorageSetItem = vi.fn();
     const reload = vi.fn();
     const deleteDatabase = vi.fn(() => {
       const request: Partial<IDBOpenDBRequest> = {};
@@ -21,7 +22,10 @@ describe("resetWorkspaceStorageAndReload", () => {
 
     const targetWindow = {
       localStorage: { clear: localStorageClear },
-      sessionStorage: { clear: sessionStorageClear },
+      sessionStorage: {
+        clear: sessionStorageClear,
+        setItem: sessionStorageSetItem,
+      },
       indexedDB: {
         databases: vi.fn().mockResolvedValue([{ name: "rawbit-db" }]),
         deleteDatabase,
@@ -37,6 +41,10 @@ describe("resetWorkspaceStorageAndReload", () => {
 
     expect(localStorageClear).toHaveBeenCalledTimes(1);
     expect(sessionStorageClear).toHaveBeenCalledTimes(1);
+    expect(sessionStorageSetItem).toHaveBeenCalledWith(
+      "rawbit:code-source-cache-bust",
+      expect.any(String)
+    );
     expect(deleteDatabase).toHaveBeenCalledWith("rawbit-db");
     expect(cacheDelete).toHaveBeenCalledWith("rawbit-cache");
     expect(reload).toHaveBeenCalledTimes(1);

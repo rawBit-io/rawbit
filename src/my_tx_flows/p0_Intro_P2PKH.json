@@ -30,8 +30,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 14113.802595789852,
-        "y": 5152.425767748742
+        "x": 13738.802595789852,
+        "y": 4852.425767748742
       },
       "data": {
         "isGroup": true,
@@ -58,8 +58,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 10489.353134730029,
-        "y": 1487.647590446159
+        "x": 10114.353134730029,
+        "y": 1187.647590446159
       },
       "data": {
         "isGroup": true,
@@ -88,8 +88,8 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 4741.717295905175,
-        "y": 2332.265121534705
+        "x": 4366.717295905175,
+        "y": 2032.265121534705
       },
       "data": {
         "isGroup": true,
@@ -121,8 +121,8 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": 1741.3841790729039,
-        "y": 5819.701733928862
+        "x": 1366.3841790729039,
+        "y": 5519.701733928862
       },
       "data": {
         "isGroup": true,
@@ -147,8 +147,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 2094.346802218212,
-        "y": 618.4930993352308
+        "x": 1719.346802218212,
+        "y": 318.4930993352308
       },
       "data": {
         "isGroup": true,
@@ -2120,8 +2120,8 @@
       "id": "node_dgaldLHe",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 16066.906912259226,
-        "y": 5155.98096257056
+        "x": 15691.906912259226,
+        "y": 4855.98096257056
       },
       "data": {
         "content": "## Run it with your own UTXO\n\nThis flow is designed as a reusable template. You can easily adapt it to spend any P2PKH UTXO you control and send the funds to a fresh address.\n\n1. **Generate a new spending key** — click the regenerate icon on the **Random 32 Bytes** node in the **Funding TX** group. The address, public key, and HASH160 will update automatically.\n\n2. **Generate a new receiving key** — click the regenerate icon on the **Random 32 Bytes** node in the **Locking Script** group. This creates a fresh `scriptPubKey` for the new output.\n\n3. **Fund the spending address** — send testnet4 coins to the address shown in the Funding TX group (faucet link is in the address node comment).\n\n4. **Paste your funding transaction** — copy the raw hex of the funding transaction (from a wallet or block explorer) into the **funding rawTX** node.\n\n5. **Set the correct output index** — change the **VOUT** value to match the output that pays your address. The **TX Field Extract** node will show the parsed txid and `scriptPubKey` for confirmation.\n\n6. **Choose the spend amount** — adjust **Output Amount (satoshis)** to a value lower than the funded amount (the difference becomes the miner fee).\n\n7. **Verify and broadcast** — confirm that the **Verify Script** node returns `true`, then copy the final hex from the **Final Raw Transaction** node and broadcast it using `bitcoin-cli -testnet4 sendrawtransaction <hex>` or any testnet4 push service.\n\nAll downstream values (pubkey, scriptPubKey, preimage, signature, final transaction, and TXID) update live as you change the inputs.",
@@ -2168,8 +2168,8 @@
       "id": "node_aoj7b5s",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 17290.190664444228,
-        "y": 5157.8015861639815
+        "x": 16915.190664444228,
+        "y": 4857.8015861639815
       },
       "data": {
         "content": "## Try it yourself\n\n- Calculate the **fee**: input amount minus output amount\n- Compare the **raw transaction txid byte order** with the explorer/client txid\n- Derive the **P2PKH address** for the output scriptPubKey we locked coins to and look it up on a testnet4 block explorer\n- Change one byte of the signature and observe verification failure\n- Try signing with the wrong private key and see which check fails\n- Look inside the **Verify Script** node and step through the opcode execution one by one\n\n### Start with fresh funding address\n*These exercises modify the transaction structure — fund a new address first so you can broadcast and verify your variation on testnet4.*\n\n- Add a **change output** back to yourself\n- Add a **second input** from another P2PKH UTXO",
@@ -2184,8 +2184,8 @@
       "id": "node_v060h5u",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 2095.761723464871,
-        "y": -678.2343318056389
+        "x": 1720.761723464871,
+        "y": -978.2343318056389
       },
       "data": {
         "content": "## Step 1: Generate and fund a P2PKH address\n\nTo build a spending transaction we first need a **funded output to spend from**.\n\nBitcoin's protocol itself has no concept of an \"address\" — every output carries a **locking script** (`scriptPubKey`) that specifies what must be provided to spend it. An **address** is a wallet-level identifier that encodes what a wallet needs to construct that script for the recipient.\n\nFor P2PKH, the address uses **Base58Check** encoding and contains three parts: the network version byte (`0x6f` for testnet P2PKH), the **HASH160** of the recipient's public key, and a 4-byte checksum for error detection:\n\n`Base58(version_byte ‖ HASH160 ‖ checksum)`\n\nThe checksum is the first 4 bytes of `SHA256(SHA256(version_byte ‖ HASH160))` \n— covering both fields, so even a single mistyped character invalidates the address.\n\nIn this flow we generate a random private key (in the **Funding TX** group), derive the corresponding public key, compute its **HASH160**, and create the following testnet P2PKH address:\n\n**Address:** `mtnUwuuyf9gLnsG1cDmEghSwB3uvqX5KZK`\n\nThis address was funded on testnet4 using the public faucet at [coinfaucet.eu](https://coinfaucet.eu/en/btc-testnet4/). The **funding rawTX** node holds the raw hex of the funding transaction, and the **VOUT** node identifies the specific P2PKH output we will spend.\n\nWhen a wallet wants to send coins to a P2PKH address, it automatically decodes the address and constructs the standard locking script (`scriptPubKey`):\n\n`OP_DUP OP_HASH160 <pubKeyHash> OP_EQUALVERIFY OP_CHECKSIG`\n\n*The next step explains this locking script in detail.*",
@@ -2200,14 +2200,14 @@
       "id": "node_fjpgf4s",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1795.0964456455226,
-        "y": 4799.4965851617135
+        "x": 1368.9022234865752,
+        "y": 4503.027221172675
       },
       "data": {
         "content": "## Step 2: P2PKH Locking Script\n\nIn Bitcoin, every transaction **output** contains a **locking script** (also called `scriptPubKey`). This small program defines the exact rules that must be satisfied before the coins can be spent — it literally \"locks\" the funds.\n\nFor a **P2PKH** (Pay-to-Public-Key-Hash) output, the locking script is:\n\n```\nOP_DUP\nOP_HASH160\n<pubKeyHash>\nOP_EQUALVERIFY\nOP_CHECKSIG\n```\n\nIn plain English, this script says:  \n**“Provide a public key whose HASH160 matches the one stored here, plus a valid signature created by the matching private key.”**\n\nOnly when both conditions are proven will the coins be unlocked.\n\nBoth the funding transaction output (from Step 1) and the new output we create in this flow use this same P2PKH locking script template.\n\n",
         "fontSize": 28,
-        "width": 1190,
-        "height": 913,
+        "width": 1024,
+        "height": 950,
         "title": "Text Info Node",
         "dirty": false
       }
@@ -2216,8 +2216,8 @@
       "id": "node_4yk5rwu",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 375,
-        "y": 300
+        "x": -303.02390686606856,
+        "y": -396.6858417155807
       },
       "data": {
         "content": "# Overview\n\n**P2PKH** (Pay-to-Public-Key-Hash) is the classic Bitcoin output type. It is still widely used today alongside the newer SegWit and Taproot formats, and it remains the simplest way to learn how a Bitcoin transaction is actually constructed and signed.\n\nIn this interactive flow you will generate a P2PKH address, look at the testnet4 transaction that funded it, and build a **complete raw transaction from scratch that spends that funded output** to a new P2PKH locking script.\n\nThe flow is split into five steps, each in its own group on the canvas:\n\n- **Step 1 — Generate and fund a P2PKH address** &nbsp;·&nbsp; *Funding TX group*\n- **Step 2 — Build a new P2PKH locking script** &nbsp;·&nbsp; *Locking Script group*\n- **Step 3 — Constructing the Legacy Signing Preimage** &nbsp;·&nbsp; *Preimage group*\n- **Step 4 — Signing with ECDSA & Building the scriptSig** &nbsp;·&nbsp; *Signature and scriptSig group*\n- **Step 5 — Final Raw Transaction + Script Verification** &nbsp;·&nbsp; *Final TX group*\n\nThe example transactions are **real and confirmed on testnet4**. You can look up their TXIDs on a testnet4 block explorer and compare the raw bytes byte-for-byte with what you see live on the canvas.",
@@ -2232,11 +2232,11 @@
       "id": "node_tbkawv9",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 10482.646885637629,
-        "y": 615.0270528212851
+        "x": 10107.646885637629,
+        "y": 315.0270528212851
       },
       "data": {
-        "content": "## Step 4: Signing with ECDSA & Building the scriptSig\n\nThe **Preimage** group has now produced the complete 32-byte **signing hash** — the exact data that will be signed by ECDSA.\n\nIn the **Sign** group we do the following:\n\n1. Sign this 32-byte hash with our private key using **ECDSA on the secp256k1 curve**.  *Low-R grinding produces a slightly smaller DER-encoded signature, the same convention Bitcoin Core uses.*\n2. Assemble the **P2PKH `scriptSig`** (the unlocking script for a legacy P2PKH output) by pushing two values:\n   - the signature + `SIGHASH_ALL` flag (`0x01`)\n   - the public key\n\nThis `scriptSig` will later replace the temporary placeholder in the preimage (Step 3), producing the final raw transaction.",
+        "content": "## Step 4: Signing with ECDSA & Building the scriptSig\n\nThe **Preimage** group has now produced the complete 32-byte **signing hash** — the exact data that will be signed by ECDSA.\n\nIn the **Signature and scriptSig** group we do the following:\n\n1. Sign this 32-byte hash with our private key using **ECDSA on the secp256k1 curve**.  *Low-R grinding produces a slightly smaller DER-encoded signature, the same convention Bitcoin Core uses.*\n2. Assemble the **P2PKH `scriptSig`** (the unlocking script for a legacy P2PKH output) by pushing two values:\n   - the signature + `SIGHASH_ALL` flag (`0x01`)\n   - the public key\n\nThis `scriptSig` will later replace the temporary placeholder in the preimage (Step 3), producing the final raw transaction.",
         "fontSize": 28,
         "width": 952,
         "height": 776,
@@ -2248,11 +2248,11 @@
       "id": "node_0pid22t",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 14078.728852740658,
-        "y": 4002.101610997569
+        "x": 13703.728852740658,
+        "y": 3702.101610997569
       },
       "data": {
-        "content": "## Step 5: Final Raw Transaction + Script Verification\n\nWe have now reached the final step.\n\nThe **Final Raw Transaction** node replaces the temporary placeholder in the preimage — the previous output’s `scriptPubKey` — with the real `scriptSig` we built in Step 4. This produces the complete raw transaction.\n\nThe **Verify Script** node runs the same script-validation logic that a Bitcoin node uses for a legacy P2PKH input:\n\n- executes the `scriptSig` first, placing the signature and public key onto the stack\n- then runs the previous output’s `scriptPubKey` against that stack\n- executes each opcode step by step\n- succeeds only if the stack finishes with a non-empty top item that evaluates to `true`\n\nThis exact transaction was successfully broadcast and confirmed on testnet4. You can look it up on a block explorer using the **TXID → Reversed** node.\n\n*Note: `Verify Script = true` only confirms that the `scriptSig` correctly unlocks the previous output’s P2PKH condition. It does **not** prove the UTXO is available to spend, that the fee is sufficient, or that the transaction will be accepted by the network.*",
+        "content": "## Step 5: Final Raw Transaction + Script Verification\n\n\nThe **Final Raw Transaction** node replaces the temporary placeholder in the preimage — the previous output’s `scriptPubKey` — with the real `scriptSig` we built in Step 4. This produces the complete raw transaction.\n\nThe **Verify Script** node runs the same script-validation logic that a Bitcoin node uses for a legacy P2PKH input:\n\n- executes the `scriptSig` first, placing the signature and public key onto the stack\n- then runs the previous output’s `scriptPubKey` against that stack\n- executes each opcode step by step\n- succeeds only if the stack finishes with a non-empty top item that evaluates to `true`\n\nThis exact transaction was successfully broadcast and confirmed on testnet4. You can look it up on a block explorer using the **TXID → Reversed** node.\n\n*Note: `Verify Script = true` only confirms that the `scriptSig` correctly unlocks the previous output’s P2PKH condition. It does **not** prove the UTXO is available to spend, that the fee is sufficient, or that the transaction will be accepted by the network.*",
         "fontSize": 28,
         "width": 1074,
         "height": 1005,
@@ -2264,8 +2264,8 @@
       "id": "node_8ob6g1f",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 3626.4825683643344,
-        "y": 2549.0442015393487
+        "x": 3251.4825683643344,
+        "y": 2249.0442015393487
       },
       "data": {
         "content": "## Step 3: Constructing the Legacy Signing Preimage\n\nBefore a transaction can be signed, Bitcoin needs a precise **signing preimage** — the exact byte data that will be hashed with **double-SHA256** and then signed by your private key.\n\nThe **Preimage** group builds this complete data for a legacy P2PKH input.\n\nIt follows almost the full transaction structure *(SegWit/Taproot use different serialization rules)* :\n\n- Transaction **version**\n- The **input** being spent  \n  (TXID + output index + script field + `nSequence`)\n- The new **output** we are creating  \n  (amount + `scriptPubKey`)\n- **`nLocktime`** at the very end\n\n**Crucial legacy rule**: The signature — and therefore the final `scriptSig` — does not exist yet when we create the preimage. For legacy P2PKH inputs, the protocol temporarily places the **previous output’s `scriptPubKey`** into the input’s script field as a placeholder.\n\nIn this flow we also use:\n- `nSequence = fffffffd` → enables **Replace-By-Fee (RBF)**\n- `nLocktime = 00000000` → no time or block-height restriction\n\nAfter the base structure is assembled, the group appends the 4-byte **SIGHASH_ALL** flag (`01000000`) and computes the final **double-SHA256** hash. This 32-byte hash is what ECDSA actually signs in the next step.\n\n**SIGHASH_ALL** is the default choice for simple payments. It makes the signature commit to **all inputs and all outputs** of the transaction — nothing can be changed after signing.\n\n*Other sighash types exist for more flexible transaction-building patterns. They require different preimage serialization rules, not just a different final flag byte.*",

@@ -77,6 +77,7 @@ import {
   omitEphemeralOrLegacyNodeData,
   stripLegacyFlowMapNodeData,
 } from "@/lib/flow/legacyCompatibility";
+import { buildCodeSourceUrl } from "@/lib/codeSourceCache";
 
 // Strip ephemeral UI fields from saved JSON
 const omitUIState = omitEphemeralOrLegacyNodeData;
@@ -251,7 +252,7 @@ async function fetchFunctionSourcesForNames(
   const baseUrl = resolveApiBaseForCode();
   const results = await Promise.allSettled(
     uniqueNames.map(async (functionName) => {
-      const endpoint = `${baseUrl}/code?functionName=${encodeURIComponent(functionName)}`;
+      const endpoint = buildCodeSourceUrl(baseUrl, functionName);
       const response = await fetch(endpoint, {
         method: "GET",
         headers: { accept: "application/json" },

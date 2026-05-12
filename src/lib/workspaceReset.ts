@@ -1,3 +1,5 @@
+import { markCodeSourceCacheBust } from "@/lib/codeSourceCache";
+
 type IndexedDbDatabaseInfo = {
   name?: string | null;
 };
@@ -32,6 +34,7 @@ export async function resetWorkspaceStorageAndReload(
   } catch (error) {
     console.warn("Failed to clear sessionStorage during workspace reset", error);
   }
+  markCodeSourceCacheBust(targetWindow);
 
   const indexedDBApi = targetWindow.indexedDB as IndexedDbWithDatabases | undefined;
   if (indexedDBApi?.databases) {

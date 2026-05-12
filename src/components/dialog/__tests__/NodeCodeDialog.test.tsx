@@ -63,6 +63,7 @@ describe("NodeCodeDialog", () => {
 
   beforeEach(() => {
     syntaxPropsSpy.mockClear();
+    window.sessionStorage.clear();
     global.fetch = vi
       .fn()
       .mockResolvedValue(jsonResponse({ code: "def sample():\n    return 'ok'" }));
@@ -114,6 +115,24 @@ describe("NodeCodeDialog", () => {
     );
 
     expect(await screen.findByText("Error: Function not found")).toBeInTheDocument();
+  });
+
+  it("uses the reset cache-bust token when fetching code", async () => {
+    window.sessionStorage.setItem("rawbit:code-source-cache-bust", "reset-123");
+
+    render(
+      <NodeCodeDialog open onClose={vi.fn()} functionName="hash160_hex" />
+    );
+
+    await waitFor(() =>
+      expect(global.fetch).toHaveBeenCalledWith(
+        "http://localhost:5007/code?functionName=hash160_hex&cacheBust=reset-123",
+        expect.objectContaining({
+          headers: { accept: "application/json" },
+          signal: expect.any(AbortSignal),
+        })
+      )
+    );
   });
 
   it("ignores stale responses after the requested function changes", async () => {

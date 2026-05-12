@@ -270,7 +270,7 @@ def test_get_code_success(monkeypatch, client):
 
     assert resp.status_code == 200
     assert resp.get_json() == {"code": "expanded"}
-    assert resp.headers["Cache-Control"] == "public, max-age=86400"
+    assert resp.headers["Cache-Control"] == "public, max-age=900"
 
 
 def test_get_code_handles_missing_source(monkeypatch, client):

@@ -19,6 +19,7 @@ import {
 } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 import { useTheme } from "@/hooks/useTheme";
+import { buildCodeSourceUrl } from "@/lib/codeSourceCache";
 
 const DEFAULT_LOCAL_API = "http://localhost:5007";
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0", "::1", "[::1]"]);
@@ -123,7 +124,7 @@ export function NodeCodeDialog({
     const loadCode = async () => {
       try {
         const res = await fetch(
-          `${api.baseUrl}/code?functionName=${encodeURIComponent(functionName)}`,
+          buildCodeSourceUrl(api.baseUrl, functionName),
           {
             headers: { accept: "application/json" },
             signal: controller.signal,

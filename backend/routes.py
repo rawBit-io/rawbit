@@ -318,8 +318,8 @@ def get_code():
         source = inspect.getsource(func)
         expanded = expand_function_source(func, source)
         resp = _json({"code": expanded})
-        # Cache for 24 hours to reduce load
-        resp.headers["Cache-Control"] = "public, max-age=86400"
+        # Cache for 15 minutes to reduce load while keeping code views fresh.
+        resp.headers["Cache-Control"] = "public, max-age=900"
         return resp
     except OSError:
         return _json({"code": "Source not available"}, 200)
