@@ -1,5 +1,6 @@
-import type { NodePorts, PortInfo } from "@/components/dialog/ConnectDialog";
+import type { NodePorts, PortInfo } from "@/lib/nodes/connectActions";
 import type { FlowNode, InputStructure, FieldDefinition } from "@/types";
+import { isCalculableNode } from "@/lib/flow/nonCalculableNodes";
 import {
   buildTxFieldExtractOutputPorts,
   normalizeTxFieldExtractFields,
@@ -20,13 +21,16 @@ export function buildPorts(n: FlowNode): NodePorts {
           normalizeTxFieldExtractFields(data.txExtractFields)
         )
       : undefined;
-  const outputs: PortInfo[] =
-    dynamicTxExtractOutputs ??
-    (Array.isArray(data.outputPorts) && data.outputPorts.length > 0
+  const explicitOutputs =
+    Array.isArray(data.outputPorts) && data.outputPorts.length > 0
       ? data.outputPorts
           .filter((port) => port.showHandle !== false)
           .map((port) => ({ label: port.label, handleId: port.handleId }))
-      : [{ label: "out", handleId: "" }]);
+      : undefined;
+  const outputs: PortInfo[] =
+    dynamicTxExtractOutputs ??
+    explicitOutputs ??
+    (isCalculableNode(n) ? [{ label: "out", handleId: "" }] : []);
 
   const handleLabels = new Map<string, string>();
   const registerHandle = (index: number, fallbackLabel?: string) => {

@@ -11,42 +11,22 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ArrowLeftRight, X } from "lucide-react";
+import {
+  getDirectionAvailability,
+  getOccupiedTargetHandles,
+  type ConnectMode,
+  type EdgeLike,
+  type NodePorts,
+  type PortInfo,
+} from "@/lib/nodes/connectActions";
+
+export type { EdgeLike, NodePorts, PortInfo };
 
 /* --- helpers --- */
 const UN = "__UN__";
 const mOut = (h: string) => (h === "" ? UN : h);
 const umap = (h: string) => (h === UN ? null : h);
-const uid = (base: string, used: Set<string>) => {
-  if (!used.has(base)) {
-    used.add(base);
-    return base;
-  }
-  let i = 1;
-  let id = `${base}-${i}`;
-  while (used.has(id)) id = `${base}-${++i}`;
-  used.add(id);
-  return id;
-};
 
-/* --- types --- */
-export interface PortInfo {
-  label: string;
-  handleId: string;
-}
-export interface NodePorts {
-  id: string;
-  label: string;
-  functionName?: string;
-  outputs: PortInfo[];
-  inputs: PortInfo[];
-}
-export interface EdgeLike {
-  id?: string;
-  source: string;
-  sourceHandle: string | null;
-  target: string;
-  targetHandle: string | null;
-}
 export interface ConnectDialogProps {
   open: boolean;
   onClose: () => void;
@@ -66,57 +46,6 @@ function buildMap(all?: NodePorts[]): Record<string, NodePorts> {
     map[p.id] = p;
   });
   return map;
-}
-
-/* evaluate potential edges for “copy inputs” */
-function evalCopy(
-  src: NodePorts | null,
-  tgt: NodePorts | null,
-  edges: EdgeLike[]
-) {
-  if (!src || !tgt) return { ok: false, rows: [] as EdgeLike[], skipped: 0 };
-
-  // gather all edges that feed `src`
-  const incoming = edges.filter((e) => e.target === src.id);
-  if (!incoming.length)
-    return { ok: false, rows: [] as EdgeLike[], skipped: 0 };
-
-  const tgtHandles = new Set(tgt.inputs.map((p) => p.handleId));
-  const occupied = new Set(
-    edges
-      .filter((e) => e.target === tgt.id && e.targetHandle)
-      .map((e) => e.targetHandle!)
-  );
-  const ids = new Set(edges.map((e) => e.id ?? ""));
-  const orderIdx = new Map(tgt.inputs.map((p, idx) => [p.handleId, idx]));
-
-  const rows: EdgeLike[] = [];
-  let skipped = 0;
-
-  for (const e of incoming) {
-    const h = e.targetHandle ?? "";
-    // only copy if target node has same handle & it's not already used
-    if (!tgtHandles.has(h) || occupied.has(h)) {
-      skipped += 1;
-      continue;
-    }
-    rows.push({
-      id: uid(`e${e.source}-${tgt.id}-${h || "null"}`, ids),
-      source: e.source,
-      sourceHandle: e.sourceHandle,
-      target: tgt.id,
-      targetHandle: e.targetHandle,
-    });
-  }
-
-  // keep order of target’s input array
-  rows.sort(
-    (a, b) =>
-      (orderIdx.get(a.targetHandle ?? "") ?? 999999) -
-      (orderIdx.get(b.targetHandle ?? "") ?? 999999)
-  );
-
-  return { ok: rows.length > 0, rows, skipped };
 }
 
 const ConnectDialog: FC<ConnectDialogProps> = ({
@@ -146,24 +75,54 @@ const ConnectDialog: FC<ConnectDialogProps> = ({
   /* build node map for label lookups */
   const nodeMap = useMemo(() => buildMap(allPorts), [allPorts]);
 
-  /* copy-inputs evaluation */
-  const {
-    ok: copyOK,
-    rows: copyRows,
-    skipped,
-  } = useMemo(() => evalCopy(source, target, existingEdges), [
-    source,
-    target,
-    existingEdges,
-  ]);
-  const canSwapCopy = useMemo(
-    () => evalCopy(target, source, existingEdges).ok,
-    [source, target, existingEdges]
+  const availability = useMemo(() => {
+    return getDirectionAvailability(source, target, existingEdges);
+  }, [source, target, existingEdges]);
+  const reverseAvailability = useMemo(() => {
+    return getDirectionAvailability(target, source, existingEdges);
+  }, [source, target, existingEdges]);
+  const connectOK = availability.canConnectEdge;
+  const copyOK = availability.canCopyInputs;
+  const copyRows = availability.copyPlan.rows;
+  const skipped = availability.copyPlan.skipped;
+  const availableModes = availability.availableModes;
+  const firstAvailableMode: ConnectMode = copyOK
+    ? "copy"
+    : connectOK
+    ? "connect"
+    : "connect";
+  const canSwap = reverseAvailability.canDoAnything;
+
+  const availableModeSet = useMemo(
+    () => new Set<ConnectMode>(availableModes),
+    [availableModes]
   );
+
+  const modeButtonClass = availableModes.length === 1 ? "min-w-36" : "";
+
+  const setVisibleMode = (nextMode: ConnectMode) => {
+    if (!availableModeSet.has(nextMode)) return;
+    setMode(nextMode);
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    if (mode === "copy" && !copyOK) setMode(firstAvailableMode);
+    if (mode === "connect" && !connectOK) setMode(firstAvailableMode);
+  }, [open, mode, copyOK, connectOK, firstAvailableMode]);
+
+  useEffect(() => {
+    if (!open) return;
+    setMode(firstAvailableMode);
+    setSelectedOut(null);
+    setTargetsChecked({});
+  }, [open, source?.id, target?.id, firstAvailableMode]);
 
   /* preserve checkbox choices instead of resetting them */
   useEffect(() => {
+    if (!open) return;
     if (mode !== "copy") return;
+    if (!copyOK) return;
     setCopySelections((prev) => {
       const next = { ...prev };
       copyRows.forEach((r) => {
@@ -171,7 +130,7 @@ const ConnectDialog: FC<ConnectDialogProps> = ({
       });
       return next;
     });
-  }, [mode, copyRows]);
+  }, [open, mode, copyOK, copyRows]);
 
   /* when source/target swap we re-seed selections */
   useEffect(() => {
@@ -200,30 +159,9 @@ const ConnectDialog: FC<ConnectDialogProps> = ({
     setCopySelections(seeded);
   }, [open, mode, source, target, copyRows]);
 
-  /* re-init on open */
-  useEffect(() => {
-    if (!open) return;
-    setMode(copyOK ? "copy" : "connect");
-    setSelectedOut(null);
-    setTargetsChecked({});
-  }, [open, copyOK]);
-
-  /* reset if user changes source/target or toggles mode */
-  useEffect(() => {
-    if (!open) return;
-    setSelectedOut(null);
-    setTargetsChecked({});
-    if (mode === "copy" && !copyOK) setMode("connect");
-  }, [source?.id, target?.id, open, mode, copyOK]);
-
   /* helpers for manual connect */
   const takenOnTgt = useMemo(() => {
-    if (!target) return new Set<string>();
-    return new Set(
-      existingEdges
-        .filter((e) => e.target === target.id && e.targetHandle)
-        .map((e) => e.targetHandle!)
-    );
+    return getOccupiedTargetHandles(target, existingEdges);
   }, [existingEdges, target]);
 
   const toggleTgt = (h: string) =>
@@ -233,17 +171,26 @@ const ConnectDialog: FC<ConnectDialogProps> = ({
   const canApply = useMemo(() => {
     if (!source || !target) return false;
     if (mode === "copy") {
-      return copyRows.some((r) => r.id && copySelections[r.id]);
+      return copyOK && copyRows.some((r) => r.id && copySelections[r.id]);
     }
-    return selectedOut && Object.values(targetsChecked).some(Boolean);
+    return Boolean(
+      connectOK &&
+        selectedOut &&
+        Object.entries(targetsChecked).some(
+          ([handleId, checked]) => checked && !takenOnTgt.has(handleId)
+        )
+    );
   }, [
     source,
     target,
     mode,
+    copyOK,
     copyRows,
     copySelections,
+    connectOK,
     selectedOut,
     targetsChecked,
+    takenOnTgt,
   ]);
 
   const doApply = () => {
@@ -255,7 +202,7 @@ const ConnectDialog: FC<ConnectDialogProps> = ({
     }
 
     const edges = Object.entries(targetsChecked)
-      .filter(([, v]) => v)
+      .filter(([handleId, selected]) => selected && !takenOnTgt.has(handleId))
       .map(([h]) => ({
         source: source.id,
         sourceHandle: umap(selectedOut!),
@@ -311,21 +258,28 @@ const ConnectDialog: FC<ConnectDialogProps> = ({
         </DrawerHeader>
 
         {/* mode switch */}
-        <div className="flex justify-center gap-2 py-3 border-b">
-          <Button
-            variant={mode === "connect" ? "default" : "outline"}
-            onClick={() => setMode("connect")}
-          >
-            Connect Edge
-          </Button>
-          <Button
-            variant={mode === "copy" ? "default" : "outline"}
-            onClick={() => setMode("copy")}
-            disabled={!copyOK}
-          >
-            Copy Inputs
-          </Button>
-        </div>
+        {availableModes.length > 0 && (
+          <div className="flex justify-center gap-2 py-3 border-b">
+            {connectOK && (
+              <Button
+                className={modeButtonClass}
+                variant={mode === "connect" ? "default" : "outline"}
+                onClick={() => setVisibleMode("connect")}
+              >
+                Connect Edge
+              </Button>
+            )}
+            {copyOK && (
+              <Button
+                className={modeButtonClass}
+                variant={mode === "copy" ? "default" : "outline"}
+                onClick={() => setVisibleMode("copy")}
+              >
+                Copy Inputs
+              </Button>
+            )}
+          </div>
+        )}
 
         {/* caption + swap */}
         <div className="flex items-center justify-center gap-2 px-4 py-3 border-b">
@@ -345,7 +299,7 @@ const ConnectDialog: FC<ConnectDialogProps> = ({
             size="icon"
             variant="ghost"
             onClick={swap}
-            disabled={mode === "copy" ? !canSwapCopy : false}
+            disabled={!canSwap}
             title="Swap source and target"
           >
             <ArrowLeftRight className="h-5 w-5" />
@@ -365,7 +319,7 @@ const ConnectDialog: FC<ConnectDialogProps> = ({
         </div>
 
         {/* body */}
-        {mode === "connect" ? (
+        {mode === "connect" && connectOK ? (
           /* --- manual connect UI --- */
           <div className="flex gap-4 px-4 py-4">
             {/* source outs */}
@@ -420,7 +374,7 @@ const ConnectDialog: FC<ConnectDialogProps> = ({
               </div>
             </ScrollArea>
           </div>
-        ) : (
+        ) : mode === "copy" && copyOK ? (
           /* --- copy-inputs table --- */
           <ScrollArea className="h-72 mx-4 my-4 border rounded">
             {copyRows.length === 0 ? (
@@ -479,6 +433,10 @@ const ConnectDialog: FC<ConnectDialogProps> = ({
               </>
             )}
           </ScrollArea>
+        ) : (
+          <div className="px-4 py-6 text-sm text-muted-foreground">
+            No available wiring actions for this direction.
+          </div>
         )}
 
         {/* footer */}

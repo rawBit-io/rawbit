@@ -137,4 +137,42 @@ describe("buildPorts", () => {
       { label: "parity (c0/c1)", handleId: "output-1" },
     ]);
   });
+
+  it("does not synthesize default outputs for canvas-only nodes", () => {
+    const groupNode = {
+      id: "group",
+      type: "shadcnGroup",
+      position: { x: 0, y: 0 },
+      data: {
+        title: "Group Node",
+      },
+    } as FlowNode;
+    const textNode = {
+      id: "text",
+      type: "shadcnTextInfo",
+      position: { x: 0, y: 0 },
+      data: {
+        title: "Text Info Node",
+      },
+    } as FlowNode;
+
+    expect(buildPorts(groupNode).outputs).toEqual([]);
+    expect(buildPorts(textNode).outputs).toEqual([]);
+  });
+
+  it("preserves explicit outputs on non-backend action nodes", () => {
+    const node = {
+      id: "trezor",
+      type: "trezorAction",
+      position: { x: 0, y: 0 },
+      data: {
+        title: "Trezor Get Address",
+        outputPorts: [{ label: "address", handleId: "" }],
+      },
+    } as FlowNode;
+
+    expect(buildPorts(node).outputs).toEqual([
+      { label: "address", handleId: "" },
+    ]);
+  });
 });

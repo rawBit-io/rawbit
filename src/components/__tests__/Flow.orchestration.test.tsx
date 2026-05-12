@@ -97,6 +97,7 @@ const connectDialogState: NodePorts & {
   handleApply: ReturnType<typeof vi.fn>;
   sourcePorts: NodePorts | null;
   targetPorts: NodePorts | null;
+  canConnect: boolean;
 } = {
   id: "",
   label: "",
@@ -107,6 +108,7 @@ const connectDialogState: NodePorts & {
   handleApply: vi.fn(),
   sourcePorts: null,
   targetPorts: null,
+  canConnect: false,
 };
 
 const store = {
@@ -445,6 +447,7 @@ beforeEach(() => {
   connectDialogState.outputs = [];
   connectDialogState.inputs = [];
   connectDialogState.allPorts = [];
+  connectDialogState.canConnect = false;
   connectDialogState.handleApply.mockClear();
   saveLlmExportMock.mockClear();
   saveSimplifiedFlowMock.mockClear();
@@ -973,6 +976,21 @@ describe("Flow connect button enablement", () => {
     ];
     connectDialogState.sourcePorts = makePorts("node-a", "source");
     connectDialogState.targetPorts = makePorts("node-b", "target");
+    connectDialogState.canConnect = true;
+
+    renderFlow();
+
+    expect(topBarProps.current?.connectDisabled).toBe(false);
+  });
+
+  it("enables connect when the hook auto-orients a reversed selection", () => {
+    mockNodesState.current = [
+      { id: "node-a", type: "calculation", position: { x: 0, y: 0 }, data: {}, selected: true } as FlowNode,
+      { id: "node-b", type: "calculation", position: { x: 0, y: 0 }, data: {}, selected: true } as FlowNode,
+    ];
+    connectDialogState.sourcePorts = makePorts("node-b", "source");
+    connectDialogState.targetPorts = makePorts("node-a", "target");
+    connectDialogState.canConnect = true;
 
     renderFlow();
 

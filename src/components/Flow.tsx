@@ -1819,6 +1819,7 @@ function FlowContent() {
     allPorts,
     sourcePorts,
     targetPorts,
+    canConnect: canConnectSelectedNodes,
     existingEdges: existingEdgesForConnect,
     handleApply: handleConnectApply,
   } = useConnectDialog({
@@ -2407,13 +2408,7 @@ function FlowContent() {
               canColorSelection={canColorSelection}
               canGroupSelectedNodes={canGroupSelectedNodes}
               canUngroupSelectedNodes={canUngroupSelectedNodes}
-              connectDisabled={
-                !(
-                  exactlyTwoSelected &&
-                  sourcePorts?.outputs.length &&
-                  targetPorts?.inputs.length
-                )
-              }
+              connectDisabled={!(exactlyTwoSelected && canConnectSelectedNodes)}
               onConnectClick={() => setConnectOpen(true)}
               onGroup={groupWithUndo}
               onUngroup={ungroupWithUndo}

@@ -1,8 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { addEdge, type Connection, type Edge } from "@xyflow/react";
 import type { FlowNode } from "@/types";
-import type { NodePorts } from "@/components/dialog/ConnectDialog";
 import { buildPorts } from "@/lib/nodes/ports";
+import {
+  getDirectionAvailability,
+  type ConnectMode,
+  type EdgeLike,
+  type NodePorts,
+} from "@/lib/nodes/connectActions";
 
 interface UseConnectPortsArgs {
   nodes: FlowNode[];
@@ -17,12 +22,16 @@ interface UseConnectPortsResult {
   allPorts: NodePorts[];
   sourcePorts: NodePorts | null;
   targetPorts: NodePorts | null;
+  canConnect: boolean;
   existingEdges: {
     source: string;
     sourceHandle: string | null;
     target: string;
     targetHandle: string | null;
   }[];
+  canConnectEdge: boolean;
+  canCopyInputs: boolean;
+  availableModes: ConnectMode[];
 }
 
 export function useConnectPorts({
@@ -61,15 +70,29 @@ export function useConnectPorts({
       ? selectedSignature.split("|").filter(Boolean)
       : [];
     if (ids.length === 2) {
+      const relatedIds = new Set(ids);
+      edges.forEach((edge) => {
+        if (relatedIds.has(edge.target)) {
+          relatedIds.add(edge.source);
+        }
+      });
       const ordered: NodePorts[] = [];
-      ids.forEach((id) => {
+      relatedIds.forEach((id) => {
         const cached = cache.get(id);
-        if (cached) ordered.push(cached);
+        if (cached) {
+          ordered.push(cached);
+          return;
+        }
+        const node = nodes.find((candidate) => candidate.id === id);
+        if (!node) return;
+        const ports = buildPorts(node);
+        cache.set(id, ports);
+        ordered.push(ports);
       });
       return ordered;
     }
     return nodes.map((node) => cache.get(node.id) ?? buildPorts(node));
-  }, [connectOpen, selectedSignature, nodes]);
+  }, [connectOpen, edges, selectedSignature, nodes]);
 
   const existingEdges = useMemo(() => {
     if (!connectOpen) return [];
@@ -81,41 +104,90 @@ export function useConnectPorts({
     }));
   }, [connectOpen, edges]);
 
-  const { sourcePorts, targetPorts } = useMemo(() => {
+  const {
+    sourcePorts,
+    targetPorts,
+    canConnect,
+    canConnectEdge,
+    canCopyInputs,
+    availableModes,
+  } = useMemo(() => {
+    const edgeLikes: EdgeLike[] = edges.map((edge) => ({
+      source: edge.source,
+      sourceHandle: edge.sourceHandle ?? null,
+      target: edge.target,
+      targetHandle: edge.targetHandle ?? null,
+      id: edge.id,
+    }));
+
     if (selectedNodeIds.length !== 2) {
-      return { sourcePorts: null, targetPorts: null };
+      return {
+        sourcePorts: null,
+        targetPorts: null,
+        canConnect: false,
+        canConnectEdge: false,
+        canCopyInputs: false,
+        availableModes: [] as ConnectMode[],
+      };
     }
 
-    const [primaryId, secondaryId] = isSwapped
-      ? [selectedNodeIds[1], selectedNodeIds[0]]
-      : [selectedNodeIds[0], selectedNodeIds[1]];
+    const [firstId, secondId] = selectedNodeIds;
 
     const cache = portCacheRef.current;
-    let primary = cache.get(primaryId);
-    if (!primary) {
-      const node = nodes.find((n) => n.id === primaryId);
-      if (node) {
-        primary = buildPorts(node);
-        cache.set(primaryId, primary);
-      }
-    }
+    const getPorts = (id: string) => {
+      let ports = cache.get(id);
+      if (connectOpen && ports) return ports;
 
-    let secondary = cache.get(secondaryId);
-    if (!secondary) {
-      const node = nodes.find((n) => n.id === secondaryId);
+      const node = nodes.find((n) => n.id === id);
       if (node) {
-        secondary = buildPorts(node);
-        cache.set(secondaryId, secondary);
+        ports = buildPorts(node);
+        cache.set(id, ports);
+      }
+      return ports ?? null;
+    };
+
+    const first = getPorts(firstId);
+    const second = getPorts(secondId);
+    const forward = getDirectionAvailability(first, second, edgeLikes);
+    const reverse = getDirectionAvailability(second, first, edgeLikes);
+
+    let source = isSwapped ? second : first;
+    let target = isSwapped ? first : second;
+    let selectedAvailability = isSwapped ? reverse : forward;
+    const fallbackAvailability = isSwapped ? forward : reverse;
+
+    if (!selectedAvailability.canDoAnything) {
+      if (!isSwapped && reverse.canDoAnything) {
+        source = second;
+        target = first;
+        selectedAvailability = reverse;
+      } else if (isSwapped && forward.canDoAnything) {
+        source = first;
+        target = second;
+        selectedAvailability = fallbackAvailability;
       }
     }
 
     return {
-      sourcePorts: primary ?? null,
-      targetPorts: secondary ?? null,
+      sourcePorts: source,
+      targetPorts: target,
+      canConnect: forward.canDoAnything || reverse.canDoAnything,
+      canConnectEdge: selectedAvailability.canConnectEdge,
+      canCopyInputs: selectedAvailability.canCopyInputs,
+      availableModes: selectedAvailability.availableModes,
     };
-  }, [isSwapped, nodes, selectedNodeIds]);
+  }, [connectOpen, edges, isSwapped, nodes, selectedNodeIds]);
 
-  return { allPorts, sourcePorts, targetPorts, existingEdges };
+  return {
+    allPorts,
+    sourcePorts,
+    targetPorts,
+    canConnect,
+    existingEdges,
+    canConnectEdge,
+    canCopyInputs,
+    availableModes,
+  };
 }
 
 interface UseConnectDialogArgs {
@@ -148,6 +220,14 @@ export function useConnectDialog({
     const sorted = [...selectedNodeIds].sort();
     return sorted.join("|");
   }, [selectedNodeIds]);
+
+  useEffect(() => {
+    setIsSwapped(false);
+  }, [selectedSignature]);
+
+  useEffect(() => {
+    if (!connectOpen) setIsSwapped(false);
+  }, [connectOpen]);
 
   const portData = useConnectPorts({
     nodes,

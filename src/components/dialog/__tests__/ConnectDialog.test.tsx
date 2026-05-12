@@ -109,18 +109,37 @@ describe("ConnectDialog", () => {
         source: "node-new",
         sourceHandle: "extra",
         target: "node-a",
-        targetHandle: "hash",
+        targetHandle: "extra",
       },
     ];
+    const extendedSource: NodePorts = {
+      ...baseSource,
+      inputs: [
+        ...baseSource.inputs,
+        { label: "Extra", handleId: "extra" },
+      ],
+    };
+    const extendedTarget: NodePorts = {
+      ...baseTarget,
+      inputs: [
+        ...baseTarget.inputs,
+        { label: "Extra", handleId: "extra" },
+      ],
+    };
     rerender(
       <ConnectDialog
         open
         onClose={vi.fn()}
         onApply={onApply}
-        source={baseSource}
-        target={baseTarget}
+        source={extendedSource}
+        target={extendedTarget}
         existingEdges={extendedEdges}
-        allPorts={[...allPorts, { id: "node-new", label: "Node New", inputs: [], outputs: [{ label: "Extra", handleId: "extra" }] }]}
+        allPorts={[
+          extendedSource,
+          extendedTarget,
+          ...allPorts.slice(2),
+          { id: "node-new", label: "Node New", inputs: [], outputs: [{ label: "Extra", handleId: "extra" }] },
+        ]}
       />
     );
 
@@ -144,7 +163,8 @@ describe("ConnectDialog", () => {
   it("wires selected outputs to inputs in connect mode", async () => {
     const { onApply, user } = setup({ existingEdges: [] });
 
-    await user.click(screen.getByRole("button", { name: /Connect Edge/i }));
+    expect(screen.getByRole("button", { name: /Connect Edge/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Copy Inputs/i })).not.toBeInTheDocument();
 
     const checkboxes = screen.getAllByRole("checkbox");
     await user.click(checkboxes[0]);
@@ -164,29 +184,63 @@ describe("ConnectDialog", () => {
     ]);
   });
 
-  it("disables swap when mirrored copy is unavailable and enables it otherwise", async () => {
+  it("shows only copy inputs when manual connect cannot apply", async () => {
+    const copyOnlySource: NodePorts = {
+      ...baseSource,
+      outputs: [],
+    };
+    const { onApply, user } = setup({ source: copyOnlySource });
+
+    expect(screen.getByRole("button", { name: /Copy Inputs/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Connect Edge/i })).not.toBeInTheDocument();
+
+    const apply = screen.getByRole("button", { name: /Apply/i });
+    expect(apply).toBeEnabled();
+    await user.click(apply);
+
+    expect(onApply).toHaveBeenCalledWith([
+      {
+        id: "enode-x-node-b-hash",
+        source: "node-x",
+        sourceHandle: "out",
+        target: "node-b",
+        targetHandle: "hash",
+      },
+      {
+        id: "enode-y-node-b-pub",
+        source: "node-y",
+        sourceHandle: "pub",
+        target: "node-b",
+        targetHandle: "pub",
+      },
+    ]);
+  });
+
+  it("uses friendly labels for copied upstream source nodes", () => {
+    const copyOnlySource: NodePorts = {
+      ...baseSource,
+      outputs: [],
+    };
+
+    setup({ source: copyOnlySource });
+
+    expect(screen.getByText("Node X")).toBeInTheDocument();
+    expect(screen.getByText("Node Y")).toBeInTheDocument();
+    expect(screen.queryByText("node-x")).not.toBeInTheDocument();
+    expect(screen.queryByText("node-y")).not.toBeInTheDocument();
+  });
+
+  it("disables swap when the reverse direction has no actions and enables it otherwise", async () => {
     const { onApply, user, rerender } = setup();
     expect(
       screen.getByRole("button", { name: /Swap source and target/i })
     ).toBeDisabled();
 
-    const swapEdges: EdgeLike[] = [
-      ...incomingToSource,
-      {
-        id: "edge-3",
-        source: "node-z",
-        sourceHandle: "w",
-        target: "node-b",
-        targetHandle: "hash",
-      },
-      {
-        id: "edge-4",
-        source: "node-q",
-        sourceHandle: "k",
-        target: "node-b",
-        targetHandle: "pub",
-      },
-    ];
+    const reverseConnectTarget: NodePorts = {
+      ...baseTarget,
+      inputs: [],
+      outputs: [{ label: "out", handleId: "" }],
+    };
 
     rerender(
       <ConnectDialog
@@ -194,8 +248,8 @@ describe("ConnectDialog", () => {
         onClose={vi.fn()}
         onApply={onApply}
         source={baseSource}
-        target={baseTarget}
-        existingEdges={swapEdges}
+        target={reverseConnectTarget}
+        existingEdges={[]}
         allPorts={allPorts}
       />
     );

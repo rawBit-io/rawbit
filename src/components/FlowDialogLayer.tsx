@@ -2,7 +2,7 @@ import { ConfirmationDialog } from "@/components/dialog/confirmation-dialog";
 import ConnectDialog from "@/components/dialog/ConnectDialog";
 import { ShareDialog } from "@/components/dialog/ShareDialog";
 import { SoftGateDialog } from "@/components/share/SoftGateDialog";
-import type { NodePorts } from "@/components/dialog/ConnectDialog";
+import type { NodePorts } from "@/lib/nodes/connectActions";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

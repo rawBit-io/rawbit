@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { useRef, useState } from "react";
 
@@ -81,5 +81,45 @@ describe("useConnectDialog", () => {
     expect(swappedSourceId).toBe("node-b");
     expect(markPending).not.toHaveBeenCalled();
     expect(setConnectOpen).not.toHaveBeenCalled();
+  });
+
+  it("resets swapped direction when the selected pair changes", async () => {
+    const markPending = vi.fn();
+    const setConnectOpen = vi.fn();
+    const nodes = [makeNode("node-a"), makeNode("node-b"), makeNode("node-c")];
+
+    const hook = renderHook(
+      ({ selectedNodeIds }: { selectedNodeIds: string[] }) => {
+        const skipNextEdgeSnapshotRef = useRef(false);
+
+        return useConnectDialog({
+          nodes,
+          edges: [],
+          connectOpen: true,
+          selectedNodeIds,
+          setNodes: vi.fn(),
+          setEdges: vi.fn(),
+          markPendingAfterDirtyChange: markPending,
+          skipNextEdgeSnapshotRef,
+          setConnectOpen,
+        });
+      },
+      { initialProps: { selectedNodeIds: ["node-a", "node-b"] } }
+    );
+
+    act(() => {
+      hook.result.current.handleApply([]);
+    });
+
+    await waitFor(() => {
+      expect(hook.result.current.sourcePorts?.id).toBe("node-b");
+    });
+
+    hook.rerender({ selectedNodeIds: ["node-a", "node-c"] });
+
+    await waitFor(() => {
+      expect(hook.result.current.sourcePorts?.id).toBe("node-a");
+      expect(hook.result.current.targetPorts?.id).toBe("node-c");
+    });
   });
 });
