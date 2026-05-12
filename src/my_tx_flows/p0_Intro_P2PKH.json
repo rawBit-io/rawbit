@@ -199,7 +199,7 @@
           ]
         },
         "groupInstances": {},
-        "title": "Transaction Version",
+        "title": "Version",
         "error": false,
         "showComment": false
       },
@@ -495,7 +495,7 @@
         "baseHeight": 80,
         "title": "scriptPubKey",
         "totalInputs": 4,
-        "unwiredCount": 4,
+        "unwiredCount": 0,
         "showComment": true,
         "comment": "OP_DUP OP_HASH160 pubKeyHash OP_EQUALVERIFY OP_CHECKSIG",
         "error": false,
@@ -560,7 +560,7 @@
         "baseHeight": 80,
         "title": "Preimage",
         "totalInputs": 2,
-        "unwiredCount": 2,
+        "unwiredCount": 0,
         "error": false,
         "customFieldLabels": {
           "0": "Preimage Body:",
@@ -621,7 +621,7 @@
         "baseHeight": 80,
         "title": "Signature + Flag",
         "totalInputs": 2,
-        "unwiredCount": 2,
+        "unwiredCount": 0,
         "error": false,
         "customFieldLabels": {
           "0": "Signature:",
@@ -684,7 +684,7 @@
         "baseHeight": 80,
         "title": "scriptSig (push sig & pubkey)",
         "totalInputs": 4,
-        "unwiredCount": 4,
+        "unwiredCount": 0,
         "error": false,
         "customFieldLabels": {
           "0": "SIG_LEN:",
@@ -840,7 +840,7 @@
         },
         "baseHeight": 120,
         "totalInputs": 12,
-        "unwiredCount": 12,
+        "unwiredCount": 0,
         "title": "Preimage Body",
         "error": false,
         "showComment": false
@@ -1243,7 +1243,7 @@
         "groupInstances": {},
         "result": "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af",
         "totalInputs": 2,
-        "unwiredCount": 2,
+        "unwiredCount": 0,
         "error": false
       },
       "parentId": "group_cd0gkcz",
@@ -2079,7 +2079,7 @@
         },
         "groupInstances": {},
         "totalInputs": 2,
-        "unwiredCount": 2,
+        "unwiredCount": 0,
         "dirty": false,
         "error": false,
         "outputValues": {
