@@ -85,6 +85,34 @@ function getLocalDropPoint(event: React.DragEvent) {
   };
 }
 
+function finiteNumber(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function getNodeDimension(
+  node: FlowNode,
+  axis: "width" | "height",
+  fallback: number,
+): number {
+  return Math.max(
+    finiteNumber(node.data?.[axis]) ?? 0,
+    finiteNumber(node[axis]) ?? 0,
+    finiteNumber(node.measured?.[axis]) ?? 0,
+    fallback,
+  );
+}
+
+function scheduleNodeInternalsUpdate(rf: RF, ids: string[]) {
+  const update = rf.updateNodeInternals;
+  if (!update) return;
+  const run = () => ids.forEach((id) => update(id));
+  if (typeof requestAnimationFrame !== "function") {
+    run();
+    return;
+  }
+  requestAnimationFrame(run);
+}
+
 /* ------------------------------------------------------------------ */
 /**
  * Enlarges a "shadcnGroup" so all children fit, **without moving the group**.
@@ -115,10 +143,8 @@ function fitGroupToChildren(
       maxY = -Infinity;
 
     children.forEach((child) => {
-      const w =
-        child.measured?.width ?? child.width ?? child.data?.width ?? 250;
-      const h =
-        child.measured?.height ?? child.height ?? child.data?.height ?? 150;
+      const w = getNodeDimension(child, "width", 250);
+      const h = getNodeDimension(child, "height", 150);
       minX = Math.min(minX, child.position.x);
       minY = Math.min(minY, child.position.y);
       maxX = Math.max(maxX, child.position.x + w);
@@ -130,19 +156,19 @@ function fitGroupToChildren(
     const shiftY = Math.max(0, GROUP_PADDING - minY);
 
     const newWidth = Math.max(
-      group.data?.width ?? 300,
+      getNodeDimension(group, "width", 300),
       maxX + shiftX + GROUP_PADDING,
     );
     const newHeight = Math.max(
-      group.data?.height ?? 200,
+      getNodeDimension(group, "height", 200),
       maxY + shiftY + GROUP_PADDING,
     );
 
     if (
       shiftX === 0 &&
       shiftY === 0 &&
-      newWidth === (group.data?.width ?? 300) &&
-      newHeight === (group.data?.height ?? 200)
+      newWidth === getNodeDimension(group, "width", 300) &&
+      newHeight === getNodeDimension(group, "height", 200)
     ) {
       return nodes; // nothing to do
     }
@@ -152,6 +178,13 @@ function fitGroupToChildren(
       if (n.id === groupId) {
         return {
           ...n,
+          width: newWidth,
+          height: newHeight,
+          measured: {
+            ...n.measured,
+            width: newWidth,
+            height: newHeight,
+          },
           data: { ...n.data, width: newWidth, height: newHeight },
         };
       }
@@ -164,6 +197,8 @@ function fitGroupToChildren(
       return n;
     });
   });
+
+  scheduleNodeInternalsUpdate(rf, [groupId]);
 }
 
 /* ------------------------------------------------------------------ */
@@ -250,8 +285,8 @@ export function useNodeOperations() {
       const bbox = {
         x: childAbs.x,
         y: childAbs.y,
-        width: child.measured?.width ?? child.width ?? 40,
-        height: child.measured?.height ?? child.height ?? 40,
+        width: getNodeDimension(child, "width", 40),
+        height: getNodeDimension(child, "height", 40),
       };
 
       const groups = (rf.getIntersectingNodes(bbox) as FlowNode[]).filter(
@@ -270,8 +305,8 @@ export function useNodeOperations() {
 
       const best = groups.reduce<{ node: FlowNode; dist: number } | null>(
         (winner, candidate) => {
-          const width = candidate.data?.width ?? 300;
-          const height = candidate.data?.height ?? 200;
+          const width = getNodeDimension(candidate, "width", 300);
+          const height = getNodeDimension(candidate, "height", 200);
           const candidateAbs = candidate.positionAbsolute ?? candidate.position;
           const cx = candidateAbs.x + width / 2;
           const cy = candidateAbs.y + height / 2;
@@ -318,6 +353,7 @@ export function useNodeOperations() {
 
       // Defer until state is committed & internals updated
       requestAnimationFrame(() => {
+        rf.updateNodeInternals?.(nodeId);
         rf.updateNodeInternals?.(group.id);
         requestAnimationFrame(() => fitGroupToChildren(group.id, rf, setNodes));
       });
@@ -339,6 +375,8 @@ export function useNodeOperations() {
         ...(dragData.nodeData ?? {}),
       };
       delete (nodeDefaults as { flowData?: unknown }).flowData;
+      const initialWidth = finiteNumber(nodeDefaults.width);
+      const initialHeight = finiteNumber(nodeDefaults.height);
 
       const newNode: FlowNode = {
         id: newId,
@@ -346,6 +384,16 @@ export function useNodeOperations() {
         position: pos,
         data: nodeDefaults as CalculationNodeData,
         selected: true,
+        ...(initialWidth !== undefined ? { width: initialWidth } : {}),
+        ...(initialHeight !== undefined ? { height: initialHeight } : {}),
+        ...(initialWidth !== undefined || initialHeight !== undefined
+          ? {
+              measured: {
+                ...(initialWidth !== undefined ? { width: initialWidth } : {}),
+                ...(initialHeight !== undefined ? { height: initialHeight } : {}),
+              },
+            }
+          : {}),
         ...(type === "shadcnGroup"
           ? { dragHandle: "[data-drag-handle]" } // ★ only groups
           : {}),
@@ -524,6 +572,7 @@ export function useNodeOperations() {
       const selectedGroupIds = new Set(
         selected.filter((n) => n.type === "shadcnGroup").map((n) => n.id),
       );
+      const adoptedNodeIds = new Set<string>();
 
       if (adoptable.length) {
         const pointer = rf.screenToFlowPosition({
@@ -535,8 +584,8 @@ export function useNodeOperations() {
           if (node.type !== "shadcnGroup" || selectedGroupIds.has(node.id)) {
             return false;
           }
-          const width = node.data?.width ?? 300;
-          const height = node.data?.height ?? 200;
+          const width = getNodeDimension(node, "width", 300);
+          const height = getNodeDimension(node, "height", 200);
           const nodeAbs = node.positionAbsolute ?? node.position;
           return (
             pointer.x >= nodeAbs.x &&
@@ -562,6 +611,9 @@ export function useNodeOperations() {
 
           if (relativePositions.size) {
             parentsNeedingResize.add(groupId);
+            relativePositions.forEach((_, nodeId) => {
+              adoptedNodeIds.add(nodeId);
+            });
             setNodes((nodesState) =>
               nodesState.map((node) => {
                 const rel = relativePositions.get(node.id);
@@ -582,6 +634,9 @@ export function useNodeOperations() {
 
       const parents = Array.from(parentsNeedingResize);
       requestAnimationFrame(() => {
+        adoptedNodeIds.forEach((nodeId) => {
+          rf.updateNodeInternals?.(nodeId);
+        });
         parents.forEach((parentId) => {
           rf.updateNodeInternals?.(parentId);
           requestAnimationFrame(() =>
@@ -618,6 +673,12 @@ export function useNodeOperations() {
       id: groupId,
       type: "shadcnGroup",
       position: { x: bounds.x - margin, y: bounds.y - margin },
+      width: bounds.width + margin * 2,
+      height: bounds.height + margin * 2,
+      measured: {
+        width: bounds.width + margin * 2,
+        height: bounds.height + margin * 2,
+      },
       dragHandle: "[data-drag-handle]",
       data: {
         isGroup: true,
@@ -802,12 +863,15 @@ export function useNodeOperations() {
 
       changes.forEach((c) => {
         if (c.type === "dimensions") {
-          // Only resize parent group when dimensions are first reported (initial creation)
+          const node = getNodesLocal().find((n) => n.id === c.id);
+          if (node?.parentId) {
+            groupsNeedingResize.add(node.parentId);
+          }
+
+          // Newly dropped nodes need one parent-adoption pass after their first
+          // dimensions event. Later dimensions events still resize an existing
+          // parent, which keeps groups fitting nodes that grow after render.
           if (pendingIds.current.has(c.id)) {
-            const node = getNodesLocal().find((n) => n.id === c.id);
-            if (node?.parentId) {
-              groupsNeedingResize.add(node.parentId);
-            }
             attemptToParentNode(c.id, rf, getNodesLocal, setNodes);
             pendingIds.current.delete(c.id);
           }

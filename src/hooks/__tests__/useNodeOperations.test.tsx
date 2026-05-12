@@ -1,7 +1,7 @@
 import React from "react";
 import { renderHook, act } from "@testing-library/react";
 import { ReactFlowProvider } from "@xyflow/react";
-import type { Edge, ReactFlowInstance } from "@xyflow/react";
+import type { Edge, NodeChange, ReactFlowInstance } from "@xyflow/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { FlowNode } from "@/types";
 import {
@@ -291,6 +291,119 @@ const createMockInstance = (
     expect(group).toBeDefined();
     expect(group?.data.fontSize).toBe(44);
     expect(result.current.nodes.filter((n) => n.parentId === group?.id)).toHaveLength(2);
+  });
+
+  it("expands a group to fit a large dragged-in child", () => {
+    const { result } = renderHook(() => useNodeOperations(), { wrapper });
+    const mockRf = createMockInstance(result);
+
+    act(() => {
+      result.current.onInit(mockRf);
+    });
+
+    act(() => {
+      result.current.setNodes(() => [
+        buildFlowNode({
+          id: "group-1",
+          type: "shadcnGroup",
+          position: { x: 100, y: 100 },
+          data: {
+            isGroup: true,
+            width: 300,
+            height: 200,
+            title: "Group Node",
+          },
+        }),
+        buildFlowNode({
+          id: "large-info",
+          type: "shadcnTextInfo",
+          position: { x: 80, y: 70 },
+          selected: true,
+          measured: { width: 250, height: 150 },
+          data: {
+            title: "Large Info",
+            width: 800,
+            height: 600,
+          },
+        }),
+      ]);
+    });
+
+    act(() => {
+      mockRf.getNodes = () => result.current.nodes;
+      result.current.onNodeDragStop({
+        clientX: 140,
+        clientY: 140,
+      } as React.MouseEvent);
+    });
+
+    const child = result.current.nodes.find((node) => node.id === "large-info");
+    const group = result.current.nodes.find((node) => node.id === "group-1");
+
+    expect(child?.parentId).toBe("group-1");
+    expect(child?.position).toEqual({ x: 32, y: 32 });
+    expect(group?.width).toBe(864);
+    expect(group?.height).toBe(664);
+    expect(group?.measured).toEqual({ width: 864, height: 664 });
+    expect(group?.data.width).toBe(864);
+    expect(group?.data.height).toBe(664);
+  });
+
+  it("refits a parent group when a child grows after initial render", () => {
+    const { result } = renderHook(() => useNodeOperations(), { wrapper });
+    const mockRf = createMockInstance(result);
+
+    act(() => {
+      result.current.onInit(mockRf);
+    });
+
+    act(() => {
+      result.current.setNodes(() => [
+        buildFlowNode({
+          id: "group-1",
+          type: "shadcnGroup",
+          position: { x: 0, y: 0 },
+          data: {
+            isGroup: true,
+            width: 300,
+            height: 200,
+            title: "Group Node",
+          },
+        }),
+        buildFlowNode({
+          id: "tx-template",
+          type: "calculation",
+          parentId: "group-1",
+          extent: "parent",
+          position: { x: 40, y: 50 },
+          measured: { width: 250, height: 150 },
+          data: {
+            functionName: "tx_template",
+            width: 900,
+            height: 700,
+          },
+        }),
+      ]);
+    });
+
+    act(() => {
+      mockRf.getNodes = () => result.current.nodes;
+      result.current.onNodesChange([
+        {
+          id: "tx-template",
+          type: "dimensions",
+          dimensions: { width: 900, height: 700 },
+        } as NodeChange<FlowNode>,
+      ]);
+    });
+
+    const group = result.current.nodes.find((node) => node.id === "group-1");
+
+    expect(group?.width).toBe(972);
+    expect(group?.height).toBe(782);
+    expect(group?.measured).toEqual({ width: 972, height: 782 });
+    expect(group?.data.width).toBe(972);
+    expect(group?.data.height).toBe(782);
   });
 
   it("ungroups only selected children when selected nodes are inside a group", () => {
