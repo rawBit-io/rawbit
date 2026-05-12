@@ -92,7 +92,9 @@ function CloseTabActionPicker({
   onSelectAction,
 }: CloseTabActionPickerProps) {
   return (
-    <DropdownMenu>
+    // This menu lives inside a dialog; modal dropdown focus guards can aria-hide
+    // the parent dialog while it still owns focus.
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button
           type="button"
@@ -107,6 +109,7 @@ function CloseTabActionPicker({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
+        portal={false}
         className="w-56 border-0 p-1 font-sans text-sm"
       >
         {selectedAction !== "current" && (

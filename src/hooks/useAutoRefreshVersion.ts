@@ -8,6 +8,14 @@ type AutoRefreshArgs = {
 };
 
 const VERSION_ENDPOINT = "/healthz";
+const DEFAULT_LOCAL_API = "http://localhost:5007";
+const LOCAL_HOSTS = new Set([
+  "localhost",
+  "127.0.0.1",
+  "::1",
+  "[::1]",
+  "0.0.0.0",
+]);
 const VERSION_CHECK_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
 const HIDDEN_IDLE_THRESHOLD_MS = 60 * 1000; // 1 minute
 const NEEDS_RELOAD_KEY = "rawbit:needsReload";
@@ -38,13 +46,56 @@ function clearNeedsReload() {
   }
 }
 
+function isLocalHost(hostname?: string) {
+  if (!hostname) return false;
+  return LOCAL_HOSTS.has(hostname.toLowerCase());
+}
+
+function appendHealthz(baseUrl: string) {
+  return `${baseUrl.replace(/\/+$/, "")}${VERSION_ENDPOINT}`;
+}
+
+function resolveVersionEndpoint() {
+  const envBase = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim();
+  const allowRemote =
+    (import.meta.env.VITE_ALLOW_REMOTE_API || "")
+      .toString()
+      .toLowerCase() === "true";
+  const isPageLocal =
+    typeof window !== "undefined" && isLocalHost(window.location.hostname);
+
+  if (!envBase) {
+    return import.meta.env.DEV && isPageLocal
+      ? appendHealthz(DEFAULT_LOCAL_API)
+      : VERSION_ENDPOINT;
+  }
+
+  try {
+    const envUrl = new URL(envBase);
+    const isEnvLocal = isLocalHost(envUrl.hostname);
+    if (import.meta.env.DEV && isPageLocal && !isEnvLocal && !allowRemote) {
+      return appendHealthz(DEFAULT_LOCAL_API);
+    }
+    return appendHealthz(envBase);
+  } catch {
+    return appendHealthz(DEFAULT_LOCAL_API);
+  }
+}
+
 async function fetchVersion(): Promise<string | null> {
   try {
-    const response = await fetch(VERSION_ENDPOINT, {
+    const response = await fetch(resolveVersionEndpoint(), {
       cache: "no-store",
       credentials: "same-origin",
+      headers: { accept: "application/json" },
     });
     if (!response.ok) return null;
+
+    const contentType = response.headers?.get?.("content-type");
+    if (contentType && !contentType.toLowerCase().includes("json")) {
+      return null;
+    }
+
     const payload = await response.json();
     if (payload && typeof payload.version === "string") {
       return payload.version;

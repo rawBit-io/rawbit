@@ -4,6 +4,8 @@ import type { FlowNode } from "@/types";
 import type { Edge } from "@xyflow/react";
 import userEvent from "@testing-library/user-event";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const clipboardHook = vi.fn();
@@ -149,6 +151,7 @@ describe("TextInfoNode", () => {
 
     const display = container.querySelector(".text-info-markdown") as HTMLElement;
     expect(display).not.toHaveClass("nodrag");
+    expect(display).toHaveClass("w-full");
     expect(display).toHaveClass("cursor-pointer");
     await user.click(display);
     expect(screen.queryByPlaceholderText("Type markdown here…")).toBeNull();
@@ -162,6 +165,16 @@ describe("TextInfoNode", () => {
     await waitFor(() => expect(pushStateMock).toHaveBeenCalled());
 
     expect(nodesState[0].data.content).toContain("Updated");
+  });
+
+  it("does not cap rendered markdown width inside wide text nodes", () => {
+    const css = readFileSync(resolve(process.cwd(), "src/index.css"), "utf8");
+    const rootRule = css.match(/\.text-info-markdown\s*\{[^}]*\}/)?.[0] ?? "";
+
+    expect(rootRule).not.toMatch(/max-width/);
+    expect(css).not.toMatch(
+      /\.text-info-markdown\s+:where\(p\)\s*\{[^}]*max-width/
+    );
   });
 
   it("adjusts font size and propagates resize events", async () => {

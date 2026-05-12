@@ -439,7 +439,6 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
 }
 
 .text-info-markdown {
-  max-width: 72ch;
   color: hsl(var(--foreground));
   font-family: inherit;
   overflow-wrap: anywhere;
@@ -482,10 +481,6 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
 
 .text-info-markdown :where(p, ul, ol, blockquote, pre) {
   margin: 0.38em 0;
-}
-
-.text-info-markdown :where(p) {
-  max-width: 68ch;
 }
 
 .text-info-markdown :where(strong) {

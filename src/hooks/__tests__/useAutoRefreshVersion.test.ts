@@ -45,6 +45,62 @@ describe("useAutoRefreshVersion", () => {
     unmount();
   });
 
+  it("ignores HTML fallback responses from the version endpoint", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue({
+        ok: true,
+        headers: new Headers({ "content-type": "text/html" }),
+        json: vi.fn(async () => {
+          throw new SyntaxError("Unexpected token '<'");
+        }),
+      } as unknown as Response);
+
+    const { unmount } = renderHook(() =>
+      useAutoRefreshVersion({ tabs: [], saveTabData: vi.fn() })
+    );
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringMatching(/\/healthz$/),
+        expect.objectContaining({
+          cache: "no-store",
+          credentials: "same-origin",
+          headers: { accept: "application/json" },
+        })
+      );
+    });
+
+    expect(window.localStorage.getItem(NEEDS_RELOAD_KEY)).toBeNull();
+    expect(warnSpy).not.toHaveBeenCalledWith(
+      "Version check failed",
+      expect.anything()
+    );
+
+    unmount();
+  });
+
+  it("still accepts mocked JSON responses without headers", async () => {
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({ version: "new-version" }),
+      } as Response);
+
+    const { unmount } = renderHook(() =>
+      useAutoRefreshVersion({ tabs: [], saveTabData: vi.fn() })
+    );
+
+    await waitFor(() => {
+      expect(window.localStorage.getItem(NEEDS_RELOAD_KEY)).toBe("1");
+    });
+
+    expect(fetchMock).toHaveBeenCalled();
+    unmount();
+  });
+
   it("persists tabs and reloads once when returning from idle with pending flag", async () => {
     vi.useFakeTimers();
     const fetchMock = vi
