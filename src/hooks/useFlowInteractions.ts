@@ -75,6 +75,41 @@ const edgeTouchesRemovedNode = (
 ): boolean =>
   removedNodeIds.has(edge.source) || removedNodeIds.has(edge.target);
 
+const addEdgeEndpointNodeIds = (ids: Set<string>, edge?: Edge | null) => {
+  if (!edge) return;
+  ids.add(edge.source);
+  ids.add(edge.target);
+};
+
+const edgeConnectionChanged = (previous: Edge, next: Edge): boolean =>
+  previous.source !== next.source ||
+  previous.target !== next.target ||
+  (previous.sourceHandle ?? null) !== (next.sourceHandle ?? null) ||
+  (previous.targetHandle ?? null) !== (next.targetHandle ?? null);
+
+const dirtyNodeIdsFromEdgeChanges = (
+  changes: EdgeChange[],
+  edges: Edge[]
+): Set<string> => {
+  const byId = new Map(edges.map((edge) => [edge.id, edge]));
+  const dirtyIds = new Set<string>();
+
+  for (const change of changes) {
+    if (change.type === "remove") {
+      const previous = byId.get(change.id);
+      addEdgeEndpointNodeIds(dirtyIds, previous);
+    } else if (change.type === "replace") {
+      const previous = byId.get(change.id);
+      if (previous && edgeConnectionChanged(previous, change.item)) {
+        addEdgeEndpointNodeIds(dirtyIds, previous);
+        addEdgeEndpointNodeIds(dirtyIds, change.item);
+      }
+    }
+  }
+
+  return dirtyIds;
+};
+
 interface UseFlowInteractionsOptions {
   rawOnNodesChange: (changes: NodeChange<FlowNode>[]) => void;
   rawOnEdgesChange: (changes: EdgeChange[]) => void;
@@ -608,7 +643,23 @@ export function useFlowInteractions({
         return;
       }
 
+      const dirtyNodeIds = dirtyNodeIdsFromEdgeChanges(
+        filteredChanges,
+        getEdges()
+      );
+
       rawOnEdgesChange(filteredChanges);
+
+      if (dirtyNodeIds.size > 0) {
+        setNodes((nodes) =>
+          nodes.map((node) =>
+            dirtyNodeIds.has(node.id)
+              ? { ...node, data: { ...node.data, dirty: true } }
+              : node
+          )
+        );
+        markPendingAfterDirtyChange();
+      }
 
       const hasAdd = filteredChanges.some((change) => change.type === "add");
       const hasRemove = filteredChanges.some((change) => change.type === "remove");
@@ -635,13 +686,16 @@ export function useFlowInteractions({
       }
     },
     [
+      getEdges,
       isSelectionModeActive,
       isPastingRef,
       loadingUndoRef,
+      markPendingAfterDirtyChange,
       rawOnEdgesChange,
       scheduleSnapshot,
       skipNextEdgeSnapshotRef,
       releaseEdgeSnapshotSkip,
+      setNodes,
     ]
   );
 

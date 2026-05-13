@@ -623,6 +623,96 @@ describe("useFlowInteractions", () => {
     ]);
   });
 
+  it("marks removed edge endpoints dirty so stale cycle errors can recalculate", () => {
+    const deps = baseDeps();
+    let nodesState: FlowNode[] = [
+      {
+        id: "source",
+        type: "calculation",
+        position: { x: 0, y: 0 },
+        data: {
+          dirty: false,
+          error: true,
+          extendedError: "Cycle detected in this sub-graph – calculation aborted.",
+        },
+      } as FlowNode,
+      {
+        id: "target",
+        type: "calculation",
+        position: { x: 200, y: 0 },
+        data: {
+          dirty: false,
+          error: true,
+          extendedError: "Cycle detected in this sub-graph – calculation aborted.",
+        },
+      } as FlowNode,
+      {
+        id: "unrelated",
+        type: "calculation",
+        position: { x: 400, y: 0 },
+        data: { dirty: false },
+      } as FlowNode,
+    ];
+    let edgesState: Edge[] = [
+      {
+        id: "cycle-edge",
+        source: "source",
+        target: "target",
+      } as Edge,
+    ];
+
+    const getNodes = () => nodesState;
+    const getEdges = () => edgesState;
+    const setNodes = (updater: (nodes: FlowNode[]) => FlowNode[]) => {
+      nodesState = updater(nodesState);
+    };
+    const setEdges = (updater: (edges: Edge[]) => Edge[]) => {
+      edgesState = updater(edgesState);
+    };
+
+    const { result } = renderHook(() =>
+      useFlowInteractions({
+        ...deps,
+        rawOnNodesChange: deps.rawOnNodesChange,
+        rawOnEdgesChange: deps.rawOnEdgesChange,
+        onConnect: deps.onConnect,
+        onDrop: deps.onDrop,
+        onNodeDragStop: deps.onNodeDragStop,
+        getNodes,
+        getEdges,
+        setNodes,
+        setEdges,
+        getTopLeftPosition: deps.getTopLeftPosition,
+        pasteNodes: deps.pasteNodes,
+        isSidebarOpen: false,
+        setTabTooltip: deps.setTabTooltip,
+        renameTab: deps.renameTab,
+        activeTabId: "tab-1",
+        groupSelectedNodes: deps.groupSelectedNodes,
+        ungroupSelectedNodes: deps.ungroupSelectedNodes,
+        clearHighlights: deps.clearHighlights,
+        setIsSearchHighlight: deps.setIsSearchHighlight,
+        incRev: deps.incRev,
+        pushCleanState: deps.pushCleanState,
+        updatePaletteEligibility: deps.updatePaletteEligibility,
+        skipNextNodeRemovalRef: deps.skipNextNodeRemovalRef,
+        releaseNodeRemovalSnapshotSkip: deps.releaseNodeRemovalSnapshotSkip,
+      })
+    );
+
+    const removeChange = { id: "cycle-edge", type: "remove" } as EdgeChange;
+
+    act(() => {
+      result.current.onEdgesChange([removeChange]);
+    });
+
+    expect(deps.rawOnEdgesChange).toHaveBeenCalledWith([removeChange]);
+    expect(nodesState.find((node) => node.id === "source")?.data?.dirty).toBe(true);
+    expect(nodesState.find((node) => node.id === "target")?.data?.dirty).toBe(true);
+    expect(nodesState.find((node) => node.id === "unrelated")?.data?.dirty).toBe(false);
+    expect(deps.markPendingAfterDirtyChange).toHaveBeenCalledTimes(1);
+  });
+
   it("schedules a snapshot for edge shape replacements", () => {
     const deps = baseDeps();
     let nodesState: FlowNode[] = [];

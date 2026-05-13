@@ -131,6 +131,8 @@ export function useGlobalCalculationLogic({
       if (hasCycle) {
         log("debounce", "Cycle detected → mark subgraph as error");
         if (!isCurrentRun()) return;
+        const cycleMessage =
+          "Cycle detected in this sub-graph – calculation aborted.";
         const affectedIds = new Set(affectedNodes.map((n) => n.id));
         setNodes((nds) =>
           nds.map((n) =>
@@ -141,13 +143,20 @@ export function useGlobalCalculationLogic({
                     ...n.data,
                     error: true,
                     dirty: false,
-                    extendedError: n.data.extendedError ?? "Cycle detected",
+                    extendedError: cycleMessage,
                   },
                 }
               : n
           )
         );
-        const mergedErrors = buildErrorArray([], nodes);
+        const existingErrors = buildErrorArray([], nodes).filter(
+          (err) => !affectedIds.has(err.nodeId)
+        );
+        const cycleErrors = affectedNodes.map((n) => ({
+          nodeId: n.id,
+          error: cycleMessage,
+        }));
+        const mergedErrors = [...existingErrors, ...cycleErrors];
         onStatusChangeRef.current?.("ERROR", mergedErrors);
         prevDirtyRef.current = false;
         return;

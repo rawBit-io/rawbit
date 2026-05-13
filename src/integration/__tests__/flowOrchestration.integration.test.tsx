@@ -365,6 +365,15 @@ describe("Flow orchestration integration", () => {
     await waitFor(() => expect(screen.getByTestId("status").textContent).toBe("ERROR"));
     expect(screen.getByTestId("error-flag").textContent).toBe("true");
     expect(screen.getByTestId("dirty-flag").textContent).toBe("false");
+    await waitFor(() => {
+      const errorsHistory = handles.errorsHistory();
+      expect(errorsHistory[errorsHistory.length - 1]).toEqual([
+        {
+          nodeId: "calc-1",
+          error: "Cycle detected in this sub-graph – calculation aborted.",
+        },
+      ]);
+    });
     expect(recalculateGraphMock).not.toHaveBeenCalled();
   });
 
