@@ -43,6 +43,32 @@ const CONTENT_VERTICAL_CHROME = 48;
 const MIN_FONT_SIZE = 8;
 const MAX_FONT_SIZE = 150;
 
+function finiteDimension(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) && value > 0
+    ? value
+    : undefined;
+}
+
+function requestNodeInternalsUpdate(
+  rf: ReturnType<typeof useReactFlow<FlowNode>>,
+  id: string
+) {
+  const updateNodeInternals = (
+    rf as ReturnType<typeof useReactFlow<FlowNode>> & {
+      updateNodeInternals?: (nodeId: string) => void;
+    }
+  ).updateNodeInternals;
+
+  if (!updateNodeInternals) return;
+
+  const run = () => updateNodeInternals(id);
+  if (typeof requestAnimationFrame === "function") {
+    requestAnimationFrame(run);
+  } else {
+    run();
+  }
+}
+
 /* -------------------------------------------------------------
  *  Search highlight helpers
  * ----------------------------------------------------------- */
@@ -152,6 +178,53 @@ export default function TextInfoNode({
     [rf, id]
   );
 
+  // Keep React Flow's outer node geometry in sync with the visible card.
+  // Otherwise offscreen unmount/remount can restore the default node size.
+  const updateNodeSize = useCallback(
+    (width: number, height: number) => {
+      rf.setNodes((nodes) => {
+        const idx = nodes.findIndex((n) => n.id === id);
+        if (idx === -1) return nodes;
+
+        const currentNode = nodes[idx];
+        const currentData = (currentNode.data ?? {}) as CalculationNodeData;
+        const nextMeasured = {
+          ...currentNode.measured,
+          width,
+          height,
+        };
+
+        if (
+          currentData.width === width &&
+          currentData.height === height &&
+          currentNode.width === width &&
+          currentNode.height === height &&
+          currentNode.measured?.width === width &&
+          currentNode.measured?.height === height
+        ) {
+          return nodes;
+        }
+
+        const next = [...nodes];
+        next[idx] = {
+          ...currentNode,
+          width,
+          height,
+          measured: nextMeasured,
+          data: {
+            ...currentData,
+            width,
+            height,
+          },
+        };
+        return next;
+      });
+
+      requestNodeInternalsUpdate(rf, id);
+    },
+    [rf, id]
+  );
+
   /* ───────── node-level data ──────────────────────────────── */
   const rawContent = typeof data.content === "string" ? data.content : "";
   const isPlaceholderContent = isDefaultContent(rawContent);
@@ -171,9 +244,10 @@ export default function TextInfoNode({
     id,
   });
 
-  // Use node dimensions if available, otherwise fall back to data dimensions
-  const displayWidth = nodeWidth || data.width || MIN_WIDTH;
-  const displayHeight = nodeHeight || data.height || MIN_HEIGHT;
+  const dataWidth = finiteDimension(data.width);
+  const dataHeight = finiteDimension(data.height);
+  const displayWidth = dataWidth ?? finiteDimension(nodeWidth) ?? MIN_WIDTH;
+  const displayHeight = dataHeight ?? finiteDimension(nodeHeight) ?? MIN_HEIGHT;
   const committedSizeRef = useRef({
     width: Math.round(displayWidth),
     height: Math.round(displayHeight),
@@ -247,6 +321,49 @@ export default function TextInfoNode({
   // resize tick), preventing useEffect / onResize from recreating on each render.
   const displayHeightRef = useRef(displayHeight);
   displayHeightRef.current = displayHeight;
+
+  // Repair sessions saved while older builds only persisted data.width/height.
+  useEffect(() => {
+    if (dataWidth === undefined && dataHeight === undefined) return;
+
+    rf.setNodes((nodes) => {
+      const idx = nodes.findIndex((n) => n.id === id);
+      if (idx === -1) return nodes;
+
+      const currentNode = nodes[idx];
+      const width = dataWidth ?? finiteDimension(currentNode.width);
+      const height = dataHeight ?? finiteDimension(currentNode.height);
+      if (width === undefined && height === undefined) return nodes;
+
+      const nextWidth = width ?? currentNode.width;
+      const nextHeight = height ?? currentNode.height;
+      const nextMeasured = {
+        ...currentNode.measured,
+        ...(width !== undefined ? { width } : {}),
+        ...(height !== undefined ? { height } : {}),
+      };
+
+      if (
+        currentNode.width === nextWidth &&
+        currentNode.height === nextHeight &&
+        currentNode.measured?.width === nextMeasured.width &&
+        currentNode.measured?.height === nextMeasured.height
+      ) {
+        return nodes;
+      }
+
+      const next = [...nodes];
+      next[idx] = {
+        ...currentNode,
+        width: nextWidth,
+        height: nextHeight,
+        measured: nextMeasured,
+      };
+      return next;
+    });
+
+    requestNodeInternalsUpdate(rf, id);
+  }, [dataWidth, dataHeight, rf, id]);
 
   const updateTextareaFit = useCallback(() => {
     if (!textareaRef.current) return;
@@ -350,10 +467,7 @@ export default function TextInfoNode({
       }
       current.width = w;
       current.height = h;
-      updateNode((d) => {
-        d.width = w;
-        d.height = h;
-      });
+      updateNodeSize(w, h);
       if (isEditing && textareaRef.current) {
         textareaRef.current.style.height = `${Math.max(
           32,
@@ -361,7 +475,7 @@ export default function TextInfoNode({
         )}px`;
       }
     },
-    [updateNode, isEditing]
+    [updateNodeSize, isEditing]
   );
 
   const onResizeEnd = useCallback(

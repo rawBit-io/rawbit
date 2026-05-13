@@ -10,6 +10,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const clipboardHook = vi.fn();
 const pushStateMock = vi.fn();
+const updateNodeInternalsMock = vi.fn();
 
 vi.mock("@/hooks/nodes/useClipboardLite", () => ({
   useClipboardLite: (...args: unknown[]) => clipboardHook(...args),
@@ -48,6 +49,7 @@ vi.mock("@xyflow/react", async () => {
       setEdges: (updater: (edges: Edge[]) => Edge[]) => setEdgesMock(updater),
       getNodes: () => nodesState,
       getEdges: () => edgesState,
+      updateNodeInternals: updateNodeInternalsMock,
     }),
     NodeResizer: ({ onResize, onResizeEnd }: { onResize: (event: unknown, size: { width: number; height: number }) => void; onResizeEnd: () => void }) => {
       resizeHandlers.onResize = onResize;
@@ -114,6 +116,7 @@ describe("TextInfoNode", () => {
 
     clipboardHook.mockReset();
     pushStateMock.mockReset();
+    updateNodeInternalsMock.mockReset();
     resizeHandlers.onResize = undefined;
     resizeHandlers.onResizeEnd = undefined;
   });
@@ -217,9 +220,64 @@ describe("TextInfoNode", () => {
     resizeHandlers.onResize?.(null, { width: 420, height: 200 });
     expect(nodesState[0].data.width).toBe(420);
     expect(nodesState[0].data.height).toBe(200);
+    expect(nodesState[0].width).toBe(420);
+    expect(nodesState[0].height).toBe(200);
+    expect(nodesState[0].measured).toEqual({ width: 420, height: 200 });
+    await waitFor(() => expect(updateNodeInternalsMock).toHaveBeenCalledWith("text-1"));
 
     resizeHandlers.onResizeEnd?.();
     await waitFor(() => expect(pushStateMock).toHaveBeenCalled());
+  });
+
+  it("repairs stale React Flow geometry from saved text info dimensions", async () => {
+    const clipboardMock = {
+      prettyResult: "",
+      copyResult: vi.fn(),
+      copyError: vi.fn(),
+      copyId: vi.fn(),
+      resultCopied: false,
+      errorCopied: false,
+      idCopied: false,
+    };
+    clipboardHook.mockReturnValue(clipboardMock);
+    nodesState[0] = {
+      ...nodesState[0],
+      width: 300,
+      height: 200,
+      measured: { width: 300, height: 200 },
+      data: {
+        ...nodesState[0].data,
+        width: 620,
+        height: 460,
+      },
+    };
+
+    renderWithProviders(
+      <TextInfoNode
+        id="text-1"
+        data={nodesState[0].data}
+        selected={false}
+        type="text"
+        dragging={false}
+        zIndex={0}
+        width={nodesState[0].width}
+        height={nodesState[0].height}
+        isConnectable={true}
+        positionAbsoluteX={0}
+        positionAbsoluteY={0}
+      />,
+      { snapshotScheduler: scheduler }
+    );
+
+    const card = screen.getByTestId("text-info-fill").parentElement;
+    expect(card).toHaveStyle({ width: "620px", height: "460px" });
+
+    await waitFor(() => {
+      expect(nodesState[0].width).toBe(620);
+      expect(nodesState[0].height).toBe(460);
+      expect(nodesState[0].measured).toEqual({ width: 620, height: 460 });
+    });
+    await waitFor(() => expect(updateNodeInternalsMock).toHaveBeenCalledWith("text-1"));
   });
 
   it("shows the default edit hint and opens an empty editor on double-click", async () => {
