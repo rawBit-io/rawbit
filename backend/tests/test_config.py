@@ -10,6 +10,7 @@ CALC_ENV_VARS = {
     "RAWBIT_CALCULATION_BUDGET_SECONDS",
     "RAWBIT_CALCULATION_WINDOW_SECONDS",
     "RAWBIT_REDIS_URL",
+    "RAWBIT_TRUSTED_PROXY_CIDRS",
 }
 
 
@@ -66,3 +67,11 @@ def test_public_limits_reflect_env_overrides(monkeypatch):
 def test_redis_url_reads_from_env(monkeypatch):
     module = reload_config(monkeypatch, RAWBIT_REDIS_URL="redis://localhost:6379/0")
     assert module.redis_url() == "redis://localhost:6379/0"
+
+
+def test_trusted_proxy_cidrs_reads_comma_separated_env(monkeypatch):
+    module = reload_config(
+        monkeypatch,
+        RAWBIT_TRUSTED_PROXY_CIDRS="173.245.48.0/20, 2606:4700::/32,,",
+    )
+    assert module.trusted_proxy_cidrs() == ("173.245.48.0/20", "2606:4700::/32")

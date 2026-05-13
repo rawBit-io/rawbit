@@ -65,11 +65,28 @@ variables.
 | Computation budget | 10 seconds per window | `RAWBIT_CALCULATION_BUDGET_SECONDS` |
 | Budget window | 60 seconds | `RAWBIT_CALCULATION_WINDOW_SECONDS` |
 | Shared budget store | off | `RAWBIT_REDIS_URL` |
+| Trusted proxy CIDRs for client IP headers | off | `RAWBIT_TRUSTED_PROXY_CIDRS` |
 
 `/bulk_calculate` also has a Flask-Limiter fallback of `60/minute`, `/code` has
 `30/minute`, and the default route limit is `200/minute`. Hosted deployments can
 put Cloudflare or another edge limiter in front of the Flask app; local
 development uses the in-process limits.
+
+`CF-Connecting-IP` is only trusted when the direct peer IP is inside
+`RAWBIT_TRUSTED_PROXY_CIDRS`. For Cloudflare deployments, set this env var to
+Cloudflare's published IPv4 and IPv6 proxy ranges, comma-separated. Without this
+configuration, the backend ignores forwarded client IP headers and uses the
+direct peer address.
+
+```bash
+RAWBIT_TRUSTED_PROXY_CIDRS="$(curl -fsSL https://www.cloudflare.com/ips-v4 https://www.cloudflare.com/ips-v6 | paste -sd, -)"
+```
+
+Cloudflare publishes the current lists at `https://www.cloudflare.com/ips-v4`
+and `https://www.cloudflare.com/ips-v6`. The rawbit deploy tooling fetches
+these lists during backend deploy and writes the env var into the rendered
+backend `.env` file. Production origins should also be firewalled so only
+Cloudflare can reach the backend directly.
 
 ## Source Code Views
 

@@ -35,6 +35,7 @@ _DEFAULT_CALC_BUDGET_SECONDS = 10.0
 _CALC_WINDOW_ENV = "RAWBIT_CALCULATION_WINDOW_SECONDS"
 _DEFAULT_CALC_WINDOW_SECONDS = 60.0
 _REDIS_URL_ENV = "RAWBIT_REDIS_URL"
+_TRUSTED_PROXY_CIDRS_ENV = "RAWBIT_TRUSTED_PROXY_CIDRS"
 APP_VERSION = os.getenv("RAWBIT_APP_VERSION") or os.getenv("GIT_COMMIT") or "dev"
 
 
@@ -55,6 +56,13 @@ def redis_url() -> str | None:
     """Return the optional Redis connection URL used for shared limits."""
 
     return os.getenv(_REDIS_URL_ENV)
+
+
+def trusted_proxy_cidrs() -> tuple[str, ...]:
+    """Return CIDR ranges whose forwarded client headers may be trusted."""
+
+    raw = os.getenv(_TRUSTED_PROXY_CIDRS_ENV, "")
+    return tuple(part.strip() for part in raw.split(",") if part.strip())
 
 
 def public_limits() -> dict[str, float]:

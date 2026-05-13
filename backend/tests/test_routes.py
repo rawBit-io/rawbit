@@ -2,6 +2,7 @@ import json
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
+from ipaddress import ip_network
 
 import pytest
 from werkzeug.exceptions import BadRequest
@@ -290,7 +291,8 @@ def test_get_code_handles_missing_source(monkeypatch, client):
     assert resp.get_json() == {"code": "Source not available"}
 
 
-def test_get_client_ip_prefers_cloudflare_headers():
+def test_get_client_ip_trusts_cloudflare_header_from_trusted_proxy(monkeypatch):
+    monkeypatch.setattr(routes, "TRUSTED_PROXY_NETWORKS", (ip_network("9.9.9.0/24"),))
     with routes.app.test_request_context(
         "/",
         headers={"CF-Connecting-IP": "1.2.3.4", "CF-RAY": "abc"},
@@ -299,7 +301,28 @@ def test_get_client_ip_prefers_cloudflare_headers():
         assert routes.get_client_ip() == "1.2.3.4"
 
 
-def test_get_client_ip_falls_back_to_remote_addr():
+def test_get_client_ip_ignores_cloudflare_header_from_untrusted_peer(monkeypatch):
+    monkeypatch.setattr(routes, "TRUSTED_PROXY_NETWORKS", ())
+    with routes.app.test_request_context(
+        "/",
+        headers={"CF-Connecting-IP": "1.2.3.4", "CF-RAY": "abc"},
+        environ_base={"REMOTE_ADDR": "9.9.9.9"},
+    ):
+        assert routes.get_client_ip() == "9.9.9.9"
+
+
+def test_get_client_ip_ignores_invalid_cloudflare_ip_from_trusted_proxy(monkeypatch):
+    monkeypatch.setattr(routes, "TRUSTED_PROXY_NETWORKS", (ip_network("9.9.9.0/24"),))
+    with routes.app.test_request_context(
+        "/",
+        headers={"CF-Connecting-IP": "not-an-ip", "CF-RAY": "abc"},
+        environ_base={"REMOTE_ADDR": "9.9.9.9"},
+    ):
+        assert routes.get_client_ip() == "9.9.9.9"
+
+
+def test_get_client_ip_falls_back_to_remote_addr(monkeypatch):
+    monkeypatch.setattr(routes, "TRUSTED_PROXY_NETWORKS", (ip_network("9.9.9.0/24"),))
     with routes.app.test_request_context(
         "/",
         headers={"CF-Connecting-IP": "1.2.3.4"},
@@ -420,6 +443,39 @@ def test_code_rate_limit_returns_429(monkeypatch, client):
     assert resp.status_code == 429
     data = resp.get_json()
     assert data["error"] == "rate_limited"
+
+
+def test_code_rate_limit_ignores_rotating_spoofed_cloudflare_ips(monkeypatch, client):
+    routes.limiter.reset()
+    monkeypatch.setattr(routes, "TRUSTED_PROXY_NETWORKS", ())
+
+    def sample():
+        return "hi"
+
+    monkeypatch.setattr(routes, "GLOBAL_CALC_FUNCTIONS", {"sample": sample})
+    monkeypatch.setattr(routes, "expand_function_source", lambda func, source: source)
+    monkeypatch.setattr(routes.inspect, "getsource", lambda func: "def sample():\n    return 'hi'\n")
+
+    for index in range(30):
+        resp = client.get(
+            "/code",
+            query_string={"functionName": "sample"},
+            headers={
+                "CF-Connecting-IP": f"198.51.100.{index + 1}",
+                "CF-RAY": "fake-ray",
+            },
+            environ_base={"REMOTE_ADDR": "9.9.9.9"},
+        )
+        assert resp.status_code == 200
+
+    resp = client.get(
+        "/code",
+        query_string={"functionName": "sample"},
+        headers={"CF-Connecting-IP": "198.51.100.31", "CF-RAY": "fake-ray"},
+        environ_base={"REMOTE_ADDR": "9.9.9.9"},
+    )
+    assert resp.status_code == 429
+    assert resp.get_json()["error"] == "rate_limited"
 
 
 def test_bulk_calculate_surfaces_node_errors(client):

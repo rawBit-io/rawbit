@@ -7,7 +7,7 @@ SECURITY:
   * Primary: Cloudflare (15 requests/10s on /bulk_calculate)
   * Backup: Flask-Limiter (60/min for /bulk_calculate, 30/min for /code, 200/min default)
 - Payload: 5MB max request size
-- IP Detection: Trusts CF-Connecting-IP when request comes through Cloudflare
+- IP Detection: Trusts CF-Connecting-IP only from configured proxy CIDRs
 - Calculation budget: 10s CPU per IP per 60s (shared via Redis when available)
 
 RUNNING:
@@ -27,6 +27,7 @@ import os
 import re
 import threading
 import time
+from ipaddress import IPv4Network, IPv6Network, ip_address, ip_network
 from pathlib import Path
 
 import orjson
@@ -44,6 +45,7 @@ from config import (
     CALCULATION_TIME_WINDOW_SECONDS,
     public_limits,
     redis_url,
+    trusted_proxy_cidrs,
 )
 from graph_logic import bulk_calculate_logic, CALC_FUNCTIONS as GLOBAL_CALC_FUNCTIONS
 from codeview_expander import expand_function_source
@@ -103,11 +105,46 @@ Compress(app)
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB
 app.config["RATELIMIT_HEADERS_ENABLED"] = True
 
+
+TrustedProxyNetwork = IPv4Network | IPv6Network
+
+
+def _parse_trusted_proxy_networks(cidrs: tuple[str, ...]) -> tuple[TrustedProxyNetwork, ...]:
+    networks: list[TrustedProxyNetwork] = []
+    for cidr in cidrs:
+        try:
+            networks.append(ip_network(cidr, strict=False))
+        except ValueError as exc:
+            raise ValueError(
+                f"RAWBIT_TRUSTED_PROXY_CIDRS contains invalid CIDR {cidr!r}"
+            ) from exc
+    return tuple(networks)
+
+
+TRUSTED_PROXY_NETWORKS = _parse_trusted_proxy_networks(trusted_proxy_cidrs())
+
+
+def _is_trusted_proxy(remote_addr: str | None) -> bool:
+    if not remote_addr:
+        return False
+    try:
+        remote_ip = ip_address(remote_addr.strip())
+    except ValueError:
+        return False
+
+    return any(
+        remote_ip.version == network.version and remote_ip in network
+        for network in TRUSTED_PROXY_NETWORKS
+    )
+
+
 def get_client_ip() -> str:
     cf_ip = request.headers.get("CF-Connecting-IP")
-    cf_ray = request.headers.get("CF-RAY")
-    if cf_ip and cf_ray:
-        return cf_ip
+    if cf_ip and _is_trusted_proxy(request.remote_addr):
+        try:
+            return str(ip_address(cf_ip.strip()))
+        except ValueError:
+            pass
     return get_remote_address()
 
 limiter = Limiter(
