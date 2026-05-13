@@ -1,5 +1,9 @@
 import type { FlowNode } from "@/types";
 import { normalizeOpcodeNodeData } from "@/lib/opcodeNodeData";
+import {
+  finiteTextInfoDimension,
+  shouldPreferTextInfoNodeGeometry,
+} from "@/lib/textInfoDimensions";
 
 const LEGACY_FLOW_MAP_NODE_DATA_KEYS = ["excludeFromFlowMap"] as const;
 
@@ -27,6 +31,28 @@ export function stripLegacyFlowMapNodeData<TNode extends FlowNode>(
       node.type === "opCodeNode" || node.data.functionName === "op_code_select";
     if (isOpcodeNode) {
       nextData = normalizeOpcodeNodeData(node.data);
+    }
+
+    if (node.type === "shadcnTextInfo") {
+      const nodeWidth =
+        finiteTextInfoDimension(node.width) ??
+        finiteTextInfoDimension(node.measured?.width);
+      const nodeHeight =
+        finiteTextInfoDimension(node.height) ??
+        finiteTextInfoDimension(node.measured?.height);
+
+      if (
+        shouldPreferTextInfoNodeGeometry({
+          dataWidth: node.data.width,
+          dataHeight: node.data.height,
+          nodeWidth,
+          nodeHeight,
+        })
+      ) {
+        nextData ??= { ...node.data };
+        nextData.width = nodeWidth;
+        nextData.height = nodeHeight;
+      }
     }
 
     for (const key of LEGACY_FLOW_MAP_NODE_DATA_KEYS) {

@@ -280,6 +280,59 @@ describe("TextInfoNode", () => {
     await waitFor(() => expect(updateNodeInternalsMock).toHaveBeenCalledWith("text-1"));
   });
 
+  it("repairs stale template text info data from saved React Flow geometry", async () => {
+    const clipboardMock = {
+      prettyResult: "",
+      copyResult: vi.fn(),
+      copyError: vi.fn(),
+      copyId: vi.fn(),
+      resultCopied: false,
+      errorCopied: false,
+      idCopied: false,
+    };
+    clipboardHook.mockReturnValue(clipboardMock);
+    nodesState[0] = {
+      ...nodesState[0],
+      width: 1255,
+      height: 2141,
+      measured: undefined,
+      data: {
+        ...nodesState[0].data,
+        width: 300,
+        height: 200,
+      },
+    };
+
+    renderWithProviders(
+      <TextInfoNode
+        id="text-1"
+        data={nodesState[0].data}
+        selected={false}
+        type="text"
+        dragging={false}
+        zIndex={0}
+        width={nodesState[0].width}
+        height={nodesState[0].height}
+        isConnectable={true}
+        positionAbsoluteX={0}
+        positionAbsoluteY={0}
+      />,
+      { snapshotScheduler: scheduler }
+    );
+
+    const card = screen.getByTestId("text-info-fill").parentElement;
+    expect(card).toHaveStyle({ width: "1255px", height: "2141px" });
+
+    await waitFor(() => {
+      expect(nodesState[0].data.width).toBe(1255);
+      expect(nodesState[0].data.height).toBe(2141);
+      expect(nodesState[0].width).toBe(1255);
+      expect(nodesState[0].height).toBe(2141);
+      expect(nodesState[0].measured).toEqual({ width: 1255, height: 2141 });
+    });
+    await waitFor(() => expect(updateNodeInternalsMock).toHaveBeenCalledWith("text-1"));
+  });
+
   it("shows the default edit hint and opens an empty editor on double-click", async () => {
     const clipboardMock = {
       prettyResult: "",

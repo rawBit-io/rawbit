@@ -29,6 +29,7 @@ import { useClipboardLite } from "@/hooks/nodes/useClipboardLite";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
 import { useSnapshotSchedulerContext } from "@/hooks/useSnapshotSchedulerContext";
 import type { CalculationNodeData, FlowNode } from "@/types";
+import { resolveTextInfoDimensions } from "@/lib/textInfoDimensions";
 import { produce, setAutoFreeze, Draft } from "immer";
 
 setAutoFreeze(false); // Immer objects must stay mutable for React-Flow
@@ -42,12 +43,6 @@ const MIN_HEIGHT = 100;
 const CONTENT_VERTICAL_CHROME = 48;
 const MIN_FONT_SIZE = 8;
 const MAX_FONT_SIZE = 150;
-
-function finiteDimension(value: unknown): number | undefined {
-  return typeof value === "number" && Number.isFinite(value) && value > 0
-    ? value
-    : undefined;
-}
 
 function requestNodeInternalsUpdate(
   rf: ReturnType<typeof useReactFlow<FlowNode>>,
@@ -244,10 +239,15 @@ export default function TextInfoNode({
     id,
   });
 
-  const dataWidth = finiteDimension(data.width);
-  const dataHeight = finiteDimension(data.height);
-  const displayWidth = dataWidth ?? finiteDimension(nodeWidth) ?? MIN_WIDTH;
-  const displayHeight = dataHeight ?? finiteDimension(nodeHeight) ?? MIN_HEIGHT;
+  const { width: displayWidth, height: displayHeight } =
+    resolveTextInfoDimensions({
+      dataWidth: data.width,
+      dataHeight: data.height,
+      nodeWidth,
+      nodeHeight,
+      fallbackWidth: MIN_WIDTH,
+      fallbackHeight: MIN_HEIGHT,
+    });
   const committedSizeRef = useRef({
     width: Math.round(displayWidth),
     height: Math.round(displayHeight),
@@ -322,48 +322,12 @@ export default function TextInfoNode({
   const displayHeightRef = useRef(displayHeight);
   displayHeightRef.current = displayHeight;
 
-  // Repair sessions saved while older builds only persisted data.width/height.
+  // Normalize legacy mismatches in both directions:
+  // - older sessions may only have data.width/height
+  // - older bundled flows may only have resized React Flow geometry
   useEffect(() => {
-    if (dataWidth === undefined && dataHeight === undefined) return;
-
-    rf.setNodes((nodes) => {
-      const idx = nodes.findIndex((n) => n.id === id);
-      if (idx === -1) return nodes;
-
-      const currentNode = nodes[idx];
-      const width = dataWidth ?? finiteDimension(currentNode.width);
-      const height = dataHeight ?? finiteDimension(currentNode.height);
-      if (width === undefined && height === undefined) return nodes;
-
-      const nextWidth = width ?? currentNode.width;
-      const nextHeight = height ?? currentNode.height;
-      const nextMeasured = {
-        ...currentNode.measured,
-        ...(width !== undefined ? { width } : {}),
-        ...(height !== undefined ? { height } : {}),
-      };
-
-      if (
-        currentNode.width === nextWidth &&
-        currentNode.height === nextHeight &&
-        currentNode.measured?.width === nextMeasured.width &&
-        currentNode.measured?.height === nextMeasured.height
-      ) {
-        return nodes;
-      }
-
-      const next = [...nodes];
-      next[idx] = {
-        ...currentNode,
-        width: nextWidth,
-        height: nextHeight,
-        measured: nextMeasured,
-      };
-      return next;
-    });
-
-    requestNodeInternalsUpdate(rf, id);
-  }, [dataWidth, dataHeight, rf, id]);
+    updateNodeSize(Math.round(displayWidth), Math.round(displayHeight));
+  }, [displayWidth, displayHeight, updateNodeSize]);
 
   const updateTextareaFit = useCallback(() => {
     if (!textareaRef.current) return;
