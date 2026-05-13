@@ -442,7 +442,7 @@ export function mergePartialResultsIntoFullGraph(
  * Flags cycles instantly so the user doesn’t have to wait for the API
  * to complain.
  *
- * @returns `true` if a cycle was found (and nodes were marked with errors)
+ * @returns `true` if a cycle was found
  */
 export function checkForCyclesAndMarkErrors(
   affectedNodes: Node<CalculationNodeData>[],
@@ -473,14 +473,6 @@ export function checkForCyclesAndMarkErrors(
     }
   }
 
-  /* --- mark error if not all processed --------------------------------------- */
-  const hasCycle = processed !== affectedNodes.length;
-  if (hasCycle) {
-    affectedNodes.forEach((n) => {
-      n.data.error = true;
-      n.data.extendedError =
-        "Cycle detected in this sub-graph – calculation aborted.";
-    });
-  }
-  return hasCycle;
+  /* --- detect cycle if not all nodes were processed -------------------------- */
+  return processed !== affectedNodes.length;
 }

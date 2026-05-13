@@ -208,7 +208,7 @@ describe("graph traversal helpers", () => {
     expect(affectedEdges).toHaveLength(4);
   });
 
-  it("detects cycles and marks nodes with errors", async () => {
+  it("detects cycles and returns true without mutating input nodes", async () => {
     const { checkForCyclesAndMarkErrors } = await loadGraphUtils();
     const nodes = [createNode("x"), createNode("y")];
     nodes.forEach((n) => (n.data.dirty = false));
@@ -217,9 +217,10 @@ describe("graph traversal helpers", () => {
     const hasCycle = checkForCyclesAndMarkErrors(nodes, edges);
 
     expect(hasCycle).toBe(true);
+    // input nodes must not be mutated – caller owns state updates
     nodes.forEach((node) => {
-      expect(node.data.error).toBe(true);
-      expect(node.data.extendedError).toMatch(/Cycle detected/);
+      expect(node.data.error).toBeUndefined();
+      expect(node.data.extendedError).toBeUndefined();
     });
   });
 });
