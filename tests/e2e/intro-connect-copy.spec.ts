@@ -590,7 +590,7 @@ test.describe('Intro P2PKH connect and copy-input actions', () => {
         'Added Legacy TX Template Target',
       );
       await expectModes(page, { connect: true, copy: true });
-      await expect(wiringDialog(page)).toContainText('Transaction Version');
+      await expect(wiringDialog(page)).toContainText('Version');
       await expect(wiringDialog(page)).toContainText('Input Count');
       await applyCopyInputs(page, 2);
       await expect(
