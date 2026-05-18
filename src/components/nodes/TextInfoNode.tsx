@@ -146,11 +146,7 @@ export default function TextInfoNode({
   /* ───────── hooks & helpers ──────────────────────────────── */
   const rf = useReactFlow<FlowNode>();
   const { pushState } = useUndoRedo();
-  const {
-    lockEdgeSnapshotSkip,
-    releaseEdgeSnapshotSkip,
-    scheduleSnapshot,
-  } = useSnapshotSchedulerContext();
+  const { scheduleSnapshot } = useSnapshotSchedulerContext();
 
   /* ---------- O(1) node patch helper ------------------------ */
   const updateNode = useCallback(
@@ -458,22 +454,15 @@ export default function TextInfoNode({
   }, [copyId]);
 
   const deleteNode = useCallback(() => {
-    lockEdgeSnapshotSkip();
-    let removedEdge = false;
     rf.setEdges((eds) => {
-      if (!eds.length) {
-        releaseEdgeSnapshotSkip();
-        return eds;
-      }
+      if (!eds.length) return eds;
+      let removedEdge = false;
       const filtered = eds.filter((edge: Edge) => {
         const shouldRemove = edge.source === id || edge.target === id;
         if (shouldRemove) removedEdge = true;
         return !shouldRemove;
       });
-      if (!removedEdge) {
-        releaseEdgeSnapshotSkip();
-      }
-      return filtered;
+      return removedEdge ? filtered : eds;
     });
 
     rf.setNodes((nds) => nds.filter((n) => n.id !== id));
@@ -481,8 +470,6 @@ export default function TextInfoNode({
     scheduleSnapshot("Node(s) removed", { refresh: true });
   }, [
     id,
-    lockEdgeSnapshotSkip,
-    releaseEdgeSnapshotSkip,
     rf,
     scheduleSnapshot,
   ]);

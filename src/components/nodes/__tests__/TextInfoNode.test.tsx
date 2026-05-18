@@ -108,8 +108,6 @@ describe("TextInfoNode", () => {
       skipNextNodeRemovalRef: { current: false },
       markPendingAfterDirtyChange: vi.fn(),
       clearPendingAfterCalc: vi.fn(),
-      lockEdgeSnapshotSkip: vi.fn(),
-      releaseEdgeSnapshotSkip: vi.fn(),
       lockNodeRemovalSnapshotSkip: vi.fn(),
       releaseNodeRemovalSnapshotSkip: vi.fn(),
     };
@@ -534,7 +532,6 @@ describe("TextInfoNode", () => {
 
     expect(nodesState).toHaveLength(0);
     expect(edgesState).toEqual([]);
-    expect(scheduler.lockEdgeSnapshotSkip).toHaveBeenCalledTimes(1);
     await waitFor(() =>
       expect(scheduler.scheduleSnapshot).toHaveBeenCalledWith("Node(s) removed", { refresh: true })
     );

@@ -48,8 +48,6 @@ vi.mock("@xyflow/react", () => ({
 
 vi.mock("@/hooks/useSnapshotSchedulerContext", () => ({
   useSnapshotSchedulerContext: () => ({
-    lockEdgeSnapshotSkip: vi.fn(),
-    releaseEdgeSnapshotSkip: vi.fn(),
     scheduleSnapshot: vi.fn(),
     lockNodeRemovalSnapshotSkip: vi.fn(),
     releaseNodeRemovalSnapshotSkip: vi.fn(),

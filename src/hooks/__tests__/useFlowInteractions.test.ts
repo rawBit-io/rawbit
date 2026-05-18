@@ -32,7 +32,6 @@ describe("useFlowInteractions", () => {
     const onNodeDragStop = vi.fn();
     const scheduleSnapshot = vi.fn();
     const markPendingAfterDirtyChange = vi.fn();
-    const releaseEdgeSnapshotSkip = vi.fn();
     const releaseNodeRemovalSnapshotSkip = vi.fn();
     const getTopLeftPosition = vi.fn(() => ({ x: 0, y: 0 }));
     const pasteNodes = vi.fn();
@@ -57,7 +56,6 @@ describe("useFlowInteractions", () => {
       skipNextEdgeSnapshotRef,
       skipNextNodeRemovalRef,
       markPendingAfterDirtyChange,
-      releaseEdgeSnapshotSkip,
       releaseNodeRemovalSnapshotSkip,
       loadingUndoRef,
       isPastingRef,
@@ -250,15 +248,13 @@ describe("useFlowInteractions", () => {
       result.current.onNodesChange([endChange]);
     });
 
-    deps.pendingSnapshotRef.current = true;
-
     const mouseEvent = new MouseEvent("mouseup") as unknown as ReactMouseEvent<Element>;
 
     act(() => {
       result.current.onNodeDragStopWithUndo(mouseEvent, nodesState[0], nodesState);
     });
 
-    expect(deps.markPendingAfterDirtyChange).toHaveBeenCalled();
+    expect(deps.markPendingAfterDirtyChange).not.toHaveBeenCalled();
     expect(deps.incRev).toHaveBeenCalled();
     expect(deps.pushCleanState).toHaveBeenCalledWith(
       nodesState,
@@ -711,11 +707,25 @@ describe("useFlowInteractions", () => {
     expect(nodesState.find((node) => node.id === "target")?.data?.dirty).toBe(true);
     expect(nodesState.find((node) => node.id === "unrelated")?.data?.dirty).toBe(false);
     expect(deps.markPendingAfterDirtyChange).toHaveBeenCalledTimes(1);
+    expect(deps.scheduleSnapshot).not.toHaveBeenCalled();
   });
 
-  it("schedules a snapshot for edge shape replacements", () => {
+  it("marks added edge endpoints dirty and waits for the after-calc snapshot", () => {
     const deps = baseDeps();
-    let nodesState: FlowNode[] = [];
+    let nodesState: FlowNode[] = [
+      {
+        id: "source",
+        type: "calculation",
+        position: { x: 0, y: 0 },
+        data: { dirty: false },
+      } as FlowNode,
+      {
+        id: "target",
+        type: "calculation",
+        position: { x: 200, y: 0 },
+        data: { dirty: false },
+      } as FlowNode,
+    ];
     let edgesState: Edge[] = [];
 
     const getNodes = () => nodesState;
@@ -726,16 +736,14 @@ describe("useFlowInteractions", () => {
     const setEdges = (updater: (edges: Edge[]) => Edge[]) => {
       edgesState = updater(edgesState);
     };
-    const replacement = {
+    const addedEdge = {
       id: "edge-1",
       source: "source",
       target: "target",
-      data: { curveControlPointOffset: { x: 20, y: 20 } },
     } as Edge;
     const change = {
-      id: "edge-1",
-      type: "replace",
-      item: replacement,
+      type: "add",
+      item: addedEdge,
     } as EdgeChange;
 
     const { result } = renderHook(() =>
@@ -773,9 +781,177 @@ describe("useFlowInteractions", () => {
     });
 
     expect(deps.rawOnEdgesChange).toHaveBeenCalledWith([change]);
-    expect(deps.scheduleSnapshot).toHaveBeenCalledWith(
-      "Edge shape changed",
-      expect.objectContaining({ before: expect.any(Function) })
+    expect(nodesState.find((node) => node.id === "source")?.data?.dirty).toBe(true);
+    expect(nodesState.find((node) => node.id === "target")?.data?.dirty).toBe(true);
+    expect(deps.markPendingAfterDirtyChange).toHaveBeenCalledTimes(1);
+    expect(deps.scheduleSnapshot).not.toHaveBeenCalled();
+  });
+
+  it("marks reconnected edge endpoints dirty and waits for the after-calc snapshot", () => {
+    const deps = baseDeps();
+    let nodesState: FlowNode[] = [
+      {
+        id: "source",
+        type: "calculation",
+        position: { x: 0, y: 0 },
+        data: { dirty: false },
+      } as FlowNode,
+      {
+        id: "target",
+        type: "calculation",
+        position: { x: 200, y: 0 },
+        data: { dirty: false },
+      } as FlowNode,
+      {
+        id: "replacement",
+        type: "calculation",
+        position: { x: 400, y: 0 },
+        data: { dirty: false },
+      } as FlowNode,
+      {
+        id: "unrelated",
+        type: "calculation",
+        position: { x: 600, y: 0 },
+        data: { dirty: false },
+      } as FlowNode,
+    ];
+    let edgesState: Edge[] = [
+      {
+        id: "edge-1",
+        source: "source",
+        target: "target",
+        sourceHandle: "out",
+        targetHandle: "old",
+      } as Edge,
+    ];
+
+    const getNodes = () => nodesState;
+    const getEdges = () => edgesState;
+    const setNodes = (updater: (nodes: FlowNode[]) => FlowNode[]) => {
+      nodesState = updater(nodesState);
+    };
+    const setEdges = (updater: (edges: Edge[]) => Edge[]) => {
+      edgesState = updater(edgesState);
+    };
+    const change = {
+      id: "edge-1",
+      type: "replace",
+      item: {
+        id: "edge-1",
+        source: "source",
+        target: "replacement",
+        sourceHandle: "out",
+        targetHandle: "new",
+      } as Edge,
+    } as EdgeChange;
+
+    const { result } = renderHook(() =>
+      useFlowInteractions({
+        ...deps,
+        rawOnNodesChange: deps.rawOnNodesChange,
+        rawOnEdgesChange: deps.rawOnEdgesChange,
+        onConnect: deps.onConnect,
+        onDrop: deps.onDrop,
+        onNodeDragStop: deps.onNodeDragStop,
+        getNodes,
+        getEdges,
+        setNodes,
+        setEdges,
+        getTopLeftPosition: deps.getTopLeftPosition,
+        pasteNodes: deps.pasteNodes,
+        isSidebarOpen: false,
+        setTabTooltip: deps.setTabTooltip,
+        renameTab: deps.renameTab,
+        activeTabId: "tab-1",
+        groupSelectedNodes: deps.groupSelectedNodes,
+        ungroupSelectedNodes: deps.ungroupSelectedNodes,
+        clearHighlights: deps.clearHighlights,
+        setIsSearchHighlight: deps.setIsSearchHighlight,
+        incRev: deps.incRev,
+        pushCleanState: deps.pushCleanState,
+        updatePaletteEligibility: deps.updatePaletteEligibility,
+        skipNextNodeRemovalRef: deps.skipNextNodeRemovalRef,
+        releaseNodeRemovalSnapshotSkip: deps.releaseNodeRemovalSnapshotSkip,
+      })
     );
+
+    act(() => {
+      result.current.onEdgesChange([change]);
+    });
+
+    expect(deps.rawOnEdgesChange).toHaveBeenCalledWith([change]);
+    expect(nodesState.find((node) => node.id === "source")?.data?.dirty).toBe(true);
+    expect(nodesState.find((node) => node.id === "target")?.data?.dirty).toBe(true);
+    expect(nodesState.find((node) => node.id === "replacement")?.data?.dirty).toBe(true);
+    expect(nodesState.find((node) => node.id === "unrelated")?.data?.dirty).toBe(false);
+    expect(deps.markPendingAfterDirtyChange).toHaveBeenCalledTimes(1);
+    expect(deps.scheduleSnapshot).not.toHaveBeenCalled();
+  });
+
+  it("keeps immediate undo snapshots for visual-only edge shape replacements", () => {
+    const deps = baseDeps();
+    let nodesState: FlowNode[] = [];
+    let edgesState: Edge[] = [
+      {
+        id: "edge-1",
+        source: "source",
+        target: "target",
+      } as Edge,
+    ];
+
+    const getNodes = () => nodesState;
+    const getEdges = () => edgesState;
+    const setNodes = (updater: (nodes: FlowNode[]) => FlowNode[]) => {
+      nodesState = updater(nodesState);
+    };
+    const setEdges = (updater: (edges: Edge[]) => Edge[]) => {
+      edgesState = updater(edgesState);
+    };
+    const change = {
+      id: "edge-1",
+      type: "replace",
+      item: {
+        ...edgesState[0],
+        data: { curveControlPointOffset: { x: 20, y: 20 } },
+      } as Edge,
+    } as EdgeChange;
+
+    const { result } = renderHook(() =>
+      useFlowInteractions({
+        ...deps,
+        rawOnNodesChange: deps.rawOnNodesChange,
+        rawOnEdgesChange: deps.rawOnEdgesChange,
+        onConnect: deps.onConnect,
+        onDrop: deps.onDrop,
+        onNodeDragStop: deps.onNodeDragStop,
+        getNodes,
+        getEdges,
+        setNodes,
+        setEdges,
+        getTopLeftPosition: deps.getTopLeftPosition,
+        pasteNodes: deps.pasteNodes,
+        isSidebarOpen: false,
+        setTabTooltip: deps.setTabTooltip,
+        renameTab: deps.renameTab,
+        activeTabId: "tab-1",
+        groupSelectedNodes: deps.groupSelectedNodes,
+        ungroupSelectedNodes: deps.ungroupSelectedNodes,
+        clearHighlights: deps.clearHighlights,
+        setIsSearchHighlight: deps.setIsSearchHighlight,
+        incRev: deps.incRev,
+        pushCleanState: deps.pushCleanState,
+        updatePaletteEligibility: deps.updatePaletteEligibility,
+        skipNextNodeRemovalRef: deps.skipNextNodeRemovalRef,
+        releaseNodeRemovalSnapshotSkip: deps.releaseNodeRemovalSnapshotSkip,
+      })
+    );
+
+    act(() => {
+      result.current.onEdgesChange([change]);
+    });
+
+    expect(deps.rawOnEdgesChange).toHaveBeenCalledWith([change]);
+    expect(deps.markPendingAfterDirtyChange).not.toHaveBeenCalled();
+    expect(deps.scheduleSnapshot).toHaveBeenCalledWith("Edge shape changed");
   });
 });

@@ -1152,7 +1152,6 @@ function FlowContent() {
     skipNextEdgeSnapshotRef,
     skipNextNodeRemovalRef,
     markPendingAfterDirtyChange,
-    releaseEdgeSnapshotSkip,
     releaseNodeRemovalSnapshotSkip,
   } = snapshotScheduler;
 
@@ -1959,7 +1958,6 @@ function FlowContent() {
     skipNextEdgeSnapshotRef,
     skipNextNodeRemovalRef,
     markPendingAfterDirtyChange,
-    releaseEdgeSnapshotSkip,
     releaseNodeRemovalSnapshotSkip,
     loadingUndoRef,
     isPastingRef,

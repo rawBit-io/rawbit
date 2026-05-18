@@ -265,20 +265,6 @@ describe("useSnapshotScheduler", () => {
     expect(result.current.skipNextEdgeSnapshotRef.current).toBe(false);
   });
 
-  it("locks and releases edge snapshot skip", () => {
-    const { result } = renderScheduler();
-
-    act(() => {
-      result.current.lockEdgeSnapshotSkip();
-    });
-    expect(result.current.skipNextEdgeSnapshotRef.current).toBe(true);
-
-    act(() => {
-      result.current.releaseEdgeSnapshotSkip();
-    });
-    expect(result.current.skipNextEdgeSnapshotRef.current).toBe(false);
-  });
-
   it("locks and releases node removal snapshot skip", () => {
     const { result } = renderScheduler();
 

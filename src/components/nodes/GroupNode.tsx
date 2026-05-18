@@ -78,8 +78,7 @@ export default function ShadcnGroupNode({
 }: NodeProps<FlowNode>) {
   const rf = useReactFlow<FlowNode>();
   const { pushState } = useUndoRedo();
-  const { lockEdgeSnapshotSkip, releaseEdgeSnapshotSkip, scheduleSnapshot } =
-    useSnapshotSchedulerContext();
+  const { scheduleSnapshot } = useSnapshotSchedulerContext();
   const { ungroupWithUndo } = useFlowActions();
 
   // menu state
@@ -578,27 +577,20 @@ export default function ShadcnGroupNode({
 
     rf.setNodes((nds) => nds.filter((n) => !toRemove.has(n.id)));
 
-    lockEdgeSnapshotSkip();
-    let removedEdge = false;
     rf.setEdges((eds) => {
-      if (!eds.length) {
-        releaseEdgeSnapshotSkip();
-        return eds;
-      }
+      if (!eds.length) return eds;
+      let removedEdge = false;
       const filtered = eds.filter((edge) => {
         const shouldRemove =
           toRemove.has(edge.source) || toRemove.has(edge.target);
         if (shouldRemove) removedEdge = true;
         return !shouldRemove;
       });
-      if (!removedEdge) {
-        releaseEdgeSnapshotSkip();
-      }
-      return filtered;
+      return removedEdge ? filtered : eds;
     });
 
     scheduleSnapshot("Node(s) removed", { refresh: true });
-  }, [id, lockEdgeSnapshotSkip, releaseEdgeSnapshotSkip, rf, scheduleSnapshot]);
+  }, [id, rf, scheduleSnapshot]);
 
   const ungroupGroup = useCallback(() => {
     setShowMenu(false);

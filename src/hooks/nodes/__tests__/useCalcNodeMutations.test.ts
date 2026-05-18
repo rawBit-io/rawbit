@@ -144,15 +144,11 @@ describe("useCalcNodeMutations", () => {
     expect(edges.map((edge) => edge.id)).toEqual(["e-keep"]);
   });
 
-  it("removes a node and guards undo snapshot hooks", () => {
-    const lockEdgeSnapshotSkip = vi.fn();
-    const releaseEdgeSnapshotSkip = vi.fn();
+  it("removes a node and attached edges with one node-removal snapshot", () => {
     const scheduleSnapshot = vi.fn();
 
     const { result } = renderHook(() =>
       useCalcNodeMutations(nodeId, setNodes, setEdges, {
-        lockEdgeSnapshotSkip,
-        releaseEdgeSnapshotSkip,
         scheduleSnapshot,
       })
     );
@@ -162,34 +158,26 @@ describe("useCalcNodeMutations", () => {
     });
 
     expect(removeScriptSteps).toHaveBeenCalledWith(nodeId);
-    expect(lockEdgeSnapshotSkip).toHaveBeenCalledTimes(1);
     expect(setEdges).toHaveBeenCalledTimes(1);
     expect(edges).toEqual([]);
     expect(setNodes).toHaveBeenCalledTimes(1);
     expect(nodes).toEqual([]);
     expect(scheduleSnapshot).toHaveBeenCalledWith("Node(s) removed", { refresh: true });
-    expect(releaseEdgeSnapshotSkip).not.toHaveBeenCalled();
   });
 
-  it("releases snapshot guard when nothing is removed", () => {
+  it("removes a node when no attached edges exist", () => {
     edges = [];
 
-    const lockEdgeSnapshotSkip = vi.fn();
-    const releaseEdgeSnapshotSkip = vi.fn();
-
     const { result } = renderHook(() =>
-      useCalcNodeMutations(nodeId, setNodes, setEdges, {
-        lockEdgeSnapshotSkip,
-        releaseEdgeSnapshotSkip,
-      })
+      useCalcNodeMutations(nodeId, setNodes, setEdges)
     );
 
     act(() => {
       result.current.deleteNode();
     });
 
-    expect(lockEdgeSnapshotSkip).toHaveBeenCalledTimes(1);
-    expect(releaseEdgeSnapshotSkip).toHaveBeenCalledTimes(1);
+    expect(setEdges).toHaveBeenCalledTimes(1);
+    expect(edges).toEqual([]);
     expect(setNodes).toHaveBeenCalledTimes(1);
     expect(nodes).toEqual([]);
   });

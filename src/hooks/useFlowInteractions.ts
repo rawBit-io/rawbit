@@ -95,7 +95,9 @@ const dirtyNodeIdsFromEdgeChanges = (
   const dirtyIds = new Set<string>();
 
   for (const change of changes) {
-    if (change.type === "remove") {
+    if (change.type === "add") {
+      addEdgeEndpointNodeIds(dirtyIds, change.item);
+    } else if (change.type === "remove") {
       const previous = byId.get(change.id);
       addEdgeEndpointNodeIds(dirtyIds, previous);
     } else if (change.type === "replace") {
@@ -127,7 +129,6 @@ interface UseFlowInteractionsOptions {
   pendingSnapshotRef: React.MutableRefObject<boolean>;
   skipNextEdgeSnapshotRef: React.MutableRefObject<boolean>;
   markPendingAfterDirtyChange: () => void;
-  releaseEdgeSnapshotSkip: () => void;
   skipNextNodeRemovalRef: React.MutableRefObject<boolean>;
   releaseNodeRemovalSnapshotSkip: () => void;
   loadingUndoRef: React.MutableRefObject<boolean>;
@@ -168,7 +169,6 @@ export function useFlowInteractions({
   pendingSnapshotRef,
   skipNextEdgeSnapshotRef,
   markPendingAfterDirtyChange,
-  releaseEdgeSnapshotSkip,
   loadingUndoRef,
   isPastingRef,
   getTopLeftPosition,
@@ -591,7 +591,7 @@ export function useFlowInteractions({
 
       if (finalDrag) {
         if (finalDragMoved) {
-          markPendingAfterDirtyChange();
+          requestAnimationFrame(updatePaletteEligibility);
         } else {
           dragStartPositionsRef.current.clear();
         }
@@ -634,9 +634,6 @@ export function useFlowInteractions({
           )
       );
       if (!filteredChanges.length) return;
-      const selectionOnly = filteredChanges.every(
-        (change) => change.type === "select"
-      );
 
       if (loadingUndoRef.current || isPastingRef.current) {
         rawOnEdgesChange(filteredChanges);
@@ -659,30 +656,14 @@ export function useFlowInteractions({
           )
         );
         markPendingAfterDirtyChange();
+        return;
       }
 
-      const hasAdd = filteredChanges.some((change) => change.type === "add");
-      const hasRemove = filteredChanges.some((change) => change.type === "remove");
-      const hasReplace = filteredChanges.some(
+      const hasShapeReplace = filteredChanges.some(
         (change) => change.type === "replace"
       );
-
-      if (!selectionOnly && (hasAdd || hasRemove || hasReplace)) {
-        const label = hasAdd
-          ? "Edge(s) added"
-          : hasRemove
-            ? "Edge(s) removed"
-            : "Edge shape changed";
-        scheduleSnapshot(label, {
-          before: () => {
-            if (hasRemove && skipNextEdgeSnapshotRef.current) {
-              skipNextEdgeSnapshotRef.current = false;
-              releaseEdgeSnapshotSkip();
-              return true;
-            }
-            return false;
-          },
-        });
+      if (hasShapeReplace) {
+        scheduleSnapshot("Edge shape changed");
       }
     },
     [
@@ -693,8 +674,6 @@ export function useFlowInteractions({
       markPendingAfterDirtyChange,
       rawOnEdgesChange,
       scheduleSnapshot,
-      skipNextEdgeSnapshotRef,
-      releaseEdgeSnapshotSkip,
       setNodes,
     ]
   );

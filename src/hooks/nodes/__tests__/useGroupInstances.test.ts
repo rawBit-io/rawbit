@@ -64,10 +64,7 @@ describe("useGroupInstances", () => {
 
   it("hydrates missing group instance keys on mount", async () => {
     renderHook(() =>
-      useGroupInstances(nodeId, data, setNodes, setEdges, {
-        lockEdgeSnapshotSkip: vi.fn(),
-        releaseEdgeSnapshotSkip: vi.fn(),
-      })
+      useGroupInstances(nodeId, data, setNodes, setEdges)
     );
 
     await waitFor(() => {
@@ -88,10 +85,7 @@ describe("useGroupInstances", () => {
     data = nodes[0].data as NodeData;
 
     const { result } = renderHook(() =>
-      useGroupInstances(nodeId, data, setNodes, setEdges, {
-        lockEdgeSnapshotSkip: vi.fn(),
-        releaseEdgeSnapshotSkip: vi.fn(),
-      })
+      useGroupInstances(nodeId, data, setNodes, setEdges)
     );
 
     act(() => {
@@ -131,22 +125,14 @@ describe("useGroupInstances", () => {
     ];
     data = nodes[0].data as NodeData;
 
-    const lockEdgeSnapshotSkip = vi.fn();
-    const releaseEdgeSnapshotSkip = vi.fn();
-
     const { result } = renderHook(() =>
-      useGroupInstances(nodeId, data, setNodes, setEdges, {
-        lockEdgeSnapshotSkip,
-        releaseEdgeSnapshotSkip,
-      })
+      useGroupInstances(nodeId, data, setNodes, setEdges)
     );
 
     act(() => {
       result.current.handleGroupSize("Outputs", groupDef, false);
     });
 
-    expect(lockEdgeSnapshotSkip).toHaveBeenCalledTimes(1);
-    expect(releaseEdgeSnapshotSkip).not.toHaveBeenCalled();
     expect(edges).toEqual([
       {
         id: "edge-keep",
@@ -169,14 +155,8 @@ describe("useGroupInstances", () => {
     ];
     data = nodes[0].data as NodeData;
 
-    const lockEdgeSnapshotSkip = vi.fn();
-    const releaseEdgeSnapshotSkip = vi.fn();
-
     const { result } = renderHook(() =>
-      useGroupInstances(nodeId, data, setNodes, setEdges, {
-        lockEdgeSnapshotSkip,
-        releaseEdgeSnapshotSkip,
-      })
+      useGroupInstances(nodeId, data, setNodes, setEdges)
     );
 
     const initialCallCount = setNodes.mock.calls.length;
@@ -186,7 +166,5 @@ describe("useGroupInstances", () => {
     });
 
     expect(setNodes.mock.calls.length).toBe(initialCallCount);
-    expect(lockEdgeSnapshotSkip).not.toHaveBeenCalled();
-    expect(releaseEdgeSnapshotSkip).not.toHaveBeenCalled();
   });
 });

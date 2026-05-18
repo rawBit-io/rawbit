@@ -10,11 +10,6 @@ import {
 import { INSTANCE_STRIDE } from "@/lib/utils";
 import type { FlowNode, GroupDefinition, NodeData } from "@/types";
 
-interface SnapshotGuards {
-  lockEdgeSnapshotSkip: () => void;
-  releaseEdgeSnapshotSkip: () => void;
-}
-
 export interface UseGroupInstancesResult {
   handleGroupSize: (title: string, group: GroupDefinition, increment: boolean) => void;
 }
@@ -23,11 +18,8 @@ export function useGroupInstances(
   id: string,
   data: NodeData,
   setNodes: (updater: (nodes: FlowNode[]) => FlowNode[]) => void,
-  setEdges: (updater: (edges: Edge[]) => Edge[]) => void,
-  snapshotGuards: SnapshotGuards
+  setEdges: (updater: (edges: Edge[]) => Edge[]) => void
 ): UseGroupInstancesResult {
-  const { lockEdgeSnapshotSkip, releaseEdgeSnapshotSkip } = snapshotGuards;
-
   useEffect(() => {
     setNodes((nodes) => {
       let mutated = false;
@@ -112,35 +104,28 @@ export function useGroupInstances(
       );
 
       if (!increment && removedOffset !== undefined) {
-        lockEdgeSnapshotSkip();
         const handlesToRemove = new Set(
           group.fields.map((field) => `input-${removedOffset! + field.index}`)
         );
 
         setEdges((edges) => {
           if (!edges.length) return edges;
-          let removedAny = false;
+          let removedEdge = false;
           const filtered = edges.filter((edge) => {
             const shouldRemove =
-              edge.target === id && handlesToRemove.has(edge.targetHandle ?? "");
-            if (shouldRemove) removedAny = true;
+              edge.target === id && handlesToRemove.has(edge.targetHandle ?? "")
+            if (shouldRemove) removedEdge = true;
             return !shouldRemove;
           });
-          if (!removedAny) {
-            releaseEdgeSnapshotSkip();
-            return edges;
-          }
-          return filtered;
+          return removedEdge ? filtered : edges;
         });
       }
     },
     [
       data,
       id,
-      releaseEdgeSnapshotSkip,
       setEdges,
       setNodes,
-      lockEdgeSnapshotSkip,
     ]
   );
 

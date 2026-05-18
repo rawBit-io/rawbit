@@ -79,15 +79,9 @@ function CalculationNode({ id, data, selected }: NodeProps<FlowNode>) {
     id,
     data as NodeData,
     setNodes,
-    setEdges,
-    {
-      lockEdgeSnapshotSkip: snapshotScheduler.lockEdgeSnapshotSkip,
-      releaseEdgeSnapshotSkip: snapshotScheduler.releaseEdgeSnapshotSkip,
-    }
+    setEdges
   );
   const mut = useCalcNodeMutations(id, setNodes, setEdges, {
-    lockEdgeSnapshotSkip: snapshotScheduler.lockEdgeSnapshotSkip,
-    releaseEdgeSnapshotSkip: snapshotScheduler.releaseEdgeSnapshotSkip,
     scheduleSnapshot: snapshotScheduler.scheduleSnapshot,
   });
 

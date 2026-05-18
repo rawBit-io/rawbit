@@ -44,8 +44,6 @@ export function useCalcNodeMutations(
   setNodes: (updater: (nodes: FlowNode[]) => FlowNode[]) => void,
   setEdges: (updater: (edges: Edge[]) => Edge[]) => void,
   snapshotHooks?: {
-    lockEdgeSnapshotSkip?: () => void;
-    releaseEdgeSnapshotSkip?: () => void;
     scheduleSnapshot?: (label: string, options?: SnapshotOptions) => void;
   }
 ): UseCalcNodeMutationsResult {
@@ -341,25 +339,17 @@ export function useCalcNodeMutations(
 
   const deleteNode = useCallback(() => {
     removeScriptSteps(id);
-    const { lockEdgeSnapshotSkip, releaseEdgeSnapshotSkip, scheduleSnapshot } =
-      snapshotHooks ?? {};
+    const { scheduleSnapshot } = snapshotHooks ?? {};
 
-    if (lockEdgeSnapshotSkip) lockEdgeSnapshotSkip();
-    let removedEdge = false;
     setEdges((edges) => {
-      if (!edges.length) {
-        if (releaseEdgeSnapshotSkip) releaseEdgeSnapshotSkip();
-        return edges;
-      }
+      if (!edges.length) return edges;
+      let removedEdge = false;
       const filtered = edges.filter((edge) => {
         const shouldRemove = edge.source === id || edge.target === id;
         if (shouldRemove) removedEdge = true;
         return !shouldRemove;
       });
-      if (!removedEdge && releaseEdgeSnapshotSkip) {
-        releaseEdgeSnapshotSkip();
-      }
-      return filtered;
+      return removedEdge ? filtered : edges;
     });
 
     setNodes((nodes) => nodes.filter((node) => node.id !== id));

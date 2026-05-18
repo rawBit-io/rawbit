@@ -263,8 +263,6 @@ vi.mock("@/hooks/useSnapshotScheduler", () => ({
     skipNextEdgeSnapshotRef: { current: false },
     skipNextNodeRemovalRef: { current: false },
     markPendingAfterDirtyChange: markPendingAfterDirtyChangeMock,
-    releaseEdgeSnapshotSkip: vi.fn(),
-    lockEdgeSnapshotSkip: vi.fn(),
     lockNodeRemovalSnapshotSkip: vi.fn(),
     releaseNodeRemovalSnapshotSkip: vi.fn(),
   }),

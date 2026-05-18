@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 
 import { useSharedFlowLoader } from "@/hooks/useSharedFlowLoader";
+import type { SnapshotOptions } from "@/hooks/useSnapshotScheduler";
 import type { Edge, ReactFlowInstance } from "@xyflow/react";
 import type { FlowData, FlowNode } from "@/types";
 import { MAX_FLOW_BYTES, formatBytes } from "@/lib/flow/schema";
@@ -81,7 +82,7 @@ vi.mock("@/lib/share/scriptStepsCache", async (orig) => {
 
 type InfoDialogState = { open: boolean; message: string } | null;
 
-type ScheduleCall = [string, { refresh?: boolean } | undefined];
+type ScheduleCall = [string, SnapshotOptions | undefined];
 
 interface HarnessSnapshot {
   nodes: FlowNode[];
@@ -206,7 +207,7 @@ function SharedLoaderHarness({
       setInfoDialogSpy.current(state);
     },
     flowInstanceRef,
-    ensureShareImportTab,
+    ensureShareImportTab: ensureImportTab ? ensureShareImportTab : undefined,
   });
 
   useEffect(() => {
@@ -541,7 +542,7 @@ describe("Shared flow loader integration", () => {
     );
   });
 
-  it("creates a share import tab even when the current tab is empty", async () => {
+  it("uses the current tab when importing into an empty graph", async () => {
     const { getHandles } = await renderSharedLoaderHarness({
       replaceGraph: true,
       ensureImportTab: true,
@@ -552,11 +553,11 @@ describe("Shared flow loader integration", () => {
 
     expect(loadSharedMock).toHaveBeenCalledTimes(1);
     expect(handles.setTabTooltip).toHaveBeenCalledWith(
-      "tab-shared-import",
+      "tab-1",
       "Shared: import-me"
     );
     expect(handles.renameTab).toHaveBeenCalledWith(
-      "tab-shared-import",
+      "tab-1",
       "share_import_me",
       { onlyIfEmpty: true }
     );
@@ -625,7 +626,18 @@ describe("Shared flow loader integration", () => {
     await waitFor(() => expect(handles.scheduleSnapshot).toHaveBeenCalled());
 
     const [, options] = handles.scheduleSnapshot.mock.calls.at(-1) ?? [];
-    expect(options).toEqual({ refresh: true });
+    expect(options).toEqual({
+      refresh: true,
+      tabId: "tab-1",
+      state: {
+        nodes: [
+          expect.objectContaining({
+            id: "import-a",
+          }),
+        ],
+        edges: [],
+      },
+    });
   });
 
   it("avoids duplicate imports for the same shared id", async () => {

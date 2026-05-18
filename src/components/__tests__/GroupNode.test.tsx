@@ -16,8 +16,6 @@ vi.mock("@/hooks/nodes/useClipboardLite", () => ({
 }));
 
 const snapshotMock = {
-  lockEdgeSnapshotSkip: vi.fn(),
-  releaseEdgeSnapshotSkip: vi.fn(),
   scheduleSnapshot: vi.fn(),
   lockNodeRemovalSnapshotSkip: vi.fn(),
   releaseNodeRemovalSnapshotSkip: vi.fn(),
@@ -166,8 +164,6 @@ beforeEach(() => {
   flowActionsMock.groupWithUndo.mockClear();
   flowActionsMock.ungroupWithUndo.mockClear();
   pushState.mockClear();
-  snapshotMock.lockEdgeSnapshotSkip.mockClear();
-  snapshotMock.releaseEdgeSnapshotSkip.mockClear();
   snapshotMock.scheduleSnapshot.mockClear();
 
   reactFlowInstance.setNodes.mockImplementation((updater) => {
@@ -686,8 +682,6 @@ describe("GroupNode interactions", () => {
         target: preservedEdge.target,
       }),
     ]);
-    expect(snapshotMock.lockEdgeSnapshotSkip).toHaveBeenCalledTimes(1);
-    expect(snapshotMock.releaseEdgeSnapshotSkip).not.toHaveBeenCalled();
     expect(snapshotMock.scheduleSnapshot).toHaveBeenCalledWith("Node(s) removed", {
       refresh: true,
     });

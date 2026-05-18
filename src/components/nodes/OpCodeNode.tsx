@@ -86,8 +86,7 @@ export default function OpCodeNode({
   selected,
 }: NodeProps<FlowNode>) {
   const { setNodes, setEdges } = useReactFlow<FlowNode>();
-  const { lockEdgeSnapshotSkip, releaseEdgeSnapshotSkip, scheduleSnapshot } =
-    useSnapshotSchedulerContext();
+  const { scheduleSnapshot } = useSnapshotSchedulerContext();
 
   /* ------------ UI state ------------ */
   const [showCode, setShowCode] = useState(false);
@@ -231,22 +230,15 @@ export default function OpCodeNode({
   );
 
   const deleteNode = useCallback(() => {
-    lockEdgeSnapshotSkip();
-    let removedEdge = false;
     setEdges((eds) => {
-      if (!eds.length) {
-        releaseEdgeSnapshotSkip();
-        return eds;
-      }
+      if (!eds.length) return eds;
+      let removedEdge = false;
       const filtered = eds.filter((edge) => {
         const shouldRemove = edge.source === id || edge.target === id;
         if (shouldRemove) removedEdge = true;
         return !shouldRemove;
       });
-      if (!removedEdge) {
-        releaseEdgeSnapshotSkip();
-      }
-      return filtered;
+      return removedEdge ? filtered : eds;
     });
 
     setNodes((nds) => nds.filter((n) => n.id !== id));
@@ -254,8 +246,6 @@ export default function OpCodeNode({
     scheduleSnapshot("Node(s) removed", { refresh: true });
   }, [
     id,
-    lockEdgeSnapshotSkip,
-    releaseEdgeSnapshotSkip,
     scheduleSnapshot,
     setEdges,
     setNodes,

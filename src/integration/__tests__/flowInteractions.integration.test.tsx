@@ -22,7 +22,6 @@ interface FlowInteractionsHarnessHandles {
   flowInteractions: ReturnType<typeof useFlowInteractions>;
   scheduleSnapshot: ReturnType<typeof vi.fn>;
   markPendingAfterDirtyChange: ReturnType<typeof vi.fn>;
-  releaseEdgeSnapshotSkip: ReturnType<typeof vi.fn>;
   updatePaletteEligibility: ReturnType<typeof vi.fn>;
   setTabTooltip: ReturnType<typeof vi.fn>;
   pushCleanState: ReturnType<typeof vi.fn>;
@@ -136,7 +135,6 @@ function FlowInteractionsHarness({
 
   const scheduleSnapshot = useRef(vi.fn());
   const markPendingAfterDirtyChange = useRef(vi.fn());
-  const releaseEdgeSnapshotSkip = useRef(vi.fn());
   const updatePaletteEligibility = useRef(vi.fn());
   const setTabTooltip = useRef(vi.fn());
   const pushCleanState = useRef(vi.fn());
@@ -183,7 +181,6 @@ function FlowInteractionsHarness({
     skipNextEdgeSnapshotRef,
     skipNextNodeRemovalRef,
     markPendingAfterDirtyChange: markPendingAfterDirtyChange.current,
-    releaseEdgeSnapshotSkip: releaseEdgeSnapshotSkip.current,
     releaseNodeRemovalSnapshotSkip: releaseNodeRemovalSnapshotSkip.current,
     loadingUndoRef,
     isPastingRef,
@@ -213,7 +210,6 @@ function FlowInteractionsHarness({
       flowInteractions,
       scheduleSnapshot: scheduleSnapshot.current,
       markPendingAfterDirtyChange: markPendingAfterDirtyChange.current,
-      releaseEdgeSnapshotSkip: releaseEdgeSnapshotSkip.current,
       updatePaletteEligibility: updatePaletteEligibility.current,
       setTabTooltip: setTabTooltip.current,
       pushCleanState: pushCleanState.current,
@@ -303,7 +299,7 @@ describe("Flow interactions integration", () => {
     vi.unstubAllGlobals();
   });
 
-  it("marks pending dirty change when a drag actually moves the node", async () => {
+  it("does not mark a pending calc snapshot when a drag only moves the node", async () => {
     const { getHandles } = await renderFlowInteractionsHarness();
     const handles = getHandles();
 
@@ -333,7 +329,7 @@ describe("Flow interactions integration", () => {
     });
 
     expect(handles.scheduleSnapshot).not.toHaveBeenCalled();
-    expect(handles.markPendingAfterDirtyChange).toHaveBeenCalledTimes(1);
+    expect(handles.markPendingAfterDirtyChange).not.toHaveBeenCalled();
   });
 
   it("schedules refresh snapshots for node removals", async () => {
@@ -408,8 +404,19 @@ describe("Flow interactions integration", () => {
     expect(handles.getNodes()[0]?.selected).toBe(true);
   });
 
-  it("schedules snapshots for edge additions", async () => {
-    const { getHandles } = await renderFlowInteractionsHarness();
+  it("marks edge additions dirty and waits for the after-calc snapshot", async () => {
+    const { getHandles } = await renderFlowInteractionsHarness({
+      initialNodes: [
+        {
+          ...DEFAULT_NODE,
+          id: "a",
+        },
+        {
+          ...DEFAULT_NODE,
+          id: "b",
+        },
+      ],
+    });
     const handles = getHandles();
 
     act(() => {
@@ -421,23 +428,29 @@ describe("Flow interactions integration", () => {
       ]);
     });
 
-    expect(handles.scheduleSnapshot).toHaveBeenCalledWith(
-      "Edge(s) added",
-      expect.objectContaining({ before: expect.any(Function) })
-    );
-
-    const before = handles.scheduleSnapshot.mock.calls.at(-1)?.[1]?.before;
-    expect(before?.()).toBe(false);
+    expect(handles.getNodes().find((node) => node.id === "a")?.data?.dirty).toBe(true);
+    expect(handles.getNodes().find((node) => node.id === "b")?.data?.dirty).toBe(true);
+    expect(handles.markPendingAfterDirtyChange).toHaveBeenCalledTimes(1);
+    expect(handles.scheduleSnapshot).not.toHaveBeenCalled();
   });
 
-  it("releases the skip guard when removing edges after a typed dirty change", async () => {
+  it("marks edge removals dirty and leaves skip guards for after-calc cleanup", async () => {
     const { getHandles } = await renderFlowInteractionsHarness({
+      initialNodes: [
+        {
+          ...DEFAULT_NODE,
+          id: "a",
+        },
+        {
+          ...DEFAULT_NODE,
+          id: "b",
+        },
+      ],
       initialEdges: [{ id: "edge-1", source: "a", target: "b" } as Edge],
     });
     const handles = getHandles();
 
     handles.skipNextEdgeSnapshotRef.current = true;
-    handles.releaseEdgeSnapshotSkip.mockClear();
 
     act(() => {
       handles.flowInteractions.onEdgesChange([
@@ -445,13 +458,11 @@ describe("Flow interactions integration", () => {
       ]);
     });
 
-    const before = handles.scheduleSnapshot.mock.calls.at(-1)?.[1]?.before;
-    expect(typeof before).toBe("function");
+    expect(handles.getNodes().find((node) => node.id === "a")?.data?.dirty).toBe(true);
+    expect(handles.getNodes().find((node) => node.id === "b")?.data?.dirty).toBe(true);
+    expect(handles.markPendingAfterDirtyChange).toHaveBeenCalledTimes(1);
+    expect(handles.scheduleSnapshot).not.toHaveBeenCalled();
     expect(handles.skipNextEdgeSnapshotRef.current).toBe(true);
-    const guardResult = before?.();
-    expect(guardResult).toBe(true);
-    expect(handles.skipNextEdgeSnapshotRef.current).toBe(false);
-    expect(handles.releaseEdgeSnapshotSkip).toHaveBeenCalledTimes(1);
   });
 
   it("marks connected nodes dirty when connecting with undo", async () => {

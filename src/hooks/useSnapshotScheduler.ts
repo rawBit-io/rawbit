@@ -56,8 +56,6 @@ export interface SnapshotScheduler {
   skipNextNodeRemovalRef: React.MutableRefObject<boolean>;
   markPendingAfterDirtyChange: () => void;
   clearPendingAfterCalc: () => void;
-  lockEdgeSnapshotSkip: () => void;
-  releaseEdgeSnapshotSkip: () => void;
   lockNodeRemovalSnapshotSkip: () => void;
   releaseNodeRemovalSnapshotSkip: () => void;
 }
@@ -75,7 +73,6 @@ export function useSnapshotScheduler({
   const pendingSnapshotRef = useRef(false);
   const skipNextEdgeSnapshotRef = useRef(false);
   const skipNextNodeRemovalRef = useRef(false);
-  const edgeSkipLockedRef = useRef(false);
   const pendingTokenRef = useRef(0);
   const lastSnapshotTokenRef = useRef(0);
   const snapshotFramesRef = useRef<Map<string, number>>(new Map());
@@ -186,16 +183,6 @@ export function useSnapshotScheduler({
     log("snapshots", `[afterCalc] cleared pending snapshot flags`);
   }, []);
 
-  const lockEdgeSnapshotSkip = useCallback(() => {
-    skipNextEdgeSnapshotRef.current = true;
-    edgeSkipLockedRef.current = true;
-  }, []);
-
-  const releaseEdgeSnapshotSkip = useCallback(() => {
-    edgeSkipLockedRef.current = false;
-    skipNextEdgeSnapshotRef.current = false;
-  }, []);
-
   const lockNodeRemovalSnapshotSkip = useCallback(() => {
     skipNextNodeRemovalRef.current = true;
   }, []);
@@ -262,9 +249,7 @@ export function useSnapshotScheduler({
     pushCleanState(state.nodes, state.edges, labelForSnapshot);
     pendingSnapshotRef.current = false;
     lastSnapshotTokenRef.current = token;
-    if (!edgeSkipLockedRef.current) {
-      skipNextEdgeSnapshotRef.current = false;
-    }
+    skipNextEdgeSnapshotRef.current = false;
     log("snapshots", `[afterCalc] pendingSnapshotRef -> false`);
   }, [autoAfterCalc, getSnapshotState, pushCleanState, skipLoadRef, storeApi]);
 
@@ -276,8 +261,6 @@ export function useSnapshotScheduler({
     skipNextNodeRemovalRef,
     markPendingAfterDirtyChange,
     clearPendingAfterCalc,
-    lockEdgeSnapshotSkip,
-    releaseEdgeSnapshotSkip,
     lockNodeRemovalSnapshotSkip,
     releaseNodeRemovalSnapshotSkip,
   };

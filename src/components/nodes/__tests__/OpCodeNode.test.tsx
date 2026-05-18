@@ -117,8 +117,6 @@ describe("OpCodeNode", () => {
       skipNextNodeRemovalRef: { current: false },
       markPendingAfterDirtyChange: vi.fn(),
       clearPendingAfterCalc: vi.fn(),
-      lockEdgeSnapshotSkip: vi.fn(),
-      releaseEdgeSnapshotSkip: vi.fn(),
       lockNodeRemovalSnapshotSkip: vi.fn(),
       releaseNodeRemovalSnapshotSkip: vi.fn(),
     };
@@ -237,8 +235,6 @@ describe("OpCodeNode", () => {
     expect(setEdgesMock).toHaveBeenCalled();
     expect(nodesState).toHaveLength(0);
     expect(edgesState).toEqual([]);
-    expect(scheduler.lockEdgeSnapshotSkip).toHaveBeenCalledTimes(1);
-    expect(scheduler.releaseEdgeSnapshotSkip).not.toHaveBeenCalled();
     expect(scheduler.scheduleSnapshot).toHaveBeenCalledWith(
       "Node(s) removed",
       { refresh: true }
