@@ -157,9 +157,19 @@ describe("useSharedFlowLoader", () => {
 
     expect(loadSharedMock).toHaveBeenCalledWith("test-shared");
     expect(nodesState.some((n) => n.id === "shared")).toBe(true);
-    expect(scheduleSnapshot).toHaveBeenCalledWith("Imported shared flow test-shared", {
-      refresh: true,
-    });
+    expect(scheduleSnapshot).toHaveBeenCalledWith(
+      "Imported shared flow test-shared",
+      {
+        refresh: true,
+        tabId: "tab-1",
+        state: {
+          nodes: expect.arrayContaining([
+            expect.objectContaining({ id: "shared" }),
+          ]),
+          edges: [],
+        },
+      }
+    );
     expect(setTabTooltip).toHaveBeenCalledWith("tab-1", "Shared: test-shared");
     expect(renameTab).not.toHaveBeenCalled();
     expect(fitViewSpy).toHaveBeenCalledWith({
@@ -220,6 +230,19 @@ describe("useSharedFlowLoader", () => {
     expect(setTabTooltip).toHaveBeenCalledWith(
       "tab-shared",
       "Shared: test-shared"
+    );
+    expect(scheduleSnapshot).toHaveBeenCalledWith(
+      "Imported shared flow test-shared",
+      {
+        refresh: true,
+        tabId: "tab-shared",
+        state: {
+          nodes: expect.arrayContaining([
+            expect.objectContaining({ id: "shared" }),
+          ]),
+          edges: [],
+        },
+      }
     );
     expect(renameTab).toHaveBeenCalledWith(
       "tab-shared",

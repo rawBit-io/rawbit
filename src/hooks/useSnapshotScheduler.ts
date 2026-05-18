@@ -36,10 +36,20 @@ interface UseSnapshotSchedulerArgs {
 export interface SnapshotOptions {
   refresh?: boolean;
   before?: () => boolean;
+  tabId?: string;
+  state?: {
+    nodes: FlowNode[];
+    edges: Edge[];
+  };
 }
 
 export interface SnapshotScheduler {
-  pushCleanState: (nodes: FlowNode[], edges: Edge[], label: string) => void;
+  pushCleanState: (
+    nodes: FlowNode[],
+    edges: Edge[],
+    label: string,
+    tabId?: string
+  ) => void;
   scheduleSnapshot: (label: string, options?: SnapshotOptions) => void;
   pendingSnapshotRef: React.MutableRefObject<boolean>;
   skipNextEdgeSnapshotRef: React.MutableRefObject<boolean>;
@@ -68,10 +78,10 @@ export function useSnapshotScheduler({
   const edgeSkipLockedRef = useRef(false);
   const pendingTokenRef = useRef(0);
   const lastSnapshotTokenRef = useRef(0);
-  const snapshotFrameRef = useRef<number | null>(null);
+  const snapshotFramesRef = useRef<Map<string, number>>(new Map());
 
   const pushCleanState = useCallback(
-    (nodes: FlowNode[], edges: Edge[], label: string) => {
+    (nodes: FlowNode[], edges: Edge[], label: string, tabId?: string) => {
       const rev = incrementGraphRev();
       skipLoadRef.current = true;
       const cleanNodes = nodes.map((n) => ({
@@ -85,6 +95,7 @@ export function useSnapshotScheduler({
       const calcState = getCalcSnapshot?.();
       pushState(cleanNodes, edges, {
         label,
+        ...(tabId ? { tabId } : {}),
         calcState: calcState
           ? {
               status: calcState.status,
@@ -98,23 +109,32 @@ export function useSnapshotScheduler({
 
   const scheduleSnapshot = useCallback(
     (label: string, options?: SnapshotOptions) => {
+      const snapshotKey = options?.tabId ?? "__active__";
       log(
         "snapshots",
         `[scheduleSnapshot] request label='${label}' refresh=${Boolean(
           options?.refresh
-        )} hasBefore=${Boolean(options?.before)}`
+        )} hasBefore=${Boolean(options?.before)} key='${snapshotKey}'`
       );
-      if (snapshotFrameRef.current !== null) {
-        const prevFrame = snapshotFrameRef.current;
+      const pendingFrame = snapshotFramesRef.current.get(snapshotKey);
+      if (pendingFrame !== undefined) {
+        const prevFrame = pendingFrame;
         cancelAnimationFrame(prevFrame);
+        snapshotFramesRef.current.delete(snapshotKey);
         log(
           "snapshots",
-          `[scheduleSnapshot] canceled pending frame id=${prevFrame} before queuing '${label}'`
+          `[scheduleSnapshot] canceled pending frame id=${prevFrame} key='${snapshotKey}' before queuing '${label}'`
         );
       }
 
-      const frameId = requestAnimationFrame(() => {
-        snapshotFrameRef.current = null;
+      let frameId = 0;
+      let executedSynchronously = false;
+      const runSnapshot = () => {
+        executedSynchronously = frameId === 0;
+        if (snapshotFramesRef.current.get(snapshotKey) !== frameId) {
+          if (!executedSynchronously) return;
+        }
+        snapshotFramesRef.current.delete(snapshotKey);
         if (options?.before && options.before()) {
           log(
             "snapshots",
@@ -123,21 +143,28 @@ export function useSnapshotScheduler({
           return;
         }
 
-        const state = getSnapshotState?.() ?? storeApi.getState();
+        const state = options?.state ?? getSnapshotState?.() ?? storeApi.getState();
         log(
           "snapshots",
           `[scheduleSnapshot] executing label='${label}' nodes=${state.nodes.length} edges=${state.edges.length}`
         );
         if (options?.refresh && refreshBanner) {
           log("snapshots", `[scheduleSnapshot] refreshing banner for '${label}'`);
-          refreshBanner(state.nodes, undefined, { sticky: false, immediate: true });
+          refreshBanner(state.nodes, options.tabId, {
+            sticky: false,
+            immediate: true,
+          });
         }
-        pushCleanState(state.nodes, state.edges, label);
-      });
-      snapshotFrameRef.current = frameId;
+        pushCleanState(state.nodes, state.edges, label, options?.tabId);
+      };
+
+      frameId = requestAnimationFrame(runSnapshot);
+      if (!executedSynchronously) {
+        snapshotFramesRef.current.set(snapshotKey, frameId);
+      }
       log(
         "snapshots",
-        `[scheduleSnapshot] queued frame id=${frameId} label='${label}'`
+        `[scheduleSnapshot] queued frame id=${frameId} key='${snapshotKey}' label='${label}'`
       );
     },
     [getSnapshotState, pushCleanState, refreshBanner, storeApi]
@@ -178,15 +205,16 @@ export function useSnapshotScheduler({
   }, []);
 
   useEffect(() => {
+    const snapshotFrames = snapshotFramesRef.current;
     return () => {
-      if (snapshotFrameRef.current !== null) {
-        const frameId = snapshotFrameRef.current;
+      for (const [snapshotKey, frameId] of snapshotFrames) {
         cancelAnimationFrame(frameId);
         log(
           "snapshots",
-          `[scheduleSnapshot] cleanup canceled frame id=${frameId}`
+          `[scheduleSnapshot] cleanup canceled frame id=${frameId} key='${snapshotKey}'`
         );
       }
+      snapshotFrames.clear();
     };
   }, []);
 

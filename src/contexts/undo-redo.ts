@@ -20,6 +20,7 @@ export interface GraphSnapshot {
 export type PushStateOptions = {
   label?: string;
   calcState?: SnapshotCalcState;
+  tabId?: string;
 };
 
 export interface UndoRedoContextValue {

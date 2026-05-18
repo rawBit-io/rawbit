@@ -135,54 +135,66 @@ export function UndoRedoProvider({ children }: { children: ReactNode }) {
       typeof labelOrOptions === "string"
         ? { label: labelOrOptions }
         : labelOrOptions ?? {};
-    const label =
-      options.label ?? `Snapshot #${history.length + 1}`;
-    const newSnap: GraphSnapshot = {
-      nodes: clonedNodes,
-      edges: cloneValue(canonical.edges),
-      label,
-      scriptSteps: snapshotScriptSteps(),
-      calcState: cloneCalcState(options.calcState),
-    };
+    const targetTabId = options.tabId ?? activeTabId;
+    const scriptSteps = snapshotScriptSteps();
+    const clonedEdges = cloneValue(canonical.edges);
+    const calcState = cloneCalcState(options.calcState);
 
-    /* -------------------------------------------------------------- *
-     * 1️⃣  Keep only the branch we’re on (discard “future” snapshots) *
-     * -------------------------------------------------------------- */
-    const next = [...history.slice(0, pointer + 1)];
-    const trimmedFuture = Math.max(history.length - (pointer + 1), 0);
+    setTabHistories((prev) => {
+      const current = prev[targetTabId] ?? { history: [], pointer: -1 };
+      const currentHistory = current.history;
+      const currentPointer = current.pointer;
+      const label = options.label ?? `Snapshot #${currentHistory.length + 1}`;
+      const newSnap: GraphSnapshot = {
+        nodes: clonedNodes,
+        edges: clonedEdges,
+        label,
+        scriptSteps,
+        calcState,
+      };
 
-    /* -------------------------------------------------------------- *
-     * 2️⃣  Ring-buffer: if full, drop the oldest                      *
-     *     (pointer can only be at the end after the slice)           *
-     * -------------------------------------------------------------- */
-    let evictedLabel: string | null = null;
-    if (next.length === MAX_HISTORY) {
-      evictedLabel = next[0]?.label ?? null;
-      next.shift();
-    }
+      /* -------------------------------------------------------------- *
+       * 1️⃣  Keep only the branch we’re on (discard “future” snapshots) *
+       * -------------------------------------------------------------- */
+      const next = [...currentHistory.slice(0, currentPointer + 1)];
+      const trimmedFuture = Math.max(
+        currentHistory.length - (currentPointer + 1),
+        0
+      );
 
-    /* -------------------------------------------------------------- *
-     * 3️⃣  Append the fresh snapshot and move pointer to it           *
-     * -------------------------------------------------------------- */
-    next.push(newSnap);
-    const newPointer = next.length - 1;
+      /* -------------------------------------------------------------- *
+       * 2️⃣  Ring-buffer: if full, drop the oldest                      *
+       *     (pointer can only be at the end after the slice)           *
+       * -------------------------------------------------------------- */
+      let evictedLabel: string | null = null;
+      if (next.length === MAX_HISTORY) {
+        evictedLabel = next[0]?.label ?? null;
+        next.shift();
+      }
 
-    const debugParts = [
-      `tab=${activeTabId}`,
-      `label='${newSnap.label}'`,
-      `nodes=${newSnap.nodes.length}`,
-      `edges=${newSnap.edges.length}`,
-      `pointer ${pointer}->${newPointer}`,
-      `size ${history.length}->${next.length}`,
-    ];
-    if (trimmedFuture > 0) debugParts.push(`trimmedFuture=${trimmedFuture}`);
-    if (evictedLabel) debugParts.push(`evicted='${evictedLabel}'`);
-    log("snapshots", `[pushState] ${debugParts.join(" ")}`);
+      /* -------------------------------------------------------------- *
+       * 3️⃣  Append the fresh snapshot and move pointer to it           *
+       * -------------------------------------------------------------- */
+      next.push(newSnap);
+      const newPointer = next.length - 1;
 
-    setTabHistories((prev) => ({
-      ...prev,
-      [activeTabId]: { history: next, pointer: newPointer },
-    }));
+      const debugParts = [
+        `tab=${targetTabId}`,
+        `label='${newSnap.label}'`,
+        `nodes=${newSnap.nodes.length}`,
+        `edges=${newSnap.edges.length}`,
+        `pointer ${currentPointer}->${newPointer}`,
+        `size ${currentHistory.length}->${next.length}`,
+      ];
+      if (trimmedFuture > 0) debugParts.push(`trimmedFuture=${trimmedFuture}`);
+      if (evictedLabel) debugParts.push(`evicted='${evictedLabel}'`);
+      log("snapshots", `[pushState] ${debugParts.join(" ")}`);
+
+      return {
+        ...prev,
+        [targetTabId]: { history: next, pointer: newPointer },
+      };
+    });
   };
 
   /* ───────── undo / redo ───────── */

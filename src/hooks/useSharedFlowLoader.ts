@@ -19,6 +19,7 @@ import {
   formatBytes,
   measureFlowBytes,
 } from "@/lib/flow/schema";
+import type { SnapshotOptions } from "@/hooks/useSnapshotScheduler";
 import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
 import {
   isFlowFileCandidate,
@@ -107,7 +108,7 @@ interface UseSharedFlowLoaderOptions {
   }) => void;
   onNodesChange: (changes: NodeChange<FlowNode>[]) => void;
   onEdgesChange: (changes: EdgeChange[]) => void;
-  scheduleSnapshot: (label: string, options?: { refresh?: boolean }) => void;
+  scheduleSnapshot: (label: string, options?: SnapshotOptions) => void;
   setTabTooltip: (tabId: string, tooltip: string) => void;
   renameTab: (
     tabId: string,
@@ -397,6 +398,11 @@ export function useSharedFlowLoader({
 
         options.scheduleSnapshot(`Imported shared flow ${sharedId}`, {
           refresh: true,
+          tabId: targetTabId,
+          state: {
+            nodes: nextNodes,
+            edges: nextEdges,
+          },
         });
 
         if (cancelled) return;

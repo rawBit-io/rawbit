@@ -124,6 +124,37 @@ describe("UndoRedoProvider", () => {
     expect(restoreScriptSteps).not.toHaveBeenCalled();
   });
 
+  it("can push a snapshot into a non-active tab history", async () => {
+    const { result } = renderHook(() => useUndoRedo(), { wrapper });
+
+    await act(async () => {
+      result.current.initializeTabHistory("tab-2", [], edges);
+    });
+    await act(async () => {
+      result.current.setActiveTab("tab-1");
+    });
+    await act(async () => {
+      result.current.pushState([makeNode("shared")], edges, {
+        label: "Imported shared flow abc",
+        tabId: "tab-2",
+      });
+    });
+
+    expect(result.current.history).toEqual([]);
+
+    await act(async () => {
+      result.current.setActiveTab("tab-2");
+    });
+
+    expect(result.current.history.map((snapshot) => snapshot.label)).toEqual([
+      "Initial snapshot",
+      "Imported shared flow abc",
+    ]);
+    expect(result.current.history.at(-1)?.nodes.map((node) => node.id)).toEqual([
+      "shared",
+    ]);
+  });
+
   it("stores calc state metadata with snapshots", async () => {
     const { result } = renderHook(() => useUndoRedo(), { wrapper });
 
