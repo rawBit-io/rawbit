@@ -30,6 +30,18 @@ const fpsForCount = (count: number) => {
 const nowMs = () =>
   typeof performance !== "undefined" ? performance.now() : Date.now();
 
+const isSafariBrowser = (): boolean => {
+  if (typeof navigator === "undefined") return false;
+
+  const ua = navigator.userAgent;
+  return (
+    /\bVersion\//i.test(ua) &&
+    /\bSafari\//i.test(ua) &&
+    !/\b(Chrome|Chromium|CriOS|FxiOS|Edg|EdgiOS|OPR|OPiOS)\//i.test(ua) &&
+    !/\bAndroid\b/i.test(ua)
+  );
+};
+
 interface DragStartInfo {
   x: number;
   y: number;
@@ -198,6 +210,7 @@ export function useFlowInteractions({
   );
   const nextFlushAtRef = useRef(0);
   const largeDragActiveRef = useRef(false);
+  const activeNodeDragIdsRef = useRef<Set<string>>(new Set());
   const dragStartPositionsRef = useRef<Map<string, DragStartInfo>>(new Map());
 
   const scheduleDoubleRAF = useCallback((cb: () => void) => {
@@ -297,6 +310,15 @@ export function useFlowInteractions({
     largeDragActiveRef.current = true;
     if (typeof document !== "undefined") {
       document.body.dataset.largeDrag = "true";
+    }
+  }, []);
+
+  const setSafariNodeDragMode = useCallback((active: boolean) => {
+    if (typeof document === "undefined") return;
+    if (active && isSafariBrowser()) {
+      document.body.dataset.safariNodeDrag = "true";
+    } else {
+      delete document.body.dataset.safariNodeDrag;
     }
   }, []);
 
@@ -405,21 +427,27 @@ export function useFlowInteractions({
   );
 
   useEffect(() => {
+    const activeNodeDragIds = activeNodeDragIdsRef.current;
+
     return () => {
       exitLargeDragMode(false, false);
+      activeNodeDragIds.clear();
+      setSafariNodeDragMode(false);
       cancelNonPosRef.current?.();
       cancelNonPosRef.current = null;
       coalescedPosRef.current = new Map();
       pendingNonPosRef.current = null;
       isFlushingRef.current = false;
     };
-  }, [exitLargeDragMode]);
+  }, [exitLargeDragMode, setSafariNodeDragMode]);
 
   // Safari can leave the page in a stuck pointer/drag state after sleep.
   // When the tab regains focus/visibility, force-reset any throttled state.
   useEffect(() => {
     const resetInteractions = () => {
       exitLargeDragMode(true);
+      activeNodeDragIdsRef.current.clear();
+      setSafariNodeDragMode(false);
       cancelNonPosRef.current?.();
       cancelNonPosRef.current = null;
       coalescedPosRef.current = new Map();
@@ -440,7 +468,7 @@ export function useFlowInteractions({
       window.removeEventListener("focus", resetInteractions);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, [exitLargeDragMode]);
+  }, [exitLargeDragMode, setSafariNodeDragMode]);
 
   const onNodesChange = useCallback(
     (changes: NodeChange<FlowNode>[]) => {
@@ -454,6 +482,9 @@ export function useFlowInteractions({
         if (change.type !== "position" || !("dragging" in change)) return;
 
         if (change.dragging) {
+          activeNodeDragIdsRef.current.add(change.id);
+          setSafariNodeDragMode(true);
+
           if (!dragStartPositionsRef.current.has(change.id)) {
             const original = beforeNodes.find((node) => node.id === change.id);
             if (original) {
@@ -466,6 +497,10 @@ export function useFlowInteractions({
           }
         } else {
           sawFinalDrag = true;
+          activeNodeDragIdsRef.current.delete(change.id);
+          if (!activeNodeDragIdsRef.current.size) {
+            setSafariNodeDragMode(false);
+          }
         }
       });
 
@@ -620,6 +655,7 @@ export function useFlowInteractions({
       skipNextNodeRemovalRef,
       exitLargeDragMode,
       removeEdgesForRemovedNodes,
+      setSafariNodeDragMode,
     ]
   );
 
@@ -828,6 +864,8 @@ export function useFlowInteractions({
       const beforeNodes = getNodes();
       onNodeDragStop(event, node, nodesArg ?? beforeNodes);
       exitLargeDragMode(true);
+      activeNodeDragIdsRef.current.clear();
+      setSafariNodeDragMode(false);
 
       if (loadingUndoRef.current) {
         dragStartPositionsRef.current.clear();
@@ -884,7 +922,7 @@ export function useFlowInteractions({
       onNodeDragStop,
       pendingSnapshotRef,
       pushCleanState,
-      dragStartPositionsRef,
+      setSafariNodeDragMode,
     ]
   );
 

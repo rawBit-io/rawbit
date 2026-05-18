@@ -820,6 +820,26 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
   stroke-width: var(--edge-dark-dashed-selected-stroke-width, 2.1px) !important;
 }
 
+/* Safari repaints dashed SVG paths slowly during drags; simplify them only while nodes move. */
+body[data-safari-node-drag="true"] .react-flow__edge.group-bundle-segment-edge,
+body[data-safari-node-drag="true"]
+  .react-flow__edge.group-bundle-segment-edge
+  .react-flow__edge-path {
+  shape-rendering: optimizeSpeed;
+}
+
+body[data-safari-node-drag="true"]
+  .react-flow__edge.group-bundle-segment-edge
+  .react-flow__edge-path {
+  stroke-dasharray: none !important;
+}
+
+body[data-safari-node-drag="true"]
+  .react-flow__edge.group-bundle-segment-edge
+  .react-flow__edge-interaction {
+  pointer-events: none !important;
+}
+
 .react-flow__node-groupBundlePort {
   cursor: ns-resize !important;
 }

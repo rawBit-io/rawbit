@@ -14,6 +14,8 @@ describe("useFlowInteractions", () => {
   });
 
   afterEach(() => {
+    delete document.body.dataset.largeDrag;
+    delete document.body.dataset.safariNodeDrag;
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
@@ -166,6 +168,10 @@ describe("useFlowInteractions", () => {
   });
 
   it("records undo snapshot after node drag", () => {
+    vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue(
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15"
+    );
+
     const deps = baseDeps();
     let nodesState: FlowNode[] = [
       {
@@ -232,6 +238,8 @@ describe("useFlowInteractions", () => {
       result.current.onNodesChange([startChange]);
     });
 
+    expect(document.body.dataset.safariNodeDrag).toBe("true");
+
     nodesState = nodesState.map((node) =>
       node.id === "node-a"
         ? { ...node, position: { x: 80, y: 40 } }
@@ -247,6 +255,8 @@ describe("useFlowInteractions", () => {
     act(() => {
       result.current.onNodesChange([endChange]);
     });
+
+    expect(document.body.dataset.safariNodeDrag).toBeUndefined();
 
     const mouseEvent = new MouseEvent("mouseup") as unknown as ReactMouseEvent<Element>;
 
