@@ -172,6 +172,47 @@ describe("ScriptExecutionSteps", () => {
     expect(screen.queryByText(/deprecated/i)).not.toBeInTheDocument();
   });
 
+  it("highlights the top pubkey and signature for OP_CHECKSIGVERIFY with duplicate pubkeys", () => {
+    const pubkey =
+      "027bbae0eec6b6cc26292379c0f8ef6b343fced478735d92da0f2a3a52a93ddc47";
+    const signature =
+      "304402205f938ff2ae3a47116c64adbc306eae6c806df1fc5a5e03be3d63f0123dfa146802207c27b37ecae9d91f24659ba3df2cf41bc78a2fba38738b0f09c44021d6ec608f01";
+
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: true,
+          steps: [
+            {
+              pc: 1,
+              opcode: 173,
+              opcode_name: "OP_CHECKSIGVERIFY",
+              stack_before: [pubkey, signature, pubkey],
+              stack_after: [pubkey],
+              phase: "scriptPubKey",
+            },
+          ],
+        }}
+      />
+    );
+
+    const stackBeforeTitle = screen.getByText("Stack Before (top → first)");
+    const stackBeforeColumn = stackBeforeTitle.parentElement as HTMLElement;
+    const rows = Array.from(
+      stackBeforeColumn.querySelectorAll(".field-surface")
+    );
+
+    expect(rows).toHaveLength(3);
+    expect(rows[0]).toHaveTextContent(pubkey);
+    expect(rows[1]).toHaveTextContent(signature);
+    expect(rows[2]).toHaveTextContent(pubkey);
+    expect(rows[0]).toHaveClass("font-semibold");
+    expect(rows[1]).toHaveClass("font-semibold");
+    expect(rows[2]).not.toHaveClass("font-semibold");
+  });
+
   it("shows a taproot key-path explainer banner", () => {
     render(
       <ScriptExecutionSteps

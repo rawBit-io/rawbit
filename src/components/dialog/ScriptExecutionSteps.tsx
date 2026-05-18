@@ -296,8 +296,19 @@ function consumedFlags(
   after: string[],
   op: string,
 ): boolean[] {
+  switch (op) {
+    case "OP_HASH160":
+    case "OP_DUP":
+      return before.map((_, idx) => idx === 0);
+    case "OP_EQUALVERIFY":
+    case "OP_EQUAL":
+    case "OP_CHECKSIG":
+    case "OP_CHECKSIGVERIFY":
+      return before.map((_, idx) => idx < 2);
+  }
+
   const afterCopy = [...after];
-  return before.map((it, idx) => {
+  return before.map((it) => {
     const pop = () => {
       const i = afterCopy.indexOf(it);
       if (i === -1) return true;
@@ -305,12 +316,6 @@ function consumedFlags(
       return false;
     };
     switch (op) {
-      case "OP_HASH160":
-      case "OP_DUP":
-        return idx === 0;
-      case "OP_EQUALVERIFY":
-      case "OP_EQUAL":
-      case "OP_CHECKSIG":
       case "OP_CHECKMULTISIG":
         return pop();
       default:
