@@ -26,6 +26,21 @@ import {
   isXYPosition,
 } from "@/lib/flow/guards";
 const SHARE_ALT_LINK_ID = "rawbit-share-json-link";
+type LoadedSharedFlow = Awaited<ReturnType<typeof loadShared>>;
+const sharedLoadPromises = new Map<string, Promise<LoadedSharedFlow>>();
+
+function loadSharedOnce(sharedId: string): Promise<LoadedSharedFlow> {
+  const existing = sharedLoadPromises.get(sharedId);
+  if (existing) return existing;
+
+  const promise = loadShared(sharedId).finally(() => {
+    if (sharedLoadPromises.get(sharedId) === promise) {
+      sharedLoadPromises.delete(sharedId);
+    }
+  });
+  sharedLoadPromises.set(sharedId, promise);
+  return promise;
+}
 
 function readSharedIdFromLocation() {
   if (typeof window === "undefined") return null;
@@ -192,7 +207,7 @@ export function useSharedFlowLoader({
 
     (async () => {
       try {
-        const data = await loadShared(sharedId);
+        const data = await loadSharedOnce(sharedId);
         let options = latestOptionsRef.current;
 
         if (cancelled) return;
@@ -277,14 +292,17 @@ export function useSharedFlowLoader({
         const initialEdges = options.getEdges();
         const hadContent = initialNodes.length > 0 || initialEdges.length > 0;
 
-        if (
-          (hadContent || shouldReplaceGraph) &&
-          options.ensureShareImportTab
-        ) {
+        if (hadContent && options.ensureShareImportTab) {
           const ensuredId = await options.ensureShareImportTab();
-          if (ensuredId) {
-            targetTabId = ensuredId;
+          if (!ensuredId) {
+            options.setInfoDialog({
+              open: true,
+              message:
+                "Could not open a new tab for the shared flow. Your current tab was left unchanged.",
+            });
+            return;
           }
+          targetTabId = ensuredId;
           options = latestOptionsRef.current;
         }
 
@@ -393,6 +411,7 @@ export function useSharedFlowLoader({
 
         loadedSharedIdRef.current = sharedId;
         clearSharedIdFromLocation();
+        setSharedId(null);
         setAlternateShareJsonLink();
 
         if (options.fitView) {

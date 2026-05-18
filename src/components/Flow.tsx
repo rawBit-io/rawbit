@@ -1991,6 +1991,8 @@ function FlowContent() {
     openShareDialog();
   }, [openShareDialog]);
 
+  const ensureShareImportTab = useCallback(() => addTab(), [addTab]);
+
   useEffect(() => {
     pasteNodesRef.current = handlePaste;
   }, [handlePaste]);
@@ -2025,6 +2027,7 @@ function FlowContent() {
     activeTabId,
     setInfoDialog,
     flowInstanceRef,
+    ensureShareImportTab,
   });
   useEffect(() => {
     window.addEventListener("mousemove", handleMouseMove);

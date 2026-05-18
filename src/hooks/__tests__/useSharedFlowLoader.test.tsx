@@ -122,19 +122,31 @@ describe("useSharedFlowLoader", () => {
   const getNodes = () => nodesState;
   const getEdges = () => edgesState;
 
-  const renderLoader = () =>
+  const renderLoader = (
+    overrides: {
+      replaceGraph?: (graph: {
+        nodes: FlowNode[];
+        edges: Edge[];
+        tabId?: string;
+      }) => void;
+      ensureShareImportTab?: () => string | null | Promise<string | null>;
+      activeTabId?: string;
+    } = {}
+  ) =>
     renderHook(() =>
       useSharedFlowLoader({
         getNodes,
         getEdges,
         onNodesChange: onNodesChangeMock,
         onEdgesChange: onEdgesChangeMock,
+        replaceGraph: overrides.replaceGraph,
         scheduleSnapshot,
         setTabTooltip,
         renameTab,
-        activeTabId: "tab-1",
+        activeTabId: overrides.activeTabId ?? "tab-1",
         setInfoDialog,
         flowInstanceRef,
+        ensureShareImportTab: overrides.ensureShareImportTab,
       })
     );
 
@@ -183,6 +195,111 @@ describe("useSharedFlowLoader", () => {
     expect(renameTab).toHaveBeenCalledWith("tab-1", "share_test_shared", {
       onlyIfEmpty: true,
     });
+  });
+
+  it("opens a new tab before replacing a non-empty active graph", async () => {
+    const ensureShareImportTab = vi.fn().mockResolvedValue("tab-shared");
+    const replaceGraph = vi.fn(
+      ({ nodes, edges }: { nodes: FlowNode[]; edges: Edge[] }) => {
+        nodesState = nodes;
+        edgesState = edges;
+      }
+    );
+
+    renderLoader({ replaceGraph, ensureShareImportTab });
+
+    await waitFor(() => expect(replaceGraph).toHaveBeenCalled());
+
+    expect(ensureShareImportTab).toHaveBeenCalledTimes(1);
+    expect(replaceGraph).toHaveBeenCalledWith({
+      nodes: expect.arrayContaining([expect.objectContaining({ id: "shared" })]),
+      edges: [],
+      tabId: "tab-shared",
+    });
+    expect(onNodesChangeMock).not.toHaveBeenCalled();
+    expect(setTabTooltip).toHaveBeenCalledWith(
+      "tab-shared",
+      "Shared: test-shared"
+    );
+    expect(renameTab).toHaveBeenCalledWith(
+      "tab-shared",
+      "share_test_shared",
+      { onlyIfEmpty: true }
+    );
+    expect(window.location.search).toBe("");
+  });
+
+  it("uses the current tab for replace imports when the active graph is empty", async () => {
+    nodesState = [];
+    const ensureShareImportTab = vi.fn().mockResolvedValue("tab-shared");
+    const replaceGraph = vi.fn(
+      ({ nodes, edges }: { nodes: FlowNode[]; edges: Edge[] }) => {
+        nodesState = nodes;
+        edgesState = edges;
+      }
+    );
+
+    renderLoader({ replaceGraph, ensureShareImportTab });
+
+    await waitFor(() => expect(replaceGraph).toHaveBeenCalled());
+
+    expect(ensureShareImportTab).not.toHaveBeenCalled();
+    expect(replaceGraph).toHaveBeenCalledWith({
+      nodes: expect.arrayContaining([expect.objectContaining({ id: "shared" })]),
+      edges: [],
+      tabId: "tab-1",
+    });
+  });
+
+  it("leaves the current graph unchanged if a new tab cannot be opened", async () => {
+    const ensureShareImportTab = vi.fn().mockResolvedValue(null);
+    const replaceGraph = vi.fn();
+
+    renderLoader({ replaceGraph, ensureShareImportTab });
+
+    await waitFor(() =>
+      expect(setInfoDialog).toHaveBeenCalledWith({
+        open: true,
+        message:
+          "Could not open a new tab for the shared flow. Your current tab was left unchanged.",
+      })
+    );
+
+    expect(replaceGraph).not.toHaveBeenCalled();
+    expect(nodesState.map((node) => node.id)).toEqual(["existing"]);
+    expect(window.location.search).toBe("?s=test-shared");
+  });
+
+  it("dedupes an in-flight shared load across remounts", async () => {
+    let resolveShared!: (value: FlowData) => void;
+    loadSharedMock.mockReset();
+    loadSharedMock.mockReturnValue(
+      new Promise<FlowData>((resolve) => {
+        resolveShared = resolve;
+      })
+    );
+
+    const first = renderLoader();
+    first.unmount();
+    renderLoader();
+
+    expect(loadSharedMock).toHaveBeenCalledTimes(1);
+
+    resolveShared(
+      buildFlowData({
+        nodes: [
+          buildFlowNode({
+            id: "shared",
+            type: "calculation",
+            position: { x: 10, y: 20 },
+            data: { functionName: "identity" },
+          }),
+        ],
+        edges: [],
+      })
+    );
+
+    await waitFor(() => expect(onNodesChangeMock).toHaveBeenCalledTimes(1));
   });
 
   it("surfaces validation errors", async () => {

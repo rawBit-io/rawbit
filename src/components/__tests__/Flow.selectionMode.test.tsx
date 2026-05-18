@@ -769,7 +769,9 @@ describe("Flow first-run dialog", () => {
       expect(flowCanvasProps.current?.isReadOnly).toBe(true);
     });
 
-    expect(sharedFlowLoaderOptions.current?.ensureShareImportTab).toBeUndefined();
+    expect(sharedFlowLoaderOptions.current?.ensureShareImportTab).toEqual(
+      expect.any(Function)
+    );
 
     act(() => {
       sharedFlowLoaderOptions.current?.replaceGraph?.({
