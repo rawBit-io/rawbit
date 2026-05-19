@@ -706,7 +706,7 @@ describe("Flow first-run dialog", () => {
       // the closing Text Info note lengthen the demo; advance comfortably
       // past the final overlay-clear.
       act(() => {
-        vi.advanceTimersByTime(30_000);
+        vi.advanceTimersByTime(32_000);
       });
 
       const nodesById = new Map(
@@ -728,17 +728,25 @@ describe("Flow first-run dialog", () => {
       expect(txTemplateNode?.position).toEqual({ x: 865, y: 90 });
       expect(textInfoNode?.type).toBe("shadcnTextInfo");
       expect(textInfoNode?.selected).toBeFalsy();
-      expect(textInfoNode?.position).toEqual({ x: 60, y: 470 });
+      expect(textInfoNode?.position).toEqual({ x: 60, y: 430 });
       const textInfoData = textInfoNode?.data as Record<string, unknown>;
       expect(textInfoData.title).toBe("Welcome to rawBit");
+      expect(textInfoData.width).toBe(720);
+      expect(textInfoData.height).toBe(620);
       expect(textInfoData.content).toBe(
         [
+          "# Welcome to rawBit",
+          "",
           "**Build raw Bitcoin transactions visually** — drag predefined nodes onto the canvas and wire them together.",
           "",
           "- **Live results** as you edit keys, scripts & amounts",
           "- **Inspect the exact code** behind every node",
           "- **Step through Script** opcode by opcode",
           "- **16 example flows**: P2PKH → SegWit → Taproot",
+          "",
+          "",
+          "rawBit is completely open source:",
+          "",
           "",
           "[github.com/rawBit-io/rawbit](https://github.com/rawBit-io/rawbit)",
         ].join("\n")
@@ -776,9 +784,15 @@ describe("Flow first-run dialog", () => {
         }),
       ]);
       expect(setViewportMock).toHaveBeenCalledWith(
-        { x: 0, y: 0, zoom: 1 },
+        { x: 0, y: 0, zoom: 0.8 },
         { duration: 0 }
       );
+      expect(fitViewMock).toHaveBeenCalledWith({
+        padding: 0.16,
+        minZoom: 0.3,
+        maxZoom: 0.8,
+        duration: 450,
+      });
       expect(screen.queryByTestId("auto-demo-overlay")).not.toBeInTheDocument();
     } finally {
       vi.useRealTimers();

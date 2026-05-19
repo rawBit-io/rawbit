@@ -226,7 +226,8 @@ const AUTO_DEMO_INPUT_LABEL = "Input";
 const AUTO_DEMO_INPUT_TITLE = "Input Count";
 const AUTO_DEMO_TX_TEMPLATE_LABEL = "TX Template legacy";
 const AUTO_DEMO_VARINT_LABEL = "Int → VarInt";
-const AUTO_DEMO_VIEWPORT = { x: 0, y: 0, zoom: 1 };
+const AUTO_DEMO_VIEWPORT = { x: 0, y: 0, zoom: 0.8 };
+const AUTO_DEMO_FIT_VIEW_DURATION = 450;
 const AUTO_DEMO_INPUT_POSITION = { x: 80, y: 130 };
 const AUTO_DEMO_VARINT_POSITION = { x: 470, y: 225 };
 const AUTO_DEMO_TX_TEMPLATE_POSITION = { x: 865, y: 90 };
@@ -235,15 +236,22 @@ const AUTO_DEMO_INPUT_NODE_ID = "node_auto_demo_input_count";
 const AUTO_DEMO_VARINT_NODE_ID = "node_auto_demo_input_count_varint";
 const AUTO_DEMO_TX_TEMPLATE_NODE_ID = "node_auto_demo_tx_template_legacy";
 const AUTO_DEMO_TEXT_INFO_NODE_ID = "node_auto_demo_text_info";
-const AUTO_DEMO_TEXT_INFO_POSITION = { x: 60, y: 470 };
+const AUTO_DEMO_TEXT_INFO_POSITION = { x: 60, y: 430 };
+const AUTO_DEMO_TEXT_INFO_SIZE = { width: 720, height: 620 };
 const AUTO_DEMO_TEXT_INFO_TITLE = "Welcome to rawBit";
 const AUTO_DEMO_TEXT_INFO_CONTENT = [
+  "# Welcome to rawBit",
+  "",
   "**Build raw Bitcoin transactions visually** — drag predefined nodes onto the canvas and wire them together.",
   "",
   "- **Live results** as you edit keys, scripts & amounts",
   "- **Inspect the exact code** behind every node",
   "- **Step through Script** opcode by opcode",
   "- **16 example flows**: P2PKH → SegWit → Taproot",
+  "",
+  "",
+  "rawBit is completely open source:",
+  "",
   "",
   "[github.com/rawBit-io/rawbit](https://github.com/rawBit-io/rawbit)",
 ].join("\n");
@@ -1642,7 +1650,13 @@ function FlowContent() {
     renameTab(tabId, "Auto Demo");
     setTabTooltip(tabId, "Auto demo");
 
-    flowInstanceRef.current?.setViewport(AUTO_DEMO_VIEWPORT, { duration: 0 });
+    const applyAutoDemoViewport = () => {
+      flowInstanceRef.current?.setViewport(AUTO_DEMO_VIEWPORT, { duration: 0 });
+    };
+    applyAutoDemoViewport();
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(applyAutoDemoViewport);
+    });
 
     // Resting position (off-screen-ish, lower right) for the cursor to fly
     // in from. Using fixed-coord screen positions everywhere.
@@ -1868,6 +1882,19 @@ function FlowContent() {
     setEdges(() => []);
 
     const DROP_DURATION = sp(2250);
+    const fitAutoDemoViewport = () => {
+      const instance = flowInstanceRef.current;
+      if (!instance || typeof instance.fitView !== "function") {
+        applyAutoDemoViewport();
+        return;
+      }
+      instance.fitView({
+        padding: 0.16,
+        minZoom: 0.3,
+        maxZoom: AUTO_DEMO_VIEWPORT.zoom,
+        duration: AUTO_DEMO_FIT_VIEW_DURATION,
+      });
+    };
 
     // 1. TX template — dragged from its (already open) category
     scheduleDropNode(
@@ -1885,9 +1912,12 @@ function FlowContent() {
       })
     );
     const txEnd = DROP_DURATION;
+    const txFitAt = txEnd + sp(300);
+    scheduleAutoDemoStep(txFitAt, fitAutoDemoViewport);
+    const txFitEnd = txFitAt + AUTO_DEMO_FIT_VIEW_DURATION;
 
     // 2. VarInt — lives in a collapsed category, so search for it first
-    const varIntStart = txEnd + sp(450);
+    const varIntStart = txFitEnd + sp(300);
     const varIntDuration = scheduleSearchDropNode(
       varIntStart,
       AUTO_DEMO_VARINT_NODE_ID,
@@ -2191,8 +2221,8 @@ function FlowContent() {
         content: "",
         title: AUTO_DEMO_TEXT_INFO_TITLE,
         fontSize: 28,
-        width: 720,
-        height: 522,
+        width: AUTO_DEMO_TEXT_INFO_SIZE.width,
+        height: AUTO_DEMO_TEXT_INFO_SIZE.height,
       })
     );
     const textInfoEnd = textInfoStart + DROP_DURATION;
