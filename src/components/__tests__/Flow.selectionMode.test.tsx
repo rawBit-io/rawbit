@@ -103,28 +103,17 @@ vi.mock("@/components/layout/TopBar", () => ({
   TopBar: ({
     onToggleSidebar,
     onToggleInfoNodes,
-    onAutoDemoClick,
     showInfoNodes,
     hasInfoNodes,
-    autoDemoDisabled,
   }: {
     onToggleSidebar?: () => void;
     onToggleInfoNodes?: () => void;
-    onAutoDemoClick?: () => void;
     showInfoNodes?: boolean;
     hasInfoNodes?: boolean;
-    autoDemoDisabled?: boolean;
   }) => (
     <>
       <button data-testid="topbar" onClick={onToggleSidebar}>
         topbar
-      </button>
-      <button
-        data-testid="auto-demo-button"
-        disabled={autoDemoDisabled}
-        onClick={onAutoDemoClick}
-      >
-        auto demo
       </button>
       <button
         data-testid="toggle-info-nodes"
@@ -676,7 +665,7 @@ describe("Flow first-run dialog", () => {
       localStorage.clear();
       renderFlow();
 
-      expect(screen.getByTestId("auto-demo-overlay")).toBeInTheDocument();
+      expect(screen.getByTestId("intro-drop-overlay")).toBeInTheDocument();
 
       act(() => {
         vi.advanceTimersByTime(1300);
@@ -703,144 +692,23 @@ describe("Flow first-run dialog", () => {
         { x: 112, y: 88, zoom: 0.27 },
         { duration: 0 }
       );
-      expect(screen.queryByTestId("auto-demo-overlay")).not.toBeInTheDocument();
-    } finally {
-      vi.useRealTimers();
-    }
-  });
+      expect(screen.getByTestId("intro-drop-overlay")).toBeInTheDocument();
+      expect(screen.getByText("rawBit demo")).toBeInTheDocument();
+      const videoFrame = screen.getByTitle("rawBit demo");
+      expect(videoFrame).toHaveAttribute(
+        "src",
+        "https://www.youtube-nocookie.com/embed/n4YHoKj4Ics?rel=0"
+      );
 
-  it("runs the auto demo by dropping, typing, and connecting the starter nodes", async () => {
-    vi.useFakeTimers();
-
-    try {
-      localStorage.setItem(FIRST_RUN_STORAGE_KEY, "1");
-      renderFlow();
-
+      const closeButton = document.querySelector<HTMLButtonElement>(
+        'button[aria-label="Close rawBit demo"]'
+      );
+      expect(closeButton).not.toBeNull();
       act(() => {
-        screen.getByTestId("auto-demo-button").click();
+        closeButton?.click();
       });
 
-      expect(screen.getByTestId("auto-demo-overlay")).toBeInTheDocument();
-
-      // Part 1 drops the starter nodes, connects them, and writes the welcome
-      // note before Part 2 replaces the tab with the guided Intro P2PKH tour.
-      act(() => {
-        vi.advanceTimersByTime(20_250);
-      });
-
-      const nodesById = new Map(
-        flowNodesState.current.map((node) => [node.id, node])
-      );
-      const inputNode = nodesById.get("node_auto_demo_input_count");
-      const varIntNode = nodesById.get("node_auto_demo_input_count_varint");
-      const txTemplateNode = nodesById.get(
-        "node_auto_demo_tx_template_legacy"
-      );
-      const textInfoNode = nodesById.get("node_auto_demo_text_info");
-
-      expect(inputNode).toBeDefined();
-      expect(varIntNode).toBeDefined();
-      expect(txTemplateNode).toBeDefined();
-      expect(textInfoNode).toBeDefined();
-      expect(inputNode?.position).toEqual({ x: 80, y: 130 });
-      expect(varIntNode?.position).toEqual({ x: 470, y: 225 });
-      expect(txTemplateNode?.position).toEqual({ x: 865, y: 90 });
-      expect(textInfoNode?.type).toBe("shadcnTextInfo");
-      expect(textInfoNode?.selected).toBe(true);
-      expect(textInfoNode?.position).toEqual({ x: 60, y: 430 });
-      const textInfoData = textInfoNode?.data as Record<string, unknown>;
-      expect(textInfoData.title).toBe("Welcome to rawBit");
-      expect(textInfoData.width).toBe(720);
-      expect(textInfoData.height).toBe(620);
-      expect(textInfoData.content).toBe(
-        [
-          "# Welcome to rawBit",
-          "",
-          "Drag predefined nodes onto the canvas and wire them together to build raw Bitcoin transactions.",
-          "",
-          "- **Build transactions visually**",
-          "- **Step through Bitcoin Script**",
-          "- **Inspect code behind each node**",
-          "- **16 example flows**: P2PKH → SegWit → Taproot",
-          "",
-          "",
-          "rawBit is completely open source:",
-          "",
-          "",
-          "[github.com/rawBit-io/rawbit](https://github.com/rawBit-io/rawbit)",
-        ].join("\n")
-      );
-
-      const inputData = inputNode?.data as Record<string, unknown>;
-      const varIntData = varIntNode?.data as Record<string, unknown>;
-      const txTemplateData = txTemplateNode?.data as Record<string, unknown>;
-      expect(inputData.value).toBe("1");
-      expect(inputData.result).toBe("1");
-      expect(inputData.title).toBe("Input Count");
-      expect(varIntData.result).toBe("01");
-      expect(txTemplateData.result).toBe("01");
-      expect(
-        (
-          (txTemplateData.inputs as Record<string, unknown>).vals as Record<
-            number,
-            string
-          >
-        )[10]
-      ).toBe("01");
-
-      expect(flowEdgesState.current).toEqual([
-        expect.objectContaining({
-          id: "edge_auto_demo_input_to_varint",
-          source: "node_auto_demo_input_count",
-          target: "node_auto_demo_input_count_varint",
-          targetHandle: "input-0",
-        }),
-        expect.objectContaining({
-          id: "edge_auto_demo_varint_to_tx_input_count",
-          source: "node_auto_demo_input_count_varint",
-          target: "node_auto_demo_tx_template_legacy",
-          targetHandle: "input-10",
-        }),
-      ]);
-      expect(setViewportMock).toHaveBeenCalledWith(
-        { x: 0, y: 0, zoom: 0.8 },
-        { duration: 0 }
-      );
-      expect(fitViewMock).toHaveBeenCalledWith({
-        padding: 0.16,
-        minZoom: 0.3,
-        maxZoom: 0.8,
-        duration: 450,
-      });
-      expect(fitViewMock).toHaveBeenCalledTimes(2);
-
-      act(() => {
-        vi.advanceTimersByTime(80_000);
-      });
-
-      expect(onDropMock).toHaveBeenCalledTimes(1);
-      expect(flowNodesState.current.map((node) => node.id)).toEqual([
-        "node_auto_demo_tx_template_legacy",
-        "node_auto_demo_input_count_varint",
-        "node_auto_demo_input_count",
-        "node_auto_demo_text_info",
-        "overview-node",
-        "calc-node",
-        "group-node",
-      ]);
-      expect(flowEdgesState.current.map((edge) => edge.id)).toEqual([
-        "edge_auto_demo_input_to_varint",
-        "edge_auto_demo_varint_to_tx_input_count",
-        "edge-1",
-      ]);
-      expect(flowNodesState.current.some((node) => node.selected)).toBe(false);
-      expect(flowEdgesState.current.some((edge) => edge.selected)).toBe(false);
-      expect(screen.getByTestId("sidebar")).toHaveTextContent("open");
-      expect(renameTabMock).not.toHaveBeenCalledWith(
-        "tab-2",
-        "Intro P2PKH Tour"
-      );
-      expect(screen.queryByTestId("auto-demo-overlay")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("intro-drop-overlay")).not.toBeInTheDocument();
     } finally {
       vi.useRealTimers();
     }

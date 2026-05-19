@@ -1,7 +1,5 @@
-// src/components/autoDemoCursor.ts
-// Shared geometry for the auto-demo fake cursor. Kept in its own module so
-// both the overlay component and the demo orchestration can use one source
-// of truth without tripping the react-refresh "components only" rule.
+// src/components/introDropCursor.ts
+// Shared geometry for the intro-drop fake cursor.
 
 /**
  * Screen offset of the pointer's sharp tip relative to the cursor wrapper's

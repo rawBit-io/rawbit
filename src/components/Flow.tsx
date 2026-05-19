@@ -33,9 +33,9 @@ import { FlowDialogLayer } from "@/components/FlowDialogLayer";
 import { FlowPanels } from "@/components/FlowPanels";
 import { FirstRunDialog } from "@/components/dialog/FirstRunDialog";
 import {
-  AutoDemoOverlay,
-  type AutoDemoOverlayState,
-} from "@/components/AutoDemoOverlay";
+  IntroDropOverlay,
+  type IntroDropOverlayState,
+} from "@/components/IntroDropOverlay";
 import { Sun, Moon, Github } from "lucide-react";
 
 import { useNodeOperations } from "@/hooks/useNodeOperations";
@@ -81,7 +81,6 @@ import { useFlowInteractions } from "@/hooks/useFlowInteractions";
 import { useSearchHighlights } from "@/hooks/useSearchHighlights";
 import { useSharedFlowLoader } from "@/hooks/useSharedFlowLoader";
 import { useSimplifiedSave } from "@/hooks/useSimplifiedSave";
-import { useAutoDemo } from "@/hooks/useAutoDemo";
 import { shouldBlockMobile } from "@/lib/device";
 import {
   buildGroupBundledElements,
@@ -219,6 +218,9 @@ const INTRO_FLOW_DROP_MS = 2250;
 const INTRO_FLOW_RELEASE_MS = 2850;
 const INTRO_SOURCE_FALLBACK = { x: 76, y: 780 };
 const INTRO_SOURCE_CARD_SIZE = { width: 196, height: 96 };
+const INTRO_VIDEO_TITLE = "rawBit demo";
+const INTRO_VIDEO_EMBED_URL =
+  "https://www.youtube-nocookie.com/embed/n4YHoKj4Ics?rel=0";
 const SHARED_IMPORT_FIT_MIN_ZOOM = 0.2;
 
 function graphIdsMatch(
@@ -423,7 +425,7 @@ function FlowContent() {
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
   const [isIntroDropAnimating, setIsIntroDropAnimating] = useState(false);
   const [introDropState, setIntroDropState] =
-    useState<AutoDemoOverlayState | null>(null);
+    useState<IntroDropOverlayState | null>(null);
 
   const [calcStateByTab, setCalcStateByTab] = useState<
     Record<string, TabCalculationState>
@@ -1437,71 +1439,6 @@ function FlowContent() {
     [loadExampleFlow, markWelcomeComplete, setShowWelcomeDialog]
   );
 
-  const autoDemoIntroFlow =
-    exampleFlowMap.get(INTRO_FLOW_ID) ??
-    (exampleFlowOptions[0]
-      ? exampleFlowMap.get(exampleFlowOptions[0].id)
-      : undefined);
-  const autoDemoIntroFlowId = autoDemoIntroFlow?.id;
-  const autoDemoIntroFlowLabel = autoDemoIntroFlow?.label ?? "Intro P2PKH";
-
-  const dropExampleFlowForAutoDemo = useCallback(
-    (flowId: string, screenPosition: { x: number; y: number }) => {
-      const entry = exampleFlowMap.get(flowId);
-      const wrapper = reactFlowWrapper.current;
-      if (!entry || !wrapper) return false;
-
-      const dragPayload = {
-        functionName: "flow_template",
-        nodeData: {
-          flowData: entry.data,
-          flowLabel: entry.label,
-        },
-      };
-
-      const dataTransfer = {
-        getData: (type: string) =>
-          type === "application/reactflow"
-            ? JSON.stringify(dragPayload)
-            : "",
-      } as DataTransfer;
-
-      onDrop({
-        preventDefault: () => undefined,
-        dataTransfer,
-        clientX: screenPosition.x,
-        clientY: screenPosition.y,
-        currentTarget: wrapper,
-      } as unknown as React.DragEvent<HTMLDivElement>);
-      return true;
-    },
-    [exampleFlowMap, onDrop, reactFlowWrapper]
-  );
-
-  const {
-    autoDemoDisabled,
-    autoDemoDropNodeLabel,
-    autoDemoSidebarSearch,
-    autoDemoState,
-    runAutoDemo,
-  } = useAutoDemo({
-    addTab,
-    renameTab,
-    setTabTooltip,
-    setNodes,
-    setEdges,
-    setIsSidebarOpen,
-    setShowUndoRedoPanel,
-    setShowErrorPanel,
-    setShowSearchPanel,
-    flowInstanceRef,
-    reactFlowWrapper,
-    getNodes,
-    introFlowId: autoDemoIntroFlowId,
-    introFlowLabel: autoDemoIntroFlowLabel,
-    dropExampleFlow: dropExampleFlowForAutoDemo,
-  });
-
   useEffect(() => {
     if (!initialHydrationDone) return;
     if (isMobileReadOnly) return;
@@ -1632,7 +1569,21 @@ function FlowContent() {
 
     scheduleIntroDropStep(INTRO_FLOW_RELEASE_MS, () => {
       setIsIntroDropAnimating(false);
-      setIntroDropState(null);
+      setIntroDropState({
+        cursor: null,
+        ghost: null,
+        caption: {
+          title: "rawBit demo",
+          video: {
+            src: INTRO_VIDEO_EMBED_URL,
+            title: INTRO_VIDEO_TITLE,
+          },
+        },
+        controls: {
+          closeLabel: "Close rawBit demo",
+          onClose: () => setIntroDropState(null),
+        },
+      });
     });
   }, [
     exampleFlowMap,
@@ -2615,8 +2566,6 @@ function FlowContent() {
               onToggleInfoNodes={() => setShowInfoNodes((v) => !v)}
               isSelectionModeActive={isSelectionMode}
               onToggleSelectionMode={() => setIsSelectionLocked((v) => !v)}
-              onAutoDemoClick={runAutoDemo}
-              autoDemoDisabled={isIntroDropAnimating || autoDemoDisabled}
               onShare={handleShareClick}
               shareDisabled={nodes.length === 0}
               tabBarRightInset={rightPanelWidth}
@@ -2629,8 +2578,6 @@ function FlowContent() {
               isOpen={isSidebarOpen}
               onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
               introDropFlowId={isIntroDropAnimating ? INTRO_FLOW_ID : undefined}
-              introDropNodeLabel={autoDemoDropNodeLabel}
-              searchOverride={autoDemoSidebarSearch}
             />
           )}
 
@@ -2755,7 +2702,7 @@ function FlowContent() {
             )}
           </main>
 
-          <AutoDemoOverlay state={autoDemoState ?? introDropState} />
+          <IntroDropOverlay state={introDropState} />
 
           {/* 🎨 ColorPalette - MOVED HERE, outside ReactFlow, with higher z-index */}
           {!isMobileReadOnly && (

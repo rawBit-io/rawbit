@@ -1,20 +1,18 @@
-// src/components/AutoDemoOverlay.tsx
+// src/components/IntroDropOverlay.tsx
 // -----------------------------------------------------------------------------
-// Renders a fake "demo" cursor + a ghost drag card while guided demos play.
+// Renders the first-visit intro flow drop overlay: a fake cursor, a ghost drag
+// card, and an optional video panel after the flow lands on the canvas.
 // Positions are smoothly interpolated by CSS transitions on `transform`, so
 // updating `cursor` / `ghost` to a new screen coordinate looks like a real
 // user moving the mouse.
-//
-// When `connection` is set the overlay also draws a live bezier "wire" that
-// originates at a fixed source-handle point and tracks the cursor frame by
-// frame — replicating the React Flow connection-drag a real user performs.
 // -----------------------------------------------------------------------------
 
 import { useEffect, useRef, useState } from "react";
+import { X } from "lucide-react";
 
-import { CURSOR_TIP_OFFSET } from "@/components/autoDemoCursor";
+import { CURSOR_TIP_OFFSET } from "@/components/introDropCursor";
 
-export interface AutoDemoOverlayState {
+export interface IntroDropOverlayState {
   cursor: { x: number; y: number } | null;
   ghost: {
     x: number;
@@ -30,13 +28,20 @@ export interface AutoDemoOverlayState {
     step?: string;
     title: string;
     body?: string;
+    video?: {
+      src: string;
+      title: string;
+    };
+  } | null;
+  controls?: {
+    closeLabel?: string;
+    onClose?: () => void;
   } | null;
 }
 
 interface Props {
-  state: AutoDemoOverlayState | null;
+  state: IntroDropOverlayState | null;
 }
-
 
 /**
  * Bezier path matching React Flow's left/right handle connection line, so the
@@ -50,15 +55,15 @@ function bezierPath(sx: number, sy: number, tx: number, ty: number) {
   return `M ${sx},${sy} C ${sourceControlX},${sy} ${targetControlX},${ty} ${tx},${ty}`;
 }
 
-export function AutoDemoOverlay({ state }: Props) {
+export function IntroDropOverlay({ state }: Props) {
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const [wirePath, setWirePath] = useState<string | null>(null);
   const [wireEnd, setWireEnd] = useState<{ x: number; y: number } | null>(null);
 
   const connection = state?.connection ?? null;
 
-  // While a connection wire is active, follow the cursor element's *live*
-  // (mid-CSS-transition) position every animation frame and redraw the path.
+  // While a connection wire is active, follow the cursor element's live
+  // CSS-transition position every animation frame and redraw the path.
   useEffect(() => {
     if (!connection) {
       setWirePath(null);
@@ -83,19 +88,20 @@ export function AutoDemoOverlay({ state }: Props) {
   }, [connection]);
 
   if (!state) return null;
-  const { cursor, ghost, pressing, caption } = state;
-  if (!cursor && !ghost && !caption) return null;
+  const { cursor, ghost, pressing, caption, controls } = state;
+  const hasInteractiveContent = Boolean(caption?.video || controls);
+  if (!cursor && !ghost && !caption && !controls) return null;
 
   return (
     <div
       className="pointer-events-none fixed inset-0 z-[120]"
-      aria-hidden="true"
-      data-testid="auto-demo-overlay"
+      aria-hidden={hasInteractiveContent ? undefined : true}
+      data-testid="intro-drop-overlay"
     >
       {connection && wirePath && (
         <svg className="absolute inset-0 h-full w-full overflow-visible">
           <path
-            className="rawbit-auto-demo-wire"
+            className="rawbit-intro-drop-wire"
             d={wirePath}
             fill="none"
             stroke="hsl(var(--primary))"
@@ -123,7 +129,7 @@ export function AutoDemoOverlay({ state }: Props) {
 
       {ghost && (
         <div
-          className="rawbit-auto-demo-ghost absolute left-0 top-0 rounded-md border border-primary/60 bg-card px-3 py-2 text-card-foreground shadow-lg"
+          className="rawbit-intro-drop-ghost absolute left-0 top-0 rounded-md border border-primary/60 bg-card px-3 py-2 text-card-foreground shadow-lg"
           style={{ transform: `translate(${ghost.x}px, ${ghost.y}px)` }}
         >
           <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -143,14 +149,14 @@ export function AutoDemoOverlay({ state }: Props) {
       {cursor && (
         <div
           ref={cursorRef}
-          className="rawbit-auto-demo-cursor absolute left-0 top-0"
+          className="rawbit-intro-drop-cursor absolute left-0 top-0"
           style={{ transform: `translate(${cursor.x}px, ${cursor.y}px)` }}
         >
           <svg
             width="22"
             height="22"
             viewBox="0 0 24 24"
-            className={pressing ? "rawbit-auto-demo-cursor-press" : undefined}
+            className={pressing ? "rawbit-intro-drop-cursor-press" : undefined}
           >
             <path
               d="M4 3 L20 12 L12.8 13.4 L10.4 20.6 Z"
@@ -164,18 +170,42 @@ export function AutoDemoOverlay({ state }: Props) {
       )}
 
       {caption && (
-        <div className="absolute bottom-4 right-4 max-w-[min(40rem,calc(100vw-2rem))] rounded-md border border-primary/35 bg-card/95 px-6 py-5 text-card-foreground shadow-xl backdrop-blur sm:bottom-8 sm:right-8">
-          {caption.step && (
-            <div className="text-sm font-semibold uppercase tracking-normal text-muted-foreground">
-              {caption.step}
-            </div>
+        <div className="pointer-events-auto absolute bottom-4 right-4 w-[min(44rem,calc(100vw-2rem))] overflow-hidden rounded-md border border-border bg-card text-card-foreground shadow-lg sm:bottom-8 sm:right-8">
+          {controls?.onClose && (
+            <button
+              type="button"
+              aria-label={controls.closeLabel ?? "Close"}
+              className="absolute right-2 top-2 z-10 flex h-9 w-9 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-foreground"
+              onClick={controls.onClose}
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+            </button>
           )}
-          <div className="mt-1 text-3xl font-semibold leading-tight text-primary">
-            {caption.title}
+          <div className="px-4 py-3 pr-12">
+            {caption.step && (
+              <div className="text-xs font-semibold uppercase tracking-normal text-muted-foreground">
+                {caption.step}
+              </div>
+            )}
+            <div className="text-lg font-semibold leading-tight text-primary">
+              {caption.title}
+            </div>
+            {caption.body && (
+              <div className="mt-1 whitespace-pre-line text-sm leading-snug text-muted-foreground">
+                {caption.body}
+              </div>
+            )}
           </div>
-          {caption.body && (
-            <div className="mt-3 text-xl leading-snug text-muted-foreground">
-              {caption.body}
+          {caption.video && (
+            <div className="bg-background">
+              <iframe
+                className="aspect-video w-full"
+                src={caption.video.src}
+                title={caption.video.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+              />
             </div>
           )}
         </div>

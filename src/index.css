@@ -1448,18 +1448,18 @@ body[data-large-drag="true"] .rf-node {
   }
 }
 
-/* Auto-demo overlay — smooth cursor + ghost-card movement.
+/* Intro-drop overlay - smooth cursor + ghost-card movement.
    The component updates the `transform: translate(...)` between waypoints;
    the CSS transition does the actual interpolation. */
-.rawbit-auto-demo-cursor {
+.rawbit-intro-drop-cursor {
   transition: transform 430ms cubic-bezier(0.45, 0.05, 0.25, 1);
   will-change: transform;
   filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.35));
 }
-.rawbit-auto-demo-cursor-press {
-  animation: rawbit-auto-demo-press 190ms ease-out;
+.rawbit-intro-drop-cursor-press {
+  animation: rawbit-intro-drop-press 190ms ease-out;
 }
-@keyframes rawbit-auto-demo-press {
+@keyframes rawbit-intro-drop-press {
   0% {
     transform: scale(1);
   }
@@ -1470,19 +1470,19 @@ body[data-large-drag="true"] .rf-node {
     transform: scale(1);
   }
 }
-.rawbit-auto-demo-ghost {
+.rawbit-intro-drop-ghost {
   transition: transform 430ms cubic-bezier(0.45, 0.05, 0.25, 1),
     opacity 130ms ease-out;
   will-change: transform;
   min-width: 11rem;
   opacity: 0.92;
 }
-.rawbit-auto-demo-wire {
+.rawbit-intro-drop-wire {
   stroke-dasharray: 7 4;
-  animation: rawbit-auto-demo-wire-flow 480ms linear infinite;
+  animation: rawbit-intro-drop-wire-flow 480ms linear infinite;
   filter: drop-shadow(0 0 2px hsl(var(--primary) / 0.45));
 }
-@keyframes rawbit-auto-demo-wire-flow {
+@keyframes rawbit-intro-drop-wire-flow {
   to {
     stroke-dashoffset: -22;
   }

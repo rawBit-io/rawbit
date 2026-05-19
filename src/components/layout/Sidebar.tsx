@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import React, { useState, useMemo, useCallback, useRef } from "react";
 import {
   Edit,
   FileCode,
@@ -33,13 +33,6 @@ export interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
   introDropFlowId?: string;
-  introDropNodeLabel?: string;
-  /**
-   * When defined, forces the sidebar search box to this value (used by the
-   * guided auto-demo to "type" a query). `undefined` leaves the search box
-   * fully user-controlled.
-   */
-  searchOverride?: string;
 }
 
 function setSidebarDragPreview(dataTransfer: DataTransfer, sourceEl: Element) {
@@ -254,8 +247,6 @@ function getSidebarRevealId(...parts: string[]) {
 export function Sidebar({
   isOpen,
   introDropFlowId,
-  introDropNodeLabel,
-  searchOverride,
 }: SidebarProps) {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const [openCategories, setOpenCategories] = useState<string[]>([
@@ -439,27 +430,6 @@ export function Sidebar({
 
   const clearSearch = () => setSearchQuery("");
 
-  // Auto-demo drives the search box through this prop so it looks like a
-  // real user typing into it.
-  useEffect(() => {
-    if (searchOverride === undefined) return;
-    setSearchQuery(searchOverride);
-  }, [searchOverride]);
-
-  useEffect(() => {
-    if (!introDropNodeLabel) return;
-    const node = allSidebarNodes.find((item) => item.label === introDropNodeLabel);
-    if (!node) return;
-    const category = categories.find((item) => item.nodeFilter(node));
-    if (!category) return;
-
-    setSearchQuery("");
-    setOpenCategories((prev) =>
-      prev.includes(category.id) ? prev : [...prev, category.id],
-    );
-    revealSidebarSection(getSidebarRevealId("category", category.id));
-  }, [introDropNodeLabel, revealSidebarSection]);
-
   const renderNodeCard = (node: NodeTemplate, className?: string) => (
     <div
       key={`${node.functionName}-${node.label}`}
@@ -469,8 +439,6 @@ export function Sidebar({
       onDragStart={(e) => onDragStart(e, node)}
       className={cn(
         "flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors",
-        introDropNodeLabel === node.label &&
-          "rawbit-intro-source-pulse border-primary/60 bg-primary/5",
         className,
       )}
     >
@@ -491,11 +459,7 @@ export function Sidebar({
       data-node-template-label={node.label}
       draggable
       onDragStart={(e) => onDragStart(e, node)}
-      className={cn(
-        "flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors",
-        introDropNodeLabel === node.label &&
-          "rawbit-intro-source-pulse border-primary/60 bg-primary/5",
-      )}
+      className="flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors"
     >
       <div className="flex flex-col">
         <span className="text-sm font-medium">{node.label}</span>
