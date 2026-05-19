@@ -229,9 +229,23 @@ const AUTO_DEMO_VIEWPORT = { x: 0, y: 0, zoom: 1 };
 const AUTO_DEMO_INPUT_POSITION = { x: 80, y: 130 };
 const AUTO_DEMO_VARINT_POSITION = { x: 470, y: 225 };
 const AUTO_DEMO_TX_TEMPLATE_POSITION = { x: 865, y: 90 };
+const AUTO_DEMO_TEXT_INFO_LABEL = "Text Info Node";
 const AUTO_DEMO_INPUT_NODE_ID = "node_auto_demo_input_count";
 const AUTO_DEMO_VARINT_NODE_ID = "node_auto_demo_input_count_varint";
 const AUTO_DEMO_TX_TEMPLATE_NODE_ID = "node_auto_demo_tx_template_legacy";
+const AUTO_DEMO_TEXT_INFO_NODE_ID = "node_auto_demo_text_info";
+const AUTO_DEMO_TEXT_INFO_POSITION = { x: 60, y: 470 };
+const AUTO_DEMO_TEXT_INFO_TITLE = "Welcome to rawBit";
+const AUTO_DEMO_TEXT_INFO_CONTENT = [
+  "**Build raw Bitcoin transactions visually** — drag predefined nodes onto the canvas and wire them together.",
+  "",
+  "- **Live results** as you edit keys, scripts & amounts",
+  "- **Inspect the exact code** behind every node",
+  "- **Step through Script** opcode by opcode",
+  "- **16 example flows**: P2PKH → SegWit → Taproot",
+  "",
+  "*Run it locally for full privacy — [github.com/rawBit-io/rawbit](https://github.com/rawBit-io/rawbit)*",
+].join("\n");
 const AUTO_DEMO_INPUT_TO_VARINT_EDGE_ID = "edge_auto_demo_input_to_varint";
 const AUTO_DEMO_VARINT_TO_TX_EDGE_ID = "edge_auto_demo_varint_to_tx_input_count";
 
@@ -605,6 +619,13 @@ function FlowContent() {
   const autoDemoVarIntTemplate = useMemo(
     () =>
       allSidebarNodes.find((node) => node.label === AUTO_DEMO_VARINT_LABEL),
+    []
+  );
+  const autoDemoTextInfoTemplate = useMemo(
+    () =>
+      allSidebarNodes.find(
+        (node) => node.label === AUTO_DEMO_TEXT_INFO_LABEL
+      ),
     []
   );
   const exampleFlowOptions = useMemo(
@@ -1601,7 +1622,8 @@ function FlowContent() {
     if (
       !autoDemoInputTemplate ||
       !autoDemoTxTemplate ||
-      !autoDemoVarIntTemplate
+      !autoDemoVarIntTemplate ||
+      !autoDemoTextInfoTemplate
     ) {
       return;
     }
@@ -1632,6 +1654,12 @@ function FlowContent() {
       cursor: { x: startX, y: startY },
       ghost: null,
     });
+
+    // Speed up every motion/gap by 1.5x. `sp()` scales durations; the
+    // character/word typing cadences below are intentionally left unscaled
+    // so the text still "types" at a readable speed.
+    const DEMO_SPEEDUP = 1.5;
+    const sp = (ms: number) => Math.round(ms / DEMO_SPEEDUP);
 
     const flowToScreen = (
       position: { x: number; y: number },
@@ -1690,12 +1718,12 @@ function FlowContent() {
         setAutoDemoDropNodeLabel(label);
       });
 
-      scheduleAutoDemoStep(startAt + 350, () => {
+      scheduleAutoDemoStep(startAt + sp(350), () => {
         const sourceCenter = getRectCursorCenter(getSidebarNodeSourceRect(label));
         setAutoDemoState({ cursor: sourceCenter, ghost: null });
       });
 
-      scheduleAutoDemoStep(startAt + 1050, () => {
+      scheduleAutoDemoStep(startAt + sp(1050), () => {
         const sourceCenter = getRectCursorCenter(getSidebarNodeSourceRect(label));
         setAutoDemoState({
           cursor: sourceCenter,
@@ -1704,7 +1732,7 @@ function FlowContent() {
         });
       });
 
-      scheduleAutoDemoStep(startAt + 1250, () => {
+      scheduleAutoDemoStep(startAt + sp(1250), () => {
         const sourceCenter = getRectCursorCenter(getSidebarNodeSourceRect(label));
         setAutoDemoState({
           cursor: sourceCenter,
@@ -1717,7 +1745,7 @@ function FlowContent() {
         });
       });
 
-      scheduleAutoDemoStep(startAt + 1500, () => {
+      scheduleAutoDemoStep(startAt + sp(1500), () => {
         const targetScreen = flowToScreen(position);
         setAutoDemoState({
           cursor: targetScreen,
@@ -1730,7 +1758,7 @@ function FlowContent() {
         });
       });
 
-      scheduleAutoDemoStep(startAt + 2250, () => {
+      scheduleAutoDemoStep(startAt + sp(2250), () => {
         const targetScreen = flowToScreen(position);
         dropNode(nodeId, template, position, dataOverride);
         setAutoDemoState({
@@ -1765,14 +1793,14 @@ function FlowContent() {
       });
 
       // 2. click into the search field
-      const focusAt = startAt + 750;
+      const focusAt = startAt + sp(750);
       scheduleAutoDemoStep(focusAt, () => {
         const center = getRectCursorCenter(getSidebarSearchInputRect());
         setAutoDemoState({ cursor: center, ghost: null, pressing: true });
       });
 
-      // 3. type the query one character at a time
-      const typeStart = focusAt + 250;
+      // 3. type the query one character at a time (typing speed unscaled)
+      const typeStart = focusAt + sp(250);
       for (let i = 1; i <= query.length; i += 1) {
         const partial = query.slice(0, i);
         scheduleAutoDemoStep(typeStart + i * SEARCH_TYPE_DELAY, () => {
@@ -1784,20 +1812,20 @@ function FlowContent() {
       const typeEnd = typeStart + query.length * SEARCH_TYPE_DELAY;
 
       // 4. results render → cursor moves onto the matched result card
-      const moveToCardAt = typeEnd + 450;
+      const moveToCardAt = typeEnd + sp(450);
       scheduleAutoDemoStep(moveToCardAt, () => {
         const center = getRectCursorCenter(getSidebarNodeSourceRect(label));
         setAutoDemoState({ cursor: center, ghost: null });
       });
 
       // 5. press the result card
-      scheduleAutoDemoStep(moveToCardAt + 700, () => {
+      scheduleAutoDemoStep(moveToCardAt + sp(700), () => {
         const center = getRectCursorCenter(getSidebarNodeSourceRect(label));
         setAutoDemoState({ cursor: center, ghost: null, pressing: true });
       });
 
       // 6. ghost springs out of the card
-      scheduleAutoDemoStep(moveToCardAt + 900, () => {
+      scheduleAutoDemoStep(moveToCardAt + sp(900), () => {
         const center = getRectCursorCenter(getSidebarNodeSourceRect(label));
         setAutoDemoState({
           cursor: center,
@@ -1806,7 +1834,7 @@ function FlowContent() {
       });
 
       // 7. drag the ghost to the canvas drop position
-      scheduleAutoDemoStep(moveToCardAt + 1150, () => {
+      scheduleAutoDemoStep(moveToCardAt + sp(1150), () => {
         const targetScreen = flowToScreen(position);
         setAutoDemoState({
           cursor: targetScreen,
@@ -1820,7 +1848,7 @@ function FlowContent() {
       });
 
       // 8. drop — the real node lands and the search box clears
-      const dropAt = moveToCardAt + 1900;
+      const dropAt = moveToCardAt + sp(1900);
       scheduleAutoDemoStep(dropAt, () => {
         const targetScreen = flowToScreen(position);
         dropNode(nodeId, template, position, dataOverride);
@@ -1838,7 +1866,7 @@ function FlowContent() {
     setNodes(() => []);
     setEdges(() => []);
 
-    const DROP_DURATION = 2250;
+    const DROP_DURATION = sp(2250);
 
     // 1. TX template — dragged from its (already open) category
     scheduleDropNode(
@@ -1858,7 +1886,7 @@ function FlowContent() {
     const txEnd = DROP_DURATION;
 
     // 2. VarInt — lives in a collapsed category, so search for it first
-    const varIntStart = txEnd + 450;
+    const varIntStart = txEnd + sp(450);
     const varIntDuration = scheduleSearchDropNode(
       varIntStart,
       AUTO_DEMO_VARINT_NODE_ID,
@@ -1877,7 +1905,7 @@ function FlowContent() {
     const varIntEnd = varIntStart + varIntDuration;
 
     // 3. Input — dragged from its category
-    const inputStart = varIntEnd + 450;
+    const inputStart = varIntEnd + sp(450);
     scheduleDropNode(
       inputStart,
       AUTO_DEMO_INPUT_NODE_ID,
@@ -1895,7 +1923,7 @@ function FlowContent() {
     );
     const inputEnd = inputStart + DROP_DURATION;
 
-    const fieldMoveAt = inputEnd + 350;
+    const fieldMoveAt = inputEnd + sp(350);
     scheduleAutoDemoStep(fieldMoveAt, () => {
       setAutoDemoState({
         cursor: flowToScreen({
@@ -1906,7 +1934,7 @@ function FlowContent() {
       });
     });
 
-    const typeValueAt = fieldMoveAt + 500;
+    const typeValueAt = fieldMoveAt + sp(500);
     scheduleAutoDemoStep(typeValueAt, () => {
       setNodes((currentNodes) =>
         currentNodes.map((node) => {
@@ -1931,10 +1959,10 @@ function FlowContent() {
     // Connection drag phases (ms). The cursor lands on the *real* rendered
     // handle, presses, and a live bezier wire follows it to the target port
     // before the edge snaps in — exactly the gesture a user performs.
-    const CONN_MOVE = 620;
-    const CONN_GRAB = 300;
-    const CONN_DRAG = 880;
-    const CONN_SETTLE = 260;
+    const CONN_MOVE = sp(620);
+    const CONN_GRAB = sp(300);
+    const CONN_DRAG = sp(880);
+    const CONN_SETTLE = sp(260);
     const CONN_TOTAL = CONN_MOVE + CONN_GRAB + CONN_DRAG + CONN_SETTLE;
 
     const scheduleConnect = (
@@ -1998,7 +2026,7 @@ function FlowContent() {
     };
 
     // Connection 1: Input output → VarInt "input-0"
-    const conn1Start = typeValueAt + 700;
+    const conn1Start = typeValueAt + sp(700);
     scheduleConnect(
       conn1Start,
       AUTO_DEMO_INPUT_NODE_ID,
@@ -2043,7 +2071,7 @@ function FlowContent() {
     );
 
     // Connection 2: VarInt output → TX template "input-10"
-    const conn2Start = conn1Start + CONN_TOTAL + 240;
+    const conn2Start = conn1Start + CONN_TOTAL + sp(240);
     scheduleConnect(
       conn2Start,
       AUTO_DEMO_VARINT_NODE_ID,
@@ -2095,9 +2123,63 @@ function FlowContent() {
       }
     );
 
-    // Final: clear the overlay after the user has had a moment to see the
-    // connected mini-flow.
-    const demoEndsAt = conn2Start + CONN_TOTAL + 1100;
+    const conn2End = conn2Start + CONN_TOTAL;
+
+    // 4. Text Info node — drop a note and "write" what rawBit is for
+    const textInfoStart = conn2End + sp(500);
+    scheduleDropNode(
+      textInfoStart,
+      AUTO_DEMO_TEXT_INFO_NODE_ID,
+      AUTO_DEMO_TEXT_INFO_LABEL,
+      "Canvas & Inputs",
+      autoDemoTextInfoTemplate,
+      AUTO_DEMO_TEXT_INFO_POSITION,
+      (data) => ({
+        ...data,
+        content: "",
+        title: AUTO_DEMO_TEXT_INFO_TITLE,
+        fontSize: 28,
+        width: 720,
+        height: 522,
+      })
+    );
+    const textInfoEnd = textInfoStart + DROP_DURATION;
+
+    // cursor moves into the note, then types the description word by word
+    const noteFocusAt = textInfoEnd + sp(350);
+    scheduleAutoDemoStep(noteFocusAt, () => {
+      setAutoDemoState({
+        cursor: flowToScreen({
+          x: AUTO_DEMO_TEXT_INFO_POSITION.x + 70,
+          y: AUTO_DEMO_TEXT_INFO_POSITION.y + 90,
+        }),
+        ghost: null,
+        pressing: true,
+      });
+    });
+
+    const TYPE_WORD_DELAY = 95;
+    const noteWords = AUTO_DEMO_TEXT_INFO_CONTENT.split(" ");
+    const noteTypeStart = noteFocusAt + sp(400);
+    for (let i = 1; i <= noteWords.length; i += 1) {
+      const partial = noteWords.slice(0, i).join(" ");
+      scheduleAutoDemoStep(noteTypeStart + i * TYPE_WORD_DELAY, () => {
+        setNodes((currentNodes) =>
+          currentNodes.map((node) => {
+            if (node.id !== AUTO_DEMO_TEXT_INFO_NODE_ID) return node;
+            const existing = (node.data ?? {}) as Record<string, unknown>;
+            return {
+              ...node,
+              data: { ...existing, content: partial } as FlowNode["data"],
+            };
+          })
+        );
+      });
+    }
+    const noteTypeEnd = noteTypeStart + noteWords.length * TYPE_WORD_DELAY;
+
+    // Final: clear the overlay after the user has had a moment to read it.
+    const demoEndsAt = noteTypeEnd + sp(1600);
     scheduleAutoDemoStep(demoEndsAt, () => {
       autoDemoRunningRef.current = false;
       setAutoDemoState(null);
@@ -2113,6 +2195,7 @@ function FlowContent() {
     autoDemoInputTemplate,
     autoDemoTxTemplate,
     autoDemoVarIntTemplate,
+    autoDemoTextInfoTemplate,
   ]);
 
   // Cancel any pending auto-demo timers when the component unmounts.

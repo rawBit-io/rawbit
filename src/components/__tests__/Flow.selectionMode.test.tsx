@@ -702,10 +702,11 @@ describe("Flow first-run dialog", () => {
 
       expect(screen.getByTestId("auto-demo-overlay")).toBeInTheDocument();
 
-      // The search-driven VarInt drop + realistic port-to-port wire drag
-      // lengthen the demo; advance comfortably past the final overlay-clear.
+      // The search-driven VarInt drop, realistic port-to-port wire drag, and
+      // the closing Text Info note lengthen the demo; advance comfortably
+      // past the final overlay-clear.
       act(() => {
-        vi.advanceTimersByTime(20_000);
+        vi.advanceTimersByTime(30_000);
       });
 
       const nodesById = new Map(
@@ -716,13 +717,31 @@ describe("Flow first-run dialog", () => {
       const txTemplateNode = nodesById.get(
         "node_auto_demo_tx_template_legacy"
       );
+      const textInfoNode = nodesById.get("node_auto_demo_text_info");
 
       expect(inputNode).toBeDefined();
       expect(varIntNode).toBeDefined();
       expect(txTemplateNode).toBeDefined();
+      expect(textInfoNode).toBeDefined();
       expect(inputNode?.position).toEqual({ x: 80, y: 130 });
       expect(varIntNode?.position).toEqual({ x: 470, y: 225 });
       expect(txTemplateNode?.position).toEqual({ x: 865, y: 90 });
+      expect(textInfoNode?.type).toBe("shadcnTextInfo");
+      expect(textInfoNode?.position).toEqual({ x: 60, y: 470 });
+      const textInfoData = textInfoNode?.data as Record<string, unknown>;
+      expect(textInfoData.title).toBe("Welcome to rawBit");
+      expect(textInfoData.content).toBe(
+        [
+          "**Build raw Bitcoin transactions visually** — drag predefined nodes onto the canvas and wire them together.",
+          "",
+          "- **Live results** as you edit keys, scripts & amounts",
+          "- **Inspect the exact code** behind every node",
+          "- **Step through Script** opcode by opcode",
+          "- **16 example flows**: P2PKH → SegWit → Taproot",
+          "",
+          "*Run it locally for full privacy — [github.com/rawBit-io/rawbit](https://github.com/rawBit-io/rawbit)*",
+        ].join("\n")
+      );
 
       const inputData = inputNode?.data as Record<string, unknown>;
       const varIntData = varIntNode?.data as Record<string, unknown>;
