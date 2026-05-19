@@ -1434,31 +1434,6 @@ body[data-large-drag="true"] .rf-node {
   text-shadow: 0 0 5px hsl(0 88% 56% / 0.26);
 }
 
-@keyframes rawbit-intro-drop-card {
-  0% {
-    opacity: 0;
-    transform: translate(var(--intro-source-x, 76px), var(--intro-source-y, 780px))
-      scale(0.98);
-  }
-  15% {
-    opacity: 1;
-  }
-  68% {
-    opacity: 1;
-    transform: translate(288px, 118px) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(288px, 118px) scale(0.92);
-  }
-}
-
-.rawbit-intro-drop-card {
-  min-width: min(var(--intro-source-width, 196px), 14rem);
-  animation: rawbit-intro-drop-card 1100ms cubic-bezier(0.2, 0.8, 0.2, 1)
-    forwards;
-}
-
 .rawbit-intro-source-pulse {
   animation: rawbit-intro-source-pulse 1100ms ease-out forwards;
 }
@@ -1471,42 +1446,6 @@ body[data-large-drag="true"] .rf-node {
   100% {
     box-shadow: 0 0 0 10px hsl(var(--primary) / 0);
   }
-}
-
-@keyframes rawbit-walkthrough-drop-card {
-  0% {
-    opacity: 0;
-    transform: translate(
-        var(--walkthrough-source-x, 76px),
-        var(--walkthrough-source-y, 240px)
-      )
-      scale(0.98);
-  }
-  12% {
-    opacity: 1;
-  }
-  72% {
-    opacity: 1;
-    transform: translate(
-        var(--walkthrough-target-x, 320px),
-        var(--walkthrough-target-y, 180px)
-      )
-      scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(
-        var(--walkthrough-target-x, 320px),
-        var(--walkthrough-target-y, 180px)
-      )
-      scale(0.92);
-  }
-}
-
-.rawbit-walkthrough-drop-card {
-  min-width: min(var(--walkthrough-source-width, 196px), 14rem);
-  animation: rawbit-walkthrough-drop-card 980ms cubic-bezier(0.2, 0.8, 0.2, 1)
-    forwards;
 }
 
 /* Auto-demo overlay — smooth cursor + ghost-card movement.
@@ -1537,4 +1476,14 @@ body[data-large-drag="true"] .rf-node {
   will-change: transform;
   min-width: 11rem;
   opacity: 0.92;
+}
+.rawbit-auto-demo-wire {
+  stroke-dasharray: 7 4;
+  animation: rawbit-auto-demo-wire-flow 480ms linear infinite;
+  filter: drop-shadow(0 0 2px hsl(var(--primary) / 0.45));
+}
+@keyframes rawbit-auto-demo-wire-flow {
+  to {
+    stroke-dashoffset: -22;
+  }
 }

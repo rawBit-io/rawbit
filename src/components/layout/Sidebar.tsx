@@ -34,6 +34,12 @@ export interface SidebarProps {
   onToggle: () => void;
   introDropFlowId?: string;
   introDropNodeLabel?: string;
+  /**
+   * When defined, forces the sidebar search box to this value (used by the
+   * guided auto-demo to "type" a query). `undefined` leaves the search box
+   * fully user-controlled.
+   */
+  searchOverride?: string;
 }
 
 function setSidebarDragPreview(dataTransfer: DataTransfer, sourceEl: Element) {
@@ -249,6 +255,7 @@ export function Sidebar({
   isOpen,
   introDropFlowId,
   introDropNodeLabel,
+  searchOverride,
 }: SidebarProps) {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const [openCategories, setOpenCategories] = useState<string[]>([
@@ -431,6 +438,13 @@ export function Sidebar({
   };
 
   const clearSearch = () => setSearchQuery("");
+
+  // Auto-demo drives the search box through this prop so it looks like a
+  // real user typing into it.
+  useEffect(() => {
+    if (searchOverride === undefined) return;
+    setSearchQuery(searchOverride);
+  }, [searchOverride]);
 
   useEffect(() => {
     if (!introDropNodeLabel) return;

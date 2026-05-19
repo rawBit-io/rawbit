@@ -32,7 +32,6 @@ import { FlowCanvas } from "@/components/FlowCanvas";
 import { FlowDialogLayer } from "@/components/FlowDialogLayer";
 import { FlowPanels } from "@/components/FlowPanels";
 import { FirstRunDialog } from "@/components/dialog/FirstRunDialog";
-import { Walkthrough } from "@/components/walkthrough/Walkthrough";
 import {
   AutoDemoOverlay,
   type AutoDemoOverlayState,
@@ -47,12 +46,13 @@ import { useGlobalCalculationLogic } from "@/hooks/useCalculation";
 import { UndoRedoProvider } from "@/contexts/UndoRedoContext";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
 
-import { cn } from "@/lib/utils";
+import { cn, setVal } from "@/lib/utils";
 import type {
   CalcError,
   CalcStatus,
   FlowData,
   FlowNode,
+  NodeTemplate,
 } from "@/types";
 import type { FlowValidationIssue } from "@/lib/flow/validate";
 import { isCalculableNode } from "@/lib/flow/nonCalculableNodes";
@@ -208,34 +208,31 @@ const FIRST_RUN_STORAGE_KEY = "rawbit.ui.welcomeSeen";
 const INTRO_FLOW_ID = "flow-0";
 const TOP_LEVEL_FLOW_SECTION = "top-level";
 const INTRO_FLOW_DROP_FLOW_POSITION = { x: 0, y: 0 };
-const INTRO_FLOW_DROP_POINT = { x: 0, y: 0 };
-const INTRO_FLOW_DROP_ZOOM = 0.2;
+const INTRO_FLOW_DROP_POINT = { x: 112, y: 88 };
+const INTRO_FLOW_DROP_ZOOM = 0.27;
 const MOBILE_INTRO_OVERVIEW_POINT = { x: 16, y: 150 };
 const MOBILE_INTRO_OVERVIEW_ZOOM = 0.2;
-const INTRO_FLOW_DROP_ANIMATION_MS = 1100;
+const INTRO_FLOW_SOURCE_MOVE_MS = 350;
+const INTRO_FLOW_SOURCE_PRESS_MS = 1050;
+const INTRO_FLOW_PICKUP_MS = 1250;
+const INTRO_FLOW_DRAG_MS = 1500;
+const INTRO_FLOW_DROP_MS = 2250;
+const INTRO_FLOW_RELEASE_MS = 2850;
 const INTRO_SOURCE_FALLBACK = { x: 76, y: 780 };
 const INTRO_SOURCE_CARD_SIZE = { width: 196, height: 96 };
 const SHARED_IMPORT_FIT_MIN_ZOOM = 0.2;
-const WALKTHROUGH_STORAGE_KEY = "rawbit.ui.walkthroughSeen";
-const WALKTHROUGH_TEMPLATE_LABEL = "TX Template legacy";
-const WALKTHROUGH_INPUT_LABEL = "Input";
-const WALKTHROUGH_TAB_TITLE = "Walkthrough";
-const WALKTHROUGH_INPUT_STEP_INDEX = 1;
-const WALKTHROUGH_TX_TEMPLATE_STEP_INDEX = 2;
-const WALKTHROUGH_FIELDS_STEP_INDEX = 3;
-const WALKTHROUGH_CONNECT_STEP_INDEX = 4;
-const WALKTHROUGH_INPUT_NODE_ID = "node_walkthrough_input_version";
-const WALKTHROUGH_TEMPLATE_NODE_ID = "node_walkthrough_tx_template_legacy";
-const WALKTHROUGH_EDGE_ID = "edge_walkthrough_input_to_tx_version";
-const WALKTHROUGH_INPUT_POSITION = { x: 120, y: 120 };
-const WALKTHROUGH_TEMPLATE_POSITION = { x: 430, y: 110 };
-const WALKTHROUGH_FIELD_VALUES: Record<number, string> = {
-  0: "01000000",
-  10: "01",
-  2000: "01",
-  4000: "00000000",
-};
-const WALKTHROUGH_DROP_ANIMATION_MS = 980;
+const AUTO_DEMO_INPUT_LABEL = "Input";
+const AUTO_DEMO_TX_TEMPLATE_LABEL = "TX Template legacy";
+const AUTO_DEMO_VARINT_LABEL = "Int → VarInt";
+const AUTO_DEMO_VIEWPORT = { x: 0, y: 0, zoom: 1 };
+const AUTO_DEMO_INPUT_POSITION = { x: 80, y: 130 };
+const AUTO_DEMO_VARINT_POSITION = { x: 470, y: 225 };
+const AUTO_DEMO_TX_TEMPLATE_POSITION = { x: 865, y: 90 };
+const AUTO_DEMO_INPUT_NODE_ID = "node_auto_demo_input_count";
+const AUTO_DEMO_VARINT_NODE_ID = "node_auto_demo_input_count_varint";
+const AUTO_DEMO_TX_TEMPLATE_NODE_ID = "node_auto_demo_tx_template_legacy";
+const AUTO_DEMO_INPUT_TO_VARINT_EDGE_ID = "edge_auto_demo_input_to_varint";
+const AUTO_DEMO_VARINT_TO_TX_EDGE_ID = "edge_auto_demo_varint_to_tx_input_count";
 
 function graphIdsMatch(
   currentNodes: FlowNode[],
@@ -443,6 +440,77 @@ function getSidebarNodeSourceRect(label: string): {
   };
 }
 
+function getSidebarSearchInputRect(): {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+} {
+  if (typeof document === "undefined") {
+    return { x: 96, y: 150, width: 220, height: 32 };
+  }
+  const input = document.getElementById("sidebar-search");
+  if (!input) {
+    return { x: 96, y: 150, width: 220, height: 32 };
+  }
+  const rect = input.getBoundingClientRect();
+  return {
+    x: rect.left,
+    y: rect.top,
+    width: rect.width || 220,
+    height: rect.height || 32,
+  };
+}
+
+function getRectCursorCenter(rect: {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}) {
+  return {
+    x: rect.x + rect.width / 2 - 4,
+    y: rect.y + rect.height / 2 - 4,
+  };
+}
+
+/**
+ * Resolves the on-screen centre of an actually-rendered React Flow handle so
+ * the demo cursor can land precisely on the port (instead of a guessed
+ * offset). Returns null when the handle isn't mounted yet.
+ */
+function getHandleScreenPosition(
+  nodeId: string,
+  type: "source" | "target",
+  handleId?: string | null
+): { x: number; y: number } | null {
+  if (typeof document === "undefined") return null;
+  const nodeEl = document.querySelector<HTMLElement>(
+    `.react-flow__node[data-id="${nodeId}"]`
+  );
+  if (!nodeEl) return null;
+
+  let handleEl: HTMLElement | null = null;
+  if (handleId) {
+    handleEl = nodeEl.querySelector<HTMLElement>(
+      `.react-flow__handle[data-handleid="${handleId}"]`
+    );
+  }
+  if (!handleEl) {
+    handleEl = nodeEl.querySelector<HTMLElement>(
+      `.react-flow__handle.${type}`
+    );
+  }
+  if (!handleEl) return null;
+
+  const rect = handleEl.getBoundingClientRect();
+  if (rect.width === 0 && rect.height === 0) return null;
+  return {
+    x: rect.left + rect.width / 2,
+    y: rect.top + rect.height / 2,
+  };
+}
+
 function FlowContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showUndoRedoPanel, setShowUndoRedoPanel] = useState(false);
@@ -452,21 +520,13 @@ function FlowContent() {
   const [showSearchPanel, setShowSearchPanel] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
-  const [showWalkthrough, setShowWalkthrough] = useState(false);
   const [isIntroDropAnimating, setIsIntroDropAnimating] = useState(false);
-  const [introDropSourceRect, setIntroDropSourceRect] = useState(() =>
-    getIntroDropSourceRect()
-  );
-  const [walkthroughDropNodeLabel, setWalkthroughDropNodeLabel] = useState<
+  const [autoDemoDropNodeLabel, setAutoDemoDropNodeLabel] = useState<
     string | undefined
   >();
-  const [walkthroughDropAnimation, setWalkthroughDropAnimation] = useState<{
-    label: string;
-    title: string;
-    detail: string;
-    sourceRect: { x: number; y: number; width: number; height: number };
-    targetRect: { x: number; y: number };
-  } | null>(null);
+  const [autoDemoSidebarSearch, setAutoDemoSidebarSearch] = useState<
+    string | undefined
+  >();
   const [autoDemoState, setAutoDemoState] =
     useState<AutoDemoOverlayState | null>(null);
   const autoDemoTimeoutIdsRef = useRef<number[]>([]);
@@ -494,13 +554,8 @@ function FlowContent() {
   const loadingUndoRef = useRef(false);
   const isPastingRef = useRef(false);
   const welcomeCompleteRef = useRef(false);
-  const walkthroughAutoStartedRef = useRef(false);
-  const walkthroughTabCreatedRef = useRef(false);
-  const walkthroughLastAppliedStepRef = useRef<number | null>(null);
-  const walkthroughAnimatedStepsRef = useRef<Set<number>>(new Set());
   const introDropScheduledRef = useRef(false);
   const introDropTimeoutIdsRef = useRef<number[]>([]);
-  const walkthroughDropTimeoutIdsRef = useRef<number[]>([]);
   const pendingExampleFitRef = useRef(false);
   const pendingFitOptionsRef = useRef<{
     minZoom?: number;
@@ -524,15 +579,20 @@ function FlowContent() {
     () => new Map(customFlows.map((flow) => [flow.id, flow])),
     []
   );
-  const walkthroughTxTemplate = useMemo(
+  const autoDemoInputTemplate = useMemo(
+    () => allSidebarNodes.find((node) => node.label === AUTO_DEMO_INPUT_LABEL),
+    []
+  );
+  const autoDemoTxTemplate = useMemo(
     () =>
       allSidebarNodes.find(
-        (node) => node.label === WALKTHROUGH_TEMPLATE_LABEL
+        (node) => node.label === AUTO_DEMO_TX_TEMPLATE_LABEL
       ),
     []
   );
-  const walkthroughInputTemplate = useMemo(
-    () => allSidebarNodes.find((node) => node.label === WALKTHROUGH_INPUT_LABEL),
+  const autoDemoVarIntTemplate = useMemo(
+    () =>
+      allSidebarNodes.find((node) => node.label === AUTO_DEMO_VARINT_LABEL),
     []
   );
   const exampleFlowOptions = useMemo(
@@ -654,15 +714,6 @@ function FlowContent() {
     if (typeof window === "undefined") return;
     try {
       window.localStorage.setItem(FIRST_RUN_STORAGE_KEY, "1");
-    } catch {
-      /* ignore storage write failures */
-    }
-  }, []);
-
-  const markWalkthroughComplete = useCallback(() => {
-    if (typeof window === "undefined") return;
-    try {
-      window.localStorage.setItem(WALKTHROUGH_STORAGE_KEY, "1");
     } catch {
       /* ignore storage write failures */
     }
@@ -1357,15 +1408,6 @@ function FlowContent() {
     introDropTimeoutIdsRef.current = [];
   }, []);
 
-  const clearWalkthroughDropAnimationTimers = useCallback(() => {
-    if (typeof window === "undefined") return;
-    if (walkthroughDropTimeoutIdsRef.current.length === 0) return;
-    for (const timeoutId of walkthroughDropTimeoutIdsRef.current) {
-      window.clearTimeout(timeoutId);
-    }
-    walkthroughDropTimeoutIdsRef.current = [];
-  }, []);
-
   const resetToEmptyCanvas = useCallback(() => {
     restoreScriptSteps([]);
     setNodes(() => []);
@@ -1504,197 +1546,6 @@ function FlowContent() {
     [loadExampleFlow, markWelcomeComplete, setShowWelcomeDialog]
   );
 
-  const closeWalkthrough = useCallback(() => {
-    setShowWalkthrough(false);
-    setWalkthroughDropNodeLabel(undefined);
-    setWalkthroughDropAnimation(null);
-    clearWalkthroughDropAnimationTimers();
-    markWalkthroughComplete();
-  }, [clearWalkthroughDropAnimationTimers, markWalkthroughComplete]);
-
-  const openWalkthrough = useCallback(() => {
-    walkthroughTabCreatedRef.current = false;
-    walkthroughLastAppliedStepRef.current = null;
-    walkthroughAnimatedStepsRef.current = new Set();
-    clearWalkthroughDropAnimationTimers();
-    setWalkthroughDropNodeLabel(undefined);
-    setWalkthroughDropAnimation(null);
-    setIsSidebarOpen(true);
-    setShowUndoRedoPanel(false);
-    setShowErrorPanel(false);
-    setShowSearchPanel(false);
-    setShowWalkthrough(true);
-  }, [clearWalkthroughDropAnimationTimers]);
-
-  const triggerWalkthroughDropAnimation = useCallback(
-    (
-      stepIndex: number,
-      label: string,
-      targetPosition: { x: number; y: number },
-      title: string,
-      detail: string
-    ) => {
-      if (typeof window === "undefined") return;
-      if (walkthroughAnimatedStepsRef.current.has(stepIndex)) return;
-
-      walkthroughAnimatedStepsRef.current.add(stepIndex);
-      clearWalkthroughDropAnimationTimers();
-      setWalkthroughDropNodeLabel(label);
-
-      const startTimeoutId = window.setTimeout(() => {
-        const sourceRect = getSidebarNodeSourceRect(label);
-        const wrapperRect = reactFlowWrapper.current?.getBoundingClientRect();
-        const targetRect = wrapperRect
-          ? {
-              x: wrapperRect.left + targetPosition.x,
-              y: wrapperRect.top + targetPosition.y,
-            }
-          : { x: 320, y: 180 };
-
-        setWalkthroughDropAnimation({
-          label,
-          title,
-          detail,
-          sourceRect,
-          targetRect,
-        });
-      }, 120);
-
-      const stopTimeoutId = window.setTimeout(() => {
-        setWalkthroughDropAnimation(null);
-        setWalkthroughDropNodeLabel(undefined);
-        walkthroughDropTimeoutIdsRef.current =
-          walkthroughDropTimeoutIdsRef.current.filter(
-            (id) => id !== startTimeoutId && id !== stopTimeoutId
-          );
-      }, WALKTHROUGH_DROP_ANIMATION_MS + 260);
-
-      walkthroughDropTimeoutIdsRef.current.push(
-        startTimeoutId,
-        stopTimeoutId
-      );
-    },
-    [clearWalkthroughDropAnimationTimers]
-  );
-
-  const buildWalkthroughDemoGraph = useCallback(
-    (stepIndex: number) => {
-      const nodesForStep: FlowNode[] = [];
-      const edgesForStep: Edge[] = [];
-
-      if (stepIndex >= WALKTHROUGH_INPUT_STEP_INDEX && walkthroughInputTemplate) {
-        const inputData = cloneStructuredData(walkthroughInputTemplate.nodeData);
-        nodesForStep.push({
-          id: WALKTHROUGH_INPUT_NODE_ID,
-          type: walkthroughInputTemplate.type,
-          position: WALKTHROUGH_INPUT_POSITION,
-          selected: stepIndex === WALKTHROUGH_INPUT_STEP_INDEX,
-          data: {
-            ...inputData,
-            value: "01000000",
-            inputs: { ...(inputData.inputs ?? {}), val: "01000000" },
-            result: "01000000",
-            dirty: false,
-          },
-        });
-      }
-
-      if (stepIndex >= WALKTHROUGH_TX_TEMPLATE_STEP_INDEX && walkthroughTxTemplate) {
-        const txData = cloneStructuredData(walkthroughTxTemplate.nodeData);
-        const filledValues =
-          stepIndex >= WALKTHROUGH_FIELDS_STEP_INDEX
-            ? WALKTHROUGH_FIELD_VALUES
-            : txData.inputs?.vals ?? {};
-        nodesForStep.push({
-          id: WALKTHROUGH_TEMPLATE_NODE_ID,
-          type: walkthroughTxTemplate.type,
-          position: WALKTHROUGH_TEMPLATE_POSITION,
-          selected: stepIndex >= WALKTHROUGH_TX_TEMPLATE_STEP_INDEX,
-          data: {
-            ...txData,
-            inputs: {
-              ...(txData.inputs ?? {}),
-              vals: filledValues,
-            },
-            dirty: stepIndex >= WALKTHROUGH_CONNECT_STEP_INDEX,
-          },
-        });
-      }
-
-      if (stepIndex >= WALKTHROUGH_CONNECT_STEP_INDEX) {
-        edgesForStep.push({
-          id: WALKTHROUGH_EDGE_ID,
-          source: WALKTHROUGH_INPUT_NODE_ID,
-          target: WALKTHROUGH_TEMPLATE_NODE_ID,
-          targetHandle: "input-0",
-        });
-      }
-
-      return { nodes: nodesForStep, edges: edgesForStep };
-    },
-    [walkthroughInputTemplate, walkthroughTxTemplate]
-  );
-
-  const applyWalkthroughDemoStep = useCallback(
-    (stepIndex: number) => {
-      if (stepIndex < WALKTHROUGH_INPUT_STEP_INDEX) return;
-      if (!walkthroughInputTemplate || !walkthroughTxTemplate) return;
-      if (walkthroughLastAppliedStepRef.current === stepIndex) return;
-      walkthroughLastAppliedStepRef.current = stepIndex;
-
-      if (!walkthroughTabCreatedRef.current) {
-        walkthroughTabCreatedRef.current = true;
-        const tabId = addTab();
-        renameTab(tabId, WALKTHROUGH_TAB_TITLE);
-        setTabTooltip(tabId, "Walkthrough demo");
-      }
-
-      const graph = buildWalkthroughDemoGraph(stepIndex);
-      setNodes(() => graph.nodes);
-      setEdges(() => graph.edges);
-      scheduleSnapshot(`Walkthrough: step ${stepIndex + 1}`, {
-        refresh: true,
-      });
-
-      if (stepIndex === WALKTHROUGH_INPUT_STEP_INDEX) {
-        triggerWalkthroughDropAnimation(
-          stepIndex,
-          WALKTHROUGH_INPUT_LABEL,
-          WALKTHROUGH_INPUT_POSITION,
-          "Input",
-          "Dropping onto canvas"
-        );
-      } else if (stepIndex === WALKTHROUGH_TX_TEMPLATE_STEP_INDEX) {
-        triggerWalkthroughDropAnimation(
-          stepIndex,
-          WALKTHROUGH_TEMPLATE_LABEL,
-          WALKTHROUGH_TEMPLATE_POSITION,
-          "TX Template legacy",
-          "Dropping onto canvas"
-        );
-      }
-    },
-    [
-      addTab,
-      buildWalkthroughDemoGraph,
-      renameTab,
-      scheduleSnapshot,
-      setEdges,
-      setNodes,
-      setTabTooltip,
-      triggerWalkthroughDropAnimation,
-      walkthroughInputTemplate,
-      walkthroughTxTemplate,
-    ]
-  );
-
-  const handleWalkthroughStepChange = useCallback(
-    (stepIndex: number) => {
-      applyWalkthroughDemoStep(stepIndex);
-    },
-    [applyWalkthroughDemoStep]
-  );
-
   /* ---------------------------------------------------------------------- */
   /*  Auto demo — animates a fake cursor that drops a node and types into   */
   /*  its value field, so a first-time user can watch the workflow happen.  */
@@ -1729,12 +1580,19 @@ function FlowContent() {
     clearAutoDemoTimers();
     autoDemoRunningRef.current = false;
     setAutoDemoState(null);
-    setWalkthroughDropNodeLabel(undefined);
+    setAutoDemoDropNodeLabel(undefined);
+    setAutoDemoSidebarSearch(undefined);
   }, [clearAutoDemoTimers]);
 
   const runAutoDemo = useCallback(() => {
     if (autoDemoRunningRef.current) return;
-    if (!walkthroughInputTemplate) return;
+    if (
+      !autoDemoInputTemplate ||
+      !autoDemoTxTemplate ||
+      !autoDemoVarIntTemplate
+    ) {
+      return;
+    }
     if (typeof window === "undefined") return;
 
     autoDemoRunningRef.current = true;
@@ -1744,15 +1602,12 @@ function FlowContent() {
     setShowUndoRedoPanel(false);
     setShowErrorPanel(false);
     setShowSearchPanel(false);
-    setShowWalkthrough(false);
 
     const tabId = addTab();
     renameTab(tabId, "Auto Demo");
     setTabTooltip(tabId, "Auto demo");
 
-    // Highlight the Input sidebar card so the category expands & it scrolls
-    // into view before the fake cursor reaches it.
-    setWalkthroughDropNodeLabel(WALKTHROUGH_INPUT_LABEL);
+    flowInstanceRef.current?.setViewport(AUTO_DEMO_VIEWPORT, { duration: 0 });
 
     // Resting position (off-screen-ish, lower right) for the cursor to fly
     // in from. Using fixed-coord screen positions everywhere.
@@ -1766,169 +1621,469 @@ function FlowContent() {
       ghost: null,
     });
 
-    const inputTemplate = walkthroughInputTemplate;
-    const dropFlowPosition = { x: 220, y: 180 };
-    const demoNodeId = "node_auto_demo_input";
-    const typedValue = "01000000";
-
-    // t=350ms: snap to the sidebar Input card. The card may not be in view
-    // yet (the category was just expanded), so we read its rect lazily.
-    scheduleAutoDemoStep(350, () => {
-      const sidebarRect = getSidebarNodeSourceRect(WALKTHROUGH_INPUT_LABEL);
-      const sidebarCenter = {
-        x: sidebarRect.x + sidebarRect.width / 2 - 4,
-        y: sidebarRect.y + sidebarRect.height / 2 - 4,
-      };
-      setAutoDemoState({ cursor: sidebarCenter, ghost: null });
-    });
-
-    // t=1050ms: press down — show the press animation. No ghost yet.
-    scheduleAutoDemoStep(1050, () => {
-      const sidebarRect = getSidebarNodeSourceRect(WALKTHROUGH_INPUT_LABEL);
-      const sidebarCenter = {
-        x: sidebarRect.x + sidebarRect.width / 2 - 4,
-        y: sidebarRect.y + sidebarRect.height / 2 - 4,
-      };
-      setAutoDemoState({
-        cursor: sidebarCenter,
-        ghost: null,
-        pressing: true,
-      });
-    });
-
-    // t=1250ms: pickup — ghost card appears under the cursor.
-    scheduleAutoDemoStep(1250, () => {
-      const sidebarRect = getSidebarNodeSourceRect(WALKTHROUGH_INPUT_LABEL);
-      const sidebarCenter = {
-        x: sidebarRect.x + sidebarRect.width / 2 - 4,
-        y: sidebarRect.y + sidebarRect.height / 2 - 4,
-      };
-      setAutoDemoState({
-        cursor: sidebarCenter,
-        ghost: {
-          x: sidebarCenter.x - 20,
-          y: sidebarCenter.y - 18,
-          label: inputTemplate.label,
-        },
-      });
-    });
-
-    // t=1500ms: drag — cursor + ghost glide to the canvas target.
-    scheduleAutoDemoStep(1500, () => {
+    const flowToScreen = (
+      position: { x: number; y: number },
+      fallbackOffset = position
+    ) => {
       const wrapperRect = reactFlowWrapper.current?.getBoundingClientRect();
       const instance = flowInstanceRef.current;
-      let targetScreen: { x: number; y: number };
-      if (instance && wrapperRect) {
-        const projected = instance.flowToScreenPosition(dropFlowPosition);
-        targetScreen = { x: projected.x, y: projected.y };
-      } else {
-        targetScreen = {
-          x: (wrapperRect?.left ?? 256) + 380,
-          y: (wrapperRect?.top ?? 96) + 160,
-        };
+      if (
+        instance &&
+        typeof instance.flowToScreenPosition === "function" &&
+        wrapperRect
+      ) {
+        const projected = instance.flowToScreenPosition(position);
+        return { x: projected.x, y: projected.y };
       }
-      setAutoDemoState({
-        cursor: targetScreen,
-        ghost: {
-          x: targetScreen.x - 20,
-          y: targetScreen.y - 18,
-          label: inputTemplate.label,
-        },
-      });
-    });
+      return {
+        x: (wrapperRect?.left ?? 256) + fallbackOffset.x,
+        y: (wrapperRect?.top ?? 96) + fallbackOffset.y,
+      };
+    };
 
-    // t=2250ms: drop — add the real node, hide the ghost, press tick.
-    scheduleAutoDemoStep(2250, () => {
-      const baseData = cloneStructuredData(inputTemplate.nodeData) as Record<
+    const dropNode = (
+      nodeId: string,
+      template: NodeTemplate,
+      position: { x: number; y: number },
+      dataOverride?: (data: Record<string, unknown>) => Record<string, unknown>
+    ) => {
+      const baseData = cloneStructuredData(template.nodeData) as Record<
         string,
         unknown
       >;
+      const nextData = dataOverride ? dataOverride(baseData) : baseData;
       const dropped: FlowNode = {
-        id: demoNodeId,
-        type: inputTemplate.type,
-        position: dropFlowPosition,
+        id: nodeId,
+        type: template.type,
+        position,
         selected: true,
-        data: {
-          ...baseData,
-          value: "",
-          inputs: { ...(baseData.inputs as object | undefined ?? {}), val: "" },
-          result: "",
-          dirty: false,
-        } as FlowNode["data"],
+        data: nextData as FlowNode["data"],
       };
-      setNodes(() => [dropped]);
-      setEdges(() => []);
+      setNodes((currentNodes) => [
+        ...currentNodes.map((node) => ({ ...node, selected: false })),
+        dropped,
+      ]);
+    };
 
-      const wrapperRect = reactFlowWrapper.current?.getBoundingClientRect();
-      const instance = flowInstanceRef.current;
-      const projected =
-        instance && wrapperRect
-          ? instance.flowToScreenPosition(dropFlowPosition)
-          : {
-              x: (wrapperRect?.left ?? 256) + 380,
-              y: (wrapperRect?.top ?? 96) + 160,
-            };
-      setAutoDemoState({
-        cursor: { x: projected.x, y: projected.y },
-        ghost: null,
-        pressing: true,
+    const scheduleDropNode = (
+      startAt: number,
+      nodeId: string,
+      label: string,
+      eyebrow: string,
+      template: NodeTemplate,
+      position: { x: number; y: number },
+      dataOverride?: (data: Record<string, unknown>) => Record<string, unknown>
+    ) => {
+      scheduleAutoDemoStep(startAt, () => {
+        setAutoDemoDropNodeLabel(label);
       });
-      setWalkthroughDropNodeLabel(undefined);
+
+      scheduleAutoDemoStep(startAt + 350, () => {
+        const sourceCenter = getRectCursorCenter(getSidebarNodeSourceRect(label));
+        setAutoDemoState({ cursor: sourceCenter, ghost: null });
+      });
+
+      scheduleAutoDemoStep(startAt + 1050, () => {
+        const sourceCenter = getRectCursorCenter(getSidebarNodeSourceRect(label));
+        setAutoDemoState({
+          cursor: sourceCenter,
+          ghost: null,
+          pressing: true,
+        });
+      });
+
+      scheduleAutoDemoStep(startAt + 1250, () => {
+        const sourceCenter = getRectCursorCenter(getSidebarNodeSourceRect(label));
+        setAutoDemoState({
+          cursor: sourceCenter,
+          ghost: {
+            x: sourceCenter.x - 20,
+            y: sourceCenter.y - 18,
+            eyebrow,
+            label,
+          },
+        });
+      });
+
+      scheduleAutoDemoStep(startAt + 1500, () => {
+        const targetScreen = flowToScreen(position);
+        setAutoDemoState({
+          cursor: targetScreen,
+          ghost: {
+            x: targetScreen.x - 20,
+            y: targetScreen.y - 18,
+            eyebrow,
+            label,
+          },
+        });
+      });
+
+      scheduleAutoDemoStep(startAt + 2250, () => {
+        const targetScreen = flowToScreen(position);
+        dropNode(nodeId, template, position, dataOverride);
+        setAutoDemoState({
+          cursor: targetScreen,
+          ghost: null,
+          pressing: true,
+        });
+        setAutoDemoDropNodeLabel(undefined);
+      });
+    };
+
+    // Same as scheduleDropNode, but the node lives in a collapsed category so
+    // a real user would *search* for it: the cursor types a query into the
+    // sidebar search box, then drags the matched result onto the canvas.
+    const scheduleSearchDropNode = (
+      startAt: number,
+      nodeId: string,
+      label: string,
+      eyebrow: string,
+      query: string,
+      template: NodeTemplate,
+      position: { x: number; y: number },
+      dataOverride?: (data: Record<string, unknown>) => Record<string, unknown>
+    ) => {
+      const SEARCH_TYPE_DELAY = 150;
+
+      // 1. cursor glides to the sidebar search box
+      scheduleAutoDemoStep(startAt, () => {
+        setAutoDemoSidebarSearch("");
+        const center = getRectCursorCenter(getSidebarSearchInputRect());
+        setAutoDemoState({ cursor: center, ghost: null });
+      });
+
+      // 2. click into the search field
+      const focusAt = startAt + 750;
+      scheduleAutoDemoStep(focusAt, () => {
+        const center = getRectCursorCenter(getSidebarSearchInputRect());
+        setAutoDemoState({ cursor: center, ghost: null, pressing: true });
+      });
+
+      // 3. type the query one character at a time
+      const typeStart = focusAt + 250;
+      for (let i = 1; i <= query.length; i += 1) {
+        const partial = query.slice(0, i);
+        scheduleAutoDemoStep(typeStart + i * SEARCH_TYPE_DELAY, () => {
+          setAutoDemoSidebarSearch(partial);
+          const center = getRectCursorCenter(getSidebarSearchInputRect());
+          setAutoDemoState({ cursor: center, ghost: null });
+        });
+      }
+      const typeEnd = typeStart + query.length * SEARCH_TYPE_DELAY;
+
+      // 4. results render → cursor moves onto the matched result card
+      const moveToCardAt = typeEnd + 450;
+      scheduleAutoDemoStep(moveToCardAt, () => {
+        const center = getRectCursorCenter(getSidebarNodeSourceRect(label));
+        setAutoDemoState({ cursor: center, ghost: null });
+      });
+
+      // 5. press the result card
+      scheduleAutoDemoStep(moveToCardAt + 700, () => {
+        const center = getRectCursorCenter(getSidebarNodeSourceRect(label));
+        setAutoDemoState({ cursor: center, ghost: null, pressing: true });
+      });
+
+      // 6. ghost springs out of the card
+      scheduleAutoDemoStep(moveToCardAt + 900, () => {
+        const center = getRectCursorCenter(getSidebarNodeSourceRect(label));
+        setAutoDemoState({
+          cursor: center,
+          ghost: { x: center.x - 20, y: center.y - 18, eyebrow, label },
+        });
+      });
+
+      // 7. drag the ghost to the canvas drop position
+      scheduleAutoDemoStep(moveToCardAt + 1150, () => {
+        const targetScreen = flowToScreen(position);
+        setAutoDemoState({
+          cursor: targetScreen,
+          ghost: {
+            x: targetScreen.x - 20,
+            y: targetScreen.y - 18,
+            eyebrow,
+            label,
+          },
+        });
+      });
+
+      // 8. drop — the real node lands and the search box clears
+      const dropAt = moveToCardAt + 1900;
+      scheduleAutoDemoStep(dropAt, () => {
+        const targetScreen = flowToScreen(position);
+        dropNode(nodeId, template, position, dataOverride);
+        setAutoDemoState({
+          cursor: targetScreen,
+          ghost: null,
+          pressing: true,
+        });
+        setAutoDemoSidebarSearch("");
+      });
+
+      return dropAt - startAt;
+    };
+
+    setNodes(() => []);
+    setEdges(() => []);
+
+    const DROP_DURATION = 2250;
+
+    // 1. TX template — dragged from its (already open) category
+    scheduleDropNode(
+      0,
+      AUTO_DEMO_TX_TEMPLATE_NODE_ID,
+      AUTO_DEMO_TX_TEMPLATE_LABEL,
+      "Transactions",
+      autoDemoTxTemplate,
+      AUTO_DEMO_TX_TEMPLATE_POSITION,
+      (data) => ({
+        ...data,
+        inputs: { ...(data.inputs as object | undefined), vals: {} },
+        result: "",
+        dirty: false,
+      })
+    );
+    const txEnd = DROP_DURATION;
+
+    // 2. VarInt — lives in a collapsed category, so search for it first
+    const varIntStart = txEnd + 450;
+    const varIntDuration = scheduleSearchDropNode(
+      varIntStart,
+      AUTO_DEMO_VARINT_NODE_ID,
+      AUTO_DEMO_VARINT_LABEL,
+      "Encoding & Script Data",
+      "varint",
+      autoDemoVarIntTemplate,
+      AUTO_DEMO_VARINT_POSITION,
+      (data) => ({
+        ...data,
+        inputs: { ...(data.inputs as object | undefined), val: "" },
+        result: "",
+        dirty: false,
+      })
+    );
+    const varIntEnd = varIntStart + varIntDuration;
+
+    // 3. Input — dragged from its category
+    const inputStart = varIntEnd + 450;
+    scheduleDropNode(
+      inputStart,
+      AUTO_DEMO_INPUT_NODE_ID,
+      AUTO_DEMO_INPUT_LABEL,
+      "Canvas & Inputs",
+      autoDemoInputTemplate,
+      AUTO_DEMO_INPUT_POSITION,
+      (data) => ({
+        ...data,
+        value: "",
+        inputs: { ...(data.inputs as object | undefined), val: "" },
+        result: "",
+        dirty: false,
+      })
+    );
+    const inputEnd = inputStart + DROP_DURATION;
+
+    const fieldMoveAt = inputEnd + 350;
+    scheduleAutoDemoStep(fieldMoveAt, () => {
+      setAutoDemoState({
+        cursor: flowToScreen({
+          x: AUTO_DEMO_INPUT_POSITION.x + 72,
+          y: AUTO_DEMO_INPUT_POSITION.y + 96,
+        }),
+        ghost: null,
+      });
     });
 
-    // t=2700ms: move cursor onto the node's value input field
-    scheduleAutoDemoStep(2700, () => {
-      const wrapperRect = reactFlowWrapper.current?.getBoundingClientRect();
-      const instance = flowInstanceRef.current;
-      const projected =
-        instance && wrapperRect
-          ? instance.flowToScreenPosition({
-              x: dropFlowPosition.x + 70,
-              y: dropFlowPosition.y + 95,
-            })
-          : {
-              x: (wrapperRect?.left ?? 256) + 450,
-              y: (wrapperRect?.top ?? 96) + 255,
-            };
-      setAutoDemoState({
-        cursor: { x: projected.x, y: projected.y },
-        ghost: null,
-      });
+    const typeValueAt = fieldMoveAt + 500;
+    scheduleAutoDemoStep(typeValueAt, () => {
+      setNodes((currentNodes) =>
+        currentNodes.map((node) => {
+          if (node.id !== AUTO_DEMO_INPUT_NODE_ID) return node;
+          const existing = (node.data ?? {}) as Record<string, unknown>;
+          const existingInputs =
+            (existing.inputs as Record<string, unknown> | undefined) ?? {};
+          return {
+            ...node,
+            data: {
+              ...existing,
+              value: "1",
+              inputs: { ...existingInputs, val: "1" },
+              result: "1",
+              dirty: false,
+            } as FlowNode["data"],
+          };
+        })
+      );
     });
 
-    // t=3200ms+: type characters one at a time (~130ms cadence) by mutating
-    // the node's `value` / `inputs.val` / `result` fields. CalculationNode
-    // reads from `data` so the typed characters appear progressively.
-    const typingStart = 3200;
-    const charDelay = 130;
-    for (let i = 1; i <= typedValue.length; i += 1) {
-      const partial = typedValue.slice(0, i);
-      scheduleAutoDemoStep(typingStart + i * charDelay, () => {
-        setNodes((nds) =>
-          nds.map((n) => {
-            if (n.id !== demoNodeId) return n;
-            const existing = (n.data ?? {}) as Record<string, unknown>;
+    // Connection drag phases (ms). The cursor lands on the *real* rendered
+    // handle, presses, and a live bezier wire follows it to the target port
+    // before the edge snaps in — exactly the gesture a user performs.
+    const CONN_MOVE = 620;
+    const CONN_GRAB = 300;
+    const CONN_DRAG = 880;
+    const CONN_SETTLE = 260;
+    const CONN_TOTAL = CONN_MOVE + CONN_GRAB + CONN_DRAG + CONN_SETTLE;
+
+    const scheduleConnect = (
+      startAt: number,
+      sourceNodeId: string,
+      sourceHandleId: string | null,
+      sourceFallback: { x: number; y: number },
+      targetNodeId: string,
+      targetHandleId: string,
+      targetFallback: { x: number; y: number },
+      onRelease: () => void
+    ) => {
+      const resolveSource = () =>
+        getHandleScreenPosition(sourceNodeId, "source", sourceHandleId) ??
+        flowToScreen(sourceFallback);
+      const resolveTarget = () =>
+        getHandleScreenPosition(targetNodeId, "target", targetHandleId) ??
+        flowToScreen(targetFallback);
+
+      // 1. cursor glides to the source port
+      scheduleAutoDemoStep(startAt, () => {
+        setAutoDemoState({ cursor: resolveSource(), ghost: null });
+      });
+
+      // 2. press the port — the wire springs out of it
+      scheduleAutoDemoStep(startAt + CONN_MOVE, () => {
+        const src = resolveSource();
+        setAutoDemoState({
+          cursor: src,
+          ghost: null,
+          pressing: true,
+          connection: src,
+        });
+      });
+
+      // 3. drag the wire across to the target port (wire tracks the cursor)
+      scheduleAutoDemoStep(startAt + CONN_MOVE + CONN_GRAB, () => {
+        const src = resolveSource();
+        setAutoDemoState({
+          cursor: resolveTarget(),
+          ghost: null,
+          pressing: true,
+          connection: src,
+        });
+      });
+
+      // 4. release on the target port — the real edge snaps in
+      scheduleAutoDemoStep(startAt + CONN_TOTAL, () => {
+        onRelease();
+        setAutoDemoState({
+          cursor: resolveTarget(),
+          ghost: null,
+          connection: null,
+        });
+      });
+
+      return CONN_TOTAL;
+    };
+
+    // Connection 1: Input output → VarInt "input-0"
+    const conn1Start = typeValueAt + 700;
+    scheduleConnect(
+      conn1Start,
+      AUTO_DEMO_INPUT_NODE_ID,
+      null,
+      {
+        x: AUTO_DEMO_INPUT_POSITION.x + 250,
+        y: AUTO_DEMO_INPUT_POSITION.y + 78,
+      },
+      AUTO_DEMO_VARINT_NODE_ID,
+      "input-0",
+      { x: AUTO_DEMO_VARINT_POSITION.x, y: AUTO_DEMO_VARINT_POSITION.y + 72 },
+      () => {
+        setEdges((currentEdges) => [
+          ...currentEdges,
+          {
+            id: AUTO_DEMO_INPUT_TO_VARINT_EDGE_ID,
+            source: AUTO_DEMO_INPUT_NODE_ID,
+            target: AUTO_DEMO_VARINT_NODE_ID,
+            targetHandle: "input-0",
+            selected: false,
+          },
+        ]);
+        setNodes((currentNodes) =>
+          currentNodes.map((node) => {
+            if (node.id !== AUTO_DEMO_VARINT_NODE_ID) return node;
+            const existing = (node.data ?? {}) as Record<string, unknown>;
             const existingInputs =
               (existing.inputs as Record<string, unknown> | undefined) ?? {};
             return {
-              ...n,
+              ...node,
+              selected: false,
               data: {
                 ...existing,
-                value: partial,
-                inputs: { ...existingInputs, val: partial },
-                result: partial,
+                inputs: { ...existingInputs, val: "1" },
+                result: "01",
                 dirty: false,
               } as FlowNode["data"],
             };
           })
         );
-      });
-    }
+      }
+    );
+
+    // Connection 2: VarInt output → TX template "input-10"
+    const conn2Start = conn1Start + CONN_TOTAL + 240;
+    scheduleConnect(
+      conn2Start,
+      AUTO_DEMO_VARINT_NODE_ID,
+      null,
+      {
+        x: AUTO_DEMO_VARINT_POSITION.x + 250,
+        y: AUTO_DEMO_VARINT_POSITION.y + 72,
+      },
+      AUTO_DEMO_TX_TEMPLATE_NODE_ID,
+      "input-10",
+      {
+        x: AUTO_DEMO_TX_TEMPLATE_POSITION.x,
+        y: AUTO_DEMO_TX_TEMPLATE_POSITION.y + 265,
+      },
+      () => {
+        setEdges((currentEdges) => [
+          ...currentEdges,
+          {
+            id: AUTO_DEMO_VARINT_TO_TX_EDGE_ID,
+            source: AUTO_DEMO_VARINT_NODE_ID,
+            target: AUTO_DEMO_TX_TEMPLATE_NODE_ID,
+            targetHandle: "input-10",
+            selected: false,
+          },
+        ]);
+        setNodes((currentNodes) =>
+          currentNodes.map((node) => {
+            if (node.id !== AUTO_DEMO_TX_TEMPLATE_NODE_ID) {
+              return { ...node, selected: false };
+            }
+            const existing = (node.data ?? {}) as Record<string, unknown>;
+            const existingInputs =
+              (existing.inputs as Record<string, unknown> | undefined) ?? {};
+            return {
+              ...node,
+              selected: false,
+              data: {
+                ...existing,
+                inputs: {
+                  ...existingInputs,
+                  vals: setVal(existingInputs.vals, 10, "01"),
+                },
+                result: "01",
+                dirty: false,
+              } as FlowNode["data"],
+            };
+          })
+        );
+      }
+    );
 
     // Final: clear the overlay after the user has had a moment to see the
-    // typed value.
-    const finishAt = typingStart + typedValue.length * charDelay + 1100;
-    scheduleAutoDemoStep(finishAt, () => {
+    // connected mini-flow.
+    const demoEndsAt = conn2Start + CONN_TOTAL + 1100;
+    scheduleAutoDemoStep(demoEndsAt, () => {
       autoDemoRunningRef.current = false;
       setAutoDemoState(null);
     });
@@ -1940,56 +2095,13 @@ function FlowContent() {
     setEdges,
     setNodes,
     setTabTooltip,
-    walkthroughInputTemplate,
+    autoDemoInputTemplate,
+    autoDemoTxTemplate,
+    autoDemoVarIntTemplate,
   ]);
 
   // Cancel any pending auto-demo timers when the component unmounts.
   useEffect(() => stopAutoDemo, [stopAutoDemo]);
-
-  useEffect(() => {
-    if (!initialHydrationDone) return;
-    if (isMobileReadOnly) return;
-    if (showWalkthrough) return;
-    if (walkthroughAutoStartedRef.current) return;
-    if (nodes.length > 0 || edges.length > 0) return;
-
-    try {
-      if (
-        window.localStorage.getItem(WALKTHROUGH_STORAGE_KEY) ||
-        window.localStorage.getItem(FIRST_RUN_STORAGE_KEY)
-      ) {
-        return;
-      }
-
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("s") || params.get("share")) {
-        return;
-      }
-
-      if (isAutomationEnvironment()) {
-        window.localStorage.setItem(WALKTHROUGH_STORAGE_KEY, "1");
-        return;
-      }
-    } catch {
-      if (isAutomationEnvironment()) {
-        return;
-      }
-    }
-
-    walkthroughAutoStartedRef.current = true;
-    markWelcomeComplete();
-    walkthroughTabCreatedRef.current = false;
-    walkthroughLastAppliedStepRef.current = null;
-    walkthroughAnimatedStepsRef.current = new Set();
-    setShowWalkthrough(true);
-  }, [
-    edges.length,
-    initialHydrationDone,
-    isMobileReadOnly,
-    markWelcomeComplete,
-    nodes.length,
-    showWalkthrough,
-  ]);
 
   useEffect(() => {
     if (!initialHydrationDone) return;
@@ -2011,37 +2123,122 @@ function FlowContent() {
     }
 
     introDropScheduledRef.current = true;
-    setIntroDropSourceRect(getIntroDropSourceRect());
+    autoDemoRunningRef.current = true;
     setIsIntroDropAnimating(true);
+
+    const introFlowLabel =
+      exampleFlowMap.get(introFlowId)?.label ??
+      exampleFlowOptions.find((flow) => flow.id === introFlowId)?.label ??
+      "Intro P2PKH";
 
     if (typeof window === "undefined") {
       const loaded = loadExampleFlow(introFlowId, {
         placement: "top-left-drop",
       });
       if (loaded) markWelcomeComplete();
+      autoDemoRunningRef.current = false;
       setIsIntroDropAnimating(false);
       return;
     }
 
-    const loadTimeoutId = window.setTimeout(() => {
+    const getIntroTargetScreenPosition = () => {
+      const reactFlowRect =
+        document
+          .querySelector<HTMLElement>(".react-flow")
+          ?.getBoundingClientRect() ??
+        reactFlowWrapper.current?.getBoundingClientRect();
+      return {
+        x: (reactFlowRect?.left ?? 256) + INTRO_FLOW_DROP_POINT.x,
+        y: (reactFlowRect?.top ?? 96) + INTRO_FLOW_DROP_POINT.y,
+      };
+    };
+
+    const scheduleIntroDropStep = (delay: number, fn: () => void) => {
+      const timeoutId = window.setTimeout(() => {
+        introDropTimeoutIdsRef.current = introDropTimeoutIdsRef.current.filter(
+          (existing) => existing !== timeoutId
+        );
+        fn();
+      }, delay);
+      introDropTimeoutIdsRef.current.push(timeoutId);
+      return timeoutId;
+    };
+
+    setAutoDemoState({
+      cursor: {
+        x: window.innerWidth * 0.55,
+        y: window.innerHeight - 80,
+      },
+      ghost: null,
+    });
+
+    scheduleIntroDropStep(INTRO_FLOW_SOURCE_MOVE_MS, () => {
+      const sourceCenter = getRectCursorCenter(getIntroDropSourceRect());
+      setAutoDemoState({ cursor: sourceCenter, ghost: null });
+    });
+
+    scheduleIntroDropStep(INTRO_FLOW_SOURCE_PRESS_MS, () => {
+      const sourceCenter = getRectCursorCenter(getIntroDropSourceRect());
+      setAutoDemoState({
+        cursor: sourceCenter,
+        ghost: null,
+        pressing: true,
+      });
+    });
+
+    scheduleIntroDropStep(INTRO_FLOW_PICKUP_MS, () => {
+      const sourceCenter = getRectCursorCenter(getIntroDropSourceRect());
+      setAutoDemoState({
+        cursor: sourceCenter,
+        ghost: {
+          x: sourceCenter.x - 20,
+          y: sourceCenter.y - 18,
+          eyebrow: "Flow Examples",
+          label: introFlowLabel,
+          detail: "Dropping onto canvas",
+        },
+      });
+    });
+
+    scheduleIntroDropStep(INTRO_FLOW_DRAG_MS, () => {
+      const targetScreen = getIntroTargetScreenPosition();
+      setAutoDemoState({
+        cursor: targetScreen,
+        ghost: {
+          x: targetScreen.x - 20,
+          y: targetScreen.y - 18,
+          eyebrow: "Flow Examples",
+          label: introFlowLabel,
+          detail: "Dropping onto canvas",
+        },
+      });
+    });
+
+    scheduleIntroDropStep(INTRO_FLOW_DROP_MS, () => {
+      const targetScreen = getIntroTargetScreenPosition();
       const loaded = loadExampleFlow(introFlowId, {
         placement: "top-left-drop",
       });
       if (loaded) {
         markWelcomeComplete();
+        setAutoDemoState({
+          cursor: targetScreen,
+          ghost: null,
+          pressing: true,
+        });
       } else {
         introDropScheduledRef.current = false;
+        autoDemoRunningRef.current = false;
+        setIsIntroDropAnimating(false);
+        setAutoDemoState(null);
       }
-    }, INTRO_FLOW_DROP_ANIMATION_MS);
+    });
 
-    const releaseTimeoutId = window.setTimeout(() => {
+    scheduleIntroDropStep(INTRO_FLOW_RELEASE_MS, () => {
+      autoDemoRunningRef.current = false;
       setIsIntroDropAnimating(false);
-      introDropTimeoutIdsRef.current = introDropTimeoutIdsRef.current.filter(
-        (id) => id !== loadTimeoutId && id !== releaseTimeoutId
-      );
-    }, INTRO_FLOW_DROP_ANIMATION_MS + 220);
-
-    introDropTimeoutIdsRef.current.push(loadTimeoutId, releaseTimeoutId);
+      setAutoDemoState(null);
+    });
   }, [
     exampleFlowMap,
     exampleFlowOptions,
@@ -2863,13 +3060,11 @@ function FlowContent() {
       introDropScheduledRef.current = false;
       clearExampleFitRetryTimers();
       clearIntroDropAnimationTimers();
-      clearWalkthroughDropAnimationTimers();
       clearSharedGraphRepairTimers();
     },
     [
       clearExampleFitRetryTimers,
       clearIntroDropAnimationTimers,
-      clearWalkthroughDropAnimationTimers,
       clearSharedGraphRepairTimers,
     ]
   );
@@ -3025,8 +3220,8 @@ function FlowContent() {
               onToggleInfoNodes={() => setShowInfoNodes((v) => !v)}
               isSelectionModeActive={isSelectionMode}
               onToggleSelectionMode={() => setIsSelectionLocked((v) => !v)}
-              onWalkthroughClick={openWalkthrough}
               onAutoDemoClick={runAutoDemo}
+              autoDemoDisabled={isIntroDropAnimating || autoDemoState !== null}
               onShare={handleShareClick}
               shareDisabled={nodes.length === 0}
               tabBarRightInset={rightPanelWidth}
@@ -3039,7 +3234,8 @@ function FlowContent() {
               isOpen={isSidebarOpen}
               onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
               introDropFlowId={isIntroDropAnimating ? INTRO_FLOW_ID : undefined}
-              introDropNodeLabel={walkthroughDropNodeLabel}
+              introDropNodeLabel={autoDemoDropNodeLabel}
+              searchOverride={autoDemoSidebarSearch}
             />
           )}
 
@@ -3164,68 +3360,6 @@ function FlowContent() {
             )}
           </main>
 
-          {isIntroDropAnimating && (
-            <div
-              className="absolute inset-0 z-[80] cursor-progress bg-background/25 backdrop-blur-[1px]"
-              aria-live="polite"
-              aria-busy="true"
-            >
-              <div
-                className="rawbit-intro-drop-card pointer-events-none absolute rounded-md border border-primary/50 bg-card px-4 py-3 text-card-foreground shadow-lg"
-                style={
-                  {
-                    "--intro-source-x": `${introDropSourceRect.x}px`,
-                    "--intro-source-y": `${introDropSourceRect.y}px`,
-                    "--intro-source-width": `${introDropSourceRect.width}px`,
-                    "--intro-source-height": `${introDropSourceRect.height}px`,
-                    width: `${introDropSourceRect.width}px`,
-                    minHeight: `${introDropSourceRect.height}px`,
-                  } as React.CSSProperties
-                }
-              >
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  Flow Examples
-                </div>
-                <div className="mt-1 text-sm font-semibold">Intro P2PKH</div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  Dropping onto canvas
-                </div>
-              </div>
-            </div>
-          )}
-
-          {walkthroughDropAnimation && (
-            <div
-              className="pointer-events-none absolute inset-0 z-[80]"
-              aria-live="polite"
-            >
-              <div
-                className="rawbit-walkthrough-drop-card pointer-events-none absolute rounded-md border border-primary/50 bg-card px-4 py-3 text-card-foreground shadow-lg"
-                style={
-                  {
-                    "--walkthrough-source-x": `${walkthroughDropAnimation.sourceRect.x}px`,
-                    "--walkthrough-source-y": `${walkthroughDropAnimation.sourceRect.y}px`,
-                    "--walkthrough-source-width": `${walkthroughDropAnimation.sourceRect.width}px`,
-                    "--walkthrough-target-x": `${walkthroughDropAnimation.targetRect.x}px`,
-                    "--walkthrough-target-y": `${walkthroughDropAnimation.targetRect.y}px`,
-                    width: `${walkthroughDropAnimation.sourceRect.width}px`,
-                    minHeight: `${walkthroughDropAnimation.sourceRect.height}px`,
-                  } as React.CSSProperties
-                }
-              >
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  {walkthroughDropAnimation.label}
-                </div>
-                <div className="mt-1 text-sm font-semibold">
-                  {walkthroughDropAnimation.title}
-                </div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  {walkthroughDropAnimation.detail}
-                </div>
-              </div>
-            </div>
-          )}
-
           <AutoDemoOverlay state={autoDemoState} />
 
           {/* 🎨 ColorPalette - MOVED HERE, outside ReactFlow, with higher z-index */}
@@ -3283,12 +3417,6 @@ function FlowContent() {
               setShowWelcomeDialog(open);
               if (!open) markWelcomeComplete();
             }}
-          />
-          <Walkthrough
-            open={showWalkthrough}
-            onSkip={closeWalkthrough}
-            onFinish={closeWalkthrough}
-            onStepChange={handleWalkthroughStepChange}
           />
         </div>
       </FlowActionsProvider>

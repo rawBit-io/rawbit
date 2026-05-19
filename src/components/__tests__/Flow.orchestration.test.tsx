@@ -18,16 +18,6 @@ type FileImportCallbacks = {
 const topBarProps = {
   current: null as (TopBarProps & ExtraTopBarProps) | null,
 };
-const walkthroughProps = {
-  current: null as
-    | {
-        open: boolean;
-        onSkip: () => void;
-        onFinish: () => void;
-        onStepChange?: (stepIndex: number) => void;
-      }
-    | null,
-};
 
 const flowCanvasProps = {
   current: null as Record<string, unknown> | null,
@@ -180,22 +170,6 @@ vi.mock("@/components/FlowDialogLayer", () => ({
 
 vi.mock("@/components/FlowPanels", () => ({
   FlowPanels: () => <div data-testid="flow-panels" />,
-}));
-
-vi.mock("@/components/walkthrough/Walkthrough", () => ({
-  Walkthrough: (props: {
-    open: boolean;
-    onSkip: () => void;
-    onFinish: () => void;
-    onStepChange?: (stepIndex: number) => void;
-  }) => {
-    walkthroughProps.current = props;
-    return (
-      <div data-testid="walkthrough">
-        {props.open ? "open" : "closed"}
-      </div>
-    );
-  },
 }));
 
 vi.mock("@/hooks/useNodeOperations", () => ({
@@ -483,7 +457,6 @@ beforeEach(() => {
   skipLoadRef.current = false;
   localStorage.clear();
   localStorage.setItem("rawbit.ui.welcomeSeen", "1");
-  walkthroughProps.current = null;
 });
 
 afterEach(() => {
@@ -517,28 +490,6 @@ describe("Flow welcome dialog suppression on shared links", () => {
     expect(queryByText("Pick how you would like to get started.")).not.toBeInTheDocument();
   });
 
-  it("opens the walkthrough on a fresh browser session without a shared link", async () => {
-    // No welcomeSeen flag, no share param -> rawBit starts from the walkthrough.
-    localStorage.clear();
-    localStorage.setItem("rawbit.flow.tabs", "default-empty-tab");
-    window.history.replaceState({}, "", window.location.pathname);
-
-    const { getByTestId, queryByText } = render(<Flow />);
-
-    expect(queryByText("Pick how you would like to get started.")).not.toBeInTheDocument();
-    expect(getByTestId("walkthrough")).toHaveTextContent("open");
-    expect(scheduleSnapshotMock).not.toHaveBeenCalledWith("Load example: Example flow", {
-      refresh: true,
-    });
-    expect(localStorage.getItem("rawbit.ui.welcomeSeen")).toBe("1");
-    expect(localStorage.getItem("rawbit.ui.walkthroughSeen")).toBeNull();
-
-    act(() => {
-      walkthroughProps.current?.onSkip();
-    });
-
-    expect(localStorage.getItem("rawbit.ui.walkthroughSeen")).toBe("1");
-  });
 });
 
 describe("Flow autosave scheduling", () => {

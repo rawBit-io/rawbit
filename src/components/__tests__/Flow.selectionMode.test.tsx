@@ -1,5 +1,5 @@
 import React from "react";
-import { act, cleanup, render, waitFor } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Edge, ReactFlowInstance } from "@xyflow/react";
 
@@ -7,7 +7,6 @@ import Flow from "@/components/Flow";
 import type { FlowData, FlowNode } from "@/types";
 
 const FIRST_RUN_STORAGE_KEY = "rawbit.ui.welcomeSeen";
-const WALKTHROUGH_STORAGE_KEY = "rawbit.ui.walkthroughSeen";
 
 type FirstRunDialogMockProps = {
   open: boolean;
@@ -32,16 +31,6 @@ type SharedFlowLoaderMockOptions = {
 
 const firstRunDialogProps = {
   current: null as FirstRunDialogMockProps | null,
-};
-const walkthroughProps = {
-  current: null as
-    | {
-        open: boolean;
-        onSkip: () => void;
-        onFinish: () => void;
-        onStepChange?: (stepIndex: number) => void;
-      }
-    | null,
 };
 
 const latestFileImportOptions: {
@@ -113,17 +102,28 @@ vi.mock("@/components/layout/TopBar", () => ({
   TopBar: ({
     onToggleSidebar,
     onToggleInfoNodes,
+    onAutoDemoClick,
     showInfoNodes,
     hasInfoNodes,
+    autoDemoDisabled,
   }: {
     onToggleSidebar?: () => void;
     onToggleInfoNodes?: () => void;
+    onAutoDemoClick?: () => void;
     showInfoNodes?: boolean;
     hasInfoNodes?: boolean;
+    autoDemoDisabled?: boolean;
   }) => (
     <>
       <button data-testid="topbar" onClick={onToggleSidebar}>
         topbar
+      </button>
+      <button
+        data-testid="auto-demo-button"
+        disabled={autoDemoDisabled}
+        onClick={onAutoDemoClick}
+      >
+        auto demo
       </button>
       <button
         data-testid="toggle-info-nodes"
@@ -179,22 +179,6 @@ vi.mock("@/components/dialog/FirstRunDialog", () => ({
     firstRunDialogProps.current = props;
     return (
       <div data-testid="first-run-dialog">{props.open ? "open" : "closed"}</div>
-    );
-  },
-}));
-
-vi.mock("@/components/walkthrough/Walkthrough", () => ({
-  Walkthrough: (props: {
-    open: boolean;
-    onSkip: () => void;
-    onFinish: () => void;
-    onStepChange?: (stepIndex: number) => void;
-  }) => {
-    walkthroughProps.current = props;
-    return (
-      <div data-testid="walkthrough">
-        {props.open ? "open" : "closed"}
-      </div>
     );
   },
 }));
@@ -486,7 +470,6 @@ const renderFlow = () => render(<Flow />);
 beforeEach(() => {
   vi.clearAllMocks();
   firstRunDialogProps.current = null;
-  walkthroughProps.current = null;
   flowCanvasProps.current = null;
   sharedFlowLoaderOptions.current = null;
   latestFileImportOptions.current = undefined;
@@ -666,6 +649,121 @@ describe("Flow info node visibility", () => {
 });
 
 describe("Flow first-run dialog", () => {
+  it("auto-drops the first desktop flow with the guided demo overlay", async () => {
+    vi.useFakeTimers();
+
+    try {
+      localStorage.clear();
+      renderFlow();
+
+      expect(screen.getByTestId("auto-demo-overlay")).toBeInTheDocument();
+
+      act(() => {
+        vi.advanceTimersByTime(1300);
+      });
+
+      expect(screen.getByText("Flow Examples")).toBeInTheDocument();
+      expect(screen.getByText("Example flow")).toBeInTheDocument();
+      expect(screen.getByText("Dropping onto canvas")).toBeInTheDocument();
+      expect(setNodesMock).not.toHaveBeenCalled();
+
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+
+      expect(setNodesMock).toHaveBeenCalledTimes(1);
+      expect(setEdgesMock).toHaveBeenCalledTimes(1);
+      expect(localStorage.getItem(FIRST_RUN_STORAGE_KEY)).toBe("1");
+
+      act(() => {
+        vi.advanceTimersByTime(700);
+      });
+
+      expect(setViewportMock).toHaveBeenCalledWith(
+        { x: 112, y: 88, zoom: 0.27 },
+        { duration: 0 }
+      );
+      expect(screen.queryByTestId("auto-demo-overlay")).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("runs the auto demo by dropping, typing, and connecting the starter nodes", async () => {
+    vi.useFakeTimers();
+
+    try {
+      localStorage.setItem(FIRST_RUN_STORAGE_KEY, "1");
+      renderFlow();
+
+      act(() => {
+        screen.getByTestId("auto-demo-button").click();
+      });
+
+      expect(screen.getByTestId("auto-demo-overlay")).toBeInTheDocument();
+
+      // The search-driven VarInt drop + realistic port-to-port wire drag
+      // lengthen the demo; advance comfortably past the final overlay-clear.
+      act(() => {
+        vi.advanceTimersByTime(20_000);
+      });
+
+      const nodesById = new Map(
+        flowNodesState.current.map((node) => [node.id, node])
+      );
+      const inputNode = nodesById.get("node_auto_demo_input_count");
+      const varIntNode = nodesById.get("node_auto_demo_input_count_varint");
+      const txTemplateNode = nodesById.get(
+        "node_auto_demo_tx_template_legacy"
+      );
+
+      expect(inputNode).toBeDefined();
+      expect(varIntNode).toBeDefined();
+      expect(txTemplateNode).toBeDefined();
+      expect(inputNode?.position).toEqual({ x: 80, y: 130 });
+      expect(varIntNode?.position).toEqual({ x: 470, y: 225 });
+      expect(txTemplateNode?.position).toEqual({ x: 865, y: 90 });
+
+      const inputData = inputNode?.data as Record<string, unknown>;
+      const varIntData = varIntNode?.data as Record<string, unknown>;
+      const txTemplateData = txTemplateNode?.data as Record<string, unknown>;
+      expect(inputData.value).toBe("1");
+      expect(inputData.result).toBe("1");
+      expect(varIntData.result).toBe("01");
+      expect(txTemplateData.result).toBe("01");
+      expect(
+        (
+          (txTemplateData.inputs as Record<string, unknown>).vals as Record<
+            number,
+            string
+          >
+        )[10]
+      ).toBe("01");
+
+      expect(flowEdgesState.current).toEqual([
+        expect.objectContaining({
+          id: "edge_auto_demo_input_to_varint",
+          source: "node_auto_demo_input_count",
+          target: "node_auto_demo_input_count_varint",
+          targetHandle: "input-0",
+        }),
+        expect.objectContaining({
+          id: "edge_auto_demo_varint_to_tx_input_count",
+          source: "node_auto_demo_input_count_varint",
+          target: "node_auto_demo_tx_template_legacy",
+          targetHandle: "input-10",
+        }),
+      ]);
+      expect(setViewportMock).toHaveBeenCalledWith(
+        { x: 0, y: 0, zoom: 1 },
+        { duration: 0 }
+      );
+      expect(screen.queryByTestId("auto-demo-overlay")).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("renders the intro flow directly in mobile read-only mode", async () => {
     Object.defineProperty(window, "innerWidth", {
       configurable: true,
@@ -823,36 +921,6 @@ describe("Flow first-run dialog", () => {
     });
   });
 
-  it("opens the walkthrough when no stored data exists", async () => {
-    const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
-
-    try {
-      renderFlow();
-
-      expect(firstRunDialogProps.current?.open).toBe(false);
-      expect(walkthroughProps.current?.open).toBe(true);
-      expect(setNodesMock).not.toHaveBeenCalled();
-
-      expect(firstRunDialogProps.current?.open).toBe(false);
-      expect(setNodesMock).not.toHaveBeenCalled();
-      expect(setEdgesMock).not.toHaveBeenCalled();
-      expect(setViewportMock).not.toHaveBeenCalled();
-      expect(setItemSpy).toHaveBeenCalledWith(FIRST_RUN_STORAGE_KEY, "1");
-      expect(setItemSpy).not.toHaveBeenCalledWith(
-        WALKTHROUGH_STORAGE_KEY,
-        "1"
-      );
-
-      act(() => {
-        walkthroughProps.current?.onFinish();
-      });
-
-      expect(setItemSpy).toHaveBeenCalledWith(WALKTHROUGH_STORAGE_KEY, "1");
-    } finally {
-      setItemSpy.mockRestore();
-    }
-  });
-
   it("does not auto-load when a hydrated graph exists", async () => {
     flowNodesState.current = [
       {
@@ -870,7 +938,6 @@ describe("Flow first-run dialog", () => {
     });
 
     expect(firstRunDialogProps.current?.open).toBe(false);
-    expect(walkthroughProps.current?.open).toBe(false);
     expect(setNodesMock).not.toHaveBeenCalled();
     expect(setEdgesMock).not.toHaveBeenCalled();
     expect(setItemSpy).toHaveBeenCalledWith(FIRST_RUN_STORAGE_KEY, "1");
