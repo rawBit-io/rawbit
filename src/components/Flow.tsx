@@ -1253,6 +1253,12 @@ function FlowContent() {
       pendingFitOptionsRef.current = {};
       pendingExampleViewportRef.current = viewport;
 
+      const currentInstance = flowInstanceRef.current;
+      if (currentInstance) {
+        currentInstance.setViewport(viewport, { duration: 0 });
+        setHasFitOnInitialLoad(true);
+      }
+
       const retryDelays = [0, 24, 72, 140, 240, 380, 560, 800];
       retryDelays.forEach((delay, index) => {
         const timeoutId = window.setTimeout(() => {
