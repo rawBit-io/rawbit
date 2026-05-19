@@ -12,6 +12,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { CURSOR_TIP_OFFSET } from "@/components/autoDemoCursor";
+
 export interface AutoDemoOverlayState {
   cursor: { x: number; y: number } | null;
   ghost: {
@@ -30,8 +32,6 @@ interface Props {
   state: AutoDemoOverlayState | null;
 }
 
-/** Cursor SVG tip offset relative to its translated wrapper origin. */
-const CURSOR_TIP_OFFSET = { x: 5, y: 4 };
 
 /**
  * Bezier path matching React Flow's left/right handle connection line, so the

@@ -36,6 +36,7 @@ import {
   AutoDemoOverlay,
   type AutoDemoOverlayState,
 } from "@/components/AutoDemoOverlay";
+import { CURSOR_TIP_OFFSET } from "@/components/autoDemoCursor";
 import { Sun, Moon, Github } from "lucide-react";
 
 import { useNodeOperations } from "@/hooks/useNodeOperations";
@@ -471,6 +472,17 @@ function getRectCursorCenter(rect: {
   return {
     x: rect.x + rect.width / 2 - 4,
     y: rect.y + rect.height / 2 - 4,
+  };
+}
+
+/**
+ * Returns the cursor wrapper origin so the pointer's *tip* lands exactly on
+ * `point` (used for handle press/release, where precision matters).
+ */
+function withCursorTipAt(point: { x: number; y: number }) {
+  return {
+    x: point.x - CURSOR_TIP_OFFSET.x,
+    y: point.y - CURSOR_TIP_OFFSET.y,
   };
 }
 
@@ -1942,16 +1954,19 @@ function FlowContent() {
         getHandleScreenPosition(targetNodeId, "target", targetHandleId) ??
         flowToScreen(targetFallback);
 
-      // 1. cursor glides to the source port
+      // 1. cursor glides to the source port (tip lands on its centre)
       scheduleAutoDemoStep(startAt, () => {
-        setAutoDemoState({ cursor: resolveSource(), ghost: null });
+        setAutoDemoState({
+          cursor: withCursorTipAt(resolveSource()),
+          ghost: null,
+        });
       });
 
-      // 2. press the port — the wire springs out of it
+      // 2. press the port — the wire springs out of its exact centre
       scheduleAutoDemoStep(startAt + CONN_MOVE, () => {
         const src = resolveSource();
         setAutoDemoState({
-          cursor: src,
+          cursor: withCursorTipAt(src),
           ghost: null,
           pressing: true,
           connection: src,
@@ -1962,18 +1977,18 @@ function FlowContent() {
       scheduleAutoDemoStep(startAt + CONN_MOVE + CONN_GRAB, () => {
         const src = resolveSource();
         setAutoDemoState({
-          cursor: resolveTarget(),
+          cursor: withCursorTipAt(resolveTarget()),
           ghost: null,
           pressing: true,
           connection: src,
         });
       });
 
-      // 4. release on the target port — the real edge snaps in
+      // 4. release exactly on the target port — the real edge snaps in
       scheduleAutoDemoStep(startAt + CONN_TOTAL, () => {
         onRelease();
         setAutoDemoState({
-          cursor: resolveTarget(),
+          cursor: withCursorTipAt(resolveTarget()),
           ghost: null,
           connection: null,
         });
