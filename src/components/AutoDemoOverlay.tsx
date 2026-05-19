@@ -26,6 +26,11 @@ export interface AutoDemoOverlayState {
   pressing?: boolean;
   /** Fixed screen point of the source handle while a wire is being dragged. */
   connection?: { x: number; y: number } | null;
+  caption?: {
+    step?: string;
+    title: string;
+    body?: string;
+  } | null;
 }
 
 interface Props {
@@ -78,8 +83,8 @@ export function AutoDemoOverlay({ state }: Props) {
   }, [connection]);
 
   if (!state) return null;
-  const { cursor, ghost, pressing } = state;
-  if (!cursor && !ghost) return null;
+  const { cursor, ghost, pressing, caption } = state;
+  if (!cursor && !ghost && !caption) return null;
 
   return (
     <div
@@ -155,6 +160,24 @@ export function AutoDemoOverlay({ state }: Props) {
               strokeLinejoin="round"
             />
           </svg>
+        </div>
+      )}
+
+      {caption && (
+        <div className="absolute bottom-4 right-4 max-w-[min(40rem,calc(100vw-2rem))] rounded-md border border-primary/35 bg-card/95 px-6 py-5 text-card-foreground shadow-xl backdrop-blur sm:bottom-8 sm:right-8">
+          {caption.step && (
+            <div className="text-sm font-semibold uppercase tracking-normal text-muted-foreground">
+              {caption.step}
+            </div>
+          )}
+          <div className="mt-1 text-3xl font-semibold leading-tight text-primary">
+            {caption.title}
+          </div>
+          {caption.body && (
+            <div className="mt-3 text-xl leading-snug text-muted-foreground">
+              {caption.body}
+            </div>
+          )}
         </div>
       )}
     </div>

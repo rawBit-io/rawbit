@@ -1325,7 +1325,13 @@ export function CalculationNodeView({
 
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative z-10">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative z-10"
+                aria-label={`${data.title || "Node"} menu`}
+                title="Node menu"
+              >
                 <MoreHorizontal className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>

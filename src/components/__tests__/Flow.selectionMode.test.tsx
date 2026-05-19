@@ -53,6 +53,7 @@ const flowNodesState = { current: [] as FlowNode[] };
 const flowEdgesState = { current: [] as Edge[] };
 const setNodesMock = vi.fn();
 const setEdgesMock = vi.fn();
+const onDropMock = vi.fn();
 const setTabTooltipMock = vi.fn();
 const renameTabMock = vi.fn();
 const saveTabDataMock = vi.fn();
@@ -193,7 +194,7 @@ vi.mock("@/hooks/useNodeOperations", () => ({
     onEdgesChange: vi.fn(),
     onConnect: vi.fn(),
     onDragOver: vi.fn(),
-    onDrop: vi.fn(),
+    onDrop: onDropMock,
     onNodeDragStop: vi.fn(),
     onInit: vi.fn(),
     groupSelectedNodes: vi.fn(),
@@ -491,6 +492,25 @@ beforeEach(() => {
           : updater;
     }
   );
+  onDropMock.mockImplementation((event: React.DragEvent<HTMLDivElement>) => {
+    const raw = event.dataTransfer.getData("application/reactflow");
+    if (!raw) return;
+    const parsed = JSON.parse(raw) as {
+      nodeData?: {
+        flowData?: FlowData;
+      };
+    };
+    const flowData = parsed.nodeData?.flowData;
+    if (!flowData) return;
+    setNodesMock((currentNodes: FlowNode[]) => [
+      ...currentNodes.map((node) => ({ ...node, selected: false })),
+      ...flowData.nodes.map((node) => ({ ...node, selected: false })),
+    ]);
+    setEdgesMock((currentEdges: Edge[]) => [
+      ...currentEdges,
+      ...flowData.edges,
+    ]);
+  });
   localStorage.clear();
   window.history.replaceState({}, "", "/");
   document.body.innerHTML = "";
@@ -702,11 +722,10 @@ describe("Flow first-run dialog", () => {
 
       expect(screen.getByTestId("auto-demo-overlay")).toBeInTheDocument();
 
-      // The search-driven VarInt drop, realistic port-to-port wire drag, and
-      // the closing Text Info note lengthen the demo; advance comfortably
-      // past the final overlay-clear.
+      // Part 1 drops the starter nodes, connects them, and writes the welcome
+      // note before Part 2 replaces the tab with the guided Intro P2PKH tour.
       act(() => {
-        vi.advanceTimersByTime(32_000);
+        vi.advanceTimersByTime(20_250);
       });
 
       const nodesById = new Map(
@@ -727,7 +746,7 @@ describe("Flow first-run dialog", () => {
       expect(varIntNode?.position).toEqual({ x: 470, y: 225 });
       expect(txTemplateNode?.position).toEqual({ x: 865, y: 90 });
       expect(textInfoNode?.type).toBe("shadcnTextInfo");
-      expect(textInfoNode?.selected).toBeFalsy();
+      expect(textInfoNode?.selected).toBe(true);
       expect(textInfoNode?.position).toEqual({ x: 60, y: 430 });
       const textInfoData = textInfoNode?.data as Record<string, unknown>;
       expect(textInfoData.title).toBe("Welcome to rawBit");
@@ -793,6 +812,34 @@ describe("Flow first-run dialog", () => {
         maxZoom: 0.8,
         duration: 450,
       });
+      expect(fitViewMock).toHaveBeenCalledTimes(2);
+
+      act(() => {
+        vi.advanceTimersByTime(80_000);
+      });
+
+      expect(onDropMock).toHaveBeenCalledTimes(1);
+      expect(flowNodesState.current.map((node) => node.id)).toEqual([
+        "node_auto_demo_tx_template_legacy",
+        "node_auto_demo_input_count_varint",
+        "node_auto_demo_input_count",
+        "node_auto_demo_text_info",
+        "overview-node",
+        "calc-node",
+        "group-node",
+      ]);
+      expect(flowEdgesState.current.map((edge) => edge.id)).toEqual([
+        "edge_auto_demo_input_to_varint",
+        "edge_auto_demo_varint_to_tx_input_count",
+        "edge-1",
+      ]);
+      expect(flowNodesState.current.some((node) => node.selected)).toBe(false);
+      expect(flowEdgesState.current.some((edge) => edge.selected)).toBe(false);
+      expect(screen.getByTestId("sidebar")).toHaveTextContent("open");
+      expect(renameTabMock).not.toHaveBeenCalledWith(
+        "tab-2",
+        "Intro P2PKH Tour"
+      );
       expect(screen.queryByTestId("auto-demo-overlay")).not.toBeInTheDocument();
     } finally {
       vi.useRealTimers();

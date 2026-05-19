@@ -8,7 +8,7 @@ import {
   type RefObject,
   type SetStateAction,
 } from "react";
-import type { Edge, ReactFlowInstance } from "@xyflow/react";
+import type { Edge, ReactFlowInstance, Viewport } from "@xyflow/react";
 
 import type { AutoDemoOverlayState } from "@/components/AutoDemoOverlay";
 import { CURSOR_TIP_OFFSET } from "@/components/autoDemoCursor";
@@ -51,16 +51,46 @@ const AUTO_DEMO_TEXT_INFO_CONTENT = [
 ].join("\n");
 const AUTO_DEMO_INPUT_TO_VARINT_EDGE_ID = "edge_auto_demo_input_to_varint";
 const AUTO_DEMO_VARINT_TO_TX_EDGE_ID = "edge_auto_demo_varint_to_tx_input_count";
+const AUTO_DEMO_COMPLETE_FLOW_VIEW_DURATION = 950;
+const AUTO_DEMO_COMPLETE_FLOW_GROUP_IDS = {
+  funding: "group_zi8x2qm",
+  lockingScript: "group_hegqa99",
+  preimage: "group_7w6adu7",
+  signature: "group_cd0gkcz",
+  final: "group_ixnjwes",
+} as const;
+const AUTO_DEMO_COMPLETE_FLOW_FALLBACK_BOUNDS: Record<
+  keyof typeof AUTO_DEMO_COMPLETE_FLOW_GROUP_IDS | "all",
+  { x: number; y: number; width: number; height: number }
+> = {
+  all: { x: 1456, y: 788, width: 13791, height: 6002 },
+  funding: { x: 1660, y: 788, width: 1654, height: 1059 },
+  lockingScript: { x: 1456, y: 5698, width: 2478, height: 1092 },
+  preimage: { x: 4307, y: 2501, width: 4965, height: 3234 },
+  signature: { x: 10055, y: 1657, width: 2770, height: 1168 },
+  final: { x: 13671, y: 4566, width: 1576, height: 2090 },
+};
+const AUTO_DEMO_SCRIPT_STEP_ADVANCE_COUNT = 8;
 
 type SetNodes = (
   updater: FlowNode[] | ((nodes: FlowNode[]) => FlowNode[])
 ) => void;
 type SetEdges = (updater: Edge[] | ((edges: Edge[]) => Edge[])) => void;
+type AutoDemoCaption = NonNullable<AutoDemoOverlayState["caption"]>;
+
+type DropExampleFlow = (
+  flowId: string,
+  screenPosition: { x: number; y: number }
+) => boolean;
 
 interface UseAutoDemoOptions {
   addTab: () => string;
   renameTab: (tabId: string, title: string) => void;
   setTabTooltip: (tabId: string, tooltip: string) => void;
+  dropExampleFlow: DropExampleFlow;
+  introFlowId?: string;
+  introFlowLabel?: string;
+  getNodes: () => FlowNode[];
   setNodes: SetNodes;
   setEdges: SetEdges;
   setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
@@ -131,6 +161,33 @@ function getSidebarSearchInputRect(): {
   };
 }
 
+function getFlowTemplateSourceRect(flowId: string | undefined): {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+} {
+  if (typeof document === "undefined") {
+    return { x: 76, y: 780, width: 196, height: 72 };
+  }
+
+  const source = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-flow-template-id]")
+  ).find((element) => element.dataset.flowTemplateId === flowId);
+
+  if (!source) {
+    return { x: 76, y: 780, width: 196, height: 72 };
+  }
+
+  const rect = source.getBoundingClientRect();
+  return {
+    x: rect.left,
+    y: rect.top,
+    width: rect.width || 196,
+    height: rect.height || 72,
+  };
+}
+
 function getRectCursorCenter(rect: {
   x: number;
   y: number;
@@ -182,10 +239,135 @@ function getHandleScreenPosition(
   };
 }
 
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function getFlowNodeBounds(node: FlowNode):
+  | { x: number; y: number; width: number; height: number }
+  | null {
+  const x = node.position?.x;
+  const y = node.position?.y;
+  if (typeof x !== "number" || typeof y !== "number") return null;
+
+  const data = (node.data ?? {}) as Record<string, unknown>;
+  const measured = (node as { measured?: { width?: number; height?: number } })
+    .measured;
+  const width =
+    typeof data.width === "number"
+      ? data.width
+      : typeof measured?.width === "number"
+        ? measured.width
+        : typeof (node as { width?: number }).width === "number"
+          ? (node as { width?: number }).width ?? 0
+          : 260;
+  const height =
+    typeof data.height === "number"
+      ? data.height
+      : typeof measured?.height === "number"
+        ? measured.height
+        : typeof (node as { height?: number }).height === "number"
+          ? (node as { height?: number }).height ?? 0
+          : 220;
+
+  return { x, y, width, height };
+}
+
+function unionBounds(
+  bounds: Array<{ x: number; y: number; width: number; height: number }>
+) {
+  const minX = Math.min(...bounds.map((bound) => bound.x));
+  const minY = Math.min(...bounds.map((bound) => bound.y));
+  const maxX = Math.max(...bounds.map((bound) => bound.x + bound.width));
+  const maxY = Math.max(...bounds.map((bound) => bound.y + bound.height));
+  return {
+    x: minX,
+    y: minY,
+    width: maxX - minX,
+    height: maxY - minY,
+  };
+}
+
+function getTourBounds(
+  nodes: FlowNode[],
+  groupKeys: Array<keyof typeof AUTO_DEMO_COMPLETE_FLOW_GROUP_IDS>
+) {
+  const ids = groupKeys.map((key) => AUTO_DEMO_COMPLETE_FLOW_GROUP_IDS[key]);
+  const bounds = ids
+    .map((id) => nodes.find((node) => node.id === id))
+    .map((node) => (node ? getFlowNodeBounds(node) : null))
+    .filter(
+      (bound): bound is { x: number; y: number; width: number; height: number } =>
+        Boolean(bound)
+    );
+
+  if (bounds.length > 0) {
+    return unionBounds(bounds);
+  }
+  if (groupKeys.length === 1) {
+    return AUTO_DEMO_COMPLETE_FLOW_FALLBACK_BOUNDS[groupKeys[0]];
+  }
+  return AUTO_DEMO_COMPLETE_FLOW_FALLBACK_BOUNDS.all;
+}
+
+function viewportForBounds(
+  bounds: { x: number; y: number; width: number; height: number },
+  wrapper: HTMLDivElement | null,
+  options?: { padding?: number; minZoom?: number; maxZoom?: number }
+): Viewport {
+  const wrapperRect = wrapper?.getBoundingClientRect();
+  const width = Math.max(wrapperRect?.width ?? window.innerWidth ?? 1200, 1);
+  const height = Math.max(
+    wrapperRect?.height ?? Math.max((window.innerHeight ?? 900) - 120, 1),
+    1
+  );
+  const padding = options?.padding ?? 0.22;
+  const maxZoom = options?.maxZoom ?? 0.72;
+  const minZoom = options?.minZoom ?? 0.08;
+  const zoom = clamp(
+    Math.min(
+      (width * (1 - padding)) / Math.max(bounds.width, 1),
+      (height * (1 - padding)) / Math.max(bounds.height, 1)
+    ),
+    minZoom,
+    maxZoom
+  );
+
+  return {
+    x: width / 2 - (bounds.x + bounds.width / 2) * zoom,
+    y: height / 2 - (bounds.y + bounds.height / 2) * zoom,
+    zoom,
+  };
+}
+
+function getElementCenter(element: Element | null) {
+  if (!(element instanceof HTMLElement)) return null;
+  const rect = element.getBoundingClientRect();
+  if (rect.width === 0 && rect.height === 0) return null;
+  return {
+    x: rect.left + rect.width / 2,
+    y: rect.top + rect.height / 2,
+  };
+}
+
+function findVisibleElementByText(selector: string, text: string) {
+  if (typeof document === "undefined") return null;
+  return (
+    Array.from(document.querySelectorAll<HTMLElement>(selector)).find(
+      (element) =>
+        element.offsetParent !== null && element.textContent?.includes(text)
+    ) ?? null
+  );
+}
+
 export function useAutoDemo({
   addTab,
   renameTab,
   setTabTooltip,
+  dropExampleFlow,
+  introFlowId,
+  introFlowLabel,
+  getNodes,
   setNodes,
   setEdges,
   setIsSidebarOpen,
@@ -229,6 +411,15 @@ export function useAutoDemo({
       ),
     []
   );
+  const latestActionsRef = useRef({
+    dropExampleFlow,
+  });
+
+  useEffect(() => {
+    latestActionsRef.current = {
+      dropExampleFlow,
+    };
+  }, [dropExampleFlow]);
 
   const clearAutoDemoTimers = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -301,6 +492,28 @@ export function useAutoDemo({
     });
 
     const sp = (ms: number) => Math.round(ms / 1.5);
+    let activeCaption: AutoDemoCaption | null = null;
+
+    const setCaption = (caption: AutoDemoCaption | null) => {
+      activeCaption = caption;
+      setAutoDemoState({
+        cursor: null,
+        ghost: null,
+        caption,
+      });
+    };
+
+    const setCursorWithCaption = (
+      cursor: { x: number; y: number } | null,
+      extras?: Partial<AutoDemoOverlayState>
+    ) => {
+      setAutoDemoState({
+        cursor,
+        ghost: null,
+        caption: activeCaption,
+        ...extras,
+      });
+    };
 
     const flowToScreen = (
       position: { x: number; y: number },
@@ -562,7 +775,11 @@ export function useAutoDemo({
     );
     const inputEnd = inputStart + DROP_DURATION;
 
-    const titleMoveAt = inputEnd + sp(300);
+    const inputFitAt = inputEnd + sp(300);
+    scheduleAutoDemoStep(inputFitAt, fitAutoDemoViewport);
+    const inputFitEnd = inputFitAt + AUTO_DEMO_FIT_VIEW_DURATION;
+
+    const titleMoveAt = inputFitEnd + sp(300);
     scheduleAutoDemoStep(titleMoveAt, () => {
       setAutoDemoState({
         cursor: flowToScreen({
@@ -703,6 +920,210 @@ export function useAutoDemo({
       });
 
       return CONN_TOTAL;
+    };
+
+    const scheduleCompleteFlowDrop = (startAt: number) => {
+      const flowLabel = introFlowLabel ?? "Intro P2PKH";
+      const targetScreen = () => {
+        return flowToScreen({
+          x: AUTO_DEMO_TX_TEMPLATE_POSITION.x + 760,
+          y: AUTO_DEMO_TX_TEMPLATE_POSITION.y + 70,
+        });
+      };
+
+      scheduleAutoDemoStep(startAt, () => {
+        setIsSidebarOpen(true);
+        setAutoDemoSidebarSearch("");
+        setCaption({
+          title: "Explore a complete transaction",
+          body: "Drop the Intro P2PKH example, then step through Bitcoin Script execution.",
+        });
+      });
+
+      const sourceAt = startAt + sp(600);
+      scheduleAutoDemoStep(sourceAt, () => {
+        const sourceCenter = getRectCursorCenter(
+          getFlowTemplateSourceRect(introFlowId)
+        );
+        setCursorWithCaption(sourceCenter);
+      });
+
+      scheduleAutoDemoStep(sourceAt + sp(650), () => {
+        const sourceCenter = getRectCursorCenter(
+          getFlowTemplateSourceRect(introFlowId)
+        );
+        setCursorWithCaption(sourceCenter, { pressing: true });
+      });
+
+      scheduleAutoDemoStep(sourceAt + sp(850), () => {
+        const sourceCenter = getRectCursorCenter(
+          getFlowTemplateSourceRect(introFlowId)
+        );
+        setCursorWithCaption(sourceCenter, {
+          ghost: {
+            x: sourceCenter.x - 20,
+            y: sourceCenter.y - 18,
+            eyebrow: "Flow Examples",
+            label: flowLabel,
+            detail: "Dropping complete flow",
+          },
+        });
+      });
+
+      scheduleAutoDemoStep(sourceAt + sp(1150), () => {
+        const target = targetScreen();
+        setCursorWithCaption(target, {
+          ghost: {
+            x: target.x - 20,
+            y: target.y - 18,
+            eyebrow: "Flow Examples",
+            label: flowLabel,
+            detail: "Dropping complete flow",
+          },
+        });
+      });
+
+      const dropAt = sourceAt + sp(1900);
+      scheduleAutoDemoStep(dropAt, () => {
+        const target = targetScreen();
+        if (introFlowId) {
+          latestActionsRef.current.dropExampleFlow(introFlowId, target);
+        }
+        setCursorWithCaption(target, {
+          ghost: null,
+          pressing: true,
+        });
+      });
+
+      const unselectAt = dropAt + sp(650);
+      scheduleAutoDemoStep(unselectAt, () => {
+        const target = targetScreen();
+        const clickPoint = {
+          x: target.x - 120,
+          y: target.y + 90,
+        };
+        setCursorWithCaption(clickPoint, { pressing: true });
+        setNodes((currentNodes) =>
+          currentNodes.map((node) =>
+            node.selected ? { ...node, selected: false } : node
+          )
+        );
+        setEdges((currentEdges) =>
+          currentEdges.map((edge) =>
+            edge.selected ? { ...edge, selected: false } : edge
+          )
+        );
+      });
+
+      scheduleAutoDemoStep(unselectAt + sp(300), () => {
+        const target = targetScreen();
+        setCursorWithCaption({
+          x: target.x - 120,
+          y: target.y + 90,
+        });
+      });
+
+      return unselectAt + sp(700);
+    };
+
+    const focusCompleteFlowGroups = (
+      groupKeys: Array<keyof typeof AUTO_DEMO_COMPLETE_FLOW_GROUP_IDS>,
+      options?: { padding?: number; minZoom?: number; maxZoom?: number }
+    ) => {
+      const bounds = getTourBounds(getNodes(), groupKeys);
+      const viewport = viewportForBounds(
+        bounds,
+        reactFlowWrapper.current,
+        options
+      );
+      flowInstanceRef.current?.setViewport(viewport, {
+        duration: AUTO_DEMO_COMPLETE_FLOW_VIEW_DURATION,
+      });
+    };
+
+    const scheduleClickElement = (
+      startAt: number,
+      getElement: () => HTMLElement | null,
+      fallback: { x: number; y: number },
+      afterClick?: () => void
+    ) => {
+      const resolveCenter = () => getElementCenter(getElement()) ?? fallback;
+
+      scheduleAutoDemoStep(startAt, () => {
+        setCursorWithCaption(resolveCenter());
+      });
+      scheduleAutoDemoStep(startAt + sp(520), () => {
+        setCursorWithCaption(resolveCenter(), { pressing: true });
+        getElement()?.click();
+        afterClick?.();
+      });
+      scheduleAutoDemoStep(startAt + sp(820), () => {
+        setCursorWithCaption(resolveCenter());
+      });
+
+      return startAt + sp(1000);
+    };
+
+    const scheduleScriptStepsTour = (startAt: number) => {
+      scheduleAutoDemoStep(startAt, () => {
+        setCaption({
+          title: "Step through Script execution",
+          body: "Open the verifier and watch every opcode change the stack.",
+        });
+      });
+
+      const openAt = startAt + sp(500);
+      const afterOpen = scheduleClickElement(
+        openAt,
+        () => findVisibleElementByText("button", "View Script Steps"),
+        flowToScreen({ x: 13671 + 1022 + 120, y: 4566 + 309 + 360 })
+      );
+
+      let nextAt = afterOpen + sp(900);
+      for (let i = 0; i < AUTO_DEMO_SCRIPT_STEP_ADVANCE_COUNT; i += 1) {
+        scheduleAutoDemoStep(nextAt - sp(220), () => {
+          setCaption({
+            title: "Watch the stack change",
+            body: "Each click advances one opcode and highlights the stack before and after.",
+          });
+        });
+        nextAt = scheduleClickElement(
+          nextAt,
+          () => {
+            const nextButton = findVisibleElementByText("button", "Next");
+            if (
+              nextButton instanceof HTMLButtonElement &&
+              nextButton.disabled
+            ) {
+              return null;
+            }
+            return nextButton;
+          },
+          { x: 205, y: 210 }
+        ) + sp(420);
+      }
+
+      const closeAt = nextAt + sp(700);
+      const afterClose = scheduleClickElement(
+        closeAt,
+        () => findVisibleElementByText("button", "Close"),
+        { x: window.innerWidth - 110, y: window.innerHeight - 70 }
+      );
+
+      scheduleAutoDemoStep(afterClose + sp(250), () => {
+        setNodes((currentNodes) =>
+          currentNodes.map((node) =>
+            node.selected ? { ...node, selected: false } : node
+          )
+        );
+        setEdges((currentEdges) =>
+          currentEdges.map((edge) =>
+            edge.selected ? { ...edge, selected: false } : edge
+          )
+        );
+      });
+
+      return afterClose + sp(500);
     };
 
     const conn1Start = typeValueAt + sp(700);
@@ -854,13 +1275,42 @@ export function useAutoDemo({
     }
     const noteTypeEnd = noteTypeStart + noteWords.length * TYPE_WORD_DELAY;
 
-    const demoEndsAt = noteTypeEnd + sp(1600);
-    scheduleAutoDemoStep(demoEndsAt, () => {
+    const completeFlowStartAt = noteTypeEnd + sp(1600);
+    scheduleAutoDemoStep(completeFlowStartAt, () => {
       setNodes((currentNodes) =>
         currentNodes.map((node) =>
           node.selected ? { ...node, selected: false } : node
         )
       );
+    });
+
+    let completeFlowAt = scheduleCompleteFlowDrop(completeFlowStartAt);
+    scheduleAutoDemoStep(completeFlowAt, () => {
+      setCaption({
+        title: "Explore the complete transaction",
+        body: "The full P2PKH example is now on the canvas. Follow the connected nodes, then inspect Script execution.",
+      });
+      focusCompleteFlowGroups(
+        ["funding", "lockingScript", "preimage", "signature", "final"],
+        { padding: 0.14, minZoom: 0.055, maxZoom: 0.16 }
+      );
+    });
+    completeFlowAt += AUTO_DEMO_COMPLETE_FLOW_VIEW_DURATION + 2400;
+
+    scheduleAutoDemoStep(completeFlowAt, () => {
+      setCaption({
+        title: "Open the verifier",
+        body: "The Verify Script node lets you step through scriptSig and scriptPubKey opcode by opcode.",
+      });
+      focusCompleteFlowGroups(["final"], {
+        padding: 0.18,
+        maxZoom: 0.5,
+      });
+    });
+    completeFlowAt += AUTO_DEMO_COMPLETE_FLOW_VIEW_DURATION + 1400;
+    completeFlowAt = scheduleScriptStepsTour(completeFlowAt);
+
+    scheduleAutoDemoStep(completeFlowAt, () => {
       autoDemoRunningRef.current = false;
       setAutoDemoState(null);
     });
@@ -868,6 +1318,9 @@ export function useAutoDemo({
     addTab,
     clearAutoDemoTimers,
     flowInstanceRef,
+    getNodes,
+    introFlowId,
+    introFlowLabel,
     reactFlowWrapper,
     renameTab,
     scheduleAutoDemoStep,

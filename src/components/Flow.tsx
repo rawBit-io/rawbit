@@ -1312,10 +1312,15 @@ function FlowContent() {
   const loadExampleFlow = useCallback(
     (
       flowId: string,
-      options?: { placement?: "fit" | "top-left-drop" }
+      options?: {
+        placement?: "fit" | "top-left-drop";
+        targetTabId?: string;
+        skipViewport?: boolean;
+      }
     ) => {
       const entry = exampleFlowMap.get(flowId);
       if (!entry) return false;
+      const targetTabId = options?.targetTabId ?? activeTabId;
 
       const clonedData = cloneFlowData(entry.data);
       const displayTitle = getFlowDisplayTitle(entry.label, clonedData.name);
@@ -1372,18 +1377,20 @@ function FlowContent() {
       setNodes(() => normalizedNodes);
       setEdges(() => normalizedEdges);
 
-      refreshBanner(normalizedNodes, activeTabId, {
+      refreshBanner(normalizedNodes, targetTabId, {
         immediate: true,
         sticky: false,
       });
 
       scheduleSnapshot(`Load example: ${displayTitle}`, { refresh: true });
-      if (activeTabId) {
-        setTabTooltip(activeTabId, `Example: ${displayTitle}`);
-        renameTab(activeTabId, displayTitle);
+      if (targetTabId) {
+        setTabTooltip(targetTabId, `Example: ${displayTitle}`);
+        renameTab(targetTabId, displayTitle);
       }
 
-      if (dropViewport) {
+      if (options?.skipViewport) {
+        setHasFitOnInitialLoad(true);
+      } else if (dropViewport) {
         scheduleExampleFlowViewport(dropViewport);
       } else {
         scheduleExampleFlowFit();
@@ -1424,6 +1431,47 @@ function FlowContent() {
     [loadExampleFlow, markWelcomeComplete, setShowWelcomeDialog]
   );
 
+  const autoDemoIntroFlow =
+    exampleFlowMap.get(INTRO_FLOW_ID) ??
+    (exampleFlowOptions[0]
+      ? exampleFlowMap.get(exampleFlowOptions[0].id)
+      : undefined);
+  const autoDemoIntroFlowId = autoDemoIntroFlow?.id;
+  const autoDemoIntroFlowLabel = autoDemoIntroFlow?.label ?? "Intro P2PKH";
+
+  const dropExampleFlowForAutoDemo = useCallback(
+    (flowId: string, screenPosition: { x: number; y: number }) => {
+      const entry = exampleFlowMap.get(flowId);
+      const wrapper = reactFlowWrapper.current;
+      if (!entry || !wrapper) return false;
+
+      const dragPayload = {
+        functionName: "flow_template",
+        nodeData: {
+          flowData: entry.data,
+          flowLabel: entry.label,
+        },
+      };
+
+      const dataTransfer = {
+        getData: (type: string) =>
+          type === "application/reactflow"
+            ? JSON.stringify(dragPayload)
+            : "",
+      } as DataTransfer;
+
+      onDrop({
+        preventDefault: () => undefined,
+        dataTransfer,
+        clientX: screenPosition.x,
+        clientY: screenPosition.y,
+        currentTarget: wrapper,
+      } as unknown as React.DragEvent<HTMLDivElement>);
+      return true;
+    },
+    [exampleFlowMap, onDrop, reactFlowWrapper]
+  );
+
   const {
     autoDemoDisabled,
     autoDemoDropNodeLabel,
@@ -1442,6 +1490,10 @@ function FlowContent() {
     setShowSearchPanel,
     flowInstanceRef,
     reactFlowWrapper,
+    getNodes,
+    introFlowId: autoDemoIntroFlowId,
+    introFlowLabel: autoDemoIntroFlowLabel,
+    dropExampleFlow: dropExampleFlowForAutoDemo,
   });
 
   useEffect(() => {
