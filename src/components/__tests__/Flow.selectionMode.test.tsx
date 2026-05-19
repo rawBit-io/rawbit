@@ -727,6 +727,7 @@ describe("Flow first-run dialog", () => {
       expect(varIntNode?.position).toEqual({ x: 470, y: 225 });
       expect(txTemplateNode?.position).toEqual({ x: 865, y: 90 });
       expect(textInfoNode?.type).toBe("shadcnTextInfo");
+      expect(textInfoNode?.selected).toBeFalsy();
       expect(textInfoNode?.position).toEqual({ x: 60, y: 470 });
       const textInfoData = textInfoNode?.data as Record<string, unknown>;
       expect(textInfoData.title).toBe("Welcome to rawBit");
@@ -739,7 +740,7 @@ describe("Flow first-run dialog", () => {
           "- **Step through Script** opcode by opcode",
           "- **16 example flows**: P2PKH → SegWit → Taproot",
           "",
-          "*Run it locally for full privacy — [github.com/rawBit-io/rawbit](https://github.com/rawBit-io/rawbit)*",
+          "[github.com/rawBit-io/rawbit](https://github.com/rawBit-io/rawbit)",
         ].join("\n")
       );
 
@@ -748,6 +749,7 @@ describe("Flow first-run dialog", () => {
       const txTemplateData = txTemplateNode?.data as Record<string, unknown>;
       expect(inputData.value).toBe("1");
       expect(inputData.result).toBe("1");
+      expect(inputData.title).toBe("Input Count");
       expect(varIntData.result).toBe("01");
       expect(txTemplateData.result).toBe("01");
       expect(

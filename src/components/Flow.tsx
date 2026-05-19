@@ -223,6 +223,7 @@ const INTRO_SOURCE_FALLBACK = { x: 76, y: 780 };
 const INTRO_SOURCE_CARD_SIZE = { width: 196, height: 96 };
 const SHARED_IMPORT_FIT_MIN_ZOOM = 0.2;
 const AUTO_DEMO_INPUT_LABEL = "Input";
+const AUTO_DEMO_INPUT_TITLE = "Input Count";
 const AUTO_DEMO_TX_TEMPLATE_LABEL = "TX Template legacy";
 const AUTO_DEMO_VARINT_LABEL = "Int → VarInt";
 const AUTO_DEMO_VIEWPORT = { x: 0, y: 0, zoom: 1 };
@@ -244,7 +245,7 @@ const AUTO_DEMO_TEXT_INFO_CONTENT = [
   "- **Step through Script** opcode by opcode",
   "- **16 example flows**: P2PKH → SegWit → Taproot",
   "",
-  "*Run it locally for full privacy — [github.com/rawBit-io/rawbit](https://github.com/rawBit-io/rawbit)*",
+  "[github.com/rawBit-io/rawbit](https://github.com/rawBit-io/rawbit)",
 ].join("\n");
 const AUTO_DEMO_INPUT_TO_VARINT_EDGE_ID = "edge_auto_demo_input_to_varint";
 const AUTO_DEMO_VARINT_TO_TX_EDGE_ID = "edge_auto_demo_varint_to_tx_input_count";
@@ -1923,7 +1924,58 @@ function FlowContent() {
     );
     const inputEnd = inputStart + DROP_DURATION;
 
-    const fieldMoveAt = inputEnd + sp(350);
+    // Rename the Input node's title live on the canvas: cursor moves to the
+    // header, double-clicks it, then the new name is "typed" out.
+    const titleMoveAt = inputEnd + sp(300);
+    scheduleAutoDemoStep(titleMoveAt, () => {
+      setAutoDemoState({
+        cursor: flowToScreen({
+          x: AUTO_DEMO_INPUT_POSITION.x + 50,
+          y: AUTO_DEMO_INPUT_POSITION.y + 24,
+        }),
+        ghost: null,
+      });
+    });
+
+    const titleFocusAt = titleMoveAt + sp(450);
+    scheduleAutoDemoStep(titleFocusAt, () => {
+      setAutoDemoState({
+        cursor: flowToScreen({
+          x: AUTO_DEMO_INPUT_POSITION.x + 50,
+          y: AUTO_DEMO_INPUT_POSITION.y + 24,
+        }),
+        ghost: null,
+        pressing: true,
+      });
+    });
+
+    // Title typing is "text typing" → kept at a readable, unscaled cadence.
+    const TITLE_TYPE_DELAY = 85;
+    const titleBaseLen = AUTO_DEMO_INPUT_LABEL.length;
+    const titleTypeStart = titleFocusAt + sp(250);
+    for (let i = titleBaseLen + 1; i <= AUTO_DEMO_INPUT_TITLE.length; i += 1) {
+      const partial = AUTO_DEMO_INPUT_TITLE.slice(0, i);
+      scheduleAutoDemoStep(
+        titleTypeStart + (i - titleBaseLen) * TITLE_TYPE_DELAY,
+        () => {
+          setNodes((currentNodes) =>
+            currentNodes.map((node) => {
+              if (node.id !== AUTO_DEMO_INPUT_NODE_ID) return node;
+              const existing = (node.data ?? {}) as Record<string, unknown>;
+              return {
+                ...node,
+                data: { ...existing, title: partial } as FlowNode["data"],
+              };
+            })
+          );
+        }
+      );
+    }
+    const titleTypeEnd =
+      titleTypeStart +
+      (AUTO_DEMO_INPUT_TITLE.length - titleBaseLen) * TITLE_TYPE_DELAY;
+
+    const fieldMoveAt = titleTypeEnd + sp(350);
     scheduleAutoDemoStep(fieldMoveAt, () => {
       setAutoDemoState({
         cursor: flowToScreen({
@@ -2178,9 +2230,15 @@ function FlowContent() {
     }
     const noteTypeEnd = noteTypeStart + noteWords.length * TYPE_WORD_DELAY;
 
-    // Final: clear the overlay after the user has had a moment to read it.
+    // Final: deselect the Text Info node, then clear the overlay after the
+    // user has had a moment to read it.
     const demoEndsAt = noteTypeEnd + sp(1600);
     scheduleAutoDemoStep(demoEndsAt, () => {
+      setNodes((currentNodes) =>
+        currentNodes.map((node) =>
+          node.selected ? { ...node, selected: false } : node
+        )
+      );
       autoDemoRunningRef.current = false;
       setAutoDemoState(null);
     });
