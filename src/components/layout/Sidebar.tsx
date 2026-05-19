@@ -244,7 +244,10 @@ function getSidebarRevealId(...parts: string[]) {
 }
 
 // Use the existing SidebarProps from your code
-export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
+export function Sidebar({
+  isOpen,
+  introDropFlowId,
+}: SidebarProps) {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const [openCategories, setOpenCategories] = useState<string[]>([
     "canvas-inputs",
@@ -431,6 +434,7 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
     <div
       key={`${node.functionName}-${node.label}`}
       data-sidebar-reveal-item
+      data-node-template-label={node.label}
       draggable
       onDragStart={(e) => onDragStart(e, node)}
       className={cn(
@@ -452,6 +456,7 @@ export function Sidebar({ isOpen, introDropFlowId }: SidebarProps) {
   const renderSearchNodeCard = (node: NodeTemplate) => (
     <div
       key={`${node.functionName}-${node.label}`}
+      data-node-template-label={node.label}
       draggable
       onDragStart={(e) => onDragStart(e, node)}
       className="flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors"

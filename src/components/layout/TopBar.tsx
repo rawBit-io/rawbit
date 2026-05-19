@@ -41,6 +41,7 @@ import {
   Globe,
   Github,
   Twitter,
+  Youtube,
   Mail,
   Paintbrush,
   Check,
@@ -758,7 +759,6 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
           >
             <Share className="h-7 w-7" />
           </TopBarIconButton>
-
           {/* community links */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -793,6 +793,17 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                 >
                   <Twitter className="h-4 w-4" />
                   <span>X (Twitter)</span>
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a
+                  href="https://www.youtube.com/@rawBit-io"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2"
+                >
+                  <Youtube className="h-4 w-4" />
+                  <span>YouTube</span>
                 </a>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>

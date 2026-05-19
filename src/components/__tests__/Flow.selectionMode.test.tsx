@@ -1,5 +1,5 @@
 import React from "react";
-import { act, cleanup, render, waitFor } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Edge, ReactFlowInstance } from "@xyflow/react";
 
@@ -53,6 +53,7 @@ const flowNodesState = { current: [] as FlowNode[] };
 const flowEdgesState = { current: [] as Edge[] };
 const setNodesMock = vi.fn();
 const setEdgesMock = vi.fn();
+const onDropMock = vi.fn();
 const setTabTooltipMock = vi.fn();
 const renameTabMock = vi.fn();
 const saveTabDataMock = vi.fn();
@@ -182,7 +183,7 @@ vi.mock("@/hooks/useNodeOperations", () => ({
     onEdgesChange: vi.fn(),
     onConnect: vi.fn(),
     onDragOver: vi.fn(),
-    onDrop: vi.fn(),
+    onDrop: onDropMock,
     onNodeDragStop: vi.fn(),
     onInit: vi.fn(),
     groupSelectedNodes: vi.fn(),
@@ -478,6 +479,25 @@ beforeEach(() => {
           : updater;
     }
   );
+  onDropMock.mockImplementation((event: React.DragEvent<HTMLDivElement>) => {
+    const raw = event.dataTransfer.getData("application/reactflow");
+    if (!raw) return;
+    const parsed = JSON.parse(raw) as {
+      nodeData?: {
+        flowData?: FlowData;
+      };
+    };
+    const flowData = parsed.nodeData?.flowData;
+    if (!flowData) return;
+    setNodesMock((currentNodes: FlowNode[]) => [
+      ...currentNodes.map((node) => ({ ...node, selected: false })),
+      ...flowData.nodes.map((node) => ({ ...node, selected: false })),
+    ]);
+    setEdgesMock((currentEdges: Edge[]) => [
+      ...currentEdges,
+      ...flowData.edges,
+    ]);
+  });
   localStorage.clear();
   window.history.replaceState({}, "", "/");
   document.body.innerHTML = "";
@@ -636,6 +656,81 @@ describe("Flow info node visibility", () => {
 });
 
 describe("Flow first-run dialog", () => {
+  it("auto-drops the first desktop flow with the guided demo overlay", async () => {
+    vi.useFakeTimers();
+    const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
+
+    try {
+      localStorage.clear();
+      renderFlow();
+
+      expect(screen.getByTestId("intro-drop-overlay")).toBeInTheDocument();
+
+      act(() => {
+        vi.advanceTimersByTime(1300);
+      });
+
+      expect(screen.getByText("Flow Examples")).toBeInTheDocument();
+      expect(screen.getByText("Example flow")).toBeInTheDocument();
+      expect(screen.getByText("Dropping onto canvas")).toBeInTheDocument();
+      expect(setNodesMock).not.toHaveBeenCalled();
+
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+
+      expect(setNodesMock).toHaveBeenCalledTimes(1);
+      expect(setEdgesMock).toHaveBeenCalledTimes(1);
+      expect(localStorage.getItem(FIRST_RUN_STORAGE_KEY)).toBe("1");
+      expect(restoreScriptStepsMock).toHaveBeenCalledWith([]);
+      expect(ingestScriptStepsMock).toHaveBeenCalledTimes(1);
+      expect(scheduleSnapshotMock).toHaveBeenCalledWith(
+        "Load example: Example flow data",
+        {
+          refresh: true,
+        }
+      );
+      expect(setTabTooltipMock).toHaveBeenCalledWith(
+        "tab-1",
+        "Example: Example flow data"
+      );
+      expect(renameTabMock).toHaveBeenCalledWith(
+        "tab-1",
+        "Example flow data"
+      );
+      expect(setItemSpy).toHaveBeenCalledWith(FIRST_RUN_STORAGE_KEY, "1");
+
+      act(() => {
+        vi.advanceTimersByTime(700);
+      });
+
+      expect(setViewportMock).toHaveBeenCalledWith(
+        { x: 112, y: 88, zoom: 0.27 },
+        { duration: 0 }
+      );
+      expect(screen.getByTestId("intro-drop-overlay")).toBeInTheDocument();
+      expect(screen.getByText("rawBit demo")).toBeInTheDocument();
+      const videoFrame = screen.getByTitle("rawBit demo");
+      expect(videoFrame).toHaveAttribute(
+        "src",
+        "https://www.youtube-nocookie.com/embed/n4YHoKj4Ics?rel=0"
+      );
+
+      const closeButton = document.querySelector<HTMLButtonElement>(
+        'button[aria-label="Close rawBit demo"]'
+      );
+      expect(closeButton).not.toBeNull();
+      act(() => {
+        closeButton?.click();
+      });
+
+      expect(screen.queryByTestId("intro-drop-overlay")).not.toBeInTheDocument();
+    } finally {
+      setItemSpy.mockRestore();
+      vi.useRealTimers();
+    }
+  });
+
   it("renders the intro flow directly in mobile read-only mode", async () => {
     Object.defineProperty(window, "innerWidth", {
       configurable: true,
@@ -793,51 +888,6 @@ describe("Flow first-run dialog", () => {
         edges: [],
       },
     });
-  });
-
-  it("auto-loads the intro flow when no stored data exists", async () => {
-    vi.useFakeTimers();
-    const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
-
-    try {
-      renderFlow();
-
-      expect(firstRunDialogProps.current?.open).toBe(false);
-      expect(setNodesMock).not.toHaveBeenCalled();
-
-      act(() => {
-        vi.advanceTimersByTime(1320);
-      });
-
-      expect(firstRunDialogProps.current?.open).toBe(false);
-      expect(setNodesMock).toHaveBeenCalledTimes(1);
-      expect(setEdgesMock).toHaveBeenCalledTimes(1);
-      expect(setViewportMock).toHaveBeenCalledWith(
-        { x: 76, y: 76, zoom: 0.3 },
-        { duration: 0 }
-      );
-
-      expect(restoreScriptStepsMock).toHaveBeenCalledWith([]);
-      expect(ingestScriptStepsMock).toHaveBeenCalledTimes(1);
-      expect(scheduleSnapshotMock).toHaveBeenCalledWith(
-        "Load example: Example flow data",
-        {
-          refresh: true,
-        }
-      );
-      expect(setTabTooltipMock).toHaveBeenCalledWith(
-        "tab-1",
-        "Example: Example flow data"
-      );
-      expect(renameTabMock).toHaveBeenCalledWith(
-        "tab-1",
-        "Example flow data"
-      );
-      expect(setItemSpy).toHaveBeenCalledWith(FIRST_RUN_STORAGE_KEY, "1");
-    } finally {
-      setItemSpy.mockRestore();
-      vi.useRealTimers();
-    }
   });
 
   it("does not auto-load when a hydrated graph exists", async () => {

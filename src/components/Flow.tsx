@@ -32,6 +32,10 @@ import { FlowCanvas } from "@/components/FlowCanvas";
 import { FlowDialogLayer } from "@/components/FlowDialogLayer";
 import { FlowPanels } from "@/components/FlowPanels";
 import { FirstRunDialog } from "@/components/dialog/FirstRunDialog";
+import {
+  IntroDropOverlay,
+  type IntroDropOverlayState,
+} from "@/components/IntroDropOverlay";
 import { Sun, Moon, Github } from "lucide-react";
 
 import { useNodeOperations } from "@/hooks/useNodeOperations";
@@ -202,13 +206,21 @@ const FIRST_RUN_STORAGE_KEY = "rawbit.ui.welcomeSeen";
 const INTRO_FLOW_ID = "flow-0";
 const TOP_LEVEL_FLOW_SECTION = "top-level";
 const INTRO_FLOW_DROP_FLOW_POSITION = { x: 0, y: 0 };
-const INTRO_FLOW_DROP_POINT = { x: 76, y: 76 };
-const INTRO_FLOW_DROP_ZOOM = 0.3;
+const INTRO_FLOW_DROP_POINT = { x: 112, y: 88 };
+const INTRO_FLOW_DROP_ZOOM = 0.27;
 const MOBILE_INTRO_OVERVIEW_POINT = { x: 16, y: 150 };
 const MOBILE_INTRO_OVERVIEW_ZOOM = 0.2;
-const INTRO_FLOW_DROP_ANIMATION_MS = 1100;
+const INTRO_FLOW_SOURCE_MOVE_MS = 350;
+const INTRO_FLOW_SOURCE_PRESS_MS = 1050;
+const INTRO_FLOW_PICKUP_MS = 1250;
+const INTRO_FLOW_DRAG_MS = 1500;
+const INTRO_FLOW_DROP_MS = 2250;
+const INTRO_FLOW_RELEASE_MS = 2850;
 const INTRO_SOURCE_FALLBACK = { x: 76, y: 780 };
 const INTRO_SOURCE_CARD_SIZE = { width: 196, height: 96 };
+const INTRO_VIDEO_TITLE = "rawBit demo";
+const INTRO_VIDEO_EMBED_URL =
+  "https://www.youtube-nocookie.com/embed/n4YHoKj4Ics?rel=0";
 const SHARED_IMPORT_FIT_MIN_ZOOM = 0.2;
 
 function graphIdsMatch(
@@ -349,15 +361,19 @@ function getFlowDisplayTitle(label: string, flowName: unknown) {
   return label;
 }
 
-function cloneFlowData(data: FlowData): FlowData {
+function cloneStructuredData<T>(data: T): T {
   try {
     if (typeof structuredClone === "function") {
-      return structuredClone(data) as FlowData;
+      return structuredClone(data) as T;
     }
   } catch {
     /* structuredClone not available; fall back to JSON copy */
   }
-  return JSON.parse(JSON.stringify(data)) as FlowData;
+  return JSON.parse(JSON.stringify(data)) as T;
+}
+
+function cloneFlowData(data: FlowData): FlowData {
+  return cloneStructuredData(data);
 }
 
 function getIntroDropSourceRect(): {
@@ -386,6 +402,18 @@ function getIntroDropSourceRect(): {
   };
 }
 
+function getRectCursorCenter(rect: {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}) {
+  return {
+    x: rect.x + rect.width / 2 - 4,
+    y: rect.y + rect.height / 2 - 4,
+  };
+}
+
 function FlowContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showUndoRedoPanel, setShowUndoRedoPanel] = useState(false);
@@ -396,9 +424,8 @@ function FlowContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
   const [isIntroDropAnimating, setIsIntroDropAnimating] = useState(false);
-  const [introDropSourceRect, setIntroDropSourceRect] = useState(() =>
-    getIntroDropSourceRect()
-  );
+  const [introDropState, setIntroDropState] =
+    useState<IntroDropOverlayState | null>(null);
 
   const [calcStateByTab, setCalcStateByTab] = useState<
     Record<string, TabCalculationState>
@@ -1227,6 +1254,12 @@ function FlowContent() {
       pendingFitOptionsRef.current = {};
       pendingExampleViewportRef.current = viewport;
 
+      const currentInstance = flowInstanceRef.current;
+      if (currentInstance) {
+        currentInstance.setViewport(viewport, { duration: 0 });
+        setHasFitOnInitialLoad(true);
+      }
+
       const retryDelays = [0, 24, 72, 140, 240, 380, 560, 800];
       retryDelays.forEach((delay, index) => {
         const timeoutId = window.setTimeout(() => {
@@ -1251,12 +1284,13 @@ function FlowContent() {
   );
 
   const clearIntroDropAnimationTimers = useCallback(() => {
-    if (typeof window === "undefined") return;
-    if (introDropTimeoutIdsRef.current.length === 0) return;
-    for (const timeoutId of introDropTimeoutIdsRef.current) {
-      window.clearTimeout(timeoutId);
+    if (typeof window !== "undefined") {
+      for (const timeoutId of introDropTimeoutIdsRef.current) {
+        window.clearTimeout(timeoutId);
+      }
     }
     introDropTimeoutIdsRef.current = [];
+    setIntroDropState(null);
   }, []);
 
   const resetToEmptyCanvas = useCallback(() => {
@@ -1285,10 +1319,15 @@ function FlowContent() {
   const loadExampleFlow = useCallback(
     (
       flowId: string,
-      options?: { placement?: "fit" | "top-left-drop" }
+      options?: {
+        placement?: "fit" | "top-left-drop";
+        targetTabId?: string;
+        skipViewport?: boolean;
+      }
     ) => {
       const entry = exampleFlowMap.get(flowId);
       if (!entry) return false;
+      const targetTabId = options?.targetTabId ?? activeTabId;
 
       const clonedData = cloneFlowData(entry.data);
       const displayTitle = getFlowDisplayTitle(entry.label, clonedData.name);
@@ -1345,18 +1384,20 @@ function FlowContent() {
       setNodes(() => normalizedNodes);
       setEdges(() => normalizedEdges);
 
-      refreshBanner(normalizedNodes, activeTabId, {
+      refreshBanner(normalizedNodes, targetTabId, {
         immediate: true,
         sticky: false,
       });
 
       scheduleSnapshot(`Load example: ${displayTitle}`, { refresh: true });
-      if (activeTabId) {
-        setTabTooltip(activeTabId, `Example: ${displayTitle}`);
-        renameTab(activeTabId, displayTitle);
+      if (targetTabId) {
+        setTabTooltip(targetTabId, `Example: ${displayTitle}`);
+        renameTab(targetTabId, displayTitle);
       }
 
-      if (dropViewport) {
+      if (options?.skipViewport) {
+        setHasFitOnInitialLoad(true);
+      } else if (dropViewport) {
         scheduleExampleFlowViewport(dropViewport);
       } else {
         scheduleExampleFlowFit();
@@ -1417,8 +1458,12 @@ function FlowContent() {
     }
 
     introDropScheduledRef.current = true;
-    setIntroDropSourceRect(getIntroDropSourceRect());
     setIsIntroDropAnimating(true);
+
+    const introFlowLabel =
+      exampleFlowMap.get(introFlowId)?.label ??
+      exampleFlowOptions.find((flow) => flow.id === introFlowId)?.label ??
+      "Intro P2PKH";
 
     if (typeof window === "undefined") {
       const loaded = loadExampleFlow(introFlowId, {
@@ -1429,25 +1474,116 @@ function FlowContent() {
       return;
     }
 
-    const loadTimeoutId = window.setTimeout(() => {
+    const getIntroTargetScreenPosition = () => {
+      const reactFlowRect =
+        document
+          .querySelector<HTMLElement>(".react-flow")
+          ?.getBoundingClientRect() ??
+        reactFlowWrapper.current?.getBoundingClientRect();
+      return {
+        x: (reactFlowRect?.left ?? 256) + INTRO_FLOW_DROP_POINT.x,
+        y: (reactFlowRect?.top ?? 96) + INTRO_FLOW_DROP_POINT.y,
+      };
+    };
+
+    const scheduleIntroDropStep = (delay: number, fn: () => void) => {
+      const timeoutId = window.setTimeout(() => {
+        introDropTimeoutIdsRef.current = introDropTimeoutIdsRef.current.filter(
+          (existing) => existing !== timeoutId
+        );
+        fn();
+      }, delay);
+      introDropTimeoutIdsRef.current.push(timeoutId);
+      return timeoutId;
+    };
+
+    setIntroDropState({
+      cursor: {
+        x: window.innerWidth * 0.55,
+        y: window.innerHeight - 80,
+      },
+      ghost: null,
+    });
+
+    scheduleIntroDropStep(INTRO_FLOW_SOURCE_MOVE_MS, () => {
+      const sourceCenter = getRectCursorCenter(getIntroDropSourceRect());
+      setIntroDropState({ cursor: sourceCenter, ghost: null });
+    });
+
+    scheduleIntroDropStep(INTRO_FLOW_SOURCE_PRESS_MS, () => {
+      const sourceCenter = getRectCursorCenter(getIntroDropSourceRect());
+      setIntroDropState({
+        cursor: sourceCenter,
+        ghost: null,
+        pressing: true,
+      });
+    });
+
+    scheduleIntroDropStep(INTRO_FLOW_PICKUP_MS, () => {
+      const sourceCenter = getRectCursorCenter(getIntroDropSourceRect());
+      setIntroDropState({
+        cursor: sourceCenter,
+        ghost: {
+          x: sourceCenter.x - 20,
+          y: sourceCenter.y - 18,
+          eyebrow: "Flow Examples",
+          label: introFlowLabel,
+          detail: "Dropping onto canvas",
+        },
+      });
+    });
+
+    scheduleIntroDropStep(INTRO_FLOW_DRAG_MS, () => {
+      const targetScreen = getIntroTargetScreenPosition();
+      setIntroDropState({
+        cursor: targetScreen,
+        ghost: {
+          x: targetScreen.x - 20,
+          y: targetScreen.y - 18,
+          eyebrow: "Flow Examples",
+          label: introFlowLabel,
+          detail: "Dropping onto canvas",
+        },
+      });
+    });
+
+    scheduleIntroDropStep(INTRO_FLOW_DROP_MS, () => {
+      const targetScreen = getIntroTargetScreenPosition();
       const loaded = loadExampleFlow(introFlowId, {
         placement: "top-left-drop",
       });
       if (loaded) {
         markWelcomeComplete();
+        setIntroDropState({
+          cursor: targetScreen,
+          ghost: null,
+          pressing: true,
+        });
       } else {
         introDropScheduledRef.current = false;
+        setIsIntroDropAnimating(false);
+        setIntroDropState(null);
       }
-    }, INTRO_FLOW_DROP_ANIMATION_MS);
+    });
 
-    const releaseTimeoutId = window.setTimeout(() => {
+    scheduleIntroDropStep(INTRO_FLOW_RELEASE_MS, () => {
       setIsIntroDropAnimating(false);
-      introDropTimeoutIdsRef.current = introDropTimeoutIdsRef.current.filter(
-        (id) => id !== loadTimeoutId && id !== releaseTimeoutId
-      );
-    }, INTRO_FLOW_DROP_ANIMATION_MS + 220);
-
-    introDropTimeoutIdsRef.current.push(loadTimeoutId, releaseTimeoutId);
+      setIntroDropState({
+        cursor: null,
+        ghost: null,
+        caption: {
+          title: "rawBit demo",
+          video: {
+            src: INTRO_VIDEO_EMBED_URL,
+            title: INTRO_VIDEO_TITLE,
+          },
+        },
+        controls: {
+          closeLabel: "Close rawBit demo",
+          onClose: () => setIntroDropState(null),
+        },
+      });
+    });
   }, [
     exampleFlowMap,
     exampleFlowOptions,
@@ -2562,35 +2698,7 @@ function FlowContent() {
             )}
           </main>
 
-          {isIntroDropAnimating && (
-            <div
-              className="absolute inset-0 z-[80] cursor-progress bg-background/25 backdrop-blur-[1px]"
-              aria-live="polite"
-              aria-busy="true"
-            >
-              <div
-                className="rawbit-intro-drop-card pointer-events-none absolute rounded-md border border-primary/50 bg-card px-4 py-3 text-card-foreground shadow-lg"
-                style={
-                  {
-                    "--intro-source-x": `${introDropSourceRect.x}px`,
-                    "--intro-source-y": `${introDropSourceRect.y}px`,
-                    "--intro-source-width": `${introDropSourceRect.width}px`,
-                    "--intro-source-height": `${introDropSourceRect.height}px`,
-                    width: `${introDropSourceRect.width}px`,
-                    minHeight: `${introDropSourceRect.height}px`,
-                  } as React.CSSProperties
-                }
-              >
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  Flow Examples
-                </div>
-                <div className="mt-1 text-sm font-semibold">Intro P2PKH</div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  Dropping onto canvas
-                </div>
-              </div>
-            </div>
-          )}
+          <IntroDropOverlay state={introDropState} />
 
           {/* 🎨 ColorPalette - MOVED HERE, outside ReactFlow, with higher z-index */}
           {!isMobileReadOnly && (
