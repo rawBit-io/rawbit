@@ -8,7 +8,7 @@
 // -----------------------------------------------------------------------------
 
 import { useEffect, useRef, useState } from "react";
-import { X } from "lucide-react";
+import { RotateCcw, Square, X } from "lucide-react";
 
 import { CURSOR_TIP_OFFSET } from "@/components/introDropCursor";
 
@@ -36,11 +36,22 @@ export interface IntroDropOverlayState {
   controls?: {
     closeLabel?: string;
     onClose?: () => void;
+    /** Hooked up by guided demos: stop the running demo. */
+    onPause?: () => void;
+    /** Hooked up by guided demos: replay from the beginning. */
+    onReplay?: () => void;
+    /** True while a demo is auto-playing; controls show "Stop" instead of "Play". */
+    isPlaying?: boolean;
   } | null;
 }
 
 interface Props {
   state: IntroDropOverlayState | null;
+  /**
+   * Pixels of right-side area the caption card should avoid (e.g. the help
+   * menu width when it's open). The card right-aligns past this inset.
+   */
+  captionRightInset?: number;
 }
 
 /**
@@ -55,7 +66,7 @@ function bezierPath(sx: number, sy: number, tx: number, ty: number) {
   return `M ${sx},${sy} C ${sourceControlX},${sy} ${targetControlX},${ty} ${tx},${ty}`;
 }
 
-export function IntroDropOverlay({ state }: Props) {
+export function IntroDropOverlay({ state, captionRightInset = 0 }: Props) {
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const [wirePath, setWirePath] = useState<string | null>(null);
   const [wireEnd, setWireEnd] = useState<{ x: number; y: number } | null>(null);
@@ -170,7 +181,10 @@ export function IntroDropOverlay({ state }: Props) {
       )}
 
       {caption && (
-        <div className="pointer-events-auto absolute bottom-4 right-4 w-[min(44rem,calc(100vw-2rem))] overflow-hidden rounded-md border border-border bg-card text-card-foreground shadow-lg sm:bottom-8 sm:right-8">
+        <div
+          className="pointer-events-auto absolute bottom-4 w-[min(40rem,calc(100vw-2rem))] overflow-hidden rounded-md border border-border bg-card text-card-foreground shadow-lg sm:bottom-8"
+          style={{ right: captionRightInset + 16 }}
+        >
           {controls?.onClose && (
             <button
               type="button"
@@ -181,21 +195,55 @@ export function IntroDropOverlay({ state }: Props) {
               <X className="h-4 w-4" aria-hidden="true" />
             </button>
           )}
-          <div className="px-4 py-3 pr-12">
+          <div className="px-6 py-5 pr-14">
             {caption.step && (
-              <div className="text-xs font-semibold uppercase tracking-normal text-muted-foreground">
+              <div className="text-sm font-semibold uppercase tracking-normal text-muted-foreground">
                 {caption.step}
               </div>
             )}
-            <div className="text-lg font-semibold leading-tight text-primary">
+            <div className="text-3xl font-semibold leading-tight text-primary">
               {caption.title}
             </div>
             {caption.body && (
-              <div className="mt-1 whitespace-pre-line text-sm leading-snug text-muted-foreground">
+              <div className="mt-2 whitespace-pre-line text-lg leading-snug text-muted-foreground">
                 {caption.body}
               </div>
             )}
           </div>
+          {(controls?.onPause || controls?.onReplay) && (
+            <div className="flex items-center gap-2 border-t border-border bg-muted/40 px-6 py-3">
+              {controls.isPlaying && controls.onPause ? (
+                <button
+                  type="button"
+                  onClick={controls.onPause}
+                  className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground"
+                >
+                  <Square className="h-4 w-4" aria-hidden="true" />
+                  Stop
+                </button>
+              ) : controls.onReplay ? (
+                <button
+                  type="button"
+                  onClick={controls.onReplay}
+                  className="inline-flex items-center gap-2 rounded-md border border-primary/50 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/15"
+                >
+                  <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                  Replay
+                </button>
+              ) : null}
+              {controls.isPlaying && controls.onReplay && (
+                <button
+                  type="button"
+                  onClick={controls.onReplay}
+                  className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground"
+                  title="Restart this demo from the beginning"
+                >
+                  <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                  Restart
+                </button>
+              )}
+            </div>
+          )}
           {caption.video && (
             <div className="bg-background">
               <iframe

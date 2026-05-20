@@ -36,6 +36,8 @@ import {
   IntroDropOverlay,
   type IntroDropOverlayState,
 } from "@/components/IntroDropOverlay";
+import { HelpMenu } from "@/help/HelpMenu";
+import type { DemoContext, HelpDemo } from "@/help/types";
 import { Sun, Moon, Github } from "lucide-react";
 
 import { useNodeOperations } from "@/hooks/useNodeOperations";
@@ -426,6 +428,24 @@ function FlowContent() {
   const [isIntroDropAnimating, setIsIntroDropAnimating] = useState(false);
   const [introDropState, setIntroDropState] =
     useState<IntroDropOverlayState | null>(null);
+  // 📖 help system: tabs marked as help, demo-driven sidebar overrides, the
+  // id of the currently running demo, and tracked timer ids for cancellation.
+  const [helpTabIds, setHelpTabIds] = useState<Set<string>>(() => new Set());
+  const [helpSidebarSearch, setHelpSidebarSearch] = useState<
+    string | undefined
+  >(undefined);
+  const [helpSidebarHighlight, setHelpSidebarHighlight] = useState<
+    string | undefined
+  >(undefined);
+  const [runningHelpDemoId, setRunningHelpDemoId] = useState<string | null>(
+    null,
+  );
+  const [currentHelpDemo, setCurrentHelpDemo] = useState<HelpDemo | null>(null);
+  const helpDemoTimersRef = useRef<number[]>([]);
+  // Refs so caption-card buttons (created once per demo run) always call the
+  // latest stop/run impls even after React rerenders recreate the callbacks.
+  const stopHelpDemoRef = useRef<() => void>(() => {});
+  const runHelpDemoRef = useRef<(demo: HelpDemo) => void>(() => {});
 
   const [calcStateByTab, setCalcStateByTab] = useState<
     Record<string, TabCalculationState>
@@ -1861,6 +1881,207 @@ function FlowContent() {
     addTab();
   }, [addTab]);
 
+  /* -------------------------------------------------------------------- */
+  /*  Help system — open a help tab, play concept demos, stop demos.      */
+  /* -------------------------------------------------------------------- */
+
+  const stopHelpDemo = useCallback(
+    (opts?: { clearOverlay?: boolean }) => {
+      if (typeof window !== "undefined") {
+        for (const id of helpDemoTimersRef.current) {
+          window.clearTimeout(id);
+        }
+      }
+      helpDemoTimersRef.current = [];
+      setRunningHelpDemoId(null);
+      setHelpSidebarSearch(undefined);
+      setHelpSidebarHighlight(undefined);
+      if (opts?.clearOverlay) {
+        setIntroDropState(null);
+        setCurrentHelpDemo(null);
+        return;
+      }
+      // Keep the caption + controls card visible so the user can Replay.
+      setIntroDropState((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          cursor: null,
+          ghost: null,
+          pressing: false,
+          connection: null,
+          controls: prev.controls
+            ? { ...prev.controls, isPlaying: false }
+            : prev.controls,
+        };
+      });
+    },
+    [],
+  );
+
+  const openHelpTab = useCallback(() => {
+    const existing = tabs.find((tab) => helpTabIds.has(tab.id));
+    if (existing) {
+      selectTab(existing.id);
+      return;
+    }
+    const newId = addTab();
+    renameTab(newId, "Help");
+    setTabTooltip(newId, "Help — concept demos on canvas");
+    selectTab(newId);
+    setHelpTabIds((prev) => {
+      const next = new Set(prev);
+      next.add(newId);
+      return next;
+    });
+  }, [addTab, helpTabIds, renameTab, selectTab, setTabTooltip, tabs]);
+
+  const runHelpDemo = useCallback(
+    (demo: HelpDemo) => {
+      stopHelpDemo();
+      setCurrentHelpDemo(demo);
+      setRunningHelpDemoId(demo.id);
+
+      // Caption persists across cursor moves: every setOverlay call merges in
+      // activeCaption unless the caller explicitly sets `caption` themselves.
+      let activeCaption: IntroDropOverlayState["caption"] = null;
+
+      // Same controls instance for the whole run — toggled via isPlaying when
+      // the demo finishes or is stopped.
+      const controls: NonNullable<IntroDropOverlayState["controls"]> = {
+        onPause: () => stopHelpDemoRef.current(),
+        onReplay: () => runHelpDemoRef.current(demo),
+        isPlaying: true,
+      };
+
+      const ctx: DemoContext = {
+        setOverlay: (state) => {
+          if (state === null) {
+            activeCaption = null;
+            setIntroDropState(null);
+            return;
+          }
+          if ("caption" in state && state.caption !== undefined) {
+            activeCaption = state.caption ?? null;
+          }
+          setIntroDropState({
+            ...state,
+            caption: activeCaption,
+            controls,
+          });
+        },
+        setCaption: (caption) => {
+          activeCaption = caption;
+          setIntroDropState((prev) => {
+            if (!prev) {
+              return { cursor: null, ghost: null, caption, controls };
+            }
+            return { ...prev, caption, controls };
+          });
+        },
+        setSidebarSearch: setHelpSidebarSearch,
+        setSidebarHighlightLabel: setHelpSidebarHighlight,
+        setNodes,
+        setEdges,
+        scheduleStep: (delayMs, fn) => {
+          if (typeof window === "undefined") {
+            fn();
+            return;
+          }
+          const id = window.setTimeout(() => {
+            helpDemoTimersRef.current = helpDemoTimersRef.current.filter(
+              (existing) => existing !== id
+            );
+            try {
+              fn();
+            } finally {
+              if (helpDemoTimersRef.current.length === 0) {
+                setRunningHelpDemoId(null);
+                // Demo finished naturally — flip the controls into "stopped"
+                // mode so the Replay button replaces the Stop button.
+                setIntroDropState((prev) => {
+                  if (!prev || !prev.controls) return prev;
+                  return {
+                    ...prev,
+                    controls: { ...prev.controls, isPlaying: false },
+                  };
+                });
+              }
+            }
+          }, delayMs);
+          helpDemoTimersRef.current.push(id);
+        },
+        flowToScreen: (point) => {
+          const instance = flowInstanceRef.current;
+          if (instance && typeof instance.flowToScreenPosition === "function") {
+            return instance.flowToScreenPosition(point);
+          }
+          const wrapperRect = reactFlowWrapper.current?.getBoundingClientRect();
+          return {
+            x: (wrapperRect?.left ?? 256) + point.x,
+            y: (wrapperRect?.top ?? 96) + point.y,
+          };
+        },
+        setViewport: (viewport) => {
+          flowInstanceRef.current?.setViewport(viewport, { duration: 0 });
+        },
+        isRunning: () => helpDemoTimersRef.current.length > 0,
+      };
+
+      demo.run(ctx);
+    },
+    [setEdges, setNodes, stopHelpDemo]
+  );
+
+  // Keep the playback-button refs pointing at the latest impls so callbacks
+  // captured inside the running demo always see the current functions.
+  useEffect(() => {
+    stopHelpDemoRef.current = stopHelpDemo;
+  }, [stopHelpDemo]);
+  useEffect(() => {
+    runHelpDemoRef.current = runHelpDemo;
+  }, [runHelpDemo]);
+
+  // Leaving the help tab cancels the demo AND clears its overlay/caption,
+  // since the user has moved on. Staying on the help tab keeps the caption
+  // card visible after the demo finishes (so Replay still works).
+  // Gated on currentHelpDemo so we don't accidentally clear the first-run
+  // intro video overlay (which also uses introDropState but isn't a demo).
+  useEffect(() => {
+    if (currentHelpDemo === null) return;
+    const onHelpTab =
+      activeTabId !== null &&
+      activeTabId !== undefined &&
+      helpTabIds.has(activeTabId);
+    if (onHelpTab) return;
+    if (runningHelpDemoId !== null) {
+      stopHelpDemo({ clearOverlay: true });
+    } else {
+      setIntroDropState(null);
+      setCurrentHelpDemo(null);
+    }
+  }, [
+    activeTabId,
+    currentHelpDemo,
+    helpTabIds,
+    runningHelpDemoId,
+    stopHelpDemo,
+  ]);
+
+  // Drop closed tabs from the help-tab set so it doesn't leak.
+  useEffect(() => {
+    setHelpTabIds((prev) => {
+      const liveIds = new Set(tabs.map((tab) => tab.id));
+      let changed = false;
+      const next = new Set<string>();
+      for (const id of prev) {
+        if (liveIds.has(id)) next.add(id);
+        else changed = true;
+      }
+      return changed ? next : prev;
+    });
+  }, [tabs]);
+
   const handleCloseTab = useCallback(
     (tabId: string) => {
       if (tabs.length === 1) {
@@ -2572,6 +2793,7 @@ function FlowContent() {
               onToggleSelectionMode={() => setIsSelectionLocked((v) => !v)}
               onShare={handleShareClick}
               shareDisabled={nodes.length === 0}
+              onHelpClick={openHelpTab}
               tabBarRightInset={rightPanelWidth}
             />
           )}
@@ -2582,6 +2804,8 @@ function FlowContent() {
               isOpen={isSidebarOpen}
               onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
               introDropFlowId={isIntroDropAnimating ? INTRO_FLOW_ID : undefined}
+              introDropNodeLabel={helpSidebarHighlight}
+              searchOverride={helpSidebarSearch}
             />
           )}
 
@@ -2706,7 +2930,29 @@ function FlowContent() {
             )}
           </main>
 
-          <IntroDropOverlay state={introDropState} />
+          <IntroDropOverlay
+            state={introDropState}
+            captionRightInset={
+              activeTabId !== null &&
+              activeTabId !== undefined &&
+              helpTabIds.has(activeTabId)
+                ? 288 /* HelpMenu width = w-72 */
+                : 0
+            }
+          />
+
+          {!isMobileReadOnly && (
+            <HelpMenu
+              isOpen={
+                activeTabId !== null &&
+                activeTabId !== undefined &&
+                helpTabIds.has(activeTabId)
+              }
+              runningDemoId={runningHelpDemoId}
+              onPlayDemo={runHelpDemo}
+              onStopDemo={() => stopHelpDemo()}
+            />
+          )}
 
           {/* 🎨 ColorPalette - MOVED HERE, outside ReactFlow, with higher z-index */}
           {!isMobileReadOnly && (

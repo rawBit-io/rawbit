@@ -45,6 +45,7 @@ import {
   Mail,
   Paintbrush,
   Check,
+  BookOpen,
 } from "lucide-react";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -150,6 +151,7 @@ export type ExtraTopBarProps = {
   onToggleInfoNodes?: () => void;
   isSelectionModeActive?: boolean;
   onToggleSelectionMode?: () => void;
+  onHelpClick?: () => void;
   tabBarRightInset?: number;
 };
 
@@ -283,6 +285,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
     onToggleInfoNodes,
     isSelectionModeActive = false,
     onToggleSelectionMode,
+    onHelpClick,
     tabBarRightInset = 0,
   } = props;
 
@@ -758,6 +761,16 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
             tooltip="Share snapshot"
           >
             <Share className="h-7 w-7" />
+          </TopBarIconButton>
+          <TopBarIconButton
+            variant="ghost"
+            size="icon"
+            onClick={onHelpClick}
+            tooltip="Help — concept demos on canvas"
+            aria-label="Open help"
+            data-testid="help-button"
+          >
+            <BookOpen className="h-7 w-7" />
           </TopBarIconButton>
           {/* community links */}
           <DropdownMenu>
