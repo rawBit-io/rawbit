@@ -1389,7 +1389,15 @@ function FlowContent() {
         sticky: false,
       });
 
-      scheduleSnapshot(`Load example: ${displayTitle}`, { refresh: true });
+      scheduleSnapshot(`Load example: ${displayTitle}`, {
+        refresh: true,
+        immediate: true,
+        tabId: targetTabId,
+        state: {
+          nodes: normalizedNodes,
+          edges: normalizedEdges,
+        },
+      });
       if (targetTabId) {
         setTabTooltip(targetTabId, `Example: ${displayTitle}`);
         renameTab(targetTabId, displayTitle);

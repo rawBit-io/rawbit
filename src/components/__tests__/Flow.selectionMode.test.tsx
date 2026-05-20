@@ -686,9 +686,21 @@ describe("Flow first-run dialog", () => {
       expect(ingestScriptStepsMock).toHaveBeenCalledTimes(1);
       expect(scheduleSnapshotMock).toHaveBeenCalledWith(
         "Load example: Example flow data",
-        {
+        expect.objectContaining({
           refresh: true,
-        }
+          immediate: true,
+          tabId: "tab-1",
+          state: expect.objectContaining({
+            nodes: expect.arrayContaining([
+              expect.objectContaining({ id: "overview-node" }),
+              expect.objectContaining({ id: "calc-node" }),
+              expect.objectContaining({ id: "group-node" }),
+            ]),
+            edges: expect.arrayContaining([
+              expect.objectContaining({ id: "edge-1" }),
+            ]),
+          }),
+        })
       );
       expect(setTabTooltipMock).toHaveBeenCalledWith(
         "tab-1",
@@ -988,9 +1000,21 @@ describe("Flow example loading", () => {
     expect(setEdgesMock).toHaveBeenCalledTimes(1);
     expect(scheduleSnapshotMock).toHaveBeenCalledWith(
       "Load example: Example flow data",
-      {
+      expect.objectContaining({
         refresh: true,
-      }
+        immediate: true,
+        tabId: "tab-1",
+        state: expect.objectContaining({
+          nodes: expect.arrayContaining([
+            expect.objectContaining({ id: "overview-node" }),
+            expect.objectContaining({ id: "calc-node" }),
+            expect.objectContaining({ id: "group-node" }),
+          ]),
+          edges: expect.arrayContaining([
+            expect.objectContaining({ id: "edge-1" }),
+          ]),
+        }),
+      })
     );
     expect(setTabTooltipMock).toHaveBeenCalledWith(
       "tab-1",

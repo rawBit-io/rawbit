@@ -35,6 +35,7 @@ interface UseSnapshotSchedulerArgs {
 
 export interface SnapshotOptions {
   refresh?: boolean;
+  immediate?: boolean;
   before?: () => boolean;
   tabId?: string;
   state?: {
@@ -154,6 +155,15 @@ export function useSnapshotScheduler({
         }
         pushCleanState(state.nodes, state.edges, label, options?.tabId);
       };
+
+      if (options?.immediate) {
+        runSnapshot();
+        log(
+          "snapshots",
+          `[scheduleSnapshot] executed immediately key='${snapshotKey}' label='${label}'`
+        );
+        return;
+      }
 
       frameId = requestAnimationFrame(runSnapshot);
       if (!executedSynchronously) {

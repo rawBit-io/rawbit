@@ -224,6 +224,78 @@ describe("useSnapshotScheduler", () => {
     );
   });
 
+  it("captures immediate explicit snapshots before later snapshots can cancel them", () => {
+    const queuedFrames = new Map<number, FrameRequestCallback>();
+    let nextFrameId = 1;
+    const cancelAnimationFrameMock = vi.fn((id: number) => {
+      queuedFrames.delete(id);
+    });
+    vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => {
+      const id = nextFrameId;
+      nextFrameId += 1;
+      queuedFrames.set(id, cb);
+      return id;
+    });
+    vi.stubGlobal("cancelAnimationFrame", cancelAnimationFrameMock);
+
+    const loadedFlow = {
+      nodes: [{ ...makeState().nodes[0], id: "loaded-flow-node" }],
+      edges: [] as Edge[],
+    };
+    const movedFlow = {
+      nodes: [
+        {
+          ...makeState().nodes[0],
+          id: "loaded-flow-node",
+          position: { x: 25, y: 25 },
+        },
+      ],
+      edges: [] as Edge[],
+    };
+    const { result } = renderScheduler();
+
+    act(() => {
+      result.current.scheduleSnapshot("Load example", {
+        immediate: true,
+        tabId: "tab-1",
+        state: loadedFlow,
+      });
+      result.current.scheduleSnapshot("Node moved", {
+        tabId: "tab-1",
+        state: movedFlow,
+      });
+    });
+
+    expect(cancelAnimationFrameMock).not.toHaveBeenCalled();
+    expect(pushState).toHaveBeenCalledTimes(1);
+    expect(pushState).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ id: "loaded-flow-node" }),
+      ]),
+      loadedFlow.edges,
+      expect.objectContaining({ label: "Load example", tabId: "tab-1" })
+    );
+
+    act(() => {
+      for (const cb of [...queuedFrames.values()]) {
+        cb(0);
+      }
+    });
+
+    expect(pushState).toHaveBeenCalledTimes(2);
+    expect(pushState).toHaveBeenNthCalledWith(
+      2,
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "loaded-flow-node",
+          position: { x: 25, y: 25 },
+        }),
+      ]),
+      movedFlow.edges,
+      expect.objectContaining({ label: "Node moved", tabId: "tab-1" })
+    );
+  });
+
   it("passes calc state metadata when capturing snapshots", () => {
     const calcSnapshot = {
       status: "ERROR" as const,
