@@ -6,57 +6,44 @@ import type { Edge } from "@xyflow/react";
 import type { IntroDropOverlayState } from "@/components/IntroDropOverlay";
 import type { FlowNode } from "@/types";
 
-/**
- * Helpers and setters the orchestrating Flow component passes to a demo at
- * run time. Demos consume this — they don't reach into Flow.tsx state.
- */
 /** Caption shown in the bottom-right card (step + title + body). */
 export type DemoCaption = NonNullable<IntroDropOverlayState["caption"]>;
 
-export interface DemoContext {
-  /**
-   * Replace the cursor/ghost/wire overlay state. The runtime merges in the
-   * currently-active caption, so cursor moves never drop the narration.
-   */
+/**
+ * Helpers + setters passed to each step's `play(ctx)`. In fast-forward mode
+ * (used to set up state for a target step) `setOverlay` is a no-op and
+ * `scheduleStep` collapses delays to 0 — but `setNodes`/`setEdges` and
+ * direct DOM dispatches still run so the canvas reaches the expected state.
+ */
+export interface DemoStepContext {
   setOverlay: (state: IntroDropOverlayState | null) => void;
-  /**
-   * Set (or clear) the narration card shown in the bottom-right. The caption
-   * persists across subsequent setOverlay calls until the next setCaption.
-   */
-  setCaption: (caption: DemoCaption | null) => void;
-  /** Drive the sidebar search box (undefined releases control). */
   setSidebarSearch: (value: string | undefined) => void;
-  /** Highlight a sidebar node card by label (undefined clears). */
   setSidebarHighlightLabel: (label: string | undefined) => void;
-  /** Update the active tab's nodes. */
   setNodes: (updater: (prev: FlowNode[]) => FlowNode[]) => void;
-  /** Update the active tab's edges. */
   setEdges: (updater: (prev: Edge[]) => Edge[]) => void;
-  /**
-   * Schedule `fn` to run at `delayMs` from "now". Returns a handle the
-   * runtime tracks for cancellation when the demo is stopped.
-   */
   scheduleStep: (delayMs: number, fn: () => void) => void;
-  /** Project a flow-space point to a screen-space point. */
   flowToScreen: (point: { x: number; y: number }) => { x: number; y: number };
-  /** Force the React Flow viewport (useful at demo start). */
   setViewport: (viewport: { x: number; y: number; zoom: number }) => void;
-  /** Returns true when the demo is still meant to be running. */
   isRunning: () => boolean;
 }
 
-export interface HelpDemo {
-  /** Stable id used as the run handle and for analytics. */
+export interface DemoStep {
+  /** Stable id used as the button label and for analytics. */
   id: string;
-  /** Display title shown in the help menu. */
+  /** Caption shown for this step's duration. */
+  caption: DemoCaption;
+  /** Schedule the animated changes for this step (timings relative to step start). */
+  play: (ctx: DemoStepContext) => void;
+  /** Auto-advance to the next step after this many ms in normal playback. */
+  durationMs: number;
+}
+
+export interface HelpDemo {
+  id: string;
   title: string;
-  /** Short one-line subtitle shown beneath the title. */
   description: string;
-  /** Optional category label for grouping in the menu. */
   category?: string;
-  /**
-   * Orchestration entrypoint. Demos call `ctx.scheduleStep` repeatedly to lay
-   * out their timeline; the runtime tracks and cancels timers when stopped.
-   */
-  run: (ctx: DemoContext) => void;
+  /** One-time setup before any step plays (clear canvas, set viewport). */
+  init?: (ctx: DemoStepContext) => void;
+  steps: DemoStep[];
 }

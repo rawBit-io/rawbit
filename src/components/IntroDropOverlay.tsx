@@ -8,7 +8,14 @@
 // -----------------------------------------------------------------------------
 
 import { useEffect, useRef, useState } from "react";
-import { RotateCcw, Square, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Pause,
+  Play,
+  RotateCcw,
+  X,
+} from "lucide-react";
 
 import { CURSOR_TIP_OFFSET } from "@/components/introDropCursor";
 
@@ -36,12 +43,17 @@ export interface IntroDropOverlayState {
   controls?: {
     closeLabel?: string;
     onClose?: () => void;
-    /** Hooked up by guided demos: stop the running demo. */
+    /** Step-by-step demo controls (set by the help-demo runtime). */
     onPause?: () => void;
-    /** Hooked up by guided demos: replay from the beginning. */
+    onPlay?: () => void;
+    onPrev?: () => void;
+    onNext?: () => void;
     onReplay?: () => void;
-    /** True while a demo is auto-playing; controls show "Stop" instead of "Play". */
     isPlaying?: boolean;
+    canPrev?: boolean;
+    canNext?: boolean;
+    /** Labels like "3 / 7" for the current step. */
+    stepLabel?: string;
   } | null;
 }
 
@@ -210,37 +222,74 @@ export function IntroDropOverlay({ state, captionRightInset = 0 }: Props) {
               </div>
             )}
           </div>
-          {(controls?.onPause || controls?.onReplay) && (
-            <div className="flex items-center gap-2 border-t border-border bg-muted/40 px-6 py-3">
-              {controls.isPlaying && controls.onPause ? (
-                <button
-                  type="button"
-                  onClick={controls.onPause}
-                  className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground"
-                >
-                  <Square className="h-4 w-4" aria-hidden="true" />
-                  Stop
-                </button>
-              ) : controls.onReplay ? (
-                <button
-                  type="button"
-                  onClick={controls.onReplay}
-                  className="inline-flex items-center gap-2 rounded-md border border-primary/50 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/15"
-                >
-                  <RotateCcw className="h-4 w-4" aria-hidden="true" />
-                  Replay
-                </button>
-              ) : null}
-              {controls.isPlaying && controls.onReplay && (
-                <button
-                  type="button"
-                  onClick={controls.onReplay}
-                  className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground"
-                  title="Restart this demo from the beginning"
-                >
-                  <RotateCcw className="h-4 w-4" aria-hidden="true" />
-                  Restart
-                </button>
+          {(controls?.onPrev ||
+            controls?.onPause ||
+            controls?.onPlay ||
+            controls?.onNext ||
+            controls?.onReplay) && (
+            <div className="flex items-center justify-between gap-2 border-t border-border bg-muted/40 px-6 py-3">
+              <div className="flex items-center gap-1.5">
+                {controls.onPrev && (
+                  <button
+                    type="button"
+                    onClick={controls.onPrev}
+                    disabled={!controls.canPrev}
+                    aria-label="Previous step"
+                    title="Previous step"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+                  </button>
+                )}
+                {controls.isPlaying && controls.onPause ? (
+                  <button
+                    type="button"
+                    onClick={controls.onPause}
+                    aria-label="Pause"
+                    title="Pause"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-primary/50 bg-primary/10 text-primary hover:bg-primary/15"
+                  >
+                    <Pause className="h-5 w-5" aria-hidden="true" />
+                  </button>
+                ) : controls.onPlay ? (
+                  <button
+                    type="button"
+                    onClick={controls.onPlay}
+                    aria-label="Play"
+                    title="Play current step"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-primary/50 bg-primary/10 text-primary hover:bg-primary/15"
+                  >
+                    <Play className="h-5 w-5" aria-hidden="true" />
+                  </button>
+                ) : null}
+                {controls.onNext && (
+                  <button
+                    type="button"
+                    onClick={controls.onNext}
+                    disabled={!controls.canNext}
+                    aria-label="Next step"
+                    title="Next step"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                  </button>
+                )}
+                {controls.onReplay && (
+                  <button
+                    type="button"
+                    onClick={controls.onReplay}
+                    aria-label="Restart from beginning"
+                    title="Restart from beginning"
+                    className="ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                )}
+              </div>
+              {controls.stepLabel && (
+                <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {controls.stepLabel}
+                </div>
               )}
             </div>
           )}

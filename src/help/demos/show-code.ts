@@ -1,7 +1,6 @@
 // src/help/demos/show-code.ts
-// Help demo: drop a hash node onto the canvas, then walk through opening its
-// ⋯ menu and clicking "Show Code" to reveal the Python source behind the
-// node. Demonstrates the "inspect the code" promise from the marketing copy.
+// Help demo broken into discrete steps so the runtime can pause/play and
+// jump forward/back between them.
 
 import { allSidebarNodes } from "@/components/sidebar-nodes";
 import type { FlowNode, NodeTemplate } from "@/types";
@@ -16,7 +15,7 @@ import {
   scrollCodeDialogTo,
   withCursorTipAt,
 } from "../runtime/helpers";
-import type { DemoContext, HelpDemo } from "../types";
+import type { DemoStep, DemoStepContext, HelpDemo } from "../types";
 
 const SHA256_LABEL = "Data → SHA-256";
 const SHA256_NODE_ID = "node_help_demo_sha256";
@@ -34,7 +33,7 @@ function cloneTemplateData(template: NodeTemplate): Record<string, unknown> {
       return structuredClone(source);
     }
   } catch {
-    /* fall back to JSON copy */
+    /* fall back */
   }
   return JSON.parse(JSON.stringify(source)) as Record<string, unknown>;
 }
@@ -51,7 +50,7 @@ interface DropArgs {
 }
 
 function placeNode(
-  ctx: DemoContext,
+  ctx: DemoStepContext,
   { template, nodeId, position, override }: DropArgs,
 ) {
   const baseData = cloneTemplateData(template);
@@ -64,55 +63,213 @@ function placeNode(
     data: nextData as FlowNode["data"],
   };
   ctx.setNodes((current) => [
-    ...current.map((node) => ({ ...node, selected: false })),
+    ...current
+      .filter((node) => node.id !== nodeId)
+      .map((node) => ({ ...node, selected: false })),
     dropped,
   ]);
 }
 
-/** Cursor → sidebar card → press → ghost → drag to canvas → drop. */
 function scheduleCategoryDrop(
-  ctx: DemoContext,
-  startAt: number,
+  ctx: DemoStepContext,
   drop: DropArgs,
   label: string,
   eyebrow: string,
 ) {
-  ctx.scheduleStep(startAt, () => {
+  ctx.scheduleStep(0, () => {
     ctx.setSidebarHighlightLabel(label);
   });
-
-  ctx.scheduleStep(startAt + sp(350), () => {
+  ctx.scheduleStep(sp(350), () => {
     const center = getRectCursorCenter(getSidebarNodeSourceRect(label));
     ctx.setOverlay({ cursor: center, ghost: null });
   });
-
-  ctx.scheduleStep(startAt + sp(1050), () => {
+  ctx.scheduleStep(sp(1050), () => {
     const center = getRectCursorCenter(getSidebarNodeSourceRect(label));
     ctx.setOverlay({ cursor: center, ghost: null, pressing: true });
   });
-
-  ctx.scheduleStep(startAt + sp(1250), () => {
+  ctx.scheduleStep(sp(1250), () => {
     const center = getRectCursorCenter(getSidebarNodeSourceRect(label));
     ctx.setOverlay({
       cursor: center,
       ghost: { x: center.x - 20, y: center.y - 18, eyebrow, label },
     });
   });
-
-  ctx.scheduleStep(startAt + sp(1500), () => {
+  ctx.scheduleStep(sp(1500), () => {
     const target = ctx.flowToScreen(drop.position);
     ctx.setOverlay({
       cursor: target,
       ghost: { x: target.x - 20, y: target.y - 18, eyebrow, label },
     });
   });
-
-  ctx.scheduleStep(startAt + sp(2250), () => {
+  ctx.scheduleStep(sp(2250), () => {
     const target = ctx.flowToScreen(drop.position);
     placeNode(ctx, drop);
     ctx.setOverlay({ cursor: target, ghost: null, pressing: true });
     ctx.setSidebarHighlightLabel(undefined);
   });
+}
+
+const STEP_COUNT = 6;
+
+function makeSteps(): DemoStep[] {
+  return [
+    {
+      id: "drop-sha256",
+      caption: {
+        step: `1 / ${STEP_COUNT}`,
+        title: "Drop a hash node",
+        body:
+          "Every calculation node is backed by Python. Let's drop a SHA-256 to inspect its source.",
+      },
+      durationMs: sp(2250) + 400,
+      play(ctx) {
+        const tpl = findTemplate(SHA256_LABEL);
+        if (!tpl) return;
+        scheduleCategoryDrop(
+          ctx,
+          {
+            template: tpl,
+            nodeId: SHA256_NODE_ID,
+            position: SHA256_POSITION,
+            override: (data) => ({
+              ...data,
+              inputs: { ...(data.inputs as object | undefined), val: "" },
+              result: "",
+              dirty: false,
+            }),
+          },
+          SHA256_LABEL,
+          "Hashes",
+        );
+      },
+    },
+    {
+      id: "open-menu",
+      caption: {
+        step: `2 / ${STEP_COUNT}`,
+        title: "Open the node's menu",
+        body:
+          "Each node has a ⋯ button in its header — that's where 'Show Code' lives.",
+      },
+      durationMs: sp(650) + sp(300) + 400,
+      play(ctx) {
+        ctx.scheduleStep(0, () => {
+          const button = findNodeMenuButton(SHA256_NODE_ID);
+          if (!button) return;
+          ctx.setOverlay({
+            cursor: withCursorTipAt(getElementCenter(button)),
+            ghost: null,
+          });
+        });
+        ctx.scheduleStep(sp(650), () => {
+          const button = findNodeMenuButton(SHA256_NODE_ID);
+          if (!button) return;
+          ctx.setOverlay({
+            cursor: withCursorTipAt(getElementCenter(button)),
+            ghost: null,
+            pressing: true,
+          });
+          dispatchPointerDown(button);
+        });
+      },
+    },
+    {
+      id: "pick-show-code",
+      caption: {
+        step: `3 / ${STEP_COUNT}`,
+        title: 'Pick "Show Code"',
+        body:
+          "Opens a dialog with the exact Python function this node runs — syntax-highlighted and read-only.",
+      },
+      durationMs: sp(450) + sp(550) + 400,
+      play(ctx) {
+        ctx.scheduleStep(0, () => {
+          const item = findMenuItemByText("Show Code");
+          if (!item) return;
+          ctx.setOverlay({
+            cursor: withCursorTipAt(getElementCenter(item)),
+            ghost: null,
+          });
+        });
+        ctx.scheduleStep(sp(450), () => {
+          const item = findMenuItemByText("Show Code");
+          if (!item) return;
+          ctx.setOverlay({
+            cursor: withCursorTipAt(getElementCenter(item)),
+            ghost: null,
+            pressing: true,
+          });
+          item.click();
+        });
+      },
+    },
+    {
+      id: "read-source",
+      caption: {
+        step: `4 / ${STEP_COUNT}`,
+        title: "Read the source",
+        body:
+          "Syntax-highlighted, read-only. Scroll through to see helpers and imports the function pulls in.",
+      },
+      durationMs: sp(1400) + sp(1800) + sp(1600) + sp(900),
+      play(ctx) {
+        ctx.scheduleStep(sp(1400), () => scrollCodeDialogTo(0.45));
+        ctx.scheduleStep(sp(1400) + sp(1800), () => scrollCodeDialogTo(0.85));
+        ctx.scheduleStep(
+          sp(1400) + sp(1800) + sp(1600),
+          () => scrollCodeDialogTo(0),
+        );
+      },
+    },
+    {
+      id: "close-dialog",
+      caption: {
+        step: `5 / ${STEP_COUNT}`,
+        title: "Close when done",
+        body:
+          "Dismiss the dialog with the Close button (or press Escape) to return to the canvas.",
+      },
+      durationMs: sp(700) + 400,
+      play(ctx) {
+        ctx.scheduleStep(0, () => {
+          const close = findMenuItemByText("Close");
+          if (!close) return;
+          ctx.setOverlay({
+            cursor: withCursorTipAt(getElementCenter(close)),
+            ghost: null,
+          });
+        });
+        ctx.scheduleStep(sp(700), () => {
+          const close = findMenuItemByText("Close");
+          if (!close) return;
+          ctx.setOverlay({
+            cursor: withCursorTipAt(getElementCenter(close)),
+            ghost: null,
+            pressing: true,
+          });
+          close.click();
+        });
+      },
+    },
+    {
+      id: "complete",
+      caption: {
+        step: "Done",
+        title: "You've seen the source",
+        body:
+          "Every node works the same way: ⋯ menu → Show Code. Use the controls to replay or step back.",
+      },
+      durationMs: 200,
+      play(ctx) {
+        ctx.setNodes((current) =>
+          current.map((node) =>
+            node.selected ? { ...node, selected: false } : node,
+          ),
+        );
+        ctx.setOverlay({ cursor: null, ghost: null });
+      },
+    },
+  ];
 }
 
 export const showCodeDemo: HelpDemo = {
@@ -122,177 +279,11 @@ export const showCodeDemo: HelpDemo = {
     "Every calculation node is backed by Python — open the ⋯ menu, pick Show Code, read the source.",
   category: "Canvas basics",
 
-  run(ctx) {
-    const sha256 = findTemplate(SHA256_LABEL);
-    if (!sha256) return;
-
+  init(ctx) {
     ctx.setViewport(VIEWPORT);
     ctx.setNodes(() => []);
     ctx.setEdges(() => []);
-
-    if (typeof window !== "undefined") {
-      ctx.setOverlay({
-        cursor: { x: window.innerWidth * 0.55, y: window.innerHeight - 80 },
-        ghost: null,
-      });
-    }
-
-    const DROP_DURATION = sp(2250);
-
-    // — Beat 1: drop the node ————————————————————————————————
-    ctx.scheduleStep(0, () => {
-      ctx.setCaption({
-        step: "1 / 5",
-        title: "Drop a hash node",
-        body:
-          "Every calculation node is backed by Python. Let's drop a SHA-256 to inspect its source.",
-      });
-    });
-    scheduleCategoryDrop(
-      ctx,
-      0,
-      {
-        template: sha256,
-        nodeId: SHA256_NODE_ID,
-        position: SHA256_POSITION,
-        override: (data) => ({
-          ...data,
-          inputs: { ...(data.inputs as object | undefined), val: "" },
-          result: "",
-          dirty: false,
-        }),
-      },
-      SHA256_LABEL,
-      "Hashes",
-    );
-    const dropEnd = DROP_DURATION;
-
-    // — Beat 2: open the node's ⋯ menu ————————————————————————
-    const beat2At = dropEnd + sp(500);
-    ctx.scheduleStep(beat2At, () => {
-      ctx.setCaption({
-        step: "2 / 5",
-        title: "Open the node's menu",
-        body:
-          "Each node has a ⋯ button in its header — that's where 'Show Code' lives.",
-      });
-      const button = findNodeMenuButton(SHA256_NODE_ID);
-      if (!button) return;
-      ctx.setOverlay({
-        cursor: withCursorTipAt(getElementCenter(button)),
-        ghost: null,
-      });
-    });
-
-    // Press ⋯ (Radix dropdown opens on pointerdown, not click).
-    const openMenuAt = beat2At + sp(650);
-    ctx.scheduleStep(openMenuAt, () => {
-      const button = findNodeMenuButton(SHA256_NODE_ID);
-      if (!button) return;
-      ctx.setOverlay({
-        cursor: withCursorTipAt(getElementCenter(button)),
-        ghost: null,
-        pressing: true,
-      });
-      dispatchPointerDown(button);
-    });
-
-    // — Beat 3: pick "Show Code" ——————————————————————————————
-    const moveToItemAt = openMenuAt + sp(450);
-    ctx.scheduleStep(moveToItemAt, () => {
-      ctx.setCaption({
-        step: "3 / 5",
-        title: 'Pick "Show Code"',
-        body:
-          "Opens a dialog with the exact Python function this node runs — syntax-highlighted and read-only.",
-      });
-      const item = findMenuItemByText("Show Code");
-      if (!item) return;
-      ctx.setOverlay({
-        cursor: withCursorTipAt(getElementCenter(item)),
-        ghost: null,
-      });
-    });
-
-    const clickItemAt = moveToItemAt + sp(550);
-    ctx.scheduleStep(clickItemAt, () => {
-      const item = findMenuItemByText("Show Code");
-      if (!item) return;
-      ctx.setOverlay({
-        cursor: withCursorTipAt(getElementCenter(item)),
-        ghost: null,
-        pressing: true,
-      });
-      item.click();
-    });
-
-    // — Beat 4: read the source and scroll through it ————————————
-    const readBeatAt = clickItemAt + sp(900);
-    ctx.scheduleStep(readBeatAt, () => {
-      ctx.setCaption({
-        step: "4 / 5",
-        title: "Read the source",
-        body:
-          "Syntax-highlighted, read-only. Scroll through to see helpers and imports the function pulls in.",
-      });
-    });
-    const scrollMidAt = readBeatAt + sp(1400);
-    ctx.scheduleStep(scrollMidAt, () => {
-      scrollCodeDialogTo(0.45);
-    });
-    const scrollBottomAt = scrollMidAt + sp(1800);
-    ctx.scheduleStep(scrollBottomAt, () => {
-      scrollCodeDialogTo(0.85);
-    });
-    const scrollBackAt = scrollBottomAt + sp(1600);
-    ctx.scheduleStep(scrollBackAt, () => {
-      scrollCodeDialogTo(0);
-    });
-
-    // — Beat 5: close the dialog ——————————————————————————————
-    const closeBeatAt = scrollBackAt + sp(1100);
-    ctx.scheduleStep(closeBeatAt, () => {
-      ctx.setCaption({
-        step: "5 / 5",
-        title: "Close when done",
-        body:
-          "Dismiss the dialog with the Close button (or press Escape) to return to the canvas.",
-      });
-      const close = findMenuItemByText("Close");
-      if (!close) return;
-      ctx.setOverlay({
-        cursor: withCursorTipAt(getElementCenter(close)),
-        ghost: null,
-      });
-    });
-
-    const clickCloseAt = closeBeatAt + sp(700);
-    ctx.scheduleStep(clickCloseAt, () => {
-      const close = findMenuItemByText("Close");
-      if (!close) return;
-      ctx.setOverlay({
-        cursor: withCursorTipAt(getElementCenter(close)),
-        ghost: null,
-        pressing: true,
-      });
-      close.click();
-    });
-
-    // Final: leave a "Done" caption + Replay control; cursor hidden.
-    const demoEndsAt = clickCloseAt + sp(1200);
-    ctx.scheduleStep(demoEndsAt, () => {
-      ctx.setNodes((current) =>
-        current.map((node) =>
-          node.selected ? { ...node, selected: false } : node,
-        ),
-      );
-      ctx.setCaption({
-        step: "Done",
-        title: "You've seen the source",
-        body:
-          "Press Replay to watch again, or pick another demo from the panel on the right.",
-      });
-      ctx.setOverlay({ cursor: null, ghost: null });
-    });
   },
+
+  steps: makeSteps(),
 };

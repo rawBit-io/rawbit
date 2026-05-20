@@ -37,7 +37,7 @@ import {
   type IntroDropOverlayState,
 } from "@/components/IntroDropOverlay";
 import { HelpMenu } from "@/help/HelpMenu";
-import type { DemoContext, HelpDemo } from "@/help/types";
+import type { DemoStepContext, HelpDemo } from "@/help/types";
 import { Sun, Moon, Github } from "lucide-react";
 
 import { useNodeOperations } from "@/hooks/useNodeOperations";
@@ -442,10 +442,21 @@ function FlowContent() {
   );
   const [currentHelpDemo, setCurrentHelpDemo] = useState<HelpDemo | null>(null);
   const helpDemoTimersRef = useRef<number[]>([]);
-  // Refs so caption-card buttons (created once per demo run) always call the
-  // latest stop/run impls even after React rerenders recreate the callbacks.
-  const stopHelpDemoRef = useRef<() => void>(() => {});
-  const runHelpDemoRef = useRef<(demo: HelpDemo) => void>(() => {});
+  // Generation counter cancels stale async fast-forward loops when the user
+  // clicks a new step (or stops the demo) mid fast-forward.
+  const helpDemoPlayGenRef = useRef(0);
+  // "auto": auto-advance through the steps. "manual": play one step and stop.
+  // Set to "auto" by the side-panel Play button + the caption Restart button;
+  // flipped to "manual" by Pause and stays there until auto is re-entered.
+  const helpDemoModeRef = useRef<"auto" | "manual">("auto");
+  // Refs so caption-card buttons (created once per step) always call the
+  // latest stop/play impls even after React rerenders recreate the callbacks.
+  const stopHelpDemoRef = useRef<(opts?: { clearOverlay?: boolean }) => void>(
+    () => {},
+  );
+  const playHelpStepRef = useRef<(demo: HelpDemo, stepIdx: number) => void>(
+    () => {},
+  );
 
   const [calcStateByTab, setCalcStateByTab] = useState<
     Record<string, TabCalculationState>
@@ -1893,6 +1904,11 @@ function FlowContent() {
         }
       }
       helpDemoTimersRef.current = [];
+      // Bump the generation so any in-flight async fast-forward bails out.
+      helpDemoPlayGenRef.current += 1;
+      // Pause = enter manual mode. Subsequent caption-button navigation will
+      // play one step at a time instead of auto-advancing.
+      helpDemoModeRef.current = "manual";
       setRunningHelpDemoId(null);
       setHelpSidebarSearch(undefined);
       setHelpSidebarHighlight(undefined);
@@ -1901,7 +1917,8 @@ function FlowContent() {
         setCurrentHelpDemo(null);
         return;
       }
-      // Keep the caption + controls card visible so the user can Replay.
+      // Keep the caption + controls card visible so the user can Play / Prev /
+      // Next / Replay.
       setIntroDropState((prev) => {
         if (!prev) return null;
         return {
@@ -1920,127 +1937,295 @@ function FlowContent() {
   );
 
   const openHelpTab = useCallback(() => {
+    const createHelpTab = () => {
+      const newId = addTab();
+      renameTab(newId, "Help");
+      setTabTooltip(newId, "Help — concept demos on canvas");
+      selectTab(newId);
+      setHelpTabIds((prev) => {
+        const next = new Set(prev);
+        next.add(newId);
+        return next;
+      });
+    };
+
+    const activeIsHelp =
+      activeTabId !== null &&
+      activeTabId !== undefined &&
+      helpTabIds.has(activeTabId);
+    if (activeIsHelp) {
+      stopHelpDemo({ clearOverlay: true });
+      createHelpTab();
+      return;
+    }
+
     const existing = tabs.find((tab) => helpTabIds.has(tab.id));
     if (existing) {
       selectTab(existing.id);
       return;
     }
-    const newId = addTab();
-    renameTab(newId, "Help");
-    setTabTooltip(newId, "Help — concept demos on canvas");
-    selectTab(newId);
-    setHelpTabIds((prev) => {
-      const next = new Set(prev);
-      next.add(newId);
-      return next;
-    });
-  }, [addTab, helpTabIds, renameTab, selectTab, setTabTooltip, tabs]);
+    createHelpTab();
+  }, [
+    activeTabId,
+    addTab,
+    helpTabIds,
+    renameTab,
+    selectTab,
+    setTabTooltip,
+    stopHelpDemo,
+    tabs,
+  ]);
 
-  const runHelpDemo = useCallback(
-    (demo: HelpDemo) => {
-      stopHelpDemo();
-      setCurrentHelpDemo(demo);
-      setRunningHelpDemoId(demo.id);
+  const flowToScreen = useCallback((point: { x: number; y: number }) => {
+    const instance = flowInstanceRef.current;
+    if (instance && typeof instance.flowToScreenPosition === "function") {
+      return instance.flowToScreenPosition(point);
+    }
+    const wrapperRect = reactFlowWrapper.current?.getBoundingClientRect();
+    return {
+      x: (wrapperRect?.left ?? 256) + point.x,
+      y: (wrapperRect?.top ?? 96) + point.y,
+    };
+  }, []);
 
-      // Caption persists across cursor moves: every setOverlay call merges in
-      // activeCaption unless the caller explicitly sets `caption` themselves.
-      let activeCaption: IntroDropOverlayState["caption"] = null;
-
-      // Same controls instance for the whole run — toggled via isPlaying when
-      // the demo finishes or is stopped.
-      const controls: NonNullable<IntroDropOverlayState["controls"]> = {
+  const buildHelpControls = useCallback(
+    (
+      demo: HelpDemo,
+      stepIdx: number,
+      isPlaying: boolean,
+    ): NonNullable<IntroDropOverlayState["controls"]> => {
+      const lastIdx = demo.steps.length - 1;
+      return {
         onPause: () => stopHelpDemoRef.current(),
-        onReplay: () => runHelpDemoRef.current(demo),
-        isPlaying: true,
+        // These controls are explicit step navigation. They always play one
+        // step and stop, even if the demo was previously auto-playing.
+        onPlay: () => {
+          helpDemoModeRef.current = "manual";
+          playHelpStepRef.current(demo, stepIdx);
+        },
+        onPrev: () => {
+          helpDemoModeRef.current = "manual";
+          playHelpStepRef.current(demo, Math.max(0, stepIdx - 1));
+        },
+        onNext: () => {
+          helpDemoModeRef.current = "manual";
+          playHelpStepRef.current(demo, Math.min(lastIdx, stepIdx + 1));
+        },
+        // Restart explicitly re-enters auto-play so the whole demo runs again.
+        onReplay: () => {
+          helpDemoModeRef.current = "auto";
+          playHelpStepRef.current(demo, 0);
+        },
+        isPlaying,
+        canPrev: stepIdx > 0,
+        canNext: stepIdx < lastIdx,
+        stepLabel: `${stepIdx + 1} / ${demo.steps.length}`,
       };
-
-      const ctx: DemoContext = {
-        setOverlay: (state) => {
-          if (state === null) {
-            activeCaption = null;
-            setIntroDropState(null);
-            return;
-          }
-          if ("caption" in state && state.caption !== undefined) {
-            activeCaption = state.caption ?? null;
-          }
-          setIntroDropState({
-            ...state,
-            caption: activeCaption,
-            controls,
-          });
-        },
-        setCaption: (caption) => {
-          activeCaption = caption;
-          setIntroDropState((prev) => {
-            if (!prev) {
-              return { cursor: null, ghost: null, caption, controls };
-            }
-            return { ...prev, caption, controls };
-          });
-        },
-        setSidebarSearch: setHelpSidebarSearch,
-        setSidebarHighlightLabel: setHelpSidebarHighlight,
-        setNodes,
-        setEdges,
-        scheduleStep: (delayMs, fn) => {
-          if (typeof window === "undefined") {
-            fn();
-            return;
-          }
-          const id = window.setTimeout(() => {
-            helpDemoTimersRef.current = helpDemoTimersRef.current.filter(
-              (existing) => existing !== id
-            );
-            try {
-              fn();
-            } finally {
-              if (helpDemoTimersRef.current.length === 0) {
-                setRunningHelpDemoId(null);
-                // Demo finished naturally — flip the controls into "stopped"
-                // mode so the Replay button replaces the Stop button.
-                setIntroDropState((prev) => {
-                  if (!prev || !prev.controls) return prev;
-                  return {
-                    ...prev,
-                    controls: { ...prev.controls, isPlaying: false },
-                  };
-                });
-              }
-            }
-          }, delayMs);
-          helpDemoTimersRef.current.push(id);
-        },
-        flowToScreen: (point) => {
-          const instance = flowInstanceRef.current;
-          if (instance && typeof instance.flowToScreenPosition === "function") {
-            return instance.flowToScreenPosition(point);
-          }
-          const wrapperRect = reactFlowWrapper.current?.getBoundingClientRect();
-          return {
-            x: (wrapperRect?.left ?? 256) + point.x,
-            y: (wrapperRect?.top ?? 96) + point.y,
-          };
-        },
-        setViewport: (viewport) => {
-          flowInstanceRef.current?.setViewport(viewport, { duration: 0 });
-        },
-        isRunning: () => helpDemoTimersRef.current.length > 0,
-      };
-
-      demo.run(ctx);
     },
-    [setEdges, setNodes, stopHelpDemo]
+    [],
   );
 
-  // Keep the playback-button refs pointing at the latest impls so callbacks
-  // captured inside the running demo always see the current functions.
+  const buildStepContext = useCallback(
+    (
+      demo: HelpDemo,
+      stepIdx: number,
+      mode: "play" | "instant",
+      generation: number,
+    ): DemoStepContext => {
+      const baseCaption = demo.steps[stepIdx]?.caption ?? null;
+      let activeCaption: IntroDropOverlayState["caption"] = baseCaption;
+      const controls = buildHelpControls(demo, stepIdx, true);
+      const isActive = () => generation === helpDemoPlayGenRef.current;
+
+      const setOverlayPlay: DemoStepContext["setOverlay"] = (state) => {
+        if (!isActive()) return;
+        if (state === null) {
+          activeCaption = null;
+          setIntroDropState((prev) => (isActive() ? null : prev));
+          return;
+        }
+        if ("caption" in state && state.caption !== undefined) {
+          activeCaption = state.caption ?? null;
+        }
+        const nextState = { ...state, caption: activeCaption, controls };
+        setIntroDropState((prev) => (isActive() ? nextState : prev));
+      };
+
+      const noopOverlay: DemoStepContext["setOverlay"] = () => {};
+
+      const playScheduler: DemoStepContext["scheduleStep"] = (delayMs, fn) => {
+        if (typeof window === "undefined") {
+          if (isActive()) fn();
+          return;
+        }
+        const id = window.setTimeout(() => {
+          helpDemoTimersRef.current = helpDemoTimersRef.current.filter(
+            (existing) => existing !== id,
+          );
+          if (!isActive()) return;
+          fn();
+        }, delayMs);
+        helpDemoTimersRef.current.push(id);
+      };
+
+      const instantScheduler: DemoStepContext["scheduleStep"] = (_d, fn) =>
+        isActive() && fn();
+
+      return {
+        setOverlay: mode === "play" ? setOverlayPlay : noopOverlay,
+        setSidebarSearch: (value) => {
+          if (isActive()) {
+            setHelpSidebarSearch((prev) => (isActive() ? value : prev));
+          }
+        },
+        setSidebarHighlightLabel: (label) => {
+          if (isActive()) {
+            setHelpSidebarHighlight((prev) => (isActive() ? label : prev));
+          }
+        },
+        setNodes: (updater) => {
+          if (isActive()) {
+            setNodes((prev) => (isActive() ? updater(prev) : prev));
+          }
+        },
+        setEdges: (updater) => {
+          if (isActive()) {
+            setEdges((prev) => (isActive() ? updater(prev) : prev));
+          }
+        },
+        scheduleStep: mode === "play" ? playScheduler : instantScheduler,
+        flowToScreen,
+        setViewport: (viewport) => {
+          if (isActive()) {
+            flowInstanceRef.current?.setViewport(viewport, { duration: 0 });
+          }
+        },
+        isRunning: () =>
+          isActive() && helpDemoTimersRef.current.length > 0,
+      };
+    },
+    [buildHelpControls, flowToScreen, setEdges, setNodes],
+  );
+
+  const playHelpDemoFromStep = useCallback(
+    async (demo: HelpDemo, stepIdxRaw: number) => {
+      if (demo.steps.length === 0) return;
+      const targetIdx = Math.max(
+        0,
+        Math.min(demo.steps.length - 1, stepIdxRaw),
+      );
+
+      // Cancel anything currently in flight (timers + stale async loops).
+      if (typeof window !== "undefined") {
+        for (const id of helpDemoTimersRef.current) {
+          window.clearTimeout(id);
+        }
+      }
+      helpDemoTimersRef.current = [];
+      const myGen = ++helpDemoPlayGenRef.current;
+
+      setCurrentHelpDemo(demo);
+      setRunningHelpDemoId(demo.id);
+      setHelpSidebarSearch(undefined);
+      setHelpSidebarHighlight(undefined);
+
+      // 1. Demo init runs in normal-play mode so any state setters work.
+      const initCtx = buildStepContext(demo, targetIdx, "play", myGen);
+      demo.init?.(initCtx);
+
+      // Wait one frame so init's React state changes commit before we start
+      // dispatching DOM events for fast-forward.
+      await new Promise<void>((resolve) => {
+        if (typeof window === "undefined") {
+          resolve();
+          return;
+        }
+        requestAnimationFrame(() => resolve());
+      });
+      if (myGen !== helpDemoPlayGenRef.current) return;
+
+      // 2. Fast-forward through every prior step.
+      for (let i = 0; i < targetIdx; i += 1) {
+        const ffCtx = buildStepContext(demo, i, "instant", myGen);
+        demo.steps[i].play(ffCtx);
+        // Two frames: one for React to commit, one for portals (Radix, Dialog)
+        // to mount before the next instant step dispatches against them.
+        await new Promise<void>((resolve) => {
+          if (typeof window === "undefined") {
+            resolve();
+            return;
+          }
+          requestAnimationFrame(() =>
+            requestAnimationFrame(() => resolve()),
+          );
+        });
+        if (myGen !== helpDemoPlayGenRef.current) return;
+      }
+      if (myGen !== helpDemoPlayGenRef.current) return;
+
+      // 3. Show this step's caption + controls before its animations run.
+      const targetControls = buildHelpControls(demo, targetIdx, true);
+      setIntroDropState({
+        cursor: null,
+        ghost: null,
+        caption: demo.steps[targetIdx].caption,
+        controls: targetControls,
+      });
+
+      // 4. Play the target step normally.
+      const playCtx = buildStepContext(demo, targetIdx, "play", myGen);
+      demo.steps[targetIdx].play(playCtx);
+
+      // 5. After the step's animations finish, either auto-advance (auto mode
+      //    and not the last step) or stop (manual mode, or end of demo).
+      const isLast = targetIdx === demo.steps.length - 1;
+      const advanceDelay = demo.steps[targetIdx].durationMs;
+      if (typeof window !== "undefined") {
+        const id = window.setTimeout(() => {
+          helpDemoTimersRef.current = helpDemoTimersRef.current.filter(
+            (existing) => existing !== id,
+          );
+          if (myGen !== helpDemoPlayGenRef.current) return;
+          const shouldAdvance =
+            !isLast && helpDemoModeRef.current === "auto";
+          if (shouldAdvance) {
+            playHelpStepRef.current(demo, targetIdx + 1);
+          } else {
+            setRunningHelpDemoId(null);
+            setIntroDropState((prev) => {
+              if (!prev || !prev.controls) return prev;
+              return {
+                ...prev,
+                controls: { ...prev.controls, isPlaying: false },
+              };
+            });
+          }
+        }, advanceDelay);
+        helpDemoTimersRef.current.push(id);
+      }
+    },
+    [buildHelpControls, buildStepContext],
+  );
+
+  // HelpMenu's "Play" button keeps the simpler `(demo) => void` signature.
+  // Clicking it (re)enters auto-play mode — the demo runs through every step.
+  const runHelpDemo = useCallback(
+    (demo: HelpDemo) => {
+      helpDemoModeRef.current = "auto";
+      void playHelpDemoFromStep(demo, 0);
+    },
+    [playHelpDemoFromStep],
+  );
+
+  // Keep the playback-button refs pointing at the latest impls.
   useEffect(() => {
     stopHelpDemoRef.current = stopHelpDemo;
   }, [stopHelpDemo]);
   useEffect(() => {
-    runHelpDemoRef.current = runHelpDemo;
-  }, [runHelpDemo]);
+    playHelpStepRef.current = (demo, idx) => {
+      void playHelpDemoFromStep(demo, idx);
+    };
+  }, [playHelpDemoFromStep]);
 
   // Leaving the help tab cancels the demo AND clears its overlay/caption,
   // since the user has moved on. Staying on the help tab keeps the caption
@@ -2934,9 +3119,9 @@ function FlowContent() {
             state={introDropState}
             captionRightInset={
               activeTabId !== null &&
-              activeTabId !== undefined &&
-              helpTabIds.has(activeTabId)
-                ? 288 /* HelpMenu width = w-72 */
+                activeTabId !== undefined &&
+                helpTabIds.has(activeTabId)
+                ? 320 /* HelpMenu width = w-80 */
                 : 0
             }
           />
