@@ -79,3 +79,19 @@ def test_expand_function_source_includes_manual_bip39_seed_helpers():
     assert "def _pbkdf2_hmac_sha512" in expanded
     assert "hashlib.pbkdf2_hmac" not in expanded
     assert "def bip39_mnemonic_to_seed" in expanded
+
+
+def test_expand_function_source_includes_opcode_sequence_conversion():
+    func = calc_ops.op_code_select
+    source = inspect.getsource(func)
+
+    expanded = expand_function_source(func, source)
+
+    assert "Opcode sequence conversion" in expanded
+    assert "OPCODE_TO_HEX = {" in expanded
+    assert "'OP_DUP': '76'" in expanded
+    assert "'OP_HASH160': 'a9'" in expanded
+    assert "def _ordered_values" in expanded
+    assert "def opcode_sequence_to_hex" in expanded
+    assert "# --- Node function ---" in expanded
+    assert "def op_code_select" in expanded

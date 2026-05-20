@@ -3056,11 +3056,11 @@ def encode_script_push_data(val: str) -> str:
 
 def op_code_select(vals: Any) -> str:
     """
-    Convert an ordered list of opcode names into script hex.
+    Convert an ordered Script template/opcode list into serialized script hex.
 
-    The opcode sequence node now behaves like the other calculation nodes:
-    the frontend stores user-selected opcode names as inputs, and the backend
-    performs the transformation to hex.
+    Each selected item is a human-readable opcode name such as OP_DUP or
+    OP_CHECKSIG, or a rawBit template shortcut such as P2PKH_PREFIX. The result
+    is the byte sequence that appears inside a Bitcoin script.
     """
     return opcode_sequence_to_hex(vals)
 

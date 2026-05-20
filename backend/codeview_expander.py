@@ -6,6 +6,7 @@ from __future__ import annotations
 import ast
 import inspect
 import re
+from pprint import pformat
 from typing import Optional, Union, Type, Any
 from types import (
     ModuleType,
@@ -17,6 +18,7 @@ from types import (
 )
 
 from calc_functions import calc_func as calc_ops
+from calc_functions import opcodes as opcode_ops
 
 # Objects inspect.getsource accepts (mirrors inspect internals closely)
 SourceObject = Union[
@@ -63,6 +65,7 @@ _HELPER_PATTERN = re.compile(
 _BIP39_PATTERN = re.compile(
     r"\b(" + "|".join(map(re.escape, _BIP39_SYMBOLS)) + r")\b"
 )
+_OPCODE_SEQUENCE_HELPERS = ["_ordered_values", "opcode_sequence_to_hex"]
 
 _MAX_HELPER_EXPANSION_DEPTH = 8
 
@@ -123,6 +126,25 @@ def _bip39_wordlist_bundle() -> str:
         "}"
     )
     return "\n".join(parts).strip()
+
+
+def _opcode_sequence_bundle() -> str:
+    """
+    Build a readable source block for the Opcode Sequence node.
+
+    Runtime keeps the opcode catalogue in calc_functions/opcodes.py. The node
+    function itself is intentionally tiny, but Show Code should still expose the
+    actual conversion rule students need to understand.
+    """
+    parts = [
+        "# Bitcoin Script opcode/template names accepted by this node.",
+        "OPCODE_TO_HEX = " + pformat(opcode_ops.OPCODE_TO_HEX, width=88, sort_dicts=False),
+    ]
+    for name in _OPCODE_SEQUENCE_HELPERS:
+        src = _get_source(getattr(opcode_ops, name, None))
+        if src:
+            parts.append(src)
+    return "\n\n".join(parts).strip()
 
 
 def _extract_called_names(source: str) -> list[str]:
@@ -235,6 +257,10 @@ def expand_function_source(_func_obj: SourceObject, func_source: str) -> str:
     uses_bip39 = bool(_BIP39_PATTERN.search(source)) or bool(
         helper_name_set.intersection(_BIP39_SYMBOLS)
     )
+    uses_opcode_sequence = (
+        getattr(_func_obj, "__name__", "") == "op_code_select"
+        or "opcode_sequence_to_hex" in source
+    )
 
     # Keep existing Base58/Bech32 bundle behavior (includes constants),
     # but avoid duplicate helper definitions in generic helper block.
@@ -246,7 +272,13 @@ def expand_function_source(_func_obj: SourceObject, func_source: str) -> str:
             continue
         generic_helpers.append(src)
 
-    if not uses_base58 and not uses_bech32 and not uses_bip39 and not generic_helpers:
+    if (
+        not uses_base58
+        and not uses_bech32
+        and not uses_bip39
+        and not uses_opcode_sequence
+        and not generic_helpers
+    ):
         return func_source
 
     blocks = [
@@ -267,6 +299,11 @@ def expand_function_source(_func_obj: SourceObject, func_source: str) -> str:
         bip39_words = _bip39_wordlist_bundle()
         if bip39_words:
             blocks.append("# --- BIP39 English wordlist ---\n" + bip39_words)
+
+    if uses_opcode_sequence:
+        opcode_sequence = _opcode_sequence_bundle()
+        if opcode_sequence:
+            blocks.append("# --- Opcode sequence conversion ---\n" + opcode_sequence)
 
     if generic_helpers:
         blocks.append("# --- Local helper functions ---\n" + "\n\n".join(generic_helpers))
