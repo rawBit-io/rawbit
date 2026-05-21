@@ -725,7 +725,7 @@ describe("Flow first-run dialog", () => {
       const videoFrame = screen.getByTitle("rawBit demo");
       expect(videoFrame).toHaveAttribute(
         "src",
-        "https://www.youtube-nocookie.com/embed/n4YHoKj4Ics?rel=0"
+        "https://www.youtube-nocookie.com/embed/6WNHYGgG9oo?rel=0"
       );
 
       const closeButton = document.querySelector<HTMLButtonElement>(

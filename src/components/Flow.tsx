@@ -220,7 +220,7 @@ const INTRO_SOURCE_FALLBACK = { x: 76, y: 780 };
 const INTRO_SOURCE_CARD_SIZE = { width: 196, height: 96 };
 const INTRO_VIDEO_TITLE = "rawBit demo";
 const INTRO_VIDEO_EMBED_URL =
-  "https://www.youtube-nocookie.com/embed/n4YHoKj4Ics?rel=0";
+  "https://www.youtube-nocookie.com/embed/6WNHYGgG9oo?rel=0";
 const SHARED_IMPORT_FIT_MIN_ZOOM = 0.2;
 
 function graphIdsMatch(
