@@ -322,26 +322,22 @@ function DemoCard({
       <div className="flex items-start gap-3">
         <DemoText demo={demo} />
         <Button
-          variant={isRunning ? "secondary" : "outline"}
-          size="sm"
+          variant="ghost"
+          size="icon"
           className={cn(
-            "h-8 shrink-0 px-2.5",
-            !isRunning &&
-              "border-primary/30 bg-background text-primary hover:bg-primary/10 hover:text-primary",
+            "h-7 w-7 shrink-0 rounded-sm border p-0 shadow-none transition-opacity",
+            isRunning
+              ? "border-primary/35 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary"
+              : "border-border/70 bg-transparent text-primary/75 opacity-80 hover:border-primary/30 hover:bg-primary/10 hover:text-primary group-hover:opacity-100",
           )}
           onClick={onClick}
           aria-label={isRunning ? "Stop demo" : "Play demo"}
+          title={isRunning ? "Stop demo" : "Play demo"}
         >
           {isRunning ? (
-            <>
-              <Square className="h-3.5 w-3.5" />
-              Stop
-            </>
+            <Square className="h-3 w-3" />
           ) : (
-            <>
-              <Play className="h-3.5 w-3.5" />
-              Play
-            </>
+            <Play className="h-3 w-3 translate-x-px" />
           )}
         </Button>
       </div>
