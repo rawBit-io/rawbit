@@ -84,16 +84,6 @@ test.describe('Help demo manual stepping', () => {
       page.getByTestId('help-menu').getByRole('button', { name: 'Stop demo' }),
     ).toHaveCount(0);
   });
-
-  test('switches between all help menu designs from the top bar', async ({ page }) => {
-    for (const design of ['path', 'console', 'library', 'original']) {
-      await page.getByTestId('help-design-select').selectOption(design);
-      await expect(page.getByTestId('help-menu')).toHaveAttribute(
-        'data-help-design',
-        design,
-      );
-    }
-  });
 });
 
 async function playDemo(page: Page, title: string) {

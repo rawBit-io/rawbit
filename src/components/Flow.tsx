@@ -37,11 +37,6 @@ import {
   type IntroDropOverlayState,
 } from "@/components/IntroDropOverlay";
 import { HelpMenu } from "@/help/HelpMenu";
-import {
-  DEFAULT_HELP_MENU_DESIGN,
-  isHelpMenuDesignId,
-  type HelpMenuDesignId,
-} from "@/help/designs";
 import type { DemoStepContext, HelpDemo } from "@/help/types";
 import { Sun, Moon, Github } from "lucide-react";
 
@@ -210,7 +205,6 @@ const LIMIT_ERROR_PATTERNS = [
 ];
 
 const FIRST_RUN_STORAGE_KEY = "rawbit.ui.welcomeSeen";
-const HELP_MENU_DESIGN_STORAGE_KEY = "rawbit.ui.helpMenuDesign";
 const INTRO_FLOW_ID = "flow-0";
 const TOP_LEVEL_FLOW_SECTION = "top-level";
 const INTRO_FLOW_DROP_FLOW_POSITION = { x: 0, y: 0 };
@@ -437,20 +431,6 @@ function FlowContent() {
   // 📖 help system: tabs marked as help, demo-driven sidebar overrides, the
   // id of the currently running demo, and tracked timer ids for cancellation.
   const [helpTabIds, setHelpTabIds] = useState<Set<string>>(() => new Set());
-  const [helpMenuDesign, setHelpMenuDesignState] =
-    useState<HelpMenuDesignId>(() => {
-      if (typeof window === "undefined") return DEFAULT_HELP_MENU_DESIGN;
-      try {
-        const stored = window.localStorage.getItem(
-          HELP_MENU_DESIGN_STORAGE_KEY,
-        );
-        return isHelpMenuDesignId(stored)
-          ? stored
-          : DEFAULT_HELP_MENU_DESIGN;
-      } catch {
-        return DEFAULT_HELP_MENU_DESIGN;
-      }
-    });
   const [helpSidebarSearch, setHelpSidebarSearch] = useState<
     string | undefined
   >(undefined);
@@ -1912,16 +1892,6 @@ function FlowContent() {
     addTab();
   }, [addTab]);
 
-  const setHelpMenuDesign = useCallback((design: HelpMenuDesignId) => {
-    setHelpMenuDesignState(design);
-    if (typeof window === "undefined") return;
-    try {
-      window.localStorage.setItem(HELP_MENU_DESIGN_STORAGE_KEY, design);
-    } catch {
-      /* ignore storage write failures */
-    }
-  }, []);
-
   /* -------------------------------------------------------------------- */
   /*  Help system — open a help tab, play concept demos, stop demos.      */
   /* -------------------------------------------------------------------- */
@@ -3014,9 +2984,6 @@ function FlowContent() {
               onShare={handleShareClick}
               shareDisabled={nodes.length === 0}
               onHelpClick={openHelpTab}
-              helpMenuDesign={helpMenuDesign}
-              onHelpMenuDesignChange={setHelpMenuDesign}
-              showHelpMenuDesignSwitcher={isActiveHelpTab}
               tabBarRightInset={rightPanelWidth}
             />
           )}
@@ -3155,7 +3122,6 @@ function FlowContent() {
 
           <IntroDropOverlay
             state={introDropState}
-            helpControlDesign={helpMenuDesign}
             captionRightInset={
               isActiveHelpTab ? 320 /* HelpMenu width = w-80 */ : 0
             }
@@ -3165,7 +3131,6 @@ function FlowContent() {
             <HelpMenu
               isOpen={isActiveHelpTab}
               runningDemoId={runningHelpDemoId}
-              design={helpMenuDesign}
               onPlayDemo={runHelpDemo}
               onStopDemo={() => stopHelpDemo()}
             />
