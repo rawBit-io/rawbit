@@ -197,30 +197,30 @@ export function IntroDropOverlay({
 
       {caption && (
         <div
-          className="pointer-events-auto absolute bottom-4 w-[min(40rem,calc(100vw-2rem))] overflow-hidden rounded-md border border-border bg-card text-card-foreground shadow-lg sm:bottom-8"
+          className="pointer-events-auto absolute bottom-4 w-[min(32rem,calc(100vw-2rem))] overflow-hidden rounded-md border border-border bg-background text-foreground shadow-md sm:bottom-8"
           style={{ right: captionRightInset + 16 }}
         >
           {controls?.onClose && (
             <button
               type="button"
               aria-label={controls.closeLabel ?? "Close"}
-              className="absolute right-2 top-2 z-10 flex h-9 w-9 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-foreground"
+              className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-foreground"
               onClick={controls.onClose}
             >
               <X className="h-4 w-4" aria-hidden="true" />
             </button>
           )}
-          <div className="px-6 py-5 pr-14">
+          <div className="px-5 py-4 pr-12">
             {caption.step && (
-              <div className="text-sm font-semibold uppercase tracking-normal text-muted-foreground">
+              <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 {caption.step}
               </div>
             )}
-            <div className="text-3xl font-semibold leading-tight text-primary">
+            <div className="mt-1 text-base font-medium leading-tight tracking-tight text-foreground">
               {caption.title}
             </div>
             {caption.body && (
-              <div className="mt-2 whitespace-pre-line text-lg leading-snug text-muted-foreground">
+              <div className="mt-1.5 whitespace-pre-line text-sm text-muted-foreground">
                 {caption.body}
               </div>
             )}

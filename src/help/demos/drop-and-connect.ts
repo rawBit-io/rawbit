@@ -636,8 +636,7 @@ function makeSteps(): DemoStep[] {
 export const dropAndConnectDemo: HelpDemo = {
   id: "drop-and-connect",
   title: "Drop, type & connect",
-  description:
-    "Build a 3-node mini-flow: drop the nodes, rename one, type a value, wire ports together.",
+  description: "Drop nodes, type values, wire them together.",
   category: "Canvas basics",
 
   init(ctx) {

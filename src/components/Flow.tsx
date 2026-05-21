@@ -37,6 +37,7 @@ import {
   type IntroDropOverlayState,
 } from "@/components/IntroDropOverlay";
 import { HelpMenu } from "@/help/HelpMenu";
+import { HELP_DEMOS } from "@/help/registry";
 import type { DemoStepContext, HelpDemo } from "@/help/types";
 import { Sun, Moon, Github } from "lucide-react";
 
@@ -3038,7 +3039,18 @@ function FlowContent() {
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnectWithUndo}
                 onReconnect={onReconnectWithUndo}
-                onDrop={onDropWithUndo}
+                onDrop={(event) => {
+                  const demoId = event.dataTransfer.getData(
+                    "application/x-rawbit-help-demo",
+                  );
+                  if (demoId) {
+                    event.preventDefault();
+                    const demo = HELP_DEMOS.find((d) => d.id === demoId);
+                    if (demo) runHelpDemo(demo);
+                    return;
+                  }
+                  onDropWithUndo(event);
+                }}
                 onDragOver={onDragOver}
                 onNodeDragStop={onNodeDragStopWithUndo}
                 onPaneClick={handlePaneClick}
@@ -3123,7 +3135,7 @@ function FlowContent() {
           <IntroDropOverlay
             state={introDropState}
             captionRightInset={
-              isActiveHelpTab ? 320 /* HelpMenu width = w-80 */ : 0
+              isActiveHelpTab ? 256 /* HelpMenu width = w-64 */ : 0
             }
           />
 
@@ -3133,6 +3145,11 @@ function FlowContent() {
               runningDemoId={runningHelpDemoId}
               onPlayDemo={runHelpDemo}
               onStopDemo={() => stopHelpDemo()}
+              onCloseHelpTab={
+                isActiveHelpTab && activeTabId
+                  ? () => handleCloseTab(activeTabId)
+                  : undefined
+              }
             />
           )}
 

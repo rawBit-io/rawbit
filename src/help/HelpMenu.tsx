@@ -7,7 +7,7 @@
 //   6. Unified body size — header body + card descriptions both text-sm.
 //   7. Tighter cards — slimmer padding, single-line description, denser list.
 
-import { ChevronDown, Play, Square } from "lucide-react";
+import { ChevronDown, Play, Square, X } from "lucide-react";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,8 @@ interface Props {
   runningDemoId: string | null;
   onPlayDemo: (demo: HelpDemo) => void;
   onStopDemo: () => void;
+  /** Closes the help tab (and therefore the menu). */
+  onCloseHelpTab?: () => void;
 }
 
 export function HelpMenu({
@@ -36,6 +38,7 @@ export function HelpMenu({
   runningDemoId,
   onPlayDemo,
   onStopDemo,
+  onCloseHelpTab,
 }: Props) {
   const { selectedCategory, setSelectedCategory, liveGroups, visibleGroups } =
     useHelpMenuState();
@@ -57,20 +60,30 @@ export function HelpMenu({
       data-testid="help-menu"
       aria-hidden={!isOpen}
       className={cn(
-        "fixed bottom-0 right-0 top-14 z-10 flex select-none flex-col border-l border-border bg-muted/30 text-card-foreground transition-[width] duration-300 dark:bg-muted/10",
-        isOpen ? "w-80" : "w-0 overflow-hidden",
+        "fixed bottom-0 right-0 top-14 z-10 flex select-none flex-col border-l border-border bg-background text-foreground transition-[width] duration-300",
+        isOpen ? "w-64" : "w-0 overflow-hidden",
       )}
     >
-      <div className="border-b border-border bg-card px-5 pb-4 pt-4 shadow-sm">
-        <div className="text-xl font-semibold leading-tight tracking-tight text-foreground">
+      {/* Title bar — h-10 so its bottom border lines up with the tabbar's,
+          and the background matches so it reads as one bar. */}
+      <div className="flex h-10 shrink-0 items-center justify-between gap-2 border-b border-border/60 bg-background/95 px-5 backdrop-blur-md">
+        <div className="text-base font-medium leading-tight tracking-tight text-foreground">
           Guided help
         </div>
-        <div className="mt-2 text-sm leading-snug text-muted-foreground">
-          Each demo runs live on the canvas. Pause and step through any time.
-        </div>
+        {onCloseHelpTab && (
+          <button
+            type="button"
+            onClick={onCloseHelpTab}
+            aria-label="Close help"
+            title="Close help"
+            className="-mr-2 inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <X className="h-4 w-4" aria-hidden="true" />
+          </button>
+        )}
       </div>
 
-      <div className="border-b border-border bg-card/70 px-4 py-3 shadow-sm">
+      <div className="px-4 pt-4">
         <div className="mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           <span>Topics</span>
           <span className="tabular-nums">{totalDemoCount} demos</span>
@@ -182,7 +195,7 @@ function Group({
           )}
           aria-hidden="true"
         />
-        <div className="text-sm font-semibold text-foreground group-hover/header:text-foreground">
+        <div className="text-[15px] font-medium text-foreground">
           {group.category}
         </div>
         <div className="ml-auto text-[11px] tabular-nums text-muted-foreground">
@@ -222,19 +235,28 @@ function Card({
 }) {
   return (
     <div
+      draggable
+      onDragStart={(event) => {
+        event.dataTransfer.setData(
+          "application/x-rawbit-help-demo",
+          demo.id,
+        );
+        event.dataTransfer.effectAllowed = "copy";
+      }}
+      title="Drag onto the canvas to play this demo"
       className={cn(
-        "group rounded-lg border bg-card p-3 transition-all",
+        "group cursor-grab rounded-lg border bg-card p-3 transition-colors active:cursor-grabbing",
         isRunning
           ? "border-primary/60 ring-1 ring-primary/30"
-          : "border-border hover:-translate-y-1 hover:border-primary/30",
+          : "border-border hover:border-primary/30",
       )}
     >
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
-          <div className="text-sm font-semibold leading-tight text-foreground">
+          <div className="text-sm font-medium text-foreground">
             {demo.title}
           </div>
-          <div className="mt-1 line-clamp-1 text-sm leading-snug text-muted-foreground">
+          <div className="text-xs text-muted-foreground">
             {demo.description}
           </div>
           <div className="mt-2 text-[11px] font-medium uppercase tracking-wide text-primary/75">

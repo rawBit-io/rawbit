@@ -275,8 +275,7 @@ function makeSteps(): DemoStep[] {
 export const showCodeDemo: HelpDemo = {
   id: "show-code",
   title: "Inspect node code",
-  description:
-    "Every calculation node is backed by Python — open the ⋯ menu, pick Show Code, read the source.",
+  description: "Open any node's Python source.",
   category: "Canvas basics",
 
   init(ctx) {
