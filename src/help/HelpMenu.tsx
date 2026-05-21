@@ -1,16 +1,21 @@
 // src/help/HelpMenu.tsx
-// Right-side menu shown on help tabs. Elevated card design: cards sit on a
-// quiet muted background with shadows + hover lift so the list reads like a
-// stack of raised cards.
+// Right-side menu shown on help tabs. Elevated card design.
+//
+// Visual refinements baked in:
+//   1. Smaller title  — "Guided help" at text-xl, tighter header padding.
+//   3. Bigger group headers — category names read as real section headings.
+//   6. Unified body size — header body + card descriptions both text-sm.
+//   7. Tighter cards — slimmer padding, single-line description, denser list.
 
-import { BookOpen, Play, Square } from "lucide-react";
+import { ChevronDown, Play, Square } from "lucide-react";
+import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import {
   ALL_TOPICS,
-  categoryDescription,
+  CATEGORY_ORDER,
   categoryLabel,
   totalDemoCount,
   useHelpMenuState,
@@ -35,6 +40,18 @@ export function HelpMenu({
   const { selectedCategory, setSelectedCategory, liveGroups, visibleGroups } =
     useHelpMenuState();
 
+  const [openCategories, setOpenCategories] = useState<Set<string>>(
+    () => new Set(CATEGORY_ORDER.slice(0, 1)),
+  );
+  const toggleCategory = useCallback((category: string) => {
+    setOpenCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(category)) next.delete(category);
+      else next.add(category);
+      return next;
+    });
+  }, []);
+
   return (
     <aside
       data-testid="help-menu"
@@ -44,13 +61,9 @@ export function HelpMenu({
         isOpen ? "w-80" : "w-0 overflow-hidden",
       )}
     >
-      <div className="border-b border-border bg-card px-5 pb-5 pt-5 shadow-sm">
-        <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-          <BookOpen className="h-4 w-4" aria-hidden="true" />
+      <div className="border-b border-border bg-card px-5 pb-4 pt-4 shadow-sm">
+        <div className="text-xl font-semibold leading-tight tracking-tight text-foreground">
           Guided help
-        </div>
-        <div className="mt-2 text-2xl font-semibold leading-tight text-foreground">
-          Learn rawBit on the canvas
         </div>
         <div className="mt-2 text-sm leading-snug text-muted-foreground">
           Each demo runs live on the canvas. Pause and step through any time.
@@ -89,6 +102,8 @@ export function HelpMenu({
             <Group
               key={group.category}
               group={group}
+              isOpen={openCategories.has(group.category)}
+              onToggle={() => toggleCategory(group.category)}
               runningDemoId={runningDemoId}
               onPlayDemo={onPlayDemo}
               onStopDemo={onStopDemo}
@@ -139,44 +154,59 @@ function Pill({
 
 function Group({
   group,
+  isOpen,
+  onToggle,
   runningDemoId,
   onPlayDemo,
   onStopDemo,
 }: {
   group: CategoryGroup;
+  isOpen: boolean;
+  onToggle: () => void;
   runningDemoId: string | null;
   onPlayDemo: (demo: HelpDemo) => void;
   onStopDemo: () => void;
 }) {
   return (
-    <section className="mb-5 last:mb-0">
-      <div className="mb-2 px-1">
-        <div className="flex items-center justify-between">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-            {group.category}
-          </div>
-          <div className="text-[11px] text-muted-foreground">
-            {group.demos.length || "soon"}
-          </div>
+    <section className="mb-4 last:mb-0">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={isOpen}
+        className="group/header mb-2 flex w-full items-center gap-2 rounded-md px-1 py-1 text-left transition-colors hover:bg-accent/30"
+      >
+        <ChevronDown
+          className={cn(
+            "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+            isOpen ? "rotate-0" : "-rotate-90",
+          )}
+          aria-hidden="true"
+        />
+        <div className="text-sm font-semibold text-foreground group-hover/header:text-foreground">
+          {group.category}
         </div>
-        <div className="mt-1 text-xs leading-snug text-muted-foreground">
-          {categoryDescription(group.category)}
+        <div className="ml-auto text-[11px] tabular-nums text-muted-foreground">
+          {group.demos.length || "soon"}
         </div>
-      </div>
-      <ul className="space-y-3">
-        {group.demos.map((demo) => {
-          const isRunning = runningDemoId === demo.id;
-          return (
-            <li key={demo.id}>
-              <Card
-                demo={demo}
-                isRunning={isRunning}
-                onClick={() => (isRunning ? onStopDemo() : onPlayDemo(demo))}
-              />
-            </li>
-          );
-        })}
-      </ul>
+      </button>
+      {isOpen && (
+        <ul className="space-y-2">
+          {group.demos.map((demo) => {
+            const isRunning = runningDemoId === demo.id;
+            return (
+              <li key={demo.id}>
+                <Card
+                  demo={demo}
+                  isRunning={isRunning}
+                  onClick={() =>
+                    isRunning ? onStopDemo() : onPlayDemo(demo)
+                  }
+                />
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </section>
   );
 }
@@ -193,7 +223,7 @@ function Card({
   return (
     <div
       className={cn(
-        "group rounded-lg border bg-card p-3.5 transition-all",
+        "group rounded-lg border bg-card p-3 transition-all",
         isRunning
           ? "border-primary/60 ring-1 ring-primary/30"
           : "border-border hover:-translate-y-1 hover:border-primary/30",
@@ -204,7 +234,7 @@ function Card({
           <div className="text-sm font-semibold leading-tight text-foreground">
             {demo.title}
           </div>
-          <div className="mt-1 line-clamp-2 text-xs leading-snug text-muted-foreground">
+          <div className="mt-1 line-clamp-1 text-sm leading-snug text-muted-foreground">
             {demo.description}
           </div>
           <div className="mt-2 text-[11px] font-medium uppercase tracking-wide text-primary/75">
