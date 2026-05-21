@@ -45,7 +45,8 @@ import {
   Mail,
   Paintbrush,
   Check,
-  BookOpen,
+  LayoutTemplate,
+  CircleHelp,
 } from "lucide-react";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -61,6 +62,10 @@ import {
 } from "@/contexts/theme";
 import { cn } from "@/lib/utils";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
+import {
+  HELP_MENU_DESIGNS,
+  type HelpMenuDesignId,
+} from "@/help/designs";
 import type { CalcStatus, CalculationState } from "@/types";
 import {
   DropdownMenu,
@@ -152,6 +157,9 @@ export type ExtraTopBarProps = {
   isSelectionModeActive?: boolean;
   onToggleSelectionMode?: () => void;
   onHelpClick?: () => void;
+  helpMenuDesign?: HelpMenuDesignId;
+  onHelpMenuDesignChange?: (design: HelpMenuDesignId) => void;
+  showHelpMenuDesignSwitcher?: boolean;
   tabBarRightInset?: number;
 };
 
@@ -286,6 +294,9 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
     isSelectionModeActive = false,
     onToggleSelectionMode,
     onHelpClick,
+    helpMenuDesign,
+    onHelpMenuDesignChange,
+    showHelpMenuDesignSwitcher = false,
     tabBarRightInset = 0,
   } = props;
 
@@ -762,16 +773,6 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
           >
             <Share className="h-7 w-7" />
           </TopBarIconButton>
-          <TopBarIconButton
-            variant="ghost"
-            size="icon"
-            onClick={onHelpClick}
-            tooltip="Help — concept demos on canvas"
-            aria-label="Open help"
-            data-testid="help-button"
-          >
-            <BookOpen className="h-7 w-7" />
-          </TopBarIconButton>
           {/* community links */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -781,9 +782,9 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                 aria-label="Community & Links"
                 tooltip="Community & Links"
                 className="focus-visible:ring-0 focus-visible:ring-offset-0"
-              >
-                <Globe className="h-5 w-5" />
-              </TopBarIconButton>
+          >
+            <Globe className="h-5 w-5" />
+          </TopBarIconButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" side="bottom">
               <DropdownMenuItem asChild>
@@ -841,6 +842,43 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <TopBarIconButton
+            variant="ghost"
+            size="icon"
+            onClick={onHelpClick}
+            tooltip="Help — concept demos on canvas"
+            aria-label="Open help"
+            data-testid="help-button"
+          >
+            <CircleHelp className="h-6 w-6" />
+          </TopBarIconButton>
+          {showHelpMenuDesignSwitcher &&
+            helpMenuDesign &&
+            onHelpMenuDesignChange && (
+              <div
+                className="flex h-8 items-center gap-1 rounded-md border border-border bg-background pl-2 pr-1 text-muted-foreground"
+                title="Help menu design"
+              >
+                <LayoutTemplate className="h-4 w-4 shrink-0" />
+                <select
+                  aria-label="Help menu design"
+                  data-testid="help-design-select"
+                  value={helpMenuDesign}
+                  onChange={(event) =>
+                    onHelpMenuDesignChange(
+                      event.currentTarget.value as HelpMenuDesignId
+                    )
+                  }
+                  className="h-7 w-24 bg-transparent text-xs font-medium text-foreground outline-none"
+                >
+                  {HELP_MENU_DESIGNS.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+          )}
 
           <Separator orientation="vertical" className="mx-1 h-6 w-px" />
 

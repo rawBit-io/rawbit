@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 
 import { CURSOR_TIP_OFFSET } from "@/components/introDropCursor";
+import type { HelpMenuDesignId } from "@/help/designs";
+import { cn } from "@/lib/utils";
 
 export interface IntroDropOverlayState {
   cursor: { x: number; y: number } | null;
@@ -59,6 +61,7 @@ export interface IntroDropOverlayState {
 
 interface Props {
   state: IntroDropOverlayState | null;
+  helpControlDesign?: HelpMenuDesignId;
   /**
    * Pixels of right-side area the caption card should avoid (e.g. the help
    * menu width when it's open). The card right-aligns past this inset.
@@ -78,7 +81,11 @@ function bezierPath(sx: number, sy: number, tx: number, ty: number) {
   return `M ${sx},${sy} C ${sourceControlX},${sy} ${targetControlX},${ty} ${tx},${ty}`;
 }
 
-export function IntroDropOverlay({ state, captionRightInset = 0 }: Props) {
+export function IntroDropOverlay({
+  state,
+  helpControlDesign = "original",
+  captionRightInset = 0,
+}: Props) {
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const [wirePath, setWirePath] = useState<string | null>(null);
   const [wireEnd, setWireEnd] = useState<{ x: number; y: number } | null>(null);
@@ -114,6 +121,46 @@ export function IntroDropOverlay({ state, captionRightInset = 0 }: Props) {
   const { cursor, ghost, pressing, caption, controls } = state;
   const hasInteractiveContent = Boolean(caption?.video || controls);
   if (!cursor && !ghost && !caption && !controls) return null;
+  const controlRowClass = cn(
+    "flex items-center justify-between gap-2 border-t px-6 py-3",
+    helpControlDesign === "original" && "border-border bg-muted/40",
+    helpControlDesign === "path" && "border-primary/15 bg-primary/5",
+    helpControlDesign === "console" &&
+      "border-zinc-800 bg-zinc-950 text-zinc-50",
+    helpControlDesign === "library" && "border-border bg-background",
+  );
+  const secondaryControlClass = cn(
+    "inline-flex h-9 w-9 items-center justify-center border transition-colors disabled:cursor-not-allowed disabled:opacity-40",
+    helpControlDesign === "path" &&
+      "rounded-full border-primary/25 bg-background text-primary hover:bg-primary hover:text-primary-foreground",
+    helpControlDesign === "console" &&
+      "rounded-sm border-zinc-700 bg-zinc-900 text-zinc-50 hover:bg-zinc-800",
+    helpControlDesign === "library" &&
+      "rounded-md border-border bg-card text-foreground hover:border-primary/35 hover:bg-primary/10",
+    helpControlDesign === "original" &&
+      "rounded-md border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground",
+  );
+  const primaryControlClass = cn(
+    "inline-flex h-9 w-9 items-center justify-center border transition-colors",
+    helpControlDesign === "path" &&
+      "rounded-full border-primary bg-primary text-primary-foreground hover:bg-primary/90",
+    helpControlDesign === "console" &&
+      "rounded-sm border-zinc-100 bg-zinc-50 text-zinc-950 hover:bg-white",
+    helpControlDesign === "library" &&
+      "rounded-md border-primary/40 bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground",
+    helpControlDesign === "original" &&
+      "rounded-md border-primary/50 bg-primary/10 text-primary hover:bg-primary/15",
+  );
+  const restartControlClass = cn(
+    secondaryControlClass,
+    helpControlDesign === "path" ? "ml-0" : "ml-1",
+  );
+  const stepLabelClass = cn(
+    "text-xs font-medium uppercase text-muted-foreground",
+    helpControlDesign === "console"
+      ? "font-mono tracking-widest text-zinc-400"
+      : "tracking-wide",
+  );
 
   return (
     <div
@@ -227,7 +274,7 @@ export function IntroDropOverlay({ state, captionRightInset = 0 }: Props) {
             controls?.onPlay ||
             controls?.onNext ||
             controls?.onReplay) && (
-            <div className="flex items-center justify-between gap-2 border-t border-border bg-muted/40 px-6 py-3">
+            <div className={controlRowClass}>
               <div className="flex items-center gap-1.5">
                 {controls.onPrev && (
                   <button
@@ -236,7 +283,7 @@ export function IntroDropOverlay({ state, captionRightInset = 0 }: Props) {
                     disabled={!controls.canPrev}
                     aria-label="Previous step"
                     title="Previous step"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                    className={secondaryControlClass}
                   >
                     <ChevronLeft className="h-5 w-5" aria-hidden="true" />
                   </button>
@@ -247,7 +294,7 @@ export function IntroDropOverlay({ state, captionRightInset = 0 }: Props) {
                     onClick={controls.onPause}
                     aria-label="Pause"
                     title="Pause"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-primary/50 bg-primary/10 text-primary hover:bg-primary/15"
+                    className={primaryControlClass}
                   >
                     <Pause className="h-5 w-5" aria-hidden="true" />
                   </button>
@@ -257,7 +304,7 @@ export function IntroDropOverlay({ state, captionRightInset = 0 }: Props) {
                     onClick={controls.onPlay}
                     aria-label="Play"
                     title="Play current step"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-primary/50 bg-primary/10 text-primary hover:bg-primary/15"
+                    className={primaryControlClass}
                   >
                     <Play className="h-5 w-5" aria-hidden="true" />
                   </button>
@@ -269,7 +316,7 @@ export function IntroDropOverlay({ state, captionRightInset = 0 }: Props) {
                     disabled={!controls.canNext}
                     aria-label="Next step"
                     title="Next step"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                    className={secondaryControlClass}
                   >
                     <ChevronRight className="h-5 w-5" aria-hidden="true" />
                   </button>
@@ -280,14 +327,14 @@ export function IntroDropOverlay({ state, captionRightInset = 0 }: Props) {
                     onClick={controls.onReplay}
                     aria-label="Restart from beginning"
                     title="Restart from beginning"
-                    className="ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground"
+                    className={restartControlClass}
                   >
                     <RotateCcw className="h-4 w-4" aria-hidden="true" />
                   </button>
                 )}
               </div>
               {controls.stepLabel && (
-                <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                <div className={stepLabelClass}>
                   {controls.stepLabel}
                 </div>
               )}
