@@ -104,7 +104,7 @@ export function ErrorPanel({
               hasVisibleTabs ? "h-10" : "mt-3"
             )}
           >
-            <h2 className="font-medium text-base">Errors</h2>
+            <h2 className="text-sm font-medium">Errors</h2>
             <button
               onClick={() => onClose?.()}
               title="Close panel"

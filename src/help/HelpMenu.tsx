@@ -33,13 +33,13 @@ export function HelpMenu({
   onStopDemo,
   onCloseHelpTab,
 }: Props) {
-  const { selectedCategory, setSelectedCategory, grouped } =
+  const { selectedCategory, setSelectedCategory, liveGroups } =
     useHelpMenuState();
 
   const displayedGroups =
     selectedCategory === ALL_TOPICS
-      ? grouped
-      : grouped.filter(({ category }) => category === selectedCategory);
+      ? liveGroups
+      : liveGroups.filter(({ category }) => category === selectedCategory);
 
   const [openCategories, setOpenCategories] = useState<Set<string>>(
     () => new Set(CATEGORY_ORDER.slice(0, 1)),
@@ -64,7 +64,7 @@ export function HelpMenu({
       )}
     >
       <div className="flex h-10 shrink-0 items-center justify-between gap-2 border-b border-border/60 bg-background/95 px-5 backdrop-blur-md">
-        <div className="text-base font-medium leading-tight tracking-tight text-foreground">
+        <div className="text-sm font-medium text-foreground">
           Guided help
         </div>
         <div className="-mr-2 flex items-center gap-1">
@@ -98,7 +98,7 @@ export function HelpMenu({
             selected={selectedCategory === ALL_TOPICS}
             onClick={() => setSelectedCategory(ALL_TOPICS)}
           />
-          {grouped.map(({ category, demos }) => (
+          {liveGroups.map(({ category, demos }) => (
             <Pill
               key={category}
               label={categoryLabel(category)}

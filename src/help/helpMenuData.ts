@@ -10,9 +10,6 @@ export const ALL_TOPICS = "all";
 
 export const CATEGORY_ORDER = [
   "Canvas basics",
-  "Script walkthroughs",
-  "Transactions",
-  "Keys & signing",
 ];
 
 export const categoryMeta: Record<
@@ -23,21 +20,6 @@ export const categoryMeta: Record<
     label: "Canvas",
     description:
       "Start here: place nodes, connect ports, edit values, and inspect node code.",
-  },
-  "Script walkthroughs": {
-    label: "Scripts",
-    description:
-      "Step through script execution, stack changes, signatures, and failure cases.",
-  },
-  Transactions: {
-    label: "Transactions",
-    description:
-      "Build and inspect transaction fields, witnesses, preimages, and signatures.",
-  },
-  "Keys & signing": {
-    label: "Keys",
-    description:
-      "Understand addresses, key tweaks, signatures, and hardware signing flows.",
   },
 };
 
