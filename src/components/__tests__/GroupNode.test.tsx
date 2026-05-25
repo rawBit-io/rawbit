@@ -205,6 +205,41 @@ describe("GroupNode interactions", () => {
     expect(screen.getByTitle("More")).toBeInTheDocument();
   });
 
+  it("preserves existing group selections when modifier-selecting another group", () => {
+    const firstGroup = createNode({ title: "First Group" }, { id: "group-1" });
+    const secondGroup = createNode(
+      { title: "Second Group" },
+      { id: "group-2", selected: false }
+    );
+    setupNodes([firstGroup, secondGroup], []);
+
+    render(
+      <div className="react-flow__node react-flow__node-shadcnGroup">
+        <ShadcnGroupNode {...buildNodeProps(secondGroup)} />
+      </div>
+    );
+
+    const header = screen.getByTestId("group-header");
+    const handlers = getReactHandlers(header);
+
+    act(() => {
+      handlers.onPointerDownCapture?.({
+        button: 0,
+        buttons: 1,
+        pointerId: 12,
+        clientX: 100,
+        clientY: 100,
+        metaKey: true,
+        target: header,
+        currentTarget: header,
+        stopPropagation: vi.fn(),
+      });
+    });
+
+    expect(nodes.find((node) => node.id === "group-1")?.selected).toBe(true);
+    expect(nodes.find((node) => node.id === "group-2")?.selected).toBe(true);
+  });
+
   it("reveals title controls on pointer release instead of pointer down", () => {
     renderGroupNode({}, { selected: false });
 
@@ -587,6 +622,50 @@ describe("GroupNode interactions", () => {
     );
     expect(edges.find((edge) => edge.id === "edge-untouched")?.selected).toBe(
       false
+    );
+  });
+
+  it("does not steal pointer selection from child nodes inside a group", () => {
+    const groupNode = createNode({}, { selected: false });
+    const selectedEdge = buildEdge({
+      id: "edge-selected",
+      source: "node-a",
+      target: "node-b",
+      selected: true,
+    });
+
+    setupNodes([groupNode], [selectedEdge]);
+    render(
+      <div className="react-flow__node react-flow__node-shadcnGroup">
+        <ShadcnGroupNode {...buildNodeProps(groupNode)} />
+      </div>
+    );
+
+    const body = screen.getByTestId("group-body") as HTMLElement;
+    const childTarget = document.createElement("div");
+    childTarget.className = "react-flow__node react-flow__node-calculation";
+    body.appendChild(childTarget);
+    const handlers = getReactHandlers(body);
+    const stopPropagation = vi.fn();
+    const preventDefault = vi.fn();
+
+    handlers.onPointerDownCapture?.({
+      button: 0,
+      pointerId: 4,
+      clientX: 30,
+      clientY: 30,
+      pointerType: "mouse",
+      buttons: 1,
+      preventDefault,
+      stopPropagation,
+      target: childTarget,
+      currentTarget: body,
+    });
+
+    expect(stopPropagation).not.toHaveBeenCalled();
+    expect(preventDefault).not.toHaveBeenCalled();
+    expect(edges.find((edge) => edge.id === "edge-selected")?.selected).toBe(
+      true
     );
   });
 

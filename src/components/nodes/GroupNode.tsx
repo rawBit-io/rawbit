@@ -62,6 +62,24 @@ const TITLE_CLICK_MOVE_TOLERANCE = 4;
 const TITLE_DOUBLE_CLICK_MS = 360;
 const CLEAR_BUNDLE_EDGE_SELECTION_EVENT = "rawbit:clear-bundle-edge-selection";
 
+const isAdditiveSelectionEvent = (
+  event: Pick<
+    React.PointerEvent<HTMLElement> | React.MouseEvent<HTMLElement>,
+    "ctrlKey" | "metaKey"
+  >
+): boolean => event.metaKey || event.ctrlKey;
+
+const isNestedFlowNodeTarget = (
+  target: EventTarget | null,
+  currentTarget: EventTarget | null
+): boolean => {
+  if (!(target instanceof HTMLElement)) return false;
+  if (!(currentTarget instanceof HTMLElement)) return false;
+  const targetNode = target.closest(".react-flow__node");
+  const currentNode = currentTarget.closest(".react-flow__node");
+  return Boolean(targetNode && currentNode && targetNode !== currentNode);
+};
+
 const normalizeFontSize = (value: unknown) => {
   const numeric = Number(value);
   if (!Number.isFinite(numeric) || numeric <= 0) return DEFAULT_FONT_SIZE;
@@ -203,20 +221,29 @@ export default function ShadcnGroupNode({
     });
   }, [rf]);
 
-  const selectGroupNode = useCallback(() => {
-    clearSelectedEdges();
+  const selectGroupNode = useCallback(
+    (options?: { preserveExisting?: boolean }) => {
+      clearSelectedEdges();
+      const preserveExisting = options?.preserveExisting === true;
 
-    rf.setNodes((currentNodes) => {
-      let changed = false;
-      const next = currentNodes.map((node) => {
-        const shouldSelect = node.id === id;
-        if (node.selected === shouldSelect) return node;
-        changed = true;
-        return { ...node, selected: shouldSelect };
+      rf.setNodes((currentNodes) => {
+        let changed = false;
+        const next = currentNodes.map((node) => {
+          const shouldSelect =
+            node.id === id
+              ? true
+              : preserveExisting
+                ? node.selected === true
+                : false;
+          if (node.selected === shouldSelect) return node;
+          changed = true;
+          return { ...node, selected: shouldSelect };
+        });
+        return changed ? next : currentNodes;
       });
-      return changed ? next : currentNodes;
-    });
-  }, [clearSelectedEdges, id, rf]);
+    },
+    [clearSelectedEdges, id, rf]
+  );
 
   const blurActiveEditableElement = useCallback(() => {
     if (typeof document === "undefined") return;
@@ -234,7 +261,9 @@ export default function ShadcnGroupNode({
     (event: React.PointerEvent<HTMLElement>) => {
       blurActiveEditableElement();
       event.stopPropagation();
-      selectGroupNode();
+      selectGroupNode({
+        preserveExisting: isAdditiveSelectionEvent(event),
+      });
     },
     [blurActiveEditableElement, selectGroupNode]
   );
@@ -246,7 +275,9 @@ export default function ShadcnGroupNode({
         suppressNextTitleClickRef.current = false;
         return;
       }
-      selectGroupNode();
+      selectGroupNode({
+        preserveExisting: isAdditiveSelectionEvent(event),
+      });
       setShowTitleControls(true);
     },
     [selectGroupNode]
@@ -321,7 +352,9 @@ export default function ShadcnGroupNode({
       setTitlePressActive(true);
       setShowMenu(false);
       setShowTitleControls(false);
-      selectGroupNode();
+      selectGroupNode({
+        preserveExisting: isAdditiveSelectionEvent(event),
+      });
     },
     [selectGroupNode, startTitleEdit]
   );
@@ -483,6 +516,7 @@ export default function ShadcnGroupNode({
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (e.button !== 0) return;
       if (isInteractionTargetEditable(e.target)) return;
+      if (isNestedFlowNodeTarget(e.target, e.currentTarget)) return;
       setShowMenu(false);
       setShowTitleControls(false);
       blurActiveEditableElement();
@@ -659,7 +693,10 @@ export default function ShadcnGroupNode({
       onPointerDownCapture={(event) => {
         if (event.button !== 0) return;
         if (isInteractionTargetEditable(event.target)) return;
-        selectGroupNode();
+        if (isNestedFlowNodeTarget(event.target, event.currentTarget)) return;
+        selectGroupNode({
+          preserveExisting: isAdditiveSelectionEvent(event),
+        });
       }}
     >
       <NodeResizer

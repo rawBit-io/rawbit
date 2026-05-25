@@ -705,7 +705,10 @@ function FlowContent() {
     handleMouseMove,
     getTopLeftPosition,
     hasCopiedNodes,
-  } = useCopyPaste();
+  } = useCopyPaste({
+    getClipboardNodes: getSavedNodes,
+    getClipboardEdges: getSavedEdges,
+  });
   const {
     pushState,
     history,
