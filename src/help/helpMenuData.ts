@@ -1,7 +1,5 @@
 // src/help/helpMenuData.ts
-// Shared, view-agnostic category data + grouping logic used by the
-// alternative help-menu variants. The Original HelpMenu inlines its own
-// copy so its file stays untouched.
+// Shared, view-agnostic category data + grouping logic for guided help.
 
 import { useMemo, useState } from "react";
 

@@ -1,11 +1,5 @@
 // src/help/HelpMenu.tsx
-// Right-side menu shown on help tabs. Elevated card design.
-//
-// Visual refinements baked in:
-//   1. Smaller title  — "Guided help" at text-xl, tighter header padding.
-//   3. Bigger group headers — category names read as real section headings.
-//   6. Unified body size — header body + card descriptions both text-sm.
-//   7. Tighter cards — slimmer padding, single-line description, denser list.
+// Right-side guided help menu shown on help tabs.
 
 import { ChevronDown, Play, Square, X } from "lucide-react";
 import { useCallback, useState } from "react";
@@ -29,7 +23,6 @@ interface Props {
   runningDemoId: string | null;
   onPlayDemo: (demo: HelpDemo) => void;
   onStopDemo: () => void;
-  /** Closes the help tab (and therefore the menu). */
   onCloseHelpTab?: () => void;
 }
 
@@ -40,12 +33,18 @@ export function HelpMenu({
   onStopDemo,
   onCloseHelpTab,
 }: Props) {
-  const { selectedCategory, setSelectedCategory, liveGroups, visibleGroups } =
+  const { selectedCategory, setSelectedCategory, grouped } =
     useHelpMenuState();
+
+  const displayedGroups =
+    selectedCategory === ALL_TOPICS
+      ? grouped
+      : grouped.filter(({ category }) => category === selectedCategory);
 
   const [openCategories, setOpenCategories] = useState<Set<string>>(
     () => new Set(CATEGORY_ORDER.slice(0, 1)),
   );
+
   const toggleCategory = useCallback((category: string) => {
     setOpenCategories((prev) => {
       const next = new Set(prev);
@@ -61,29 +60,33 @@ export function HelpMenu({
       aria-hidden={!isOpen}
       className={cn(
         "fixed bottom-0 right-0 top-14 z-10 flex select-none flex-col border-l border-border bg-background text-foreground transition-[width] duration-300",
-        isOpen ? "w-64" : "w-0 overflow-hidden",
+        isOpen ? "w-72" : "w-0 overflow-hidden",
       )}
     >
-      {/* Title bar — h-10 so its bottom border lines up with the tabbar's,
-          and the background matches so it reads as one bar. */}
       <div className="flex h-10 shrink-0 items-center justify-between gap-2 border-b border-border/60 bg-background/95 px-5 backdrop-blur-md">
         <div className="text-base font-medium leading-tight tracking-tight text-foreground">
           Guided help
         </div>
-        {onCloseHelpTab && (
-          <button
-            type="button"
-            onClick={onCloseHelpTab}
-            aria-label="Close help"
-            title="Close help"
-            className="-mr-2 inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          >
-            <X className="h-4 w-4" aria-hidden="true" />
-          </button>
-        )}
+        <div className="-mr-2 flex items-center gap-1">
+          {onCloseHelpTab && (
+            <button
+              type="button"
+              onClick={onCloseHelpTab}
+              aria-label="Close help"
+              title="Close help"
+              className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="px-4 pt-4">
+      <div className="border-b border-border/50 px-4 py-3 text-sm leading-snug text-muted-foreground">
+        Play short canvas demos, pause anytime, and step through each action.
+      </div>
+
+      <div className="px-4 pt-3">
         <div className="mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           <span>Topics</span>
           <span className="tabular-nums">{totalDemoCount} demos</span>
@@ -95,7 +98,7 @@ export function HelpMenu({
             selected={selectedCategory === ALL_TOPICS}
             onClick={() => setSelectedCategory(ALL_TOPICS)}
           />
-          {liveGroups.map(({ category, demos }) => (
+          {grouped.map(({ category, demos }) => (
             <Pill
               key={category}
               label={categoryLabel(category)}
@@ -108,10 +111,10 @@ export function HelpMenu({
       </div>
 
       <div className="flex-1 overflow-y-auto px-3 py-4">
-        {visibleGroups.length === 0 ? (
+        {displayedGroups.length === 0 ? (
           <Empty />
         ) : (
-          visibleGroups.map((group) => (
+          displayedGroups.map((group) => (
             <Group
               key={group.category}
               group={group}
@@ -180,6 +183,8 @@ function Group({
   onPlayDemo: (demo: HelpDemo) => void;
   onStopDemo: () => void;
 }) {
+  const hasDemos = group.demos.length > 0;
+
   return (
     <section className="mb-4 last:mb-0">
       <button
@@ -195,31 +200,41 @@ function Group({
           )}
           aria-hidden="true"
         />
-        <div className="text-[15px] font-medium text-foreground">
+        <div
+          className={cn(
+            "text-[15px] font-medium",
+            hasDemos ? "text-foreground" : "text-muted-foreground",
+          )}
+        >
           {group.category}
         </div>
         <div className="ml-auto text-[11px] tabular-nums text-muted-foreground">
           {group.demos.length || "soon"}
         </div>
       </button>
-      {isOpen && (
-        <ul className="space-y-2">
-          {group.demos.map((demo) => {
-            const isRunning = runningDemoId === demo.id;
-            return (
-              <li key={demo.id}>
-                <Card
-                  demo={demo}
-                  isRunning={isRunning}
-                  onClick={() =>
-                    isRunning ? onStopDemo() : onPlayDemo(demo)
-                  }
-                />
-              </li>
-            );
-          })}
-        </ul>
-      )}
+      {isOpen &&
+        (hasDemos ? (
+          <ul className="space-y-2">
+            {group.demos.map((demo) => {
+              const isRunning = runningDemoId === demo.id;
+              return (
+                <li key={demo.id}>
+                  <Card
+                    demo={demo}
+                    isRunning={isRunning}
+                    onClick={() =>
+                      isRunning ? onStopDemo() : onPlayDemo(demo)
+                    }
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <div className="rounded-md border border-dashed bg-card px-3 py-2 text-xs leading-snug text-muted-foreground">
+            Demos for this topic are coming soon.
+          </div>
+        ))}
     </section>
   );
 }
@@ -243,15 +258,14 @@ function Card({
         );
         event.dataTransfer.effectAllowed = "copy";
       }}
-      title="Drag onto the canvas to play this demo"
       className={cn(
-        "group cursor-grab rounded-lg border bg-card p-3 transition-colors active:cursor-grabbing",
+        "group rounded-lg border bg-card p-3 transition-colors",
         isRunning
           ? "border-primary/60 ring-1 ring-primary/30"
           : "border-border hover:border-primary/30",
       )}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-2.5">
         <div className="min-w-0 flex-1">
           <div className="text-sm font-medium text-foreground">
             {demo.title}
@@ -270,16 +284,16 @@ function Card({
           aria-label={isRunning ? "Stop demo" : "Play demo"}
           title={isRunning ? "Stop demo" : "Play demo"}
           className={cn(
-            "h-9 w-9 shrink-0 rounded-full border shadow-sm transition-colors",
+            "h-7 w-7 shrink-0 rounded-md border bg-transparent shadow-none transition-colors",
             isRunning
-              ? "border-primary/55 bg-primary/15 text-primary"
-              : "border-border bg-card text-primary/75 hover:border-primary/40 hover:bg-primary/10 hover:text-primary",
+              ? "border-primary/55 bg-primary/15 text-primary hover:bg-primary/20 hover:text-primary"
+              : "border-border text-primary/75 hover:border-primary/40 hover:bg-primary/10 hover:text-primary",
           )}
         >
           {isRunning ? (
-            <Square className="h-4 w-4" />
+            <Square className="h-3 w-3" />
           ) : (
-            <Play className="h-4 w-4 translate-x-px" />
+            <Play className="h-3 w-3 translate-x-px" />
           )}
         </Button>
       </div>

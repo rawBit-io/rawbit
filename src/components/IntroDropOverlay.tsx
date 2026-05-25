@@ -117,6 +117,8 @@ export function IntroDropOverlay({
   const { cursor, ghost, pressing, caption, controls } = state;
   const hasInteractiveContent = Boolean(caption?.video || controls);
   if (!cursor && !ghost && !caption && !controls) return null;
+  const showCaptionStep =
+    Boolean(caption?.step) && !controls?.stepLabel;
 
   return (
     <div
@@ -211,7 +213,7 @@ export function IntroDropOverlay({
             </button>
           )}
           <div className="px-5 py-4 pr-12">
-            {caption.step && (
+            {showCaptionStep && (
               <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 {caption.step}
               </div>

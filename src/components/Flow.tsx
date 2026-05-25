@@ -3134,9 +3134,7 @@ function FlowContent() {
 
           <IntroDropOverlay
             state={introDropState}
-            captionRightInset={
-              isActiveHelpTab ? 256 /* HelpMenu width = w-64 */ : 0
-            }
+            captionRightInset={isActiveHelpTab ? 288 /* HelpMenu w-72 */ : 0}
           />
 
           {!isMobileReadOnly && (
