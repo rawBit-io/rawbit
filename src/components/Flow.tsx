@@ -37,7 +37,6 @@ import {
   type IntroDropOverlayState,
 } from "@/components/IntroDropOverlay";
 import { HelpMenu } from "@/help/HelpMenu";
-import { HELP_DEMOS } from "@/help/registry";
 import type { DemoStepContext, HelpDemo } from "@/help/types";
 import { Sun, Moon, Github } from "lucide-react";
 
@@ -3039,18 +3038,7 @@ function FlowContent() {
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnectWithUndo}
                 onReconnect={onReconnectWithUndo}
-                onDrop={(event) => {
-                  const demoId = event.dataTransfer.getData(
-                    "application/x-rawbit-help-demo",
-                  );
-                  if (demoId) {
-                    event.preventDefault();
-                    const demo = HELP_DEMOS.find((d) => d.id === demoId);
-                    if (demo) runHelpDemo(demo);
-                    return;
-                  }
-                  onDropWithUndo(event);
-                }}
+                onDrop={onDropWithUndo}
                 onDragOver={onDragOver}
                 onNodeDragStop={onNodeDragStopWithUndo}
                 onPaneClick={handlePaneClick}

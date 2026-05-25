@@ -250,14 +250,6 @@ function Card({
 }) {
   return (
     <div
-      draggable
-      onDragStart={(event) => {
-        event.dataTransfer.setData(
-          "application/x-rawbit-help-demo",
-          demo.id,
-        );
-        event.dataTransfer.effectAllowed = "copy";
-      }}
       className={cn(
         "group rounded-lg border bg-card p-3 transition-colors",
         isRunning
