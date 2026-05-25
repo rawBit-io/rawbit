@@ -68,21 +68,31 @@ test.describe('Help demo manual stepping', () => {
     await expect(page.getByRole('dialog', { name: /Python source/i })).toBeVisible();
   });
 
-  test('opens a fresh help tab when the Help button is clicked from help', async ({ page }) => {
+  test('closes guided help when the Help button is clicked from help', async ({ page }) => {
     await playDemo(page, 'Drop, type & connect');
     await expect(controlButton(page, 'Pause')).toBeVisible();
 
     await page.getByTestId('help-button').click();
 
-    await expect(page.getByRole('tab', { name: /Help/ })).toHaveCount(2);
-    await expect(page.getByRole('tab', { name: /Help/ }).last()).toHaveAttribute(
+    await expect(page.getByRole('tab', { name: /Help/ })).toHaveCount(1);
+    await expect(page.getByRole('tab', { name: /Help/ })).toHaveAttribute(
       'data-state',
       'active',
     );
+    await expect(page.getByTestId('help-menu')).toHaveAttribute('aria-hidden', 'true');
     await expect(overlay(page)).toHaveCount(0);
     await expect(
       page.getByTestId('help-menu').getByRole('button', { name: 'Stop demo' }),
     ).toHaveCount(0);
+  });
+
+  test('closes guided help when another right panel opens', async ({ page }) => {
+    await expect(page.getByTestId('help-menu')).toHaveAttribute('aria-hidden', 'false');
+
+    await page.getByRole('button', { name: 'Search nodes' }).click();
+
+    await expect(page.getByTestId('help-menu')).toHaveAttribute('aria-hidden', 'true');
+    await expect(page.getByTestId('search-panel')).toBeVisible();
   });
 });
 

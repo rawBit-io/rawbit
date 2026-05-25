@@ -431,6 +431,7 @@ function FlowContent() {
   // 📖 help system: tabs marked as help, demo-driven sidebar overrides, the
   // id of the currently running demo, and tracked timer ids for cancellation.
   const [helpTabIds, setHelpTabIds] = useState<Set<string>>(() => new Set());
+  const [showHelpMenu, setShowHelpMenu] = useState(false);
   const [helpSidebarSearch, setHelpSidebarSearch] = useState<
     string | undefined
   >(undefined);
@@ -1936,7 +1937,21 @@ function FlowContent() {
     [],
   );
 
+  const closeGuidedHelp = useCallback(() => {
+    setShowHelpMenu(false);
+    if (currentHelpDemo !== null || runningHelpDemoId !== null) {
+      stopHelpDemo({ clearOverlay: true });
+    }
+  }, [currentHelpDemo, runningHelpDemoId, stopHelpDemo]);
+
   const openHelpTab = useCallback(() => {
+    const showGuidedHelp = () => {
+      setShowUndoRedoPanel(false);
+      setShowErrorPanel(false);
+      setShowSearchPanel(false);
+      setShowHelpMenu(true);
+    };
+
     const createHelpTab = () => {
       const newId = addTab();
       renameTab(newId, "Help");
@@ -1954,27 +1969,46 @@ function FlowContent() {
       activeTabId !== undefined &&
       helpTabIds.has(activeTabId);
     if (activeIsHelp) {
-      stopHelpDemo({ clearOverlay: true });
-      createHelpTab();
+      if (showHelpMenu) closeGuidedHelp();
+      else showGuidedHelp();
       return;
     }
 
     const existing = tabs.find((tab) => helpTabIds.has(tab.id));
     if (existing) {
+      showGuidedHelp();
       selectTab(existing.id);
       return;
     }
+    showGuidedHelp();
     createHelpTab();
   }, [
     activeTabId,
     addTab,
+    closeGuidedHelp,
     helpTabIds,
     renameTab,
     selectTab,
     setTabTooltip,
-    stopHelpDemo,
+    showHelpMenu,
     tabs,
   ]);
+
+  const setShowUndoRedoPanelFromTopBar = useCallback(
+    (open: boolean) => {
+      if (open) closeGuidedHelp();
+      setShowUndoRedoPanel(open);
+    },
+    [closeGuidedHelp],
+  );
+
+  const setShowErrorPanelFromTopBar = useCallback(
+    (open: boolean) => {
+      if (open) closeGuidedHelp();
+      setShowErrorPanel(open);
+    },
+    [closeGuidedHelp],
+  );
 
   const flowToScreen = useCallback((point: { x: number; y: number }) => {
     const instance = flowInstanceRef.current;
@@ -2917,6 +2951,7 @@ function FlowContent() {
     activeTabId !== null &&
     activeTabId !== undefined &&
     helpTabIds.has(activeTabId);
+  const isGuidedHelpOpen = isActiveHelpTab && showHelpMenu;
 
   /* =================================================================
    *  JSX render – nothing but UI
@@ -2954,11 +2989,11 @@ function FlowContent() {
               errorInfo={errorInfo}
               errorCount={errorInfo.length}
               showErrorPanel={showErrorPanel}
-              setShowErrorPanel={setShowErrorPanel}
+              setShowErrorPanel={setShowErrorPanelFromTopBar}
               onRetryAll={handleRetryAll}
               hasLimitErrors={hasLimitErrors}
               showUndoRedoPanel={showUndoRedoPanel}
-              setShowUndoRedoPanel={setShowUndoRedoPanel}
+              setShowUndoRedoPanel={setShowUndoRedoPanelFromTopBar}
               onToggleColorPalette={handleToggleColorPalette}
               isColorPaletteOpen={isColorPaletteOpen}
               canColorSelection={canColorSelection}
@@ -2969,6 +3004,7 @@ function FlowContent() {
               onGroup={groupWithUndo}
               onUngroup={ungroupWithUndo}
               onSearchClick={() => {
+                closeGuidedHelp();
                 setShowUndoRedoPanel(false); // never overlap
                 setShowErrorPanel(false);
                 setShowSearchPanel((v) => !v); // toggle
@@ -3122,20 +3158,16 @@ function FlowContent() {
 
           <IntroDropOverlay
             state={introDropState}
-            captionRightInset={isActiveHelpTab ? 288 /* HelpMenu w-72 */ : 0}
+            captionRightInset={isGuidedHelpOpen ? 288 /* HelpMenu w-72 */ : 0}
           />
 
           {!isMobileReadOnly && (
             <HelpMenu
-              isOpen={isActiveHelpTab}
+              isOpen={isGuidedHelpOpen}
               runningDemoId={runningHelpDemoId}
               onPlayDemo={runHelpDemo}
               onStopDemo={() => stopHelpDemo()}
-              onCloseHelpTab={
-                isActiveHelpTab && activeTabId
-                  ? () => handleCloseTab(activeTabId)
-                  : undefined
-              }
+              onCloseHelpTab={isGuidedHelpOpen ? closeGuidedHelp : undefined}
             />
           )}
 
