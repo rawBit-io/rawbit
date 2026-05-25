@@ -261,7 +261,7 @@ export function IntroDropOverlay({
                     type="button"
                     onClick={controls.onPlay}
                     aria-label="Play"
-                    title="Play current step"
+                    title="Resume demo"
                     className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-primary/50 bg-primary/10 text-primary hover:bg-primary/15"
                   >
                     <Play className="h-5 w-5" aria-hidden="true" />

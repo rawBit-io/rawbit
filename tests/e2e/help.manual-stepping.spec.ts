@@ -68,6 +68,19 @@ test.describe('Help demo manual stepping', () => {
     await expect(page.getByRole('dialog', { name: /Python source/i })).toBeVisible();
   });
 
+  test('resumes auto-play after pausing', async ({ page }) => {
+    await playDemo(page, 'Drop, type & connect');
+    await pauseDemo(page);
+
+    await controlButton(page, 'Play').click();
+
+    await expect(overlay(page)).toContainText('Search the sidebar', {
+      timeout: 5_000,
+    });
+    await expect(overlay(page)).toContainText('2 / 8');
+    await expect(controlButton(page, 'Pause')).toBeVisible();
+  });
+
   test('closes guided help when the Help button is clicked from help', async ({ page }) => {
     await playDemo(page, 'Drop, type & connect');
     await expect(controlButton(page, 'Pause')).toBeVisible();

@@ -638,6 +638,7 @@ export const dropAndConnectDemo: HelpDemo = {
   title: "Drop, type & connect",
   description: "Drop nodes, type values, wire them together.",
   category: "Canvas basics",
+  incrementalForward: true,
 
   init(ctx) {
     ctx.setViewport(VIEWPORT);

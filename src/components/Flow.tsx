@@ -443,6 +443,9 @@ function FlowContent() {
   );
   const [currentHelpDemo, setCurrentHelpDemo] = useState<HelpDemo | null>(null);
   const helpDemoTimersRef = useRef<number[]>([]);
+  const currentHelpDemoIdRef = useRef<string | null>(null);
+  const currentHelpStepIdxRef = useRef<number | null>(null);
+  const currentHelpStepCompleteRef = useRef(false);
   // Generation counter cancels stale async fast-forward loops when the user
   // clicks a new step (or stops the demo) mid fast-forward.
   const helpDemoPlayGenRef = useRef(0);
@@ -455,9 +458,9 @@ function FlowContent() {
   const stopHelpDemoRef = useRef<(opts?: { clearOverlay?: boolean }) => void>(
     () => {},
   );
-  const playHelpStepRef = useRef<(demo: HelpDemo, stepIdx: number) => void>(
-    () => {},
-  );
+  const playHelpStepRef = useRef<
+    (demo: HelpDemo, stepIdx: number, opts?: { forceRebuild?: boolean }) => void
+  >(() => {});
 
   const [calcStateByTab, setCalcStateByTab] = useState<
     Record<string, TabCalculationState>
@@ -1914,6 +1917,9 @@ function FlowContent() {
       setHelpSidebarSearch(undefined);
       setHelpSidebarHighlight(undefined);
       if (opts?.clearOverlay) {
+        currentHelpDemoIdRef.current = null;
+        currentHelpStepIdxRef.current = null;
+        currentHelpStepCompleteRef.current = false;
         setIntroDropState(null);
         setCurrentHelpDemo(null);
         return;
@@ -2031,15 +2037,17 @@ function FlowContent() {
       const lastIdx = demo.steps.length - 1;
       return {
         onPause: () => stopHelpDemoRef.current(),
-        // These controls are explicit step navigation. They always play one
-        // step and stop, even if the demo was previously auto-playing.
+        // The main Play button resumes auto-play from the current step.
         onPlay: () => {
-          helpDemoModeRef.current = "manual";
+          helpDemoModeRef.current = "auto";
           playHelpStepRef.current(demo, stepIdx);
         },
+        // Step navigation is explicit/manual: play the chosen step and stop.
         onPrev: () => {
           helpDemoModeRef.current = "manual";
-          playHelpStepRef.current(demo, Math.max(0, stepIdx - 1));
+          playHelpStepRef.current(demo, Math.max(0, stepIdx - 1), {
+            forceRebuild: true,
+          });
         },
         onNext: () => {
           helpDemoModeRef.current = "manual";
@@ -2048,7 +2056,7 @@ function FlowContent() {
         // Restart explicitly re-enters auto-play so the whole demo runs again.
         onReplay: () => {
           helpDemoModeRef.current = "auto";
-          playHelpStepRef.current(demo, 0);
+          playHelpStepRef.current(demo, 0, { forceRebuild: true });
         },
         isPlaying,
         canPrev: stepIdx > 0,
@@ -2142,12 +2150,24 @@ function FlowContent() {
   );
 
   const playHelpDemoFromStep = useCallback(
-    async (demo: HelpDemo, stepIdxRaw: number) => {
+    async (
+      demo: HelpDemo,
+      stepIdxRaw: number,
+      opts?: { forceRebuild?: boolean },
+    ) => {
       if (demo.steps.length === 0) return;
       const targetIdx = Math.max(
         0,
         Math.min(demo.steps.length - 1, stepIdxRaw),
       );
+      const currentStepIdx = currentHelpStepIdxRef.current;
+      const canUseCurrentGraph =
+        demo.incrementalForward === true &&
+        !opts?.forceRebuild &&
+        currentHelpDemoIdRef.current === demo.id &&
+        currentStepIdx !== null &&
+        currentHelpStepCompleteRef.current &&
+        (targetIdx === currentStepIdx || targetIdx === currentStepIdx + 1);
 
       // Cancel anything currently in flight (timers + stale async loops).
       if (typeof window !== "undefined") {
@@ -2162,42 +2182,51 @@ function FlowContent() {
       setRunningHelpDemoId(demo.id);
       setHelpSidebarSearch(undefined);
       setHelpSidebarHighlight(undefined);
+      currentHelpDemoIdRef.current = demo.id;
+      currentHelpStepIdxRef.current = targetIdx;
+      currentHelpStepCompleteRef.current = false;
 
-      // 1. Demo init runs in normal-play mode so any state setters work.
-      const initCtx = buildStepContext(demo, targetIdx, "play", myGen);
-      demo.init?.(initCtx);
+      if (!canUseCurrentGraph) {
+        // Demo init + fast-forward are only needed when jumping backward,
+        // restarting, switching demos, or resuming from a mid-step pause.
+        // Normal forward playback uses the current graph to avoid visible
+        // remove/re-add flicker between steps.
+        const initCtx = buildStepContext(demo, targetIdx, "play", myGen);
+        demo.init?.(initCtx);
 
-      // Wait one frame so init's React state changes commit before we start
-      // dispatching DOM events for fast-forward.
-      await new Promise<void>((resolve) => {
-        if (typeof window === "undefined") {
-          resolve();
-          return;
-        }
-        requestAnimationFrame(() => resolve());
-      });
-      if (myGen !== helpDemoPlayGenRef.current) return;
-
-      // 2. Fast-forward through every prior step.
-      for (let i = 0; i < targetIdx; i += 1) {
-        const ffCtx = buildStepContext(demo, i, "instant", myGen);
-        demo.steps[i].play(ffCtx);
-        // Two frames: one for React to commit, one for portals (Radix, Dialog)
-        // to mount before the next instant step dispatches against them.
+        // Wait one frame so init's React state changes commit before we start
+        // dispatching DOM events for fast-forward.
         await new Promise<void>((resolve) => {
           if (typeof window === "undefined") {
             resolve();
             return;
           }
-          requestAnimationFrame(() =>
-            requestAnimationFrame(() => resolve()),
-          );
+          requestAnimationFrame(() => resolve());
         });
         if (myGen !== helpDemoPlayGenRef.current) return;
+
+        // Fast-forward through every prior step.
+        for (let i = 0; i < targetIdx; i += 1) {
+          const ffCtx = buildStepContext(demo, i, "instant", myGen);
+          demo.steps[i].play(ffCtx);
+          // Two frames: one for React to commit, one for portals (Radix,
+          // Dialog) to mount before the next instant step dispatches against
+          // them.
+          await new Promise<void>((resolve) => {
+            if (typeof window === "undefined") {
+              resolve();
+              return;
+            }
+            requestAnimationFrame(() =>
+              requestAnimationFrame(() => resolve()),
+            );
+          });
+          if (myGen !== helpDemoPlayGenRef.current) return;
+        }
       }
       if (myGen !== helpDemoPlayGenRef.current) return;
 
-      // 3. Show this step's caption + controls before its animations run.
+      // Show this step's caption + controls before its animations run.
       const targetControls = buildHelpControls(demo, targetIdx, true);
       setIntroDropState({
         cursor: null,
@@ -2206,12 +2235,12 @@ function FlowContent() {
         controls: targetControls,
       });
 
-      // 4. Play the target step normally.
+      // Play the target step normally.
       const playCtx = buildStepContext(demo, targetIdx, "play", myGen);
       demo.steps[targetIdx].play(playCtx);
 
-      // 5. After the step's animations finish, either auto-advance (auto mode
-      //    and not the last step) or stop (manual mode, or end of demo).
+      // After the step's animations finish, either auto-advance (auto mode and
+      // not the last step) or stop (manual mode, or end of demo).
       const isLast = targetIdx === demo.steps.length - 1;
       const advanceDelay = demo.steps[targetIdx].durationMs;
       if (typeof window !== "undefined") {
@@ -2220,6 +2249,7 @@ function FlowContent() {
             (existing) => existing !== id,
           );
           if (myGen !== helpDemoPlayGenRef.current) return;
+          currentHelpStepCompleteRef.current = true;
           const shouldAdvance =
             !isLast && helpDemoModeRef.current === "auto";
           if (shouldAdvance) {
@@ -2246,7 +2276,7 @@ function FlowContent() {
   const runHelpDemo = useCallback(
     (demo: HelpDemo) => {
       helpDemoModeRef.current = "auto";
-      void playHelpDemoFromStep(demo, 0);
+      void playHelpDemoFromStep(demo, 0, { forceRebuild: true });
     },
     [playHelpDemoFromStep],
   );
@@ -2256,8 +2286,8 @@ function FlowContent() {
     stopHelpDemoRef.current = stopHelpDemo;
   }, [stopHelpDemo]);
   useEffect(() => {
-    playHelpStepRef.current = (demo, idx) => {
-      void playHelpDemoFromStep(demo, idx);
+    playHelpStepRef.current = (demo, idx, opts) => {
+      void playHelpDemoFromStep(demo, idx, opts);
     };
   }, [playHelpDemoFromStep]);
 

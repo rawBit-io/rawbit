@@ -43,6 +43,11 @@ export interface HelpDemo {
   title: string;
   description: string;
   category?: string;
+  /**
+   * True for demos whose forward steps can safely build on the visible graph.
+   * DOM-driven demos (menus/dialogs) should keep deterministic fast-forward.
+   */
+  incrementalForward?: boolean;
   /** One-time setup before any step plays (clear canvas, set viewport). */
   init?: (ctx: DemoStepContext) => void;
   steps: DemoStep[];
