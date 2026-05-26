@@ -100,27 +100,27 @@ const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
     items: [
       {
         title: "Sidebar",
-        body: "Open or collapse the node library.",
+        body: "Open or collapse the node library",
         icon: PanelLeft,
       },
       {
         title: "Load",
-        body: "Import a saved rawBit JSON flow.",
+        body: "Import a saved rawBit JSON flow",
         icon: FileUp,
       },
       {
         title: "Save",
-        body: "Download the flow. Hold S for simplified or L for LLM export.",
+        body: "Download the flow. Hold S for simplified or L for LLM export",
         icon: Save,
       },
       {
         title: "New tab",
-        body: "Create another canvas tab.",
+        body: "Create another canvas tab",
         icon: Plus,
       },
       {
         title: "Close tab",
-        body: "Close a canvas tab when the X appears.",
+        body: "Close a canvas tab when the X appears",
         icon: X,
       },
     ],
@@ -130,42 +130,42 @@ const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
     items: [
       {
         title: "Copy",
-        body: "Copy selected nodes, groups, and supported links.",
+        body: "Copy selected nodes, groups, and supported links",
         icon: Copy,
       },
       {
         title: "Paste",
-        body: "Paste copied canvas content.",
+        body: "Paste copied canvas content",
         icon: ClipboardPaste,
       },
       {
         title: "Connect",
-        body: "Connect two selected nodes or copy compatible inputs.",
+        body: "Connect two selected nodes or copy compatible inputs",
         icon: Share2,
       },
       {
         title: "Group",
-        body: "Wrap selected nodes into a group.",
+        body: "Wrap selected nodes into a group",
         icon: Square,
       },
       {
         title: "Ungroup",
-        body: "Break selected groups back into nodes.",
+        body: "Break selected groups back into nodes",
         icon: SquareSplitVertical,
       },
       {
         title: "Undo",
-        body: "Step back through canvas changes.",
+        body: "Step back through canvas changes",
         icon: Undo,
       },
       {
         title: "Redo",
-        body: "Replay an undone canvas change.",
+        body: "Replay an undone canvas change",
         icon: Redo,
       },
       {
         title: "History",
-        body: "Open the undo and redo history panel.",
+        body: "Open the undo and redo history panel",
         icon: History,
       },
     ],
@@ -175,27 +175,27 @@ const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
     items: [
       {
         title: "Colour palette",
-        body: "Apply colors to selected nodes or groups.",
+        body: "Apply colors to selected nodes or groups",
         icon: Palette,
       },
       {
         title: "Selection tool",
-        body: "Toggle box selection, or hold S while dragging.",
+        body: "Toggle box selection, or hold S while dragging",
         icon: SquareMousePointer,
       },
       {
         title: "Info nodes",
-        body: "Show or hide text info nodes.",
+        body: "Show or hide text info nodes",
         icon: FileText,
       },
       {
         title: "Minimap",
-        body: "Show or hide the map of the whole canvas.",
+        body: "Show or hide the map of the whole canvas",
         icon: MapPinned,
       },
       {
         title: "Search",
-        body: "Open the search panel for nodes and labels.",
+        body: "Open the search panel for nodes and labels",
         icon: Search,
       },
     ],
@@ -205,42 +205,42 @@ const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
     items: [
       {
         title: "Share snapshot",
-        body: "Create a shareable snapshot link.",
+        body: "Create a shareable snapshot link",
         icon: Share,
       },
       {
         title: "Community links",
-        body: "Open rawBit links and contact channels.",
+        body: "Open rawBit links and contact channels",
         icon: Globe,
       },
       {
         title: "GitHub",
-        body: "Open the project repository.",
+        body: "Open the project repository",
         icon: Github,
       },
       {
         title: "X / Twitter",
-        body: "Open rawBit social updates.",
+        body: "Open rawBit social updates",
         icon: Twitter,
       },
       {
         title: "YouTube",
-        body: "Open rawBit videos and demos.",
+        body: "Open rawBit videos and demos",
         icon: Youtube,
       },
       {
         title: "Discord",
-        body: "Join the community chat.",
+        body: "Join the community chat",
         icon: HelpDiscordIcon,
       },
       {
         title: "Email",
-        body: "Contact rawBit by email.",
+        body: "Contact rawBit by email",
         icon: Mail,
       },
       {
         title: "Help",
-        body: "Open this panel and guided demos.",
+        body: "Open this panel and guided demos",
         icon: CircleHelp,
       },
     ],
@@ -250,32 +250,32 @@ const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
     items: [
       {
         title: "Skin",
-        body: "Choose the UI skin and canvas edge styling.",
+        body: "Choose the UI skin and canvas edge styling",
         icon: Paintbrush,
       },
       {
         title: "Selected skin",
-        body: "Marks the active skin inside the skin menu.",
+        body: "Marks the active skin inside the skin menu",
         icon: Check,
       },
       {
         title: "Decrease",
-        body: "Lower edge thickness or opacity in the skin menu.",
+        body: "Lower edge thickness or opacity in the skin menu",
         icon: Minus,
       },
       {
         title: "Increase",
-        body: "Raise edge thickness or opacity in the skin menu.",
+        body: "Raise edge thickness or opacity in the skin menu",
         icon: Plus,
       },
       {
         title: "Light mode",
-        body: "Switch to the light theme.",
+        body: "Switch to the light theme",
         icon: Sun,
       },
       {
         title: "Dark mode",
-        body: "Switch to the dark theme.",
+        body: "Switch to the dark theme",
         icon: Moon,
       },
     ],
@@ -337,10 +337,7 @@ export function HelpMenu({
         </div>
       </div>
 
-      <HelpModeTabs
-        activeMode={activeMode}
-        onChange={setActiveMode}
-      />
+      <HelpModeTabs activeMode={activeMode} onChange={setActiveMode} />
 
       {activeMode === "guided" ? (
         <GuidedHelpView
@@ -440,7 +437,7 @@ function GuidedHelpView({
   return (
     <>
       <div className="border-b border-border px-4 py-3 text-sm leading-snug text-muted-foreground">
-        Step through demos like a compact reference: play, pause, forward, back.
+        Step through demos like a compact reference: play, pause, forward, back
       </div>
 
       <div className="px-4 pt-3">
@@ -490,68 +487,48 @@ function GuidedHelpView({
 
 function HelpContentView() {
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-4">
-      <HelpIntro
-        icon={PanelLeft}
-        title="Help"
-        body="Open sections when you need a slower walkthrough of each area."
-      />
-      <div className="space-y-2">
-        {HELP_GUIDE_GROUPS.map((group) => (
-          <details
-            key={group.title}
-            open
-            className="group border-b border-border/70 pb-2"
-          >
-            <summary className="flex cursor-pointer list-none items-center gap-2 py-1 text-sm font-medium text-foreground">
-              <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-0 -rotate-90" />
-              <span>{group.title}</span>
-              <span className="ml-auto text-[11px] tabular-nums text-muted-foreground">
-                {group.items.length}
-              </span>
-            </summary>
-            <div className="space-y-2 pb-2 pl-6 pt-1">
-              {group.items.map((item) => (
-                <OutlineItem key={`${group.title}-${item.title}`} item={item} />
-              ))}
-            </div>
-          </details>
-        ))}
+    <>
+      <div className="border-b border-border px-4 py-3 text-sm leading-snug text-muted-foreground">
+        A compact overview of the main functions
       </div>
-    </div>
-  );
-}
-
-function HelpIntro({
-  icon: Icon,
-  title,
-  body,
-}: {
-  icon: HelpIcon;
-  title: string;
-  body: string;
-}) {
-  return (
-    <div className="mb-4 border-b border-border/70 pb-3">
-      <div className="mb-1.5 flex items-center gap-2 text-sm font-medium text-foreground">
-        <Icon className="h-4 w-4 text-primary" />
-        {title}
+      <div className="flex-1 overflow-y-auto px-4 py-4">
+        <div className="space-y-2">
+          {HELP_GUIDE_GROUPS.map((group) => (
+            <details
+              key={group.title}
+              open
+              className="group border-b border-border/70 pb-2"
+            >
+              <summary className="flex cursor-pointer list-none items-center gap-2 py-1 text-sm font-medium text-foreground">
+                <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-0 -rotate-90" />
+                <span>{group.title}</span>
+              </summary>
+              <div className="space-y-2 pb-2 pl-6 pt-1">
+                {group.items.map((item) => (
+                  <OutlineItem
+                    key={`${group.title}-${item.title}`}
+                    item={item}
+                  />
+                ))}
+              </div>
+            </details>
+          ))}
+        </div>
       </div>
-      <p className="text-xs leading-relaxed text-muted-foreground">{body}</p>
-    </div>
+    </>
   );
 }
 
 function OutlineItem({ item }: { item: HelpGuideItem }) {
   const Icon = item.icon;
   return (
-    <div className="grid grid-cols-[20px_1fr] gap-2">
+    <div className="grid grid-cols-[24px_1fr] gap-2.5">
       <div className="mt-0.5 text-primary">
-        <Icon className="h-3.5 w-3.5" />
+        <Icon className="h-4 w-4" />
       </div>
       <div className="min-w-0">
-        <div className="text-xs font-medium text-foreground">{item.title}</div>
-        <p className="text-[11px] leading-snug text-muted-foreground">
+        <div className="text-sm font-medium text-foreground">{item.title}</div>
+        <p className="text-sm leading-snug text-muted-foreground">
           {item.body}
         </p>
       </div>
