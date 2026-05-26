@@ -88,6 +88,7 @@ type HelpGuideGroup = {
   items: {
     title: string;
     body: string;
+    moreInfo?: string[];
     icon: HelpIcon;
   }[];
 };
@@ -109,7 +110,14 @@ const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
       },
       {
         title: "Save",
-        body: "Download the flow. Hold S for simplified or L for LLM export",
+        body: "Click Save for a reloadable flow, or hold S / L while clicking Save for LLM-ready exports",
+        moreInfo: [
+          "Save creates the normal rawBit JSON file that can be loaded back into rawBit.",
+          "S + Save creates a simplified export with metadata removed, usually about 50% smaller.",
+          "L + Save creates an LLM export that also includes backend functions for every node.",
+          "Both export modes include all nodes when nothing is selected, or only the selected nodes when a selection is active.",
+          "Simplified and LLM exports are one-way exports; they cannot be loaded back into rawBit.",
+        ],
         icon: Save,
       },
       {
@@ -529,6 +537,19 @@ function HelpRowItem({ item }: { item: HelpGuideItem }) {
         <p className="text-sm leading-snug text-muted-foreground">
           {item.body}
         </p>
+        {item.moreInfo && item.moreInfo.length > 0 && (
+          <details className="mt-2">
+            <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent/30 hover:text-foreground [&::-webkit-details-marker]:hidden">
+              <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+              More info
+            </summary>
+            <ul className="mt-2 space-y-1.5 border-l border-border/70 pl-3 text-sm leading-snug text-muted-foreground">
+              {item.moreInfo.map((detail) => (
+                <li key={detail}>{detail}</li>
+              ))}
+            </ul>
+          </details>
+        )}
       </div>
     </div>
   );
