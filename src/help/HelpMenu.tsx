@@ -14,7 +14,6 @@ import {
   Github,
   Globe,
   History,
-  Layers3,
   Mail,
   MapPinned,
   Minus,
@@ -492,38 +491,37 @@ function HelpContentView() {
         A compact overview of the main functions
       </div>
       <div className="flex-1 overflow-y-auto px-4 py-4">
-        <div className="space-y-2">
-          {HELP_GUIDE_GROUPS.map((group) => (
-            <details
-              key={group.title}
-              open
-              className="group border-b border-border/70 pb-2"
-            >
-              <summary className="flex cursor-pointer list-none items-center gap-2 py-1 text-sm font-medium text-foreground">
-                <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-0 -rotate-90" />
-                <span>{group.title}</span>
-              </summary>
-              <div className="space-y-2 pb-2 pl-6 pt-1">
-                {group.items.map((item) => (
-                  <OutlineItem
-                    key={`${group.title}-${item.title}`}
-                    item={item}
-                  />
-                ))}
-              </div>
-            </details>
-          ))}
-        </div>
+        <HelpGuideList />
       </div>
     </>
   );
 }
 
-function OutlineItem({ item }: { item: HelpGuideItem }) {
+function HelpGuideList() {
+  return (
+    <div className="space-y-5">
+      {HELP_GUIDE_GROUPS.map((group) => (
+        <details key={group.title} open className="group">
+          <summary className="mb-2 flex cursor-pointer list-none items-center gap-2 text-[13px] font-semibold uppercase tracking-normal text-muted-foreground">
+            <ChevronDown className="h-3.5 w-3.5 shrink-0 transition-transform group-open:rotate-0 -rotate-90" />
+            <span>{group.title}</span>
+          </summary>
+          <div className="space-y-1">
+            {group.items.map((item) => (
+              <HelpRowItem key={`${group.title}-${item.title}`} item={item} />
+            ))}
+          </div>
+        </details>
+      ))}
+    </div>
+  );
+}
+
+function HelpRowItem({ item }: { item: HelpGuideItem }) {
   const Icon = item.icon;
   return (
-    <div className="grid grid-cols-[24px_1fr] gap-2.5">
-      <div className="mt-0.5 text-primary">
+    <div className="flex items-start gap-3 rounded-md px-2 py-2 transition-colors hover:bg-accent/20">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted text-primary">
         <Icon className="h-4 w-4" />
       </div>
       <div className="min-w-0">
@@ -661,10 +659,7 @@ function DemoCard({
           : "rounded-md border-border hover:bg-accent/20",
       )}
     >
-      <div className="flex items-start gap-2.5">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted text-primary">
-          <Layers3 className="h-4 w-4" />
-        </div>
+      <div className="flex items-start gap-2">
         <div className="min-w-0 flex-1">
           <div className="text-sm font-medium text-foreground">
             {demo.title}
