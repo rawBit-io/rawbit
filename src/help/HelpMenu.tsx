@@ -373,7 +373,7 @@ function HelpModeTabs({
       <div
         role="group"
         aria-label="Help type"
-        className="grid grid-cols-2 gap-1 rounded-md border border-border bg-card p-1"
+        className="grid grid-cols-2 gap-1 rounded-md bg-muted/45 p-1"
       >
         <ModeTab
           label="Guided help"
@@ -405,10 +405,10 @@ function ModeTab({
       aria-pressed={selected}
       onClick={onClick}
       className={cn(
-        "h-7 rounded px-2 text-xs font-medium transition-colors",
+        "h-8 rounded-md border px-2 text-sm font-medium transition-colors",
         selected
-          ? "bg-background text-foreground shadow-sm"
-          : "text-muted-foreground hover:text-foreground",
+          ? "border-border bg-background text-foreground shadow-sm"
+          : "border-transparent text-muted-foreground hover:bg-background/60 hover:text-foreground",
       )}
     >
       {label}
