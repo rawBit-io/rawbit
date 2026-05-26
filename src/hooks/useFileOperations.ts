@@ -77,6 +77,7 @@ import {
   omitEphemeralOrLegacyNodeData,
   stripLegacyFlowMapNodeData,
 } from "@/lib/flow/legacyCompatibility";
+import { getExpandedExportNodeSelection } from "@/lib/flow/exportSelection";
 import { buildCodeSourceUrl } from "@/lib/codeSourceCache";
 
 // Strip ephemeral UI fields from saved JSON
@@ -638,9 +639,9 @@ export function useFileOperations(
       nodes,
       edges,
     });
-    const selectedNodes = canonicalGraph.nodes.filter((n) => n.selected);
-    const nodesToSave =
-      selectedNodes.length > 0 ? selectedNodes : canonicalGraph.nodes;
+    const { selectedCount, nodesToSave } = getExpandedExportNodeSelection(
+      canonicalGraph.nodes
+    );
     const nodesWithSteps = hydrateNodesWithScriptSteps(
       stripLegacyFlowMapNodeData(nodesToSave)
     );
@@ -854,7 +855,7 @@ export function useFileOperations(
     });
 
     return {
-      selectedCount: selectedNodes.length,
+      selectedCount,
       nodes: simplifiedNodes,
       edges: simplifiedEdges,
       functionNames: backendFunctionNames,

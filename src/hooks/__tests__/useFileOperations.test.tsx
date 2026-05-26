@@ -3,8 +3,9 @@ import { renderHook, act, waitFor } from "@testing-library/react";
 import type { ChangeEvent } from "react";
 import type { FlowNode, FlowData } from "@/types";
 import type { Edge, NodeChange, EdgeChange } from "@xyflow/react";
-import { buildFlowNode } from "@/test-utils/types";
+import { buildEdge, buildFlowNode } from "@/test-utils/types";
 import { MAX_FLOW_BYTES } from "@/lib/flow/schema";
+import { buildGroupBundledElements } from "@/lib/flow/groupEdgeBundling";
 import * as flowValidate from "@/lib/flow/validate";
 import type { FlowValidationIssue } from "@/lib/flow/validate";
 import { restoreScriptSteps } from "@/lib/share/scriptStepsCache";
@@ -26,6 +27,22 @@ const createFileReaderMock = () => {
   }
 
   return MockFileReader;
+};
+
+const readDownloadedBlobText = async (blob: Blob): Promise<string> => {
+  if (typeof blob.text === "function") {
+    return blob.text();
+  }
+  if (typeof blob.arrayBuffer === "function") {
+    const bytes = await blob.arrayBuffer();
+    return new TextDecoder().decode(bytes);
+  }
+  try {
+    return await new Response(blob as unknown as BodyInit).text();
+  } catch {
+    // fall through to explicit error
+  }
+  throw new Error("Unable to read downloaded blob content");
 };
 
 describe("useFileOperations", () => {
@@ -56,6 +73,7 @@ describe("useFileOperations", () => {
 
   const renderUseFileOperations = (options?: {
     initialNodes?: FlowNode[];
+    initialEdges?: Edge[];
     tabTitle?: string;
   }) => {
     const nodes: FlowNode[] =
@@ -67,7 +85,7 @@ describe("useFileOperations", () => {
           data: { functionName: "identity" },
         }),
       ];
-    const edges: Edge[] = [];
+    const edges: Edge[] = options?.initialEdges ?? [];
     const onNodesChange = vi.fn<(changes: NodeChange<FlowNode>[]) => void>();
     const onEdgesChange = vi.fn<(changes: EdgeChange[]) => void>();
     const scheduleSnapshot = vi.fn();
@@ -149,11 +167,11 @@ describe("useFileOperations", () => {
       .spyOn(document, "createElement")
       .mockImplementation((tagName: string) => {
         if (tagName.toLowerCase() === "a") {
-          const anchor = {
-            href: "",
-            download: "",
-            click: vi.fn(),
-          } as unknown as HTMLAnchorElement;
+          const anchor = originalCreateElement("a") as HTMLAnchorElement;
+          Object.defineProperty(anchor, "click", {
+            configurable: true,
+            value: vi.fn(),
+          });
           anchors.push(anchor);
           return anchor;
         }
@@ -463,14 +481,7 @@ describe("useFileOperations", () => {
   it("fetches function source only once per unique function in LLM export", async () => {
     const fetchMock = vi.mocked(fetch);
     fetchMock.mockClear();
-    const mutableURL = URL as typeof URL & {
-      createObjectURL?: (blob: Blob) => string;
-      revokeObjectURL?: (url: string) => void;
-    };
-    const originalCreateObjectURL = mutableURL.createObjectURL;
-    const originalRevokeObjectURL = mutableURL.revokeObjectURL;
-    mutableURL.createObjectURL = () => "blob:mock";
-    mutableURL.revokeObjectURL = () => undefined;
+    const { restore } = setupDownloadCapture();
 
     try {
       const { result } = renderUseFileOperations({
@@ -499,16 +510,7 @@ describe("useFileOperations", () => {
         "/code?functionName=identity"
       );
     } finally {
-      if (originalCreateObjectURL) {
-        mutableURL.createObjectURL = originalCreateObjectURL;
-      } else {
-        Reflect.deleteProperty(mutableURL, "createObjectURL");
-      }
-      if (originalRevokeObjectURL) {
-        mutableURL.revokeObjectURL = originalRevokeObjectURL;
-      } else {
-        Reflect.deleteProperty(mutableURL, "revokeObjectURL");
-      }
+      restore();
     }
   });
 
@@ -516,14 +518,7 @@ describe("useFileOperations", () => {
     const fetchMock = vi.mocked(fetch);
     fetchMock.mockClear();
 
-    const mutableURL = URL as typeof URL & {
-      createObjectURL?: (blob: Blob) => string;
-      revokeObjectURL?: (url: string) => void;
-    };
-    const originalCreateObjectURL = mutableURL.createObjectURL;
-    const originalRevokeObjectURL = mutableURL.revokeObjectURL;
-    mutableURL.createObjectURL = () => "blob:mock";
-    mutableURL.revokeObjectURL = () => undefined;
+    const { restore } = setupDownloadCapture();
 
     try {
       const { result } = renderUseFileOperations({
@@ -543,16 +538,142 @@ describe("useFileOperations", () => {
 
       expect(fetchMock).not.toHaveBeenCalled();
     } finally {
-      if (originalCreateObjectURL) {
-        mutableURL.createObjectURL = originalCreateObjectURL;
-      } else {
-        Reflect.deleteProperty(mutableURL, "createObjectURL");
+      restore();
+    }
+  });
+
+  it("exports selected groups with their children and original group edges", async () => {
+    const sourceNodes: FlowNode[] = [
+      buildFlowNode({
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "Group A", width: 300, height: 200 },
+        selected: true,
+      }),
+      buildFlowNode({
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "Group B", width: 300, height: 200 },
+        selected: true,
+      }),
+      buildFlowNode({
+        id: "a1",
+        parentId: "group-a",
+        data: { functionName: "identity", title: "A1" },
+      }),
+      buildFlowNode({
+        id: "a2",
+        parentId: "group-a",
+        data: { functionName: "identity", title: "A2" },
+      }),
+      buildFlowNode({
+        id: "b1",
+        parentId: "group-b",
+        data: { functionName: "identity", title: "B1" },
+      }),
+      buildFlowNode({
+        id: "b2",
+        parentId: "group-b",
+        data: { functionName: "identity", title: "B2" },
+      }),
+      buildFlowNode({
+        id: "outside",
+        data: { functionName: "identity", title: "Outside" },
+      }),
+    ];
+    const sourceEdges: Edge[] = [
+      buildEdge({ id: "edge-a-internal", source: "a1", target: "a2" }),
+      buildEdge({ id: "edge-b-internal", source: "b1", target: "b2" }),
+      buildEdge({ id: "edge-cross-1", source: "a1", target: "b1" }),
+      buildEdge({ id: "edge-cross-2", source: "a2", target: "b2" }),
+      buildEdge({ id: "edge-outside", source: "a2", target: "outside" }),
+    ];
+    const renderedGraph = buildGroupBundledElements({
+      nodes: sourceNodes,
+      edges: sourceEdges,
+    });
+    const { blobs, restore } = setupDownloadCapture();
+
+    try {
+      const { result } = renderUseFileOperations({
+        initialNodes: renderedGraph.nodes,
+        initialEdges: renderedGraph.edges,
+      });
+
+      act(() => {
+        result.current.saveSimplifiedFlow();
+      });
+      await act(async () => {
+        await result.current.saveLlmExport();
+      });
+
+      expect(blobs).toHaveLength(2);
+
+      type ExportPayload = {
+        nodes: Array<{ id: string; group?: string }>;
+        edges: Array<{ id: string; source: string; target: string }>;
+      };
+
+      const [simplified, llm] = await Promise.all(
+        blobs.map(
+          async (blob) =>
+            JSON.parse(await readDownloadedBlobText(blob)) as ExportPayload
+        )
+      );
+      const expectedNodeIds = [
+        "a1",
+        "a2",
+        "b1",
+        "b2",
+        "group-a",
+        "group-b",
+      ];
+      const expectedEdgeIds = [
+        "edge-a-internal",
+        "edge-b-internal",
+        "edge-cross-1",
+        "edge-cross-2",
+      ];
+
+      for (const payload of [simplified, llm]) {
+        expect(payload.nodes.map((node) => node.id).sort()).toEqual(
+          expectedNodeIds
+        );
+        expect(payload.edges.map((edge) => edge.id).sort()).toEqual(
+          expectedEdgeIds
+        );
+        expect(payload.nodes.some((node) => node.id === "outside")).toBe(false);
+        expect(
+          payload.nodes.some((node) => node.id.startsWith("__group_bundle"))
+        ).toBe(false);
+        expect(
+          payload.edges.some((edge) => edge.id.startsWith("__group_bundle"))
+        ).toBe(false);
+        expect(payload.nodes.find((node) => node.id === "a1")?.group).toBe(
+          "group-a"
+        );
+        expect(payload.nodes.find((node) => node.id === "b1")?.group).toBe(
+          "group-b"
+        );
+        expect(payload.edges).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              id: "edge-cross-1",
+              source: "a1",
+              target: "b1",
+            }),
+            expect.objectContaining({
+              id: "edge-cross-2",
+              source: "a2",
+              target: "b2",
+            }),
+          ])
+        );
       }
-      if (originalRevokeObjectURL) {
-        mutableURL.revokeObjectURL = originalRevokeObjectURL;
-      } else {
-        Reflect.deleteProperty(mutableURL, "revokeObjectURL");
-      }
+    } finally {
+      restore();
     }
   });
 
@@ -577,24 +698,14 @@ describe("useFileOperations", () => {
 
       expect(blobs).toHaveLength(3);
 
-      const readBlobText = async (blob: Blob): Promise<string> => {
-        if (typeof blob.text === "function") {
-          return blob.text();
-        }
-        if (typeof blob.arrayBuffer === "function") {
-          const bytes = await blob.arrayBuffer();
-          return new TextDecoder().decode(bytes);
-        }
-        try {
-          return await new Response(blob as unknown as BodyInit).text();
-        } catch {
-          // fall through to explicit error
-        }
-        throw new Error("Unable to read downloaded blob content");
-      };
-
       const [full, simplified, llm] = await Promise.all(
-        blobs.map(async (blob) => JSON.parse(await readBlobText(blob)) as Record<string, unknown>)
+        blobs.map(
+          async (blob) =>
+            JSON.parse(await readDownloadedBlobText(blob)) as Record<
+              string,
+              unknown
+            >
+        )
       );
 
       const semanticsMatcher = expect.objectContaining({
@@ -642,11 +753,11 @@ describe("useFileOperations", () => {
         .spyOn(document, "createElement")
         .mockImplementation((tagName: string) => {
           if (tagName.toLowerCase() === "a") {
-            const anchor = {
-              href: "",
-              download: "",
-              click: vi.fn(),
-            } as unknown as HTMLAnchorElement;
+            const anchor = originalCreateElement("a") as HTMLAnchorElement;
+            Object.defineProperty(anchor, "click", {
+              configurable: true,
+              value: vi.fn(),
+            });
             anchors.push(anchor);
             return anchor;
           }

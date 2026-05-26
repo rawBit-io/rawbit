@@ -115,7 +115,7 @@ const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
           "Save creates the normal rawBit JSON file that can be loaded back into rawBit.",
           "S + Save creates a simplified export with metadata removed, usually about 50% smaller.",
           "L + Save creates an LLM export that also includes backend functions for every node.",
-          "Both export modes include all nodes when nothing is selected, or only the selected nodes when a selection is active.",
+          "Both export modes include all nodes when nothing is selected, or only selected nodes and selected group contents when a selection is active.",
           "Simplified and LLM exports are one-way exports; they cannot be loaded back into rawBit.",
         ],
         icon: Save,

@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import type { FlowNode } from "@/types";
+import { getExpandedExportNodeSelection } from "@/lib/flow/exportSelection";
 
 interface UseSimplifiedSaveOptions {
   nodes: FlowNode[];
@@ -14,11 +15,16 @@ export function useSimplifiedSave({
   const [message, setMessage] = useState("");
 
   const promptSave = useCallback(() => {
-    const selected = nodes.filter((node) => node.selected).length;
-    const total = nodes.length;
+    const { selectedCount, totalCount, nodesToSave } =
+      getExpandedExportNodeSelection(nodes);
+    const exportCount = nodesToSave.length;
 
-    if (selected > 0 && selected < total) {
-      setMessage(`Save only the ${selected}/${total} selected nodes?`);
+    if (selectedCount > 0 && exportCount < totalCount) {
+      const message =
+        exportCount > selectedCount
+          ? `Save only the ${exportCount}/${totalCount} nodes from selected groups and nodes?`
+          : `Save only the ${selectedCount}/${totalCount} selected nodes?`;
+      setMessage(message);
       setShowConfirmation(true);
       return;
     }
