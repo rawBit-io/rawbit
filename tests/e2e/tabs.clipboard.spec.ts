@@ -480,7 +480,7 @@ test.describe('Clipboard and tabs workflows', () => {
     await expect(saveButton).toBeEnabled();
 
     await saveButton.click();
-    await page.getByRole('menuitem', { name: 'Simplified save (LLMs)' }).click();
+    await page.getByRole('menuitem', { name: 'Metadata removed' }).click();
 
     const saveDialog = page.getByRole('dialog', { name: 'Save Simplified Flow' });
     await expect(saveDialog).toBeVisible({ timeout: 10_000 });

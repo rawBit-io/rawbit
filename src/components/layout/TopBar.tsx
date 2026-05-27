@@ -60,6 +60,7 @@ import {
   type Skin,
 } from "@/contexts/theme";
 import { cn } from "@/lib/utils";
+import { SaveMenuContent } from "@/components/layout/SaveMenu";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
 import type { CalcStatus, CalculationState } from "@/types";
 import {
@@ -218,80 +219,6 @@ function DiscordIcon({ className }: { className?: string }) {
   );
 }
 
-function SaveMenuContent({
-  onSave,
-  onSaveSimplified,
-  onSaveLlmExport,
-}: {
-  onSave: () => void;
-  onSaveSimplified: () => void | Promise<void>;
-  onSaveLlmExport: () => void | Promise<void>;
-}) {
-  const actions = [
-    {
-      label: "Save",
-      detail: "Reloadable rawBit JSON",
-      shortcut: null,
-      onSelect: onSave,
-    },
-    {
-      label: "Simplified save (LLMs)",
-      detail: "Compact one-way export",
-      shortcut: "Hold S",
-      onSelect: () => void onSaveSimplified(),
-    },
-    {
-      label: "Simplified save with backend (LLMs)",
-      detail: "One-way export with backend code",
-      shortcut: "Hold L",
-      onSelect: () => void onSaveLlmExport(),
-    },
-  ] as const;
-
-  return (
-    <DropdownMenuContent align="start" side="bottom" className="w-72">
-      <DropdownMenuLabel className="px-2 pb-0.5 pt-1 text-[10px] font-medium uppercase tracking-normal text-muted-foreground">
-        File
-      </DropdownMenuLabel>
-      <DropdownMenuItem
-        className="items-start gap-2 py-1.5"
-        onSelect={actions[0].onSelect}
-      >
-        <Save className="mt-0.5 h-4 w-4 text-muted-foreground" />
-        <span className="flex min-w-0 flex-col">
-          <span className="text-sm leading-tight">{actions[0].label}</span>
-          <span className="text-xs leading-snug text-muted-foreground">
-            {actions[0].detail}
-          </span>
-        </span>
-      </DropdownMenuItem>
-      <DropdownMenuSeparator className="my-0.5" />
-      <DropdownMenuLabel className="px-2 pb-0.5 pt-1 text-[10px] font-medium uppercase tracking-normal text-muted-foreground">
-        LLM exports
-      </DropdownMenuLabel>
-      {actions.slice(1).map((action) => (
-        <DropdownMenuItem
-          key={action.label}
-          className="items-start gap-2 py-1.5"
-          onSelect={action.onSelect}
-        >
-          <span className="flex min-w-0 flex-1 flex-col">
-            <span className="text-sm leading-tight">{action.label}</span>
-            <span className="flex min-w-0 items-center gap-2">
-              <span className="min-w-0 flex-1 text-xs leading-snug text-muted-foreground">
-                {action.detail}
-              </span>
-              <kbd className="shrink-0 rounded-sm border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium leading-none text-muted-foreground">
-                {action.shortcut}
-              </kbd>
-            </span>
-          </span>
-        </DropdownMenuItem>
-      ))}
-    </DropdownMenuContent>
-  );
-}
-
 /* -------------------------------------------------------------------------- */
 /*  TopBar                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -384,6 +311,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
   const [renameDraft, setRenameDraft] = useState("");
   const renameInputRef = useRef<HTMLInputElement | null>(null);
   const skinTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const saveTriggerRef = useRef<HTMLButtonElement | null>(null);
   const saveSimplifiedHotKeyRef = useRef(false);
   const saveLlmHotKeyRef = useRef(false);
   const groupFillRepeatRef = useRef<{
@@ -599,6 +527,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <TopBarIconButton
+                ref={saveTriggerRef}
                 variant="ghost"
                 size="icon"
                 tooltip="Save"
@@ -617,6 +546,10 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
               onSave={onSave}
               onSaveSimplified={onSaveSimplified}
               onSaveLlmExport={onSaveLlmExport}
+              onCloseAutoFocus={(event) => {
+                event.preventDefault();
+                saveTriggerRef.current?.blur();
+              }}
             />
           </DropdownMenu>
           {/* clipboard */}

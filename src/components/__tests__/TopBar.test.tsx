@@ -485,7 +485,7 @@ describe("TopBar", () => {
       key: "Enter",
     });
     fireEvent.click(
-      screen.getByRole("menuitem", { name: /Simplified save \(LLMs\)/ })
+      screen.getByRole("menuitem", { name: /Metadata removed/ })
     );
     expect(onSaveSimplified).toHaveBeenCalledTimes(1);
 
@@ -494,7 +494,7 @@ describe("TopBar", () => {
     });
     fireEvent.click(
       screen.getByRole("menuitem", {
-        name: /Simplified save with backend \(LLMs\)/,
+        name: /backend code/,
       })
     );
     expect(onSaveLlmExport).toHaveBeenCalledTimes(1);
