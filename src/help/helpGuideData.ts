@@ -40,18 +40,27 @@ export const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
   {
     title: "Workspace",
     items: [
-      { title: "Load", body: "Import a JSON file or open a rawBit link", icon: FileUp },
+      {
+        title: "Load",
+        body: "Load a rawBit JSON file or open a shared rawBit link",
+        moreInfo: [
+          "Load JSON restores a normal rawBit save file.",
+          "Load link accepts a rawBit link or share id and opens it in a new canvas tab.",
+          "Simplified and LLM exports are one-way files; use normal Save when you need something loadable again.",
+        ],
+        icon: FileUp,
+      },
       {
         title: "Save",
-        body: "Open the Save menu for normal and LLM-ready exports",
+        body: "Save, share, or export the current flow",
         moreInfo: [
           "Save creates the normal rawBit JSON file that can be loaded back into rawBit.",
-          "Simplified save (LLMs) creates a compact LLM-ready export with metadata removed, usually about 50% smaller.",
-          "Simplified save with backend (LLMs) creates a one-way export that also includes backend code for every node.",
-          "Use the backend option when the question depends on how node functions work internally.",
-          "Hold S and click Save for simplified save, or hold L and click Save for simplified save with backend.",
+          "Share creates a link to the current flow. Create a new share after changes you want others to see.",
+          "Simplified export creates a compact LLM-ready file with metadata removed, usually about 50% smaller.",
+          "Simplified + backend also includes each node's backend function code for harder debugging or review.",
+          "Hold S and click Save for simplified export, or hold L and click Save for simplified + backend.",
           "Both export modes include all nodes when nothing is selected, or only selected nodes and selected group contents when a selection is active.",
-          "Simplified and LLM exports are one-way exports; they cannot be loaded back into rawBit.",
+          "Simplified exports cannot be loaded back into rawBit.",
         ],
         icon: Save,
       },
