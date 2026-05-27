@@ -461,38 +461,7 @@ describe("TopBar", () => {
     expect(setShowErrorPanel).toHaveBeenCalledWith(true);
   });
 
-  it("invokes simplified save when holding the S key", () => {
-    const onSave = vi.fn();
-    const onSaveSimplified = vi.fn();
-
-    render(
-      <TopBar
-        {...baseProps}
-        onSave={onSave}
-        onSaveSimplified={onSaveSimplified}
-      />
-    );
-
-    fireEvent.keyDown(window, { key: "s" });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
-    expect(onSaveSimplified).toHaveBeenCalled();
-    expect(onSave).not.toHaveBeenCalled();
-
-    fireEvent.keyUp(window, { key: "s" });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
-    expect(onSave).toHaveBeenCalled();
-  });
-
-  it("shows both save shortcut hints in the hover title", () => {
-    render(<TopBar {...baseProps} />);
-
-    expect(screen.getByRole("button", { name: "Save" })).toHaveAttribute(
-      "title",
-      "Save (hold S for simplified, hold L for LLM export)"
-    );
-  });
-
-  it("invokes LLM export when holding the L key", () => {
+  it("opens save options and invokes the selected save action", () => {
     const onSave = vi.fn();
     const onSaveSimplified = vi.fn();
     const onSaveLlmExport = vi.fn();
@@ -506,15 +475,71 @@ describe("TopBar", () => {
       />
     );
 
-    fireEvent.keyDown(window, { key: "l" });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
-    expect(onSaveLlmExport).toHaveBeenCalled();
-    expect(onSaveSimplified).not.toHaveBeenCalled();
-    expect(onSave).not.toHaveBeenCalled();
+    fireEvent.keyDown(screen.getByRole("button", { name: "Save" }), {
+      key: "Enter",
+    });
+    fireEvent.click(screen.getByRole("menuitem", { name: /^Save\b/ }));
+    expect(onSave).toHaveBeenCalledTimes(1);
 
+    fireEvent.keyDown(screen.getByRole("button", { name: "Save" }), {
+      key: "Enter",
+    });
+    fireEvent.click(
+      screen.getByRole("menuitem", { name: /Simplified save \(LLMs\)/ })
+    );
+    expect(onSaveSimplified).toHaveBeenCalledTimes(1);
+
+    fireEvent.keyDown(screen.getByRole("button", { name: "Save" }), {
+      key: "Enter",
+    });
+    fireEvent.click(
+      screen.getByRole("menuitem", {
+        name: /Simplified save with backend \(LLMs\)/,
+      })
+    );
+    expect(onSaveLlmExport).toHaveBeenCalledTimes(1);
+  });
+
+  it("invokes save export shortcuts when holding S or L on the save button", () => {
+    const onSave = vi.fn();
+    const onSaveSimplified = vi.fn();
+    const onSaveLlmExport = vi.fn();
+
+    render(
+      <TopBar
+        {...baseProps}
+        onSave={onSave}
+        onSaveSimplified={onSaveSimplified}
+        onSaveLlmExport={onSaveLlmExport}
+      />
+    );
+
+    const saveButton = screen.getByRole("button", { name: "Save" });
+
+    fireEvent.keyDown(window, { key: "s" });
+    fireEvent.pointerDown(saveButton, { pointerType: "mouse" });
+    fireEvent.keyUp(window, { key: "s" });
+
+    expect(onSave).not.toHaveBeenCalled();
+    expect(onSaveSimplified).toHaveBeenCalledTimes(1);
+    expect(onSaveLlmExport).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(window, { key: "l" });
+    fireEvent.pointerDown(saveButton, { pointerType: "mouse" });
     fireEvent.keyUp(window, { key: "l" });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
-    expect(onSave).toHaveBeenCalled();
+
+    expect(onSave).not.toHaveBeenCalled();
+    expect(onSaveSimplified).toHaveBeenCalledTimes(1);
+    expect(onSaveLlmExport).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows the save menu hint in the hover title", () => {
+    render(<TopBar {...baseProps} />);
+
+    expect(screen.getByRole("button", { name: "Save" })).toHaveAttribute(
+      "title",
+      "Save"
+    );
   });
 
 });

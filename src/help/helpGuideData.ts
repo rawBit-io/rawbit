@@ -43,12 +43,13 @@ export const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
       { title: "Load", body: "Import a saved rawBit JSON flow", icon: FileUp },
       {
         title: "Save",
-        body: "Click Save for a reloadable flow, or hold S / L while clicking Save for LLM-ready exports",
+        body: "Open the Save menu for normal and LLM-ready exports",
         moreInfo: [
           "Save creates the normal rawBit JSON file that can be loaded back into rawBit.",
-          "S + Save creates a compact LLM-ready export with metadata removed, usually about 50% smaller.",
-          "L + Save creates a deeper LLM-ready export that also includes backend code for every node.",
-          "Use L when the question depends on how node functions work internally.",
+          "Simplified save (LLMs) creates a compact LLM-ready export with metadata removed, usually about 50% smaller.",
+          "Simplified save with backend (LLMs) creates a one-way export that also includes backend code for every node.",
+          "Use the backend option when the question depends on how node functions work internally.",
+          "Hold S and click Save for simplified save, or hold L and click Save for simplified save with backend.",
           "Both export modes include all nodes when nothing is selected, or only selected nodes and selected group contents when a selection is active.",
           "Simplified and LLM exports are one-way exports; they cannot be loaded back into rawBit.",
         ],

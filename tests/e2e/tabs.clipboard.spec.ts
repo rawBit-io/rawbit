@@ -479,15 +479,8 @@ test.describe('Clipboard and tabs workflows', () => {
     const saveButton = page.getByRole('button', { name: 'Save' }).first();
     await expect(saveButton).toBeEnabled();
 
-    await page.keyboard.down('s');
     await saveButton.click();
-    await page.keyboard.up('s');
-
-    if ((await page.locator('[role="dialog"]').count()) === 0) {
-      await page.keyboard.down('s');
-      await saveButton.click();
-      await page.keyboard.up('s');
-    }
+    await page.getByRole('menuitem', { name: 'Simplified save (LLMs)' }).click();
 
     const saveDialog = page.getByRole('dialog', { name: 'Save Simplified Flow' });
     await expect(saveDialog).toBeVisible({ timeout: 10_000 });

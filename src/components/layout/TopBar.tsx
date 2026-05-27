@@ -218,6 +218,80 @@ function DiscordIcon({ className }: { className?: string }) {
   );
 }
 
+function SaveMenuContent({
+  onSave,
+  onSaveSimplified,
+  onSaveLlmExport,
+}: {
+  onSave: () => void;
+  onSaveSimplified: () => void | Promise<void>;
+  onSaveLlmExport: () => void | Promise<void>;
+}) {
+  const actions = [
+    {
+      label: "Save",
+      detail: "Reloadable rawBit JSON",
+      shortcut: null,
+      onSelect: onSave,
+    },
+    {
+      label: "Simplified save (LLMs)",
+      detail: "Compact one-way export",
+      shortcut: "Hold S",
+      onSelect: () => void onSaveSimplified(),
+    },
+    {
+      label: "Simplified save with backend (LLMs)",
+      detail: "One-way export with backend code",
+      shortcut: "Hold L",
+      onSelect: () => void onSaveLlmExport(),
+    },
+  ] as const;
+
+  return (
+    <DropdownMenuContent align="start" side="bottom" className="w-72">
+      <DropdownMenuLabel className="px-2 pb-0.5 pt-1 text-[10px] font-medium uppercase tracking-normal text-muted-foreground">
+        File
+      </DropdownMenuLabel>
+      <DropdownMenuItem
+        className="items-start gap-2 py-1.5"
+        onSelect={actions[0].onSelect}
+      >
+        <Save className="mt-0.5 h-4 w-4 text-muted-foreground" />
+        <span className="flex min-w-0 flex-col">
+          <span className="text-sm leading-tight">{actions[0].label}</span>
+          <span className="text-xs leading-snug text-muted-foreground">
+            {actions[0].detail}
+          </span>
+        </span>
+      </DropdownMenuItem>
+      <DropdownMenuSeparator className="my-0.5" />
+      <DropdownMenuLabel className="px-2 pb-0.5 pt-1 text-[10px] font-medium uppercase tracking-normal text-muted-foreground">
+        LLM exports
+      </DropdownMenuLabel>
+      {actions.slice(1).map((action) => (
+        <DropdownMenuItem
+          key={action.label}
+          className="items-start gap-2 py-1.5"
+          onSelect={action.onSelect}
+        >
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="text-sm leading-tight">{action.label}</span>
+            <span className="flex min-w-0 items-center gap-2">
+              <span className="min-w-0 flex-1 text-xs leading-snug text-muted-foreground">
+                {action.detail}
+              </span>
+              <kbd className="shrink-0 rounded-sm border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium leading-none text-muted-foreground">
+                {action.shortcut}
+              </kbd>
+            </span>
+          </span>
+        </DropdownMenuItem>
+      ))}
+    </DropdownMenuContent>
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /*  TopBar                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -306,12 +380,12 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
     adjustEdgeThickness,
   } = useTheme();
   const { undo, redo, canUndo, canRedo } = useUndoRedo();
-  const saveSimplifiedHotKeyRef = useRef(false);
-  const saveLlmHotKeyRef = useRef(false);
   const [renamingTabId, setRenamingTabId] = useState<string | null>(null);
   const [renameDraft, setRenameDraft] = useState("");
   const renameInputRef = useRef<HTMLInputElement | null>(null);
   const skinTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const saveSimplifiedHotKeyRef = useRef(false);
+  const saveLlmHotKeyRef = useRef(false);
   const groupFillRepeatRef = useRef<{
     timeout: ReturnType<typeof setTimeout> | null;
     interval: ReturnType<typeof setInterval> | null;
@@ -365,58 +439,6 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
     renameInputRef.current = null;
   }, []);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const isKeyS = (event: KeyboardEvent) => event.key?.toLowerCase() === "s";
-    const isKeyL = (event: KeyboardEvent) => event.key?.toLowerCase() === "l";
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (isKeyS(event)) {
-        saveSimplifiedHotKeyRef.current = true;
-      } else if (isKeyL(event)) {
-        saveLlmHotKeyRef.current = true;
-      }
-    };
-
-    const handleKeyUp = (event: KeyboardEvent) => {
-      if (isKeyS(event)) {
-        saveSimplifiedHotKeyRef.current = false;
-      } else if (isKeyL(event)) {
-        saveLlmHotKeyRef.current = false;
-      }
-    };
-
-    const handleWindowBlur = () => {
-      saveSimplifiedHotKeyRef.current = false;
-      saveLlmHotKeyRef.current = false;
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-    window.addEventListener("blur", handleWindowBlur);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-      window.removeEventListener("blur", handleWindowBlur);
-    };
-  }, []);
-
-  const handleSaveClick = useCallback(() => {
-    if (saveLlmHotKeyRef.current) {
-      void onSaveLlmExport();
-      return;
-    }
-
-    if (saveSimplifiedHotKeyRef.current) {
-      void onSaveSimplified();
-      return;
-    }
-
-    onSave();
-  }, [onSave, onSaveSimplified, onSaveLlmExport]);
-
   /** small banner left of the error-button */
   const statusText = calcStatus === "CALC" ? "calc" : "";
   const showRetryAllButton =
@@ -447,6 +469,49 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
   }, []);
 
   useEffect(() => stopGroupFillRepeat, [stopGroupFillRepeat]);
+
+  useEffect(() => {
+    const updateSaveHotKey = (event: KeyboardEvent, isPressed: boolean) => {
+      if (event.key.toLowerCase() === "s") {
+        saveSimplifiedHotKeyRef.current = isPressed;
+      }
+      if (event.key.toLowerCase() === "l") {
+        saveLlmHotKeyRef.current = isPressed;
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      updateSaveHotKey(event, true);
+    };
+    const handleKeyUp = (event: KeyboardEvent) => {
+      updateSaveHotKey(event, false);
+    };
+    const clearSaveHotKeys = () => {
+      saveSimplifiedHotKeyRef.current = false;
+      saveLlmHotKeyRef.current = false;
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("blur", clearSaveHotKeys);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("blur", clearSaveHotKeys);
+    };
+  }, []);
+
+  const runSaveShortcut = useCallback(() => {
+    if (saveLlmHotKeyRef.current) {
+      void onSaveLlmExport();
+      return true;
+    }
+    if (saveSimplifiedHotKeyRef.current) {
+      void onSaveSimplified();
+      return true;
+    }
+    return false;
+  }, [onSaveLlmExport, onSaveSimplified]);
 
   const adjustActiveGroupFillOpacity = useCallback(
     (delta: number) => {
@@ -531,16 +596,29 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
           >
             <FileUp className="h-7 w-7" />
           </TopBarIconButton>
-          <TopBarIconButton
-            variant="ghost"
-            size="icon"
-            onClick={handleSaveClick}
-            tooltip="Save (hold S for simplified, hold L for LLM export)"
-            aria-label="Save"
-            aria-description="Hold S while clicking to download a simplified export, or hold L to include backend function sources for LLM export"
-          >
-            <Save className="h-7 w-7" />
-          </TopBarIconButton>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <TopBarIconButton
+                variant="ghost"
+                size="icon"
+                tooltip="Save"
+                aria-label="Save"
+                aria-description="Open save options"
+                onPointerDownCapture={(event) => {
+                  if (!runSaveShortcut()) return;
+                  event.preventDefault();
+                  event.stopPropagation();
+                }}
+              >
+                <Save className="h-7 w-7" />
+              </TopBarIconButton>
+            </DropdownMenuTrigger>
+            <SaveMenuContent
+              onSave={onSave}
+              onSaveSimplified={onSaveSimplified}
+              onSaveLlmExport={onSaveLlmExport}
+            />
+          </DropdownMenu>
           {/* clipboard */}
           <Separator orientation="vertical" className="mx-2 h-8 w-px" />
           <TopBarIconButton
