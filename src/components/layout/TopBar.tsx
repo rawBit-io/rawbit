@@ -60,6 +60,7 @@ import {
   type Skin,
 } from "@/contexts/theme";
 import { cn } from "@/lib/utils";
+import { LoadMenuContent } from "@/components/layout/LoadMenu";
 import { SaveMenuContent } from "@/components/layout/SaveMenu";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
 import type { CalcStatus, CalculationState } from "@/types";
@@ -79,6 +80,7 @@ export interface TopBarProps {
   isSidebarOpen: boolean;
   onSave: () => void;
   onLoad: () => void;
+  onLoadLink: () => void;
   onCopy: () => void;
   onPaste: () => void;
   canCopy: boolean;
@@ -234,6 +236,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
     onShare,
     shareDisabled,
     onLoad,
+    onLoadLink,
     onCopy,
     onPaste,
     canCopy,
@@ -307,9 +310,11 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
     adjustEdgeThickness,
   } = useTheme();
   const { undo, redo, canUndo, canRedo } = useUndoRedo();
+  const [isLoadMenuOpen, setIsLoadMenuOpen] = useState(false);
   const [renamingTabId, setRenamingTabId] = useState<string | null>(null);
   const [renameDraft, setRenameDraft] = useState("");
   const renameInputRef = useRef<HTMLInputElement | null>(null);
+  const loadTriggerRef = useRef<HTMLButtonElement | null>(null);
   const skinTriggerRef = useRef<HTMLButtonElement | null>(null);
   const saveTriggerRef = useRef<HTMLButtonElement | null>(null);
   const saveSimplifiedHotKeyRef = useRef(false);
@@ -441,6 +446,11 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
     return false;
   }, [onSaveLlmExport, onSaveSimplified]);
 
+  const handleLoadLinkSelect = useCallback(() => {
+    setIsLoadMenuOpen(false);
+    window.setTimeout(onLoadLink, 0);
+  }, [onLoadLink]);
+
   const adjustActiveGroupFillOpacity = useCallback(
     (delta: number) => {
       adjustGroupFillOpacity(activeEdgeVisibilityMode, delta);
@@ -516,14 +526,28 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
           </TopBarIconButton>
           {/* file IO */}
           <Separator orientation="vertical" className="mx-2 h-8 w-px" />
-          <TopBarIconButton
-            variant="ghost"
-            size="icon"
-            onClick={onLoad}
-            tooltip="Load"
-          >
-            <FileUp className="h-7 w-7" />
-          </TopBarIconButton>
+          <DropdownMenu open={isLoadMenuOpen} onOpenChange={setIsLoadMenuOpen}>
+            <DropdownMenuTrigger asChild>
+              <TopBarIconButton
+                ref={loadTriggerRef}
+                variant="ghost"
+                size="icon"
+                tooltip="Load"
+                aria-label="Load"
+                aria-description="Open load options"
+              >
+                <FileUp className="h-7 w-7" />
+              </TopBarIconButton>
+            </DropdownMenuTrigger>
+            <LoadMenuContent
+              onLoadJson={onLoad}
+              onLoadLink={handleLoadLinkSelect}
+              onCloseAutoFocus={(event) => {
+                event.preventDefault();
+                loadTriggerRef.current?.blur();
+              }}
+            />
+          </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <TopBarIconButton

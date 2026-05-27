@@ -40,7 +40,7 @@ export const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
   {
     title: "Workspace",
     items: [
-      { title: "Load", body: "Import a saved rawBit JSON flow", icon: FileUp },
+      { title: "Load", body: "Import a JSON file or open a rawBit link", icon: FileUp },
       {
         title: "Save",
         body: "Open the Save menu for normal and LLM-ready exports",

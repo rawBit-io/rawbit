@@ -28,6 +28,16 @@ import { TopBar } from "@/components/layout/TopBar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { ColorPalette } from "@/components/ui/ColorPalette";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { FlowCanvas } from "@/components/FlowCanvas";
 import { FlowDialogLayer } from "@/components/FlowDialogLayer";
 import { FlowPanels } from "@/components/FlowPanels";
@@ -104,6 +114,23 @@ const COLORABLE_NODE_TYPES = new Set([
   "trezorAction",
 ]);
 const INFO_NODE_TYPE = "shadcnTextInfo";
+
+function readRawBitShareId(value: string, baseOrigin: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  if (/^[a-zA-Z0-9_-]+$/.test(trimmed)) {
+    return trimmed;
+  }
+
+  try {
+    const url = new URL(trimmed, baseOrigin);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    return url.searchParams.get("s") || url.searchParams.get("share");
+  } catch {
+    return null;
+  }
+}
 
 const nodeTypes = {
   calculation: CalculationNode,
@@ -1665,6 +1692,11 @@ function FlowContent() {
     getNodes: getSavedNodes,
     getEdges: getSavedEdges,
   });
+  const [loadLinkDialogOpen, setLoadLinkDialogOpen] = useState(false);
+  const [loadLinkDraft, setLoadLinkDraft] = useState("");
+  const [loadLinkError, setLoadLinkError] = useState("");
+  const loadLinkInputRef = useRef<HTMLInputElement | null>(null);
+  const forcedSharedImportTabRef = useRef<string | null>(null);
 
   const isNodeColorable = useCallback(
     (node: FlowNode) => COLORABLE_NODE_TYPES.has(node.type as string),
@@ -1824,6 +1856,51 @@ function FlowContent() {
       }
     },
   });
+
+  const handleLoadLink = useCallback(() => {
+    setLoadLinkDraft("");
+    setLoadLinkError("");
+    setLoadLinkDialogOpen(true);
+  }, []);
+
+  useEffect(() => {
+    if (!loadLinkDialogOpen) return;
+    requestAnimationFrame(() => loadLinkInputRef.current?.focus());
+  }, [loadLinkDialogOpen]);
+
+  const handleLoadLinkDialogOpenChange = useCallback((open: boolean) => {
+    setLoadLinkDialogOpen(open);
+    if (!open) {
+      setLoadLinkError("");
+    }
+  }, []);
+
+  const handleLoadLinkSubmit = useCallback(
+    (event?: React.FormEvent<HTMLFormElement>) => {
+      event?.preventDefault();
+      if (typeof window === "undefined") return;
+
+      const sharedId = readRawBitShareId(loadLinkDraft, window.location.origin);
+      if (!sharedId) {
+        setLoadLinkError("Paste a rawBit app link or share id.");
+        return;
+      }
+
+      forcedSharedImportTabRef.current = sharedId;
+
+      const url = new URL(window.location.href);
+      url.searchParams.delete("share");
+      url.searchParams.set("s", sharedId);
+      const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+      window.history.pushState(window.history.state, document.title, nextUrl);
+      window.dispatchEvent(new PopStateEvent("popstate"));
+
+      setLoadLinkDialogOpen(false);
+      setLoadLinkDraft("");
+      setLoadLinkError("");
+    },
+    [loadLinkDraft]
+  );
 
   const centerOnNode = useCallback(
     (nodeId: string) => {
@@ -2643,6 +2720,13 @@ function FlowContent() {
     setInfoDialog,
     flowInstanceRef,
     ensureShareImportTab,
+    shouldUseShareImportTab: (sharedId) => {
+      const shouldForce = forcedSharedImportTabRef.current === sharedId;
+      if (shouldForce) {
+        forcedSharedImportTabRef.current = null;
+      }
+      return shouldForce;
+    },
   });
   useEffect(() => {
     window.addEventListener("mousemove", handleMouseMove);
@@ -3013,6 +3097,7 @@ function FlowContent() {
               onSaveSimplified={handleSaveSimplified}
               onSaveLlmExport={handleSaveLlmWithConfirmation}
               onLoad={openFileDialog}
+              onLoadLink={handleLoadLink}
               onFileSelect={handleFileSelect}
               canCopy={nodes.some((n) => n.selected)}
               hasCopiedNodes={hasCopiedNodes}
@@ -3215,6 +3300,49 @@ function FlowContent() {
           )}
 
           {/* dialogs */}
+          <Dialog
+            open={loadLinkDialogOpen}
+            onOpenChange={handleLoadLinkDialogOpenChange}
+          >
+            <DialogContent className="sm:max-w-[420px]">
+              <form onSubmit={handleLoadLinkSubmit} className="space-y-4">
+                <DialogHeader>
+                  <DialogTitle>Load rawBit link</DialogTitle>
+                  <DialogDescription>
+                    Paste a rawBit app link or share id. It will open in a new
+                    rawBit tab.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-2">
+                  <Label htmlFor="load-link-input">Link or share id</Label>
+                  <Input
+                    ref={loadLinkInputRef}
+                    id="load-link-input"
+                    value={loadLinkDraft}
+                    onChange={(event) => {
+                      setLoadLinkDraft(event.target.value);
+                      if (loadLinkError) setLoadLinkError("");
+                    }}
+                    placeholder="https://rawbit.io/?s=... or share id"
+                    autoComplete="off"
+                  />
+                  {loadLinkError ? (
+                    <p className="text-sm text-destructive">{loadLinkError}</p>
+                  ) : null}
+                </div>
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleLoadLinkDialogOpenChange(false)}
+                  >
+                    Close
+                  </Button>
+                  <Button type="submit">Load link</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
           <FlowDialogLayer
             closeDialog={closeDialog}
             tabCount={tabs.length}

@@ -1,4 +1,4 @@
-import { act, render, screen, fireEvent } from "@testing-library/react";
+import { act, render, screen, fireEvent, waitFor } from "@testing-library/react";
 import type { MutableRefObject } from "react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
@@ -64,6 +64,7 @@ const baseProps: TopBarProps & ExtraTopBarProps = {
   onShare: vi.fn(),
   shareDisabled: true,
   onLoad: vi.fn(),
+  onLoadLink: vi.fn(),
   onCopy: vi.fn(),
   onPaste: vi.fn(),
   canCopy: false,
@@ -459,6 +460,31 @@ describe("TopBar", () => {
 
     expect(setShowSearchPanel).toHaveBeenCalledWith(false);
     expect(setShowErrorPanel).toHaveBeenCalledWith(true);
+  });
+
+  it("opens load options and invokes the selected load action", async () => {
+    const onLoad = vi.fn();
+    const onLoadLink = vi.fn();
+
+    render(
+      <TopBar
+        {...baseProps}
+        onLoad={onLoad}
+        onLoadLink={onLoadLink}
+      />
+    );
+
+    fireEvent.keyDown(screen.getByRole("button", { name: "Load" }), {
+      key: "Enter",
+    });
+    fireEvent.click(screen.getByRole("menuitem", { name: /Load JSON/ }));
+    expect(onLoad).toHaveBeenCalledTimes(1);
+
+    fireEvent.keyDown(screen.getByRole("button", { name: "Load" }), {
+      key: "Enter",
+    });
+    fireEvent.click(screen.getByRole("menuitem", { name: /Load link/ }));
+    await waitFor(() => expect(onLoadLink).toHaveBeenCalledTimes(1));
   });
 
   it("opens save options and invokes the selected save action", () => {

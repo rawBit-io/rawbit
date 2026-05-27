@@ -119,6 +119,7 @@ interface UseSharedFlowLoaderOptions {
   setInfoDialog: (state: { open: boolean; message: string }) => void;
   flowInstanceRef: React.MutableRefObject<ReactFlowInstance | null>;
   ensureShareImportTab?: () => string | null | Promise<string | null>;
+  shouldUseShareImportTab?: (sharedId: string) => boolean;
 }
 
 export function useSharedFlowLoader({
@@ -136,6 +137,7 @@ export function useSharedFlowLoader({
   setInfoDialog,
   flowInstanceRef,
   ensureShareImportTab,
+  shouldUseShareImportTab,
 }: UseSharedFlowLoaderOptions) {
   const loadedSharedIdRef = useRef<string | null>(null);
   const loadingSharedIdRef = useRef<string | null>(null);
@@ -153,6 +155,7 @@ export function useSharedFlowLoader({
     setInfoDialog,
     flowInstanceRef,
     ensureShareImportTab,
+    shouldUseShareImportTab,
   });
   const [sharedId, setSharedId] = useState(readSharedIdFromLocation);
 
@@ -170,6 +173,7 @@ export function useSharedFlowLoader({
     setInfoDialog,
     flowInstanceRef,
     ensureShareImportTab,
+    shouldUseShareImportTab,
   };
 
   useEffect(() => {
@@ -200,7 +204,10 @@ export function useSharedFlowLoader({
       setAlternateShareJsonLink();
     }
 
-    if (loadedSharedIdRef.current === sharedId) return;
+    const forceShareImportTab =
+      latestOptionsRef.current.shouldUseShareImportTab?.(sharedId) ?? false;
+
+    if (loadedSharedIdRef.current === sharedId && !forceShareImportTab) return;
     if (loadingSharedIdRef.current === sharedId) return;
 
     loadingSharedIdRef.current = sharedId;
@@ -293,7 +300,10 @@ export function useSharedFlowLoader({
         const initialEdges = options.getEdges();
         const hadContent = initialNodes.length > 0 || initialEdges.length > 0;
 
-        if (hadContent && options.ensureShareImportTab) {
+        if (
+          (hadContent || forceShareImportTab) &&
+          options.ensureShareImportTab
+        ) {
           const ensuredId = await options.ensureShareImportTab();
           if (!ensuredId) {
             options.setInfoDialog({
