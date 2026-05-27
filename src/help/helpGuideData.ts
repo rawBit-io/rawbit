@@ -4,24 +4,14 @@
 
 import type { ComponentType } from "react";
 import {
-  Check,
-  CircleHelp,
   ClipboardPaste,
   Copy,
   FileText,
   FileUp,
-  Github,
   Globe,
-  History,
-  Mail,
   MapPinned,
-  Minus,
-  Moon,
   Paintbrush,
   Palette,
-  PanelLeft,
-  Plus,
-  Redo,
   Save,
   Search,
   Share,
@@ -29,14 +19,8 @@ import {
   Square,
   SquareMousePointer,
   SquareSplitVertical,
-  Sun,
-  Twitter,
-  Undo,
   X,
-  Youtube,
 } from "lucide-react";
-
-import { HelpDiscordIcon } from "./HelpDiscordIcon";
 
 export type HelpIcon = ComponentType<{ className?: string }>;
 
@@ -56,7 +40,6 @@ export const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
   {
     title: "Workspace",
     items: [
-      { title: "Sidebar", body: "Open or collapse the node library", icon: PanelLeft },
       { title: "Load", body: "Import a saved rawBit JSON flow", icon: FileUp },
       {
         title: "Save",
@@ -71,7 +54,6 @@ export const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
         ],
         icon: Save,
       },
-      { title: "New tab", body: "Create another canvas tab", icon: Plus },
       { title: "Close tab", body: "Close a canvas tab when the X appears", icon: X },
     ],
   },
@@ -91,9 +73,6 @@ export const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
         body: "Break selected groups back into nodes",
         icon: SquareSplitVertical,
       },
-      { title: "Undo", body: "Step back through canvas changes", icon: Undo },
-      { title: "Redo", body: "Replay an undone canvas change", icon: Redo },
-      { title: "History", body: "Open the undo and redo history panel", icon: History },
     ],
   },
   {
@@ -131,12 +110,6 @@ export const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
         body: "Open rawBit links and contact channels",
         icon: Globe,
       },
-      { title: "GitHub", body: "Open the project repository", icon: Github },
-      { title: "X / Twitter", body: "Open rawBit social updates", icon: Twitter },
-      { title: "YouTube", body: "Open rawBit videos and demos", icon: Youtube },
-      { title: "Discord", body: "Join the community chat", icon: HelpDiscordIcon },
-      { title: "Email", body: "Contact rawBit by email", icon: Mail },
-      { title: "Help", body: "Open this panel and guided demos", icon: CircleHelp },
     ],
   },
   {
@@ -147,23 +120,6 @@ export const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
         body: "Choose the UI skin and canvas edge styling",
         icon: Paintbrush,
       },
-      {
-        title: "Selected skin",
-        body: "Marks the active skin inside the skin menu",
-        icon: Check,
-      },
-      {
-        title: "Decrease",
-        body: "Lower edge thickness or opacity in the skin menu",
-        icon: Minus,
-      },
-      {
-        title: "Increase",
-        body: "Raise edge thickness or opacity in the skin menu",
-        icon: Plus,
-      },
-      { title: "Light mode", body: "Switch to the light theme", icon: Sun },
-      { title: "Dark mode", body: "Switch to the dark theme", icon: Moon },
     ],
   },
 ];

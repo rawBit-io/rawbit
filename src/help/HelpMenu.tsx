@@ -1,10 +1,9 @@
 // src/help/HelpMenu.tsx
-// Right-side help panel shown on help tabs. A search-first command palette:
-// one flat, filterable index of every guided demo (playable) and reference
-// entry. Echoes the sidebar's search field and row density so it feels native.
+// Right-side help panel shown on help tabs. A search-first index with two
+// collapsible areas: playable demos and the rawBit functionality reference.
 
 import { useMemo, useState } from "react";
-import { ChevronRight, CornerDownLeft, Play, Search, Square, X } from "lucide-react";
+import { ChevronRight, Play, Search, Square, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -24,8 +23,28 @@ type Hit =
   | { kind: "demo"; demo: HelpDemo; group: string }
   | { kind: "ref"; item: HelpGuideItem; group: string };
 
+type HelpSection = {
+  id: "demos" | "functionality";
+  title: string;
+  hits: Hit[];
+};
+
 function includesQuery(haystack: string, query: string): boolean {
   return haystack.toLowerCase().includes(query.toLowerCase());
+}
+
+function hitTitle(hit: Hit): string {
+  return hit.kind === "demo" ? hit.demo.title : hit.item.title;
+}
+
+function hitBody(hit: Hit): string {
+  return hit.kind === "demo" ? hit.demo.description : hit.item.body;
+}
+
+function hitSearchRank(hit: Hit, query: string): number | null {
+  if (includesQuery(hitTitle(hit), query)) return 0;
+  if (includesQuery(hitBody(hit), query)) return 1;
+  return null;
 }
 
 export function HelpMenu({
@@ -37,26 +56,31 @@ export function HelpMenu({
 }: Props) {
   const { liveGroups } = useHelpMenuState();
   const [query, setQuery] = useState("");
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [expandedDetailId, setExpandedDetailId] = useState<string | null>(null);
+  const [openSections, setOpenSections] = useState({
+    demos: true,
+    functionality: true,
+  });
 
   const sections = useMemo(() => {
-    const demoSections = liveGroups.map((group) => ({
-      title: group.category,
-      hits: group.demos.map<Hit>((demo) => ({
+    const demoHits = liveGroups.flatMap((group) =>
+      group.demos.map<Hit>((demo) => ({
         kind: "demo",
         demo,
         group: group.category,
-      })),
-    }));
-    const refSections = HELP_GUIDE_GROUPS.map((group) => ({
-      title: group.title,
-      hits: group.items.map<Hit>((item) => ({
+      }))
+    );
+    const refHits = HELP_GUIDE_GROUPS.flatMap((group) =>
+      group.items.map<Hit>((item) => ({
         kind: "ref",
         item,
         group: group.title,
-      })),
-    }));
-    return [...demoSections, ...refSections];
+      }))
+    );
+    return [
+      { id: "demos", title: "Demos", hits: demoHits },
+      { id: "functionality", title: "Functionality", hits: refHits },
+    ] satisfies HelpSection[];
   }, [liveGroups]);
 
   const filtered = useMemo(() => {
@@ -64,24 +88,43 @@ export function HelpMenu({
     if (!q) return sections;
     return sections
       .map((section) => ({
+        id: section.id,
         title: section.title,
-        hits: section.hits.filter((hit) =>
-          hit.kind === "demo"
-            ? includesQuery(`${hit.demo.title} ${hit.demo.description}`, q)
-            : includesQuery(`${hit.item.title} ${hit.item.body}`, q),
-        ),
+        hits: section.hits
+          .map((hit) => ({ hit, rank: hitSearchRank(hit, q) }))
+          .filter(
+            (entry): entry is { hit: Hit; rank: number } =>
+              entry.rank !== null,
+          )
+          .sort(
+            (a, b) =>
+              a.rank - b.rank || hitTitle(a.hit).localeCompare(hitTitle(b.hit)),
+          )
+          .map((entry) => entry.hit),
       }))
       .filter((section) => section.hits.length > 0);
   }, [sections, query]);
 
-  const resultCount = filtered.reduce((sum, s) => sum + s.hits.length, 0);
+  const toggleSection = (sectionId: HelpSection["id"]) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [sectionId]: !prev[sectionId],
+    }));
+  };
+
+  const handleSearchChange = (value: string) => {
+    setQuery(value);
+    if (value.trim()) {
+      setOpenSections({ demos: true, functionality: true });
+    }
+  };
 
   return (
     <aside
       data-testid="help-menu"
       aria-hidden={!isOpen}
       className={cn(
-        "fixed bottom-0 right-0 top-14 z-10 flex select-none flex-col border-l border-border bg-background text-foreground transition-[width] duration-300",
+        "fixed bottom-0 right-0 top-14 z-30 flex select-none flex-col border-l border-border bg-background text-foreground transition-[width] duration-300",
         isOpen ? "w-72" : "w-0 overflow-hidden",
       )}
     >
@@ -103,13 +146,13 @@ export function HelpMenu({
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col">
-        <div className="border-b border-border px-3 py-3">
+        <div className="px-3 pb-2 pt-3">
           <div className="relative">
             <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <input
               type="text"
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(event) => handleSearchChange(event.target.value)}
               placeholder="Search demos & help…"
               spellCheck={false}
               autoComplete="off"
@@ -127,16 +170,9 @@ export function HelpMenu({
               </button>
             )}
           </div>
-          <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5">
-              <CornerDownLeft className="h-3 w-3" aria-hidden="true" />
-              Press a row to play or expand
-            </span>
-            <span className="tabular-nums">{resultCount} results</span>
-          </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto py-2">
+        <div className="flex-1 overflow-y-auto pb-2 pt-1">
           {filtered.length === 0 ? (
             <div className="mx-3 mt-4 rounded-md border border-dashed bg-card px-3 py-6 text-center text-sm text-muted-foreground">
               No matches for “{query}”.
@@ -144,43 +180,78 @@ export function HelpMenu({
           ) : (
             filtered.map((section) => (
               <div key={section.title} className="mb-1">
-                <div className="sticky top-0 z-10 bg-background/95 px-4 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground backdrop-blur">
-                  {section.title}
-                </div>
-                <ul className="px-2">
-                  {section.hits.map((hit) =>
-                    hit.kind === "demo" ? (
-                      <li key={hit.demo.id}>
-                        <DemoRow
-                          demo={hit.demo}
-                          isRunning={runningDemoId === hit.demo.id}
-                          onPlay={() => onPlayDemo(hit.demo)}
-                          onStop={onStopDemo}
-                        />
-                      </li>
-                    ) : (
-                      <li key={`${hit.group}-${hit.item.title}`}>
-                        <RefRow
-                          item={hit.item}
-                          isOpen={expanded === `${hit.group}-${hit.item.title}`}
-                          onToggle={() =>
-                            setExpanded((prev) =>
-                              prev === `${hit.group}-${hit.item.title}`
-                                ? null
-                                : `${hit.group}-${hit.item.title}`,
-                            )
-                          }
-                        />
-                      </li>
-                    ),
-                  )}
-                </ul>
+                <SectionHeader
+                  title={section.title}
+                  isOpen={openSections[section.id]}
+                  onToggle={() => toggleSection(section.id)}
+                />
+                {openSections[section.id] && (
+                  <ul className="px-2">
+                    {section.hits.map((hit) =>
+                      hit.kind === "demo" ? (
+                        <li key={hit.demo.id}>
+                          <DemoRow
+                            demo={hit.demo}
+                            isRunning={runningDemoId === hit.demo.id}
+                            onPlay={() => onPlayDemo(hit.demo)}
+                            onStop={onStopDemo}
+                          />
+                        </li>
+                      ) : (
+                        <li key={`${hit.group}-${hit.item.title}`}>
+                          <RefRow
+                            item={hit.item}
+                            isOpen={
+                              expandedDetailId ===
+                              `${hit.group}-${hit.item.title}`
+                            }
+                            onToggle={() =>
+                              setExpandedDetailId((prev) =>
+                                prev === `${hit.group}-${hit.item.title}`
+                                  ? null
+                                  : `${hit.group}-${hit.item.title}`,
+                              )
+                            }
+                          />
+                        </li>
+                      ),
+                    )}
+                  </ul>
+                )}
               </div>
             ))
           )}
         </div>
       </div>
     </aside>
+  );
+}
+
+function SectionHeader({
+  title,
+  isOpen,
+  onToggle,
+}: {
+  title: string;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-expanded={isOpen}
+      className="sticky top-0 z-10 flex w-full items-center justify-between bg-background/95 px-4 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wide text-muted-foreground backdrop-blur transition-colors hover:bg-muted/50 hover:text-foreground"
+    >
+      <span>{title}</span>
+      <ChevronRight
+        className={cn(
+          "h-3.5 w-3.5 shrink-0 transition-transform",
+          isOpen && "rotate-90",
+        )}
+        aria-hidden="true"
+      />
+    </button>
   );
 }
 
@@ -201,7 +272,7 @@ function DemoRow({
       onClick={isRunning ? onStop : onPlay}
       aria-label={isRunning ? "Stop demo" : "Play demo"}
       className={cn(
-        "group flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors",
+        "group flex w-full items-start gap-3 rounded-md px-2 py-2 text-left transition-colors",
         isRunning ? "bg-primary/10" : "hover:bg-accent/40",
       )}
     >
@@ -220,14 +291,14 @@ function DemoRow({
         )}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium text-foreground">
+        <span className="block text-sm font-medium leading-tight text-foreground">
           {demo.title}
         </span>
-        <span className="block truncate text-xs text-muted-foreground">
+        <span className="mt-0.5 block overflow-hidden text-xs leading-snug text-muted-foreground [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
           {demo.description}
         </span>
       </span>
-      <span className="shrink-0 text-[10px] font-medium uppercase tabular-nums text-muted-foreground">
+      <span className="mt-0.5 shrink-0 text-[10px] font-medium uppercase tabular-nums text-muted-foreground">
         {demo.steps.length} steps
       </span>
     </button>
@@ -252,18 +323,18 @@ function RefRow({
         onClick={hasMore ? onToggle : undefined}
         aria-expanded={hasMore ? isOpen : undefined}
         className={cn(
-          "flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors",
-          hasMore ? "hover:bg-accent/40" : "cursor-default",
+          "flex w-full items-start gap-3 rounded-md px-2 py-2 text-left transition-colors",
+          hasMore ? "hover:bg-muted/60" : "cursor-default",
         )}
       >
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-muted/80 text-muted-foreground">
           <Icon className="h-4 w-4" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-medium text-foreground">
+          <span className="block text-sm font-medium leading-tight text-foreground">
             {item.title}
           </span>
-          <span className="block truncate text-xs text-muted-foreground">
+          <span className="mt-0.5 block overflow-hidden text-xs leading-snug text-muted-foreground [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
             {item.body}
           </span>
         </span>
