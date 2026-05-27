@@ -299,7 +299,17 @@ test.describe('Clipboard and tabs workflows', () => {
 
     await page.mouse.move(450, 350);
     await pasteButton.click();
+    await page
+      .getByRole('menuitem', {
+        name: /Only connections inside the copied selection/i,
+      })
+      .click();
+    await expect(page.getByTestId('paste-placement-preview')).toBeVisible();
+    await expect(page.getByTestId('paste-placement-layer')).toHaveCSS('cursor', 'default');
+    await expect(nodes).toHaveCount(initialNodeCount);
+    await page.getByTestId('paste-placement-layer').click({ position: { x: 450, y: 350 } });
     await expect(nodes).toHaveCount(initialNodeCount + 1);
+    await expect(page.getByTestId('paste-placement-preview')).toHaveCount(0);
 
     const duplicated = nodes.nth(1);
     await duplicated.getByRole('button', { name: /View Script Steps/i }).click();
@@ -314,6 +324,96 @@ test.describe('Clipboard and tabs workflows', () => {
     await expect(nodes).toHaveCount(initialNodeCount + 2);
 
     await page.unroute('**/s/' + shareId);
+    await page.unroute('**/bulk_calculate');
+  });
+
+  test('paste menu can include incoming connections', async ({ page }) => {
+    test.setTimeout(60_000);
+
+    const fixture: FlowData = JSON.parse(readFileSync(resolveFixturePath('hash-flow.json'), 'utf8'));
+    const initialInputNode = (fixture.nodes ?? []).find((node) => node.id === 'node_input');
+    const initialInput = String(
+      ((initialInputNode?.data as CalculationNodeData | undefined)?.inputs as { val?: unknown } | undefined)?.val ??
+        '',
+    );
+    const baselineNodes: FlowNode[] = (fixture.nodes ?? []).map((node) => ({
+      ...node,
+      data: {
+        ...(node.data ?? {}),
+        dirty: false,
+        result:
+          node.id === 'node_hash'
+            ? doubleSha256Hex(initialInput)
+            : node.data?.result ?? '',
+      },
+    }));
+
+    await page.route('**/bulk_calculate', async (route) => {
+      const { version, nodes } = readBulkPayload(route);
+      const enrichedNodes = nodes.map((node) => ({
+        ...node,
+        data: {
+          ...(node.data ?? {}),
+          dirty: false,
+          error: false,
+          extendedError: undefined,
+          result:
+            node.data?.result ??
+            (node.data?.functionName === 'double_sha256_hex'
+              ? doubleSha256Hex(String(node.data?.inputs?.val ?? initialInput))
+              : node.data?.value ?? node.data?.inputs?.val ?? ''),
+        },
+      }));
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          nodes: enrichedNodes.length ? enrichedNodes : baselineNodes,
+          errors: [],
+          version,
+        }),
+      });
+    });
+
+    await gotoEditor(page);
+    await loadFixture(page, 'hash-flow.json');
+    await clearSelection(page);
+
+    const copyButton = page.getByRole('button', { name: 'Copy nodes (Ctrl/Cmd+C)' });
+    const pasteButton = page.getByRole('button', { name: 'Paste nodes (Ctrl/Cmd+V)' });
+    const nodes = page.locator('.react-flow__node');
+    const edges = page.locator('.react-flow__edge');
+
+    await page.locator('[data-id="node_hash"]').click();
+    await expect(copyButton).toBeEnabled();
+    await copyButton.click();
+    await expect(pasteButton).toBeEnabled();
+
+    const initialNodeCount = await nodes.count();
+    const initialEdgeCount = await edges.count();
+    expect(initialEdgeCount).toBeGreaterThan(0);
+
+    await pasteButton.click();
+    await page
+      .getByRole('menuitem', {
+        name: /Only connections inside the copied selection/i,
+      })
+      .click();
+    await page.getByTestId('paste-placement-layer').click({ position: { x: 610, y: 350 } });
+    await expect(nodes).toHaveCount(initialNodeCount + 1);
+    await expect(edges).toHaveCount(initialEdgeCount);
+
+    await pasteButton.click();
+    await page
+      .getByRole('menuitem', {
+        name: /Keep links from existing nodes into the pasted copy/i,
+      })
+      .click();
+    await page.getByTestId('paste-placement-layer').click({ position: { x: 830, y: 460 } });
+    await expect(nodes).toHaveCount(initialNodeCount + 2);
+    await expect(edges).toHaveCount(initialEdgeCount + 1);
+
     await page.unroute('**/bulk_calculate');
   });
 

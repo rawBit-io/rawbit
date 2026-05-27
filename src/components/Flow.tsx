@@ -24,7 +24,7 @@ import TextInfoNode from "@/components/nodes/TextInfoNode";
 import OpCodeNode from "@/components/nodes/OpCodeNode";
 import { GroupBundlePortNode } from "@/components/nodes/GroupBundlePortNode";
 
-import { TopBar } from "@/components/layout/TopBar";
+import { TopBar, type PasteMode } from "@/components/layout/TopBar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { ColorPalette } from "@/components/ui/ColorPalette";
 import { Button } from "@/components/ui/button";
@@ -48,7 +48,7 @@ import {
 } from "@/components/IntroDropOverlay";
 import { HelpMenu } from "@/help/HelpMenu";
 import type { DemoStepContext, HelpDemo } from "@/help/types";
-import { Sun, Moon, Github } from "lucide-react";
+import { ClipboardPaste, Sun, Moon, Github } from "lucide-react";
 
 import { useNodeOperations } from "@/hooks/useNodeOperations";
 import { useFileOperations } from "@/hooks/useFileOperations";
@@ -496,6 +496,11 @@ function FlowContent() {
   const [showMiniMap, setShowMiniMap] = useState(false);
   const [isSelectionLocked, setIsSelectionLocked] = useState(false);
   const [isSelectionHotKeyActive, setIsSelectionHotKeyActive] = useState(false);
+  const [pastePlacementPreview, setPastePlacementPreview] = useState<{
+    x: number;
+    y: number;
+    mode: PasteMode;
+  } | null>(null);
   const [isMobileBlocked, setIsMobileBlocked] = useState(() =>
     getCurrentMobileBlockState()
   );
@@ -506,6 +511,7 @@ function FlowContent() {
   const showMobileIntroPreview =
     isMobileReadOnly && mobileCanvasMode === "intro";
   const isSelectionMode = isSelectionLocked || isSelectionHotKeyActive;
+  const isPastePlacementActive = pastePlacementPreview !== null;
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const activeTabIdRef = useRef<string | null>(null);
   const loadingUndoRef = useRef(false);
@@ -753,6 +759,7 @@ function FlowContent() {
     getEdges,
     setNodes: rfSetNodes,
     setEdges: rfSetEdges,
+    screenToFlowPosition,
   } = useReactFlow<FlowNode>();
   const storeApi = useStoreApi<FlowNode>();
   const updateNodeInternals = useUpdateNodeInternals();
@@ -2552,52 +2559,90 @@ function FlowContent() {
     [applyPaletteColor]
   );
 
-  const handlePaneClick = useCallback(() => {
-    closePalette();
-    setIsSearchHighlight(false);
-    clearHighlights();
+  const commitPastePlacement = useCallback(
+    (event: React.MouseEvent<Element, MouseEvent>) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const mode = pastePlacementPreview?.mode ?? "default";
+      setPastePlacementPreview(null);
 
-    requestAnimationFrame(() => {
-      const store = storeApi.getState();
-      const selectedNodes = store.nodes.filter((node) => node.selected);
-      const selectedEdges = store.edges.filter((edge) => edge.selected);
+      isPastingRef.current = true;
+      pasteNodes(
+        screenToFlowPosition({
+          x: event.clientX,
+          y: event.clientY,
+        }),
+        { includeIncomingConnections: mode === "withIncomingConnections" }
+      );
+      scheduleSnapshot("Pasted nodes", { refresh: true });
+      requestAnimationFrame(() => {
+        isPastingRef.current = false;
+      });
+    },
+    [
+      pasteNodes,
+      pastePlacementPreview?.mode,
+      scheduleSnapshot,
+      screenToFlowPosition,
+    ]
+  );
 
-      store.resetSelectedElements?.();
-      if (selectedNodes.length || selectedEdges.length) {
-        store.unselectNodesAndEdges?.({
-          nodes: selectedNodes,
-          edges: selectedEdges,
-        });
+  const handlePaneClick = useCallback(
+    (event: React.MouseEvent<Element, MouseEvent>) => {
+      if (isPastePlacementActive) {
+        commitPastePlacement(event);
+        return;
       }
 
-      setNodes((existing) => {
-        let mutated = false;
-        const next = existing.map((node) => {
-          if (!node.selected) return node;
-          mutated = true;
-          return { ...node, selected: false };
-        });
-        return mutated ? next : existing;
-      });
+      closePalette();
+      setIsSearchHighlight(false);
+      clearHighlights();
 
-      setEdges((existing) => {
-        let mutated = false;
-        const next = existing.map((edge) => {
-          if (!edge.selected) return edge;
-          mutated = true;
-          return { ...edge, selected: false };
+      requestAnimationFrame(() => {
+        const store = storeApi.getState();
+        const selectedNodes = store.nodes.filter((node) => node.selected);
+        const selectedEdges = store.edges.filter((edge) => edge.selected);
+
+        store.resetSelectedElements?.();
+        if (selectedNodes.length || selectedEdges.length) {
+          store.unselectNodesAndEdges?.({
+            nodes: selectedNodes,
+            edges: selectedEdges,
+          });
+        }
+
+        setNodes((existing) => {
+          let mutated = false;
+          const next = existing.map((node) => {
+            if (!node.selected) return node;
+            mutated = true;
+            return { ...node, selected: false };
+          });
+          return mutated ? next : existing;
         });
-        return mutated ? next : existing;
+
+        setEdges((existing) => {
+          let mutated = false;
+          const next = existing.map((edge) => {
+            if (!edge.selected) return edge;
+            mutated = true;
+            return { ...edge, selected: false };
+          });
+          return mutated ? next : existing;
+        });
       });
-    });
-  }, [
-    clearHighlights,
-    closePalette,
-    setIsSearchHighlight,
-    storeApi,
-    setNodes,
-    setEdges,
-  ]);
+    },
+    [
+      clearHighlights,
+      closePalette,
+      commitPastePlacement,
+      isPastePlacementActive,
+      setIsSearchHighlight,
+      storeApi,
+      setNodes,
+      setEdges,
+    ]
+  );
 
   const handleBundleEdgesSelect = useCallback(
     (edgeIds: string[]) => {
@@ -2683,11 +2728,43 @@ function FlowContent() {
     openShareDialog();
   }, [openShareDialog]);
 
+  const handleImmediatePaste = useCallback(
+    (withOffset = true) => {
+      setPastePlacementPreview(null);
+      handlePaste(withOffset);
+    },
+    [handlePaste]
+  );
+
+  const handleTopBarPaste = useCallback(
+    (mode: PasteMode, position?: { x: number; y: number }) => {
+      if (!hasCopiedNodes) return;
+
+      setPastePlacementPreview((current) => {
+        if (position) {
+          return { ...position, mode };
+        }
+        if (current) {
+          return { x: current.x, y: current.y, mode };
+        }
+        if (typeof window === "undefined") {
+          return { x: 0, y: 0, mode };
+        }
+        return {
+          x: window.innerWidth / 2,
+          y: Math.min(140, window.innerHeight / 3),
+          mode,
+        };
+      });
+    },
+    [hasCopiedNodes]
+  );
+
   const ensureShareImportTab = useCallback(() => addTab(), [addTab]);
 
   useEffect(() => {
-    pasteNodesRef.current = handlePaste;
-  }, [handlePaste]);
+    pasteNodesRef.current = handleImmediatePaste;
+  }, [handleImmediatePaste]);
 
   useFlowHotkeys({
     paletteOpenRef,
@@ -2732,6 +2809,35 @@ function FlowContent() {
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [handleMouseMove]);
+
+  useEffect(() => {
+    if (hasCopiedNodes) return;
+    setPastePlacementPreview(null);
+  }, [hasCopiedNodes]);
+
+  useEffect(() => {
+    if (!isPastePlacementActive) return;
+
+    const updatePreview = (event: PointerEvent) => {
+      setPastePlacementPreview((current) =>
+        current
+          ? { ...current, x: event.clientX, y: event.clientY }
+          : current
+      );
+    };
+    const cancelPreview = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setPastePlacementPreview(null);
+      }
+    };
+
+    window.addEventListener("pointermove", updatePreview);
+    window.addEventListener("keydown", cancelPreview);
+    return () => {
+      window.removeEventListener("pointermove", updatePreview);
+      window.removeEventListener("keydown", cancelPreview);
+    };
+  }, [isPastePlacementActive]);
 
   const paneDistanceAppliedRef = useRef(false);
 
@@ -3101,8 +3207,9 @@ function FlowContent() {
               onFileSelect={handleFileSelect}
               canCopy={nodes.some((n) => n.selected)}
               hasCopiedNodes={hasCopiedNodes}
+              isPastePlacementActive={isPastePlacementActive}
               onCopy={copyNodes}
-              onPaste={() => handlePaste()}
+              onPaste={handleTopBarPaste}
               calcStatus={calcStatus}
               errorInfo={errorInfo}
               errorCount={errorInfo.length}
@@ -3198,10 +3305,34 @@ function FlowContent() {
                 onPaneClick={handlePaneClick}
                 onBundleEdgesSelect={handleBundleEdgesSelect}
                 onMoveEnd={onMoveEnd}
+                isPastePlacementActive={isPastePlacementActive}
                 isSelectionModeActive={isSelectionMode}
                 isReadOnly={isMobileReadOnly}
                 onlyRenderVisibleElements
               />
+              {isPastePlacementActive && (
+                <div
+                  data-testid="paste-placement-layer"
+                  className="absolute inset-0 z-20 cursor-default"
+                  onClick={commitPastePlacement}
+                />
+              )}
+              {pastePlacementPreview && (
+                <div
+                  data-testid="paste-placement-preview"
+                  className="pointer-events-none fixed z-50 flex h-11 translate-x-3 translate-y-3 items-center gap-2 rounded-md border border-primary/60 bg-background/95 px-3 text-sm font-medium text-foreground shadow-lg backdrop-blur"
+                  style={{
+                    left: pastePlacementPreview.x,
+                    top: pastePlacementPreview.y,
+                  }}
+                >
+                  <ClipboardPaste
+                    className="h-4 w-4 text-primary"
+                    aria-hidden="true"
+                  />
+                  <span>Paste</span>
+                </div>
+              )}
               {isMobileReadOnly && (
                 <div className="pointer-events-none absolute inset-x-0 top-4 mx-auto w-11/12 max-w-md">
                   <div className="pointer-events-auto rounded-lg border border-border bg-background/90 px-4 py-3 text-center text-sm font-medium shadow-sm backdrop-blur">

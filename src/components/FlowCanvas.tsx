@@ -63,6 +63,7 @@ interface FlowCanvasProps {
     event: MouseEvent | TouchEvent | null,
     viewport: Viewport
   ) => void;
+  isPastePlacementActive?: boolean;
   isSelectionModeActive?: boolean;
   isReadOnly?: boolean;
   onlyRenderVisibleElements?: boolean;
@@ -246,6 +247,7 @@ export function FlowCanvas({
   onPaneClick,
   onBundleEdgesSelect,
   onMoveEnd,
+  isPastePlacementActive = false,
   isSelectionModeActive = false,
   isReadOnly = false,
   onlyRenderVisibleElements = true,
@@ -696,8 +698,20 @@ export function FlowCanvas({
     <CanonicalGraphContext.Provider value={canonicalGraph}>
       <GroupBundleEdgeSelectionProvider onSelectEdgeIds={handleBundleEdgeSelect}>
         <ReactFlow
-          className={cn(selectionEnabled ? "cursor-crosshair" : "cursor-grab")}
-          style={{ cursor: selectionEnabled ? "crosshair" : undefined }}
+          className={cn(
+            isPastePlacementActive
+              ? "cursor-default"
+              : selectionEnabled
+              ? "cursor-crosshair"
+              : "cursor-grab"
+          )}
+          style={{
+            cursor: isPastePlacementActive
+              ? "default"
+              : selectionEnabled
+              ? "crosshair"
+              : undefined,
+          }}
           onlyRenderVisibleElements={onlyRenderVisibleElements}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}

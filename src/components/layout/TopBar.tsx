@@ -16,6 +16,7 @@ import {
 } from "react";
 
 import {
+  Cable,
   Save,
   FileUp,
   Copy,
@@ -76,15 +77,21 @@ import {
 const GROUP_FILL_REPEAT_DELAY_MS = 350;
 const GROUP_FILL_REPEAT_INTERVAL_MS = 70;
 
+export type PasteMode = "default" | "withIncomingConnections";
+
 export interface TopBarProps {
   isSidebarOpen: boolean;
   onSave: () => void;
   onLoad: () => void;
   onLoadLink: () => void;
   onCopy: () => void;
-  onPaste: () => void;
+  onPaste: (
+    mode: PasteMode,
+    position?: { x: number; y: number }
+  ) => void;
   canCopy: boolean;
   hasCopiedNodes: boolean;
+  isPastePlacementActive?: boolean;
   fileInputRef: RefObject<HTMLInputElement>;
   onFileSelect: (event: ChangeEvent<HTMLInputElement>) => void;
 
@@ -241,6 +248,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
     onPaste,
     canCopy,
     hasCopiedNodes,
+    isPastePlacementActive = false,
     fileInputRef,
     onFileSelect,
 
@@ -311,10 +319,12 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
   } = useTheme();
   const { undo, redo, canUndo, canRedo } = useUndoRedo();
   const [isLoadMenuOpen, setIsLoadMenuOpen] = useState(false);
+  const [isPasteMenuOpen, setIsPasteMenuOpen] = useState(false);
   const [renamingTabId, setRenamingTabId] = useState<string | null>(null);
   const [renameDraft, setRenameDraft] = useState("");
   const renameInputRef = useRef<HTMLInputElement | null>(null);
   const loadTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const pasteTriggerRef = useRef<HTMLButtonElement | null>(null);
   const skinTriggerRef = useRef<HTMLButtonElement | null>(null);
   const saveTriggerRef = useRef<HTMLButtonElement | null>(null);
   const saveSimplifiedHotKeyRef = useRef(false);
@@ -328,6 +338,10 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
     interval: null,
     ignoreNextClick: false,
   });
+
+  useEffect(() => {
+    if (!hasCopiedNodes) setIsPasteMenuOpen(false);
+  }, [hasCopiedNodes]);
 
   useEffect(() => {
     if (!renamingTabId) return;
@@ -587,15 +601,66 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
           >
             <Copy className="h-7 w-7" />
           </TopBarIconButton>
-          <TopBarIconButton
-            variant="ghost"
-            size="icon"
-            onClick={onPaste}
-            disabled={!hasCopiedNodes}
-            tooltip="Paste nodes (Ctrl/Cmd+V)"
+          <DropdownMenu
+            open={isPasteMenuOpen}
+            onOpenChange={(open) =>
+              setIsPasteMenuOpen(hasCopiedNodes ? open : false)
+            }
           >
-            <ClipboardPaste className="h-7 w-7" />
-          </TopBarIconButton>
+            <DropdownMenuTrigger asChild>
+              <TopBarIconButton
+                ref={pasteTriggerRef}
+                variant="ghost"
+                size="icon"
+                disabled={!hasCopiedNodes}
+                tooltip="Paste nodes (Ctrl/Cmd+V)"
+                aria-label="Paste nodes (Ctrl/Cmd+V)"
+                aria-pressed={isPastePlacementActive}
+                className={cn(
+                  isPastePlacementActive &&
+                    "bg-accent text-accent-foreground ring-1 ring-border"
+                )}
+              >
+                <ClipboardPaste className="h-7 w-7" />
+              </TopBarIconButton>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="start"
+              side="bottom"
+              className="w-72"
+              onCloseAutoFocus={(event) => {
+                event.preventDefault();
+                pasteTriggerRef.current?.blur();
+              }}
+            >
+              <DropdownMenuItem
+                className="gap-2 py-1.5"
+                onSelect={() => onPaste("default")}
+              >
+                <ClipboardPaste className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                <span className="flex min-w-0 flex-col">
+                  <span className="text-sm leading-tight">Paste</span>
+                  <span className="text-xs leading-snug text-muted-foreground">
+                    Only connections inside the copied selection
+                  </span>
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="gap-2 py-1.5"
+                onSelect={() => onPaste("withIncomingConnections")}
+              >
+                <Cable className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                <span className="flex min-w-0 flex-col">
+                  <span className="text-sm leading-tight">
+                    Paste with incoming connections
+                  </span>
+                  <span className="text-xs leading-snug text-muted-foreground">
+                    Keep links from existing nodes into the pasted copy
+                  </span>
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           {/* connect */}
           <Separator orientation="vertical" className="mx-2 h-8 w-px" />
           <TopBarIconButton

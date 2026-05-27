@@ -375,4 +375,77 @@ describe("useCopyPaste", () => {
       target: expect.not.stringContaining(GROUP_BUNDLE_PORT_NODE_ID_PREFIX),
     });
   });
+
+  it("can paste selected nodes with incoming connections from existing nodes", () => {
+    state.nodes = [
+      buildFlowNode({
+        id: "source",
+        type: "calculation",
+        position: { x: 0, y: 0 },
+        data: { title: "Source" },
+      }),
+      buildFlowNode({
+        id: "target",
+        type: "calculation",
+        position: { x: 300, y: 0 },
+        data: { title: "Target" },
+        selected: true,
+      }),
+    ];
+    state.edges = [
+      {
+        id: "edge-source-target",
+        source: "source",
+        target: "target",
+        sourceHandle: "out",
+        targetHandle: "in",
+      },
+    ];
+
+    const { result } = renderHook(() => useCopyPaste());
+
+    act(() => {
+      result.current.copyNodes();
+    });
+
+    act(() => {
+      result.current.pasteNodes({ x: 600, y: 0 });
+    });
+
+    const defaultPaste = state.nodes.find(
+      (node) => !["source", "target"].includes(node.id)
+    );
+    expect(defaultPaste).toBeTruthy();
+    if (!defaultPaste) throw new Error("Expected default paste");
+    expect(
+      state.edges.some(
+        (edge) => edge.source === "source" && edge.target === defaultPaste.id
+      )
+    ).toBe(false);
+
+    act(() => {
+      result.current.pasteNodes(
+        { x: 900, y: 0 },
+        { includeIncomingConnections: true }
+      );
+    });
+
+    const incomingPaste = state.nodes.find(
+      (node) =>
+        !["source", "target", defaultPaste.id].includes(node.id) &&
+        node.data.title === "Target"
+    );
+    expect(incomingPaste).toBeTruthy();
+    if (!incomingPaste) throw new Error("Expected incoming paste");
+
+    expect(
+      state.edges.find(
+        (edge) => edge.source === "source" && edge.target === incomingPaste.id
+      )
+    ).toMatchObject({
+      id: expect.not.stringContaining("edge-source-target"),
+      sourceHandle: "out",
+      targetHandle: "in",
+    });
+  });
 });

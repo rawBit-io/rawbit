@@ -111,6 +111,10 @@ function openSkinMenu() {
   fireEvent.keyDown(trigger, { key: "Enter" });
 }
 
+function openDropdownButton(name: string | RegExp) {
+  fireEvent.keyDown(screen.getByRole("button", { name }), { key: "Enter" });
+}
+
 describe("TopBar", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -165,6 +169,27 @@ describe("TopBar", () => {
     const toggle = screen.getByRole("button", { name: "Show info nodes" });
     expect(toggle).toHaveAttribute("aria-pressed", "true");
     expect(toggle).toHaveAttribute("data-active", "true");
+  });
+
+  it("offers paste modes from the paste menu", () => {
+    const onPaste = vi.fn();
+    render(<TopBar {...baseProps} hasCopiedNodes onPaste={onPaste} />);
+
+    openDropdownButton("Paste nodes (Ctrl/Cmd+V)");
+    fireEvent.click(
+      screen.getByRole("menuitem", {
+        name: /Only connections inside the copied selection/i,
+      })
+    );
+    expect(onPaste).toHaveBeenCalledWith("default");
+
+    openDropdownButton("Paste nodes (Ctrl/Cmd+V)");
+    fireEvent.click(
+      screen.getByRole("menuitem", {
+        name: /Keep links from existing nodes into the pasted copy/i,
+      })
+    );
+    expect(onPaste).toHaveBeenLastCalledWith("withIncomingConnections");
   });
 
   it("applies skin selection and clears focus from skin trigger on close", () => {
@@ -501,23 +526,17 @@ describe("TopBar", () => {
       />
     );
 
-    fireEvent.keyDown(screen.getByRole("button", { name: "Save" }), {
-      key: "Enter",
-    });
+    openDropdownButton("Save");
     fireEvent.click(screen.getByRole("menuitem", { name: /^Save\b/ }));
     expect(onSave).toHaveBeenCalledTimes(1);
 
-    fireEvent.keyDown(screen.getByRole("button", { name: "Save" }), {
-      key: "Enter",
-    });
+    openDropdownButton("Save");
     fireEvent.click(
       screen.getByRole("menuitem", { name: /Metadata removed/ })
     );
     expect(onSaveSimplified).toHaveBeenCalledTimes(1);
 
-    fireEvent.keyDown(screen.getByRole("button", { name: "Save" }), {
-      key: "Enter",
-    });
+    openDropdownButton("Save");
     fireEvent.click(
       screen.getByRole("menuitem", {
         name: /backend code/,
