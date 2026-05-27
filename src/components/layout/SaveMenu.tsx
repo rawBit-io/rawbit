@@ -5,7 +5,7 @@
 // still works from the toolbar button; it's documented in Help, not shown here.
 // Item text is matched by the unit + e2e tests — see the matchers there.
 
-import { FileCode, FileSliders, Save } from "lucide-react";
+import { FileCode, FileSliders, Save, Share } from "lucide-react";
 
 import {
   DropdownMenuContent,
@@ -16,6 +16,8 @@ import {
 
 export interface SaveMenuProps {
   onSave: () => void;
+  onShare?: () => void;
+  shareDisabled?: boolean;
   onSaveSimplified: () => void | Promise<void>;
   onSaveLlmExport: () => void | Promise<void>;
   onCloseAutoFocus?: (event: Event) => void;
@@ -36,6 +38,8 @@ const EXPORTS = [
 
 export function SaveMenuContent({
   onSave,
+  onShare,
+  shareDisabled = false,
   onSaveSimplified,
   onSaveLlmExport,
   onCloseAutoFocus,
@@ -58,6 +62,19 @@ export function SaveMenuContent({
           <span className="text-sm leading-tight">Save</span>
           <span className="text-xs leading-snug text-muted-foreground">
             Reloadable rawBit JSON
+          </span>
+        </span>
+      </DropdownMenuItem>
+      <DropdownMenuItem
+        className="gap-2 py-1.5"
+        disabled={!onShare || shareDisabled}
+        onSelect={() => onShare?.()}
+      >
+        <Share className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+        <span className="flex min-w-0 flex-col">
+          <span className="text-sm leading-tight">Share</span>
+          <span className="text-xs leading-snug text-muted-foreground">
+            Create a shareable rawBit link
           </span>
         </span>
       </DropdownMenuItem>

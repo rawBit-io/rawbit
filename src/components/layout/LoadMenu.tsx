@@ -22,7 +22,7 @@ export function LoadMenuContent({
     <DropdownMenuContent
       align="start"
       side="bottom"
-      className="w-64"
+      className="w-48"
       onCloseAutoFocus={onCloseAutoFocus}
     >
       <DropdownMenuItem className="gap-2 py-1.5" onSelect={onLoadJson}>

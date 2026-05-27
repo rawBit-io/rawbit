@@ -514,6 +514,7 @@ describe("TopBar", () => {
 
   it("opens save options and invokes the selected save action", () => {
     const onSave = vi.fn();
+    const onShare = vi.fn();
     const onSaveSimplified = vi.fn();
     const onSaveLlmExport = vi.fn();
 
@@ -521,6 +522,8 @@ describe("TopBar", () => {
       <TopBar
         {...baseProps}
         onSave={onSave}
+        onShare={onShare}
+        shareDisabled={false}
         onSaveSimplified={onSaveSimplified}
         onSaveLlmExport={onSaveLlmExport}
       />
@@ -529,6 +532,10 @@ describe("TopBar", () => {
     openDropdownButton("Save");
     fireEvent.click(screen.getByRole("menuitem", { name: /^Save\b/ }));
     expect(onSave).toHaveBeenCalledTimes(1);
+
+    openDropdownButton("Save");
+    fireEvent.click(screen.getByRole("menuitem", { name: /^Share\b/ }));
+    expect(onShare).toHaveBeenCalledTimes(1);
 
     openDropdownButton("Save");
     fireEvent.click(

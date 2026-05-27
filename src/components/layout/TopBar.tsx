@@ -582,6 +582,8 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
             </DropdownMenuTrigger>
             <SaveMenuContent
               onSave={onSave}
+              onShare={onShare}
+              shareDisabled={shareDisabled}
               onSaveSimplified={onSaveSimplified}
               onSaveLlmExport={onSaveLlmExport}
               onCloseAutoFocus={(event) => {
@@ -627,7 +629,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
             <DropdownMenuContent
               align="start"
               side="bottom"
-              className="w-72"
+              className="w-64"
               onCloseAutoFocus={(event) => {
                 event.preventDefault();
                 pasteTriggerRef.current?.blur();
