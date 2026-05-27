@@ -294,7 +294,7 @@ function DemoRow({
         <span className="block text-sm font-medium leading-tight text-foreground">
           {demo.title}
         </span>
-        <span className="mt-0.5 block overflow-hidden text-xs leading-snug text-muted-foreground [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
+        <span className="mt-0.5 overflow-hidden text-xs leading-snug text-muted-foreground [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
           {demo.description}
         </span>
       </span>
@@ -334,7 +334,7 @@ function RefRow({
           <span className="block text-sm font-medium leading-tight text-foreground">
             {item.title}
           </span>
-          <span className="mt-0.5 block overflow-hidden text-xs leading-snug text-muted-foreground [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
+          <span className="mt-0.5 overflow-hidden text-xs leading-snug text-muted-foreground [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
             {item.body}
           </span>
         </span>
