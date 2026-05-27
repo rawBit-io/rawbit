@@ -64,14 +64,46 @@ export const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
         ],
         icon: Save,
       },
-      { title: "Close tab", body: "Close a canvas tab when the X appears", icon: X },
+      {
+        title: "Close tab",
+        body: "Close tabs or reset the workspace",
+        moreInfo: [
+          "Click the tab X to close that canvas tab.",
+          "In the close dialog, use the dropdown arrow to change what will happen before confirming.",
+          "The menu can close this tab, close all tabs, close other tabs, or reset the workspace.",
+          "Reset workspace clears all tab data.",
+          "Closing removes tab data from the workspace; save or share first if you need to keep it.",
+        ],
+        icon: X,
+      },
     ],
   },
   {
     title: "Editing",
     items: [
-      { title: "Copy", body: "Copy selected nodes, groups, and supported links", icon: Copy },
-      { title: "Paste", body: "Paste copied canvas content", icon: ClipboardPaste },
+      {
+        title: "Copy",
+        body: "Copy selected nodes, groups, and their connections",
+        moreInfo: [
+          "Use Ctrl/Cmd+C to copy the current selection.",
+          "Copying a group also includes the nodes inside it.",
+          "Copy includes the edges between copied nodes and groups.",
+          "Copied content can be pasted inside the current tab or another tab.",
+        ],
+        icon: Copy,
+      },
+      {
+        title: "Paste",
+        body: "Place copied content on the canvas",
+        moreInfo: [
+          "Choose Paste, then click the canvas where the copied nodes should appear.",
+          "Paste recreates only connections inside the copied selection.",
+          "Paste with incoming connections also reconnects existing outside nodes into the pasted copy.",
+          "Press Esc to cancel placement before clicking.",
+          "Ctrl/Cmd+V pastes immediately near the cursor.",
+        ],
+        icon: ClipboardPaste,
+      },
       {
         title: "Connect",
         body: "Connect two selected nodes or copy compatible inputs",
