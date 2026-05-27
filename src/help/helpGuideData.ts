@@ -106,13 +106,38 @@ export const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
       },
       {
         title: "Connect",
-        body: "Connect two selected nodes or copy compatible inputs",
+        body: "Wire two selected nodes or copy compatible inputs",
+        moreInfo: [
+          "Select exactly two nodes, then open Connect.",
+          "Connect Edge lets you choose one source output and one or more free target inputs.",
+          "Copy Inputs duplicates compatible incoming wires from the source node to the target node.",
+          "Use the swap button when rawBit picked the opposite source and target direction.",
+          "Inputs that are already wired are skipped.",
+        ],
         icon: Share2,
       },
-      { title: "Group", body: "Wrap selected nodes into a group", icon: Square },
+      {
+        title: "Group",
+        body: "Wrap selected nodes into a group",
+        moreInfo: [
+          "Select one or more top-level nodes, then click Group or press Ctrl/Cmd+G.",
+          "rawBit creates a group around the selection and keeps the nodes inside it.",
+          "Moving the group moves its child nodes with it.",
+          "Dropping a node into a group can also make it part of that group.",
+          "Groups do not nest inside other groups.",
+        ],
+        icon: Square,
+      },
       {
         title: "Ungroup",
         body: "Break selected groups back into nodes",
+        moreInfo: [
+          "Select a group, then click Ungroup or press Ctrl/Cmd+U to remove the group container.",
+          "The nodes inside stay in the same canvas positions and become selected.",
+          "Selecting child nodes inside a group ungroups only those nodes.",
+          "Edges stay connected to the same nodes.",
+          "If only one group exists, Ungroup can target that group even without an explicit group selection.",
+        ],
         icon: SquareSplitVertical,
       },
     ],
@@ -139,6 +164,13 @@ export const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
       {
         title: "Search",
         body: "Open the search panel for nodes and labels",
+        moreInfo: [
+          "Search looks through node id, title, function name, comments, results, text info content, and input values.",
+          "Multiple words are matched together, in any order.",
+          "Wrap text in quotes to search for that exact phrase.",
+          "Search for partial to find nodes with unwired inputs.",
+          "Click a result to center that node and highlight the matched text when possible.",
+        ],
         icon: Search,
       },
     ],
@@ -146,7 +178,18 @@ export const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
   {
     title: "Sharing",
     items: [
-      { title: "Share snapshot", body: "Create a shareable snapshot link", icon: Share },
+      {
+        title: "Share snapshot",
+        body: "Create a shareable snapshot link",
+        moreInfo: [
+          "Share creates a read-only link to the current tab's flow.",
+          "The link captures the current snapshot; changes made later need a new share link.",
+          "The snapshot includes nodes, groups, edges, layout, and script debug steps.",
+          "Temporary UI state such as search marks and highlights is removed before sharing.",
+          "Anyone with the link can open the shared flow in rawBit.",
+        ],
+        icon: Share,
+      },
       {
         title: "Community links",
         body: "Open rawBit links and contact channels",
@@ -160,6 +203,13 @@ export const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
       {
         title: "Skin",
         body: "Choose the UI skin and canvas edge styling",
+        moreInfo: [
+          "Choose Shadcn, Paper Ledger, or Midnight Signal for the app appearance.",
+          "The same menu adjusts edge thickness, normal edge opacity, and dashed edge opacity.",
+          "Group fill controls how visible group backgrounds are.",
+          "Edge and group controls follow the active light or dark theme mode.",
+          "Skin and canvas style settings are saved in this browser.",
+        ],
         icon: Paintbrush,
       },
     ],
