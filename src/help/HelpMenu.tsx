@@ -186,7 +186,7 @@ export function HelpMenu({
                   onToggle={() => toggleSection(section.id)}
                 />
                 {openSections[section.id] && (
-                  <ul className="px-2">
+                  <ul className="px-1.5">
                     {section.hits.map((hit) =>
                       hit.kind === "demo" ? (
                         <li key={hit.demo.id}>
@@ -241,7 +241,7 @@ function SectionHeader({
       type="button"
       onClick={onToggle}
       aria-expanded={isOpen}
-      className="sticky top-0 z-10 flex w-full items-center justify-between bg-background/95 px-4 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wide text-muted-foreground backdrop-blur transition-colors hover:bg-muted/50 hover:text-foreground"
+      className="sticky top-0 z-10 flex w-full items-center justify-between bg-background/95 px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground backdrop-blur transition-colors hover:bg-muted/50 hover:text-foreground"
     >
       <span>{title}</span>
       <ChevronRight
@@ -272,7 +272,7 @@ function DemoRow({
       onClick={isRunning ? onStop : onPlay}
       aria-label={isRunning ? "Stop demo" : "Play demo"}
       className={cn(
-        "group flex w-full items-start gap-3 rounded-md px-2 py-2 text-left transition-colors",
+        "group flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left transition-colors",
         isRunning ? "bg-primary/10" : "hover:bg-accent/40",
       )}
     >
@@ -294,7 +294,7 @@ function DemoRow({
         <span className="block text-sm font-medium leading-tight text-foreground">
           {demo.title}
         </span>
-        <span className="mt-0.5 overflow-hidden text-xs leading-snug text-muted-foreground [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
+        <span className="mt-0.5 text-[13px] leading-relaxed text-muted-foreground">
           {demo.description}
         </span>
       </span>
@@ -323,7 +323,7 @@ function RefRow({
         onClick={hasMore ? onToggle : undefined}
         aria-expanded={hasMore ? isOpen : undefined}
         className={cn(
-          "flex w-full items-start gap-3 rounded-md px-2 py-2 text-left transition-colors",
+          "flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left transition-colors",
           hasMore ? "hover:bg-muted/60" : "cursor-default",
         )}
       >
@@ -334,14 +334,14 @@ function RefRow({
           <span className="block text-sm font-medium leading-tight text-foreground">
             {item.title}
           </span>
-          <span className="mt-0.5 overflow-hidden text-xs leading-snug text-muted-foreground [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
+          <span className="mt-0.5 text-[13px] leading-relaxed text-muted-foreground">
             {item.body}
           </span>
         </span>
         {hasMore && (
           <ChevronRight
             className={cn(
-              "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+              "h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform",
               isOpen && "rotate-90",
             )}
             aria-hidden="true"
@@ -349,11 +349,13 @@ function RefRow({
         )}
       </button>
       {hasMore && isOpen && (
-        <ul className="mb-1 ml-12 space-y-1.5 border-l border-border/70 pl-3 text-xs leading-snug text-muted-foreground">
-          {item.moreInfo!.map((detail) => (
-            <li key={detail}>{detail}</li>
-          ))}
-        </ul>
+        <div className="mx-2 mb-1.5 mt-1.5 rounded-md border border-border/70 bg-muted/35 px-3 py-2.5">
+          <ul className="list-disc space-y-2 pl-4 text-[13px] leading-relaxed text-muted-foreground marker:text-primary/55">
+            {item.moreInfo!.map((detail) => (
+              <li key={detail}>{detail}</li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );
