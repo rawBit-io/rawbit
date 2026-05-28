@@ -36,13 +36,15 @@ export function useSearchHighlights({
   );
 
   const clearAllTextHighlights = useCallback(() => {
-    setNodes((nodes) =>
-      nodes.map((node) =>
-        node.data?.searchMark
-          ? { ...node, data: { ...node.data, searchMark: undefined } }
-          : node
-      )
-    );
+    setNodes((nodes) => {
+      let changed = false;
+      const next = nodes.map((node) => {
+        if (!node.data?.searchMark) return node;
+        changed = true;
+        return { ...node, data: { ...node.data, searchMark: undefined } };
+      });
+      return changed ? next : nodes;
+    });
   }, [setNodes]);
 
   useEffect(() => {

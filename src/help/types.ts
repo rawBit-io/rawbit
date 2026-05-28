@@ -19,11 +19,16 @@ export interface DemoStepContext {
   setOverlay: (state: IntroDropOverlayState | null) => void;
   setSidebarSearch: (value: string | undefined) => void;
   setSidebarHighlightLabel: (label: string | undefined) => void;
+  setSidebarFlowHighlight: (flowId: string | undefined) => void;
+  setSearchPanel: (open: boolean) => void;
+  setSearchQuery: (value: string) => void;
+  setHelpMenuVisible: (open: boolean) => void;
   setNodes: (updater: (prev: FlowNode[]) => FlowNode[]) => void;
   setEdges: (updater: (prev: Edge[]) => Edge[]) => void;
   scheduleStep: (delayMs: number, fn: () => void) => void;
   flowToScreen: (point: { x: number; y: number }) => { x: number; y: number };
   setViewport: (viewport: { x: number; y: number; zoom: number }) => void;
+  focusNode: (nodeId: string) => void;
   isRunning: () => boolean;
 }
 

@@ -483,6 +483,10 @@ function getHelpGraphSignature(nodes: FlowNode[], edges: Edge[]): string {
       delete rest.selected;
       delete rest.dragging;
       delete rest.positionAbsolute;
+      if (rest.data) {
+        rest.data = { ...rest.data };
+        delete rest.data.searchMark;
+      }
       return rest;
     })
     .sort((a, b) => a.id.localeCompare(b.id));
@@ -528,6 +532,9 @@ function FlowContent() {
     string | undefined
   >(undefined);
   const [helpSidebarHighlight, setHelpSidebarHighlight] = useState<
+    string | undefined
+  >(undefined);
+  const [helpSidebarFlowHighlight, setHelpSidebarFlowHighlight] = useState<
     string | undefined
   >(undefined);
   const [runningHelpDemoId, setRunningHelpDemoId] = useState<string | null>(
@@ -2109,7 +2116,10 @@ function FlowContent() {
       setRunningHelpDemoId(null);
       setHelpSidebarSearch(undefined);
       setHelpSidebarHighlight(undefined);
+      setHelpSidebarFlowHighlight(undefined);
       if (opts?.clearOverlay) {
+        setSearchQuery("");
+        setShowSearchPanel(false);
         currentHelpDemoIdRef.current = null;
         currentHelpStepIdxRef.current = null;
         currentHelpStepCompleteRef.current = false;
@@ -2342,6 +2352,25 @@ function FlowContent() {
             setHelpSidebarHighlight((prev) => (isActive() ? label : prev));
           }
         },
+        setSidebarFlowHighlight: (flowId) => {
+          if (isActive()) {
+            setHelpSidebarFlowHighlight((prev) =>
+              isActive() ? flowId : prev,
+            );
+          }
+        },
+        setSearchPanel: (open) => {
+          if (!isActive()) return;
+          setShowUndoRedoPanel(false);
+          setShowErrorPanel(false);
+          setShowSearchPanel(open);
+        },
+        setSearchQuery: (value) => {
+          if (isActive()) setSearchQuery(value);
+        },
+        setHelpMenuVisible: (open) => {
+          if (isActive()) setShowHelpMenu(open);
+        },
         setNodes: (updater) => {
           if (isActive()) {
             baseSetNodes((prev) => {
@@ -2386,6 +2415,9 @@ function FlowContent() {
             flowInstanceRef.current?.setViewport(viewport, { duration: 0 });
           }
         },
+        focusNode: (nodeId) => {
+          if (isActive()) centerOnNode(nodeId);
+        },
         isRunning: () =>
           isActive() && helpDemoTimersRef.current.length > 0,
       };
@@ -2397,6 +2429,7 @@ function FlowContent() {
       flowToScreen,
       incRev,
       noteHelpDemoGraphWrite,
+      centerOnNode,
     ],
   );
 
@@ -2435,6 +2468,9 @@ function FlowContent() {
       setRunningHelpDemoId(demo.id);
       setHelpSidebarSearch(undefined);
       setHelpSidebarHighlight(undefined);
+      setHelpSidebarFlowHighlight(undefined);
+      setSearchQuery("");
+      setShowSearchPanel(false);
       currentHelpDemoIdRef.current = demo.id;
       currentHelpStepIdxRef.current = targetIdx;
       currentHelpStepCompleteRef.current = false;
@@ -3447,7 +3483,9 @@ function FlowContent() {
             <Sidebar
               isOpen={isSidebarOpen}
               onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-              introDropFlowId={isIntroDropAnimating ? INTRO_FLOW_ID : undefined}
+              introDropFlowId={
+                isIntroDropAnimating ? INTRO_FLOW_ID : helpSidebarFlowHighlight
+              }
               introDropNodeLabel={helpSidebarHighlight}
               searchOverride={helpSidebarSearch}
             />
@@ -3600,7 +3638,13 @@ function FlowContent() {
 
           <IntroDropOverlay
             state={introDropState}
-            captionRightInset={isGuidedHelpOpen ? 288 /* HelpMenu w-72 */ : 0}
+            captionRightInset={
+              isGuidedHelpOpen
+                ? 288 /* HelpMenu w-72 */
+                : showSearchPanelUI
+                  ? 256 /* SearchPanel w-64 */
+                  : 0
+            }
           />
 
           {!isMobileReadOnly && (

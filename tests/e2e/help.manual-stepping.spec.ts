@@ -127,12 +127,12 @@ test.describe('Help demo manual stepping', () => {
   });
 
   test('builds the P2PKH locking script demo graph', async ({ page }) => {
-    test.setTimeout(60_000);
+    test.setTimeout(100_000);
 
     await playDemo(page, 'Build P2PKH locking script');
 
     await expect(overlay(page)).toContainText('P2PKH locking script complete', {
-      timeout: 45_000,
+      timeout: 90_000,
     });
     await expect(page.locator('[data-id^="node_help_demo_p2pkh_"]')).toHaveCount(7);
     await expect(page.locator('[data-id="node_help_demo_p2pkh_length"]')).toHaveCount(0);
@@ -161,6 +161,21 @@ test.describe('Help demo manual stepping', () => {
       'node_help_demo_p2pkh_suffix_ops',
       'node_help_demo_p2pkh_script',
     ]);
+  });
+
+  test('walks the Verify Script execution steps demo', async ({ page }) => {
+    test.setTimeout(120_000);
+
+    await playDemo(page, 'Walk Verify Script steps');
+
+    await expect(overlay(page)).toContainText('Verify Script walkthrough complete', {
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-id="node_o6vul7a"]')).toContainText(
+      'Verify Script',
+    );
+    const stepsDialog = page.getByRole('dialog', { name: 'Script Execution Steps' });
+    await expect(stepsDialog).toHaveCount(0);
   });
 
   test('closes guided help when the Help button is clicked from help', async ({ page }) => {
@@ -215,7 +230,9 @@ async function playDemo(page: Page, title: string) {
       ? 'Drop a VarInt node'
       : title === 'Build P2PKH locking script'
         ? 'Place the building blocks'
-        : 'Drop a transaction template';
+        : title === 'Walk Verify Script steps'
+          ? 'Drop Intro P2PKH flow'
+          : 'Drop a transaction template';
   await expect(overlay(page)).toContainText(firstStep);
 }
 

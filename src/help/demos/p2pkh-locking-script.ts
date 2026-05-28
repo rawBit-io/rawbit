@@ -89,7 +89,7 @@ const PREFIX_HEX = "76a9";
 const PUSH_HEX = "14";
 const SUFFIX_HEX = "88ac";
 
-const SPEEDUP = 3;
+const SPEEDUP = 1.5;
 const sp = (ms: number) => Math.round(ms / SPEEDUP);
 const SEARCH_TYPE_DELAY = 80;
 const SEARCH_DROP_SETTLE = 220;
