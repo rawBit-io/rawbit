@@ -443,6 +443,61 @@ function getRectCursorCenter(rect: {
   };
 }
 
+function stableSerializeForHelp(value: unknown): string {
+  if (value === null) return "null";
+  const type = typeof value;
+  if (type === "number" || type === "boolean" || type === "string") {
+    return JSON.stringify(value);
+  }
+  if (type === "undefined" || type === "function" || type === "symbol") {
+    return "null";
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map(stableSerializeForHelp).join(",")}]`;
+  }
+  if (type === "object") {
+    const record = value as Record<string, unknown>;
+    const entries = Object.keys(record)
+      .sort()
+      .map((key) => {
+        const item = record[key];
+        if (typeof item === "undefined" || typeof item === "function") {
+          return null;
+        }
+        return `${JSON.stringify(key)}:${stableSerializeForHelp(item)}`;
+      })
+      .filter((entry): entry is string => entry !== null);
+    return `{${entries.join(",")}}`;
+  }
+  return JSON.stringify(String(value));
+}
+
+function getHelpGraphSignature(nodes: FlowNode[], edges: Edge[]): string {
+  const signedNodes = nodes
+    .map((node) => {
+      const rest = { ...node } as FlowNode & {
+        selected?: boolean;
+        dragging?: boolean;
+        positionAbsolute?: unknown;
+      };
+      delete rest.selected;
+      delete rest.dragging;
+      delete rest.positionAbsolute;
+      return rest;
+    })
+    .sort((a, b) => a.id.localeCompare(b.id));
+  const signedEdges = edges
+    .map((edge) => {
+      const rest = { ...edge };
+      delete rest.selected;
+      return rest;
+    })
+    .sort((a, b) => a.id.localeCompare(b.id));
+  return stableSerializeForHelp({ nodes: signedNodes, edges: signedEdges });
+}
+
+const EMPTY_HELP_GRAPH_SIGNATURE = getHelpGraphSignature([], []);
+
 function FlowContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showUndoRedoPanel, setShowUndoRedoPanel] = useState(false);
@@ -458,6 +513,16 @@ function FlowContent() {
   // 📖 help system: tabs marked as help, demo-driven sidebar overrides, the
   // id of the currently running demo, and tracked timer ids for cancellation.
   const [helpTabIds, setHelpTabIds] = useState<Set<string>>(() => new Set());
+  const helpTabIdsRef = useRef<Set<string>>(new Set());
+  const [editedHelpTabIds, setEditedHelpTabIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const editedHelpTabIdsRef = useRef<Set<string>>(new Set());
+  helpTabIdsRef.current = helpTabIds;
+  editedHelpTabIdsRef.current = editedHelpTabIds;
+  const helpTabGraphBaselinesRef = useRef<Map<string, string>>(new Map());
+  const helpDemoGraphNodesRef = useRef<FlowNode[]>([]);
+  const helpDemoGraphEdgesRef = useRef<Edge[]>([]);
   const [showHelpMenu, setShowHelpMenu] = useState(false);
   const [helpSidebarSearch, setHelpSidebarSearch] = useState<
     string | undefined
@@ -698,6 +763,50 @@ function FlowContent() {
   const edgesRef = useRef(edges);
   nodesRef.current = nodes;
   edgesRef.current = edges;
+  const noteHelpTabGraphChange = useCallback(
+    (nextNodes: FlowNode[], nextEdges: Edge[]) => {
+      const tabId = activeTabIdRef.current;
+      if (!tabId || !helpTabIdsRef.current.has(tabId)) return;
+
+      const signature = getHelpGraphSignature(nextNodes, nextEdges);
+      const baseline =
+        helpTabGraphBaselinesRef.current.get(tabId) ??
+        EMPTY_HELP_GRAPH_SIGNATURE;
+      const isBackAtBaseline = signature === baseline;
+
+      setEditedHelpTabIds((prev) => {
+        if (isBackAtBaseline) {
+          if (!prev.has(tabId)) return prev;
+          const next = new Set(prev);
+          next.delete(tabId);
+          editedHelpTabIdsRef.current = next;
+          return next;
+        }
+        if (prev.has(tabId)) return prev;
+        const next = new Set(prev);
+        next.add(tabId);
+        editedHelpTabIdsRef.current = next;
+        return next;
+      });
+
+      if (!isBackAtBaseline && currentHelpDemoIdRef.current !== null) {
+        stopHelpDemoRef.current({ clearOverlay: true });
+      }
+    },
+    [],
+  );
+  const noteHelpDemoGraphWrite = useCallback(
+    (nextNodes: FlowNode[], nextEdges: Edge[]) => {
+      const tabId = activeTabIdRef.current;
+      if (!tabId || !helpTabIdsRef.current.has(tabId)) return;
+      if (editedHelpTabIdsRef.current.has(tabId)) return;
+      helpTabGraphBaselinesRef.current.set(
+        tabId,
+        getHelpGraphSignature(nextNodes, nextEdges),
+      );
+    },
+    [],
+  );
   const [showInfoNodes, setShowInfoNodes] = useState(true);
   const infoNodeIds = useMemo(
     () =>
@@ -820,10 +929,13 @@ function FlowContent() {
             ? (updater as (prev: FlowNode[]) => FlowNode[])(prev)
             : updater;
         const next = stripTransientInfoNodeVisibility(rawNext);
-        if (next !== prev) incRev();
+        if (next !== prev) {
+          incRev();
+          noteHelpTabGraphChange(next, edgesRef.current);
+        }
         return next;
       }),
-    [baseSetNodes, incRev]
+    [baseSetNodes, incRev, noteHelpTabGraphChange]
   );
 
   const setEdges: typeof baseSetEdges = useCallback(
@@ -841,10 +953,13 @@ function FlowContent() {
               .map((node) => node.id)
           )
         );
-        if (next !== prev) incRev();
+        if (next !== prev) {
+          incRev();
+          noteHelpTabGraphChange(nodesRef.current, next);
+        }
         return next;
       }),
-    [baseSetEdges, incRev]
+    [baseSetEdges, incRev, noteHelpTabGraphChange]
   );
 
   useEffect(() => {
@@ -2029,54 +2144,78 @@ function FlowContent() {
   }, [currentHelpDemo, runningHelpDemoId, stopHelpDemo]);
 
   const openHelpTab = useCallback(() => {
-    const showGuidedHelp = () => {
-      setShowUndoRedoPanel(false);
-      setShowErrorPanel(false);
-      setShowSearchPanel(false);
-      setShowHelpMenu(true);
-    };
+    if (showHelpMenu) {
+      closeGuidedHelp();
+      return;
+    }
 
-    const createHelpTab = () => {
-      const newId = addTab();
-      renameTab(newId, "Help");
-      setTabTooltip(newId, "Help — concept demos on canvas");
-      selectTab(newId);
-      setHelpTabIds((prev) => {
+    setShowUndoRedoPanel(false);
+    setShowErrorPanel(false);
+    setShowSearchPanel(false);
+    setShowHelpMenu(true);
+  }, [closeGuidedHelp, showHelpMenu]);
+
+  const markHelpTabForDemos = useCallback((tabId: string) => {
+    setHelpTabIds((prev) => {
+      if (prev.has(tabId)) return prev;
+      const next = new Set(prev);
+      next.add(tabId);
+      helpTabIdsRef.current = next;
+      return next;
+    });
+  }, []);
+
+  const markHelpTabClean = useCallback(
+    (tabId: string, nextNodes: FlowNode[] = [], nextEdges: Edge[] = []) => {
+      helpTabGraphBaselinesRef.current.set(
+        tabId,
+        getHelpGraphSignature(nextNodes, nextEdges),
+      );
+      setEditedHelpTabIds((prev) => {
+        if (!prev.has(tabId)) return prev;
         const next = new Set(prev);
-        next.add(newId);
+        next.delete(tabId);
+        editedHelpTabIdsRef.current = next;
         return next;
       });
-    };
+    },
+    [],
+  );
 
-    const activeIsHelp =
-      activeTabId !== null &&
-      activeTabId !== undefined &&
-      helpTabIds.has(activeTabId);
-    if (activeIsHelp) {
-      if (showHelpMenu) closeGuidedHelp();
-      else showGuidedHelp();
-      return;
+  const createDemoHelpTab = useCallback(() => {
+    const newId = addTab();
+    renameTab(newId, "Help");
+    setTabTooltip(newId, "Help — concept demos on canvas");
+    markHelpTabForDemos(newId);
+    markHelpTabClean(newId);
+    activeTabIdRef.current = newId;
+    return newId;
+  }, [addTab, markHelpTabClean, markHelpTabForDemos, renameTab, setTabTooltip]);
+
+  const ensureDemoHelpTab = useCallback(() => {
+    const activeId = activeTabIdRef.current ?? activeTabId;
+    const activeHelpIsReusable =
+      Boolean(activeId) &&
+      helpTabIdsRef.current.has(activeId) &&
+      !editedHelpTabIdsRef.current.has(activeId);
+
+    if (activeId && activeHelpIsReusable) {
+      return activeId;
     }
 
-    const existing = tabs.find((tab) => helpTabIds.has(tab.id));
-    if (existing) {
-      showGuidedHelp();
-      selectTab(existing.id);
-      return;
+    const reusable = tabs.find(
+      (tab) =>
+        helpTabIdsRef.current.has(tab.id) &&
+        !editedHelpTabIdsRef.current.has(tab.id),
+    );
+    if (reusable) {
+      selectTab(reusable.id);
+      activeTabIdRef.current = reusable.id;
+      return reusable.id;
     }
-    showGuidedHelp();
-    createHelpTab();
-  }, [
-    activeTabId,
-    addTab,
-    closeGuidedHelp,
-    helpTabIds,
-    renameTab,
-    selectTab,
-    setTabTooltip,
-    showHelpMenu,
-    tabs,
-  ]);
+
+    return createDemoHelpTab();
+  }, [activeTabId, createDemoHelpTab, selectTab, tabs]);
 
   const setShowUndoRedoPanelFromTopBar = useCallback(
     (open: boolean) => {
@@ -2205,12 +2344,39 @@ function FlowContent() {
         },
         setNodes: (updater) => {
           if (isActive()) {
-            setNodes((prev) => (isActive() ? updater(prev) : prev));
+            baseSetNodes((prev) => {
+              if (!isActive()) return prev;
+              const rawNext = updater(prev);
+              const next = stripTransientInfoNodeVisibility(rawNext);
+              if (next !== prev) {
+                incRev();
+                helpDemoGraphNodesRef.current = next;
+                noteHelpDemoGraphWrite(next, helpDemoGraphEdgesRef.current);
+              }
+              return next;
+            });
           }
         },
         setEdges: (updater) => {
           if (isActive()) {
-            setEdges((prev) => (isActive() ? updater(prev) : prev));
+            baseSetEdges((prev) => {
+              if (!isActive()) return prev;
+              const rawNext = updater(prev);
+              const next = stripTransientInfoEdgeVisibility(
+                rawNext,
+                new Set(
+                  nodesRef.current
+                    .filter((node) => node.type === INFO_NODE_TYPE)
+                    .map((node) => node.id),
+                ),
+              );
+              if (next !== prev) {
+                incRev();
+                helpDemoGraphEdgesRef.current = next;
+                noteHelpDemoGraphWrite(helpDemoGraphNodesRef.current, next);
+              }
+              return next;
+            });
           }
         },
         scheduleStep: mode === "play" ? playScheduler : instantScheduler,
@@ -2224,7 +2390,14 @@ function FlowContent() {
           isActive() && helpDemoTimersRef.current.length > 0,
       };
     },
-    [buildHelpControls, flowToScreen, setEdges, setNodes],
+    [
+      baseSetEdges,
+      baseSetNodes,
+      buildHelpControls,
+      flowToScreen,
+      incRev,
+      noteHelpDemoGraphWrite,
+    ],
   );
 
   const playHelpDemoFromStep = useCallback(
@@ -2255,6 +2428,8 @@ function FlowContent() {
       }
       helpDemoTimersRef.current = [];
       const myGen = ++helpDemoPlayGenRef.current;
+      helpDemoGraphNodesRef.current = nodesRef.current;
+      helpDemoGraphEdgesRef.current = edgesRef.current;
 
       setCurrentHelpDemo(demo);
       setRunningHelpDemoId(demo.id);
@@ -2353,10 +2528,15 @@ function FlowContent() {
   // Clicking it (re)enters auto-play mode — the demo runs through every step.
   const runHelpDemo = useCallback(
     (demo: HelpDemo) => {
+      setShowUndoRedoPanel(false);
+      setShowErrorPanel(false);
+      setShowSearchPanel(false);
+      setShowHelpMenu(true);
+      ensureDemoHelpTab();
       helpDemoModeRef.current = "auto";
       void playHelpDemoFromStep(demo, 0, { forceRebuild: true });
     },
-    [playHelpDemoFromStep],
+    [ensureDemoHelpTab, playHelpDemoFromStep],
   );
 
   // Keep the playback-button refs pointing at the latest impls.
@@ -2397,16 +2577,30 @@ function FlowContent() {
 
   // Drop closed tabs from the help-tab set so it doesn't leak.
   useEffect(() => {
+    const liveIds = new Set(tabs.map((tab) => tab.id));
     setHelpTabIds((prev) => {
-      const liveIds = new Set(tabs.map((tab) => tab.id));
       let changed = false;
       const next = new Set<string>();
       for (const id of prev) {
         if (liveIds.has(id)) next.add(id);
         else changed = true;
       }
+      if (changed) helpTabIdsRef.current = next;
       return changed ? next : prev;
     });
+    setEditedHelpTabIds((prev) => {
+      let changed = false;
+      const next = new Set<string>();
+      for (const id of prev) {
+        if (liveIds.has(id)) next.add(id);
+        else changed = true;
+      }
+      if (changed) editedHelpTabIdsRef.current = next;
+      return changed ? next : prev;
+    });
+    for (const id of Array.from(helpTabGraphBaselinesRef.current.keys())) {
+      if (!liveIds.has(id)) helpTabGraphBaselinesRef.current.delete(id);
+    }
   }, [tabs]);
 
   const handleCloseTab = useCallback(
@@ -3161,11 +3355,7 @@ function FlowContent() {
     };
   }, [setIsSelectionHotKeyActive]);
 
-  const isActiveHelpTab =
-    activeTabId !== null &&
-    activeTabId !== undefined &&
-    helpTabIds.has(activeTabId);
-  const isGuidedHelpOpen = isActiveHelpTab && showHelpMenu;
+  const isGuidedHelpOpen = showHelpMenu;
   const showUndoRedoPanelUI = !isMobileReadOnly && showUndoRedoPanel;
   const showErrorPanelUI = !isMobileReadOnly && showErrorPanel;
   const showSearchPanelUI = !isMobileReadOnly && showSearchPanel;

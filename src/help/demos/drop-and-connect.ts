@@ -28,9 +28,9 @@ const INPUT_NODE_ID = "node_help_demo_input";
 const INPUT_TO_VARINT_EDGE = "edge_help_demo_input_to_varint";
 const VARINT_TO_TX_EDGE = "edge_help_demo_varint_to_tx";
 
-const TX_POSITION = { x: 865, y: 90 };
-const VARINT_POSITION = { x: 470, y: 225 };
-const INPUT_POSITION = { x: 80, y: 130 };
+const TX_POSITION = { x: 345, y: 90 };
+const VARINT_POSITION = { x: 190, y: 225 };
+const INPUT_POSITION = { x: 40, y: 130 };
 
 const VIEWPORT = { x: 0, y: 0, zoom: 1 };
 

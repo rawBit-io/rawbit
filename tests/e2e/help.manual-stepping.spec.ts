@@ -17,6 +17,14 @@ test.describe('Help demo manual stepping', () => {
     await page.unroute(CODE_ROUTE);
   });
 
+  test('opens help panel without creating a Help tab until a demo starts', async ({ page }) => {
+    await expect(page.getByRole('tab', { name: /Help/ })).toHaveCount(0);
+
+    await playDemo(page, 'Drop, type & connect');
+
+    await expect(page.getByRole('tab', { name: /Help/ })).toHaveCount(1);
+  });
+
   test('steps the drop-and-connect demo forward and backward deterministically', async ({ page }) => {
     test.setTimeout(60_000);
 
@@ -107,6 +115,20 @@ test.describe('Help demo manual stepping', () => {
     await expect(page.getByTestId('help-menu')).toHaveAttribute('aria-hidden', 'true');
     await expect(page.getByTestId('search-panel')).toBeVisible();
   });
+
+  test('preserves an edited Help tab by starting demos in a new Help tab', async ({ page }) => {
+    test.setTimeout(60_000);
+
+    await playDemo(page, 'Drop, type & connect');
+    await pauseDemo(page);
+    await dropSidebarNode(page, 'privkey', /PrivKey/i, { x: 520, y: 360 });
+
+    await expect(page.getByTestId('help-menu')).toHaveAttribute('aria-hidden', 'false');
+    await playDemo(page, 'Inspect node code');
+
+    await expect(page.getByRole('tab', { name: /Help/ })).toHaveCount(2);
+    await expect(page.locator('[data-id="node_help_demo_sha256"]')).toBeVisible();
+  });
 });
 
 async function playDemo(page: Page, title: string) {
@@ -157,6 +179,20 @@ function overlay(page: Page) {
 
 function controlButton(page: Page, label: string) {
   return overlay(page).locator(`button[aria-label="${label}"]`);
+}
+
+async function dropSidebarNode(
+  page: Page,
+  searchTerm: string,
+  matcher: RegExp,
+  position: { x: number; y: number },
+) {
+  const searchInput = page.getByPlaceholder('Search nodes...');
+  await searchInput.fill(searchTerm);
+  const tile = page.locator('[draggable="true"]').filter({ hasText: matcher }).first();
+  await expect(tile).toBeVisible({ timeout: 10_000 });
+  await tile.dragTo(page.locator('.react-flow__pane'), { targetPosition: position });
+  await expect(page.locator('.react-flow__node').filter({ hasText: matcher })).toBeVisible();
 }
 
 async function stubHelpDemoApis(page: Page) {
