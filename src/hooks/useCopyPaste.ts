@@ -7,7 +7,12 @@
 import { useCallback, useRef, useState } from "react";
 import { Edge, useReactFlow, XYPosition } from "@xyflow/react";
 import { log } from "@/lib/logConfig";
-import type { FlowNode, ScriptExecutionResult } from "@/types";
+import type {
+  FlowNode,
+  GroupBundlePortOffsets,
+  NodeData,
+  ScriptExecutionResult,
+} from "@/types";
 import { importWithFreshIds } from "@/lib/idUtils";
 import {
   getScriptSteps,
@@ -37,8 +42,18 @@ type CopiedNodeInfo = {
 type CopiedContent = {
   nodes: CopiedNodeInfo[];
   edges: Edge[];
+  incomingEdges: Edge[];
   minX: number;
   minY: number;
+};
+
+export type PasteNodesOptions = {
+  includeIncomingConnections?: boolean;
+};
+
+type UseCopyPasteOptions = {
+  getClipboardNodes?: () => FlowNode[];
+  getClipboardEdges?: () => Edge[];
 };
 
 const cloneScriptSteps = (
@@ -49,10 +64,163 @@ const cloneScriptSteps = (
   return JSON.parse(JSON.stringify(steps)) as ScriptExecutionResult;
 };
 
+const getRenderedSelectedNodeIds = (): Set<string> => {
+  const selectedIds = new Set<string>();
+  if (typeof document === "undefined") return selectedIds;
+
+  document
+    .querySelectorAll<HTMLElement>(".react-flow__node.selected[data-id]")
+    .forEach((element) => {
+      const id = element.getAttribute("data-id");
+      if (id) selectedIds.add(id);
+    });
+
+  return selectedIds;
+};
+
+const asFiniteNumber = (value: unknown): number | undefined => {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : undefined;
+};
+
+type GroupEndpointNodeInfo = {
+  id: string;
+  type?: string;
+  parentId?: string;
+};
+
+const nodeGroupEndpoint = (
+  nodeId: string,
+  nodeLookup: Map<string, GroupEndpointNodeInfo>
+): string | undefined => {
+  const node = nodeLookup.get(nodeId);
+  if (!node) return undefined;
+  if (node.type === "shadcnGroup") return node.id;
+  const parent = node.parentId ? nodeLookup.get(node.parentId) : undefined;
+  return parent?.type === "shadcnGroup" ? parent.id : undefined;
+};
+
+const buildCopiedGroupBundleIdMap = (
+  copiedLookup: Map<string, CopiedNodeInfo>,
+  copiedEdges: Edge[],
+  idMap: Map<string, string>,
+  externalLookup: Map<string, GroupEndpointNodeInfo> = new Map()
+): Map<string, string> => {
+  const bundleIdMap = new Map<string, string>();
+
+  copiedEdges.forEach((edge) => {
+    const sourceGroupId =
+      nodeGroupEndpoint(edge.source, copiedLookup) ??
+      nodeGroupEndpoint(edge.source, externalLookup);
+    const targetGroupId =
+      nodeGroupEndpoint(edge.target, copiedLookup) ??
+      nodeGroupEndpoint(edge.target, externalLookup);
+    if (!sourceGroupId || !targetGroupId || sourceGroupId === targetGroupId) {
+      return;
+    }
+
+    if (!idMap.has(sourceGroupId) && !idMap.has(targetGroupId)) return;
+
+    const nextSourceGroupId = idMap.get(sourceGroupId) ?? sourceGroupId;
+    const nextTargetGroupId = idMap.get(targetGroupId) ?? targetGroupId;
+    if (!nextSourceGroupId || !nextTargetGroupId) return;
+
+    bundleIdMap.set(
+      `${sourceGroupId}->${targetGroupId}`,
+      `${nextSourceGroupId}->${nextTargetGroupId}`
+    );
+  });
+
+  return bundleIdMap;
+};
+
+const remapBundleOffsetRecord = (
+  record: Record<string, number> | undefined,
+  bundleIdMap: Map<string, string>
+): Record<string, number> | undefined => {
+  if (!record) return undefined;
+  const next: Record<string, number> = {};
+
+  Object.entries(record).forEach(([bundleId, value]) => {
+    const nextBundleId = bundleIdMap.get(bundleId);
+    const numeric = asFiniteNumber(value);
+    if (!nextBundleId || numeric === undefined) return;
+    next[nextBundleId] = numeric;
+  });
+
+  return Object.keys(next).length ? next : undefined;
+};
+
+const remapGroupBundlePortOffsets = (
+  offsets: GroupBundlePortOffsets | undefined,
+  bundleIdMap: Map<string, string>
+): GroupBundlePortOffsets | undefined => {
+  if (!offsets) return undefined;
+
+  const next: GroupBundlePortOffsets = {};
+  const source = asFiniteNumber(offsets.source);
+  const target = asFiniteNumber(offsets.target);
+  const sourceByBundle = remapBundleOffsetRecord(
+    offsets.sourceByBundle,
+    bundleIdMap
+  );
+  const targetByBundle = remapBundleOffsetRecord(
+    offsets.targetByBundle,
+    bundleIdMap
+  );
+
+  if (source !== undefined) next.source = source;
+  if (target !== undefined) next.target = target;
+  if (sourceByBundle) next.sourceByBundle = sourceByBundle;
+  if (targetByBundle) next.targetByBundle = targetByBundle;
+
+  return Object.keys(next).length ? next : undefined;
+};
+
+const remapGroupBundlePortOffsetsInNodes = (
+  nodes: FlowNode[],
+  copiedLookup: Map<string, CopiedNodeInfo>,
+  copiedEdges: Edge[],
+  idMap: Map<string, string>,
+  externalLookup?: Map<string, GroupEndpointNodeInfo>
+): FlowNode[] => {
+  const bundleIdMap = buildCopiedGroupBundleIdMap(
+    copiedLookup,
+    copiedEdges,
+    idMap,
+    externalLookup
+  );
+
+  return nodes.map((node) => {
+    if (node.type !== "shadcnGroup") return node;
+    const data = node.data as NodeData | undefined;
+    if (!data?.groupBundlePortOffsets) return node;
+
+    const nextOffsets = remapGroupBundlePortOffsets(
+      data.groupBundlePortOffsets,
+      bundleIdMap
+    );
+    const nextData = { ...data };
+    if (nextOffsets) {
+      nextData.groupBundlePortOffsets = nextOffsets;
+    } else {
+      delete nextData.groupBundlePortOffsets;
+    }
+
+    return {
+      ...node,
+      data: nextData,
+    };
+  });
+};
+
 /* ----------------------------------------------------------------
    Hook
 ------------------------------------------------------------------ */
-export function useCopyPaste() {
+export function useCopyPaste({
+  getClipboardNodes,
+  getClipboardEdges,
+}: UseCopyPasteOptions = {}) {
   const [copiedContent, setCopiedContent] = useState<CopiedContent | null>(
     null
   );
@@ -105,8 +273,27 @@ export function useCopyPaste() {
 
   /* ---------- COPY ----------------------------------------------------- */
   const copyNodes = useCallback(() => {
-    const allNodes = stripGroupBundlePortNodes(getNodes() as FlowNode[]);
-    const allEdges = sanitizeGroupBundleRenderEdgesForState(getEdges() as Edge[]);
+    const flowNodes = stripGroupBundlePortNodes(getNodes() as FlowNode[]);
+    const allNodes = stripGroupBundlePortNodes(
+      (getClipboardNodes?.() ?? getNodes()) as FlowNode[]
+    ).map((node) => ({ ...node }));
+    const allEdges = sanitizeGroupBundleRenderEdgesForState(
+      (getClipboardEdges?.() ?? getEdges()) as Edge[]
+    );
+
+    const selectedNodeIds = new Set<string>();
+    allNodes.forEach((node) => {
+      if (node.selected) selectedNodeIds.add(node.id);
+    });
+    flowNodes.forEach((node) => {
+      if (node.selected) selectedNodeIds.add(node.id);
+    });
+    getRenderedSelectedNodeIds().forEach((id) => selectedNodeIds.add(id));
+
+    allNodes.forEach((node) => {
+      if (selectedNodeIds.has(node.id)) node.selected = true;
+    });
+
     const selected = allNodes.filter((n) => n.selected);
     if (!selected.length) {
       log("copyPaste", "No nodes selected to copy");
@@ -119,9 +306,12 @@ export function useCopyPaste() {
     });
     const finalNodes = Array.from(set);
 
-    const idSet = new Set(finalNodes.map((n) => n.id));
+    const copiedNodeIdSet = new Set(finalNodes.map((n) => n.id));
     const relevantEdges = allEdges.filter(
-      (e) => idSet.has(e.source) && idSet.has(e.target)
+      (e) => copiedNodeIdSet.has(e.source) && copiedNodeIdSet.has(e.target)
+    );
+    const incomingEdges = allEdges.filter(
+      (e) => !copiedNodeIdSet.has(e.source) && copiedNodeIdSet.has(e.target)
     );
 
     const lookup = new Map(allNodes.map((n) => [n.id, n]));
@@ -147,12 +337,26 @@ export function useCopyPaste() {
       };
     });
 
-    setCopiedContent({ nodes: nodeInfos, edges: relevantEdges, minX, minY });
+    setCopiedContent({
+      nodes: nodeInfos,
+      edges: relevantEdges,
+      incomingEdges,
+      minX,
+      minY,
+    });
     log("copyPaste", "Copied selection", {
       nodes: nodeInfos.length,
       edges: relevantEdges.length,
+      incomingEdges: incomingEdges.length,
     });
-  }, [getNodes, getEdges, addChildrenRecursively, getAbsolutePosition]);
+  }, [
+    getClipboardNodes,
+    getClipboardEdges,
+    getNodes,
+    getEdges,
+    addChildrenRecursively,
+    getAbsolutePosition,
+  ]);
 
   /* ---------- optional helper – paste to deterministic TL corner -------- */
   const getTopLeftPosition = useCallback(
@@ -164,19 +368,41 @@ export function useCopyPaste() {
   /* ---------- PASTE ---------------------------------------------------- */
 
   const pasteNodes = useCallback(
-    (pos?: XYPosition) => {
+    (pos?: XYPosition, options: PasteNodesOptions = {}) => {
       if (!copiedContent) {
         log("copyPaste", "Nothing in clipboard");
         return;
       }
 
-      const { nodes: copied, edges: copiedEdges, minX, minY } = copiedContent;
+      const {
+        nodes: copied,
+        edges: copiedEdges,
+        incomingEdges,
+        minX,
+        minY,
+      } = copiedContent;
+      const includeIncomingConnections =
+        options.includeIncomingConnections === true;
+      const edgesToImport = includeIncomingConnections
+        ? [...copiedEdges, ...incomingEdges]
+        : copiedEdges;
 
       // Base cursor position (or last mouse move) for top-level placement
       const base = pos ?? mousePosRef.current;
 
       // Quick lookup: was a node's parent included in the copied set?
       const copiedLookup = new Map(copied.map((c) => [c.id, c]));
+      const currentNodes = (getClipboardNodes?.() ?? getNodes()) as FlowNode[];
+      const currentEdges = sanitizeGroupBundleRenderEdgesForState(
+        (getClipboardEdges?.() ?? getEdges()) as Edge[]
+      );
+      const currentNodeIdSet = new Set(currentNodes.map((node) => node.id));
+      const currentNodeLookup = new Map<string, GroupEndpointNodeInfo>(
+        currentNodes.map((node) => [
+          node.id,
+          { id: node.id, type: node.type, parentId: node.parentId },
+        ])
+      );
 
       // 1) Build "raw" nodes in their final positions but with ORIGINAL IDs.
       //    The utility will remap ids/parentId and edges in one pass.
@@ -216,19 +442,35 @@ export function useCopyPaste() {
         FlowNode,
         Edge
       >({
-        currentNodes: getNodes() as FlowNode[],
-        currentEdges: getEdges() as Edge[],
+        currentNodes,
+        currentEdges,
         importNodes: rawNodes,
-        importEdges: copiedEdges as Edge[],
+        importEdges: edgesToImport as Edge[],
         dedupeEdges: true,
         renameMode: "collision",
       });
-
-      // Defensive: ensure we only keep edges that connect within the pasted set.
-      const newNodeIdSet = new Set(newNodes.map((n) => n.id));
-      const filteredEdges = newEdges.filter(
-        (e) => newNodeIdSet.has(e.source) && newNodeIdSet.has(e.target)
+      const remappedNewNodes = remapGroupBundlePortOffsetsInNodes(
+        newNodes,
+        copiedLookup,
+        edgesToImport,
+        idMap,
+        currentNodeLookup
       );
+
+      // Defensive: keep internal pasted edges, plus incoming edges only when the
+      // user explicitly chooses that paste mode and the source still exists.
+      const newNodeIdSet = new Set(remappedNewNodes.map((n) => n.id));
+      const filteredEdges = newEdges.filter((edge) => {
+        const sourceIsPasted = newNodeIdSet.has(edge.source);
+        const targetIsPasted = newNodeIdSet.has(edge.target);
+        if (sourceIsPasted && targetIsPasted) return true;
+        return (
+          includeIncomingConnections &&
+          !sourceIsPasted &&
+          targetIsPasted &&
+          currentNodeIdSet.has(edge.source)
+        );
+      });
 
       // Copy cached script steps to freshly minted node ids
       copied.forEach((info) => {
@@ -240,8 +482,8 @@ export function useCopyPaste() {
 
       // 3) Ensure groups come first (so children can adopt immediately)
       const ordered = [
-        ...newNodes.filter((n) => n.type === "shadcnGroup"),
-        ...newNodes.filter((n) => n.type !== "shadcnGroup"),
+        ...remappedNewNodes.filter((n) => n.type === "shadcnGroup"),
+        ...remappedNewNodes.filter((n) => n.type !== "shadcnGroup"),
       ];
 
       // 4) Deselect existing, then append
@@ -256,7 +498,15 @@ export function useCopyPaste() {
         edges: filteredEdges.length,
       });
     },
-    [copiedContent, getEdges, getNodes, setNodes, setEdges]
+    [
+      copiedContent,
+      getClipboardNodes,
+      getClipboardEdges,
+      getEdges,
+      getNodes,
+      setNodes,
+      setEdges,
+    ]
   );
 
   return {

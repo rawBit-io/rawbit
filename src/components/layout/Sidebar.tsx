@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from "react";
+import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import {
   Edit,
   FileCode,
@@ -33,6 +33,10 @@ export interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
   introDropFlowId?: string;
+  /** Highlight + reveal a specific sidebar node card by label. */
+  introDropNodeLabel?: string;
+  /** Demo-driven override of the search query (undefined releases control). */
+  searchOverride?: string;
 }
 
 function setSidebarDragPreview(dataTransfer: DataTransfer, sourceEl: Element) {
@@ -247,6 +251,8 @@ function getSidebarRevealId(...parts: string[]) {
 export function Sidebar({
   isOpen,
   introDropFlowId,
+  introDropNodeLabel,
+  searchOverride,
 }: SidebarProps) {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const [openCategories, setOpenCategories] = useState<string[]>([
@@ -309,6 +315,12 @@ export function Sidebar({
 
   const totalSearchResults = filteredNodes.length + filteredFlows.length;
 
+  // Demo-driven: force the search box value when searchOverride is defined.
+  useEffect(() => {
+    if (searchOverride === undefined) return;
+    setSearchQuery(searchOverride);
+  }, [searchOverride]);
+
   const revealSidebarSection = useCallback((revealId: string) => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -358,6 +370,23 @@ export function Sidebar({
       window.setTimeout(reveal, 180);
     });
   }, []);
+
+  // Demo-driven: when introDropNodeLabel is set, find its category, open it,
+  // and scroll the matching card into view.
+  useEffect(() => {
+    if (!introDropNodeLabel) return;
+    const node = allSidebarNodes.find(
+      (item) => item.label === introDropNodeLabel,
+    );
+    if (!node) return;
+    const category = categories.find((item) => item.nodeFilter(node));
+    if (!category) return;
+
+    setOpenCategories((prev) =>
+      prev.includes(category.id) ? prev : [...prev, category.id],
+    );
+    revealSidebarSection(getSidebarRevealId("category", category.id));
+  }, [introDropNodeLabel, revealSidebarSection]);
 
   const groupedFlows = useMemo(() => {
     const groups = new Map<string, typeof customFlows>();
@@ -439,6 +468,8 @@ export function Sidebar({
       onDragStart={(e) => onDragStart(e, node)}
       className={cn(
         "flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors",
+        introDropNodeLabel === node.label &&
+          "rawbit-intro-source-pulse border-primary/60 bg-primary/5",
         className,
       )}
     >
@@ -459,7 +490,11 @@ export function Sidebar({
       data-node-template-label={node.label}
       draggable
       onDragStart={(e) => onDragStart(e, node)}
-      className="flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors"
+      className={cn(
+        "flex cursor-grab items-center rounded-md border bg-card p-3 hover:bg-accent transition-colors",
+        introDropNodeLabel === node.label &&
+          "rawbit-intro-source-pulse border-primary/60 bg-primary/5",
+      )}
     >
       <div className="flex flex-col">
         <span className="text-sm font-medium">{node.label}</span>

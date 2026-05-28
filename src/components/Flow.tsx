@@ -24,10 +24,20 @@ import TextInfoNode from "@/components/nodes/TextInfoNode";
 import OpCodeNode from "@/components/nodes/OpCodeNode";
 import { GroupBundlePortNode } from "@/components/nodes/GroupBundlePortNode";
 
-import { TopBar } from "@/components/layout/TopBar";
+import { TopBar, type PasteMode } from "@/components/layout/TopBar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { ColorPalette } from "@/components/ui/ColorPalette";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { FlowCanvas } from "@/components/FlowCanvas";
 import { FlowDialogLayer } from "@/components/FlowDialogLayer";
 import { FlowPanels } from "@/components/FlowPanels";
@@ -36,7 +46,9 @@ import {
   IntroDropOverlay,
   type IntroDropOverlayState,
 } from "@/components/IntroDropOverlay";
-import { Sun, Moon, Github } from "lucide-react";
+import { HelpMenu } from "@/help/HelpMenu";
+import type { DemoStepContext, HelpDemo } from "@/help/types";
+import { ClipboardPaste, Sun, Moon, Github } from "lucide-react";
 
 import { useNodeOperations } from "@/hooks/useNodeOperations";
 import { useFileOperations } from "@/hooks/useFileOperations";
@@ -102,6 +114,23 @@ const COLORABLE_NODE_TYPES = new Set([
   "trezorAction",
 ]);
 const INFO_NODE_TYPE = "shadcnTextInfo";
+
+function readRawBitShareId(value: string, baseOrigin: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  if (/^[a-zA-Z0-9_-]+$/.test(trimmed)) {
+    return trimmed;
+  }
+
+  try {
+    const url = new URL(trimmed, baseOrigin);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    return url.searchParams.get("s") || url.searchParams.get("share");
+  } catch {
+    return null;
+  }
+}
 
 const nodeTypes = {
   calculation: CalculationNode,
@@ -414,6 +443,65 @@ function getRectCursorCenter(rect: {
   };
 }
 
+function stableSerializeForHelp(value: unknown): string {
+  if (value === null) return "null";
+  const type = typeof value;
+  if (type === "number" || type === "boolean" || type === "string") {
+    return JSON.stringify(value);
+  }
+  if (type === "undefined" || type === "function" || type === "symbol") {
+    return "null";
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map(stableSerializeForHelp).join(",")}]`;
+  }
+  if (type === "object") {
+    const record = value as Record<string, unknown>;
+    const entries = Object.keys(record)
+      .sort()
+      .map((key) => {
+        const item = record[key];
+        if (typeof item === "undefined" || typeof item === "function") {
+          return null;
+        }
+        return `${JSON.stringify(key)}:${stableSerializeForHelp(item)}`;
+      })
+      .filter((entry): entry is string => entry !== null);
+    return `{${entries.join(",")}}`;
+  }
+  return JSON.stringify(String(value));
+}
+
+function getHelpGraphSignature(nodes: FlowNode[], edges: Edge[]): string {
+  const signedNodes = nodes
+    .map((node) => {
+      const rest = { ...node } as FlowNode & {
+        selected?: boolean;
+        dragging?: boolean;
+        positionAbsolute?: unknown;
+      };
+      delete rest.selected;
+      delete rest.dragging;
+      delete rest.positionAbsolute;
+      if (rest.data) {
+        rest.data = { ...rest.data };
+        delete rest.data.searchMark;
+      }
+      return rest;
+    })
+    .sort((a, b) => a.id.localeCompare(b.id));
+  const signedEdges = edges
+    .map((edge) => {
+      const rest = { ...edge };
+      delete rest.selected;
+      return rest;
+    })
+    .sort((a, b) => a.id.localeCompare(b.id));
+  return stableSerializeForHelp({ nodes: signedNodes, edges: signedEdges });
+}
+
+const EMPTY_HELP_GRAPH_SIGNATURE = getHelpGraphSignature([], []);
+
 function FlowContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showUndoRedoPanel, setShowUndoRedoPanel] = useState(false);
@@ -426,6 +514,52 @@ function FlowContent() {
   const [isIntroDropAnimating, setIsIntroDropAnimating] = useState(false);
   const [introDropState, setIntroDropState] =
     useState<IntroDropOverlayState | null>(null);
+  // 📖 help system: tabs marked as help, demo-driven sidebar overrides, the
+  // id of the currently running demo, and tracked timer ids for cancellation.
+  const [helpTabIds, setHelpTabIds] = useState<Set<string>>(() => new Set());
+  const helpTabIdsRef = useRef<Set<string>>(new Set());
+  const [editedHelpTabIds, setEditedHelpTabIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const editedHelpTabIdsRef = useRef<Set<string>>(new Set());
+  helpTabIdsRef.current = helpTabIds;
+  editedHelpTabIdsRef.current = editedHelpTabIds;
+  const helpTabGraphBaselinesRef = useRef<Map<string, string>>(new Map());
+  const helpDemoGraphNodesRef = useRef<FlowNode[]>([]);
+  const helpDemoGraphEdgesRef = useRef<Edge[]>([]);
+  const [showHelpMenu, setShowHelpMenu] = useState(false);
+  const [helpSidebarSearch, setHelpSidebarSearch] = useState<
+    string | undefined
+  >(undefined);
+  const [helpSidebarHighlight, setHelpSidebarHighlight] = useState<
+    string | undefined
+  >(undefined);
+  const [helpSidebarFlowHighlight, setHelpSidebarFlowHighlight] = useState<
+    string | undefined
+  >(undefined);
+  const [runningHelpDemoId, setRunningHelpDemoId] = useState<string | null>(
+    null,
+  );
+  const [currentHelpDemo, setCurrentHelpDemo] = useState<HelpDemo | null>(null);
+  const helpDemoTimersRef = useRef<number[]>([]);
+  const currentHelpDemoIdRef = useRef<string | null>(null);
+  const currentHelpStepIdxRef = useRef<number | null>(null);
+  const currentHelpStepCompleteRef = useRef(false);
+  // Generation counter cancels stale async fast-forward loops when the user
+  // clicks a new step (or stops the demo) mid fast-forward.
+  const helpDemoPlayGenRef = useRef(0);
+  // "auto": auto-advance through the steps. "manual": play one step and stop.
+  // Set to "auto" by the side-panel Play button + the caption Restart button;
+  // flipped to "manual" by Pause and stays there until auto is re-entered.
+  const helpDemoModeRef = useRef<"auto" | "manual">("auto");
+  // Refs so caption-card buttons (created once per step) always call the
+  // latest stop/play impls even after React rerenders recreate the callbacks.
+  const stopHelpDemoRef = useRef<(opts?: { clearOverlay?: boolean }) => void>(
+    () => {},
+  );
+  const playHelpStepRef = useRef<
+    (demo: HelpDemo, stepIdx: number, opts?: { forceRebuild?: boolean }) => void
+  >(() => {});
 
   const [calcStateByTab, setCalcStateByTab] = useState<
     Record<string, TabCalculationState>
@@ -434,6 +568,11 @@ function FlowContent() {
   const [showMiniMap, setShowMiniMap] = useState(false);
   const [isSelectionLocked, setIsSelectionLocked] = useState(false);
   const [isSelectionHotKeyActive, setIsSelectionHotKeyActive] = useState(false);
+  const [pastePlacementPreview, setPastePlacementPreview] = useState<{
+    x: number;
+    y: number;
+    mode: PasteMode;
+  } | null>(null);
   const [isMobileBlocked, setIsMobileBlocked] = useState(() =>
     getCurrentMobileBlockState()
   );
@@ -444,6 +583,7 @@ function FlowContent() {
   const showMobileIntroPreview =
     isMobileReadOnly && mobileCanvasMode === "intro";
   const isSelectionMode = isSelectionLocked || isSelectionHotKeyActive;
+  const isPastePlacementActive = pastePlacementPreview !== null;
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const activeTabIdRef = useRef<string | null>(null);
   const loadingUndoRef = useRef(false);
@@ -599,17 +739,8 @@ function FlowContent() {
   }, []);
 
   const RHS_PANEL_W = 256; // default right panels (=16rem)
+  const HELP_PANEL_W = 288; // HelpMenu w-72 (=18rem)
   const MM_GAP = 44.8; // 2.8 rem  (space beside controls)
-
-  const showUndoRedoPanelUI = isMobileReadOnly ? false : showUndoRedoPanel;
-  const showErrorPanelUI = isMobileReadOnly ? false : showErrorPanel;
-  const showSearchPanelUI = isMobileReadOnly ? false : showSearchPanel;
-  let rightPanelWidth = 0;
-  if (showUndoRedoPanelUI || showErrorPanelUI || showSearchPanelUI) {
-    rightPanelWidth = RHS_PANEL_W;
-  }
-  const rightPanelOpen = rightPanelWidth > 0;
-  const miniMapOffset = rightPanelOpen ? rightPanelWidth + MM_GAP : MM_GAP;
 
   const flowInstanceRef = useRef<ReactFlowInstance | null>(null);
   const [hasFitOnInitialLoad, setHasFitOnInitialLoad] = useState(false);
@@ -639,6 +770,50 @@ function FlowContent() {
   const edgesRef = useRef(edges);
   nodesRef.current = nodes;
   edgesRef.current = edges;
+  const noteHelpTabGraphChange = useCallback(
+    (nextNodes: FlowNode[], nextEdges: Edge[]) => {
+      const tabId = activeTabIdRef.current;
+      if (!tabId || !helpTabIdsRef.current.has(tabId)) return;
+
+      const signature = getHelpGraphSignature(nextNodes, nextEdges);
+      const baseline =
+        helpTabGraphBaselinesRef.current.get(tabId) ??
+        EMPTY_HELP_GRAPH_SIGNATURE;
+      const isBackAtBaseline = signature === baseline;
+
+      setEditedHelpTabIds((prev) => {
+        if (isBackAtBaseline) {
+          if (!prev.has(tabId)) return prev;
+          const next = new Set(prev);
+          next.delete(tabId);
+          editedHelpTabIdsRef.current = next;
+          return next;
+        }
+        if (prev.has(tabId)) return prev;
+        const next = new Set(prev);
+        next.add(tabId);
+        editedHelpTabIdsRef.current = next;
+        return next;
+      });
+
+      if (!isBackAtBaseline && currentHelpDemoIdRef.current !== null) {
+        stopHelpDemoRef.current({ clearOverlay: true });
+      }
+    },
+    [],
+  );
+  const noteHelpDemoGraphWrite = useCallback(
+    (nextNodes: FlowNode[], nextEdges: Edge[]) => {
+      const tabId = activeTabIdRef.current;
+      if (!tabId || !helpTabIdsRef.current.has(tabId)) return;
+      if (editedHelpTabIdsRef.current.has(tabId)) return;
+      helpTabGraphBaselinesRef.current.set(
+        tabId,
+        getHelpGraphSignature(nextNodes, nextEdges),
+      );
+    },
+    [],
+  );
   const [showInfoNodes, setShowInfoNodes] = useState(true);
   const infoNodeIds = useMemo(
     () =>
@@ -670,7 +845,10 @@ function FlowContent() {
     handleMouseMove,
     getTopLeftPosition,
     hasCopiedNodes,
-  } = useCopyPaste();
+  } = useCopyPaste({
+    getClipboardNodes: getSavedNodes,
+    getClipboardEdges: getSavedEdges,
+  });
   const {
     pushState,
     history,
@@ -688,6 +866,7 @@ function FlowContent() {
     getEdges,
     setNodes: rfSetNodes,
     setEdges: rfSetEdges,
+    screenToFlowPosition,
   } = useReactFlow<FlowNode>();
   const storeApi = useStoreApi<FlowNode>();
   const updateNodeInternals = useUpdateNodeInternals();
@@ -757,10 +936,13 @@ function FlowContent() {
             ? (updater as (prev: FlowNode[]) => FlowNode[])(prev)
             : updater;
         const next = stripTransientInfoNodeVisibility(rawNext);
-        if (next !== prev) incRev();
+        if (next !== prev) {
+          incRev();
+          noteHelpTabGraphChange(next, edgesRef.current);
+        }
         return next;
       }),
-    [baseSetNodes, incRev]
+    [baseSetNodes, incRev, noteHelpTabGraphChange]
   );
 
   const setEdges: typeof baseSetEdges = useCallback(
@@ -778,10 +960,13 @@ function FlowContent() {
               .map((node) => node.id)
           )
         );
-        if (next !== prev) incRev();
+        if (next !== prev) {
+          incRev();
+          noteHelpTabGraphChange(nodesRef.current, next);
+        }
         return next;
       }),
-    [baseSetEdges, incRev]
+    [baseSetEdges, incRev, noteHelpTabGraphChange]
   );
 
   useEffect(() => {
@@ -1627,6 +1812,11 @@ function FlowContent() {
     getNodes: getSavedNodes,
     getEdges: getSavedEdges,
   });
+  const [loadLinkDialogOpen, setLoadLinkDialogOpen] = useState(false);
+  const [loadLinkDraft, setLoadLinkDraft] = useState("");
+  const [loadLinkError, setLoadLinkError] = useState("");
+  const loadLinkInputRef = useRef<HTMLInputElement | null>(null);
+  const forcedSharedImportTabRef = useRef<string | null>(null);
 
   const isNodeColorable = useCallback(
     (node: FlowNode) => COLORABLE_NODE_TYPES.has(node.type as string),
@@ -1787,6 +1977,51 @@ function FlowContent() {
     },
   });
 
+  const handleLoadLink = useCallback(() => {
+    setLoadLinkDraft("");
+    setLoadLinkError("");
+    setLoadLinkDialogOpen(true);
+  }, []);
+
+  useEffect(() => {
+    if (!loadLinkDialogOpen) return;
+    requestAnimationFrame(() => loadLinkInputRef.current?.focus());
+  }, [loadLinkDialogOpen]);
+
+  const handleLoadLinkDialogOpenChange = useCallback((open: boolean) => {
+    setLoadLinkDialogOpen(open);
+    if (!open) {
+      setLoadLinkError("");
+    }
+  }, []);
+
+  const handleLoadLinkSubmit = useCallback(
+    (event?: React.FormEvent<HTMLFormElement>) => {
+      event?.preventDefault();
+      if (typeof window === "undefined") return;
+
+      const sharedId = readRawBitShareId(loadLinkDraft, window.location.origin);
+      if (!sharedId) {
+        setLoadLinkError("Paste a rawBit app link or share id.");
+        return;
+      }
+
+      forcedSharedImportTabRef.current = sharedId;
+
+      const url = new URL(window.location.href);
+      url.searchParams.delete("share");
+      url.searchParams.set("s", sharedId);
+      const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+      window.history.pushState(window.history.state, document.title, nextUrl);
+      window.dispatchEvent(new PopStateEvent("popstate"));
+
+      setLoadLinkDialogOpen(false);
+      setLoadLinkDraft("");
+      setLoadLinkError("");
+    },
+    [loadLinkDraft]
+  );
+
   const centerOnNode = useCallback(
     (nodeId: string) => {
       const instance = flowInstanceRef.current;
@@ -1860,6 +2095,549 @@ function FlowContent() {
   const handleAddTab = useCallback(() => {
     addTab();
   }, [addTab]);
+
+  /* -------------------------------------------------------------------- */
+  /*  Help system — open a help tab, play concept demos, stop demos.      */
+  /* -------------------------------------------------------------------- */
+
+  const stopHelpDemo = useCallback(
+    (opts?: { clearOverlay?: boolean }) => {
+      if (typeof window !== "undefined") {
+        for (const id of helpDemoTimersRef.current) {
+          window.clearTimeout(id);
+        }
+      }
+      helpDemoTimersRef.current = [];
+      // Bump the generation so any in-flight async fast-forward bails out.
+      helpDemoPlayGenRef.current += 1;
+      // Pause = enter manual mode. Subsequent caption-button navigation will
+      // play one step at a time instead of auto-advancing.
+      helpDemoModeRef.current = "manual";
+      setRunningHelpDemoId(null);
+      setHelpSidebarSearch(undefined);
+      setHelpSidebarHighlight(undefined);
+      setHelpSidebarFlowHighlight(undefined);
+      if (opts?.clearOverlay) {
+        setSearchQuery("");
+        setShowSearchPanel(false);
+        currentHelpDemoIdRef.current = null;
+        currentHelpStepIdxRef.current = null;
+        currentHelpStepCompleteRef.current = false;
+        setIntroDropState(null);
+        setCurrentHelpDemo(null);
+        return;
+      }
+      // Keep the caption + controls card visible so the user can Play / Prev /
+      // Next / Replay.
+      setIntroDropState((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          cursor: null,
+          ghost: null,
+          pressing: false,
+          connection: null,
+          controls: prev.controls
+            ? { ...prev.controls, isPlaying: false }
+            : prev.controls,
+        };
+      });
+    },
+    [],
+  );
+
+  const closeGuidedHelp = useCallback(() => {
+    setShowHelpMenu(false);
+    if (currentHelpDemo !== null || runningHelpDemoId !== null) {
+      stopHelpDemo({ clearOverlay: true });
+    }
+  }, [currentHelpDemo, runningHelpDemoId, stopHelpDemo]);
+
+  const openHelpTab = useCallback(() => {
+    if (showHelpMenu) {
+      closeGuidedHelp();
+      return;
+    }
+
+    setShowUndoRedoPanel(false);
+    setShowErrorPanel(false);
+    setShowSearchPanel(false);
+    setShowHelpMenu(true);
+  }, [closeGuidedHelp, showHelpMenu]);
+
+  const markHelpTabForDemos = useCallback((tabId: string) => {
+    setHelpTabIds((prev) => {
+      if (prev.has(tabId)) return prev;
+      const next = new Set(prev);
+      next.add(tabId);
+      helpTabIdsRef.current = next;
+      return next;
+    });
+  }, []);
+
+  const markHelpTabClean = useCallback(
+    (tabId: string, nextNodes: FlowNode[] = [], nextEdges: Edge[] = []) => {
+      helpTabGraphBaselinesRef.current.set(
+        tabId,
+        getHelpGraphSignature(nextNodes, nextEdges),
+      );
+      setEditedHelpTabIds((prev) => {
+        if (!prev.has(tabId)) return prev;
+        const next = new Set(prev);
+        next.delete(tabId);
+        editedHelpTabIdsRef.current = next;
+        return next;
+      });
+    },
+    [],
+  );
+
+  const createDemoHelpTab = useCallback(() => {
+    const newId = addTab();
+    renameTab(newId, "Help");
+    setTabTooltip(newId, "Help — concept demos on canvas");
+    markHelpTabForDemos(newId);
+    markHelpTabClean(newId);
+    activeTabIdRef.current = newId;
+    return newId;
+  }, [addTab, markHelpTabClean, markHelpTabForDemos, renameTab, setTabTooltip]);
+
+  const ensureDemoHelpTab = useCallback(() => {
+    const activeId = activeTabIdRef.current ?? activeTabId;
+    const activeHelpIsReusable =
+      Boolean(activeId) &&
+      helpTabIdsRef.current.has(activeId) &&
+      !editedHelpTabIdsRef.current.has(activeId);
+
+    if (activeId && activeHelpIsReusable) {
+      return activeId;
+    }
+
+    const reusable = tabs.find(
+      (tab) =>
+        helpTabIdsRef.current.has(tab.id) &&
+        !editedHelpTabIdsRef.current.has(tab.id),
+    );
+    if (reusable) {
+      selectTab(reusable.id);
+      activeTabIdRef.current = reusable.id;
+      return reusable.id;
+    }
+
+    return createDemoHelpTab();
+  }, [activeTabId, createDemoHelpTab, selectTab, tabs]);
+
+  const setShowUndoRedoPanelFromTopBar = useCallback(
+    (open: boolean) => {
+      if (open) closeGuidedHelp();
+      setShowUndoRedoPanel(open);
+    },
+    [closeGuidedHelp],
+  );
+
+  const setShowErrorPanelFromTopBar = useCallback(
+    (open: boolean) => {
+      if (open) closeGuidedHelp();
+      setShowErrorPanel(open);
+    },
+    [closeGuidedHelp],
+  );
+
+  const flowToScreen = useCallback((point: { x: number; y: number }) => {
+    const instance = flowInstanceRef.current;
+    if (instance && typeof instance.flowToScreenPosition === "function") {
+      return instance.flowToScreenPosition(point);
+    }
+    const wrapperRect = reactFlowWrapper.current?.getBoundingClientRect();
+    return {
+      x: (wrapperRect?.left ?? 256) + point.x,
+      y: (wrapperRect?.top ?? 96) + point.y,
+    };
+  }, []);
+
+  const buildHelpControls = useCallback(
+    (
+      demo: HelpDemo,
+      stepIdx: number,
+      isPlaying: boolean,
+    ): NonNullable<IntroDropOverlayState["controls"]> => {
+      const lastIdx = demo.steps.length - 1;
+      return {
+        onPause: () => stopHelpDemoRef.current(),
+        // The main Play button resumes auto-play from the current step.
+        onPlay: () => {
+          helpDemoModeRef.current = "auto";
+          playHelpStepRef.current(demo, stepIdx);
+        },
+        // Step navigation is explicit/manual: play the chosen step and stop.
+        onPrev: () => {
+          helpDemoModeRef.current = "manual";
+          playHelpStepRef.current(demo, Math.max(0, stepIdx - 1), {
+            forceRebuild: true,
+          });
+        },
+        onNext: () => {
+          helpDemoModeRef.current = "manual";
+          playHelpStepRef.current(demo, Math.min(lastIdx, stepIdx + 1));
+        },
+        // Restart explicitly re-enters auto-play so the whole demo runs again.
+        onReplay: () => {
+          helpDemoModeRef.current = "auto";
+          playHelpStepRef.current(demo, 0, { forceRebuild: true });
+        },
+        isPlaying,
+        canPrev: stepIdx > 0,
+        canNext: stepIdx < lastIdx,
+        stepLabel: `${stepIdx + 1} / ${demo.steps.length}`,
+      };
+    },
+    [],
+  );
+
+  const buildStepContext = useCallback(
+    (
+      demo: HelpDemo,
+      stepIdx: number,
+      mode: "play" | "instant",
+      generation: number,
+    ): DemoStepContext => {
+      const baseCaption = demo.steps[stepIdx]?.caption ?? null;
+      let activeCaption: IntroDropOverlayState["caption"] = baseCaption;
+      const controls = buildHelpControls(demo, stepIdx, true);
+      const isActive = () => generation === helpDemoPlayGenRef.current;
+
+      const setOverlayPlay: DemoStepContext["setOverlay"] = (state) => {
+        if (!isActive()) return;
+        if (state === null) {
+          activeCaption = null;
+          setIntroDropState((prev) => (isActive() ? null : prev));
+          return;
+        }
+        if ("caption" in state && state.caption !== undefined) {
+          activeCaption = state.caption ?? null;
+        }
+        const nextState = { ...state, caption: activeCaption, controls };
+        setIntroDropState((prev) => (isActive() ? nextState : prev));
+      };
+
+      const noopOverlay: DemoStepContext["setOverlay"] = () => {};
+
+      const playScheduler: DemoStepContext["scheduleStep"] = (delayMs, fn) => {
+        if (typeof window === "undefined") {
+          if (isActive()) fn();
+          return;
+        }
+        const id = window.setTimeout(() => {
+          helpDemoTimersRef.current = helpDemoTimersRef.current.filter(
+            (existing) => existing !== id,
+          );
+          if (!isActive()) return;
+          fn();
+        }, delayMs);
+        helpDemoTimersRef.current.push(id);
+      };
+
+      const instantScheduler: DemoStepContext["scheduleStep"] = (_d, fn) =>
+        isActive() && fn();
+
+      return {
+        setOverlay: mode === "play" ? setOverlayPlay : noopOverlay,
+        setSidebarSearch: (value) => {
+          if (isActive()) {
+            setHelpSidebarSearch((prev) => (isActive() ? value : prev));
+          }
+        },
+        setSidebarHighlightLabel: (label) => {
+          if (isActive()) {
+            setHelpSidebarHighlight((prev) => (isActive() ? label : prev));
+          }
+        },
+        setSidebarFlowHighlight: (flowId) => {
+          if (isActive()) {
+            setHelpSidebarFlowHighlight((prev) =>
+              isActive() ? flowId : prev,
+            );
+          }
+        },
+        setSearchPanel: (open) => {
+          if (!isActive()) return;
+          setShowUndoRedoPanel(false);
+          setShowErrorPanel(false);
+          setShowSearchPanel(open);
+        },
+        setSearchQuery: (value) => {
+          if (isActive()) setSearchQuery(value);
+        },
+        setHelpMenuVisible: (open) => {
+          if (isActive()) setShowHelpMenu(open);
+        },
+        setNodes: (updater) => {
+          if (isActive()) {
+            baseSetNodes((prev) => {
+              if (!isActive()) return prev;
+              const rawNext = updater(prev);
+              const next = stripTransientInfoNodeVisibility(rawNext);
+              if (next !== prev) {
+                incRev();
+                helpDemoGraphNodesRef.current = next;
+                noteHelpDemoGraphWrite(next, helpDemoGraphEdgesRef.current);
+              }
+              return next;
+            });
+          }
+        },
+        setEdges: (updater) => {
+          if (isActive()) {
+            baseSetEdges((prev) => {
+              if (!isActive()) return prev;
+              const rawNext = updater(prev);
+              const next = stripTransientInfoEdgeVisibility(
+                rawNext,
+                new Set(
+                  nodesRef.current
+                    .filter((node) => node.type === INFO_NODE_TYPE)
+                    .map((node) => node.id),
+                ),
+              );
+              if (next !== prev) {
+                incRev();
+                helpDemoGraphEdgesRef.current = next;
+                noteHelpDemoGraphWrite(helpDemoGraphNodesRef.current, next);
+              }
+              return next;
+            });
+          }
+        },
+        scheduleStep: mode === "play" ? playScheduler : instantScheduler,
+        flowToScreen,
+        setViewport: (viewport) => {
+          if (isActive()) {
+            flowInstanceRef.current?.setViewport(viewport, { duration: 0 });
+          }
+        },
+        focusNode: (nodeId) => {
+          if (isActive()) centerOnNode(nodeId);
+        },
+        isRunning: () =>
+          isActive() && helpDemoTimersRef.current.length > 0,
+      };
+    },
+    [
+      baseSetEdges,
+      baseSetNodes,
+      buildHelpControls,
+      flowToScreen,
+      incRev,
+      noteHelpDemoGraphWrite,
+      centerOnNode,
+    ],
+  );
+
+  const playHelpDemoFromStep = useCallback(
+    async (
+      demo: HelpDemo,
+      stepIdxRaw: number,
+      opts?: { forceRebuild?: boolean },
+    ) => {
+      if (demo.steps.length === 0) return;
+      const targetIdx = Math.max(
+        0,
+        Math.min(demo.steps.length - 1, stepIdxRaw),
+      );
+      const currentStepIdx = currentHelpStepIdxRef.current;
+      const canUseCurrentGraph =
+        demo.incrementalForward === true &&
+        !opts?.forceRebuild &&
+        currentHelpDemoIdRef.current === demo.id &&
+        currentStepIdx !== null &&
+        currentHelpStepCompleteRef.current &&
+        (targetIdx === currentStepIdx || targetIdx === currentStepIdx + 1);
+
+      // Cancel anything currently in flight (timers + stale async loops).
+      if (typeof window !== "undefined") {
+        for (const id of helpDemoTimersRef.current) {
+          window.clearTimeout(id);
+        }
+      }
+      helpDemoTimersRef.current = [];
+      const myGen = ++helpDemoPlayGenRef.current;
+      helpDemoGraphNodesRef.current = nodesRef.current;
+      helpDemoGraphEdgesRef.current = edgesRef.current;
+
+      setCurrentHelpDemo(demo);
+      setRunningHelpDemoId(demo.id);
+      setHelpSidebarSearch(undefined);
+      setHelpSidebarHighlight(undefined);
+      setHelpSidebarFlowHighlight(undefined);
+      setSearchQuery("");
+      setShowSearchPanel(false);
+      currentHelpDemoIdRef.current = demo.id;
+      currentHelpStepIdxRef.current = targetIdx;
+      currentHelpStepCompleteRef.current = false;
+
+      if (!canUseCurrentGraph) {
+        // Demo init + fast-forward are only needed when jumping backward,
+        // restarting, switching demos, or resuming from a mid-step pause.
+        // Normal forward playback uses the current graph to avoid visible
+        // remove/re-add flicker between steps.
+        const initCtx = buildStepContext(demo, targetIdx, "play", myGen);
+        demo.init?.(initCtx);
+
+        // Wait one frame so init's React state changes commit before we start
+        // dispatching DOM events for fast-forward.
+        await new Promise<void>((resolve) => {
+          if (typeof window === "undefined") {
+            resolve();
+            return;
+          }
+          requestAnimationFrame(() => resolve());
+        });
+        if (myGen !== helpDemoPlayGenRef.current) return;
+
+        // Fast-forward through every prior step.
+        for (let i = 0; i < targetIdx; i += 1) {
+          const ffCtx = buildStepContext(demo, i, "instant", myGen);
+          demo.steps[i].play(ffCtx);
+          // Two frames: one for React to commit, one for portals (Radix,
+          // Dialog) to mount before the next instant step dispatches against
+          // them.
+          await new Promise<void>((resolve) => {
+            if (typeof window === "undefined") {
+              resolve();
+              return;
+            }
+            requestAnimationFrame(() =>
+              requestAnimationFrame(() => resolve()),
+            );
+          });
+          if (myGen !== helpDemoPlayGenRef.current) return;
+        }
+      }
+      if (myGen !== helpDemoPlayGenRef.current) return;
+
+      // Show this step's caption + controls before its animations run.
+      const targetControls = buildHelpControls(demo, targetIdx, true);
+      setIntroDropState({
+        cursor: null,
+        ghost: null,
+        caption: demo.steps[targetIdx].caption,
+        controls: targetControls,
+      });
+
+      // Play the target step normally.
+      const playCtx = buildStepContext(demo, targetIdx, "play", myGen);
+      demo.steps[targetIdx].play(playCtx);
+
+      // After the step's animations finish, either auto-advance (auto mode and
+      // not the last step) or stop (manual mode, or end of demo).
+      const isLast = targetIdx === demo.steps.length - 1;
+      const advanceDelay = demo.steps[targetIdx].durationMs;
+      if (typeof window !== "undefined") {
+        const id = window.setTimeout(() => {
+          helpDemoTimersRef.current = helpDemoTimersRef.current.filter(
+            (existing) => existing !== id,
+          );
+          if (myGen !== helpDemoPlayGenRef.current) return;
+          currentHelpStepCompleteRef.current = true;
+          const shouldAdvance =
+            !isLast && helpDemoModeRef.current === "auto";
+          if (shouldAdvance) {
+            playHelpStepRef.current(demo, targetIdx + 1);
+          } else {
+            setRunningHelpDemoId(null);
+            setIntroDropState((prev) => {
+              if (!prev || !prev.controls) return prev;
+              return {
+                ...prev,
+                controls: { ...prev.controls, isPlaying: false },
+              };
+            });
+          }
+        }, advanceDelay);
+        helpDemoTimersRef.current.push(id);
+      }
+    },
+    [buildHelpControls, buildStepContext],
+  );
+
+  // HelpMenu's "Play" button keeps the simpler `(demo) => void` signature.
+  // Clicking it (re)enters auto-play mode — the demo runs through every step.
+  const runHelpDemo = useCallback(
+    (demo: HelpDemo) => {
+      setShowUndoRedoPanel(false);
+      setShowErrorPanel(false);
+      setShowSearchPanel(false);
+      setShowHelpMenu(true);
+      ensureDemoHelpTab();
+      helpDemoModeRef.current = "auto";
+      void playHelpDemoFromStep(demo, 0, { forceRebuild: true });
+    },
+    [ensureDemoHelpTab, playHelpDemoFromStep],
+  );
+
+  // Keep the playback-button refs pointing at the latest impls.
+  useEffect(() => {
+    stopHelpDemoRef.current = stopHelpDemo;
+  }, [stopHelpDemo]);
+  useEffect(() => {
+    playHelpStepRef.current = (demo, idx, opts) => {
+      void playHelpDemoFromStep(demo, idx, opts);
+    };
+  }, [playHelpDemoFromStep]);
+
+  // Leaving the help tab cancels the demo AND clears its overlay/caption,
+  // since the user has moved on. Staying on the help tab keeps the caption
+  // card visible after the demo finishes (so Replay still works).
+  // Gated on currentHelpDemo so we don't accidentally clear the first-run
+  // intro video overlay (which also uses introDropState but isn't a demo).
+  useEffect(() => {
+    if (currentHelpDemo === null) return;
+    const onHelpTab =
+      activeTabId !== null &&
+      activeTabId !== undefined &&
+      helpTabIds.has(activeTabId);
+    if (onHelpTab) return;
+    if (runningHelpDemoId !== null) {
+      stopHelpDemo({ clearOverlay: true });
+    } else {
+      setIntroDropState(null);
+      setCurrentHelpDemo(null);
+    }
+  }, [
+    activeTabId,
+    currentHelpDemo,
+    helpTabIds,
+    runningHelpDemoId,
+    stopHelpDemo,
+  ]);
+
+  // Drop closed tabs from the help-tab set so it doesn't leak.
+  useEffect(() => {
+    const liveIds = new Set(tabs.map((tab) => tab.id));
+    setHelpTabIds((prev) => {
+      let changed = false;
+      const next = new Set<string>();
+      for (const id of prev) {
+        if (liveIds.has(id)) next.add(id);
+        else changed = true;
+      }
+      if (changed) helpTabIdsRef.current = next;
+      return changed ? next : prev;
+    });
+    setEditedHelpTabIds((prev) => {
+      let changed = false;
+      const next = new Set<string>();
+      for (const id of prev) {
+        if (liveIds.has(id)) next.add(id);
+        else changed = true;
+      }
+      if (changed) editedHelpTabIdsRef.current = next;
+      return changed ? next : prev;
+    });
+    for (const id of Array.from(helpTabGraphBaselinesRef.current.keys())) {
+      if (!liveIds.has(id)) helpTabGraphBaselinesRef.current.delete(id);
+    }
+  }, [tabs]);
 
   const handleCloseTab = useCallback(
     (tabId: string) => {
@@ -2002,52 +2780,90 @@ function FlowContent() {
     [applyPaletteColor]
   );
 
-  const handlePaneClick = useCallback(() => {
-    closePalette();
-    setIsSearchHighlight(false);
-    clearHighlights();
+  const commitPastePlacement = useCallback(
+    (event: React.MouseEvent<Element, MouseEvent>) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const mode = pastePlacementPreview?.mode ?? "default";
+      setPastePlacementPreview(null);
 
-    requestAnimationFrame(() => {
-      const store = storeApi.getState();
-      const selectedNodes = store.nodes.filter((node) => node.selected);
-      const selectedEdges = store.edges.filter((edge) => edge.selected);
+      isPastingRef.current = true;
+      pasteNodes(
+        screenToFlowPosition({
+          x: event.clientX,
+          y: event.clientY,
+        }),
+        { includeIncomingConnections: mode === "withIncomingConnections" }
+      );
+      scheduleSnapshot("Pasted nodes", { refresh: true });
+      requestAnimationFrame(() => {
+        isPastingRef.current = false;
+      });
+    },
+    [
+      pasteNodes,
+      pastePlacementPreview?.mode,
+      scheduleSnapshot,
+      screenToFlowPosition,
+    ]
+  );
 
-      store.resetSelectedElements?.();
-      if (selectedNodes.length || selectedEdges.length) {
-        store.unselectNodesAndEdges?.({
-          nodes: selectedNodes,
-          edges: selectedEdges,
-        });
+  const handlePaneClick = useCallback(
+    (event: React.MouseEvent<Element, MouseEvent>) => {
+      if (isPastePlacementActive) {
+        commitPastePlacement(event);
+        return;
       }
 
-      setNodes((existing) => {
-        let mutated = false;
-        const next = existing.map((node) => {
-          if (!node.selected) return node;
-          mutated = true;
-          return { ...node, selected: false };
-        });
-        return mutated ? next : existing;
-      });
+      closePalette();
+      setIsSearchHighlight(false);
+      clearHighlights();
 
-      setEdges((existing) => {
-        let mutated = false;
-        const next = existing.map((edge) => {
-          if (!edge.selected) return edge;
-          mutated = true;
-          return { ...edge, selected: false };
+      requestAnimationFrame(() => {
+        const store = storeApi.getState();
+        const selectedNodes = store.nodes.filter((node) => node.selected);
+        const selectedEdges = store.edges.filter((edge) => edge.selected);
+
+        store.resetSelectedElements?.();
+        if (selectedNodes.length || selectedEdges.length) {
+          store.unselectNodesAndEdges?.({
+            nodes: selectedNodes,
+            edges: selectedEdges,
+          });
+        }
+
+        setNodes((existing) => {
+          let mutated = false;
+          const next = existing.map((node) => {
+            if (!node.selected) return node;
+            mutated = true;
+            return { ...node, selected: false };
+          });
+          return mutated ? next : existing;
         });
-        return mutated ? next : existing;
+
+        setEdges((existing) => {
+          let mutated = false;
+          const next = existing.map((edge) => {
+            if (!edge.selected) return edge;
+            mutated = true;
+            return { ...edge, selected: false };
+          });
+          return mutated ? next : existing;
+        });
       });
-    });
-  }, [
-    clearHighlights,
-    closePalette,
-    setIsSearchHighlight,
-    storeApi,
-    setNodes,
-    setEdges,
-  ]);
+    },
+    [
+      clearHighlights,
+      closePalette,
+      commitPastePlacement,
+      isPastePlacementActive,
+      setIsSearchHighlight,
+      storeApi,
+      setNodes,
+      setEdges,
+    ]
+  );
 
   const handleBundleEdgesSelect = useCallback(
     (edgeIds: string[]) => {
@@ -2133,11 +2949,43 @@ function FlowContent() {
     openShareDialog();
   }, [openShareDialog]);
 
+  const handleImmediatePaste = useCallback(
+    (withOffset = true) => {
+      setPastePlacementPreview(null);
+      handlePaste(withOffset);
+    },
+    [handlePaste]
+  );
+
+  const handleTopBarPaste = useCallback(
+    (mode: PasteMode, position?: { x: number; y: number }) => {
+      if (!hasCopiedNodes) return;
+
+      setPastePlacementPreview((current) => {
+        if (position) {
+          return { ...position, mode };
+        }
+        if (current) {
+          return { x: current.x, y: current.y, mode };
+        }
+        if (typeof window === "undefined") {
+          return { x: 0, y: 0, mode };
+        }
+        return {
+          x: window.innerWidth / 2,
+          y: Math.min(140, window.innerHeight / 3),
+          mode,
+        };
+      });
+    },
+    [hasCopiedNodes]
+  );
+
   const ensureShareImportTab = useCallback(() => addTab(), [addTab]);
 
   useEffect(() => {
-    pasteNodesRef.current = handlePaste;
-  }, [handlePaste]);
+    pasteNodesRef.current = handleImmediatePaste;
+  }, [handleImmediatePaste]);
 
   useFlowHotkeys({
     paletteOpenRef,
@@ -2170,11 +3018,47 @@ function FlowContent() {
     setInfoDialog,
     flowInstanceRef,
     ensureShareImportTab,
+    shouldUseShareImportTab: (sharedId) => {
+      const shouldForce = forcedSharedImportTabRef.current === sharedId;
+      if (shouldForce) {
+        forcedSharedImportTabRef.current = null;
+      }
+      return shouldForce;
+    },
   });
   useEffect(() => {
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [handleMouseMove]);
+
+  useEffect(() => {
+    if (hasCopiedNodes) return;
+    setPastePlacementPreview(null);
+  }, [hasCopiedNodes]);
+
+  useEffect(() => {
+    if (!isPastePlacementActive) return;
+
+    const updatePreview = (event: PointerEvent) => {
+      setPastePlacementPreview((current) =>
+        current
+          ? { ...current, x: event.clientX, y: event.clientY }
+          : current
+      );
+    };
+    const cancelPreview = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setPastePlacementPreview(null);
+      }
+    };
+
+    window.addEventListener("pointermove", updatePreview);
+    window.addEventListener("keydown", cancelPreview);
+    return () => {
+      window.removeEventListener("pointermove", updatePreview);
+      window.removeEventListener("keydown", cancelPreview);
+    };
+  }, [isPastePlacementActive]);
 
   const paneDistanceAppliedRef = useRef(false);
 
@@ -2507,6 +3391,20 @@ function FlowContent() {
     };
   }, [setIsSelectionHotKeyActive]);
 
+  const isGuidedHelpOpen = showHelpMenu;
+  const showUndoRedoPanelUI = !isMobileReadOnly && showUndoRedoPanel;
+  const showErrorPanelUI = !isMobileReadOnly && showErrorPanel;
+  const showSearchPanelUI = !isMobileReadOnly && showSearchPanel;
+  const showHelpPanelUI = !isMobileReadOnly && isGuidedHelpOpen;
+  const rightPanelWidth = Math.max(
+    showUndoRedoPanelUI || showErrorPanelUI || showSearchPanelUI
+      ? RHS_PANEL_W
+      : 0,
+    showHelpPanelUI ? HELP_PANEL_W : 0,
+  );
+  const rightPanelOpen = rightPanelWidth > 0;
+  const miniMapOffset = rightPanelOpen ? rightPanelWidth + MM_GAP : MM_GAP;
+
   /* =================================================================
    *  JSX render – nothing but UI
    * ================================================================ */
@@ -2534,20 +3432,22 @@ function FlowContent() {
               onSaveSimplified={handleSaveSimplified}
               onSaveLlmExport={handleSaveLlmWithConfirmation}
               onLoad={openFileDialog}
+              onLoadLink={handleLoadLink}
               onFileSelect={handleFileSelect}
               canCopy={nodes.some((n) => n.selected)}
               hasCopiedNodes={hasCopiedNodes}
+              isPastePlacementActive={isPastePlacementActive}
               onCopy={copyNodes}
-              onPaste={() => handlePaste()}
+              onPaste={handleTopBarPaste}
               calcStatus={calcStatus}
               errorInfo={errorInfo}
               errorCount={errorInfo.length}
               showErrorPanel={showErrorPanel}
-              setShowErrorPanel={setShowErrorPanel}
+              setShowErrorPanel={setShowErrorPanelFromTopBar}
               onRetryAll={handleRetryAll}
               hasLimitErrors={hasLimitErrors}
               showUndoRedoPanel={showUndoRedoPanel}
-              setShowUndoRedoPanel={setShowUndoRedoPanel}
+              setShowUndoRedoPanel={setShowUndoRedoPanelFromTopBar}
               onToggleColorPalette={handleToggleColorPalette}
               isColorPaletteOpen={isColorPaletteOpen}
               canColorSelection={canColorSelection}
@@ -2558,6 +3458,7 @@ function FlowContent() {
               onGroup={groupWithUndo}
               onUngroup={ungroupWithUndo}
               onSearchClick={() => {
+                closeGuidedHelp();
                 setShowUndoRedoPanel(false); // never overlap
                 setShowErrorPanel(false);
                 setShowSearchPanel((v) => !v); // toggle
@@ -2572,6 +3473,7 @@ function FlowContent() {
               onToggleSelectionMode={() => setIsSelectionLocked((v) => !v)}
               onShare={handleShareClick}
               shareDisabled={nodes.length === 0}
+              onHelpClick={openHelpTab}
               tabBarRightInset={rightPanelWidth}
             />
           )}
@@ -2581,7 +3483,11 @@ function FlowContent() {
             <Sidebar
               isOpen={isSidebarOpen}
               onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-              introDropFlowId={isIntroDropAnimating ? INTRO_FLOW_ID : undefined}
+              introDropFlowId={
+                isIntroDropAnimating ? INTRO_FLOW_ID : helpSidebarFlowHighlight
+              }
+              introDropNodeLabel={helpSidebarHighlight}
+              searchOverride={helpSidebarSearch}
             />
           )}
 
@@ -2630,10 +3536,34 @@ function FlowContent() {
                 onPaneClick={handlePaneClick}
                 onBundleEdgesSelect={handleBundleEdgesSelect}
                 onMoveEnd={onMoveEnd}
+                isPastePlacementActive={isPastePlacementActive}
                 isSelectionModeActive={isSelectionMode}
                 isReadOnly={isMobileReadOnly}
                 onlyRenderVisibleElements
               />
+              {isPastePlacementActive && (
+                <div
+                  data-testid="paste-placement-layer"
+                  className="absolute inset-0 z-20 cursor-default"
+                  onClick={commitPastePlacement}
+                />
+              )}
+              {pastePlacementPreview && (
+                <div
+                  data-testid="paste-placement-preview"
+                  className="pointer-events-none fixed z-50 flex h-11 translate-x-3 translate-y-3 items-center gap-2 rounded-md border border-primary/60 bg-background/95 px-3 text-sm font-medium text-foreground shadow-lg backdrop-blur"
+                  style={{
+                    left: pastePlacementPreview.x,
+                    top: pastePlacementPreview.y,
+                  }}
+                >
+                  <ClipboardPaste
+                    className="h-4 w-4 text-primary"
+                    aria-hidden="true"
+                  />
+                  <span>Paste</span>
+                </div>
+              )}
               {isMobileReadOnly && (
                 <div className="pointer-events-none absolute inset-x-0 top-4 mx-auto w-11/12 max-w-md">
                   <div className="pointer-events-auto rounded-lg border border-border bg-background/90 px-4 py-3 text-center text-sm font-medium shadow-sm backdrop-blur">
@@ -2706,7 +3636,26 @@ function FlowContent() {
             )}
           </main>
 
-          <IntroDropOverlay state={introDropState} />
+          <IntroDropOverlay
+            state={introDropState}
+            captionRightInset={
+              isGuidedHelpOpen
+                ? 288 /* HelpMenu w-72 */
+                : showSearchPanelUI
+                  ? 256 /* SearchPanel w-64 */
+                  : 0
+            }
+          />
+
+          {!isMobileReadOnly && (
+            <HelpMenu
+              isOpen={isGuidedHelpOpen}
+              runningDemoId={runningHelpDemoId}
+              onPlayDemo={runHelpDemo}
+              onStopDemo={() => stopHelpDemo()}
+              onCloseHelpTab={isGuidedHelpOpen ? closeGuidedHelp : undefined}
+            />
+          )}
 
           {/* 🎨 ColorPalette - MOVED HERE, outside ReactFlow, with higher z-index */}
           {!isMobileReadOnly && (
@@ -2719,6 +3668,49 @@ function FlowContent() {
           )}
 
           {/* dialogs */}
+          <Dialog
+            open={loadLinkDialogOpen}
+            onOpenChange={handleLoadLinkDialogOpenChange}
+          >
+            <DialogContent className="sm:max-w-[420px]">
+              <form onSubmit={handleLoadLinkSubmit} className="space-y-4">
+                <DialogHeader>
+                  <DialogTitle>Load rawBit link</DialogTitle>
+                  <DialogDescription>
+                    Paste a rawBit app link or share id. It will open in a new
+                    rawBit tab.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-2">
+                  <Label htmlFor="load-link-input">Link or share id</Label>
+                  <Input
+                    ref={loadLinkInputRef}
+                    id="load-link-input"
+                    value={loadLinkDraft}
+                    onChange={(event) => {
+                      setLoadLinkDraft(event.target.value);
+                      if (loadLinkError) setLoadLinkError("");
+                    }}
+                    placeholder="https://rawbit.io/?s=... or share id"
+                    autoComplete="off"
+                  />
+                  {loadLinkError ? (
+                    <p className="text-sm text-destructive">{loadLinkError}</p>
+                  ) : null}
+                </div>
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleLoadLinkDialogOpenChange(false)}
+                  >
+                    Close
+                  </Button>
+                  <Button type="submit">Load link</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
           <FlowDialogLayer
             closeDialog={closeDialog}
             tabCount={tabs.length}

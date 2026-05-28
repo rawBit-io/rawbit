@@ -64,14 +64,9 @@ export function useFlowHotkeys({
       } else if (key === "g" && canGroupSelectedRef.current?.()) {
         evt.preventDefault();
         groupWithUndoRef.current?.();
-      } else if (key === "u") {
+      } else if (key === "u" && canUngroupSelectedRef.current?.()) {
         evt.preventDefault();
-        if (canUngroupSelectedRef.current?.()) {
-          ungroupWithUndoRef.current?.();
-        } else {
-          // Fallback path: allow ungroup handler to resolve focused/single-group cases.
-          ungroupWithUndoRef.current?.();
-        }
+        ungroupWithUndoRef.current?.();
       }
     };
 

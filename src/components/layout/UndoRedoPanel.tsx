@@ -50,7 +50,7 @@ export function UndoRedoPanel({
               hasVisibleTabs ? "h-10" : "mt-3"
             )}
           >
-            <h2 className="font-medium text-base">Undo/Redo Stack</h2>
+            <h2 className="text-sm font-medium">Undo/Redo Stack</h2>
             <button
               onClick={(e: MouseEvent) => {
                 e.stopPropagation();

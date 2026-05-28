@@ -1471,8 +1471,34 @@ body[data-large-drag="true"] .rf-node {
   will-change: transform;
   filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.35));
 }
+.rawbit-intro-drop-cursor svg {
+  position: relative;
+  z-index: 1;
+}
+.rawbit-intro-click-ring {
+  content: "";
+  z-index: 2;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  border: 5px dashed hsl(var(--primary));
+  background: hsl(var(--primary) / 0.08);
+  box-shadow: 0 10px 24px hsl(var(--foreground) / 0.28);
+  animation: rawbit-intro-click-ring 260ms ease-out forwards;
+  pointer-events: none;
+}
 .rawbit-intro-drop-cursor-press {
   animation: rawbit-intro-drop-press 190ms ease-out;
+}
+@keyframes rawbit-intro-click-ring {
+  0% {
+    opacity: 1;
+    transform: scale(0.62);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 @keyframes rawbit-intro-drop-press {
   0% {

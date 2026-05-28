@@ -1,4 +1,4 @@
-import { act, render, screen, fireEvent } from "@testing-library/react";
+import { act, render, screen, fireEvent, waitFor } from "@testing-library/react";
 import type { MutableRefObject } from "react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
@@ -64,6 +64,7 @@ const baseProps: TopBarProps & ExtraTopBarProps = {
   onShare: vi.fn(),
   shareDisabled: true,
   onLoad: vi.fn(),
+  onLoadLink: vi.fn(),
   onCopy: vi.fn(),
   onPaste: vi.fn(),
   canCopy: false,
@@ -108,6 +109,10 @@ const baseProps: TopBarProps & ExtraTopBarProps = {
 function openSkinMenu() {
   const trigger = screen.getByRole("button", { name: "Skin: shadcn" });
   fireEvent.keyDown(trigger, { key: "Enter" });
+}
+
+function openDropdownButton(name: string | RegExp) {
+  fireEvent.keyDown(screen.getByRole("button", { name }), { key: "Enter" });
 }
 
 describe("TopBar", () => {
@@ -164,6 +169,27 @@ describe("TopBar", () => {
     const toggle = screen.getByRole("button", { name: "Show info nodes" });
     expect(toggle).toHaveAttribute("aria-pressed", "true");
     expect(toggle).toHaveAttribute("data-active", "true");
+  });
+
+  it("offers paste modes from the paste menu", () => {
+    const onPaste = vi.fn();
+    render(<TopBar {...baseProps} hasCopiedNodes onPaste={onPaste} />);
+
+    openDropdownButton("Paste nodes (Ctrl/Cmd+V)");
+    fireEvent.click(
+      screen.getByRole("menuitem", {
+        name: /Only connections inside the copied selection/i,
+      })
+    );
+    expect(onPaste).toHaveBeenCalledWith("default");
+
+    openDropdownButton("Paste nodes (Ctrl/Cmd+V)");
+    fireEvent.click(
+      screen.getByRole("menuitem", {
+        name: /Keep links from existing nodes into the pasted copy/i,
+      })
+    );
+    expect(onPaste).toHaveBeenLastCalledWith("withIncomingConnections");
   });
 
   it("applies skin selection and clears focus from skin trigger on close", () => {
@@ -461,38 +487,72 @@ describe("TopBar", () => {
     expect(setShowErrorPanel).toHaveBeenCalledWith(true);
   });
 
-  it("invokes simplified save when holding the S key", () => {
+  it("opens load options and invokes the selected load action", async () => {
+    const onLoad = vi.fn();
+    const onLoadLink = vi.fn();
+
+    render(
+      <TopBar
+        {...baseProps}
+        onLoad={onLoad}
+        onLoadLink={onLoadLink}
+      />
+    );
+
+    fireEvent.keyDown(screen.getByRole("button", { name: "Load" }), {
+      key: "Enter",
+    });
+    fireEvent.click(screen.getByRole("menuitem", { name: /Load JSON/ }));
+    expect(onLoad).toHaveBeenCalledTimes(1);
+
+    fireEvent.keyDown(screen.getByRole("button", { name: "Load" }), {
+      key: "Enter",
+    });
+    fireEvent.click(screen.getByRole("menuitem", { name: /Load link/ }));
+    await waitFor(() => expect(onLoadLink).toHaveBeenCalledTimes(1));
+  });
+
+  it("opens save options and invokes the selected save action", () => {
     const onSave = vi.fn();
+    const onShare = vi.fn();
     const onSaveSimplified = vi.fn();
+    const onSaveLlmExport = vi.fn();
 
     render(
       <TopBar
         {...baseProps}
         onSave={onSave}
+        onShare={onShare}
+        shareDisabled={false}
         onSaveSimplified={onSaveSimplified}
+        onSaveLlmExport={onSaveLlmExport}
       />
     );
 
-    fireEvent.keyDown(window, { key: "s" });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
-    expect(onSaveSimplified).toHaveBeenCalled();
-    expect(onSave).not.toHaveBeenCalled();
+    openDropdownButton("Save");
+    fireEvent.click(screen.getByRole("menuitem", { name: /^Save\b/ }));
+    expect(onSave).toHaveBeenCalledTimes(1);
 
-    fireEvent.keyUp(window, { key: "s" });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
-    expect(onSave).toHaveBeenCalled();
-  });
+    openDropdownButton("Save");
+    fireEvent.click(screen.getByRole("menuitem", { name: /^Share\b/ }));
+    expect(onShare).toHaveBeenCalledTimes(1);
 
-  it("shows both save shortcut hints in the hover title", () => {
-    render(<TopBar {...baseProps} />);
-
-    expect(screen.getByRole("button", { name: "Save" })).toHaveAttribute(
-      "title",
-      "Save (hold S for simplified, hold L for LLM export)"
+    openDropdownButton("Save");
+    fireEvent.click(
+      screen.getByRole("menuitem", { name: /Metadata removed/ })
     );
+    expect(onSaveSimplified).toHaveBeenCalledTimes(1);
+
+    openDropdownButton("Save");
+    fireEvent.click(
+      screen.getByRole("menuitem", {
+        name: /backend code/,
+      })
+    );
+    expect(onSaveLlmExport).toHaveBeenCalledTimes(1);
   });
 
-  it("invokes LLM export when holding the L key", () => {
+  it("invokes save export shortcuts when holding S or L on the save button", () => {
     const onSave = vi.fn();
     const onSaveSimplified = vi.fn();
     const onSaveLlmExport = vi.fn();
@@ -506,15 +566,32 @@ describe("TopBar", () => {
       />
     );
 
-    fireEvent.keyDown(window, { key: "l" });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
-    expect(onSaveLlmExport).toHaveBeenCalled();
-    expect(onSaveSimplified).not.toHaveBeenCalled();
-    expect(onSave).not.toHaveBeenCalled();
+    const saveButton = screen.getByRole("button", { name: "Save" });
 
+    fireEvent.keyDown(window, { key: "s" });
+    fireEvent.pointerDown(saveButton, { pointerType: "mouse" });
+    fireEvent.keyUp(window, { key: "s" });
+
+    expect(onSave).not.toHaveBeenCalled();
+    expect(onSaveSimplified).toHaveBeenCalledTimes(1);
+    expect(onSaveLlmExport).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(window, { key: "l" });
+    fireEvent.pointerDown(saveButton, { pointerType: "mouse" });
     fireEvent.keyUp(window, { key: "l" });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
-    expect(onSave).toHaveBeenCalled();
+
+    expect(onSave).not.toHaveBeenCalled();
+    expect(onSaveSimplified).toHaveBeenCalledTimes(1);
+    expect(onSaveLlmExport).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows the save menu hint in the hover title", () => {
+    render(<TopBar {...baseProps} />);
+
+    expect(screen.getByRole("button", { name: "Save" })).toHaveAttribute(
+      "title",
+      "Save"
+    );
   });
 
 });

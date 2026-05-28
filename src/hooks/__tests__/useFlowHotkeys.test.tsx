@@ -108,6 +108,15 @@ describe("useFlowHotkeys", () => {
     expect(ungroup).toHaveBeenCalled();
   });
 
+  it("does not call ungroup shortcut without an ungroupable selection", () => {
+    const { canUngroupSelectedRef, ungroup } = setup();
+    canUngroupSelectedRef.current = () => false;
+
+    fireKey("u");
+
+    expect(ungroup).not.toHaveBeenCalled();
+  });
+
   it("ignores shortcuts while typing", () => {
     const { copyNodes } = setup();
     const input = document.createElement("input");

@@ -477,7 +477,7 @@ const createMockInstance = (
     expect(childB?.position).toEqual({ x: 140, y: 250 });
   });
 
-  it("ungroups the only group as fallback when nothing is selected", () => {
+  it("does not ungroup the only group when nothing is selected", () => {
     const { result } = renderHook(() => useNodeOperations(), { wrapper });
     const mockRf = createMockInstance(result);
 
@@ -517,11 +517,12 @@ const createMockInstance = (
       didUngroup = result.current.ungroupSelectedNodes();
     });
 
-    expect(didUngroup).toBe(true);
-    expect(result.current.nodes.find((n) => n.id === "group-1")).toBeUndefined();
+    expect(didUngroup).toBe(false);
+    expect(result.current.nodes.find((n) => n.id === "group-1")).toBeDefined();
 
     const childA = result.current.nodes.find((n) => n.id === "child-a");
-    expect(childA?.parentId).toBeUndefined();
-    expect(childA?.position).toEqual({ x: 55, y: 67 });
+    expect(childA?.parentId).toBe("group-1");
+    expect(childA?.position).toEqual({ x: 5, y: 7 });
+    expect(result.current.canUngroupSelectedNodes()).toBe(false);
   });
 });

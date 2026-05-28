@@ -58,7 +58,12 @@ function SimplifiedSaveHarness({
   }, [onReady, simplified.cancelSave, simplified.confirmSave, simplified.promptSave]);
 
   return (
-    <div data-testid="confirmation-open">{String(simplified.showConfirmation)}</div>
+    <>
+      <div data-testid="confirmation-open">{String(simplified.showConfirmation)}</div>
+      <div data-testid="confirmation-message">
+        {simplified.confirmationMessage}
+      </div>
+    </>
   );
 }
 
@@ -179,6 +184,55 @@ describe("Simplified save integration", () => {
     expect(parsed.nodes[0]).not.toHaveProperty("position");
     expect(parsed.nodes[0]).not.toHaveProperty("selected");
     expect(parsed.edges).toHaveLength(0);
+  });
+
+  it("counts grouped children in the selection confirmation", async () => {
+    const nodes: FlowNode[] = [
+      makeFlowNode({
+        id: "group-a",
+        type: "shadcnGroup",
+        data: { title: "Group A", width: 300, height: 200 },
+        selected: true,
+      }),
+      makeFlowNode({
+        id: "child-a",
+        parentId: "group-a",
+        selected: false,
+      }),
+      makeFlowNode({
+        id: "child-b",
+        parentId: "group-a",
+        selected: false,
+      }),
+      makeFlowNode({
+        id: "outside",
+        selected: false,
+      }),
+    ];
+
+    const handlesRef: { current: SimplifiedHandles | null } = { current: null };
+
+    render(
+      <SimplifiedSaveHarness
+        nodes={nodes}
+        edges={[]}
+        onReady={(handles) => {
+          handlesRef.current = handles;
+        }}
+      />
+    );
+
+    await waitFor(() => expect(handlesRef.current).not.toBeNull());
+
+    act(() => {
+      handlesRef.current!.promptSave();
+    });
+
+    expect(screen.getByTestId("confirmation-open").textContent).toBe("true");
+    expect(screen.getByTestId("confirmation-message").textContent).toBe(
+      "Save only the 3/4 nodes from selected groups and nodes?"
+    );
+    expect(anchorClickSpy).not.toHaveBeenCalled();
   });
 
   it("saves immediately when every node is selected", async () => {

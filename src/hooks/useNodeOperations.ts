@@ -819,36 +819,6 @@ export function useNodeOperations() {
       return true;
     }
 
-    /* ③ Fallback whole-group ungroup when no explicit selection is present */
-    let fallbackGroups: FlowNode[] = [];
-    const activeEl =
-      typeof document !== "undefined"
-        ? (document.activeElement as HTMLElement | null)
-        : null;
-    const focusedGroupId =
-      activeEl
-        ?.closest(".react-flow__node-shadcnGroup")
-        ?.getAttribute("data-id") ?? null;
-    if (focusedGroupId) {
-      const focusedGroup = all.find(
-        (node) => node.id === focusedGroupId && node.type === "shadcnGroup",
-      );
-      if (focusedGroup) {
-        fallbackGroups = [focusedGroup];
-      }
-    }
-
-    if (!fallbackGroups.length) {
-      const allGroups = all.filter((node) => node.type === "shadcnGroup");
-      if (allGroups.length === 1) {
-        fallbackGroups = [allGroups[0]];
-      }
-    }
-
-    if (fallbackGroups.length) {
-      return ungroupGroups(fallbackGroups);
-    }
-
     return false;
   }, [rf, setNodes]);
 
@@ -949,8 +919,7 @@ export function useNodeOperations() {
             .some(
               (n) =>
                 n.selected && (n.type === "shadcnGroup" || Boolean(n.parentId)),
-            ) ||
-          rf.getNodes().filter((n) => n.type === "shadcnGroup").length === 1
+            )
         : false,
   };
 }

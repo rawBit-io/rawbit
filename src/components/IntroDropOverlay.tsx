@@ -8,7 +8,14 @@
 // -----------------------------------------------------------------------------
 
 import { useEffect, useRef, useState } from "react";
-import { X } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Pause,
+  Play,
+  RotateCcw,
+  X,
+} from "lucide-react";
 
 import { CURSOR_TIP_OFFSET } from "@/components/introDropCursor";
 
@@ -22,6 +29,7 @@ export interface IntroDropOverlayState {
     detail?: string;
   } | null;
   pressing?: boolean;
+  clickPulse?: boolean;
   /** Fixed screen point of the source handle while a wire is being dragged. */
   connection?: { x: number; y: number } | null;
   caption?: {
@@ -36,11 +44,27 @@ export interface IntroDropOverlayState {
   controls?: {
     closeLabel?: string;
     onClose?: () => void;
+    /** Step-by-step demo controls (set by the help-demo runtime). */
+    onPause?: () => void;
+    onPlay?: () => void;
+    onPrev?: () => void;
+    onNext?: () => void;
+    onReplay?: () => void;
+    isPlaying?: boolean;
+    canPrev?: boolean;
+    canNext?: boolean;
+    /** Labels like "3 / 7" for the current step. */
+    stepLabel?: string;
   } | null;
 }
 
 interface Props {
   state: IntroDropOverlayState | null;
+  /**
+   * Pixels of right-side area the caption card should avoid (e.g. the help
+   * menu width when it's open). The card right-aligns past this inset.
+   */
+  captionRightInset?: number;
 }
 
 /**
@@ -55,7 +79,10 @@ function bezierPath(sx: number, sy: number, tx: number, ty: number) {
   return `M ${sx},${sy} C ${sourceControlX},${sy} ${targetControlX},${ty} ${tx},${ty}`;
 }
 
-export function IntroDropOverlay({ state }: Props) {
+export function IntroDropOverlay({
+  state,
+  captionRightInset = 0,
+}: Props) {
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const [wirePath, setWirePath] = useState<string | null>(null);
   const [wireEnd, setWireEnd] = useState<{ x: number; y: number } | null>(null);
@@ -88,9 +115,32 @@ export function IntroDropOverlay({ state }: Props) {
   }, [connection]);
 
   if (!state) return null;
-  const { cursor, ghost, pressing, caption, controls } = state;
+  const {
+    cursor,
+    ghost,
+    pressing,
+    clickPulse,
+    caption,
+    controls,
+  } = state;
   const hasInteractiveContent = Boolean(caption?.video || controls);
   if (!cursor && !ghost && !caption && !controls) return null;
+  const showCaptionStep =
+    Boolean(caption?.step) && !controls?.stepLabel;
+  const hasStepControls = Boolean(
+    controls?.onPrev ||
+      controls?.onPause ||
+      controls?.onPlay ||
+      controls?.onNext ||
+      controls?.onReplay,
+  );
+  const captionRightGap = hasStepControls ? 88 : 16;
+  const clickRing = cursor && clickPulse
+    ? {
+        x: cursor.x + CURSOR_TIP_OFFSET.x - 28,
+        y: cursor.y + CURSOR_TIP_OFFSET.y - 28,
+      }
+    : null;
 
   return (
     <div
@@ -146,6 +196,16 @@ export function IntroDropOverlay({ state }: Props) {
         </div>
       )}
 
+      {clickRing && (
+        <div
+          className="rawbit-intro-click-ring absolute left-0 top-0"
+          style={{
+            left: clickRing.x,
+            top: clickRing.y,
+          }}
+        />
+      )}
+
       {cursor && (
         <div
           ref={cursorRef}
@@ -170,32 +230,109 @@ export function IntroDropOverlay({ state }: Props) {
       )}
 
       {caption && (
-        <div className="pointer-events-auto absolute bottom-4 right-4 w-[min(44rem,calc(100vw-2rem))] overflow-hidden rounded-md border border-border bg-card text-card-foreground shadow-lg sm:bottom-8 sm:right-8">
+        <div
+          className="pointer-events-auto absolute bottom-4 overflow-hidden rounded-md border border-border bg-background text-foreground shadow-md sm:bottom-8"
+          style={{
+            right: captionRightInset + captionRightGap,
+            width: "min(30rem, calc(100vw - 8rem))",
+          }}
+        >
           {controls?.onClose && (
             <button
               type="button"
               aria-label={controls.closeLabel ?? "Close"}
-              className="absolute right-2 top-2 z-10 flex h-9 w-9 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-foreground"
+              className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-foreground"
               onClick={controls.onClose}
             >
               <X className="h-4 w-4" aria-hidden="true" />
             </button>
           )}
-          <div className="px-4 py-3 pr-12">
-            {caption.step && (
-              <div className="text-xs font-semibold uppercase tracking-normal text-muted-foreground">
+          <div className="px-5 py-4 pr-12">
+            {showCaptionStep && (
+              <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {caption.step}
               </div>
             )}
-            <div className="text-lg font-semibold leading-tight text-primary">
+            <div className="mt-1 text-lg font-semibold leading-tight tracking-tight text-foreground">
               {caption.title}
             </div>
             {caption.body && (
-              <div className="mt-1 whitespace-pre-line text-sm leading-snug text-muted-foreground">
+              <div className="mt-2 whitespace-pre-line text-base leading-relaxed text-muted-foreground">
                 {caption.body}
               </div>
             )}
           </div>
+          {(controls?.onPrev ||
+            controls?.onPause ||
+            controls?.onPlay ||
+            controls?.onNext ||
+            controls?.onReplay) && (
+            <div className="flex items-center justify-between gap-2 border-t border-border bg-muted/40 px-5 py-3">
+              <div className="flex items-center gap-1.5">
+                {controls.onPrev && (
+                  <button
+                    type="button"
+                    onClick={controls.onPrev}
+                    disabled={!controls.canPrev}
+                    aria-label="Previous step"
+                    title="Previous step"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+                  </button>
+                )}
+                {controls.isPlaying && controls.onPause ? (
+                  <button
+                    type="button"
+                    onClick={controls.onPause}
+                    aria-label="Pause"
+                    title="Pause"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-primary/50 bg-primary/10 text-primary hover:bg-primary/15"
+                  >
+                    <Pause className="h-5 w-5" aria-hidden="true" />
+                  </button>
+                ) : controls.onPlay ? (
+                  <button
+                    type="button"
+                    onClick={controls.onPlay}
+                    aria-label="Play"
+                    title="Resume demo"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-primary/50 bg-primary/10 text-primary hover:bg-primary/15"
+                  >
+                    <Play className="h-5 w-5" aria-hidden="true" />
+                  </button>
+                ) : null}
+                {controls.onNext && (
+                  <button
+                    type="button"
+                    onClick={controls.onNext}
+                    disabled={!controls.canNext}
+                    aria-label="Next step"
+                    title="Next step"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                  </button>
+                )}
+                {controls.onReplay && (
+                  <button
+                    type="button"
+                    onClick={controls.onReplay}
+                    aria-label="Restart from beginning"
+                    title="Restart from beginning"
+                    className="ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                )}
+              </div>
+              {controls.stepLabel && (
+                <div className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+                  {controls.stepLabel}
+                </div>
+              )}
+            </div>
+          )}
           {caption.video && (
             <div className="bg-background">
               <iframe
