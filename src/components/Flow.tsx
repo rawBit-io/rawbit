@@ -667,17 +667,8 @@ function FlowContent() {
   }, []);
 
   const RHS_PANEL_W = 256; // default right panels (=16rem)
+  const HELP_PANEL_W = 288; // HelpMenu w-72 (=18rem)
   const MM_GAP = 44.8; // 2.8 rem  (space beside controls)
-
-  const showUndoRedoPanelUI = isMobileReadOnly ? false : showUndoRedoPanel;
-  const showErrorPanelUI = isMobileReadOnly ? false : showErrorPanel;
-  const showSearchPanelUI = isMobileReadOnly ? false : showSearchPanel;
-  let rightPanelWidth = 0;
-  if (showUndoRedoPanelUI || showErrorPanelUI || showSearchPanelUI) {
-    rightPanelWidth = RHS_PANEL_W;
-  }
-  const rightPanelOpen = rightPanelWidth > 0;
-  const miniMapOffset = rightPanelOpen ? rightPanelWidth + MM_GAP : MM_GAP;
 
   const flowInstanceRef = useRef<ReactFlowInstance | null>(null);
   const [hasFitOnInitialLoad, setHasFitOnInitialLoad] = useState(false);
@@ -3175,6 +3166,18 @@ function FlowContent() {
     activeTabId !== undefined &&
     helpTabIds.has(activeTabId);
   const isGuidedHelpOpen = isActiveHelpTab && showHelpMenu;
+  const showUndoRedoPanelUI = !isMobileReadOnly && showUndoRedoPanel;
+  const showErrorPanelUI = !isMobileReadOnly && showErrorPanel;
+  const showSearchPanelUI = !isMobileReadOnly && showSearchPanel;
+  const showHelpPanelUI = !isMobileReadOnly && isGuidedHelpOpen;
+  const rightPanelWidth = Math.max(
+    showUndoRedoPanelUI || showErrorPanelUI || showSearchPanelUI
+      ? RHS_PANEL_W
+      : 0,
+    showHelpPanelUI ? HELP_PANEL_W : 0,
+  );
+  const rightPanelOpen = rightPanelWidth > 0;
+  const miniMapOffset = rightPanelOpen ? rightPanelWidth + MM_GAP : MM_GAP;
 
   /* =================================================================
    *  JSX render – nothing but UI
