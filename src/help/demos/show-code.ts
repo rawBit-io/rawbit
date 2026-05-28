@@ -12,19 +12,33 @@ import {
   getElementCenter,
   getRectCursorCenter,
   getSidebarNodeSourceRect,
+  getSidebarSearchInputRect,
   scrollCodeDialogTo,
   withCursorTipAt,
 } from "../runtime/helpers";
 import type { DemoStep, DemoStepContext, HelpDemo } from "../types";
 
-const SHA256_LABEL = "Data → SHA-256";
-const SHA256_NODE_ID = "node_help_demo_sha256";
-const SHA256_POSITION = { x: 220, y: 180 };
+const VARINT_LABEL = "Int → VarInt";
+const VARINT_NODE_ID = "node_help_demo_code_varint";
+const VARINT_POSITION = { x: 220, y: 180 };
 
 const VIEWPORT = { x: 0, y: 0, zoom: 1 };
 
 const SPEEDUP = 1.5;
 const sp = (ms: number) => Math.round(ms / SPEEDUP);
+const MENU_BUTTON_PRESS_AT = sp(650);
+const SHOW_CODE_CURSOR_AT = MENU_BUTTON_PRESS_AT + 450;
+const SHOW_CODE_PRESS_AT = SHOW_CODE_CURSOR_AT + 550;
+const SHOW_CODE_CLICK_AT = SHOW_CODE_PRESS_AT + 850;
+const SEARCH_TYPE_DELAY = 150;
+const VARINT_SEARCH_QUERY = "var";
+const VARINT_DROP_DURATION =
+  sp(650) +
+  sp(250) +
+  VARINT_SEARCH_QUERY.length * SEARCH_TYPE_DELAY +
+  sp(450) +
+  sp(1900) +
+  400;
 
 function cloneTemplateData(template: NodeTemplate): Record<string, unknown> {
   const source = template.nodeData as Record<string, unknown>;
@@ -40,6 +54,52 @@ function cloneTemplateData(template: NodeTemplate): Record<string, unknown> {
 
 function findTemplate(label: string): NodeTemplate | undefined {
   return allSidebarNodes.find((node) => node.label === label);
+}
+
+function getShowCodeItem() {
+  return findMenuItemByText("Show Code");
+}
+
+function isCodeDialogOpen() {
+  if (typeof document === "undefined") return false;
+  return Boolean(document.querySelector(".syntax-highlighter-container"));
+}
+
+function setCursorOnShowCodeItem(
+  ctx: DemoStepContext,
+  opts: { pressing?: boolean; clickPulse?: boolean } = {},
+) {
+  const item = getShowCodeItem();
+  if (!item) return;
+  ctx.setOverlay({
+    cursor: withCursorTipAt(getElementCenter(item)),
+    ghost: null,
+    pressing: opts.pressing,
+    clickPulse: opts.clickPulse,
+  });
+}
+
+function openCodeDialog(ctx?: DemoStepContext, attempts = 0) {
+  if (isCodeDialogOpen()) {
+    ctx?.setOverlay({ cursor: null, ghost: null });
+    return;
+  }
+
+  const item = getShowCodeItem();
+  if (item) {
+    item.click();
+    ctx?.setOverlay({ cursor: null, ghost: null });
+    return;
+  }
+
+  if (attempts === 0 || attempts % 2 === 0) {
+    const button = findNodeMenuButton(VARINT_NODE_ID);
+    if (button) dispatchPointerDown(button);
+  }
+  if (attempts >= 10 || typeof window === "undefined") return;
+  window.requestAnimationFrame(() => {
+    openCodeDialog(ctx, attempts + 1);
+  });
 }
 
 interface DropArgs {
@@ -70,67 +130,98 @@ function placeNode(
   ]);
 }
 
-function scheduleCategoryDrop(
+function scheduleSearchDrop(
   ctx: DemoStepContext,
   drop: DropArgs,
   label: string,
   eyebrow: string,
+  query: string,
 ) {
   ctx.scheduleStep(0, () => {
-    ctx.setSidebarHighlightLabel(label);
+    ctx.setSidebarSearch("");
+    const center = getRectCursorCenter(getSidebarSearchInputRect());
+    ctx.setOverlay({ cursor: center, ghost: null });
   });
-  ctx.scheduleStep(sp(350), () => {
+
+  const focusAt = sp(650);
+  ctx.scheduleStep(focusAt, () => {
+    const center = getRectCursorCenter(getSidebarSearchInputRect());
+    ctx.setOverlay({ cursor: center, ghost: null, pressing: true });
+  });
+
+  const typeStart = focusAt + sp(250);
+  for (let i = 1; i <= query.length; i += 1) {
+    const partial = query.slice(0, i);
+    ctx.scheduleStep(typeStart + i * SEARCH_TYPE_DELAY, () => {
+      ctx.setSidebarSearch(partial);
+      const center = getRectCursorCenter(getSidebarSearchInputRect());
+      ctx.setOverlay({ cursor: center, ghost: null });
+    });
+  }
+
+  const typeEnd = typeStart + query.length * SEARCH_TYPE_DELAY;
+  const moveToCard = typeEnd + sp(450);
+  ctx.scheduleStep(moveToCard, () => {
+    ctx.setSidebarHighlightLabel(label);
     const center = getRectCursorCenter(getSidebarNodeSourceRect(label));
     ctx.setOverlay({ cursor: center, ghost: null });
   });
-  ctx.scheduleStep(sp(1050), () => {
+
+  ctx.scheduleStep(moveToCard + sp(700), () => {
     const center = getRectCursorCenter(getSidebarNodeSourceRect(label));
     ctx.setOverlay({ cursor: center, ghost: null, pressing: true });
   });
-  ctx.scheduleStep(sp(1250), () => {
+
+  ctx.scheduleStep(moveToCard + sp(900), () => {
     const center = getRectCursorCenter(getSidebarNodeSourceRect(label));
     ctx.setOverlay({
       cursor: center,
       ghost: { x: center.x - 20, y: center.y - 18, eyebrow, label },
     });
   });
-  ctx.scheduleStep(sp(1500), () => {
+
+  ctx.scheduleStep(moveToCard + sp(1150), () => {
     const target = ctx.flowToScreen(drop.position);
     ctx.setOverlay({
       cursor: target,
       ghost: { x: target.x - 20, y: target.y - 18, eyebrow, label },
     });
   });
-  ctx.scheduleStep(sp(2250), () => {
+
+  const dropAt = moveToCard + sp(1900);
+  ctx.scheduleStep(dropAt, () => {
     const target = ctx.flowToScreen(drop.position);
     placeNode(ctx, drop);
     ctx.setOverlay({ cursor: target, ghost: null, pressing: true });
+    ctx.setSidebarSearch("");
     ctx.setSidebarHighlightLabel(undefined);
   });
+
+  return dropAt + 200;
 }
 
-const STEP_COUNT = 6;
+const STEP_COUNT = 5;
 
 function makeSteps(): DemoStep[] {
   return [
     {
-      id: "drop-sha256",
+      id: "drop-varint",
       caption: {
         step: `1 / ${STEP_COUNT}`,
-        title: "Drop a hash node",
+        title: "Drop a VarInt node",
         body:
-          "Every calculation node is backed by Python. Let's drop a SHA-256 to inspect its source.",
+          "Search for VarInt, drop Int → VarInt, then inspect the Python behind it.",
       },
-      durationMs: sp(2250) + 400,
+      durationMs: VARINT_DROP_DURATION,
       play(ctx) {
-        const tpl = findTemplate(SHA256_LABEL);
+        const tpl = findTemplate(VARINT_LABEL);
         if (!tpl) return;
-        scheduleCategoryDrop(
+        scheduleSearchDrop(
           ctx,
           {
             template: tpl,
-            nodeId: SHA256_NODE_ID,
-            position: SHA256_POSITION,
+            nodeId: VARINT_NODE_ID,
+            position: VARINT_POSITION,
             override: (data) => ({
               ...data,
               inputs: { ...(data.inputs as object | undefined), val: "" },
@@ -138,31 +229,32 @@ function makeSteps(): DemoStep[] {
               dirty: false,
             }),
           },
-          SHA256_LABEL,
-          "Hashes",
+          VARINT_LABEL,
+          "Encoding & Script Data",
+          VARINT_SEARCH_QUERY,
         );
       },
     },
     {
-      id: "open-menu",
+      id: "open-show-code",
       caption: {
         step: `2 / ${STEP_COUNT}`,
-        title: "Open the node's menu",
+        title: "Open Show Code",
         body:
-          "Each node has a ⋯ button in its header — that's where 'Show Code' lives.",
+          "Use the node's ⋯ menu and choose Show Code to open its Python function.",
       },
-      durationMs: sp(650) + sp(300) + 400,
+      durationMs: SHOW_CODE_CLICK_AT + 500,
       play(ctx) {
         ctx.scheduleStep(0, () => {
-          const button = findNodeMenuButton(SHA256_NODE_ID);
+          const button = findNodeMenuButton(VARINT_NODE_ID);
           if (!button) return;
           ctx.setOverlay({
             cursor: withCursorTipAt(getElementCenter(button)),
             ghost: null,
           });
         });
-        ctx.scheduleStep(sp(650), () => {
-          const button = findNodeMenuButton(SHA256_NODE_ID);
+        ctx.scheduleStep(MENU_BUTTON_PRESS_AT, () => {
+          const button = findNodeMenuButton(VARINT_NODE_ID);
           if (!button) return;
           ctx.setOverlay({
             cursor: withCursorTipAt(getElementCenter(button)),
@@ -171,48 +263,29 @@ function makeSteps(): DemoStep[] {
           });
           dispatchPointerDown(button);
         });
-      },
-    },
-    {
-      id: "pick-show-code",
-      caption: {
-        step: `3 / ${STEP_COUNT}`,
-        title: 'Pick "Show Code"',
-        body:
-          "Opens a dialog with the exact Python function this node runs — syntax-highlighted and read-only.",
-      },
-      durationMs: sp(450) + sp(550) + 400,
-      play(ctx) {
-        ctx.scheduleStep(0, () => {
-          const item = findMenuItemByText("Show Code");
-          if (!item) return;
-          ctx.setOverlay({
-            cursor: withCursorTipAt(getElementCenter(item)),
-            ghost: null,
-          });
-        });
-        ctx.scheduleStep(sp(450), () => {
-          const item = findMenuItemByText("Show Code");
-          if (!item) return;
-          ctx.setOverlay({
-            cursor: withCursorTipAt(getElementCenter(item)),
-            ghost: null,
+        ctx.scheduleStep(SHOW_CODE_CURSOR_AT, () =>
+          setCursorOnShowCodeItem(ctx),
+        );
+        ctx.scheduleStep(SHOW_CODE_PRESS_AT, () => {
+          setCursorOnShowCodeItem(ctx, {
             pressing: true,
+            clickPulse: true,
           });
-          item.click();
         });
+        ctx.scheduleStep(SHOW_CODE_CLICK_AT, () => openCodeDialog(ctx));
       },
     },
     {
       id: "read-source",
       caption: {
-        step: `4 / ${STEP_COUNT}`,
+        step: `3 / ${STEP_COUNT}`,
         title: "Read the source",
         body:
           "Syntax-highlighted, read-only. Scroll through to see helpers and imports the function pulls in.",
       },
       durationMs: sp(1400) + sp(1800) + sp(1600) + sp(900),
       play(ctx) {
+        ctx.scheduleStep(0, () => openCodeDialog());
         ctx.scheduleStep(sp(1400), () => scrollCodeDialogTo(0.45));
         ctx.scheduleStep(sp(1400) + sp(1800), () => scrollCodeDialogTo(0.85));
         ctx.scheduleStep(
@@ -224,7 +297,7 @@ function makeSteps(): DemoStep[] {
     {
       id: "close-dialog",
       caption: {
-        step: `5 / ${STEP_COUNT}`,
+        step: `4 / ${STEP_COUNT}`,
         title: "Close when done",
         body:
           "Dismiss the dialog with the Close button (or press Escape) to return to the canvas.",
@@ -277,6 +350,7 @@ export const showCodeDemo: HelpDemo = {
   title: "Inspect node code",
   description: "Open any node's Python source.",
   category: "Canvas basics",
+  incrementalForward: true,
 
   init(ctx) {
     ctx.setViewport(VIEWPORT);

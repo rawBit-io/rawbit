@@ -29,6 +29,7 @@ export interface IntroDropOverlayState {
     detail?: string;
   } | null;
   pressing?: boolean;
+  clickPulse?: boolean;
   /** Fixed screen point of the source handle while a wire is being dragged. */
   connection?: { x: number; y: number } | null;
   caption?: {
@@ -114,7 +115,14 @@ export function IntroDropOverlay({
   }, [connection]);
 
   if (!state) return null;
-  const { cursor, ghost, pressing, caption, controls } = state;
+  const {
+    cursor,
+    ghost,
+    pressing,
+    clickPulse,
+    caption,
+    controls,
+  } = state;
   const hasInteractiveContent = Boolean(caption?.video || controls);
   if (!cursor && !ghost && !caption && !controls) return null;
   const showCaptionStep =
@@ -127,6 +135,12 @@ export function IntroDropOverlay({
       controls?.onReplay,
   );
   const captionRightGap = hasStepControls ? 88 : 16;
+  const clickRing = cursor && clickPulse
+    ? {
+        x: cursor.x + CURSOR_TIP_OFFSET.x - 28,
+        y: cursor.y + CURSOR_TIP_OFFSET.y - 28,
+      }
+    : null;
 
   return (
     <div
@@ -180,6 +194,16 @@ export function IntroDropOverlay({
             </div>
           )}
         </div>
+      )}
+
+      {clickRing && (
+        <div
+          className="rawbit-intro-click-ring absolute left-0 top-0"
+          style={{
+            left: clickRing.x,
+            top: clickRing.y,
+          }}
+        />
       )}
 
       {cursor && (

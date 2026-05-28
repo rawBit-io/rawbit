@@ -62,19 +62,17 @@ test.describe('Help demo manual stepping', () => {
     await playDemo(page, 'Inspect node code');
     await pauseDemo(page);
 
-    await clickNextAndWait(page, "Open the node's menu", '2 / 6');
-    await expect(page.locator('[data-id="node_help_demo_sha256"]')).toBeVisible();
-
-    await clickNextAndWait(page, 'Pick "Show Code"', '3 / 6');
+    await clickNextAndWait(page, "Open Show Code", '2 / 5');
+    await expect(page.locator('[data-id="node_help_demo_code_varint"]')).toBeVisible();
     await expect(page.getByRole('dialog', { name: /Python source/i })).toBeVisible();
 
-    await clickNextAndWait(page, 'Read the source', '4 / 6', 8_000);
+    await clickNextAndWait(page, 'Read the source', '3 / 5', 8_000);
     await expect(page.getByRole('dialog', { name: /Python source/i })).toBeVisible();
 
-    await clickNextAndWait(page, 'Close when done', '5 / 6');
+    await clickNextAndWait(page, 'Close when done', '4 / 5');
     await expect(page.getByRole('dialog', { name: /Python source/i })).toHaveCount(0);
 
-    await clickPrevAndWait(page, 'Read the source', '4 / 6', 8_000);
+    await clickPrevAndWait(page, 'Read the source', '3 / 5', 8_000);
     await expect(page.getByRole('dialog', { name: /Python source/i })).toBeVisible();
   });
 
@@ -89,6 +87,43 @@ test.describe('Help demo manual stepping', () => {
     });
     await expect(overlay(page)).toContainText('2 / 8');
     await expect(controlButton(page, 'Pause')).toBeVisible();
+  });
+
+  test('searches for VarInt before dropping the inspect-code node', async ({ page }) => {
+    await playDemo(page, 'Inspect node code');
+
+    await expect(page.locator('#sidebar-search')).toHaveValue('var', {
+      timeout: 3_000,
+    });
+    await expect(page.locator('[data-node-template-label]').first()).toHaveAttribute(
+      'data-node-template-label',
+      'Int → VarInt',
+    );
+    await expect(page.locator('[data-id="node_help_demo_code_varint"]')).toBeVisible({
+      timeout: 5_000,
+    });
+  });
+
+  test('shows the Show Code click cue during autoplay', async ({ page }) => {
+    test.setTimeout(60_000);
+
+    await playDemo(page, 'Inspect node code');
+
+    await expect(overlay(page)).toContainText('Open Show Code', {
+      timeout: 8_000,
+    });
+    await expect(page.getByRole('menuitem', { name: 'Show Code' })).toBeVisible();
+    await expect(page.locator('.rawbit-intro-click-ring')).toBeVisible({
+      timeout: 3_000,
+    });
+    await expect(page.locator('.rawbit-intro-click-ring')).toHaveCSS(
+      'border-top-style',
+      'dashed',
+    );
+    await expect(page.getByRole('dialog', { name: /Python source/i })).toHaveCount(0);
+    await expect(page.getByRole('dialog', { name: /Python source/i })).toBeVisible({
+      timeout: 6_000,
+    });
   });
 
   test('closes guided help when the Help button is clicked from help', async ({ page }) => {
@@ -129,7 +164,7 @@ test.describe('Help demo manual stepping', () => {
     await playDemo(page, 'Inspect node code');
 
     await expect(page.getByRole('tab', { name: /Help/ })).toHaveCount(2);
-    await expect(page.locator('[data-id="node_help_demo_sha256"]')).toBeVisible();
+    await expect(page.locator('[data-id="node_help_demo_code_varint"]')).toBeVisible();
   });
 });
 
@@ -138,7 +173,7 @@ async function playDemo(page: Page, title: string) {
   await expect(card).toBeVisible();
   await card.getByRole('button', { name: 'Play demo' }).click();
   await expect(overlay(page)).toBeVisible();
-  await expect(overlay(page)).toContainText(title === 'Inspect node code' ? 'Drop a hash node' : 'Drop a transaction template');
+  await expect(overlay(page)).toContainText(title === 'Inspect node code' ? 'Drop a VarInt node' : 'Drop a transaction template');
 }
 
 async function pauseDemo(page: Page) {
@@ -263,11 +298,16 @@ async function stubHelpDemoApis(page: Page) {
       contentType: 'application/json',
       body: JSON.stringify({
         code: [
-          'import hashlib',
+          'def encode_varint(value: str) -> str:',
+          '    n = int(value or "0")',
           '',
-          'def sha256_hex(value: str) -> str:',
-          '    data = bytes.fromhex(value) if value else b""',
-          '    return hashlib.sha256(data).hexdigest()',
+          '    if n < 0xfd:',
+          '        return n.to_bytes(1, "little").hex()',
+          '',
+          '    if n <= 0xffff:',
+          '        return "fd" + n.to_bytes(2, "little").hex()',
+          '',
+          '    return "fe" + n.to_bytes(4, "little").hex()',
         ].join('\n'),
       }),
     });
