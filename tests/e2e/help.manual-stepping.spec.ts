@@ -126,6 +126,43 @@ test.describe('Help demo manual stepping', () => {
     });
   });
 
+  test('builds the P2PKH locking script demo graph', async ({ page }) => {
+    test.setTimeout(60_000);
+
+    await playDemo(page, 'Build P2PKH locking script');
+
+    await expect(overlay(page)).toContainText('P2PKH locking script complete', {
+      timeout: 45_000,
+    });
+    await expect(page.locator('[data-id^="node_help_demo_p2pkh_"]')).toHaveCount(7);
+    await expect(page.locator('[data-id="node_help_demo_p2pkh_length"]')).toHaveCount(0);
+    await expect(page.locator('.react-flow__edge')).toHaveCount(7);
+    await expect(page.locator('[data-id="node_help_demo_p2pkh_prefix_ops"]')).toContainText(
+      'OP_DUP',
+    );
+    await expect(page.locator('[data-id="node_help_demo_p2pkh_prefix_ops"]')).toContainText(
+      'OP_HASH160',
+    );
+    await expect(page.locator('[data-id="node_help_demo_p2pkh_suffix_ops"]')).toContainText(
+      'OP_EQUALVERIFY',
+    );
+    await expect(page.locator('[data-id="node_help_demo_p2pkh_suffix_ops"]')).toContainText(
+      'OP_CHECKSIG',
+    );
+    await expect(page.locator('[data-id="node_help_demo_p2pkh_script"]')).toContainText(
+      '76a914bfa89be8ec6dc6a06e38a43934fc764f9069ceed88ac',
+    );
+    await expectNodesNotToOverlap(page, [
+      'node_help_demo_p2pkh_random',
+      'node_help_demo_p2pkh_pubkey',
+      'node_help_demo_p2pkh_hash160',
+      'node_help_demo_p2pkh_push',
+      'node_help_demo_p2pkh_prefix_ops',
+      'node_help_demo_p2pkh_suffix_ops',
+      'node_help_demo_p2pkh_script',
+    ]);
+  });
+
   test('closes guided help when the Help button is clicked from help', async ({ page }) => {
     await playDemo(page, 'Drop, type & connect');
     await expect(controlButton(page, 'Pause')).toBeVisible();
@@ -173,7 +210,13 @@ async function playDemo(page: Page, title: string) {
   await expect(card).toBeVisible();
   await card.getByRole('button', { name: 'Play demo' }).click();
   await expect(overlay(page)).toBeVisible();
-  await expect(overlay(page)).toContainText(title === 'Inspect node code' ? 'Drop a VarInt node' : 'Drop a transaction template');
+  const firstStep =
+    title === 'Inspect node code'
+      ? 'Drop a VarInt node'
+      : title === 'Build P2PKH locking script'
+        ? 'Place the building blocks'
+        : 'Drop a transaction template';
+  await expect(overlay(page)).toContainText(firstStep);
 }
 
 async function pauseDemo(page: Page) {
@@ -219,8 +262,16 @@ function controlButton(page: Page, label: string) {
 }
 
 async function expectHelpDemoNodesNotToOverlap(page: Page) {
-  const overlaps = await page.evaluate((ids) => {
-    const rects = ids.map((id) => {
+  await expectNodesNotToOverlap(page, [
+    'node_help_demo_tx_template',
+    'node_help_demo_varint',
+    'node_help_demo_input',
+  ]);
+}
+
+async function expectNodesNotToOverlap(page: Page, ids: string[]) {
+  const overlaps = await page.evaluate((nodeIds) => {
+    const rects = nodeIds.map((id) => {
       const el = document.querySelector<HTMLElement>(
         `.react-flow__node[data-id="${id}"]`,
       );
@@ -249,11 +300,7 @@ async function expectHelpDemoNodesNotToOverlap(page: Page) {
       }
     }
     return hits;
-  }, [
-    'node_help_demo_tx_template',
-    'node_help_demo_varint',
-    'node_help_demo_input',
-  ]);
+  }, ids);
 
   expect(overlaps).toEqual([]);
 }
