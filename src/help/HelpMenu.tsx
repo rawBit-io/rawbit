@@ -349,11 +349,21 @@ function RefRow({
         )}
       </button>
       {hasMore && isOpen && (
-        <div className="mx-2 mb-1.5 mt-1.5 rounded-md border border-border/70 bg-muted/35 px-3 py-2.5">
+        <div className="mx-2 mb-1.5 mt-1.5 select-text rounded-md border border-border/70 bg-muted/35 px-3 py-2.5">
           <ul className="list-disc space-y-2 pl-4 text-[13px] leading-relaxed text-muted-foreground marker:text-primary/55">
-            {item.moreInfo!.map((detail) => (
-              <li key={detail}>{detail}</li>
-            ))}
+            {item.moreInfo!.map((detail) => {
+              const text = typeof detail === "string" ? detail : detail.text;
+              const isStrong =
+                typeof detail === "object" && detail.strong === true;
+              return (
+                <li
+                  key={text}
+                  className={cn(isStrong && "font-semibold text-foreground")}
+                >
+                  {text}
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
