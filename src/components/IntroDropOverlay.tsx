@@ -119,6 +119,14 @@ export function IntroDropOverlay({
   if (!cursor && !ghost && !caption && !controls) return null;
   const showCaptionStep =
     Boolean(caption?.step) && !controls?.stepLabel;
+  const hasStepControls = Boolean(
+    controls?.onPrev ||
+      controls?.onPause ||
+      controls?.onPlay ||
+      controls?.onNext ||
+      controls?.onReplay,
+  );
+  const captionRightGap = hasStepControls ? 88 : 16;
 
   return (
     <div
@@ -199,8 +207,11 @@ export function IntroDropOverlay({
 
       {caption && (
         <div
-          className="pointer-events-auto absolute bottom-4 w-[min(32rem,calc(100vw-2rem))] overflow-hidden rounded-md border border-border bg-background text-foreground shadow-md sm:bottom-8"
-          style={{ right: captionRightInset + 16 }}
+          className="pointer-events-auto absolute bottom-4 overflow-hidden rounded-md border border-border bg-background text-foreground shadow-md sm:bottom-8"
+          style={{
+            right: captionRightInset + captionRightGap,
+            width: "min(30rem, calc(100vw - 8rem))",
+          }}
         >
           {controls?.onClose && (
             <button
@@ -214,15 +225,15 @@ export function IntroDropOverlay({
           )}
           <div className="px-5 py-4 pr-12">
             {showCaptionStep && (
-              <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {caption.step}
               </div>
             )}
-            <div className="mt-1 text-base font-medium leading-tight tracking-tight text-foreground">
+            <div className="mt-1 text-lg font-semibold leading-tight tracking-tight text-foreground">
               {caption.title}
             </div>
             {caption.body && (
-              <div className="mt-1.5 whitespace-pre-line text-sm text-muted-foreground">
+              <div className="mt-2 whitespace-pre-line text-base leading-relaxed text-muted-foreground">
                 {caption.body}
               </div>
             )}
@@ -232,7 +243,7 @@ export function IntroDropOverlay({
             controls?.onPlay ||
             controls?.onNext ||
             controls?.onReplay) && (
-            <div className="flex items-center justify-between gap-2 border-t border-border bg-muted/40 px-6 py-3">
+            <div className="flex items-center justify-between gap-2 border-t border-border bg-muted/40 px-5 py-3">
               <div className="flex items-center gap-1.5">
                 {controls.onPrev && (
                   <button
@@ -292,7 +303,7 @@ export function IntroDropOverlay({
                 )}
               </div>
               {controls.stepLabel && (
-                <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                <div className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
                   {controls.stepLabel}
                 </div>
               )}

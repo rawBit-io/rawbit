@@ -28,11 +28,11 @@ const INPUT_NODE_ID = "node_help_demo_input";
 const INPUT_TO_VARINT_EDGE = "edge_help_demo_input_to_varint";
 const VARINT_TO_TX_EDGE = "edge_help_demo_varint_to_tx";
 
-const TX_POSITION = { x: 345, y: 90 };
-const VARINT_POSITION = { x: 190, y: 225 };
-const INPUT_POSITION = { x: 40, y: 130 };
+const TX_POSITION = { x: 750, y: 70 };
+const VARINT_POSITION = { x: 390, y: 245 };
+const INPUT_POSITION = { x: 30, y: 110 };
 
-const VIEWPORT = { x: 0, y: 0, zoom: 1 };
+const VIEWPORT = { x: 0, y: 0, zoom: 0.7 };
 
 const SPEEDUP = 1.5;
 const sp = (ms: number) => Math.round(ms / SPEEDUP);
@@ -568,7 +568,7 @@ function makeSteps(): DemoStep[] {
           TX_NODE_ID,
           "input-10",
           {
-            x: VARINT_POSITION.x + 250,
+            x: VARINT_POSITION.x + 270,
             y: VARINT_POSITION.y + 72,
           },
           { x: TX_POSITION.x, y: TX_POSITION.y + 265 },

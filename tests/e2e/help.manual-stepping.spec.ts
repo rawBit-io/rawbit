@@ -37,6 +37,7 @@ test.describe('Help demo manual stepping', () => {
     await clickNextAndWait(page, 'Drop the Input', '3 / 8');
     await expect(page.locator('[data-id="node_help_demo_varint"]')).toBeVisible();
     await expect(page.locator('[data-id="node_help_demo_input"]')).toBeVisible();
+    await expectHelpDemoNodesNotToOverlap(page);
 
     await clickNextAndWait(page, 'Rename on the canvas', '4 / 8');
     await expect(page.locator('[data-id="node_help_demo_input"]')).toContainText('Input Count');
@@ -49,6 +50,7 @@ test.describe('Help demo manual stepping', () => {
 
     await clickNextAndWait(page, 'Build the chain', '7 / 8');
     await expect(page.locator('.react-flow__edge')).toHaveCount(2);
+    await expectHelpDemoNodesNotToOverlap(page);
 
     await clickPrevAndWait(page, 'Connect ports', '6 / 8');
     await expect(page.locator('.react-flow__edge')).toHaveCount(1);
@@ -179,6 +181,46 @@ function overlay(page: Page) {
 
 function controlButton(page: Page, label: string) {
   return overlay(page).locator(`button[aria-label="${label}"]`);
+}
+
+async function expectHelpDemoNodesNotToOverlap(page: Page) {
+  const overlaps = await page.evaluate((ids) => {
+    const rects = ids.map((id) => {
+      const el = document.querySelector<HTMLElement>(
+        `.react-flow__node[data-id="${id}"]`,
+      );
+      if (!el) return null;
+      const rect = el.getBoundingClientRect();
+      return {
+        id,
+        left: rect.left,
+        top: rect.top,
+        right: rect.right,
+        bottom: rect.bottom,
+      };
+    });
+    const hits: string[] = [];
+    for (let i = 0; i < rects.length; i += 1) {
+      for (let j = i + 1; j < rects.length; j += 1) {
+        const a = rects[i];
+        const b = rects[j];
+        if (!a || !b) continue;
+        const overlaps =
+          a.left < b.right &&
+          a.right > b.left &&
+          a.top < b.bottom &&
+          a.bottom > b.top;
+        if (overlaps) hits.push(`${a.id} overlaps ${b.id}`);
+      }
+    }
+    return hits;
+  }, [
+    'node_help_demo_tx_template',
+    'node_help_demo_varint',
+    'node_help_demo_input',
+  ]);
+
+  expect(overlaps).toEqual([]);
 }
 
 async function dropSidebarNode(
