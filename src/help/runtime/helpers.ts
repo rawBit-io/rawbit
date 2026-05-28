@@ -6,12 +6,25 @@ import { CURSOR_TIP_OFFSET } from "@/components/introDropCursor";
 
 const SIDEBAR_FALLBACK = { x: 76, y: 240, width: 196, height: 96 };
 
+function findSidebarNodeSource(label: string): HTMLElement | null {
+  if (typeof document === "undefined") return null;
+  return (
+    Array.from(
+      document.querySelectorAll<HTMLElement>("[data-node-template-label]"),
+    ).find((node) => node.dataset.nodeTemplateLabel === label) ?? null
+  );
+}
+
+/** Scroll a sidebar node card into view before a demo measures or picks it. */
+export function revealSidebarNodeSource(label: string) {
+  const el = findSidebarNodeSource(label);
+  el?.scrollIntoView({ block: "center", behavior: "auto" });
+}
+
 /** Bounding rect of a sidebar node card identified by its label. */
 export function getSidebarNodeSourceRect(label: string) {
   if (typeof document === "undefined") return { ...SIDEBAR_FALLBACK };
-  const el = Array.from(
-    document.querySelectorAll<HTMLElement>("[data-node-template-label]")
-  ).find((node) => node.dataset.nodeTemplateLabel === label);
+  const el = findSidebarNodeSource(label);
   if (!el) return { ...SIDEBAR_FALLBACK };
   const rect = el.getBoundingClientRect();
   return {

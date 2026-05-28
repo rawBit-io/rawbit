@@ -13,6 +13,7 @@ import {
   getRectCursorCenter,
   getSidebarNodeSourceRect,
   getSidebarSearchInputRect,
+  revealSidebarNodeSource,
   withCursorTipAt,
 } from "../runtime/helpers";
 import type { DemoStep, DemoStepContext, HelpDemo } from "../types";
@@ -21,6 +22,9 @@ const TX_LABEL = "TX Template legacy";
 const VARINT_LABEL = "Int → VarInt";
 const INPUT_LABEL = "Input";
 const INPUT_TITLE = "Input Count";
+const TX_SEARCH_QUERY = "tx template legacy";
+const VARINT_SEARCH_QUERY = "varint";
+const INPUT_SEARCH_QUERY = "input";
 
 const TX_NODE_ID = "node_help_demo_tx_template";
 const VARINT_NODE_ID = "node_help_demo_varint";
@@ -34,7 +38,7 @@ const INPUT_POSITION = { x: 30, y: 110 };
 
 const VIEWPORT = { x: 0, y: 0, zoom: 0.7 };
 
-const SPEEDUP = 1.5;
+const SPEEDUP = 1.8;
 const sp = (ms: number) => Math.round(ms / SPEEDUP);
 
 /* ----------------- shared helpers (reused across steps) ----------------- */
@@ -83,54 +87,17 @@ function placeNode(
   ]);
 }
 
-function scheduleCategoryDrop(
-  ctx: DemoStepContext,
-  startAt: number,
-  drop: DropArgs,
-  label: string,
-  eyebrow: string,
-) {
-  ctx.scheduleStep(startAt, () => {
-    ctx.setSidebarHighlightLabel(label);
-  });
+const SEARCH_TYPE_DELAY = sp(150);
 
-  ctx.scheduleStep(startAt + sp(350), () => {
-    const center = getRectCursorCenter(getSidebarNodeSourceRect(label));
-    ctx.setOverlay({ cursor: center, ghost: null });
-  });
-
-  ctx.scheduleStep(startAt + sp(1050), () => {
-    const center = getRectCursorCenter(getSidebarNodeSourceRect(label));
-    ctx.setOverlay({ cursor: center, ghost: null, pressing: true });
-  });
-
-  ctx.scheduleStep(startAt + sp(1250), () => {
-    const center = getRectCursorCenter(getSidebarNodeSourceRect(label));
-    ctx.setOverlay({
-      cursor: center,
-      ghost: { x: center.x - 20, y: center.y - 18, eyebrow, label },
-    });
-  });
-
-  ctx.scheduleStep(startAt + sp(1500), () => {
-    const target = ctx.flowToScreen(drop.position);
-    ctx.setOverlay({
-      cursor: target,
-      ghost: { x: target.x - 20, y: target.y - 18, eyebrow, label },
-    });
-  });
-
-  ctx.scheduleStep(startAt + sp(2250), () => {
-    const target = ctx.flowToScreen(drop.position);
-    placeNode(ctx, drop);
-    ctx.setOverlay({ cursor: target, ghost: null, pressing: true });
-    ctx.setSidebarHighlightLabel(undefined);
-  });
-
-  return sp(2250) + 200;
+function searchDropDuration(query: string) {
+  return (
+    sp(1000) +
+    query.length * SEARCH_TYPE_DELAY +
+    sp(450) +
+    sp(1900) +
+    400
+  );
 }
-
-const SEARCH_TYPE_DELAY = 150; // text typing — intentionally unscaled
 
 function scheduleSearchDrop(
   ctx: DemoStepContext,
@@ -165,16 +132,20 @@ function scheduleSearchDrop(
 
   const moveToCard = typeEnd + sp(450);
   ctx.scheduleStep(moveToCard, () => {
+    revealSidebarNodeSource(label);
+    ctx.setSidebarHighlightLabel(label);
     const center = getRectCursorCenter(getSidebarNodeSourceRect(label));
     ctx.setOverlay({ cursor: center, ghost: null });
   });
 
   ctx.scheduleStep(moveToCard + sp(700), () => {
+    revealSidebarNodeSource(label);
     const center = getRectCursorCenter(getSidebarNodeSourceRect(label));
     ctx.setOverlay({ cursor: center, ghost: null, pressing: true });
   });
 
   ctx.scheduleStep(moveToCard + sp(900), () => {
+    revealSidebarNodeSource(label);
     const center = getRectCursorCenter(getSidebarNodeSourceRect(label));
     ctx.setOverlay({
       cursor: center,
@@ -196,6 +167,7 @@ function scheduleSearchDrop(
     placeNode(ctx, drop);
     ctx.setOverlay({ cursor: target, ghost: null, pressing: true });
     ctx.setSidebarSearch("");
+    ctx.setSidebarHighlightLabel(undefined);
   });
 
   return dropAt - startAt + 200;
@@ -263,7 +235,7 @@ function scheduleConnect(
   return CONN_TOTAL + 200;
 }
 
-const TITLE_TYPE_DELAY = 85; // text typing — NOT scaled
+const TITLE_TYPE_DELAY = sp(85);
 
 function scheduleRename(
   ctx: DemoStepContext,
@@ -323,13 +295,13 @@ function makeSteps(): DemoStep[] {
         step: `1 / ${STEP_COUNT}`,
         title: "Drop a transaction template",
         body:
-          "Drag the TX Template legacy from the Transactions category to lay down the skeleton of a transaction.",
+          "Search for TX Template legacy, then drop it to lay down the skeleton of a transaction.",
       },
-      durationMs: sp(2250) + 400,
+      durationMs: searchDropDuration(TX_SEARCH_QUERY),
       play(ctx) {
         const tpl = findTemplate(TX_LABEL);
         if (!tpl) return;
-        scheduleCategoryDrop(
+        scheduleSearchDrop(
           ctx,
           0,
           {
@@ -345,6 +317,7 @@ function makeSteps(): DemoStep[] {
           },
           TX_LABEL,
           "Transactions",
+          TX_SEARCH_QUERY,
         );
       },
     },
@@ -356,7 +329,7 @@ function makeSteps(): DemoStep[] {
         body:
           "Don't see the node you need? Type into the sidebar search — try 'varint' to find Int → VarInt instantly.",
       },
-      durationMs: sp(1000) + 6 * SEARCH_TYPE_DELAY + sp(450) + sp(1900) + 400,
+      durationMs: searchDropDuration(VARINT_SEARCH_QUERY),
       play(ctx) {
         const tpl = findTemplate(VARINT_LABEL);
         if (!tpl) return;
@@ -376,7 +349,7 @@ function makeSteps(): DemoStep[] {
           },
           VARINT_LABEL,
           "Encoding & Script Data",
-          "varint",
+          VARINT_SEARCH_QUERY,
         );
       },
     },
@@ -386,13 +359,13 @@ function makeSteps(): DemoStep[] {
         step: `3 / ${STEP_COUNT}`,
         title: "Drop the Input",
         body:
-          "Input nodes are the entry points of every flow — they're where you type raw data.",
+          "Search for Input, then drop it as the raw data entry point for this flow.",
       },
-      durationMs: sp(2250) + 400,
+      durationMs: searchDropDuration(INPUT_SEARCH_QUERY),
       play(ctx) {
         const tpl = findTemplate(INPUT_LABEL);
         if (!tpl) return;
-        scheduleCategoryDrop(
+        scheduleSearchDrop(
           ctx,
           0,
           {
@@ -409,6 +382,7 @@ function makeSteps(): DemoStep[] {
           },
           INPUT_LABEL,
           "Canvas & Inputs",
+          INPUT_SEARCH_QUERY,
         );
       },
     },

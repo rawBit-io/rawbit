@@ -25,7 +25,6 @@ const FLOW_SEARCH = "flow 0 p2pkh";
 const VERIFY_NODE_ID = "node_o6vul7a";
 const VERIFY_SEARCH = "verify script";
 const FLOW_DROP_POSITION = { x: 0, y: 0 };
-const FLOW_DROP_SCREEN_POINT = { x: 112, y: 88 };
 const FLOW_SOURCE_FALLBACK = { x: 76, y: 780, width: 196, height: 96 };
 const VERIFY_NODE_FALLBACK_SIZE = { width: 410, height: 620 };
 
@@ -222,7 +221,18 @@ function getFlowSourceElement(): HTMLElement | null {
 
 function revealFlowSource() {
   const el = getFlowSourceElement();
-  el?.scrollIntoView({ block: "center", behavior: "smooth" });
+  el?.scrollIntoView({ block: "center", behavior: "auto" });
+}
+
+function getFlowDropScreenPoint(ctx: DemoStepContext) {
+  const target = ctx.flowToScreen(FLOW_DROP_POSITION);
+  const pane = getPaneRect();
+  if (!pane) return target;
+
+  return {
+    x: Math.min(Math.max(target.x, pane.left + 80), pane.right - 80),
+    y: Math.min(Math.max(target.y, pane.top + 80), pane.bottom - 80),
+  };
 }
 
 function getNodeElement(nodeId: string): HTMLElement | null {
@@ -476,7 +486,7 @@ function scheduleFlowSearchAndDrop(ctx: DemoStepContext) {
   });
 
   ctx.scheduleStep(moveToCard + sp(1020), () => {
-    const target = FLOW_DROP_SCREEN_POINT;
+    const target = getFlowDropScreenPoint(ctx);
     ctx.setOverlay({
       cursor: target,
       ghost: {
@@ -494,8 +504,9 @@ function scheduleFlowSearchAndDrop(ctx: DemoStepContext) {
     ctx.setNodes(() => nodes);
     ctx.setEdges(() => edges);
     ctx.setViewport(overviewViewport());
+    const target = getFlowDropScreenPoint(ctx);
     ctx.setOverlay({
-      cursor: FLOW_DROP_SCREEN_POINT,
+      cursor: target,
       ghost: null,
       pressing: true,
     });

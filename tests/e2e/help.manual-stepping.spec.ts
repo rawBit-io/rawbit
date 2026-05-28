@@ -83,10 +83,34 @@ test.describe('Help demo manual stepping', () => {
     await controlButton(page, 'Play').click();
 
     await expect(overlay(page)).toContainText('Search the sidebar', {
-      timeout: 5_000,
+      timeout: 12_000,
     });
     await expect(overlay(page)).toContainText('2 / 8');
     await expect(controlButton(page, 'Pause')).toBeVisible();
+  });
+
+  test('uses sidebar search before each first-demo node drop', async ({ page }) => {
+    test.setTimeout(60_000);
+
+    await playDemo(page, 'Drop, type & connect');
+
+    await expect(page.locator('#sidebar-search')).toHaveValue('tx template legacy', {
+      timeout: 5_000,
+    });
+    await expect(page.locator('[data-node-template-label="TX Template legacy"]')).toBeVisible();
+
+    await expect(page.locator('#sidebar-search')).toHaveValue('varint', {
+      timeout: 12_000,
+    });
+    await expect(page.locator('[data-node-template-label="Int → VarInt"]')).toBeVisible();
+
+    await expect(page.locator('#sidebar-search')).toHaveValue('input', {
+      timeout: 12_000,
+    });
+    await expect(page.locator('[data-node-template-label="Input"]')).toBeVisible();
+    await expect(overlay(page)).toContainText('Rename on the canvas', {
+      timeout: 12_000,
+    });
   });
 
   test('searches for VarInt before dropping the inspect-code node', async ({ page }) => {
@@ -161,6 +185,46 @@ test.describe('Help demo manual stepping', () => {
       'node_help_demo_p2pkh_suffix_ops',
       'node_help_demo_p2pkh_script',
     ]);
+  });
+
+  test('drops the Verify Script intro flow onto the canvas', async ({ page }) => {
+    test.setTimeout(60_000);
+
+    await playDemo(page, 'Walk Verify Script steps');
+
+    await expect(page.locator('[data-id="node_o6vul7a"]')).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(overlay(page)).toContainText('Drop Intro P2PKH flow');
+
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(() => {
+            const cursor = document.querySelector<HTMLElement>(
+              '.rawbit-intro-drop-cursor',
+            );
+            const canvas = document.querySelector<HTMLElement>('.react-flow');
+            const sidebar = document.querySelector<HTMLElement>(
+              '[data-testid="sidebar"]',
+            );
+            if (!cursor || !canvas) return false;
+
+            const cursorRect = cursor.getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
+            const sidebarRight =
+              sidebar?.getBoundingClientRect().right ?? canvasRect.left;
+            return (
+              cursorRect.left > sidebarRight &&
+              cursorRect.left >= canvasRect.left &&
+              cursorRect.left <= canvasRect.right &&
+              cursorRect.top >= canvasRect.top &&
+              cursorRect.top <= canvasRect.bottom
+            );
+          }),
+        { timeout: 4_000 },
+      )
+      .toBe(true);
   });
 
   test('walks the Verify Script execution steps demo', async ({ page }) => {
