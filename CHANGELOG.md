@@ -205,3 +205,36 @@ and the project aims to adhere to [Semantic Versioning](https://semver.org/spec/
 
 - Fixed shared canvas imports so the first-run welcome dialog no longer wipes an imported shared graph in a fresh browser session.
 - Fixed dirty-node error annotation to return updated node objects instead of mutating existing node data in place, keeping React state updates immutable.
+
+## [0.5.0] - 2026-05-29
+
+### Highlights
+
+- Major visual redesign of rawBit, including the canvas, nodes, groups, topbar, tabs, sidebar, help panel, menus, and default styling.
+- Added bundled edges between groups, making large grouped flows easier to read by routing cross-group connections through group boundary handles.
+- Added a new top-level Intro P2PKH flow and reworked intro material around clearer grouped transaction structure.
+- Added guided Help demos for core rawBit workflows, including building a P2PKH locking script and stepping through Verify Script execution.
+
+### Added
+
+- Group edge bundling with draggable boundary handles.
+- New `Intro P2PKH` flow.
+- Guided Help demos and expanded in-app Help reference.
+- Save, Load, and Paste dropdown menus.
+- Paste with incoming connections.
+
+### Changed
+
+- Refreshed the app-wide visual style and default skin.
+- Improved node, group, edge, topbar, sidebar, and menu readability.
+- Improved copy, paste, save, and export behavior for grouped flows.
+- Improved Verify Script step walkthroughs and script inspection.
+
+### Fixed
+
+- Fixed several group copy/paste and export edge cases.
+- Fixed several script verification and transaction inspection details.
+
+### Removed
+
+- Removed the Protocol Diagram / Flow Map feature.

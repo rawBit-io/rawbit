@@ -85,8 +85,9 @@ test.describe('Flow file operations', () => {
     await page.goto('/');
     await loadFixture(page, 'hash-flow.json');
 
-    const downloadPromise = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Save' }).click();
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('menuitem', { name: /Reloadable rawBit JSON/ }).click();
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toBe('hash-flow.json');
 
