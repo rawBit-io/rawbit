@@ -214,7 +214,7 @@ export const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
         title: "Skin",
         body: "Choose the UI skin and canvas edge styling",
         moreInfo: [
-          "Choose Shadcn, Paper Ledger, or Midnight Signal for the app appearance",
+          "Choose Shadcn, Paper Ledger, Paper Ledger Refined, or Midnight Signal for the app appearance",
           "The same menu adjusts edge thickness, normal edge opacity, and dashed edge opacity",
           "Group fill controls how visible group backgrounds are",
           "Light mode and dark mode keep separate edge and group style values",

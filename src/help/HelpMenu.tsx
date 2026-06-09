@@ -8,7 +8,11 @@ import { ChevronRight, Play, Search, Square, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { useHelpMenuState } from "./helpMenuData";
-import { HELP_GUIDE_GROUPS, type HelpGuideItem } from "./helpGuideData";
+import {
+  HELP_GUIDE_GROUPS,
+  type HelpGuideDetail,
+  type HelpGuideItem,
+} from "./helpGuideData";
 import type { HelpDemo } from "./types";
 
 interface Props {
@@ -29,8 +33,28 @@ type HelpSection = {
   hits: Hit[];
 };
 
+function helpDetailText(detail: HelpGuideDetail): string {
+  return typeof detail === "string" ? detail : detail.text;
+}
+
+function queryTerms(query: string): string[] {
+  const trimmed = query.trim().toLowerCase();
+  if (!trimmed) return [];
+  if (
+    trimmed.length > 1 &&
+    trimmed.startsWith('"') &&
+    trimmed.endsWith('"')
+  ) {
+    return [trimmed.slice(1, -1).trim()].filter(Boolean);
+  }
+  return trimmed.split(/\s+/).filter(Boolean);
+}
+
 function includesQuery(haystack: string, query: string): boolean {
-  return haystack.toLowerCase().includes(query.toLowerCase());
+  const terms = queryTerms(query);
+  if (terms.length === 0) return false;
+  const normalizedHaystack = haystack.toLowerCase();
+  return terms.every((term) => normalizedHaystack.includes(term));
 }
 
 function hitTitle(hit: Hit): string {
@@ -41,9 +65,29 @@ function hitBody(hit: Hit): string {
   return hit.kind === "demo" ? hit.demo.description : hit.item.body;
 }
 
+function hitDetailText(hit: Hit): string {
+  if (hit.kind === "demo") {
+    return hit.demo.steps
+      .flatMap((step) => [
+        step.id,
+        step.caption.step,
+        step.caption.title,
+        step.caption.body,
+      ])
+      .join(" ");
+  }
+  return hit.item.moreInfo?.map(helpDetailText).join(" ") ?? "";
+}
+
+function hitMatchesDetail(hit: Hit, query: string): boolean {
+  return includesQuery(hitDetailText(hit), query);
+}
+
 function hitSearchRank(hit: Hit, query: string): number | null {
   if (includesQuery(hitTitle(hit), query)) return 0;
   if (includesQuery(hitBody(hit), query)) return 1;
+  if (hitMatchesDetail(hit, query)) return 2;
+  if (includesQuery(hit.group, query)) return 3;
   return null;
 }
 
@@ -187,8 +231,15 @@ export function HelpMenu({
                 />
                 {openSections[section.id] && (
                   <ul className="px-1.5">
-                    {section.hits.map((hit) =>
-                      hit.kind === "demo" ? (
+                    {section.hits.map((hit) => {
+                      const rowId =
+                        hit.kind === "ref"
+                          ? `${hit.group}-${hit.item.title}`
+                          : hit.demo.id;
+                      const queryDetailMatch =
+                        query.trim().length > 0 && hitMatchesDetail(hit, query);
+
+                      return hit.kind === "demo" ? (
                         <li key={hit.demo.id}>
                           <DemoRow
                             demo={hit.demo}
@@ -198,24 +249,23 @@ export function HelpMenu({
                           />
                         </li>
                       ) : (
-                        <li key={`${hit.group}-${hit.item.title}`}>
+                        <li key={rowId}>
                           <RefRow
                             item={hit.item}
                             isOpen={
-                              expandedDetailId ===
-                              `${hit.group}-${hit.item.title}`
+                              expandedDetailId === rowId || queryDetailMatch
                             }
                             onToggle={() =>
                               setExpandedDetailId((prev) =>
-                                prev === `${hit.group}-${hit.item.title}`
+                                prev === rowId
                                   ? null
-                                  : `${hit.group}-${hit.item.title}`,
+                                  : rowId,
                               )
                             }
                           />
                         </li>
-                      ),
-                    )}
+                      );
+                    })}
                   </ul>
                 )}
               </div>
