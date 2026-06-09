@@ -223,7 +223,7 @@
 
 .app-tabbar::after {
   top: 0;
-  bottom: 0;
+  bottom: 1px;
   width: 1.1rem;
   z-index: 3;
 }
