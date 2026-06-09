@@ -9,6 +9,7 @@ import type { Edge } from "@xyflow/react";
 import { FLOW_SCHEMA_VERSION } from "@/lib/flow/schema";
 import { hydrateNodesWithScriptSteps } from "@/lib/share/scriptStepsCache";
 import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
+import { normalizeAndDedupeEdgeConnections } from "@/lib/flow/edgeNormalization";
 
 export function buildSharePayload(
   nodes: FlowNode[],
@@ -41,9 +42,11 @@ export function buildSharePayload(
     return sharedNode;
   });
 
-  const cleanedEdges: SharedEdge[] = edges.map((edge) => ({
-    ...edge,
-  }));
+  const cleanedEdges: SharedEdge[] = normalizeAndDedupeEdgeConnections(edges).map(
+    (edge) => ({
+      ...edge,
+    })
+  );
 
   return {
     name: "shared",

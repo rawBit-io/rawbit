@@ -1,5 +1,6 @@
 import type { Edge } from "@xyflow/react";
 import type { FlowData, FlowNode } from "@/types";
+import { normalizeHandle } from "@/lib/flow/edgeNormalization";
 import { buildPorts } from "@/lib/nodes/ports";
 import {
   FLOW_SCHEMA_VERSION,
@@ -57,9 +58,6 @@ const isFiniteNumber = (value: unknown): value is number =>
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
-
-const normaliseHandle = (value: unknown) =>
-  typeof value === "string" && value.trim() !== "" ? value : undefined;
 
 const edgeLabel = (edge: Edge, index: number) =>
   typeof edge.id === "string" && edge.id.trim() !== ""
@@ -374,7 +372,7 @@ export function validateFlowData(
       return;
     }
 
-    const normalisedHandle = normaliseHandle(edge.targetHandle);
+    const normalisedHandle = normalizeHandle(edge.targetHandle);
     const handleKey = normalisedHandle ?? HANDLE_PLACEHOLDER;
 
     let perHandle = incomingPerNode.get(target);

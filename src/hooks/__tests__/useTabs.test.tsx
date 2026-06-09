@@ -543,6 +543,81 @@ describe("useTabs", () => {
     );
   });
 
+  it("normalizes handles and removes exact duplicate edges from hydrated archives", () => {
+    const source = makeNode("source");
+    const target = makeNode("target");
+    window.localStorage.setItem(
+      TABS_STORAGE_KEY,
+      encodeStored({
+        version: 2,
+        tabs: [{ id: "tab-50", title: "Stored meta", version: 4 }],
+      })
+    );
+    window.localStorage.setItem(
+      `${TAB_ARCHIVE_PREFIX}tab-50`,
+      encodeStored({
+        nodes: [source, target],
+        edges: [
+          {
+            id: "edge-a",
+            source: "source",
+            target: "target",
+            sourceHandle: " output-0 ",
+            targetHandle: " input-0 ",
+          },
+          {
+            id: "edge-b",
+            source: "source",
+            target: "target",
+            sourceHandle: "output-0",
+            targetHandle: "input-0",
+          },
+        ],
+      })
+    );
+    window.localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, "tab-50");
+
+    renderTabs();
+
+    expect(baseSetEdges).toHaveBeenCalledWith([
+      expect.objectContaining({
+        id: "edge-a",
+        sourceHandle: "output-0",
+        targetHandle: "input-0",
+      }),
+    ]);
+  });
+
+  it("skips malformed archive entries without discarding the whole tab", () => {
+    const source = makeNode("source");
+    const target = makeNode("target");
+    window.localStorage.setItem(
+      TABS_STORAGE_KEY,
+      encodeStored({
+        version: 2,
+        tabs: [{ id: "tab-50", title: "Stored meta", version: 4 }],
+      })
+    );
+    window.localStorage.setItem(
+      `${TAB_ARCHIVE_PREFIX}tab-50`,
+      encodeStored({
+        nodes: [source, target, { position: { x: 0, y: 0 } }],
+        edges: [
+          { source: "source", target: "target" },
+          { id: "edge-a", source: "source", target: "target" },
+        ],
+      })
+    );
+    window.localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, "tab-50");
+
+    renderTabs();
+
+    expect(baseSetNodes).toHaveBeenCalledWith([source, target]);
+    expect(baseSetEdges).toHaveBeenCalledWith([
+      expect.objectContaining({ id: "edge-a" }),
+    ]);
+  });
+
   it("fits an offscreen identity-viewport archive on initial hydration", async () => {
     const offscreenA = buildFlowNode({
       id: "offscreen-a",

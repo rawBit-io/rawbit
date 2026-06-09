@@ -80,4 +80,38 @@ describe("importWithFreshIds", () => {
     expect(edges).toHaveLength(1);
     expect(edges[0].source).toBe("node_c");
   });
+
+  it("normalizes handle whitespace before deduping imported edges", () => {
+    const currentNodes: TestNode[] = [{ id: "node_a" }, { id: "node_b" }];
+    const importNodes: TestNode[] = [];
+
+    const currentEdges: TestEdge[] = [
+      {
+        id: "edge_1",
+        source: "node_a",
+        target: "node_b",
+        sourceHandle: " output-0 ",
+        targetHandle: " input-0 ",
+      },
+    ];
+    const importEdges: TestEdge[] = [
+      {
+        id: "edge_2",
+        source: "node_a",
+        target: "node_b",
+        sourceHandle: "output-0",
+        targetHandle: "input-0",
+      },
+    ];
+
+    const { edges } = importWithFreshIds<TestNode, TestEdge>({
+      currentNodes,
+      currentEdges,
+      importNodes,
+      importEdges,
+      renameMode: "collision",
+    });
+
+    expect(edges).toHaveLength(0);
+  });
 });

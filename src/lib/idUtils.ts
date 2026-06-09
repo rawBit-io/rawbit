@@ -5,6 +5,8 @@
  * - Properly remaps all references (parentId, edges, etc.)
  */
 
+import { normalizeHandle } from "@/lib/flow/edgeNormalization";
+
 export type NodeLike = {
   id: string;
   parentId?: string;
@@ -70,8 +72,7 @@ function uniqueId(prefix: string, used: Set<string>, len = 8): string {
   return id;
 }
 
-const normHandle = (h?: string | null) =>
-  h == null || h === "" ? undefined : h;
+const normHandle = normalizeHandle;
 
 const structureKey = (
   src: string,

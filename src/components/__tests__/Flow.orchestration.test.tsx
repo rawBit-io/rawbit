@@ -8,7 +8,9 @@ import type { Edge, ReactFlowInstance, Viewport } from "@xyflow/react";
 
 import Flow from "@/components/Flow";
 import type { NodePorts } from "@/components/dialog/ConnectDialog";
+import { buildGroupBundledElements } from "@/lib/flow/groupEdgeBundling";
 import { useSharedFlowLoader } from "@/hooks/useSharedFlowLoader";
+import { buildEdge, buildFlowNode } from "@/test-utils/types";
 
 type FileImportCallbacks = {
   onTooltip?: (filename?: string) => void;
@@ -407,6 +409,12 @@ const updateNodeInternalsMock = vi.fn();
 
 vi.mock("@xyflow/react", () => ({
   ReactFlowProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  Position: {
+    Bottom: "bottom",
+    Left: "left",
+    Right: "right",
+    Top: "top",
+  },
   useReactFlow: () => ({
     getNodes: () => reactFlowNodesState.current ?? mockNodesState.current,
     getEdges: () => reactFlowEdgesState.current ?? mockEdgesState.current,
@@ -782,6 +790,174 @@ describe("Flow persistence sources", () => {
       expect(rfSetEdgesMock).toHaveBeenCalledWith([
         expect.objectContaining({ id: "edge-a" }),
       ]);
+    } finally {
+      rafSpy?.mockRestore();
+    }
+  });
+
+  it("repairs a stale React Flow store when edge ids match but handles differ", () => {
+    let rafSpy: MockInstance<Window["requestAnimationFrame"]> | null = null;
+    try {
+      rafSpy = vi
+        .spyOn(window, "requestAnimationFrame")
+        .mockImplementation((cb: FrameRequestCallback) => {
+          cb(0);
+          return 1;
+        });
+
+      const importedNodes = [
+        {
+          id: "node-a",
+          type: "calculation",
+          position: { x: 0, y: 0 },
+          data: { functionName: "identity" },
+        } as FlowNode,
+        {
+          id: "node-b",
+          type: "calculation",
+          position: { x: 100, y: 0 },
+          data: { functionName: "identity" },
+        } as FlowNode,
+      ];
+      store.nodes = importedNodes;
+      store.edges = [
+        {
+          id: "edge-a",
+          source: "node-a",
+          target: "node-b",
+          targetHandle: "input-1",
+        } as Edge,
+      ];
+
+      renderFlow();
+      rfSetNodesMock.mockClear();
+      rfSetEdgesMock.mockClear();
+
+      const sharedLoaderOptions = vi.mocked(useSharedFlowLoader).mock.calls.at(-1)?.[0] as
+        | {
+            replaceGraph?: (next: {
+              nodes: FlowNode[];
+              edges: Edge[];
+              tabId?: string;
+            }) => void;
+          }
+        | undefined;
+
+      act(() => {
+        sharedLoaderOptions?.replaceGraph?.({
+          nodes: importedNodes,
+          edges: [
+            {
+              id: "edge-a",
+              source: "node-a",
+              target: "node-b",
+              targetHandle: "input-0",
+            } as Edge,
+          ],
+          tabId: "tab-1",
+        });
+      });
+
+      expect(rfSetNodesMock).toHaveBeenCalledWith(importedNodes);
+      expect(rfSetEdgesMock).toHaveBeenCalledWith([
+        expect.objectContaining({
+          id: "edge-a",
+          targetHandle: "input-0",
+        }),
+      ]);
+    } finally {
+      rafSpy?.mockRestore();
+    }
+  });
+
+  it("does not repair a grouped visual store that matches the imported canonical graph", () => {
+    let rafSpy: MockInstance<Window["requestAnimationFrame"]> | null = null;
+    try {
+      rafSpy = vi
+        .spyOn(window, "requestAnimationFrame")
+        .mockImplementation((cb: FrameRequestCallback) => {
+          cb(0);
+          return 1;
+        });
+
+      const measured = { width: 120, height: 80 };
+      const nodes = [
+        buildFlowNode({
+          id: "group-a",
+          type: "shadcnGroup",
+          position: { x: 0, y: 0 },
+          measured,
+          data: { title: "A", width: 320, height: 220 },
+        }),
+        buildFlowNode({
+          id: "group-b",
+          type: "shadcnGroup",
+          position: { x: 500, y: 0 },
+          measured,
+          data: { title: "B", width: 320, height: 220 },
+        }),
+        buildFlowNode({
+          id: "a1",
+          parentId: "group-a",
+          measured,
+        }),
+        buildFlowNode({
+          id: "a2",
+          parentId: "group-a",
+          measured,
+        }),
+        buildFlowNode({
+          id: "b1",
+          parentId: "group-b",
+          measured,
+        }),
+      ];
+      const edges = [
+        buildEdge({
+          id: "e1",
+          source: "a1",
+          target: "b1",
+          sourceHandle: "output-0",
+          targetHandle: "input-0",
+        }),
+        buildEdge({
+          id: "e2",
+          source: "a2",
+          target: "b1",
+          sourceHandle: "output-0",
+          targetHandle: "input-1",
+        }),
+      ];
+      const visual = buildGroupBundledElements({ nodes, edges });
+      mockNodesState.current = nodes;
+      mockEdgesState.current = edges;
+      store.nodes = visual.nodes;
+      store.edges = visual.edges;
+
+      renderFlow();
+      rfSetNodesMock.mockClear();
+      rfSetEdgesMock.mockClear();
+
+      const sharedLoaderOptions = vi.mocked(useSharedFlowLoader).mock.calls.at(-1)?.[0] as
+        | {
+            replaceGraph?: (next: {
+              nodes: FlowNode[];
+              edges: Edge[];
+              tabId?: string;
+            }) => void;
+          }
+        | undefined;
+
+      act(() => {
+        sharedLoaderOptions?.replaceGraph?.({
+          nodes,
+          edges,
+          tabId: "tab-1",
+        });
+      });
+
+      expect(rfSetNodesMock).not.toHaveBeenCalled();
+      expect(rfSetEdgesMock).not.toHaveBeenCalled();
     } finally {
       rafSpy?.mockRestore();
     }

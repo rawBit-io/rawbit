@@ -73,6 +73,7 @@ import {
   isXYPosition,
 } from "@/lib/flow/guards";
 import { sanitizeGroupBundleVisualElementsForState } from "@/lib/flow/groupEdgeBundling";
+import { normalizeAndDedupeEdgeConnections } from "@/lib/flow/edgeNormalization";
 import {
   omitEphemeralOrLegacyNodeData,
   stripLegacyFlowMapNodeData,
@@ -352,6 +353,7 @@ export function useFileOperations(
       nodes,
       edges,
     });
+    const canonicalEdges = normalizeAndDedupeEdgeConnections(canonicalGraph.edges);
     const nodesWithSteps = hydrateNodesWithScriptSteps(
       stripLegacyFlowMapNodeData(canonicalGraph.nodes)
     );
@@ -371,7 +373,7 @@ export function useFileOperations(
         height: n.height,
         dragHandle: n.dragHandle,
       })),
-      edges: canonicalGraph.edges.map((e) => ({ ...e })),
+      edges: canonicalEdges.map((e) => ({ ...e })),
     };
 
     const json = JSON.stringify(payload, omitUIState, 2);
@@ -639,6 +641,7 @@ export function useFileOperations(
       nodes,
       edges,
     });
+    const canonicalEdges = normalizeAndDedupeEdgeConnections(canonicalGraph.edges);
     const { selectedCount, nodesToSave } = getExpandedExportNodeSelection(
       canonicalGraph.nodes
     );
@@ -647,7 +650,7 @@ export function useFileOperations(
     );
 
     const nodeIdSet = new Set(nodesToSave.map((n) => n.id));
-    const edgesToSave = canonicalGraph.edges.filter(
+    const edgesToSave = canonicalEdges.filter(
       (e) => nodeIdSet.has(e.source) && nodeIdSet.has(e.target)
     );
 

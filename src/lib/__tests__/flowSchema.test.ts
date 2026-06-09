@@ -144,4 +144,42 @@ describe("validateFlowData", () => {
     expect(result.ok).toBe(false);
     expect(result.errors.some((err) => err.code === "EDGE_HANDLE_DUPLICATE")).toBe(true);
   });
+
+  it("trims target handles before validating duplicate connections", () => {
+    const node = makeNode("calc", {
+      inputStructure: {
+        ungrouped: [{ index: 0, label: "Input", allowEmptyBlank: false }],
+      },
+    });
+    const sourceA = makeNode("source-a");
+    const sourceB = makeNode("source-b");
+    const edges: Edge[] = [
+      {
+        id: "edge-1",
+        source: "source-a",
+        target: "calc",
+        targetHandle: " input-0 ",
+      } as Edge,
+      {
+        id: "edge-2",
+        source: "source-b",
+        target: "calc",
+        targetHandle: "input-0",
+      } as Edge,
+    ];
+
+    const result = validateFlowData({
+      schemaVersion: FLOW_SCHEMA_VERSION,
+      nodes: [node, sourceA, sourceB],
+      edges,
+    } as FlowData);
+
+    expect(result.ok).toBe(false);
+    expect(result.errors.some((err) => err.code === "EDGE_HANDLE_DUPLICATE")).toBe(true);
+    expect(
+      result.errors.some((err) =>
+        err.message.includes("handle input-0 on node calc")
+      )
+    ).toBe(true);
+  });
 });

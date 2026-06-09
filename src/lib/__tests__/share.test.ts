@@ -8,6 +8,7 @@ import {
   hydrateNodesWithScriptSteps,
 } from "@/lib/share/scriptStepsCache";
 import type { FlowNode, SharePayload, ScriptExecutionResult } from "@/types";
+import type { Edge } from "@xyflow/react";
 import { FLOW_SCHEMA_VERSION } from "@/lib/flow/schema";
 import { buildScriptExecutionResult } from "@/test-utils/types";
 
@@ -166,6 +167,37 @@ describe("buildSharePayload", () => {
     expect(payload.nodes[0].data.searchMark).toBeUndefined();
     expect(payload.nodes[0].data.isHighlighted).toBeUndefined();
     expect(payload.schemaVersion).toBeDefined();
+  });
+
+  it("normalizes shared edge handles and removes exact structural duplicates", async () => {
+    const { buildSharePayload } = await import("../share/buildSharePayload");
+
+    const edges: Edge[] = [
+      {
+        id: "edge-a",
+        source: "source",
+        target: "target",
+        sourceHandle: " output-0 ",
+        targetHandle: " input-0 ",
+      } as Edge,
+      {
+        id: "edge-b",
+        source: "source",
+        target: "target",
+        sourceHandle: "output-0",
+        targetHandle: "input-0",
+      } as Edge,
+    ];
+
+    const payload = buildSharePayload([], edges);
+
+    expect(payload.edges).toEqual([
+      expect.objectContaining({
+        id: "edge-a",
+        sourceHandle: "output-0",
+        targetHandle: "input-0",
+      }),
+    ]);
   });
 });
 

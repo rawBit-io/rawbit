@@ -100,6 +100,7 @@ import {
   sanitizeGroupBundleVisualElementsForState,
   stripGroupBundlePortNodes,
 } from "@/lib/flow/groupEdgeBundling";
+import { edgesHaveSameIdentity } from "@/lib/flow/edgeNormalization";
 import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
 import {
   getFlowTemplateViewport,
@@ -269,7 +270,15 @@ function graphIdsMatch(
     if (currentNodes[index]?.id !== expectedNodes[index]?.id) return false;
   }
   for (let index = 0; index < expectedEdges.length; index += 1) {
-    if (currentEdges[index]?.id !== expectedEdges[index]?.id) return false;
+    const currentEdge = currentEdges[index];
+    const expectedEdge = expectedEdges[index];
+    if (
+      !currentEdge ||
+      !expectedEdge ||
+      !edgesHaveSameIdentity(currentEdge, expectedEdge)
+    ) {
+      return false;
+    }
   }
   return true;
 }
@@ -277,7 +286,15 @@ function graphIdsMatch(
 function edgeIdsMatch(currentEdges: Edge[], expectedEdges: Edge[]) {
   if (currentEdges.length !== expectedEdges.length) return false;
   for (let index = 0; index < expectedEdges.length; index += 1) {
-    if (currentEdges[index]?.id !== expectedEdges[index]?.id) return false;
+    const currentEdge = currentEdges[index];
+    const expectedEdge = expectedEdges[index];
+    if (
+      !currentEdge ||
+      !expectedEdge ||
+      !edgesHaveSameIdentity(currentEdge, expectedEdge)
+    ) {
+      return false;
+    }
   }
   return true;
 }

@@ -24,6 +24,7 @@ import type {
   WorkerFlowTabArchive,
 } from "@/workers/tabsCompression.types";
 import { sanitizeGroupBundleVisualElementsForState } from "@/lib/flow/groupEdgeBundling";
+import { normalizeAndDedupeEdgeConnections } from "@/lib/flow/edgeNormalization";
 import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
 
 export interface FlowTab {
@@ -116,14 +117,34 @@ function filterEdgesForNodes(nodes: FlowNode[], edges: Edge[]): Edge[] {
   );
 }
 
+const isArchiveNode = (value: unknown): value is FlowNode =>
+  typeof value === "object" &&
+  value !== null &&
+  typeof (value as { id?: unknown }).id === "string";
+
+const isArchiveEdge = (value: unknown): value is Edge =>
+  typeof value === "object" &&
+  value !== null &&
+  typeof (value as { id?: unknown }).id === "string" &&
+  typeof (value as { source?: unknown }).source === "string" &&
+  typeof (value as { target?: unknown }).target === "string";
+
 function normalizeArchive(value: unknown): FlowTabArchive {
   if (!value || typeof value !== "object") return createEmptyArchive();
   const maybe = value as Partial<FlowTabArchive>;
-  const nodes = stripLegacyFlowMapNodeData(
-    Array.isArray(maybe.nodes) ? (maybe.nodes as FlowNode[]) : []
+  const rawNodes = stripLegacyFlowMapNodeData(
+    Array.isArray(maybe.nodes) ? maybe.nodes.filter(isArchiveNode) : []
   );
-  const rawEdges = Array.isArray(maybe.edges) ? (maybe.edges as Edge[]) : [];
-  const edges = filterEdgesForNodes(nodes, rawEdges);
+  const rawEdges = Array.isArray(maybe.edges)
+    ? maybe.edges.filter(isArchiveEdge)
+    : [];
+  const canonicalGraph = sanitizeGroupBundleVisualElementsForState({
+    nodes: rawNodes,
+    edges: rawEdges,
+  });
+  const nodes = stripLegacyFlowMapNodeData(canonicalGraph.nodes);
+  const normalizedEdges = normalizeAndDedupeEdgeConnections(canonicalGraph.edges);
+  const edges = filterEdgesForNodes(nodes, normalizedEdges);
   const scriptSteps = sanitizeScriptSteps(maybe.scriptSteps);
   return {
     nodes,
@@ -732,7 +753,9 @@ export function useTabs({
         edges: rawCurrentEdges,
       });
       const currentNodes = stripLegacyFlowMapNodeData(canonicalGraph.nodes);
-      const canonicalCurrentEdges = canonicalGraph.edges;
+      const canonicalCurrentEdges = normalizeAndDedupeEdgeConnections(
+        canonicalGraph.edges
+      );
       const currentEdges = filterEdgesForNodes(
         currentNodes,
         canonicalCurrentEdges
