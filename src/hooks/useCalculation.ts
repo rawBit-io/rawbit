@@ -16,6 +16,7 @@ import { useEffect, useRef } from "react";
 import { useReactFlow } from "@xyflow/react";
 
 import {
+  CALCULATION_REQUEST_TIMEOUT_MESSAGE,
   recalculateGraph,
   getAffectedSubgraph,
   mergePartialResultsIntoFullGraph,
@@ -212,7 +213,7 @@ export function useGlobalCalculationLogic({
           "name" in err &&
           (err as { name?: unknown }).name === "AbortError";
         const fallbackMessage = isAbort
-          ? "Calculation timed out after 5 s. Update any input in this flow to trigger another run."
+          ? CALCULATION_REQUEST_TIMEOUT_MESSAGE
           : "Calculation failed. Adjust the flow and try again.";
 
         const dirtyIds = new Set(

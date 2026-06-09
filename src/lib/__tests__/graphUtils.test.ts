@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { http, HttpResponse } from "msw";
 import { server } from "@/test/msw/server";
 import {
@@ -56,6 +56,10 @@ interface BulkCalculationRequest {
 describe("recalculateGraph", () => {
   beforeEach(() => {
     server.use(defaultHealthHandler);
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it("returns backend response when request succeeds", async () => {
@@ -126,7 +130,7 @@ describe("recalculateGraph", () => {
     expect(response.nodes[1].data?.error).not.toBe(true);
   });
 
-  it("aborts when the backend call times out", async () => {
+  it("aborts when the backend call exceeds the default request timeout", async () => {
     vi.useFakeTimers();
     const fetchSpy = vi
       .spyOn(globalThis, "fetch")
@@ -161,13 +165,61 @@ describe("recalculateGraph", () => {
 
     try {
       const promise = recalculateGraph(nodes, [], 0);
-      await vi.advanceTimersByTimeAsync(5_100);
+      await vi.advanceTimersByTimeAsync(15_100);
       const result = await promise;
 
       expect(result.errors).toEqual([]);
       expect(result.nodes[0].data.error).toBe(true);
       expect(result.nodes[0].data.extendedError).toMatch(
-        /Calculation timed out after 5 s/
+        /Calculation request timed out after 15 s/
+      );
+    } finally {
+      fetchSpy.mockRestore();
+      vi.useRealTimers();
+    }
+  });
+
+  it("uses the configured request timeout when provided", async () => {
+    vi.stubEnv("VITE_CALCULATION_REQUEST_TIMEOUT_MS", "1200");
+    vi.useFakeTimers();
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
+        const url =
+          typeof input === "string"
+            ? input
+            : input instanceof URL
+            ? input.toString()
+            : input.url;
+        if (url.endsWith("/healthz")) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({ limits: { maxPayloadBytes: 5_000_000 } }),
+              {
+                headers: { "Content-Type": "application/json" },
+              }
+            )
+          );
+        }
+        return new Promise((_resolve, reject) => {
+          init?.signal?.addEventListener("abort", () => {
+            const abortError = new Error("Aborted") as Error & { name: string };
+            abortError.name = "AbortError";
+            reject(abortError);
+          });
+        });
+      });
+
+    const { recalculateGraph } = await loadGraphUtils();
+    const nodes = [createNode("timeout")];
+
+    try {
+      const promise = recalculateGraph(nodes, [], 0);
+      await vi.advanceTimersByTimeAsync(1_300);
+      const result = await promise;
+
+      expect(result.nodes[0].data.extendedError).toMatch(
+        /Calculation request timed out after 1.2 s/
       );
     } finally {
       fetchSpy.mockRestore();

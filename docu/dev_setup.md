@@ -83,6 +83,9 @@ file such as `.env.development.local`. Do not put secrets in tracked env files.
 VITE_ALLOW_REMOTE_API=true
 VITE_API_BASE_URL=https://api-dev.rawbit.io
 
+# Optional: increase or reduce the browser-side calculation request timeout.
+VITE_CALCULATION_REQUEST_TIMEOUT_MS=15000
+
 # Optional: only useful if you run a compatible share service locally.
 VITE_SHARE_BASE_URL=http://localhost:8787
 ```

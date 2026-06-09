@@ -17,6 +17,7 @@ import { setScriptSteps } from "@/lib/share/scriptStepsCache";
 import { measureFlowBytes, formatBytes } from "@/lib/flow/schema";
 
 const DEFAULT_LOCAL_API = "http://localhost:5007";
+const DEFAULT_CALCULATION_REQUEST_TIMEOUT_MS = 15_000;
 const LOCAL_HOSTS = new Set([
   "localhost",
   "127.0.0.1",
@@ -41,9 +42,8 @@ function isLocalHost(hostname: string | undefined) {
 function resolveApiBase(): ResolvedApi {
   const envBase = import.meta.env.VITE_API_BASE_URL || DEFAULT_LOCAL_API;
   const allowRemote =
-    (import.meta.env.VITE_ALLOW_REMOTE_API || "")
-      .toString()
-      .toLowerCase() === "true";
+    (import.meta.env.VITE_ALLOW_REMOTE_API || "").toString().toLowerCase() ===
+    "true";
   const isPageLocal =
     typeof window !== "undefined" && isLocalHost(window.location.hostname);
 
@@ -74,6 +74,31 @@ type BackendLimits = {
   maxPayloadBytes?: number;
 };
 
+function loadCalculationRequestTimeoutMs(): number {
+  const raw = import.meta.env.VITE_CALCULATION_REQUEST_TIMEOUT_MS;
+  if (raw === undefined || raw === "") {
+    return DEFAULT_CALCULATION_REQUEST_TIMEOUT_MS;
+  }
+
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) && parsed > 0
+    ? parsed
+    : DEFAULT_CALCULATION_REQUEST_TIMEOUT_MS;
+}
+
+function formatTimeoutSeconds(milliseconds: number): string {
+  const seconds = milliseconds / 1000;
+  return Number.isInteger(seconds)
+    ? String(seconds)
+    : seconds.toFixed(1).replace(/\.0$/, "");
+}
+
+export const CALCULATION_REQUEST_TIMEOUT_MS = loadCalculationRequestTimeoutMs();
+
+export const CALCULATION_REQUEST_TIMEOUT_MESSAGE = `Calculation request timed out after ${formatTimeoutSeconds(
+  CALCULATION_REQUEST_TIMEOUT_MS,
+)} s. Click retry all when the connection is better.`;
+
 const backendLimitsCache = new Map<string, Promise<BackendLimits>>();
 
 async function loadBackendLimits(baseUrl: string): Promise<BackendLimits> {
@@ -98,23 +123,26 @@ async function loadBackendLimits(baseUrl: string): Promise<BackendLimits> {
         } catch {
           return {};
         }
-      })()
+      })(),
     );
   }
   return backendLimitsCache.get(baseUrl)!;
 }
 function annotateDirtyNodesWithError(
   nodes: Node<CalculationNodeData>[],
-  message: string
+  message: string,
 ): Node<CalculationNodeData>[] {
   return nodes.map((node) => {
     if (!node.data?.dirty) return node;
-    return { ...node, data: { ...node.data, error: true, extendedError: message } };
+    return {
+      ...node,
+      data: { ...node.data, error: true, extendedError: message },
+    };
   });
 }
 
 function stripNodeForBackend(
-  node: Node<CalculationNodeData>
+  node: Node<CalculationNodeData>,
 ): Node<CalculationNodeData> {
   if (!node.data) return node;
 
@@ -152,7 +180,7 @@ const PAYLOAD_LIMIT_NODE_ID = "__payload_limit__";
 export async function recalculateGraph(
   nodes: Node<CalculationNodeData>[],
   edges: Edge[],
-  version: number
+  version: number,
 ): Promise<RecalcResponse> {
   log("flow", `Sending ${nodes.length} nodes to backend`);
 
@@ -160,7 +188,7 @@ export async function recalculateGraph(
   if (api.forcedLocal) {
     log(
       "flow",
-      `Overriding remote API_BASE_URL with local default (${DEFAULT_LOCAL_API})`
+      `Overriding remote API_BASE_URL with local default (${DEFAULT_LOCAL_API})`,
     );
   }
 
@@ -174,7 +202,7 @@ export async function recalculateGraph(
   const { maxPayloadBytes } = backendLimits;
   if (maxPayloadBytes && payloadBytes > maxPayloadBytes) {
     const limitMessage = `Request is ${formatBytes(
-      payloadBytes
+      payloadBytes,
     )}, over the server limit (${formatBytes(maxPayloadBytes)}).`;
     return {
       nodes: annotateDirtyNodesWithError(nodes, limitMessage),
@@ -184,7 +212,10 @@ export async function recalculateGraph(
   }
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 5000);
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    CALCULATION_REQUEST_TIMEOUT_MS,
+  );
 
   try {
     const res = await fetch(`${api.baseUrl}/bulk_calculate`, {
@@ -204,7 +235,7 @@ export async function recalculateGraph(
     return {
       nodes: json.nodes || nodes,
       version: json.version || version,
-      errors: res.ok ? [] : json.errors ?? [],
+      errors: res.ok ? [] : (json.errors ?? []),
     };
   } catch (error: unknown) {
     console.error("Backend error:", error);
@@ -215,10 +246,10 @@ export async function recalculateGraph(
       "name" in error &&
       (error as { name?: unknown }).name === "AbortError";
     const message = isTimeout
-      ? "Calculation timed out after 5 s. Update any input in this flow to trigger another run."
+      ? CALCULATION_REQUEST_TIMEOUT_MESSAGE
       : isLocalHost(api.url.hostname)
-      ? "Backend not running. Start it with: python routes.py"
-      : "Cannot connect to calculation service. Please try again later.";
+        ? "Backend not running. Start it with: python routes.py"
+        : "Cannot connect to calculation service. Please try again later.";
 
     return {
       nodes: annotateDirtyNodesWithError(nodes, message),
@@ -258,7 +289,7 @@ function edgesSignature(edges: Edge[]): string {
       (e) =>
         `${e.source}->${e.target}:${e.sourceHandle ?? ""}:${
           e.targetHandle ?? ""
-        }`
+        }`,
     )
     .sort()
     .join("|");
@@ -275,7 +306,7 @@ let cachedReverseAdj: Record<string, string[]> = {};
  */
 function bfs(
   startIds: Set<string>,
-  adjacency: Record<string, string[]>
+  adjacency: Record<string, string[]>,
 ): Set<string> {
   const visited = new Set<string>(startIds);
   const queue = [...startIds];
@@ -309,12 +340,11 @@ function bfs(
 export function getAffectedSubgraph(
   fullNodes: Node<CalculationNodeData>[],
   fullEdges: Edge[],
-  options?: { eligibleNodeIds?: Set<string> }
+  options?: { eligibleNodeIds?: Set<string> },
 ): { affectedNodes: Node<CalculationNodeData>[]; affectedEdges: Edge[] } {
   const { eligibleNodeIds } = options ?? {};
   const dirtyNodes = fullNodes.filter(
-    (n) =>
-      n.data?.dirty && (!eligibleNodeIds || eligibleNodeIds.has(n.id))
+    (n) => n.data?.dirty && (!eligibleNodeIds || eligibleNodeIds.has(n.id)),
   );
   if (!dirtyNodes.length) return { affectedNodes: [], affectedEdges: [] };
 
@@ -349,7 +379,7 @@ export function getAffectedSubgraph(
     const concatNodes = fullNodes.filter(
       (n) =>
         affected.has(n.id) &&
-        (n.data?.functionName ?? "").toLowerCase() === "concat_all"
+        (n.data?.functionName ?? "").toLowerCase() === "concat_all",
     );
 
     for (const node of concatNodes) {
@@ -370,7 +400,7 @@ export function getAffectedSubgraph(
   /* ---- slice the original graph objects back out ------------------------------ */
   const affectedNodes = fullNodes.filter((n) => affected.has(n.id));
   const affectedEdges = fullEdges.filter(
-    (e) => affected.has(e.source) && affected.has(e.target)
+    (e) => affected.has(e.source) && affected.has(e.target),
   );
 
   return { affectedNodes, affectedEdges };
@@ -387,7 +417,7 @@ export function getAffectedSubgraph(
 export function mergePartialResultsIntoFullGraph(
   fullNodes: Node<CalculationNodeData>[],
   updatedNodes: Node<CalculationNodeData>[],
-  errors?: { nodeId: string; error: string }[]
+  errors?: { nodeId: string; error: string }[],
 ) {
   const updatedMap = new Map(updatedNodes.map((n) => [n.id, n]));
   const errorMap = new Map(errors?.map((e) => [e.nodeId, e.error]));
@@ -446,7 +476,7 @@ export function mergePartialResultsIntoFullGraph(
  */
 export function checkForCyclesAndMarkErrors(
   affectedNodes: Node<CalculationNodeData>[],
-  affectedEdges: Edge[]
+  affectedEdges: Edge[],
 ): boolean {
   /* --- build adjacency / in-degree ------------------------------------------- */
   const adj: Record<string, string[]> = {};
