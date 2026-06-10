@@ -1,11 +1,12 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { describe, expect, it, beforeEach, vi } from "vitest";
+import { act, render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { afterEach, describe, expect, it, beforeEach, vi } from "vitest";
 
 import { BitcoinCorePanel } from "@/components/layout/BitcoinCorePanel";
 
 const fetchBitcoinStatus = vi.fn();
 const sendBitcoinCommand = vi.fn();
 const rebuildTransaction = vi.fn();
+const pollIncomingTransactions = vi.fn();
 
 vi.mock("@/lib/bitcoin/api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/bitcoin/api")>();
@@ -14,6 +15,8 @@ vi.mock("@/lib/bitcoin/api", async (importOriginal) => {
     fetchBitcoinStatus: (...args: unknown[]) => fetchBitcoinStatus(...args),
     sendBitcoinCommand: (...args: unknown[]) => sendBitcoinCommand(...args),
     rebuildTransaction: (...args: unknown[]) => rebuildTransaction(...args),
+    pollIncomingTransactions: (...args: unknown[]) =>
+      pollIncomingTransactions(...args),
   };
 });
 
@@ -25,6 +28,11 @@ describe("BitcoinCorePanel", () => {
       chain: "regtest",
       blocks: 101,
     });
+    pollIncomingTransactions.mockResolvedValue({ txids: [], mempool: [] });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("shows node status when opened", async () => {
@@ -152,5 +160,78 @@ describe("BitcoinCorePanel", () => {
     fireEvent.change(input, { target: { value: "createrawtransaction" } });
     fireEvent.keyDown(input, { key: "ArrowDown" });
     expect(input.value).toBe("createrawtransaction");
+  });
+
+  it("surfaces new node transactions as one-click rebuilds", async () => {
+    vi.useFakeTimers();
+    const primingTx = "aa".repeat(32);
+    const freshTx = "bb".repeat(32);
+    pollIncomingTransactions
+      .mockResolvedValueOnce({ txids: [primingTx], mempool: [] })
+      .mockResolvedValueOnce({ txids: [freshTx], mempool: [] });
+    const flow = { name: "Rebuild bb", nodes: [], edges: [] };
+    rebuildTransaction.mockResolvedValue({ flow, txid: freshTx });
+    const onRebuild = vi.fn();
+    render(<BitcoinCorePanel isOpen onClose={vi.fn()} onRebuild={onRebuild} />);
+
+    // status resolves, the watch primes its cursor — history is not surfaced
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(screen.queryByTestId("bitcoin-incoming")).not.toBeInTheDocument();
+
+    // next poll finds a fresh transaction
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5_000);
+    });
+    expect(screen.getByTestId("bitcoin-incoming")).toBeInTheDocument();
+    const chip = screen.getByTestId("bitcoin-incoming-rebuild");
+    expect(chip.textContent).toContain(freshTx.slice(0, 16));
+
+    fireEvent.click(chip);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(rebuildTransaction).toHaveBeenCalledWith(freshTx);
+    expect(onRebuild).toHaveBeenCalledWith(flow, freshTx);
+    // the rebuilt tx leaves the incoming list
+    expect(screen.queryByTestId("bitcoin-incoming")).not.toBeInTheDocument();
+  });
+
+  it("does not watch for transactions off regtest", async () => {
+    vi.useFakeTimers();
+    fetchBitcoinStatus.mockResolvedValue({
+      connected: true,
+      chain: "main",
+      blocks: 900000,
+    });
+    render(<BitcoinCorePanel isOpen onClose={vi.fn()} />);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10_000);
+    });
+    expect(pollIncomingTransactions).not.toHaveBeenCalled();
+  });
+
+  it("a dismissed incoming transaction stays dismissed", async () => {
+    vi.useFakeTimers();
+    const freshTx = "cc".repeat(32);
+    pollIncomingTransactions
+      .mockResolvedValueOnce({ txids: [], mempool: [] })
+      .mockResolvedValueOnce({ txids: [freshTx], mempool: [] });
+    render(<BitcoinCorePanel isOpen onClose={vi.fn()} />);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5_000);
+    });
+    expect(screen.getByTestId("bitcoin-incoming")).toBeInTheDocument();
+    fireEvent.click(screen.getByTitle("Dismiss"));
+    expect(screen.queryByTestId("bitcoin-incoming")).not.toBeInTheDocument();
+    // later polls return nothing new; the seen-set keeps the tx away
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5_000);
+    });
+    expect(screen.queryByTestId("bitcoin-incoming")).not.toBeInTheDocument();
   });
 });

@@ -523,7 +523,7 @@ export interface UseTabsResult {
   initialHydrationDone: boolean;
   closeDialog: CloseDialogState;
   selectTab: (tabId: string) => void;
-  addTab: () => string;
+  addTab: (options?: { transform?: FlowTab["transform"] }) => string;
   requestCloseTab: (tabId: string) => void;
   confirmCloseTab: () => void;
   cancelCloseTab: () => void;
@@ -958,7 +958,9 @@ export function useTabs({
     ]
   );
 
-  const addTab = useCallback((): string => {
+  const addTab = useCallback((options?: {
+    transform?: FlowTab["transform"];
+  }): string => {
     skipLoadRef.current = true;
     captureCurrentViewport(activeTabId);
     saveTabData(activeTabId, { force: true });
@@ -970,7 +972,7 @@ export function useTabs({
       id: newId,
       title: `Flow ${newIndex}`,
       version: 0,
-      transform: { x: 0, y: 0, zoom: 1 },
+      transform: options?.transform ?? { x: 0, y: 0, zoom: 1 },
     };
 
     const emptyRaw = createEmptyArchive();

@@ -117,6 +117,53 @@ export async function sendBitcoinCommand(
   }
 }
 
+/** One poll of the node for transactions the watch hasn't seen yet.
+
+Wallet txs come from `listsinceblock` (cursor: the last seen block hash),
+unconfirmed foreign txs from a `getrawmempool` diff. Errors (e.g. no wallet
+loaded) degrade to empty results — the watch is best-effort by design. */
+export async function pollIncomingTransactions(cursor: {
+  lastBlock?: string;
+  mempool?: string[];
+}): Promise<{
+  txids: string[];
+  lastBlock?: string;
+  mempool: string[];
+}> {
+  const txids = new Set<string>();
+
+  const since = await sendBitcoinCommand(
+    "listsinceblock",
+    cursor.lastBlock ? [cursor.lastBlock] : [],
+  );
+  let lastBlock = cursor.lastBlock;
+  if (!since.error && since.result && typeof since.result === "object") {
+    const body = since.result as {
+      transactions?: Array<{ txid?: string }>;
+      lastblock?: string;
+    };
+    for (const tx of body.transactions ?? []) {
+      if (typeof tx.txid === "string") txids.add(tx.txid);
+    }
+    if (typeof body.lastblock === "string") lastBlock = body.lastblock;
+  }
+
+  const mempoolReply = await sendBitcoinCommand("getrawmempool", []);
+  let mempool = cursor.mempool ?? [];
+  if (!mempoolReply.error && Array.isArray(mempoolReply.result)) {
+    const next = (mempoolReply.result as unknown[]).filter(
+      (t): t is string => typeof t === "string",
+    );
+    const known = new Set(cursor.mempool ?? []);
+    for (const txid of next) {
+      if (!known.has(txid)) txids.add(txid);
+    }
+    mempool = next;
+  }
+
+  return { txids: [...txids], lastBlock, mempool };
+}
+
 type Token = { value: string; quoted: boolean };
 
 export async function rebuildTransaction(tx: string): Promise<RebuildReply> {

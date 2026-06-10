@@ -58,7 +58,7 @@ from bitcoin_rpc import (
 )
 from flow_generator import (
     build_rebuild_dataset,
-    generate_flow,
+    generate_legacy_flow,
     RebuildError,
     UnsupportedTransaction,
 )
@@ -476,7 +476,7 @@ def bitcoin_rebuild():
         return _json({"error": {"message": "Provide a txid or raw transaction hex."}}, 400)
     try:
         dataset = build_rebuild_dataset(bitcoin_rpc_client, ref)
-        flow = generate_flow(dataset)
+        flow = generate_legacy_flow(dataset)
         return _json({"flow": flow, "txid": dataset["txid"]})
     except UnsupportedTransaction as exc:
         return _json({"error": {"message": str(exc)}}, 422)

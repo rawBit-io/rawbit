@@ -1,6 +1,6 @@
 # hex-to-flow — Bitcoin Core integration & automatic TX rebuild on canvas
 
-Status: draft plan (2026-06-10) · Branch: `feature/hex-to-flow`
+Status: implemented for legacy transactions (2026-06-10) · Branch: `feature/hex-to-flow`
 
 ## 1. What we want to achieve
 
@@ -18,60 +18,68 @@ by byte in rawBit, rawBit becomes the visual companion to those courses.
 
 - rawBit's backend talks to the node over JSON-RPC (a browser cannot reach
   bitcoind directly). Local install first; hosted rawbit.io comes later.
-- Bitcoin Core is the source of truth: `getrawtransaction` /
+- Bitcoin Core is the parser of record: `getrawtransaction` /
   `decoderawtransaction` deliver the transaction and its field values.
-- rawBit rebuilds each field on canvas and reassembles the original hex.
-- **Legacy transactions first** (P2PKH / P2PK). SegWit and Taproot follow the
-  same pattern later.
-- Layout quality comes from reusing the hand-made lesson building blocks, not
-  from generic auto-layout.
+- A **general flow builder** (`backend/flow_generator/`) stamps the same
+  building blocks the hand-made lessons use — field constants, byte
+  transforms, per-input preimage spines with the lesson sentinels, the TX
+  spine, script verification — sized to whatever transaction comes in
+  (N inputs / M outputs, capped at 10/10 for canvas sanity).
+- Every input is rebuilt in the richest mode its data supports and downgraded
+  independently until the bytes match:
+  - **sign** — the spending key is derivable from the regtest wallet's
+    descriptors: the flow rebuilds the sighash preimage and re-signs with
+    Core's low-R/RFC6979 algorithm. The signature is *recreated*, not pasted.
+    Covers P2PKH, P2PK, and multisig (bare + P2SH, per co-signer key).
+  - **wire** — signatures/pubkeys/redeemScripts are decomposed into labelled
+    constants taken from the wire (works on any chain, no keys involved).
+  - **raw** — the scriptSig as one wire constant (nonstandard scripts,
+    non-minimal pushes, coinbase).
+- The proof is on the canvas: the rebuilt hex and txid are compared against
+  the originals with `compare_equal` nodes, and each standard input carries a
+  `script_verification` node. Historical signatures (high-S, pre-BIP66) verify
+  via automatic standardness-only flag relaxation, noted on the info card.
+- The backend never returns a flow that does not reproduce the source bytes:
+  the whole graph is recalculated through the real engine and gated on byte
+  equality before it leaves `/bitcoin/rebuild`.
+- Outputs without an address (P2PK, bare multisig, OP_RETURN, nonstandard)
+  show their scriptPubKey instead.
 
-## 3. Steps
+## 3. What shipped
 
-**Step 1 — node connection.**
-rawBit can reach the local node, knows which network it is on (regtest first,
-loud warning on mainnet), and can fetch a transaction together with the
-previous transactions its inputs spend. Read-only access, safe by default.
+**Node connection** — Bitcoin Core CLI console panel (TopBar terminal icon):
+status, chain warning, command console. Endpoints are loopback-only and
+disabled on hosted deployments (`backend/bitcoin_rpc.py`, `/bitcoin/*` routes).
 
-**Step 2 — rebuild each field.**
-From a fetched (or pasted) legacy transaction, rawBit generates a flow where
-every serialization field is a node: version, inputs, outputs, scripts,
-locktime. The fields feed the standard TX spine, the flow recomputes the hex,
-and a visible check confirms it matches the original — including the txid.
+**Rebuild on canvas** — paste a txid or raw hex in the panel (or click an
+incoming-transaction chip): the backend assembles the dataset
+(`rebuild.py` → `dataset.py`), generates the flow (`legacy_builder.py` +
+`flow_builder.py`), and the frontend opens it in a new tab, with the viewport
+anchored on the info card.
 
-**Step 3 — make it look hand-made.**
-Generated flows use the same groups, colors, spacing and reading direction as
-the lessons (funding → preimage → signature → final tx). The result should be
-indistinguishable from a flow the author placed by hand.
+**Signing reconstruction** — on regtest, keys are derived from the wallet's
+descriptors (single-sig and multisig co-signer keys); recreated signatures are
+byte-identical to Core's (proven against a live-wallet fixture).
 
-**Step 4 — full signing reconstruction (optional).**
-When the user provides the private key, the flow additionally rebuilds the
-sighash preimage and the signature itself and shows that the recomputed
-signature matches the one on the wire.
-
-**Step 5 — simple entry point in the UI.**
-Paste a txid or raw hex (or pick from the node), get the rebuilt flow as a new
-tab. No friction.
+**Incoming-transaction watch** — while the panel is open on regtest, new
+wallet/mempool transactions surface as one-click "rebuild" chips
+(`listsinceblock` + `getrawmempool` polling).
 
 ## 4. How we know it works
 
-- Every generated flow must recompute to the exact source bytes (automated
-  golden tests against reference transactions).
-- The proof is visible on canvas: txid match, signature match, script
-  verification — students see it, not just CI.
-- A generated reference flow is checked visually so layout quality does not
-  regress.
+- Golden tests recompute every generated flow through the real calc engine
+  and assert byte equality: a synthetic shape matrix
+  (`test_legacy_builder.py`), real mainnet transactions including block-170
+  P2PK and a 4-input mixed spend (`test_legacy_corpus.py`,
+  fixtures via `tools/fetch_legacy_fixture.py`), and signing-mode suites
+  (`test_legacy_signing.py`, `test_legacy_multisig_signing.py`).
+- Render verification: `tests/e2e/bitcoin.rebuild.render.spec.ts` opens real
+  generated flows (fixtures via `tools/generate_e2e_rebuild_fixtures.py`)
+  and asserts every node renders without overlaps.
+- The proof is visible on canvas: txid match, byte match, script verification.
 
-## 5. Scope of this iteration
+## 5. Out of scope (planned later)
 
-In: legacy P2PKH/P2PKH multi-in/out and P2PK, SIGHASH_ALL, local install.
-Out (planned later): SegWit/Taproot, PSBT, large transactions, hosted-version
-bridge, embedded terminal, automatic "new tx detected" watch, course chapter
-mapping.
-
-## 6. Open questions
-
-1. Generated-flow style: grouped (p0/p01 style) or band style (p1–p16)?
-2. Where does "Rebuild TX" live in the UI — TopBar, sidebar, or Help menu?
-3. How does the user point rawBit at their node — config file, env, or a small
-   settings dialog?
+SegWit/Taproot rebuilds, PSBT, transactions beyond 10 inputs/outputs,
+non-SIGHASH_ALL signing reconstruction (wire mode covers those inputs),
+hosted-version bridge, course chapter mapping.

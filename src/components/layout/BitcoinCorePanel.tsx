@@ -6,6 +6,7 @@ import { RefreshCw, X } from "lucide-react";
 import {
   fetchBitcoinStatus,
   parseCommandLine,
+  pollIncomingTransactions,
   rebuildTransaction,
   sendBitcoinCommand,
   type BitcoinStatus,
@@ -28,6 +29,8 @@ type ConsoleEntry = {
 
 const MAX_ENTRIES = 200;
 const EXAMPLE_COMMANDS = ["getblockchaininfo", "getblockcount", "getnewaddress"];
+const WATCH_INTERVAL_MS = 5_000;
+const MAX_INCOMING = 5;
 
 function formatResult(result: unknown): string {
   if (typeof result === "string") return result;
@@ -50,9 +53,19 @@ export function BitcoinCorePanel({
   const [rebuildRef, setRebuildRef] = useState("");
   const [rebuildBusy, setRebuildBusy] = useState(false);
   const [rebuildError, setRebuildError] = useState<string | null>(null);
+  const [incoming, setIncoming] = useState<string[]>([]);
   const entryId = useRef(0);
   const commandHistory = useRef<string[]>([]);
   const outputRef = useRef<HTMLDivElement | null>(null);
+  // Watch cursor: last listsinceblock block hash, last mempool snapshot, and
+  // every txid already surfaced (or present before the watch started).
+  const watchRef = useRef<{
+    lastBlock?: string;
+    mempool?: string[];
+    seen: Set<string>;
+    primed: boolean;
+    polling: boolean;
+  }>({ seen: new Set(), primed: false, polling: false });
 
   const refreshStatus = useCallback(async () => {
     setStatus(await fetchBitcoinStatus());
@@ -96,23 +109,72 @@ export function BitcoinCorePanel({
     [busy, refreshStatus],
   );
 
-  const runRebuild = useCallback(async () => {
-    const ref = rebuildRef.trim();
-    if (!ref || rebuildBusy) return;
-    setRebuildBusy(true);
-    setRebuildError(null);
-    try {
-      const reply = await rebuildTransaction(ref);
-      if (reply.error || !reply.flow) {
-        setRebuildError(reply.error?.message ?? "Rebuild failed.");
-        return;
+  const runRebuild = useCallback(
+    async (refOverride?: string) => {
+      const ref = (refOverride ?? rebuildRef).trim();
+      if (!ref || rebuildBusy) return;
+      setRebuildBusy(true);
+      setRebuildError(null);
+      try {
+        const reply = await rebuildTransaction(ref);
+        if (reply.error || !reply.flow) {
+          setRebuildError(reply.error?.message ?? "Rebuild failed.");
+          return;
+        }
+        onRebuild?.(reply.flow, reply.txid);
+        setRebuildRef("");
+        setIncoming((prev) => prev.filter((txid) => txid !== ref));
+      } finally {
+        setRebuildBusy(false);
       }
-      onRebuild?.(reply.flow, reply.txid);
-      setRebuildRef("");
-    } finally {
-      setRebuildBusy(false);
-    }
-  }, [rebuildRef, rebuildBusy, onRebuild]);
+    },
+    [rebuildRef, rebuildBusy, onRebuild],
+  );
+
+  // Watch the node for new transactions while the panel is open (regtest
+  // only — every fresh wallet or mempool tx becomes a one-click rebuild).
+  const watchEnabled =
+    isOpen && status?.connected === true && status.chain === "regtest";
+  useEffect(() => {
+    if (!watchEnabled) return;
+    let cancelled = false;
+
+    const poll = async () => {
+      const watch = watchRef.current;
+      if (watch.polling) return;
+      watch.polling = true;
+      try {
+        const result = await pollIncomingTransactions({
+          lastBlock: watch.lastBlock,
+          mempool: watch.mempool,
+        });
+        if (cancelled) return;
+        watch.lastBlock = result.lastBlock;
+        watch.mempool = result.mempool;
+        const fresh = result.txids.filter((txid) => !watch.seen.has(txid));
+        for (const txid of fresh) watch.seen.add(txid);
+        // the first poll only primes the cursor — history is not "incoming"
+        if (!watch.primed) {
+          watch.primed = true;
+          return;
+        }
+        if (fresh.length > 0) {
+          setIncoming((prev) =>
+            [...fresh.reverse(), ...prev].slice(0, MAX_INCOMING),
+          );
+        }
+      } finally {
+        watchRef.current.polling = false;
+      }
+    };
+
+    void poll();
+    const interval = window.setInterval(() => void poll(), WATCH_INTERVAL_MS);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [watchEnabled]);
 
   const navigateHistory = (direction: -1 | 1) => {
     const history = commandHistory.current;
@@ -241,6 +303,37 @@ export function BitcoinCorePanel({
             {rebuildError && (
               <div className="mt-1 text-xs text-red-600 dark:text-red-400">
                 {rebuildError}
+              </div>
+            )}
+            {incoming.length > 0 && (
+              <div className="mt-2" data-testid="bitcoin-incoming">
+                <div className="mb-1 text-xs font-medium text-muted-foreground">
+                  New transactions on your node
+                </div>
+                <ul className="space-y-1">
+                  {incoming.map((txid) => (
+                    <li key={txid} className="flex items-center gap-1">
+                      <button
+                        data-testid="bitcoin-incoming-rebuild"
+                        onClick={() => void runRebuild(txid)}
+                        disabled={rebuildBusy}
+                        title={`Rebuild ${txid} on canvas`}
+                        className="min-w-0 flex-1 truncate rounded bg-muted px-1.5 py-0.5 text-left font-mono text-xs hover:bg-muted/70 disabled:opacity-50"
+                      >
+                        {txid.slice(0, 16)}…
+                      </button>
+                      <button
+                        onClick={() =>
+                          setIncoming((prev) => prev.filter((t) => t !== txid))
+                        }
+                        title="Dismiss"
+                        className="shrink-0 rounded p-0.5 hover:bg-secondary"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
           </div>

@@ -1,32 +1,39 @@
 """Assemble everything needed to rebuild a transaction, from a local node.
 
-Given a signed transaction (hex or txid), fetch each input's funding
-transaction and derive the spending private key from the wallet's descriptors,
-so the canvas flow can recreate the signature itself — not just paste it.
+Given a transaction (raw hex or txid), Bitcoin Core is the parser of record:
+``decoderawtransaction`` describes the fields, ``getrawtransaction`` supplies
+the funding transactions. On regtest the wallet's descriptors additionally
+yield the spending private keys (single-sig and multisig co-signer keys), so
+the canvas flow can recreate the signatures itself — not just paste them.
 
-Regtest only: deriving and returning private keys is gated to throwaway coins.
+Wire-mode rebuilds (no keys) work on any chain; key derivation is gated to
+regtest where coins are throwaway by definition.
 """
 
 from __future__ import annotations
 
 import bitcointx
-from bitcointx.core import CTransaction, b2lx, x
 from bitcointx.wallet import CCoinExtKey
 
 from calc_functions import calc_func as calc
 
+from .dataset import assemble_dataset, DatasetError
+from .script_parse import (
+    p2pk_pubkey,
+    p2pkh_hash160,
+    parse_multisig,
+    parse_pushes,
+    ScriptParseError,
+)
+
 _REGTEST = "bitcoin/regtest"
+
+# Bitcoin Core's getblockchaininfo chain names → rawBit network names
+_NETWORKS = {"main": "mainnet", "test": "testnet"}
 
 
 class RebuildError(Exception):
     """User-facing failure while assembling rebuild data."""
-
-
-def _p2pkh_hash160(script_hex: str) -> str | None:
-    s = script_hex.lower()
-    if len(s) == 50 and s.startswith("76a914") and s.endswith("88ac"):
-        return s[6:46]
-    return None
 
 
 def _parse_pkh_descriptor(desc: str) -> tuple[str, str] | None:
@@ -87,71 +94,117 @@ def _derive_privkey(rpc, address: str) -> str | None:
     return None
 
 
-def _sighash_type(scriptsig: bytes) -> int:
-    """SIGHASH byte of the first push in a P2PKH scriptSig (default ALL)."""
-    if not scriptsig:
-        return 1
-    push_len = scriptsig[0]
-    if 1 <= push_len <= 75 and len(scriptsig) >= 1 + push_len:
-        return scriptsig[push_len]  # last byte of the signature push
-    return 1
+def _try_derive_for_hash160(rpc, h160: str) -> str | None:
+    try:
+        address = calc.hash160_to_p2pkh_address(h160, "regtest")
+        return _derive_privkey(rpc, address)
+    except Exception:
+        return None
+
+
+def _redeem_from_scriptsig(scriptsig_hex: str) -> str | None:
+    try:
+        ops = parse_pushes(scriptsig_hex)
+    except ScriptParseError:
+        return None
+    return ops[-1]["data"] if ops and ops[-1]["data"] else None
+
+
+def _derive_input_keys(rpc, dataset: dict) -> None:
+    """Attach every derivable spending key to the dataset (regtest only).
+
+    Descriptor wallets index the P2PKH address of each derived key, so a
+    pubkey owned by the wallet — whether it locks a P2PKH, P2PK, or multisig
+    output — resolves through ``getaddressinfo`` on its P2PKH form.
+    """
+    for inp in dataset["vin"]:
+        if inp.get("coinbase"):
+            continue
+        spk_type = inp.get("prev_spk_type")
+        spk = inp["prev_scriptpubkey"]
+        if spk_type == "pubkeyhash":
+            h160 = p2pkh_hash160(spk)
+            if h160:
+                inp["privkey_hex"] = _try_derive_for_hash160(rpc, h160)
+        elif spk_type == "pubkey":
+            pubkey = p2pk_pubkey(spk)
+            if pubkey:
+                inp["privkey_hex"] = _try_derive_for_hash160(
+                    rpc, calc.hash160_hex(pubkey)
+                )
+        elif spk_type in ("multisig", "scripthash"):
+            script = (
+                spk
+                if spk_type == "multisig"
+                else _redeem_from_scriptsig(inp["scriptsig_hex"])
+            )
+            ms = parse_multisig(script) if script else None
+            if ms is None:
+                continue
+            keys = {}
+            for pubkey in ms["pubkeys"]:
+                privkey = _try_derive_for_hash160(rpc, calc.hash160_hex(pubkey))
+                if privkey:
+                    keys[pubkey] = privkey
+            if keys:
+                inp["privkeys_by_pubkey"] = keys
 
 
 def build_rebuild_dataset(rpc, tx_ref: str) -> dict:
     """Build the rebuild dataset for ``tx_ref`` (raw hex or a txid)."""
-    if rpc.chain() != "regtest":
-        raise RebuildError("Rebuilding with key recovery is only available on regtest.")
+    tx_ref = (tx_ref or "").strip()
+    chain = rpc.chain()
+    network = _NETWORKS.get(chain, chain)
 
-    tx_ref = tx_ref.strip()
+    if len(tx_ref) > 64:
+        raw_hex = tx_ref
+    else:
+        try:
+            raw_hex = rpc.call_gated("getrawtransaction", [tx_ref])
+        except Exception as exc:
+            raise RebuildError(
+                f"Could not fetch transaction {tx_ref[:16]}…: {exc}"
+            ) from exc
     try:
-        raw_hex = tx_ref if len(tx_ref) > 64 else rpc.call_gated("getrawtransaction", [tx_ref])
-        tx = CTransaction.deserialize(x(raw_hex))
-    except RebuildError:
-        raise
+        decoded = rpc.call_gated("decoderawtransaction", [raw_hex])
     except Exception as exc:
-        raise RebuildError(f"Could not decode transaction: {exc}")
+        raise RebuildError(f"Could not decode transaction: {exc}") from exc
 
-    vin = []
-    for txin in tx.vin:
-        prev_txid = b2lx(txin.prevout.hash)
+    prev_txs: dict[str, str] = {}
+    prev_decoded: dict[str, dict] = {}
+    for vin in decoded.get("vin", []):
+        if "coinbase" in vin or vin.get("txid") is None:
+            continue
+        prev_txid = vin["txid"]
+        if prev_txid in prev_txs:
+            continue
         try:
             prev_hex = rpc.call_gated("getrawtransaction", [prev_txid])
-            prev_tx = CTransaction.deserialize(x(prev_hex))
         except Exception as exc:
-            raise RebuildError(f"Could not fetch funding tx {prev_txid[:12]}…: {exc}")
-        spent = prev_tx.vout[txin.prevout.n]
-        prev_spk = spent.scriptPubKey.hex()
-        privkey_hex = None
-        hash160 = _p2pkh_hash160(prev_spk)
-        if hash160 is not None:
-            address = calc.hash160_to_p2pkh_address(hash160, "regtest")
-            try:
-                privkey_hex = _derive_privkey(rpc, address)
-            except Exception:
-                privkey_hex = None
-        vin.append(
-            {
-                "prev_txid": prev_txid,
-                "vout": txin.prevout.n,
-                "sequence": txin.nSequence,
-                "prev_tx_hex": prev_hex,
-                "prev_scriptpubkey": prev_spk,
-                "prev_value_sats": spent.nValue,
-                "privkey_hex": privkey_hex,
-            }
+            raise RebuildError(
+                f"Could not fetch funding tx {prev_txid[:16]}…: {exc} — the "
+                "node must know it (enable txindex=1 or use a wallet "
+                "transaction)."
+            ) from exc
+        prev_txs[prev_txid] = prev_hex
+        try:
+            prev_decoded[prev_txid] = rpc.call_gated(
+                "decoderawtransaction", [prev_hex]
+            )
+        except Exception:
+            pass  # local classification covers it
+
+    try:
+        dataset = assemble_dataset(
+            raw_hex,
+            prev_txs,
+            network=network,
+            decoded=decoded,
+            prev_decoded=prev_decoded,
         )
+    except DatasetError as exc:
+        raise RebuildError(str(exc)) from exc
 
-    vout = [
-        {"value_sats": o.nValue, "scriptpubkey": o.scriptPubKey.hex()} for o in tx.vout
-    ]
-
-    return {
-        "tx_hex": raw_hex,
-        "txid": b2lx(tx.GetTxid()),
-        "version": tx.nVersion,
-        "locktime": tx.nLockTime,
-        "sighash_type": _sighash_type(bytes(tx.vin[0].scriptSig)) if tx.vin else 1,
-        "vin": vin,
-        "vout": vout,
-        "network": "regtest",
-    }
+    if chain == "regtest":
+        _derive_input_keys(rpc, dataset)
+    return dataset

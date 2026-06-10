@@ -390,7 +390,7 @@ def test_rpc_route_maps_exceptions(api, monkeypatch):
 def test_rebuild_route_returns_flow(api, monkeypatch):
     flow = {"name": "Rebuild abc", "nodes": [], "edges": []}
     monkeypatch.setattr(api, "build_rebuild_dataset", lambda rpc, ref: {"txid": "abc123"})
-    monkeypatch.setattr(api, "generate_flow", lambda dataset: flow)
+    monkeypatch.setattr(api, "generate_legacy_flow", lambda dataset: flow)
     response = _client(api).post("/bitcoin/rebuild", json={"tx": "deadbeef"})
     assert response.status_code == 200
     assert response.get_json() == {"flow": flow, "txid": "abc123"}

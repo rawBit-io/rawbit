@@ -2011,7 +2011,20 @@ function FlowContent() {
       );
       const normalizedEdges = freshEdges.map((edge) => ({ ...edge })) as Edge[];
 
-      const newTabId = addTab();
+      // The generator ships a viewport anchored on its info card; creating
+      // the tab with it makes the tab's own viewport restore apply it instead
+      // of racing a fit (same race as shared-flow imports otherwise).
+      const rawViewport = (data as { viewport?: Viewport }).viewport;
+      const viewport =
+        rawViewport &&
+        Number.isFinite(rawViewport.x) &&
+        Number.isFinite(rawViewport.y) &&
+        Number.isFinite(rawViewport.zoom) &&
+        rawViewport.zoom > 0
+          ? { x: rawViewport.x, y: rawViewport.y, zoom: rawViewport.zoom }
+          : null;
+
+      const newTabId = addTab(viewport ? { transform: viewport } : undefined);
       replaceSharedGraph({
         nodes: normalizedNodes,
         edges: normalizedEdges,
@@ -2035,7 +2048,16 @@ function FlowContent() {
         setTabTooltip(newTabId, txid ? `Rebuilt tx ${txid}` : "Rebuilt transaction");
         renameTab(newTabId, title);
       }
-      scheduleExampleFlowFit();
+      if (viewport) {
+        scheduleExampleFlowViewport(viewport);
+      } else {
+        // No viewport from the generator: keep fitting until the new tab's
+        // viewport restore has settled, or the rebuild opens unfitted.
+        scheduleExampleFlowFit({
+          minZoom: SHARED_IMPORT_FIT_MIN_ZOOM,
+          settle: true,
+        });
+      }
       setShowBitcoinPanel(false);
     },
     [
@@ -2044,6 +2066,7 @@ function FlowContent() {
       renameTab,
       replaceSharedGraph,
       scheduleExampleFlowFit,
+      scheduleExampleFlowViewport,
       scheduleSnapshot,
       setInfoDialog,
       setTabTooltip,
