@@ -16,6 +16,7 @@ import {
 } from "react";
 
 import {
+  Terminal,
   Cable,
   Save,
   FileUp,
@@ -152,6 +153,10 @@ export type ExtraTopBarProps = {
   /* Search panel toggle */
   onSearchClick?: () => void;
   setShowSearchPanel?: (open: boolean) => void;
+
+  /* Bitcoin Core console panel toggle */
+  onBitcoinClick?: () => void;
+  setShowBitcoinPanel?: (open: boolean) => void;
 
   /* mini-map toggle */
   showMiniMap?: boolean;
@@ -290,6 +295,10 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
     /* search panel */
     onSearchClick,
     setShowSearchPanel,
+
+    /* bitcoin core console */
+    onBitcoinClick,
+    setShowBitcoinPanel,
     showMiniMap = true,
     onToggleMiniMap,
     showInfoNodes = true,
@@ -721,6 +730,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
               /* always close the ErrorPanel and SearchPanel when opening History */
               setShowErrorPanel?.(false);
               setShowSearchPanel?.(false);
+              setShowBitcoinPanel?.(false);
               setShowUndoRedoPanel?.(!showUndoRedoPanel);
             }}
             tooltip="History"
@@ -793,6 +803,21 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
             <MapPinned className="h-7 w-7" />
           </TopBarIconButton>
           <Separator orientation="vertical" className="mx-2 h-8 w-px" />{" "}
+          {/* Bitcoin Core CLI console */}
+          <TopBarIconButton
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              setShowUndoRedoPanel?.(false);
+              setShowErrorPanel?.(false);
+              setShowSearchPanel?.(false);
+              onBitcoinClick?.();
+            }}
+            tooltip="Bitcoin Core CLI"
+          >
+            <Terminal className="h-7 w-7" />
+          </TopBarIconButton>
+          <Separator orientation="vertical" className="mx-2 h-8 w-px" />
           {/* Search shortcut */}
           <TopBarIconButton
             variant="ghost"
@@ -843,6 +868,7 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
               onClick={() => {
                 setShowUndoRedoPanel?.(false);
                 setShowSearchPanel?.(false);
+                setShowBitcoinPanel?.(false);
                 setShowErrorPanel?.(!showErrorPanel);
               }}
               title="Show errors"

@@ -30,6 +30,7 @@ describe("FlowPanels", () => {
   const setShowUndoRedoPanel = vi.fn();
   const setShowErrorPanel = vi.fn();
   const setShowSearchPanel = vi.fn();
+  const setShowBitcoinPanel = vi.fn();
   const setSearchQuery = vi.fn();
 
   beforeEach(() => {
@@ -47,6 +48,8 @@ describe("FlowPanels", () => {
         nodes={nodes}
         showSearchPanel
         setShowSearchPanel={setShowSearchPanel}
+        showBitcoinPanel={false}
+        setShowBitcoinPanel={setShowBitcoinPanel}
         searchQuery="hash"
         setSearchQuery={setSearchQuery}
         edges={edges}

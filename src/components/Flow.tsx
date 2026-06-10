@@ -523,6 +523,7 @@ function FlowContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showUndoRedoPanel, setShowUndoRedoPanel] = useState(false);
   const [showErrorPanel, setShowErrorPanel] = useState(false);
+  const [showBitcoinPanel, setShowBitcoinPanel] = useState(false);
 
   // 🔍 search-panel state
   const [showSearchPanel, setShowSearchPanel] = useState(false);
@@ -757,6 +758,7 @@ function FlowContent() {
 
   const RHS_PANEL_W = 256; // default right panels (=16rem)
   const HELP_PANEL_W = 288; // HelpMenu w-72 (=18rem)
+  const BITCOIN_PANEL_W = 320; // BitcoinCorePanel w-80 (=20rem)
   const MM_GAP = 44.8; // 2.8 rem  (space beside controls)
 
   const flowInstanceRef = useRef<ReactFlowInstance | null>(null);
@@ -2179,6 +2181,7 @@ function FlowContent() {
     setShowUndoRedoPanel(false);
     setShowErrorPanel(false);
     setShowSearchPanel(false);
+    setShowBitcoinPanel(false);
     setShowHelpMenu(true);
   }, [closeGuidedHelp, showHelpMenu]);
 
@@ -2584,6 +2587,7 @@ function FlowContent() {
       setShowUndoRedoPanel(false);
       setShowErrorPanel(false);
       setShowSearchPanel(false);
+      setShowBitcoinPanel(false);
       setShowHelpMenu(true);
       ensureDemoHelpTab();
       helpDemoModeRef.current = "auto";
@@ -3412,11 +3416,13 @@ function FlowContent() {
   const showUndoRedoPanelUI = !isMobileReadOnly && showUndoRedoPanel;
   const showErrorPanelUI = !isMobileReadOnly && showErrorPanel;
   const showSearchPanelUI = !isMobileReadOnly && showSearchPanel;
+  const showBitcoinPanelUI = !isMobileReadOnly && showBitcoinPanel;
   const showHelpPanelUI = !isMobileReadOnly && isGuidedHelpOpen;
   const rightPanelWidth = Math.max(
     showUndoRedoPanelUI || showErrorPanelUI || showSearchPanelUI
       ? RHS_PANEL_W
       : 0,
+    showBitcoinPanelUI ? BITCOIN_PANEL_W : 0,
     showHelpPanelUI ? HELP_PANEL_W : 0,
   );
   const rightPanelOpen = rightPanelWidth > 0;
@@ -3478,9 +3484,18 @@ function FlowContent() {
                 closeGuidedHelp();
                 setShowUndoRedoPanel(false); // never overlap
                 setShowErrorPanel(false);
+                setShowBitcoinPanel(false);
                 setShowSearchPanel((v) => !v); // toggle
               }}
               setShowSearchPanel={setShowSearchPanel}
+              onBitcoinClick={() => {
+                closeGuidedHelp();
+                setShowUndoRedoPanel(false); // never overlap
+                setShowErrorPanel(false);
+                setShowSearchPanel(false);
+                setShowBitcoinPanel((v) => !v); // toggle
+              }}
+              setShowBitcoinPanel={setShowBitcoinPanel}
               showMiniMap={showMiniMap}
               onToggleMiniMap={() => setShowMiniMap((v) => !v)}
               showInfoNodes={showInfoNodes}
@@ -3635,6 +3650,8 @@ function FlowContent() {
 
             {!isMobileReadOnly && (
               <FlowPanels
+                showBitcoinPanel={showBitcoinPanel}
+                setShowBitcoinPanel={setShowBitcoinPanel}
                 showUndoRedoPanel={showUndoRedoPanel}
                 setShowUndoRedoPanel={setShowUndoRedoPanel}
                 showErrorPanel={showErrorPanel}
@@ -3655,13 +3672,11 @@ function FlowContent() {
 
           <IntroDropOverlay
             state={introDropState}
-            captionRightInset={
-              isGuidedHelpOpen
-                ? 288 /* HelpMenu w-72 */
-                : showSearchPanelUI
-                  ? 256 /* SearchPanel w-64 */
-                  : 0
-            }
+            captionRightInset={Math.max(
+              isGuidedHelpOpen ? HELP_PANEL_W : 0,
+              showSearchPanelUI ? RHS_PANEL_W : 0,
+              showBitcoinPanelUI ? BITCOIN_PANEL_W : 0,
+            )}
           />
 
           {!isMobileReadOnly && (

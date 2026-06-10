@@ -1,6 +1,7 @@
 import { UndoRedoPanel } from "@/components/layout/UndoRedoPanel";
 import { ErrorPanel } from "@/components/layout/ErrorPanel";
 import { SearchPanel } from "@/components/layout/SearchPanel";
+import { BitcoinCorePanel } from "@/components/layout/BitcoinCorePanel";
 import type { CalcError, FlowNode } from "@/types";
 import type { Edge } from "@xyflow/react";
 
@@ -13,6 +14,8 @@ interface FlowPanelsProps {
   nodes: FlowNode[];
   showSearchPanel: boolean;
   setShowSearchPanel: (open: boolean) => void;
+  showBitcoinPanel: boolean;
+  setShowBitcoinPanel: (open: boolean) => void;
   searchQuery: string;
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
   edges: Edge[];
@@ -30,6 +33,8 @@ export function FlowPanels({
   nodes,
   showSearchPanel,
   setShowSearchPanel,
+  showBitcoinPanel,
+  setShowBitcoinPanel,
   searchQuery,
   setSearchQuery,
   edges,
@@ -62,6 +67,11 @@ export function FlowPanels({
         onSelect={centerOnNode}
         onLocateMatch={focusSearchHit}
         onClose={() => setShowSearchPanel(false)}
+      />
+      <BitcoinCorePanel
+        isOpen={showBitcoinPanel}
+        hasVisibleTabs={hasMultipleTabs}
+        onClose={() => setShowBitcoinPanel(false)}
       />
     </>
   );

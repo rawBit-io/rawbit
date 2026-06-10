@@ -49,6 +49,13 @@ from config import (
 )
 from graph_logic import bulk_calculate_logic, CALC_FUNCTIONS as GLOBAL_CALC_FUNCTIONS
 from codeview_expander import expand_function_source
+from bitcoin_rpc import (
+    BitcoinRPC,
+    BitcoinRPCError,
+    BitcoinRPCForbidden,
+    BitcoinRPCUnavailable,
+    bitcoin_rpc_enabled,
+)
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 FLOWS_DIR = ROOT_DIR / "src" / "my_tx_flows"
@@ -372,6 +379,84 @@ def healthz():
             **public_limits(),
         },
     })
+
+
+# ---------------------------------------------------------------------------
+# Bitcoin Core integration (local installs only)
+#
+# Disabled unless Flask runs in debug mode (python routes.py) or
+# RAWBIT_BITCOIN_RPC_ENABLED is set — the hosted backend must never expose
+# a path to its local network.
+# ---------------------------------------------------------------------------
+
+bitcoin_rpc_client = BitcoinRPC()
+
+# Loopback hostnames accepted in the Host header. Port is ignored so a custom
+# PORT still works; what matters is that the browser addressed the node by a
+# local name, which a DNS-rebinding page (Host: evil.com) cannot forge.
+_BITCOIN_LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1", "[::1]"}
+
+
+def _bitcoin_endpoints_enabled() -> bool:
+    return bitcoin_rpc_enabled() or app.debug
+
+
+def _bitcoin_guard():
+    """Reject any request that must not reach the local node.
+
+    Returns an error Response to short-circuit, or None to proceed. Defends a
+    money-daemon bridge that otherwise leans only on browser-enforced CORS:
+      * loopback-only client    → blocks LAN access when bound to 0.0.0.0
+      * Host header allowlist    → blocks DNS-rebinding (Host stays the attacker's)
+    """
+    if not _bitcoin_endpoints_enabled():
+        return _json({"error": {"message": "Bitcoin Core endpoints are disabled."}}, 404)
+    if request.remote_addr not in ("127.0.0.1", "::1"):
+        return _json({"error": {"message": "Bitcoin Core endpoints are loopback-only."}}, 403)
+    host = (request.host or "").rsplit(":", 1)[0].lower()
+    if host not in _BITCOIN_LOCAL_HOSTS:
+        return _json(
+            {"error": {"message": "Bitcoin Core endpoints reject non-local Host headers."}}, 403
+        )
+    return None
+
+
+@app.route('/bitcoin/status', methods=['GET'])
+@limiter.limit("60/minute")
+def bitcoin_status():
+    blocked = _bitcoin_guard()
+    if blocked is not None:
+        return blocked
+    try:
+        return _json(bitcoin_rpc_client.status())
+    except (BitcoinRPCUnavailable, BitcoinRPCError) as exc:
+        # "no node" is a normal state for the console, not an HTTP failure
+        return _json({"connected": False, "error": str(exc)})
+
+
+@app.route('/bitcoin/rpc', methods=['POST'])
+@limiter.limit("120/minute")
+def bitcoin_rpc_command():
+    blocked = _bitcoin_guard()
+    if blocked is not None:
+        return blocked
+    payload = request.get_json(silent=True) or {}
+    method = payload.get("method")
+    params = payload.get("params", [])
+    if not isinstance(method, str) or not method.strip():
+        return _json({"error": {"message": "Missing RPC method."}}, 400)
+    if not isinstance(params, (list, dict)):
+        return _json({"error": {"message": "Params must be a JSON array or object."}}, 400)
+    try:
+        return _json({"result": bitcoin_rpc_client.call_gated(method, params)})
+    except BitcoinRPCForbidden as exc:
+        return _json({"error": {"message": str(exc)}}, 403)
+    except BitcoinRPCError as exc:
+        # bitcoind-level errors are legitimate console output
+        return _json({"error": {"code": exc.code, "message": exc.message}})
+    except BitcoinRPCUnavailable as exc:
+        return _json({"error": {"message": str(exc)}}, 503)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.getenv("PORT", "5007")), debug=True)
