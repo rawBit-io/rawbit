@@ -50,6 +50,7 @@ describe("FlowPanels", () => {
         setShowSearchPanel={setShowSearchPanel}
         showBitcoinPanel={false}
         setShowBitcoinPanel={setShowBitcoinPanel}
+        onRebuildFlow={vi.fn()}
         searchQuery="hash"
         setSearchQuery={setSearchQuery}
         edges={edges}

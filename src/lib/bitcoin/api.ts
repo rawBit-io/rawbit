@@ -47,6 +47,12 @@ export type BitcoinRpcReply = {
   error?: { code?: number; message: string };
 };
 
+export type RebuildReply = {
+  flow?: unknown;
+  txid?: string;
+  error?: { message: string };
+};
+
 export async function fetchBitcoinStatus(): Promise<BitcoinStatus> {
   try {
     const res = await fetch(`${resolveApiBase()}/bitcoin/status`, {
@@ -112,6 +118,43 @@ export async function sendBitcoinCommand(
 }
 
 type Token = { value: string; quoted: boolean };
+
+export async function rebuildTransaction(tx: string): Promise<RebuildReply> {
+  let res: Response;
+  try {
+    res = await fetch(`${resolveApiBase()}/bitcoin/rebuild`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "omit",
+      body: JSON.stringify({ tx }),
+    });
+  } catch {
+    return { error: { message: "rawBit backend is not reachable." } };
+  }
+  try {
+    const body = (await res.json()) as { flow?: unknown; txid?: string; error?: unknown };
+    if (body.error) {
+      if (typeof body.error === "object" && body.error !== null && "message" in body.error) {
+        return { error: { message: String((body.error as { message: unknown }).message) } };
+      }
+      // global handlers emit flat string codes (rate_limited, 500, …)
+      const known: Record<string, string> = {
+        not_found: "Bitcoin Core endpoints are disabled on this backend.",
+        rate_limited: "Too many rebuild requests — slow down and try again.",
+        payload_too_large: "Transaction payload too large.",
+        internal_server_error: "Rebuild failed on the backend.",
+      };
+      const code = String(body.error);
+      return { error: { message: known[code] ?? `Backend error: ${code}.` } };
+    }
+    if (!res.ok || !body.flow) {
+      return { error: { message: `Rebuild failed (HTTP ${res.status}).` } };
+    }
+    return { flow: body.flow, txid: body.txid };
+  } catch {
+    return { error: { message: `Unexpected backend response (HTTP ${res.status}).` } };
+  }
+}
 
 /** Split a command line into tokens, honoring single and double quotes. */
 function tokenize(line: string): Token[] {

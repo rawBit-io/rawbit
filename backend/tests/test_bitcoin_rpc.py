@@ -385,3 +385,34 @@ def test_rpc_route_maps_exceptions(api, monkeypatch):
     monkeypatch.setattr(api.bitcoin_rpc_client, "call_gated", unavailable)
     response = _client(api).post("/bitcoin/rpc", json={"method": "getblockcount"})
     assert response.status_code == 503
+
+
+def test_rebuild_route_returns_flow(api, monkeypatch):
+    flow = {"name": "Rebuild abc", "nodes": [], "edges": []}
+    monkeypatch.setattr(api, "build_rebuild_dataset", lambda rpc, ref: {"txid": "abc123"})
+    monkeypatch.setattr(api, "generate_flow", lambda dataset: flow)
+    response = _client(api).post("/bitcoin/rebuild", json={"tx": "deadbeef"})
+    assert response.status_code == 200
+    assert response.get_json() == {"flow": flow, "txid": "abc123"}
+
+
+def test_rebuild_route_requires_tx(api):
+    assert _client(api).post("/bitcoin/rebuild", json={}).status_code == 400
+
+
+def test_rebuild_route_maps_unsupported(api, monkeypatch):
+    def boom(rpc, ref):
+        raise api.UnsupportedTransaction("only 1-input / 1-output")
+
+    monkeypatch.setattr(api, "build_rebuild_dataset", boom)
+    response = _client(api).post("/bitcoin/rebuild", json={"tx": "deadbeef"})
+    assert response.status_code == 422
+
+
+def test_rebuild_route_maps_rebuild_error(api, monkeypatch):
+    def boom(rpc, ref):
+        raise api.RebuildError("only on regtest")
+
+    monkeypatch.setattr(api, "build_rebuild_dataset", boom)
+    response = _client(api).post("/bitcoin/rebuild", json={"tx": "deadbeef"})
+    assert response.status_code == 400

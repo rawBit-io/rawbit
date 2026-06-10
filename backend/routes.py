@@ -56,6 +56,12 @@ from bitcoin_rpc import (
     BitcoinRPCUnavailable,
     bitcoin_rpc_enabled,
 )
+from flow_generator import (
+    build_rebuild_dataset,
+    generate_flow,
+    RebuildError,
+    UnsupportedTransaction,
+)
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 FLOWS_DIR = ROOT_DIR / "src" / "my_tx_flows"
@@ -455,6 +461,28 @@ def bitcoin_rpc_command():
         # bitcoind-level errors are legitimate console output
         return _json({"error": {"code": exc.code, "message": exc.message}})
     except BitcoinRPCUnavailable as exc:
+        return _json({"error": {"message": str(exc)}}, 503)
+
+
+@app.route('/bitcoin/rebuild', methods=['POST'])
+@limiter.limit("30/minute")
+def bitcoin_rebuild():
+    blocked = _bitcoin_guard()
+    if blocked is not None:
+        return blocked
+    payload = request.get_json(silent=True) or {}
+    ref = payload.get("tx")
+    if not isinstance(ref, str) or not ref.strip():
+        return _json({"error": {"message": "Provide a txid or raw transaction hex."}}, 400)
+    try:
+        dataset = build_rebuild_dataset(bitcoin_rpc_client, ref)
+        flow = generate_flow(dataset)
+        return _json({"flow": flow, "txid": dataset["txid"]})
+    except UnsupportedTransaction as exc:
+        return _json({"error": {"message": str(exc)}}, 422)
+    except RebuildError as exc:
+        return _json({"error": {"message": str(exc)}}, 400)
+    except (BitcoinRPCForbidden, BitcoinRPCError, BitcoinRPCUnavailable) as exc:
         return _json({"error": {"message": str(exc)}}, 503)
 
 

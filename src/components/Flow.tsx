@@ -102,6 +102,7 @@ import {
 } from "@/lib/flow/groupEdgeBundling";
 import { edgesHaveSameIdentity } from "@/lib/flow/edgeNormalization";
 import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
+import { importWithFreshIds } from "@/lib/idUtils";
 import {
   getFlowTemplateViewport,
   placeFlowDataAtPosition,
@@ -1969,6 +1970,86 @@ function FlowContent() {
     [setInfoDialog]
   );
 
+  /** Open a generated "rebuild this tx" flow (from the Bitcoin Core panel) in a new tab. */
+  const handleRebuiltFlow = useCallback(
+    (flow: unknown, txid?: string) => {
+      const data = flow as Partial<FlowData> | null;
+      if (!data || !Array.isArray(data.nodes) || !Array.isArray(data.edges)) {
+        setInfoDialog({ open: true, message: "Rebuild returned an invalid flow." });
+        return;
+      }
+
+      // Fresh ids so the rebuilt flow never collides with an open lesson tab
+      // (it is cloned from a lesson template and shares its node ids).
+      const { nodes: freshNodes, edges: freshEdges } = importWithFreshIds<
+        FlowNode,
+        Edge
+      >({
+        currentNodes: [],
+        currentEdges: [],
+        importNodes: data.nodes as FlowNode[],
+        importEdges: data.edges as Edge[],
+        dedupeEdges: true,
+        renameMode: "always",
+      });
+
+      restoreScriptSteps([]);
+      const normalizedNodes = stripLegacyFlowMapNodeData(
+        ingestScriptSteps(
+          freshNodes.map((node) => {
+            const base: FlowNode & { dragHandle?: string } = {
+              ...node,
+              data: node.data ? { ...node.data } : node.data,
+              selected: false,
+            };
+            if (base.type === "shadcnGroup" && !base.dragHandle) {
+              base.dragHandle = "[data-drag-handle]";
+            }
+            return base;
+          })
+        )
+      );
+      const normalizedEdges = freshEdges.map((edge) => ({ ...edge })) as Edge[];
+
+      const newTabId = addTab();
+      replaceSharedGraph({
+        nodes: normalizedNodes,
+        edges: normalizedEdges,
+        tabId: newTabId,
+      });
+      refreshBanner(normalizedNodes, newTabId, { immediate: true, sticky: false });
+
+      // Seed the new tab's undo history with the rebuilt graph; without this the
+      // tab's baseline stays empty and an edit-then-undo wipes the rebuild.
+      scheduleSnapshot(`Rebuild ${txid ?? "transaction"}`, {
+        refresh: true,
+        immediate: true,
+        tabId: newTabId,
+        state: { nodes: normalizedNodes, edges: normalizedEdges },
+      });
+
+      const title =
+        (typeof data.name === "string" && data.name) ||
+        (txid ? `Rebuild ${txid.slice(0, 12)}…` : "Rebuild");
+      if (newTabId) {
+        setTabTooltip(newTabId, txid ? `Rebuilt tx ${txid}` : "Rebuilt transaction");
+        renameTab(newTabId, title);
+      }
+      scheduleExampleFlowFit();
+      setShowBitcoinPanel(false);
+    },
+    [
+      addTab,
+      refreshBanner,
+      renameTab,
+      replaceSharedGraph,
+      scheduleExampleFlowFit,
+      scheduleSnapshot,
+      setInfoDialog,
+      setTabTooltip,
+    ]
+  );
+
   const {
     fileInputRef,
     saveFlow,
@@ -3652,6 +3733,7 @@ function FlowContent() {
               <FlowPanels
                 showBitcoinPanel={showBitcoinPanel}
                 setShowBitcoinPanel={setShowBitcoinPanel}
+                onRebuildFlow={handleRebuiltFlow}
                 showUndoRedoPanel={showUndoRedoPanel}
                 setShowUndoRedoPanel={setShowUndoRedoPanel}
                 showErrorPanel={showErrorPanel}

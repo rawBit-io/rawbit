@@ -16,6 +16,7 @@ interface FlowPanelsProps {
   setShowSearchPanel: (open: boolean) => void;
   showBitcoinPanel: boolean;
   setShowBitcoinPanel: (open: boolean) => void;
+  onRebuildFlow: (flow: unknown, txid?: string) => void;
   searchQuery: string;
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
   edges: Edge[];
@@ -35,6 +36,7 @@ export function FlowPanels({
   setShowSearchPanel,
   showBitcoinPanel,
   setShowBitcoinPanel,
+  onRebuildFlow,
   searchQuery,
   setSearchQuery,
   edges,
@@ -72,6 +74,7 @@ export function FlowPanels({
         isOpen={showBitcoinPanel}
         hasVisibleTabs={hasMultipleTabs}
         onClose={() => setShowBitcoinPanel(false)}
+        onRebuild={onRebuildFlow}
       />
     </>
   );

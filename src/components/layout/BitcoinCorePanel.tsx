@@ -6,6 +6,7 @@ import { RefreshCw, X } from "lucide-react";
 import {
   fetchBitcoinStatus,
   parseCommandLine,
+  rebuildTransaction,
   sendBitcoinCommand,
   type BitcoinStatus,
 } from "@/lib/bitcoin/api";
@@ -14,6 +15,7 @@ export interface BitcoinCorePanelProps {
   isOpen: boolean;
   hasVisibleTabs?: boolean;
   onClose?: () => void;
+  onRebuild?: (flow: unknown, txid?: string) => void;
   style?: CSSProperties;
 }
 
@@ -37,6 +39,7 @@ export function BitcoinCorePanel({
   isOpen,
   hasVisibleTabs = false,
   onClose,
+  onRebuild,
   style = {},
 }: BitcoinCorePanelProps) {
   const [status, setStatus] = useState<BitcoinStatus | null>(null);
@@ -44,6 +47,9 @@ export function BitcoinCorePanel({
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [historyIndex, setHistoryIndex] = useState<number | null>(null);
+  const [rebuildRef, setRebuildRef] = useState("");
+  const [rebuildBusy, setRebuildBusy] = useState(false);
+  const [rebuildError, setRebuildError] = useState<string | null>(null);
   const entryId = useRef(0);
   const commandHistory = useRef<string[]>([]);
   const outputRef = useRef<HTMLDivElement | null>(null);
@@ -89,6 +95,24 @@ export function BitcoinCorePanel({
     },
     [busy, refreshStatus],
   );
+
+  const runRebuild = useCallback(async () => {
+    const ref = rebuildRef.trim();
+    if (!ref || rebuildBusy) return;
+    setRebuildBusy(true);
+    setRebuildError(null);
+    try {
+      const reply = await rebuildTransaction(ref);
+      if (reply.error || !reply.flow) {
+        setRebuildError(reply.error?.message ?? "Rebuild failed.");
+        return;
+      }
+      onRebuild?.(reply.flow, reply.txid);
+      setRebuildRef("");
+    } finally {
+      setRebuildBusy(false);
+    }
+  }, [rebuildRef, rebuildBusy, onRebuild]);
 
   const navigateHistory = (direction: -1 | 1) => {
     const history = commandHistory.current;
@@ -176,6 +200,50 @@ export function BitcoinCorePanel({
               Not a regtest node — rawBit forwards read-only commands only.
             </div>
           )}
+
+          {/* Rebuild a transaction on the canvas */}
+          <div className="border-b px-2 py-2" data-testid="bitcoin-rebuild">
+            <div className="mb-1 text-xs font-medium text-muted-foreground">
+              Rebuild a transaction on canvas
+            </div>
+            <div className="flex gap-1">
+              <Input
+                data-testid="bitcoin-rebuild-input"
+                name="rawbitRebuildNoAutocomplete"
+                value={rebuildRef}
+                placeholder="txid or raw tx hex"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="none"
+                spellCheck={false}
+                disabled={rebuildBusy}
+                className="h-8 select-text font-mono text-xs"
+                onChange={(e) => {
+                  setRebuildRef(e.target.value);
+                  setRebuildError(null);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    void runRebuild();
+                  }
+                }}
+              />
+              <button
+                data-testid="bitcoin-rebuild-button"
+                onClick={() => void runRebuild()}
+                disabled={rebuildBusy || !rebuildRef.trim()}
+                className="shrink-0 rounded bg-primary px-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              >
+                {rebuildBusy ? "…" : "Rebuild"}
+              </button>
+            </div>
+            {rebuildError && (
+              <div className="mt-1 text-xs text-red-600 dark:text-red-400">
+                {rebuildError}
+              </div>
+            )}
+          </div>
 
           {/* Console output */}
           <div

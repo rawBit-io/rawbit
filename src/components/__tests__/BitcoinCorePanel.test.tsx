@@ -5,6 +5,7 @@ import { BitcoinCorePanel } from "@/components/layout/BitcoinCorePanel";
 
 const fetchBitcoinStatus = vi.fn();
 const sendBitcoinCommand = vi.fn();
+const rebuildTransaction = vi.fn();
 
 vi.mock("@/lib/bitcoin/api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/bitcoin/api")>();
@@ -12,6 +13,7 @@ vi.mock("@/lib/bitcoin/api", async (importOriginal) => {
     ...actual,
     fetchBitcoinStatus: (...args: unknown[]) => fetchBitcoinStatus(...args),
     sendBitcoinCommand: (...args: unknown[]) => sendBitcoinCommand(...args),
+    rebuildTransaction: (...args: unknown[]) => rebuildTransaction(...args),
   };
 });
 
@@ -102,6 +104,38 @@ describe("BitcoinCorePanel", () => {
 
     fireEvent.keyDown(input, { key: "ArrowUp" });
     expect(input.value).toBe("getblockcount");
+  });
+
+  it("rebuilds a transaction and hands the flow to onRebuild", async () => {
+    const flow = { name: "Rebuild abc", nodes: [], edges: [] };
+    rebuildTransaction.mockResolvedValue({ flow, txid: "abc123" });
+    const onRebuild = vi.fn();
+    render(<BitcoinCorePanel isOpen onClose={vi.fn()} onRebuild={onRebuild} />);
+
+    const input = screen.getByTestId("bitcoin-rebuild-input");
+    fireEvent.change(input, { target: { value: "abc123" } });
+    fireEvent.click(screen.getByTestId("bitcoin-rebuild-button"));
+
+    await waitFor(() => expect(onRebuild).toHaveBeenCalledWith(flow, "abc123"));
+    expect(rebuildTransaction).toHaveBeenCalledWith("abc123");
+  });
+
+  it("shows a rebuild error and does not call onRebuild", async () => {
+    rebuildTransaction.mockResolvedValue({
+      error: { message: "only 1-input / 1-output transactions are supported yet" },
+    });
+    const onRebuild = vi.fn();
+    render(<BitcoinCorePanel isOpen onClose={vi.fn()} onRebuild={onRebuild} />);
+
+    fireEvent.change(screen.getByTestId("bitcoin-rebuild-input"), {
+      target: { value: "deadbeef" },
+    });
+    fireEvent.click(screen.getByTestId("bitcoin-rebuild-button"));
+
+    await waitFor(() =>
+      expect(screen.getByText(/1-input/)).toBeInTheDocument(),
+    );
+    expect(onRebuild).not.toHaveBeenCalled();
   });
 
   it("does not wipe an in-progress draft on ArrowDown", async () => {
