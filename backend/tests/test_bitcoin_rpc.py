@@ -189,6 +189,17 @@ def test_invalid_network_rejected():
         BitcoinRPC(network="lightning")
 
 
+def test_default_datadir_is_platform_specific(monkeypatch):
+    home = bitcoin_rpc.Path.home()
+    monkeypatch.setattr(bitcoin_rpc.sys, "platform", "darwin")
+    assert bitcoin_rpc.default_datadir() == home / "Library" / "Application Support" / "Bitcoin"
+    monkeypatch.setattr(bitcoin_rpc.sys, "platform", "linux")
+    assert bitcoin_rpc.default_datadir() == home / ".bitcoin"
+    monkeypatch.setattr(bitcoin_rpc.sys, "platform", "win32")
+    monkeypatch.setenv("APPDATA", "C:\\Users\\dev\\AppData\\Roaming")
+    assert bitcoin_rpc.default_datadir() == bitcoin_rpc.Path("C:\\Users\\dev\\AppData\\Roaming") / "Bitcoin"
+
+
 def test_default_url_and_cookie_follow_network(tmp_path):
     client = BitcoinRPC(network="regtest", datadir=str(tmp_path))
     assert client.url.endswith(":18443")

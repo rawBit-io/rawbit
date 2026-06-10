@@ -8,7 +8,7 @@ Environment variables:
   RAWBIT_BITCOIN_RPC_ENABLED   expose /bitcoin/* endpoints outside Flask debug
   RAWBIT_BITCOIN_NETWORK       regtest (default) | mainnet | testnet | signet
   RAWBIT_BITCOIN_RPC_URL       full RPC URL override (e.g. http://127.0.0.1:18443)
-  RAWBIT_BITCOIN_DATADIR       Bitcoin Core data directory (default ~/.bitcoin)
+  RAWBIT_BITCOIN_DATADIR       Bitcoin Core data directory (default: platform-specific)
   RAWBIT_BITCOIN_COOKIE_FILE   explicit cookie file path override
   RAWBIT_BITCOIN_RPC_USER      static rpcauth credentials (alternative to cookie)
   RAWBIT_BITCOIN_RPC_PASSWORD
@@ -18,9 +18,21 @@ from __future__ import annotations
 
 import os
 import re
+import sys
 from pathlib import Path
 
 import requests
+
+
+def default_datadir() -> Path:
+    """Bitcoin Core's default data directory for the current platform."""
+    home = Path.home()
+    if sys.platform == "darwin":
+        return home / "Library" / "Application Support" / "Bitcoin"
+    if sys.platform.startswith("win"):
+        appdata = os.getenv("APPDATA")
+        return (Path(appdata) if appdata else home) / "Bitcoin"
+    return home / ".bitcoin"
 
 # port and cookie subdirectory per network
 NETWORKS = {
@@ -105,7 +117,7 @@ class BitcoinRPC:
             raise ValueError(f"Unknown Bitcoin network '{self.network}'")
         port, _ = NETWORKS[self.network]
         self.url = url or os.getenv("RAWBIT_BITCOIN_RPC_URL") or f"http://127.0.0.1:{port}"
-        self.datadir = Path(datadir or os.getenv("RAWBIT_BITCOIN_DATADIR") or Path.home() / ".bitcoin")
+        self.datadir = Path(datadir or os.getenv("RAWBIT_BITCOIN_DATADIR") or default_datadir())
         self.cookie_file = cookie_file or os.getenv("RAWBIT_BITCOIN_COOKIE_FILE")
         self.user = user or os.getenv("RAWBIT_BITCOIN_RPC_USER")
         self.password = password or os.getenv("RAWBIT_BITCOIN_RPC_PASSWORD")
