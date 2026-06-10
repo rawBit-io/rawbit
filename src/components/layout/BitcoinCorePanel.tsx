@@ -138,7 +138,7 @@ export function BitcoinCorePanel({
 
           {/* Node status */}
           <div
-            className="flex items-center gap-2 border-b px-2 py-1.5 text-xs"
+            className="flex select-text items-center gap-2 border-b px-2 py-1.5 text-xs"
             data-testid="bitcoin-status"
           >
             {status?.connected ? (

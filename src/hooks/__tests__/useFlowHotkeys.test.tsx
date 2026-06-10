@@ -117,6 +117,20 @@ describe("useFlowHotkeys", () => {
     expect(ungroup).not.toHaveBeenCalled();
   });
 
+  it("lets the browser copy highlighted text instead of nodes", () => {
+    const { copyNodes } = setup();
+    const selection = {
+      isCollapsed: false,
+      toString: () => "getblockchaininfo result",
+    } as unknown as Selection;
+    vi.spyOn(window, "getSelection").mockReturnValue(selection);
+
+    fireKey("c");
+    document.dispatchEvent(new Event("copy") as ClipboardEvent);
+
+    expect(copyNodes).not.toHaveBeenCalled();
+  });
+
   it("ignores shortcuts while typing", () => {
     const { copyNodes } = setup();
     const input = document.createElement("input");

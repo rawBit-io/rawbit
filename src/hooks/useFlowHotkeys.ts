@@ -43,13 +43,21 @@ export function useFlowHotkeys({
 
     const shouldSkipHotkeys = () => isTypingContext() || paletteOpenRef.current;
 
+    // True when the user has actually highlighted text on the page (e.g. console
+    // output, error messages). In that case copy must fall through to the browser
+    // so the text is copied, not the selected canvas nodes.
+    const hasTextSelection = () => {
+      const sel = window.getSelection();
+      return !!sel && !sel.isCollapsed && sel.toString().trim().length > 0;
+    };
+
     const onKey = (evt: KeyboardEvent) => {
       if (shouldSkipHotkeys()) return;
       if (!(evt.ctrlKey || evt.metaKey)) return;
 
       const key = evt.key.toLowerCase();
 
-      if (key === "c" && hasSelectionRef.current) {
+      if (key === "c" && hasSelectionRef.current && !hasTextSelection()) {
         evt.preventDefault();
         copyNodesRef.current?.();
       } else if (key === "v" && hasCopiedNodesRef.current) {
@@ -74,6 +82,7 @@ export function useFlowHotkeys({
     const onCopy = () => {
       if (shouldSkipHotkeys()) return;
       if (!hasSelectionRef.current) return;
+      if (hasTextSelection()) return; // let the browser copy the highlighted text
       copyNodesRef.current?.();
     };
 
