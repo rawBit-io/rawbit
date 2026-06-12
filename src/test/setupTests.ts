@@ -95,6 +95,10 @@ afterEach(() => {
   server.resetHandlers();
   clearSharedFlows();
   vi.clearAllMocks();
+  // Defensive: a test that enables fake timers and throws before its own
+  // useRealTimers() must not poison the rest of the file (faked timers also
+  // fake requestAnimationFrame, which silently breaks RAF-scheduled effects).
+  vi.useRealTimers();
 });
 afterAll(() => {
   server.close();

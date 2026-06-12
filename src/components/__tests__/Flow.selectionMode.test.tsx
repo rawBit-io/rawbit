@@ -235,7 +235,7 @@ vi.mock("@/hooks/useTheme", () => ({
 vi.mock("@/my_tx_flows/customFlows", () => ({
   customFlows: [
     {
-      id: "example-flow",
+      id: "flow-0",
       label: "Example flow",
       section: "top-level",
       data: {
@@ -762,35 +762,53 @@ describe("Flow first-run dialog", () => {
       })),
     });
 
-    const { getByText, queryByText } = renderFlow();
+    // handleInit schedules the mobile-intro setViewport in a real
+    // requestAnimationFrame; under full-suite load that frame could land after
+    // waitFor's window (flaky "0 calls"). Capture the frames and drain them
+    // deterministically when polling for the call instead of racing the clock.
+    const rafCallbacks: FrameRequestCallback[] = [];
+    const rafSpy = vi
+      .spyOn(window, "requestAnimationFrame")
+      .mockImplementation((cb: FrameRequestCallback) => {
+        rafCallbacks.push(cb);
+        return rafCallbacks.length;
+      });
 
-    await waitFor(() => {
-      expect(flowCanvasProps.current?.isReadOnly).toBe(true);
-    });
+    try {
+      const { getByText, queryByText } = renderFlow();
 
-    expect(getByText(/Mobile opens flows in\s+read-only mode/i)).toBeTruthy();
-    expect(getByText("Load example flow")).toBeTruthy();
-    expect(firstRunDialogProps.current?.flows.map((flow) => flow.label)).toEqual([
-      "Example flow",
-    ]);
-    expect(queryByText("Older flow")).toBeNull();
-    expect(flowCanvasProps.current?.nodes.map((node) => node.id)).toEqual([
-      "overview-node",
-      "calc-node",
-      "group-node",
-    ]);
-    await waitFor(() => {
-      expect(setViewportMock).toHaveBeenCalledWith(
-        { x: -59, y: 105, zoom: 0.2 },
-        { duration: 0 }
-      );
-    });
-    expect(flowCanvasProps.current?.edges.map((edge) => edge.id)).toEqual([
-      "edge-1",
-    ]);
-    expect(firstRunDialogProps.current?.open).toBe(false);
-    expect(setNodesMock).not.toHaveBeenCalled();
-    expect(setEdgesMock).not.toHaveBeenCalled();
+      await waitFor(() => {
+        rafCallbacks.splice(0).forEach((cb) => cb(0));
+        expect(flowCanvasProps.current?.isReadOnly).toBe(true);
+      });
+
+      expect(getByText(/Mobile opens flows in\s+read-only mode/i)).toBeTruthy();
+      expect(getByText("Load example flow")).toBeTruthy();
+      expect(
+        firstRunDialogProps.current?.flows.map((flow) => flow.label)
+      ).toEqual(["Example flow"]);
+      expect(queryByText("Older flow")).toBeNull();
+      expect(flowCanvasProps.current?.nodes.map((node) => node.id)).toEqual([
+        "overview-node",
+        "calc-node",
+        "group-node",
+      ]);
+      await waitFor(() => {
+        rafCallbacks.splice(0).forEach((cb) => cb(0));
+        expect(setViewportMock).toHaveBeenCalledWith(
+          { x: -59, y: 105, zoom: 0.2 },
+          { duration: 0 }
+        );
+      });
+      expect(flowCanvasProps.current?.edges.map((edge) => edge.id)).toEqual([
+        "edge-1",
+      ]);
+      expect(firstRunDialogProps.current?.open).toBe(false);
+      expect(setNodesMock).not.toHaveBeenCalled();
+      expect(setEdgesMock).not.toHaveBeenCalled();
+    } finally {
+      rafSpy.mockRestore();
+    }
   });
 
   it("opens the example loader on mobile and loads the selected flow", async () => {
@@ -827,7 +845,7 @@ describe("Flow first-run dialog", () => {
     });
 
     act(() => {
-      firstRunDialogProps.current?.onLoadExample("example-flow");
+      firstRunDialogProps.current?.onLoadExample("flow-0");
     });
     rerender(<Flow />);
 
@@ -987,7 +1005,7 @@ describe("Flow example loading", () => {
     fitViewMock.mockClear();
 
     act(() => {
-      firstRunDialogProps.current?.onLoadExample("example-flow");
+      firstRunDialogProps.current?.onLoadExample("flow-0");
     });
 
     await waitFor(() => {
@@ -1051,7 +1069,7 @@ describe("Flow example loading", () => {
     setEdgesMock.mockClear();
 
     act(() => {
-      firstRunDialogProps.current?.onLoadExample("example-flow");
+      firstRunDialogProps.current?.onLoadExample("flow-0");
     });
 
     await waitFor(() => {
