@@ -7,7 +7,7 @@ import {
   collectReservedIndices,
   getNextGapIndex,
 } from "@/lib/nodes/fieldUtils";
-import { INSTANCE_STRIDE } from "@/lib/utils";
+import { INSTANCE_STRIDE, setVal } from "@/lib/utils";
 import type { FlowNode, GroupDefinition, NodeData } from "@/types";
 
 export interface UseGroupInstancesResult {
@@ -82,25 +82,48 @@ export function useGroupInstances(
       if (nextCount < (group.minInstances ?? 1)) return;
 
       setNodes((nodes) =>
-        nodes.map((node) =>
-          node.id === id
-            ? {
-                ...node,
-                data: {
-                  ...(node.data as NodeData),
-                  groupInstances: {
-                    ...(node.data.groupInstances ?? {}),
-                    [title]: nextCount,
-                  },
-                  groupInstanceKeys: {
-                    ...(node.data.groupInstanceKeys ?? {}),
-                    [title]: keys,
-                  },
-                  dirty: true,
-                },
-              }
-            : node
-        )
+        nodes.map((node) => {
+          if (node.id !== id) return node;
+
+          const currentData = node.data as NodeData;
+          let nextInputs = currentData.inputs;
+
+          // Removing an instance must also drop its committed field values.
+          // Otherwise the stale value stays in inputs.vals (and therefore in
+          // every /bulk_calculate payload) and silently resurrects when the
+          // same offset is re-added later.
+          if (
+            !increment &&
+            removedOffset !== undefined &&
+            currentData.inputs?.vals
+          ) {
+            let vals: Record<number, string> | string[] =
+              currentData.inputs.vals;
+            group.fields.forEach((field) => {
+              vals = setVal(vals, removedOffset! + field.index, "");
+            });
+            nextInputs = { ...currentData.inputs, vals };
+          }
+
+          return {
+            ...node,
+            data: {
+              ...currentData,
+              ...(nextInputs === currentData.inputs
+                ? {}
+                : { inputs: nextInputs }),
+              groupInstances: {
+                ...(currentData.groupInstances ?? {}),
+                [title]: nextCount,
+              },
+              groupInstanceKeys: {
+                ...(currentData.groupInstanceKeys ?? {}),
+                [title]: keys,
+              },
+              dirty: true,
+            },
+          };
+        })
       );
 
       if (!increment && removedOffset !== undefined) {

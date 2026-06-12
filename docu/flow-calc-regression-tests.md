@@ -13,6 +13,7 @@ returns to them exactly.
 | Backend golden corpus | `backend/tests/test_flow_goldens.py` | Any backend calc change that alters a published result or script trace; cross-flow cache/sentinel leakage; recalc non-idempotence | `.myenv/bin/python -m pytest backend/tests -q` (repo root) |
 | Backend roundtrip | `backend/tests/test_flow_roundtrip.py` | Tweak → assert results change → restore → recalc → equals committed goldens, per lesson (includes the three always-visible flows) | same |
 | Frontend canonical snapshots | `src/lib/__tests__/calcGraphCanonical.test.ts`, `shareRoundtripIntegrity.test.ts`, `bulkCalculateContract.test.ts` | Changes to the import/normalization pipeline (what the backend *receives*), export→share→import mutation of calc-relevant data, and the exact `/bulk_calculate` request body shape | `npx vitest run src/lib/__tests__` |
+| Frontend calc-behavior payloads | `src/integration/__tests__/calcPayload.{core,behaviors,p1}.integration.test.tsx` (+ `calcPayloadHarness.tsx`) | What the frontend sends *after realistic interactions* on the intro flow: group add/remove/re-add hygiene, sentinel set/unset (incl. on connected inputs), dynamic tx-extract field add/remove with edge hygiene, disconnect/reconnect fallback, error rounds (calc error / 429 / network / timeout) leaving inputs uncorrupted, stale-response race, copy/paste aliasing, dirty-flag contract, response application, network selector / undo-redo / save-share roundtrips — all asserted on the captured `/bulk_calculate` request body | `npx vitest run src/integration/__tests__` |
 | E2E golden roundtrip | `tests/e2e/flow.roundtrip.spec.ts` | The whole chain through the real UI and real backend for the three visible flows: first full calculation must reproduce every committed result and the full script trace; then value tweak → recalc → changed → restore → recalc → equals committed (every `script_verification` trace compared, not just the anchor) | `npx playwright test tests/e2e/flow.roundtrip.spec.ts --project=chromium` (requires the backend: `.myenv/bin/python backend/routes.py`; the spec skips with a message if `/healthz` is unreachable). Chromium-only by design: the goldens pin backend results, which engines cannot influence, and per-engine runs contend for the backend's per-IP calculation budget. Waits use `waitForSettledBulkResponse` (no-errors + full node set + anchor results), never the first raw response. |
 
 Shared backend test helpers (lesson loading, literal backfill) live in
@@ -50,6 +51,18 @@ therefore always appear as reviewable diffs of the published files in the PR —
 silent test edits. The allowlists in `test_flow_goldens.py` (`STALE_STEPS_NODES`, the
 `old/p10` float-precision entries) also assert in reverse: if an allowlisted node *starts*
 reproducing, the test demands removing it, so the lists can only shrink.
+
+## Bugs found by these suites
+
+- **Group-instance removal left stale values (fixed 2026-06-12).** `useGroupInstances.handleGroupSize`
+  popped `groupInstanceKeys` on remove but kept the instance's committed values in `inputs.vals`:
+  the stale value shipped in every subsequent `/bulk_calculate` payload and silently *resurrected*
+  when an instance was re-added (the next-gap index reuses the removed offset). Fixed in the
+  decrement branch (values cleared via `setVal`); pinned by the wire-level P0-1 assertions and a
+  focused multi-field regression test.
+- **Pinned, not a bug, but worth knowing:** any error round wipes a `script_verification` node's
+  result and nulls its cached steps (`mergePartialResultsIntoFullGraph`); a successful recompute
+  restores them. Asserted explicitly in the 429 test.
 
 ## Known drift (recorded 2026-06-12, lessons intentionally not auto-fixed)
 
