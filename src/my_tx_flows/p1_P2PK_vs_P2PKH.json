@@ -1,5 +1,5 @@
 {
-  "name": "P2PK",
+  "name": "P2PK vs P2PKH",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -30,8 +30,8 @@
       "id": "node_ROZuZDm2",
       "type": "shadcnGroup",
       "position": {
-        "x": 15061.583306334482,
-        "y": 4140.323910275287
+        "x": 15106.583306334482,
+        "y": 4020.323910275287
       },
       "data": {
         "isGroup": true,
@@ -60,8 +60,8 @@
       "id": "node_MK258d3e",
       "type": "shadcnGroup",
       "position": {
-        "x": 11437.133845274659,
-        "y": 485.99840626142463
+        "x": 11482.133845274659,
+        "y": 365.99840626142463
       },
       "data": {
         "isGroup": true,
@@ -90,8 +90,8 @@
       "id": "node_nrvb8KUa",
       "type": "shadcnGroup",
       "position": {
-        "x": 5689.498006449803,
-        "y": 1330.615937349971
+        "x": 5734.498006449803,
+        "y": 1210.615937349971
       },
       "data": {
         "isGroup": true,
@@ -122,8 +122,8 @@
       "id": "node_kht0iiVH",
       "type": "shadcnGroup",
       "position": {
-        "x": 2284.3285237551836,
-        "y": 4787.909946973704
+        "x": 2329.3285237551836,
+        "y": 4667.909946973704
       },
       "data": {
         "isGroup": true,
@@ -149,8 +149,8 @@
       "id": "node_5CvQEOUN",
       "type": "shadcnGroup",
       "position": {
-        "x": 14394.285308182369,
-        "y": 16000.047153173204
+        "x": 14579.434722159445,
+        "y": 14828.926548345138
       },
       "data": {
         "isGroup": true,
@@ -176,8 +176,8 @@
       "id": "node_yLMUFpMY",
       "type": "shadcnGroup",
       "position": {
-        "x": 10783.732147340665,
-        "y": 11796.736647757269
+        "x": 10968.881561317741,
+        "y": 10625.616042929203
       },
       "data": {
         "isGroup": true,
@@ -206,8 +206,8 @@
       "id": "node_qHLs1Tu4",
       "type": "shadcnGroup",
       "position": {
-        "x": 5005.380550995196,
-        "y": 13179.886506959163
+        "x": 5190.529964972273,
+        "y": 12008.765902131097
       },
       "data": {
         "isGroup": true,
@@ -237,8 +237,8 @@
       "id": "node_y4kVQeNY",
       "type": "shadcnGroup",
       "position": {
-        "x": 1243.5535931858008,
-        "y": 16775.179746816968
+        "x": 1428.7030071628778,
+        "y": 15604.059141988902
       },
       "data": {
         "isGroup": true,
@@ -3715,8 +3715,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 2832.92281975924,
-        "y": 371.24057975781693
+        "x": 2877.92281975924,
+        "y": 251.24057975781693
       },
       "data": {
         "isGroup": true,
@@ -3894,8 +3894,8 @@
       "id": "node_1jj7t0a",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 180,
-        "y": 330
+        "x": 225,
+        "y": 210
       },
       "data": {
         "content": "## P2PK Overview\n\n**P2PK** (Pay-to-Public-Key) is Bitcoin’s simplest legacy output type. Instead of locking coins to the *hash* of a public key (like P2PKH), it locks them directly to the public key:\n\n`<pubKey> OP_CHECKSIG`\n\nThis flow demonstrates a complete P2PK lifecycle on testnet4:\n\n- First transaction: Spends a P2PKH UTXO and creates a P2PK output\n- Second transaction: Spends that P2PK output and creates a P2PKH output\n\n**Key characteristics of P2PK:**\n- The full public key is stored on-chain in the output\n- `scriptSig` contains **only the signature** when spending\n- P2PK has no standard address format\n- For the P2PK spend, script verification is just a public-key push plus `OP_CHECKSIG`",
@@ -3912,8 +3912,8 @@
       "id": "node_79grnt7",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1674.2554512229408,
-        "y": 352.86154877361344
+        "x": 1719.2554512229408,
+        "y": 232.86154877361344
       },
       "data": {
         "content": "## Creating and Spending a P2PK Output\n\n**Creating a P2PK output (TX 1)**  \nThe input is spent using normal P2PKH rules.  \nThe output uses this locking script:\n\n`<pubKey> OP_CHECKSIG`\n\n**Spending a P2PK output (TX 2)**  \nIn the preimage, the input’s script placeholder contains the full previous P2PK locking script.  \nThe final `scriptSig` only provides the signature — exactly what `OP_CHECKSIG` requires from the locking script.\n\nBecause the public key is already stored in the locking script, it does not need to be supplied again in the `scriptSig`.\n\nThe **Verify Script** node shows the execution: it pushes the signature, then the public key from the locking script, and runs `OP_CHECKSIG`.",
@@ -3930,8 +3930,8 @@
       "id": "node_1evdaey",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 16276.149311726347,
-        "y": 17612.633461476355
+        "x": 1718.4661737305341,
+        "y": 1126.3067652538932
       },
       "data": {
         "content": "## Try it yourself \n\n- In **TX 2**, observe that the `scriptSig` does **not** contain a public key. Explain why this works.\n- With P2PK, the public key that can spend the coins is **visible on-chain** in the output. What are the implications compared to P2PKH?\n- Try adding a public key push into the `scriptSig` of TX 2 anyway. Does verification still succeed?",
@@ -4876,7 +4876,8 @@
       "id": "edge_t4qfz9g",
       "source": "node_PdEoqN7d",
       "target": "node_oBe36h7R",
-      "targetHandle": "input-0"
+      "targetHandle": "input-0",
+      "selected": false
     },
     {
       "id": "edge_lraolj9",

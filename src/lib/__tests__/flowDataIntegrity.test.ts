@@ -8,10 +8,19 @@ import { customFlows } from "@/my_tx_flows/customFlows";
 
 const flowsDir = path.resolve(process.cwd(), "src/my_tx_flows");
 
-const publicFlowFiles = fs
-  .readdirSync(flowsDir)
-  .filter((name) => name.endsWith(".json"))
-  .sort();
+function listJsonFiles(dir: string, prefix = ""): string[] {
+  return fs
+    .readdirSync(dir, { withFileTypes: true })
+    .flatMap((entry) => {
+      const relativePath = prefix ? `${prefix}/${entry.name}` : entry.name;
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) return listJsonFiles(fullPath, relativePath);
+      return entry.isFile() && entry.name.endsWith(".json") ? [relativePath] : [];
+    })
+    .sort();
+}
+
+const publicFlowFiles = listJsonFiles(flowsDir);
 
 const allowedFunctionNames = new Set<string>();
 const allowedNodeTaxonomy = new Map<string, Set<string>>([
@@ -69,6 +78,7 @@ const allowedNodeTaxonomy = new Map<string, Set<string>>([
 ]);
 const allowedFlowSections = new Set([
   "top-level",
+  "legacy",
   "legacy-foundations",
   "scripts-timelocks-commitments",
   "channels",
@@ -165,7 +175,7 @@ describe("public flow data integrity", () => {
   });
 
   it("p15 Trezor address nodes do not keep fallbacks for wired inputs", () => {
-    const flow = loadFlow("p15_Trezor_signing_flow.json");
+    const flow = loadFlow("old/p15_Trezor_signing_flow.json");
     const mismatches: Array<{
       nodeId: string;
       inputIndex: number;

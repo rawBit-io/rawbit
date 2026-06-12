@@ -6,23 +6,24 @@ import type { FlowData } from "@/types";
 // Make sure your paths match exactly where they live in your project:
 
 import intro from "@/my_tx_flows/p0_Intro_P2PKH.json";
-import p2pk from "@/my_tx_flows/p01_P2PK.json";
-import intro_p2pkh_p2pk from "@/my_tx_flows/p1_Intro_P2PKH_and_P2PK.json";
-import p2_multisig from "@/my_tx_flows/p2_Bare_P2MS_and_P2SH_MultiSig.json";
-import locktime_tx from "@/my_tx_flows/p3_Locktime_Intro.json";
-import locktime_script from "@/my_tx_flows/p4_Script_timelocks_CLTV_CSV.json";
-import op_return from "@/my_tx_flows/p5_OP_Return.json";
-import Spilman_channel from "@/my_tx_flows/p6_Spilman_channel.json";
-import TX_Malleability from "@/my_tx_flows/p7_TX_malleability.json";
-import SegWit_Intro from "@/my_tx_flows/p8_SegWit_intro.json";
-import SegWit_P2WSH from "@/my_tx_flows/p9_SegWit_P2WSH.json";
-import Wrapped_Addresses from "@/my_tx_flows/p10_Wrapped_Addresses.json";
-import Taproot_Intro from "@/my_tx_flows/p11_Taproot_intro.json";
-import Taproot_Script from "@/my_tx_flows/p12_Taproot_script.json";
-import Taproot_MultiSig from "@/my_tx_flows/p13_Taproot_MultiSig.json";
-import MuSig2 from "@/my_tx_flows/p14_MuSig2.json";
-import TrezorSigningFlow from "@/my_tx_flows/p15_Trezor_signing_flow.json";
-import SummerOfBitcoinPoC from "@/my_tx_flows/p16_Summer_of_Bitcoin_26_PoC.json";
+import p2pk from "@/my_tx_flows/p1_P2PK_vs_P2PKH.json";
+import p2pkhMultiInputSigning from "@/my_tx_flows/p2_P2PKH_multi_input_signing.json";
+import intro_p2pkh_p2pk from "@/my_tx_flows/old/p1_Intro_P2PKH_and_P2PK.json";
+import p2_multisig from "@/my_tx_flows/old/p2_Bare_P2MS_and_P2SH_MultiSig.json";
+import locktime_tx from "@/my_tx_flows/old/p3_Locktime_Intro.json";
+import locktime_script from "@/my_tx_flows/old/p4_Script_timelocks_CLTV_CSV.json";
+import op_return from "@/my_tx_flows/old/p5_OP_Return.json";
+import Spilman_channel from "@/my_tx_flows/old/p6_Spilman_channel.json";
+import TX_Malleability from "@/my_tx_flows/old/p7_TX_malleability.json";
+import SegWit_Intro from "@/my_tx_flows/old/p8_SegWit_intro.json";
+import SegWit_P2WSH from "@/my_tx_flows/old/p9_SegWit_P2WSH.json";
+import Wrapped_Addresses from "@/my_tx_flows/old/p10_Wrapped_Addresses.json";
+import Taproot_Intro from "@/my_tx_flows/old/p11_Taproot_intro.json";
+import Taproot_Script from "@/my_tx_flows/old/p12_Taproot_script.json";
+import Taproot_MultiSig from "@/my_tx_flows/old/p13_Taproot_MultiSig.json";
+import MuSig2 from "@/my_tx_flows/old/p14_MuSig2.json";
+import TrezorSigningFlow from "@/my_tx_flows/old/p15_Trezor_signing_flow.json";
+import SummerOfBitcoinPoC from "@/my_tx_flows/old/p16_Summer_of_Bitcoin_26_PoC.json";
 
 export type CustomFlowLevel =
   | "intro"
@@ -55,9 +56,17 @@ export const customFlows: CustomFlowTemplate[] = [
     id: "flow-01",
     label: "P2PK vs P2PKH",
     data: p2pk as unknown as FlowData,
-    section: "top-level",
+    section: "legacy",
     level: "intro",
     tags: ["intro", "legacy", "p2pk"],
+  },
+  {
+    id: "flow-02",
+    label: "P2PKH Multi-Input Signing",
+    data: p2pkhMultiInputSigning as unknown as FlowData,
+    section: "legacy",
+    level: "intermediate",
+    tags: ["legacy", "p2pkh", "multi-input", "signing", "transaction"],
   },
   {
     id: "flow-1",

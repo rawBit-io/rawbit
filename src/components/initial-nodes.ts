@@ -2,7 +2,7 @@ import type { FlowNode } from "@/types";
 import type { Edge } from "@xyflow/react";
 
 // Import your saved JSON
-import savedFlow from "@/my_tx_flows/empty.json";
+import savedFlow from "@/my_tx_flows/old/empty.json";
 
 
 // Then just cast them:

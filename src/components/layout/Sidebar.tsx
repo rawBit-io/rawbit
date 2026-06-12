@@ -136,9 +136,11 @@ const subgroupLabelClass =
 const subgroupContentClass = "pt-1 pb-1";
 const subgroupItemsClass = "space-y-2 pb-1";
 const TOP_LEVEL_FLOW_SECTION = "top-level";
+const ALWAYS_VISIBLE_FLOW_SECTIONS = new Set([TOP_LEVEL_FLOW_SECTION, "legacy"]);
 const SIDEBAR_REVEAL_ITEM_COUNT = 5;
 
 const flowSections = [
+  { id: "legacy", label: "Legacy" },
   { id: "legacy-foundations", label: "Legacy Foundations" },
   {
     id: "scripts-timelocks-commitments",
@@ -296,13 +298,16 @@ export function Sidebar({
     () =>
       showOlderFlowExamples
         ? customFlows
-        : customFlows.filter((flow) => flow.section === TOP_LEVEL_FLOW_SECTION),
+        : customFlows.filter((flow) =>
+            ALWAYS_VISIBLE_FLOW_SECTIONS.has(flow.section),
+          ),
     [showOlderFlowExamples],
   );
   const olderFlowExampleCount = useMemo(
     () =>
-      customFlows.filter((flow) => flow.section !== TOP_LEVEL_FLOW_SECTION)
-        .length,
+      customFlows.filter(
+        (flow) => !ALWAYS_VISIBLE_FLOW_SECTIONS.has(flow.section),
+      ).length,
     [],
   );
 
@@ -828,7 +833,6 @@ export function Sidebar({
                 {customFlows.length > 0 ? (
                   <div className="space-y-1.5 pb-0.5">
                     {topLevelFlows.map((flow) => renderFlowCard(flow, "ml-8"))}
-                    {renderFlowExampleOptions()}
                     {groupedFlows.length > 0 && (
                       <Accordion
                         type="multiple"
@@ -866,6 +870,7 @@ export function Sidebar({
                         ))}
                       </Accordion>
                     )}
+                    {renderFlowExampleOptions()}
                   </div>
                 ) : (
                   <div className="ml-4 p-3 text-sm text-muted-foreground rounded-md bg-muted/50">

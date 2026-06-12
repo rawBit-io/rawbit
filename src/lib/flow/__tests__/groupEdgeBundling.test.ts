@@ -9,7 +9,7 @@ import {
   GROUP_BUNDLE_SEGMENT_EDGE_ID_PREFIX,
   sanitizeGroupBundleVisualElementsForState,
 } from "@/lib/flow/groupEdgeBundling";
-import p14MuSig2 from "@/my_tx_flows/p14_MuSig2.json";
+import p14MuSig2 from "@/my_tx_flows/old/p14_MuSig2.json";
 import { buildEdge, buildFlowNode } from "@/test-utils/types";
 import type { FlowNode } from "@/types";
 

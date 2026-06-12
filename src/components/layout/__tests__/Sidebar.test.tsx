@@ -64,6 +64,17 @@ function createCustomFlows() {
       tags: ["legacy"],
     },
     {
+      id: "legacy-flow",
+      label: "P2PK vs P2PKH",
+      data: {
+        nodes: [],
+        edges: [],
+      },
+      section: "legacy",
+      level: "intro",
+      tags: ["legacy", "p2pk"],
+    },
+    {
       id: "intro-flow",
       label: "Intro",
       data: {
@@ -162,11 +173,16 @@ describe("Sidebar", () => {
     renderSidebar();
 
     expect(screen.getByText("Intro")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Legacy$/i })).toBeInTheDocument();
+    expect(screen.queryByText("P2PK vs P2PKH")).not.toBeInTheDocument();
     expect(screen.getByText(/Older flows hidden/i)).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /Legacy Foundations/i })
     ).not.toBeInTheDocument();
     expect(screen.queryByText("1. Custom Flow")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /^Legacy$/i }));
+    expect(screen.getByText("P2PK vs P2PKH")).toBeInTheDocument();
 
     const olderFlowsToggle = screen.getByRole("switch", {
       name: /Show older flow examples/i,

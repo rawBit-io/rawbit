@@ -50,7 +50,7 @@ describe("text info node data compatibility", () => {
   it("normalizes stale text info dimensions in the SegWit intro bundled flow", () => {
     const flow = JSON.parse(
       readFileSync(
-        resolve(process.cwd(), "src/my_tx_flows/p8_SegWit_intro.json"),
+        resolve(process.cwd(), "src/my_tx_flows/old/p8_SegWit_intro.json"),
         "utf8"
       )
     ) as { nodes: FlowNode[] };
