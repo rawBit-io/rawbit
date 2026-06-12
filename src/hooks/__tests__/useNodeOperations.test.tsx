@@ -118,6 +118,87 @@ const createMockInstance = (
     );
   });
 
+  it("remaps group bundle offset keys when a re-dropped template renames colliding ids", () => {
+    // Regression for the RB-59 follow-up: template drops also go through
+    // importWithFreshIds and must remap data.groupBundlePortOffsets keys.
+    const { result } = renderHook(() => useNodeOperations(), { wrapper });
+    const mockRf = createMockInstance(result);
+
+    act(() => {
+      result.current.onInit(mockRf);
+    });
+
+    const flowData = buildFlowData({
+      nodes: [
+        buildFlowNode({
+          id: "group-a",
+          type: "shadcnGroup",
+          position: { x: 0, y: 0 },
+          data: {
+            groupBundlePortOffsets: {
+              sourceByBundle: { "group-a->group-b": 0.7 },
+            },
+          },
+        }),
+        buildFlowNode({
+          id: "group-b",
+          type: "shadcnGroup",
+          position: { x: 400, y: 0 },
+          data: {},
+        }),
+      ],
+      edges: [],
+    });
+
+    const makeDropEvent = () =>
+      ({
+        preventDefault: vi.fn(),
+        dataTransfer: {
+          getData: (type: string) =>
+            type === "application/reactflow"
+              ? JSON.stringify({
+                  functionName: "flow_template",
+                  nodeData: { flowData },
+                })
+              : "",
+        },
+        clientX: 50,
+        clientY: 60,
+      }) as unknown as React.DragEvent<HTMLDivElement>;
+
+    act(() => {
+      result.current.onDrop(makeDropEvent());
+    });
+    act(() => {
+      result.current.onDrop(makeDropEvent());
+    });
+
+    const groups = result.current.nodes.filter(
+      (n) => n.type === "shadcnGroup"
+    );
+    expect(groups).toHaveLength(4);
+
+    const renamed = groups.filter(
+      (n) => n.id !== "group-a" && n.id !== "group-b"
+    );
+    expect(renamed).toHaveLength(2);
+
+    const renamedWithOffsets = renamed.find(
+      (n) =>
+        (n.data as { groupBundlePortOffsets?: unknown }).groupBundlePortOffsets
+    );
+    expect(renamedWithOffsets).toBeDefined();
+    const otherRenamed = renamed.find((n) => n !== renamedWithOffsets)!;
+    const offsets = (
+      renamedWithOffsets!.data as {
+        groupBundlePortOffsets: { sourceByBundle: Record<string, number> };
+      }
+    ).groupBundlePortOffsets;
+    expect(offsets.sourceByBundle).toEqual({
+      [`${renamedWithOffsets!.id}->${otherRenamed.id}`]: 0.7,
+    });
+  });
+
   it("anchors dropped flow templates by left-most then top-most node", () => {
     const { result } = renderHook(() => useNodeOperations(), { wrapper });
     const mockRf = createMockInstance(result);

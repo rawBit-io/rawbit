@@ -47,6 +47,12 @@ describe("resetWorkspaceStorageAndReload", () => {
       "rawbit:code-source-cache-bust",
       expect.any(String)
     );
+    // The cache-bust marker must survive the reset: it has to be written
+    // AFTER the final sessionStorage.clear or post-reload /code fetches
+    // reuse stale cached URLs.
+    const lastClearOrder = Math.max(...sessionStorageClear.mock.invocationCallOrder);
+    const markerOrder = sessionStorageSetItem.mock.invocationCallOrder[0];
+    expect(markerOrder).toBeGreaterThan(lastClearOrder);
     expect(deleteDatabase).toHaveBeenCalledWith("rawbit-db");
     expect(cacheDelete).toHaveBeenCalledWith("rawbit-cache");
     expect(reload).toHaveBeenCalledTimes(1);

@@ -515,6 +515,7 @@ export function useNodeOperations() {
           importEdges: translated.edges,
           dedupeEdges: true,
           renameMode: "collision", // preserve IDs unless there is a collision
+          remapGroupBundleOffsets: true,
         });
 
         const sanitizedSub = stripLegacyFlowMapNodeData(ingestScriptSteps(sub));

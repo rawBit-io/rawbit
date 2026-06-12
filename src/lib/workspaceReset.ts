@@ -34,7 +34,6 @@ export async function resetWorkspaceStorageAndReload(
   } catch (error) {
     console.warn("Failed to clear sessionStorage during workspace reset", error);
   }
-  markCodeSourceCacheBust(targetWindow);
 
   const indexedDBApi = targetWindow.indexedDB as IndexedDbWithDatabases | undefined;
   if (indexedDBApi?.databases) {
@@ -75,6 +74,10 @@ export async function resetWorkspaceStorageAndReload(
   } catch (error) {
     console.warn("Failed to re-clear sessionStorage during workspace reset", error);
   }
+
+  // After the final sessionStorage clear, or the marker would be wiped and
+  // post-reload /code fetches would reuse stale cached URLs.
+  markCodeSourceCacheBust(targetWindow);
 
   targetWindow.location.reload();
 }

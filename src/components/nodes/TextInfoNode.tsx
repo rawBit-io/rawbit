@@ -403,19 +403,23 @@ export default function TextInfoNode({
 
   // onlyRenderVisibleElements unmounts off-viewport nodes without firing
   // blur; flush an in-progress edit on unmount so typed text isn't lost.
-  const draftRef = useRef(draft);
-  draftRef.current = draft;
-  const isEditingRef = useRef(isEditing);
-  isEditingRef.current = isEditing;
+  // Latest-value ref + [] deps keep this strictly unmount-only, and the
+  // flush mirrors commitEdit (including the snapshot) so the edit reaches
+  // undo history and the revTick-driven autosave.
+  const editFlushRef = useRef({ isEditing, draft, content, updateNode, scheduleSnapshot });
+  editFlushRef.current = { isEditing, draft, content, updateNode, scheduleSnapshot };
   useEffect(
     () => () => {
-      if (!isEditingRef.current) return;
-      const newText = draftRef.current.trim() ? draftRef.current : DEFAULT_TEXT;
-      updateNode((d) => {
+      const pending = editFlushRef.current;
+      if (!pending.isEditing) return;
+      const newText = pending.draft.trim() ? pending.draft : DEFAULT_TEXT;
+      if (newText === pending.content) return;
+      pending.updateNode((d) => {
         d.content = newText;
       });
+      pending.scheduleSnapshot("Edit Text");
     },
-    [updateNode]
+    []
   );
 
   /* keyboard and change handlers */

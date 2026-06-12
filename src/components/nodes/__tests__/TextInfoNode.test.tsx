@@ -193,6 +193,49 @@ describe("TextInfoNode", () => {
     unmount();
 
     expect(nodesState[0].data.content).toContain("Offscreen");
+    // The flush must mirror commitEdit: without the snapshot, the edit is
+    // invisible to undo history and the revTick-driven autosave.
+    expect(scheduler.scheduleSnapshot).toHaveBeenCalledWith("Edit Text");
+  });
+
+  it("does not snapshot on unmount when the draft is unchanged", async () => {
+    const clipboardMock = {
+      prettyResult: "",
+      copyResult: vi.fn(),
+      copyError: vi.fn(),
+      copyId: vi.fn(),
+      resultCopied: false,
+      errorCopied: false,
+      idCopied: false,
+    };
+    clipboardHook.mockReturnValue(clipboardMock);
+
+    const user = userEvent.setup();
+
+    const { container, unmount } = renderWithProviders(
+      <TextInfoNode
+        id="text-1"
+        data={nodesState[0].data}
+        selected={false}
+        type="text"
+        dragging={false}
+        zIndex={0}
+        width={nodesState[0].width}
+        height={nodesState[0].height}
+        isConnectable={true}
+        positionAbsoluteX={0}
+        positionAbsoluteY={0}
+      />,
+      { snapshotScheduler: scheduler }
+    );
+
+    const display = container.querySelector(".text-info-markdown") as HTMLElement;
+    await user.dblClick(display);
+    await screen.findByPlaceholderText("Type markdown here…");
+
+    unmount();
+
+    expect(scheduler.scheduleSnapshot).not.toHaveBeenCalledWith("Edit Text");
   });
 
   it("does not cap rendered markdown width inside wide text nodes", () => {
