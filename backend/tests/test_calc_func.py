@@ -1644,3 +1644,177 @@ def test_hex_byte_length_matches_python(hex_string: str):
     cleaned = "".join(hex_string.split())
     expected = len(cleaned) // 2
     assert calc.hex_byte_length(hex_string) == expected
+
+
+def test_ecdsa_signing_is_deterministic_canary():
+    """Signing the same sighash with the same key twice must be bit-identical.
+
+    The committed lesson goldens (src/my_tx_flows/*.json) pin exact DER
+    signature bytes, which only works because both ECDSA signing paths derive
+    their nonce deterministically via RFC6979 from (key, message). If this
+    canary fails, a randomized nonce crept in and every signature golden in
+    the flow corpus becomes unreproducible.
+    """
+    for signer in (calc.sign_tx_rfc6979, calc.sign_as_bitcoin_core_low_r):
+        first = signer([SAMPLE_PRIV_KEY, SAMPLE_MSG_HASH])
+        second = signer([SAMPLE_PRIV_KEY, SAMPLE_MSG_HASH])
+        assert first == second, (
+            f"{signer.__name__} produced two different signatures for the "
+            "same key and sighash. ECDSA nonces must come from RFC6979 so the "
+            "flow goldens stay reproducible."
+        )
+
+
+def test_schnorr_signing_is_deterministic_canary():
+    """BIP340 signing must be deterministic for a fixed (key, msg, aux_rand).
+
+    schnorr_sign_bip340 defaults aux_rand to 32 zero bytes precisely so that
+    the taproot lesson goldens pin stable signatures; a randomized aux_rand
+    would invalidate them on every recalculation.
+    """
+    msg = "11" * 32
+    assert calc.schnorr_sign_bip340([SAMPLE_PRIV_KEY, msg]) == (
+        calc.schnorr_sign_bip340([SAMPLE_PRIV_KEY, msg])
+    ), "BIP340 signing with the default aux_rand is not deterministic"
+
+    aux = "22" * 32
+    assert calc.schnorr_sign_bip340([SAMPLE_PRIV_KEY, msg, aux]) == (
+        calc.schnorr_sign_bip340([SAMPLE_PRIV_KEY, msg, aux])
+    ), "BIP340 signing with an explicit aux_rand is not deterministic"
+
+
+def test_bip143_native_p2wpkh_official_vectors():
+    """Replay the official BIP143 'Native P2WPKH' example.
+
+    The flows build segwit v0 sighashes from these exact primitives
+    (double_sha256_hex over concatenated fields), so the BIP's published
+    intermediate hashes, sighash, and signature pin the whole path.
+    """
+    hash_prevouts = calc.double_sha256_hex(
+        "fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f00000000"
+        "ef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a01000000"
+    )
+    assert hash_prevouts == (
+        "96b827c8483d4e9b96712b6713a7b68d6e8003a781feba36c31143470b4efd37"
+    )
+
+    hash_sequence = calc.double_sha256_hex("eeffffff" + "ffffffff")
+    assert hash_sequence == (
+        "52b0a642eea2fb7ae638c36f6252b6750293dbe574a806984b8e4d8548339a3b"
+    )
+
+    hash_outputs = calc.double_sha256_hex(
+        "202cb206000000001976a9148280b37df378db99f66f85c95a783a76ac7a6d5988ac"
+        "9093510d000000001976a9143bde42dbee7e4dbe6a21b2d50ce2f0167faa815988ac"
+    )
+    assert hash_outputs == (
+        "863ef3e1a92afbfdb97f31ad0fc7683ee943e9abcf2501590ff8f6551f47e5e5"
+    )
+
+    preimage = calc.concat_all([
+        "01000000",  # nVersion
+        hash_prevouts,
+        hash_sequence,
+        # outpoint of the P2WPKH input being signed
+        "ef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a01000000",
+        "1976a9141d0f172a0ecb48aee1be1f2687d2963ae33f71a188ac",  # scriptCode
+        "0046c32300000000",  # amount: 6 BTC
+        "ffffffff",  # nSequence
+        hash_outputs,
+        "11000000",  # nLockTime
+        calc.sighash_type_to_le4("01"),  # SIGHASH_ALL
+    ])
+    assert preimage == (
+        "0100000096b827c8483d4e9b96712b6713a7b68d6e8003a781feba36c31143470b4efd37"
+        "52b0a642eea2fb7ae638c36f6252b6750293dbe574a806984b8e4d8548339a3b"
+        "ef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a01000000"
+        "1976a9141d0f172a0ecb48aee1be1f2687d2963ae33f71a188ac0046c32300000000"
+        "ffffffff863ef3e1a92afbfdb97f31ad0fc7683ee943e9abcf2501590ff8f6551f47e5e5"
+        "1100000001000000"
+    )
+
+    sighash = calc.double_sha256_hex(preimage)
+    assert sighash == (
+        "c37af31116d1b27caf68aae9e3ac82f1477929014d5b917657d0eb49478cb670"
+    )
+
+    private_key = "619c335025c7f4012e556c2a58b2506e30b8511b53ade95ea316fd8c3286feb9"
+    public_key = "025476c2e83188368da1ff3e292e7acafcdb3566bb0ad253f62fc70f07aeee6357"
+    expected_der = (
+        "304402203609e17b84f6a7d30c80bfa610b5b4542f32a8a0d5447a12fb1366d7f01cc44a"
+        "0220573a954c4518331561406f90300e8f3358f51928d43c212a8caed02de67eebee"
+    )
+    # The BIP's signature is plain RFC6979 + low-S; its R already starts below
+    # 0x80, so the low-R grinding path must return the identical signature.
+    assert calc.sign_tx_rfc6979([private_key, sighash]) == expected_der
+    assert calc.sign_as_bitcoin_core_low_r([private_key, sighash]) == expected_der
+    assert calc.verify_signature([public_key, sighash, expected_der]) == "true"
+
+
+def test_bip341_taproot_sighash_default_official_vector():
+    """Replay the official BIP341 wallet test vector (keyPathSpending).
+
+    Input index 4 is the only one signed with hashType 0x00 (SIGHASH_DEFAULT),
+    which is the mode taproot_sighash_default implements. The published
+    intermediate hashes cover every sub-hash the function returns.
+    """
+    raw_unsigned_tx = (
+        "02000000097de20cbff686da83a54981d2b9bab3586f4ca7e48f57f5b55963115f3b33"
+        "4e9c010000000000000000d7b7cab57b1393ace2d064f4d4a2cb8af6def61273e12751"
+        "7d44759b6dafdd990000000000fffffffff8e1f583384333689228c5d28eac13366be0"
+        "82dc57441760d957275419a418420000000000fffffffff0689180aa63b30cb162a73c"
+        "6d2a38b7eeda2a83ece74310fda0843ad604853b0100000000feffffffaa5202bdf6d8"
+        "ccd2ee0f0202afbbb7461d9264a25e5bfd3c5a52ee1239e0ba6c0000000000feffffff"
+        "956149bdc66faa968eb2be2d2faa29718acbfe3941215893a2a3446d32acd050000000"
+        "000000000000e664b9773b88c09c32cb70a2a3e4da0ced63b7ba3b22f848531bbb1d5d"
+        "5f4c94010000000000000000e9aa6b8e6c9de67619e6a3924ae25696bb7b694bb677a6"
+        "32a74ef7eadfd4eabf0000000000ffffffffa778eb6a263dc090464cd125c466b5a996"
+        "67720b1c110468831d058aa1b82af10100000000ffffffff0200ca9a3b000000001976"
+        "a91406afd46bcdfd22ef94ac122aa11f241244a37ecc88ac807840cb0000000020ac9a"
+        "87f5594be208f8532db38cff670c450ed2fea8fcdefcc9a663f78bab962b0065cd1d"
+    )
+    amounts = json.dumps([
+        420000000,
+        462000000,
+        294000000,
+        504000000,
+        630000000,
+        378000000,
+        672000000,
+        546000000,
+        588000000,
+    ])
+    script_pubkeys = json.dumps([
+        "512053a1f6e454df1aa2776a2814a721372d6258050de330b3c6d10ee8f4e0dda343",
+        "5120147c9c57132f6e7ecddba9800bb0c4449251c92a1e60371ee77557b6620f3ea3",
+        "76a914751e76e8199196d454941c45d1b3a323f1433bd688ac",
+        "5120e4d810fd50586274face62b8a807eb9719cef49c04177cc6b76a9a4251d5450e",
+        "512091b64d5324723a985170e4dc5a0f84c041804f2cd12660fa5dec09fc21783605",
+        "00147dd65592d0ab2fe0d0257d571abf032cd9db93dc",
+        "512075169f4001aa68f15bbed28b218df1d0a62cbbcf1188c6665110c293c907b831",
+        "5120712447206d7a5238acc7ff53fbe94a3b64539ad291c7cdbc490b7577e4b17df5",
+        "512077e30a5522dd9f894c3f8b8bd4c4b2cf82ca7da8a3ea6a239655c39c050ab220",
+    ])
+
+    res = json.loads(
+        calc.taproot_sighash_default([raw_unsigned_tx, 4, amounts, script_pubkeys])
+    )
+
+    assert res["sha_prevouts"] == (
+        "e3b33bb4ef3a52ad1fffb555c0d82828eb22737036eaeb02a235d82b909c4c3f"
+    )
+    assert res["sha_amounts"] == (
+        "58a6964a4f5f8f0b642ded0a8a553be7622a719da71d1f5befcefcdee8e0fde6"
+    )
+    assert res["sha_scriptpubkeys"] == (
+        "23ad0f61ad2bca5ba6a7693f50fce988e17c3780bf2b1e720cfbb38fbdd52e21"
+    )
+    assert res["sha_sequences"] == (
+        "18959c7221ab5ce9e26c3cd67b22c24f8baa54bac281d8e6b05e400e6c3a957e"
+    )
+    assert res["sha_outputs"] == (
+        "a2e6dab7c1f0dcd297c8d61647fd17d821541ea69c3cc37dcbad7f90d4eb4bc5"
+    )
+    assert res["sighash"] == (
+        "4f900a0bae3f1446fd48490c2958b5a023228f01661cda3496a11da502a7f7ef"
+    )

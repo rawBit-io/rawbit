@@ -6,7 +6,6 @@ then restore the original values and expect the graph to return to baseline.
 """
 
 import copy
-import json
 from pathlib import Path
 
 import pytest
@@ -15,7 +14,7 @@ pytest.importorskip("bitcointx")
 pytest.importorskip("secp256k1")
 pytest.importorskip("ecdsa")
 
-from backend import graph_logic
+from flow_test_utils import load_flow as _load_flow, run_flow
 
 ROOT = Path(__file__).resolve().parents[2]
 FLOW_SCENARIOS = [
@@ -37,8 +36,47 @@ FLOW_SCENARIOS = [
         },
     },
     {
+        "name": "p0_Intro_P2PKH.json",
+        "path": ROOT / "src" / "my_tx_flows" / "p0_Intro_P2PKH.json",
+        "node_changes": {
+            "node_IRajBmor": "391001",
+        },
+        "txid_node": "node_24bD1CIj",
+        "script_node": "node_o6vul7a",
+        "expected_results": {
+            "txid": "45ccc6b28d89eb93dd50544a145abcc30b17d9303eed3be180263ca5e98e2f54",
+            "script": "true",
+        },
+    },
+    {
+        "name": "p1_P2PK_vs_P2PKH.json",
+        "path": ROOT / "src" / "my_tx_flows" / "p1_P2PK_vs_P2PKH.json",
+        "node_changes": {
+            "node_Ty4ApQbe": "783001",
+        },
+        "txid_node": "node_1oB0mQPo",
+        "script_node": "node_NwoZ2skX",
+        "expected_results": {
+            "txid": "64f2dc3219fbdd2aa7277509f59b4b2ff0119092ae88effadbe4041502c7acaf",
+            "script": "true",
+        },
+    },
+    {
+        "name": "p2_P2PKH_multi_input_signing.json",
+        "path": ROOT / "src" / "my_tx_flows" / "p2_P2PKH_multi_input_signing.json",
+        "node_changes": {
+            "node_IRajBmor": "15001",
+        },
+        "txid_node": "node_24bD1CIj",
+        "script_node": "node_4fCFUxcV",
+        "expected_results": {
+            "txid": "c4df0750c3a627bb98a203c9a19ec32eb52edf21b3ad1929daaca320c57c4beb",
+            "script": "true",
+        },
+    },
+    {
         "name": "p1_Intro_P2PKH_and_P2PK.json",
-        "path": ROOT / "src" / "my_tx_flows" / "p1_Intro_P2PKH_and_P2PK.json",
+        "path": ROOT / "src" / "my_tx_flows" / "old" / "p1_Intro_P2PKH_and_P2PK.json",
         "node_changes": {
             "node_8QSOHj19": "3",
             "node_IRajBmor": "144900",
@@ -52,7 +90,7 @@ FLOW_SCENARIOS = [
     },
     {
         "name": "p2_Bare_P2MS_and_P2SH_MultiSig.json",
-        "path": ROOT / "src" / "my_tx_flows" / "p2_Bare_P2MS_and_P2SH_MultiSig.json",
+        "path": ROOT / "src" / "my_tx_flows" / "old" / "p2_Bare_P2MS_and_P2SH_MultiSig.json",
         "node_changes": {
             "node_DyhEXHsp": "1",
         },
@@ -65,7 +103,7 @@ FLOW_SCENARIOS = [
     },
     {
         "name": "p3_Locktime_Intro.json",
-        "path": ROOT / "src" / "my_tx_flows" / "p3_Locktime_Intro.json",
+        "path": ROOT / "src" / "my_tx_flows" / "old" / "p3_Locktime_Intro.json",
         "node_changes": {
             "node_ZDBADVUZ": "3",
             "node_JeU1QNzG": "ffffffff",
@@ -79,7 +117,7 @@ FLOW_SCENARIOS = [
     },
     {
         "name": "p4_Script_timelocks_CLTV_CSV.json",
-        "path": ROOT / "src" / "my_tx_flows" / "p4_Script_timelocks_CLTV_CSV.json",
+        "path": ROOT / "src" / "my_tx_flows" / "old" / "p4_Script_timelocks_CLTV_CSV.json",
         "node_changes": {
             "node_b4DjhE63": "1",
         },
@@ -92,7 +130,7 @@ FLOW_SCENARIOS = [
     },
     {
         "name": "p5_OP_Return.json",
-        "path": ROOT / "src" / "my_tx_flows" / "p5_OP_Return.json",
+        "path": ROOT / "src" / "my_tx_flows" / "old" / "p5_OP_Return.json",
         "node_changes": {
             "node_rrQHlMQ5": "1",
         },
@@ -105,7 +143,7 @@ FLOW_SCENARIOS = [
     },
     {
         "name": "p6_Spilman_channel.json",
-        "path": ROOT / "src" / "my_tx_flows" / "p6_Spilman_channel.json",
+        "path": ROOT / "src" / "my_tx_flows" / "old" / "p6_Spilman_channel.json",
         "node_changes": {
             "node_jjqgaie": "1",
         },
@@ -118,7 +156,7 @@ FLOW_SCENARIOS = [
     },
     {
         "name": "p7_TX_malleability.json",
-        "path": ROOT / "src" / "my_tx_flows" / "p7_TX_malleability.json",
+        "path": ROOT / "src" / "my_tx_flows" / "old" / "p7_TX_malleability.json",
         "node_changes": {
             "node_58jzaz3": "1",
         },
@@ -131,7 +169,7 @@ FLOW_SCENARIOS = [
     },
     {
         "name": "p8_SegWit_intro.json",
-        "path": ROOT / "src" / "my_tx_flows" / "p8_SegWit_intro.json",
+        "path": ROOT / "src" / "my_tx_flows" / "old" / "p8_SegWit_intro.json",
         "node_changes": {
             "node_3onl59s": "1",
         },
@@ -144,7 +182,7 @@ FLOW_SCENARIOS = [
     },
     {
         "name": "p10_Wrapped_Addresses_sign.json",
-        "path": ROOT / "src" / "my_tx_flows" / "p10_Wrapped_Addresses.json",
+        "path": ROOT / "src" / "my_tx_flows" / "old" / "p10_Wrapped_Addresses.json",
         "node_changes": {
             "node_mtzyjvf": "1",
         },
@@ -157,7 +195,7 @@ FLOW_SCENARIOS = [
     },
     {
         "name": "p10_Wrapped_Addresses_txid.json",
-        "path": ROOT / "src" / "my_tx_flows" / "p10_Wrapped_Addresses.json",
+        "path": ROOT / "src" / "my_tx_flows" / "old" / "p10_Wrapped_Addresses.json",
         "node_changes": {
             "node_rt7lvsa": "1",
         },
@@ -170,7 +208,7 @@ FLOW_SCENARIOS = [
     },
     {
         "name": "p9_SegWit_P2WSH.json",
-        "path": ROOT / "src" / "my_tx_flows" / "p9_SegWit_P2WSH.json",
+        "path": ROOT / "src" / "my_tx_flows" / "old" / "p9_SegWit_P2WSH.json",
         "node_changes": {
             "node_xyeh1g3": "1",
             "node_qacl1zw": "109900",
@@ -184,7 +222,7 @@ FLOW_SCENARIOS = [
     },
     {
         "name": "p11_Taproot_intro.json",
-        "path": ROOT / "src" / "my_tx_flows" / "p11_Taproot_intro.json",
+        "path": ROOT / "src" / "my_tx_flows" / "old" / "p11_Taproot_intro.json",
         "node_changes": {
             "node_BAQ8AStm": "100001",
             "node_Mu0y2UYe": "73999",
@@ -195,7 +233,7 @@ FLOW_SCENARIOS = [
     },
     {
         "name": "p12_Taproot_script.json",
-        "path": ROOT / "src" / "my_tx_flows" / "p12_Taproot_script.json",
+        "path": ROOT / "src" / "my_tx_flows" / "old" / "p12_Taproot_script.json",
         "node_changes": {
             "node_jueQA2SJ": "169001",
         },
@@ -204,7 +242,7 @@ FLOW_SCENARIOS = [
     },
     {
         "name": "p13_Taproot_MultiSig.json",
-        "path": ROOT / "src" / "my_tx_flows" / "p13_Taproot_MultiSig.json",
+        "path": ROOT / "src" / "my_tx_flows" / "old" / "p13_Taproot_MultiSig.json",
         "node_changes": {
             "node_FZ9oWjOJ": "187000",
         },
@@ -213,7 +251,7 @@ FLOW_SCENARIOS = [
     },
     {
         "name": "p14_MuSig2.json",
-        "path": ROOT / "src" / "my_tx_flows" / "p14_MuSig2.json",
+        "path": ROOT / "src" / "my_tx_flows" / "old" / "p14_MuSig2.json",
         "node_changes": {
             "node_FZ9oWjOJ": "191100",
         },
@@ -227,48 +265,10 @@ FLOW_SCENARIOS = [
 ]
 
 
-def _load_flow(path: Path):
-    flow = json.loads(path.read_text())
-    calc_nodes = [
-        node
-        for node in flow["nodes"]
-        if node.get("data", {}).get("functionName")
-    ]
-    valid_ids = {node["id"] for node in calc_nodes}
-    calc_edges = [
-        edge
-        for edge in flow["edges"]
-        if edge.get("source") in valid_ids and edge.get("target") in valid_ids
-    ]
-    # Backfill literal values for nodes that were saved with cached results but
-    # no upstream cable. Older fixtures sometimes rely on inputs["val"] without
-    # mirroring it into the "value" field, which causes graph_logic to treat the
-    # node as unwired and raise. Copy that cached literal so the node behaves as
-    # a constant source during regression runs.
-    incoming_by_target = {}
-    for edge in calc_edges:
-        incoming_by_target.setdefault(edge["target"], 0)
-        incoming_by_target[edge["target"]] += 1
-    for node in calc_nodes:
-        data = node.get("data") or {}
-        node_id = node.get("id")
-        has_incoming = incoming_by_target.get(node_id, 0) > 0
-        if has_incoming:
-            continue
-        if data.get("showField"):
-            continue
-        if "value" in data:
-            continue
-        literal = data.get("inputs", {}).get("val")
-        if literal is not None:
-            data["value"] = literal
-    return calc_nodes, calc_edges
-
-
 def _run(nodes, edges):
-    updated_nodes, errors = graph_logic.bulk_calculate_logic(copy.deepcopy(nodes), edges)
+    node_map, errors = run_flow(nodes, edges)
     assert errors == []
-    return {node["id"]: node for node in updated_nodes}
+    return node_map
 
 
 def _script_output_snapshot(node_map):

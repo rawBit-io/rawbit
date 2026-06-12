@@ -97,6 +97,69 @@ export async function waitForBulkResponse(
   return payload;
 }
 
+/**
+ * Like waitForBulkResponse, but skips intermediate /bulk_calculate responses
+ * (partial recalc batches, transient missing-input errors while a large
+ * import settles) and resolves on the first response whose parsed payload
+ * satisfies `isSettled`. Use for heavy imports where the FIRST response is
+ * not guaranteed to be the final state (WebKit/Firefox fire intermediate
+ * calculations more often than Chromium).
+ */
+export async function waitForSettledBulkResponse(
+  page: Page,
+  action: () => Promise<void>,
+  options: {
+    timeoutMs?: number;
+    isSettled: (data: RecalcResponse) => boolean;
+    onResponse?: (payload: WaitForBulkResponseResult) => Promise<void> | void;
+  },
+): Promise<WaitForBulkResponseResult> {
+  const { timeoutMs = 60_000, isSettled, onResponse } = options;
+
+  const responsePromise = page.waitForResponse(
+    async (res) => {
+      if (!res.url().includes('/bulk_calculate')) return false;
+      if (res.request().method() !== 'POST') return false;
+      let parsed: RecalcResponse | null = null;
+      try {
+        parsed = (await res.json()) as RecalcResponse;
+      } catch {
+        return false;
+      }
+      if (!parsed) return false;
+      try {
+        return isSettled(parsed);
+      } catch {
+        return false;
+      }
+    },
+    { timeout: timeoutMs },
+  );
+
+  await action();
+  const response = await responsePromise;
+  const request = response.request();
+
+  const data = (await response.json()) as RecalcResponse;
+
+  let requestBody: unknown = null;
+  try {
+    requestBody = request.postDataJSON();
+  } catch {
+    try {
+      requestBody = request.postData();
+    } catch {
+      requestBody = null;
+    }
+  }
+
+  const payload: WaitForBulkResponseResult = { data, response, request, requestBody };
+  if (onResponse) {
+    await onResponse(payload);
+  }
+  return payload;
+}
+
 export type LoadFixtureOptions = WaitForBulkResponseOptions & {
   inputSelector?: string;
 };
@@ -140,43 +203,58 @@ export function stringifySteps(steps: unknown): string {
 }
 
 export async function ensureNodeVisible(page: Page, nodeId: string): Promise<Locator> {
-  let node = page.locator(`[data-id="${nodeId}"]`).first();
-  if ((await node.count()) === 0 || !(await node.isVisible())) {
-    const searchToggle = page.getByTitle('Search nodes');
-    await searchToggle.click();
+  const nodeLocator = () => page.locator(`[data-id="${nodeId}"]`).first();
 
-    const searchInput = page.getByPlaceholder('Search node id, name, text');
-    await expect(searchInput).toBeVisible();
+  let node = nodeLocator();
+  if ((await node.count()) > 0 && (await node.isVisible())) {
+    await node.scrollIntoViewIfNeeded();
+    return node;
+  }
+
+  // onlyRenderVisibleElements culls offscreen nodes from the DOM entirely,
+  // so the only way to materialize one is to jump the canvas to it via the
+  // search panel. Search results render debounced and the jump is animated,
+  // so wait on real conditions (row visible, node attached) with retries
+  // instead of fixed sleeps — Firefox/WebKit need noticeably longer than
+  // Chromium here.
+  const searchInput = page.getByPlaceholder('Search node id, name, text');
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    if (!(await searchInput.isVisible().catch(() => false))) {
+      await page.getByTitle('Search nodes').click();
+      await expect(searchInput).toBeVisible();
+    }
     await searchInput.fill(nodeId);
-    await page.waitForTimeout(400);
 
-    node = page.locator(`[data-id="${nodeId}"]`).first();
     const resultRow = page
       .locator(`div[role="button"]:has(span[title="${nodeId}"])`)
       .first();
-
-    if ((await resultRow.count()) > 0) {
+    try {
+      await resultRow.waitFor({ state: 'visible', timeout: 5_000 });
       await resultRow.click();
-    } else {
-      const fallbackRow = page
-        .locator('div[role="button"]:has(strong:has-text("TXID → Reversed"))')
-        .first();
-      if (await fallbackRow.count()) {
-        await fallbackRow.click();
-      }
+    } catch {
+      continue; // results not ready yet — refill and retry
     }
 
-    const closeButton = page.getByTitle('Close search');
-    if (await closeButton.isVisible()) {
-      await closeButton.click();
-    } else {
-      await searchToggle.click();
+    try {
+      await nodeLocator().waitFor({ state: 'attached', timeout: 5_000 });
+      break;
+    } catch {
+      // jump did not land — retry
     }
-
-    node = page.locator(`[data-id="${nodeId}"]`).first();
   }
 
-  await node.waitFor({ state: 'attached' });
+  // Close the panel so it cannot overlap the node we are about to use.
+  if (await searchInput.isVisible().catch(() => false)) {
+    const closeButton = page.getByTitle('Close search');
+    if (await closeButton.isVisible().catch(() => false)) {
+      await closeButton.click();
+    } else {
+      await page.getByTitle('Search nodes').click();
+    }
+  }
+
+  node = nodeLocator();
+  await node.waitFor({ state: 'attached', timeout: 10_000 });
   await node.scrollIntoViewIfNeeded();
   await expect(node).toBeVisible();
   return node;

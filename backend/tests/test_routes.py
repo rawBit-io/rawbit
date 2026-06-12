@@ -50,12 +50,12 @@ def test_flows_catalog(client):
     data = resp.get_json()
     assert "flows" in data
     assert isinstance(data["flows"], list)
-    assert any(flow["slug"] == "p9_SegWit_P2WSH" for flow in data["flows"])
+    assert any(flow["slug"] == "p0_Intro_P2PKH" for flow in data["flows"])
     assert resp.headers["Cache-Control"] == "public, max-age=3600"
 
 
 def test_get_single_flow(client):
-    resp = client.get("/flows/p9_SegWit_P2WSH")
+    resp = client.get("/flows/p0_Intro_P2PKH")
     assert resp.status_code == 200
     payload = resp.get_json()
     assert isinstance(payload, dict)
@@ -75,7 +75,7 @@ def test_flow_routes_are_rate_limited(client):
     # No @limiter.exempt: the default limit must apply (headers enabled).
     resp = client.get("/flows")
     assert "X-RateLimit-Limit" in resp.headers
-    resp = client.get("/flows/p9_SegWit_P2WSH")
+    resp = client.get("/flows/p0_Intro_P2PKH")
     assert "X-RateLimit-Limit" in resp.headers
 
 
