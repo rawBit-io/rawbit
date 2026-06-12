@@ -276,7 +276,10 @@ export default function OpCodeNode({
 
     setNodes((nds) => nds.filter((n) => n.id !== id));
 
-    scheduleSnapshot("Node(s) removed", { refresh: true });
+    scheduleSnapshot("Node(s) removed", {
+      refresh: true,
+      coalesceFollowingCalc: true,
+    });
   }, [
     id,
     scheduleSnapshot,

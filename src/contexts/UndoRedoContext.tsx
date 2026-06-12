@@ -14,6 +14,7 @@ import {
 import {
   UndoRedoContext,
   PushStateOptions,
+  ReplaceStateOptions,
   GraphSnapshot,
   SnapshotCalcState,
   UndoRedoContextValue,
@@ -47,6 +48,33 @@ const cloneCalcState = (
   return {
     status: calcState.status,
     errors: calcState.errors.map((err) => ({ ...err })),
+  };
+};
+
+type TabHistory = { history: GraphSnapshot[]; pointer: number };
+
+/** Append a snapshot: trim the redo branch, evict the oldest when full. */
+const appendSnapshot = (
+  current: TabHistory,
+  snap: GraphSnapshot
+): { next: TabHistory; trimmedFuture: number; evictedLabel: string | null } => {
+  const next = [...current.history.slice(0, current.pointer + 1)];
+  const trimmedFuture = Math.max(
+    current.history.length - (current.pointer + 1),
+    0
+  );
+
+  let evictedLabel: string | null = null;
+  if (next.length === MAX_HISTORY) {
+    evictedLabel = next[0]?.label ?? null;
+    next.shift();
+  }
+
+  next.push(snap);
+  return {
+    next: { history: next, pointer: next.length - 1 },
+    trimmedFuture,
+    evictedLabel,
   };
 };
 
@@ -153,38 +181,18 @@ export function UndoRedoProvider({ children }: { children: ReactNode }) {
         calcState,
       };
 
-      /* -------------------------------------------------------------- *
-       * 1️⃣  Keep only the branch we’re on (discard “future” snapshots) *
-       * -------------------------------------------------------------- */
-      const next = [...currentHistory.slice(0, currentPointer + 1)];
-      const trimmedFuture = Math.max(
-        currentHistory.length - (currentPointer + 1),
-        0
+      const { next, trimmedFuture, evictedLabel } = appendSnapshot(
+        { history: currentHistory, pointer: currentPointer },
+        newSnap
       );
-
-      /* -------------------------------------------------------------- *
-       * 2️⃣  Ring-buffer: if full, drop the oldest                      *
-       *     (pointer can only be at the end after the slice)           *
-       * -------------------------------------------------------------- */
-      let evictedLabel: string | null = null;
-      if (next.length === MAX_HISTORY) {
-        evictedLabel = next[0]?.label ?? null;
-        next.shift();
-      }
-
-      /* -------------------------------------------------------------- *
-       * 3️⃣  Append the fresh snapshot and move pointer to it           *
-       * -------------------------------------------------------------- */
-      next.push(newSnap);
-      const newPointer = next.length - 1;
 
       const debugParts = [
         `tab=${targetTabId}`,
         `label='${newSnap.label}'`,
         `nodes=${newSnap.nodes.length}`,
         `edges=${newSnap.edges.length}`,
-        `pointer ${currentPointer}->${newPointer}`,
-        `size ${currentHistory.length}->${next.length}`,
+        `pointer ${currentPointer}->${next.pointer}`,
+        `size ${currentHistory.length}->${next.history.length}`,
       ];
       if (trimmedFuture > 0) debugParts.push(`trimmedFuture=${trimmedFuture}`);
       if (evictedLabel) debugParts.push(`evicted='${evictedLabel}'`);
@@ -192,8 +200,72 @@ export function UndoRedoProvider({ children }: { children: ReactNode }) {
 
       return {
         ...prev,
-        [targetTabId]: { history: next, pointer: newPointer },
+        [targetTabId]: next,
       };
+    });
+  };
+
+  /**
+   * Replace the top history entry in place when it is still the newest and its
+   * label matches `coalesceFromLabel`; otherwise append like pushState. Used to
+   * fold an "After calc" snapshot into the structural snapshot of the same user
+   * action so one action produces one undo step.
+   */
+  const replaceState = (
+    nodes: FlowNode[],
+    edges: Edge[],
+    options: ReplaceStateOptions
+  ) => {
+    const canonical = sanitizeGroupBundleVisualElementsForState({ nodes, edges });
+    const clonedNodes = ingestScriptSteps(cloneValue(canonical.nodes));
+    const targetTabId = options.tabId ?? activeTabId;
+    const scriptSteps = snapshotScriptSteps();
+    const clonedEdges = cloneValue(canonical.edges);
+    const calcState = cloneCalcState(options.calcState);
+
+    setTabHistories((prev) => {
+      const current = prev[targetTabId] ?? { history: [], pointer: -1 };
+      const top = current.history[current.pointer];
+      const atEnd = current.pointer === current.history.length - 1;
+      const canCoalesce =
+        options.coalesceFromLabel !== undefined &&
+        atEnd &&
+        top?.label === options.coalesceFromLabel;
+
+      if (canCoalesce) {
+        // Keep the structural label, refresh the captured state.
+        const nextHistory = [...current.history];
+        nextHistory[current.pointer] = {
+          nodes: clonedNodes,
+          edges: clonedEdges,
+          label: top.label,
+          scriptSteps,
+          calcState,
+        };
+        log(
+          "snapshots",
+          `[replaceState] coalesced into '${top.label}' tab=${targetTabId} pointer=${current.pointer}`
+        );
+        return {
+          ...prev,
+          [targetTabId]: { history: nextHistory, pointer: current.pointer },
+        };
+      }
+
+      const newSnap: GraphSnapshot = {
+        nodes: clonedNodes,
+        edges: clonedEdges,
+        label:
+          options.label ?? `Snapshot #${current.history.length + 1}`,
+        scriptSteps,
+        calcState,
+      };
+      const { next } = appendSnapshot(current, newSnap);
+      log(
+        "snapshots",
+        `[replaceState] appended '${newSnap.label}' tab=${targetTabId} (no coalesce target)`
+      );
+      return { ...prev, [targetTabId]: next };
     });
   };
 
@@ -271,6 +343,7 @@ export function UndoRedoProvider({ children }: { children: ReactNode }) {
     canUndo,
     canRedo,
     pushState,
+    replaceState,
     undo,
     redo,
     jumpTo,

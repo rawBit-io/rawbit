@@ -221,7 +221,10 @@ describe("useCalcNodeMutations", () => {
     expect(edges).toEqual([]);
     expect(setNodes).toHaveBeenCalledTimes(1);
     expect(nodes).toEqual([]);
-    expect(scheduleSnapshot).toHaveBeenCalledWith("Node(s) removed", { refresh: true });
+    expect(scheduleSnapshot).toHaveBeenCalledWith("Node(s) removed", {
+      refresh: true,
+      coalesceFollowingCalc: true,
+    });
   });
 
   it("removes a node when no attached edges exist", () => {

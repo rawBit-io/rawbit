@@ -761,6 +761,7 @@ describe("GroupNode interactions", () => {
     ]);
     expect(snapshotMock.scheduleSnapshot).toHaveBeenCalledWith("Node(s) removed", {
       refresh: true,
+      coalesceFollowingCalc: true,
     });
   });
 

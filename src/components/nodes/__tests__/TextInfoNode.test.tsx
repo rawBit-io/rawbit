@@ -89,6 +89,7 @@ describe("TextInfoNode", () => {
       skipNextEdgeSnapshotRef: { current: false },
       skipNextNodeRemovalRef: { current: false },
       markPendingAfterDirtyChange: vi.fn(),
+      armAfterCalcCoalesce: vi.fn(),
       clearPendingAfterCalc: vi.fn(),
       lockNodeRemovalSnapshotSkip: vi.fn(),
       releaseNodeRemovalSnapshotSkip: vi.fn(),
@@ -608,7 +609,10 @@ describe("TextInfoNode", () => {
     expect(nodesState).toHaveLength(0);
     expect(edgesState).toEqual([]);
     await waitFor(() =>
-      expect(scheduler.scheduleSnapshot).toHaveBeenCalledWith("Node(s) removed", { refresh: true })
+      expect(scheduler.scheduleSnapshot).toHaveBeenCalledWith("Node(s) removed", {
+        refresh: true,
+        coalesceFollowingCalc: true,
+      })
     );
   });
 

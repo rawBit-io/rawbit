@@ -54,6 +54,7 @@ interface FlowCanvasProps {
   onEdgesChange?: OnEdgesChange;
   onConnect?: OnConnect;
   onReconnect?: OnReconnect;
+  onDelete?: ReactFlowProps<FlowNode>["onDelete"];
   onDrop?: ReactFlowProps<FlowNode>["onDrop"];
   onDragOver?: (event: DragEvent) => void;
   onNodeDragStop?: ReactFlowProps<FlowNode>["onNodeDragStop"];
@@ -241,6 +242,7 @@ export function FlowCanvas({
   onEdgesChange,
   onConnect,
   onReconnect,
+  onDelete,
   onDrop,
   onDragOver,
   onNodeDragStop,
@@ -729,6 +731,7 @@ export function FlowCanvas({
           onEdgeClick={handleEdgeClick}
           onConnect={onConnect}
           onReconnect={handleReconnect}
+          onDelete={onDelete}
           onDrop={onDrop}
           onDragOver={onDragOver}
           onNodeDragStop={onNodeDragStop}

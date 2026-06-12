@@ -19,6 +19,7 @@ const makeState = () => ({
 describe("useSnapshotScheduler", () => {
   let storeState: ReturnType<typeof makeState>;
   let pushState: ReturnType<typeof vi.fn>;
+  let replaceState: ReturnType<typeof vi.fn>;
   let incrementGraphRev: ReturnType<typeof vi.fn>;
   let skipLoadRef: React.MutableRefObject<boolean>;
   let refreshBanner: ReturnType<typeof vi.fn>;
@@ -30,6 +31,7 @@ describe("useSnapshotScheduler", () => {
     });
     storeState = makeState();
     pushState = vi.fn();
+    replaceState = vi.fn();
     incrementGraphRev = vi.fn(() => 7);
     skipLoadRef = { current: false };
     refreshBanner = vi.fn();
@@ -44,16 +46,19 @@ describe("useSnapshotScheduler", () => {
     autoAfterCalc?: Parameters<typeof useSnapshotScheduler>[0]["autoAfterCalc"],
     getCalcSnapshot?: Parameters<typeof useSnapshotScheduler>[0]["getCalcSnapshot"]
   ) =>
-    renderHook(() =>
-      useSnapshotScheduler({
-        storeApi: { getState: () => storeState },
-        pushState,
-        incrementGraphRev,
-        skipLoadRef,
-        refreshBanner,
-        autoAfterCalc,
-        getCalcSnapshot,
-      })
+    renderHook(
+      ({ calc }: { calc?: typeof autoAfterCalc }) =>
+        useSnapshotScheduler({
+          storeApi: { getState: () => storeState },
+          pushState,
+          replaceState,
+          incrementGraphRev,
+          skipLoadRef,
+          refreshBanner,
+          autoAfterCalc: calc,
+          getCalcSnapshot,
+        }),
+      { initialProps: { calc: autoAfterCalc } }
     );
 
   it("captures snapshots and clears dirty flags", () => {
@@ -335,6 +340,156 @@ describe("useSnapshotScheduler", () => {
 
     expect(result.current.pendingSnapshotRef.current).toBe(false);
     expect(result.current.skipNextEdgeSnapshotRef.current).toBe(false);
+  });
+
+  // Deferred-frame rAF so the real ordering holds: the structural snapshot is
+  // queued, markPending runs synchronously (edge removal), THEN the frame fires
+  // and arms coalescing — exactly the key-delete sequence in production.
+  const useDeferredFrames = () => {
+    const frames = new Map<number, FrameRequestCallback>();
+    let nextId = 1;
+    vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => {
+      const id = nextId;
+      nextId += 1;
+      frames.set(id, cb);
+      return id;
+    });
+    vi.stubGlobal("cancelAnimationFrame", (id: number) => {
+      frames.delete(id);
+    });
+    return () =>
+      act(() => {
+        for (const cb of [...frames.values()]) cb(0);
+        frames.clear();
+      });
+  };
+
+  it("coalesces the after-calc snapshot into a structural entry (one undo step)", () => {
+    const loadingUndoRef = { current: false };
+    const flushFrames = useDeferredFrames();
+    const { result, rerender } = renderScheduler();
+
+    // Key-delete sequence: queue structural snapshot, edge removal arms pending,
+    // then the frame fires.
+    act(() => {
+      result.current.scheduleSnapshot("Node(s) removed", {
+        coalesceFollowingCalc: true,
+      });
+      result.current.markPendingAfterDirtyChange();
+    });
+    flushFrames();
+
+    expect(pushState).toHaveBeenCalledTimes(1);
+    expect(pushState).toHaveBeenCalledWith(
+      expect.any(Array),
+      storeState.edges,
+      expect.objectContaining({ label: "Node(s) removed" })
+    );
+
+    // Recalc settles: the after-calc must FOLD IN (replaceState), not append.
+    storeState = makeState();
+    storeState.nodes[0].data.dirty = false;
+    act(() => {
+      rerender({ calc: { calcStatus: "OK", loadingUndoRef } });
+    });
+
+    expect(pushState).toHaveBeenCalledTimes(1); // no second history entry
+    expect(replaceState).toHaveBeenCalledTimes(1);
+    expect(replaceState).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ data: expect.objectContaining({ dirty: false }) }),
+      ]),
+      storeState.edges,
+      expect.objectContaining({ coalesceFromLabel: "Node(s) removed" })
+    );
+  });
+
+  it("coalesces via armAfterCalcCoalesce (the delete handler's path)", () => {
+    // onDelete arms the coalesce AFTER markPending (its token may differ from
+    // the structural snapshot's frame-time token), so the delete handler calls
+    // armAfterCalcCoalesce to capture the correct token.
+    const loadingUndoRef = { current: false };
+    const { result, rerender } = renderScheduler();
+
+    act(() => {
+      result.current.scheduleSnapshot("Node(s) removed");
+      result.current.markPendingAfterDirtyChange();
+      result.current.armAfterCalcCoalesce("Node(s) removed");
+    });
+    expect(pushState).toHaveBeenCalledTimes(1);
+
+    storeState = makeState();
+    storeState.nodes[0].data.dirty = false;
+    act(() => {
+      rerender({ calc: { calcStatus: "OK", loadingUndoRef } });
+    });
+
+    expect(pushState).toHaveBeenCalledTimes(1); // no second entry
+    expect(replaceState).toHaveBeenCalledWith(
+      expect.any(Array),
+      storeState.edges,
+      expect.objectContaining({ coalesceFromLabel: "Node(s) removed" })
+    );
+  });
+
+  it("does not coalesce a plain edit's after-calc (no structural entry to fold into)", () => {
+    const loadingUndoRef = { current: false };
+    const { result, rerender } = renderScheduler();
+
+    // A field edit arms pending without any structural snapshot.
+    act(() => {
+      result.current.markPendingAfterDirtyChange();
+    });
+
+    storeState = makeState();
+    storeState.nodes[0].data.dirty = false;
+    act(() => {
+      rerender({ calc: { calcStatus: "OK", loadingUndoRef } });
+    });
+
+    expect(replaceState).not.toHaveBeenCalled();
+    expect(pushState).toHaveBeenCalledTimes(1);
+    expect(pushState).toHaveBeenCalledWith(
+      expect.any(Array),
+      storeState.edges,
+      expect.objectContaining({ label: "After calc" })
+    );
+  });
+
+  it("does not coalesce when the after-calc belongs to a later, unrelated edit", () => {
+    const loadingUndoRef = { current: false };
+    const flushFrames = useDeferredFrames();
+    const { result, rerender } = renderScheduler();
+
+    // Structural action that triggers NO recalc (e.g. deleting an isolated
+    // node): its frame arms coalescing for the current token...
+    act(() => {
+      result.current.scheduleSnapshot("Node(s) removed", {
+        coalesceFollowingCalc: true,
+      });
+    });
+    flushFrames();
+    expect(pushState).toHaveBeenCalledTimes(1);
+
+    // ...then a LATER unrelated field edit arms a new token and recalcs.
+    act(() => {
+      result.current.markPendingAfterDirtyChange();
+    });
+    storeState = makeState();
+    storeState.nodes[0].data.dirty = false;
+    act(() => {
+      rerender({ calc: { calcStatus: "OK", loadingUndoRef } });
+    });
+
+    // That after-calc must append, never fold into the stale structural entry.
+    expect(replaceState).not.toHaveBeenCalled();
+    expect(pushState).toHaveBeenCalledTimes(2);
+    expect(pushState).toHaveBeenNthCalledWith(
+      2,
+      expect.any(Array),
+      storeState.edges,
+      expect.objectContaining({ label: "After calc" })
+    );
   });
 
   it("locks and releases node removal snapshot skip", () => {

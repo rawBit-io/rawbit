@@ -365,7 +365,10 @@ export function useCalcNodeMutations(
     setNodes((nodes) => nodes.filter((node) => node.id !== id));
 
     if (scheduleSnapshot) {
-      scheduleSnapshot("Node(s) removed", { refresh: true });
+      scheduleSnapshot("Node(s) removed", {
+        refresh: true,
+        coalesceFollowingCalc: true,
+      });
     }
   }, [id, setNodes, setEdges, snapshotHooks]);
 

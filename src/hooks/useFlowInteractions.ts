@@ -136,7 +136,11 @@ interface UseFlowInteractionsOptions {
   setEdges: (updater: (edges: Edge[]) => Edge[]) => void;
   scheduleSnapshot: (
     label: string,
-    options?: { refresh?: boolean; before?: () => boolean }
+    options?: {
+      refresh?: boolean;
+      before?: () => boolean;
+      coalesceFollowingCalc?: boolean;
+    }
   ) => void;
   pendingSnapshotRef: React.MutableRefObject<boolean>;
   skipNextEdgeSnapshotRef: React.MutableRefObject<boolean>;
@@ -593,6 +597,10 @@ export function useFlowInteractions({
         const label = removed ? "Node(s) removed" : "Node(s) added";
         scheduleSnapshot(label, {
           refresh: true,
+          // Removing a node dirties its surviving consumers (below), so a
+          // recalc follows; fold its "After calc" into this entry so one
+          // deletion is one undo step.
+          coalesceFollowingCalc: true,
           before: () => {
             if (removed && skipNextNodeRemovalRef.current) {
               skipNextNodeRemovalRef.current = false;

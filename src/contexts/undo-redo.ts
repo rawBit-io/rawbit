@@ -23,6 +23,17 @@ export type PushStateOptions = {
   tabId?: string;
 };
 
+export type ReplaceStateOptions = PushStateOptions & {
+  /**
+   * Coalesce into the top history entry instead of appending, but only when
+   * that entry is still the newest and its label matches. Lets an "After calc"
+   * snapshot fold into the structural snapshot of the same user action (e.g.
+   * "Node(s) removed") so one action is one undo. Falls back to an append
+   * (using `label`) when the top entry is no longer the expected one.
+   */
+  coalesceFromLabel?: string;
+};
+
 export interface UndoRedoContextValue {
   history: GraphSnapshot[];
   pointer: number;
@@ -32,6 +43,11 @@ export interface UndoRedoContextValue {
     nodes: FlowNode[],
     edges: Edge[],
     labelOrOptions?: string | PushStateOptions
+  ) => void;
+  replaceState: (
+    nodes: FlowNode[],
+    edges: Edge[],
+    options: ReplaceStateOptions
   ) => void;
   undo: () => void;
   redo: () => void;

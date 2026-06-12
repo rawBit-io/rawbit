@@ -116,6 +116,7 @@ describe("OpCodeNode", () => {
       skipNextEdgeSnapshotRef: { current: false },
       skipNextNodeRemovalRef: { current: false },
       markPendingAfterDirtyChange: vi.fn(),
+      armAfterCalcCoalesce: vi.fn(),
       clearPendingAfterCalc: vi.fn(),
       lockNodeRemovalSnapshotSkip: vi.fn(),
       releaseNodeRemovalSnapshotSkip: vi.fn(),
@@ -237,7 +238,7 @@ describe("OpCodeNode", () => {
     expect(edgesState).toEqual([]);
     expect(scheduler.scheduleSnapshot).toHaveBeenCalledWith(
       "Node(s) removed",
-      { refresh: true }
+      { refresh: true, coalesceFollowingCalc: true }
     );
   });
 

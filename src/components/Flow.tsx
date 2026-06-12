@@ -67,6 +67,7 @@ import type {
 } from "@/types";
 import type { FlowValidationIssue } from "@/lib/flow/validate";
 import { isCalculableNode } from "@/lib/flow/nonCalculableNodes";
+import { survivingCalculableConsumersOnDelete } from "@/lib/flow/deleteRecalc";
 import {
   ingestScriptSteps,
   restoreScriptSteps,
@@ -872,6 +873,7 @@ function FlowContent() {
   });
   const {
     pushState,
+    replaceState,
     history,
     pointer,
     undo,
@@ -1372,6 +1374,7 @@ function FlowContent() {
       edges: getSavedEdges(),
     }),
     pushState,
+    replaceState,
     incrementGraphRev,
     skipLoadRef,
     refreshBanner,
@@ -1390,6 +1393,7 @@ function FlowContent() {
     skipNextEdgeSnapshotRef,
     skipNextNodeRemovalRef,
     markPendingAfterDirtyChange,
+    armAfterCalcCoalesce,
     releaseNodeRemovalSnapshotSkip,
   } = snapshotScheduler;
 
@@ -2980,6 +2984,42 @@ function FlowContent() {
     isSelectionModeActive: isSelectionMode,
   });
 
+  // React Flow strips a deleted node's connected edges from controlled state
+  // before our change handlers can observe them, so onDelete (which carries the
+  // removed edges with endpoints intact) is the reliable signal: dirty the
+  // surviving, still-calculable consumers so the deletion deterministically
+  // recalculates the downstream instead of leaving a stale result, and arm the
+  // coalesce with the just-bumped token so the resulting "After calc" folds
+  // into the "Node(s) removed" snapshot (one deletion = one undo step).
+  const handleElementsDelete = useCallback(
+    ({ nodes: deletedNodes, edges: deletedEdges }: { nodes: FlowNode[]; edges: Edge[] }) => {
+      if (loadingUndoRef.current || isPastingRef.current) return;
+      if (!deletedEdges.length) return;
+      const dirtyIds = survivingCalculableConsumersOnDelete(
+        deletedNodes,
+        deletedEdges,
+        nodesRef.current
+      );
+      if (!dirtyIds.size) return;
+      setNodes((nodes) =>
+        nodes.map((node) =>
+          dirtyIds.has(node.id)
+            ? { ...node, data: { ...node.data, dirty: true } }
+            : node
+        )
+      );
+      markPendingAfterDirtyChange();
+      armAfterCalcCoalesce("Node(s) removed");
+    },
+    [
+      loadingUndoRef,
+      isPastingRef,
+      setNodes,
+      markPendingAfterDirtyChange,
+      armAfterCalcCoalesce,
+    ]
+  );
+
   useEffect(() => {
     groupWithUndoRef.current = groupWithUndo;
   }, [groupWithUndo]);
@@ -3585,6 +3625,7 @@ function FlowContent() {
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnectWithUndo}
                 onReconnect={onReconnectWithUndo}
+                onDelete={handleElementsDelete}
                 onDrop={onDropWithUndo}
                 onDragOver={onDragOver}
                 onNodeDragStop={onNodeDragStopWithUndo}

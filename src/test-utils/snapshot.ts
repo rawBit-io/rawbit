@@ -18,6 +18,7 @@ export function createSnapshotScheduler(
     skipNextEdgeSnapshotRef: createBooleanRef(),
     skipNextNodeRemovalRef: createBooleanRef(),
     markPendingAfterDirtyChange: noop,
+    armAfterCalcCoalesce: noop,
     clearPendingAfterCalc: noop,
     lockNodeRemovalSnapshotSkip: noop,
     releaseNodeRemovalSnapshotSkip: noop,

@@ -2,7 +2,10 @@ import { useCallback, useEffect, useRef } from "react";
 import type { Edge } from "@xyflow/react";
 import { log } from "@/lib/logConfig";
 import type { CalcStatus, CalcError, FlowNode } from "@/types";
-import type { PushStateOptions } from "@/contexts/undo-redo";
+import type {
+  PushStateOptions,
+  ReplaceStateOptions,
+} from "@/contexts/undo-redo";
 
 interface CalcSnapshot {
   status: CalcStatus;
@@ -18,6 +21,11 @@ interface UseSnapshotSchedulerArgs {
     nodes: FlowNode[],
     edges: Edge[],
     labelOrOptions?: string | PushStateOptions
+  ) => void;
+  replaceState?: (
+    nodes: FlowNode[],
+    edges: Edge[],
+    options: ReplaceStateOptions
   ) => void;
   incrementGraphRev: () => number;
   skipLoadRef: React.MutableRefObject<boolean>;
@@ -43,6 +51,12 @@ export interface SnapshotOptions {
     nodes: FlowNode[];
     edges: Edge[];
   };
+  /**
+   * Mark this as a structural snapshot whose follow-up "After calc" snapshot
+   * (from the recalc this action triggers) should coalesce into it instead of
+   * appending a second history entry. One user action stays one undo step.
+   */
+  coalesceFollowingCalc?: boolean;
 }
 
 export interface SnapshotScheduler {
@@ -57,6 +71,14 @@ export interface SnapshotScheduler {
   skipNextEdgeSnapshotRef: React.MutableRefObject<boolean>;
   skipNextNodeRemovalRef: React.MutableRefObject<boolean>;
   markPendingAfterDirtyChange: () => void;
+  /**
+   * Arm the next "After calc" (for the current pending token) to coalesce into
+   * the structural entry labelled `label`. Called by the delete handler right
+   * after markPendingAfterDirtyChange so the captured token matches the recalc
+   * the deletion triggers — robust to onDelete firing after the structural
+   * snapshot's frame.
+   */
+  armAfterCalcCoalesce: (label: string) => void;
   clearPendingAfterCalc: () => void;
   lockNodeRemovalSnapshotSkip: () => void;
   releaseNodeRemovalSnapshotSkip: () => void;
@@ -66,6 +88,7 @@ export function useSnapshotScheduler({
   storeApi,
   getSnapshotState,
   pushState,
+  replaceState,
   incrementGraphRev,
   skipLoadRef,
   refreshBanner,
@@ -78,6 +101,11 @@ export function useSnapshotScheduler({
   const skipNextNodeRemovalRef = useRef(false);
   const pendingTokenRef = useRef(0);
   const lastSnapshotTokenRef = useRef(0);
+  // When a structural snapshot opts into coalescing, remember its label and the
+  // pending-recalc token at push time. The next "After calc" for that same token
+  // folds into the structural entry instead of appending a second undo step.
+  const coalesceLabelRef = useRef<string | null>(null);
+  const coalesceTokenRef = useRef<number | null>(null);
   // Tab the pending after-calc snapshot belongs to: the marker is set by an
   // edit on a specific tab, but the deferred snapshot reads the live canvas,
   // so it must never fire while another tab is active.
@@ -109,6 +137,47 @@ export function useSnapshotScheduler({
       });
     },
     [getCalcSnapshot, incrementGraphRev, pushState, skipLoadRef]
+  );
+
+  // Like pushCleanState, but folds into the structural entry labelled
+  // `coalesceFromLabel` when it is still the top of history; otherwise appends
+  // under `label`. Falls back to pushCleanState when no replaceState is wired.
+  const replaceCleanState = useCallback(
+    (
+      nodes: FlowNode[],
+      edges: Edge[],
+      label: string,
+      coalesceFromLabel: string,
+      tabId?: string
+    ) => {
+      if (!replaceState) {
+        pushCleanState(nodes, edges, label, tabId);
+        return;
+      }
+      const rev = incrementGraphRev();
+      skipLoadRef.current = true;
+      const cleanNodes = nodes.map((n) => ({
+        ...n,
+        data: { ...n.data, dirty: false },
+      }));
+      log(
+        "snapshots",
+        `[replaceCleanState] rev=${rev} coalesceInto='${coalesceFromLabel}' nodes=${nodes.length} edges=${edges.length}`
+      );
+      const calcState = getCalcSnapshot?.();
+      replaceState(cleanNodes, edges, {
+        label,
+        coalesceFromLabel,
+        ...(tabId ? { tabId } : {}),
+        calcState: calcState
+          ? {
+              status: calcState.status,
+              errors: calcState.errors.map((err) => ({ ...err })),
+            }
+          : undefined,
+      });
+    },
+    [getCalcSnapshot, incrementGraphRev, pushCleanState, replaceState, skipLoadRef]
   );
 
   const scheduleSnapshot = useCallback(
@@ -178,6 +247,14 @@ export function useSnapshotScheduler({
           });
         }
         pushCleanState(state.nodes, state.edges, label, resolvedTabId);
+
+        if (options?.coalesceFollowingCalc) {
+          // The recalc this action triggers already armed pendingTokenRef
+          // (synchronously, before this frame). Remember it so the matching
+          // "After calc" folds into this structural entry.
+          coalesceLabelRef.current = label;
+          coalesceTokenRef.current = pendingTokenRef.current;
+        }
       };
 
       if (options?.immediate) {
@@ -210,6 +287,15 @@ export function useSnapshotScheduler({
       `[dirtyChange] pendingSnapshotRef -> true token=${pendingTokenRef.current}`
     );
   }, [getActiveTabId]);
+
+  const armAfterCalcCoalesce = useCallback((label: string) => {
+    coalesceLabelRef.current = label;
+    coalesceTokenRef.current = pendingTokenRef.current;
+    log(
+      "snapshots",
+      `[armCoalesce] label='${label}' token=${pendingTokenRef.current}`
+    );
+  }, []);
 
   const clearPendingAfterCalc = useCallback(() => {
     pendingSnapshotRef.current = false;
@@ -294,16 +380,39 @@ export function useSnapshotScheduler({
     skipLoadRef.current = true;
     const labelForSnapshot =
       calcStatus === "OK" ? "After calc" : "After calc (errors)";
-    log(
-      "snapshots",
-      `[afterCalc] capturing label='${labelForSnapshot}' status=${calcStatus}`
-    );
-    pushCleanState(
-      state.nodes,
-      state.edges,
-      labelForSnapshot,
-      pendingTabId ?? undefined
-    );
+
+    // If this recalc is the consequence of a structural action (delete/add/
+    // paste) that armed coalescing for this exact token, fold into that
+    // structural entry instead of appending a second undo step.
+    const coalesceInto =
+      coalesceTokenRef.current === token ? coalesceLabelRef.current : null;
+    coalesceLabelRef.current = null;
+    coalesceTokenRef.current = null;
+
+    if (coalesceInto) {
+      log(
+        "snapshots",
+        `[afterCalc] coalescing into '${coalesceInto}' status=${calcStatus}`
+      );
+      replaceCleanState(
+        state.nodes,
+        state.edges,
+        labelForSnapshot,
+        coalesceInto,
+        pendingTabId ?? undefined
+      );
+    } else {
+      log(
+        "snapshots",
+        `[afterCalc] capturing label='${labelForSnapshot}' status=${calcStatus}`
+      );
+      pushCleanState(
+        state.nodes,
+        state.edges,
+        labelForSnapshot,
+        pendingTabId ?? undefined
+      );
+    }
     pendingSnapshotRef.current = false;
     lastSnapshotTokenRef.current = token;
     skipNextEdgeSnapshotRef.current = false;
@@ -313,6 +422,7 @@ export function useSnapshotScheduler({
     getActiveTabId,
     getSnapshotState,
     pushCleanState,
+    replaceCleanState,
     skipLoadRef,
     storeApi,
   ]);
@@ -324,6 +434,7 @@ export function useSnapshotScheduler({
     skipNextEdgeSnapshotRef,
     skipNextNodeRemovalRef,
     markPendingAfterDirtyChange,
+    armAfterCalcCoalesce,
     clearPendingAfterCalc,
     lockNodeRemovalSnapshotSkip,
     releaseNodeRemovalSnapshotSkip,

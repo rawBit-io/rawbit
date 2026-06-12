@@ -611,7 +611,10 @@ export default function ShadcnGroupNode({
       return removedEdge ? filtered : eds;
     });
 
-    scheduleSnapshot("Node(s) removed", { refresh: true });
+    scheduleSnapshot("Node(s) removed", {
+      refresh: true,
+      coalesceFollowingCalc: true,
+    });
   }, [id, rf, scheduleSnapshot]);
 
   const ungroupGroup = useCallback(() => {

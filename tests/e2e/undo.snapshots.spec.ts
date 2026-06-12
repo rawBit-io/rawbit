@@ -54,6 +54,50 @@ test.describe('Undo snapshots for interactions', () => {
     }).toBeLessThan(2);
   });
 
+  test('deleting a feeding node is a single undo step', async ({ page }) => {
+    // node_input feeds node_hash: deleting it dirties node_hash (via onDelete),
+    // which recalculates. Regression — that recalc's "After calc" snapshot must
+    // coalesce into the "Node(s) removed" entry so one deletion is one undo,
+    // capturing the recalculated downstream (not a stale result, not two steps).
+    const inputNode = page.locator('[data-id="node_input"]');
+    const inputEdge = page.locator(
+      '.react-flow__edge[data-id="edge_input_hash"]',
+    );
+    await expect(inputNode).toBeVisible();
+    await expect(inputEdge).toBeVisible();
+
+    // Select exactly node_input (clicking a node after import does not deselect
+    // the others, and Delete would then remove the whole flow).
+    await page.locator('.react-flow__pane').click({ position: { x: 5, y: 5 } });
+    await expect(page.locator('.react-flow__node.selected')).toHaveCount(0);
+    await inputNode.click();
+    await expect(page.locator('.react-flow__node.selected')).toHaveCount(1);
+
+    // Delete and wait for the deletion-triggered recalc to settle so the
+    // after-calc snapshot (the entry that used to be a separate undo step) has
+    // fired.
+    await waitForBulkResponse(
+      page,
+      async () => {
+        await page.keyboard.press('Delete');
+      },
+      { timeoutMs: 12_000 },
+    );
+
+    await expect(inputNode).toHaveCount(0);
+    await expect(inputEdge).toHaveCount(0);
+
+    // ONE undo fully restores the pre-delete state. Under the old
+    // double-snapshot bug the first undo only reached the intermediate
+    // "Node(s) removed" entry where node_input was already gone.
+    const undoButton = page.getByTitle('Undo');
+    await expect(undoButton).toBeEnabled({ timeout: 10_000 });
+    await undoButton.click();
+
+    await expect(inputNode).toBeVisible();
+    await expect(inputEdge).toBeVisible();
+  });
+
   test('edge reconnect can be undone', async ({ page }) => {
     const edgeLocator = page.locator('.react-flow__edge[data-id="edge_input_hash"]');
     await expect(edgeLocator).toBeVisible();

@@ -227,6 +227,58 @@ describe("UndoRedoProvider", () => {
     ).toBe(false);
   });
 
+  it("replaceState folds into the matching top entry without adding a history step", async () => {
+    const { result } = renderHook(() => useUndoRedo(), { wrapper });
+
+    await act(async () => {
+      result.current.pushState([makeNode("a")], edges, "Initial");
+    });
+    await act(async () => {
+      result.current.pushState([makeNode("b")], edges, "Node(s) removed");
+    });
+    expect(result.current.history).toHaveLength(2);
+
+    // After-calc folds into "Node(s) removed": same entry count, label kept,
+    // state refreshed to the post-recalc nodes.
+    await act(async () => {
+      result.current.replaceState([makeNode("b-recalculated")], edges, {
+        label: "After calc",
+        coalesceFromLabel: "Node(s) removed",
+      });
+    });
+
+    expect(result.current.history).toHaveLength(2);
+    expect(result.current.history.at(-1)?.label).toBe("Node(s) removed");
+    expect(result.current.history.at(-1)?.nodes[0]?.id).toBe("b-recalculated");
+    expect(result.current.pointer).toBe(1);
+
+    // One undo returns to before the structural action — a single step.
+    await act(async () => {
+      result.current.undo();
+    });
+    expect(result.current.history[result.current.pointer]?.label).toBe("Initial");
+  });
+
+  it("replaceState appends when the top entry is not the coalesce target", async () => {
+    const { result } = renderHook(() => useUndoRedo(), { wrapper });
+
+    await act(async () => {
+      result.current.pushState([makeNode("a")], edges, "Some edit");
+    });
+
+    // No "Node(s) removed" on top — a plain edit's after-calc must append.
+    await act(async () => {
+      result.current.replaceState([makeNode("b")], edges, {
+        label: "After calc",
+        coalesceFromLabel: "Node(s) removed",
+      });
+    });
+
+    expect(result.current.history).toHaveLength(2);
+    expect(result.current.history.at(-1)?.label).toBe("After calc");
+    expect(result.current.pointer).toBe(1);
+  });
+
   it("throws when useUndoRedo is used without a provider", () => {
     const { result } = renderHook(() => {
       try {
