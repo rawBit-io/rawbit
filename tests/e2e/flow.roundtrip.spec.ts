@@ -92,6 +92,19 @@ const FLOW_SCENARIOS: Scenario[] = [
     scriptNode: 'node_4fCFUxcV', // Verify Script IN2 (second input's P2PKH spend)
   },
   {
+    // Always-visible lesson flow #03 (sidebar "Bare Multisig"). Tx1 funds a
+    // bare P2MS output that tx2 spends; tweaking the tx1 amount ripples through
+    // tx1's txid into tx2's input and final txid.
+    name: 'p3_Bare_MultiSig',
+    relativePath: path.join('src', 'my_tx_flows', 'p3_Bare_MultiSig.json'),
+    nodeChanges: {
+      node_Ty4ApQbe: '239000', // Tx1 Output Amount in satoshis (240000 → 239000)
+      node_lIMPrHQG: '238000', // Tx2 Output Amount in satoshis (239000 → 238000)
+    },
+    txidNode: 'node_1oB0mQPo', // TXID → Reversed of the multisig-spending tx2
+    scriptNode: 'node_NwoZ2skX', // Verify Script (bare multisig spend, tx2)
+  },
+  {
     name: 'p1_Intro_P2PKH_and_P2PK',
     relativePath: path.join('src', 'my_tx_flows', 'old', 'p1_Intro_P2PKH_and_P2PK.json'),
     nodeChanges: {

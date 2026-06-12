@@ -75,6 +75,21 @@ FLOW_SCENARIOS = [
         },
     },
     {
+        "name": "p3_Bare_MultiSig.json",
+        "path": ROOT / "src" / "my_tx_flows" / "p3_Bare_MultiSig.json",
+        # tx1's Output Amount ripples through tx1's txid into tx2's input,
+        # changing tx2's txid (node_1oB0mQPo) — the bare-multisig spend.
+        "node_changes": {
+            "node_Ty4ApQbe": "240001",
+        },
+        "txid_node": "node_1oB0mQPo",
+        "script_node": "node_NwoZ2skX",
+        "expected_results": {
+            "txid": "a2f6c0e52190aa8f57b3ae6e7835bd3ecf4699cad2bb98cecc6301460ebcbd2d",
+            "script": "true",
+        },
+    },
+    {
         "name": "p1_Intro_P2PKH_and_P2PK.json",
         "path": ROOT / "src" / "my_tx_flows" / "old" / "p1_Intro_P2PKH_and_P2PK.json",
         "node_changes": {

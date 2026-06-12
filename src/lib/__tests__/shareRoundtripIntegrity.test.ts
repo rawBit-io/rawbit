@@ -36,6 +36,7 @@ const VISIBLE_LESSON_FILES = [
   "p0_Intro_P2PKH.json",
   "p1_P2PK_vs_P2PKH.json",
   "p2_P2PKH_multi_input_signing.json",
+  "p3_Bare_MultiSig.json",
 ] as const;
 
 function loadFlow(fileName: string): FlowData {
