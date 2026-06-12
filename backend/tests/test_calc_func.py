@@ -153,6 +153,26 @@ def test_deserialize_tx_cached_reuses_instance():
     assert first is second
 
 
+def test_deserialize_tx_cached_skips_large_transactions(monkeypatch):
+    monkeypatch.setattr(calc, "_TX_CACHE_MAX_HEX_CHARS", 10)
+    tx_hex = build_sample_tx_hex()
+    first = calc._deserialize_tx_cached(tx_hex)
+    second = calc._deserialize_tx_cached(tx_hex)
+    assert first is not second
+
+
+def test_tagged_hash_only_caches_known_protocol_tags():
+    tag = "definitely-not-a-protocol-tag"
+    data = b"\x01\x02"
+    digest = calc._tagged_hash_bytes(tag, data)
+    tag_hash = hashlib.sha256(tag.encode()).digest()
+    assert digest == hashlib.sha256(tag_hash + tag_hash + data).digest()
+    assert tag not in calc._TAG_HASH_CACHE
+
+    calc._tagged_hash_bytes("TapTweak", data)
+    assert "TapTweak" in calc._TAG_HASH_CACHE
+
+
 def test_bytes_from_even_hex_valid_and_invalid():
     assert calc._bytes_from_even_hex("0x00ff", name="data") == b"\x00\xff"
     with pytest.raises(ValueError):
@@ -544,6 +564,17 @@ def test_taproot_sighash_default_shapes():
     assert len(res["sha_prevouts"]) == 64
     assert len(res["sha_outputs"]) == 64
     assert res["hash_type"] == 0
+
+
+def test_taproot_sighash_default_handles_bit31_version():
+    # bitcointx parses nVersion as signed int32; 0xffffffff must not crash.
+    tx_hex = "ffffffff" + build_sample_tx_hex()[8:]
+    amounts = json.dumps([0])
+    spks = json.dumps(["5120" + "00" * 32])
+    res = json.loads(calc.taproot_sighash_default([tx_hex, 0, amounts, spks]))
+    assert len(res["sighash"]) == 64
+    # preimage = epoch(00) + hash_type(00) + nVersion little-endian
+    assert res["preimage"][4:12] == "ffffffff"
 
 
 def test_taproot_tree_builder_paths_and_root():
@@ -1024,6 +1055,13 @@ def test_script_verification_simple_true():
     assert "amountUsed" not in result
 
 
+def test_script_verification_empty_tx_uses_parseable_dummy():
+    # Standalone script-debugging mode: no tx hex supplied.
+    result = json.loads(calc.script_verification(["", "51"]))
+    assert result["isValid"] is True
+    assert result["scriptPubKey"] == "51"
+
+
 def test_script_verification_names_direct_push_opcodes():
     tx_hex = build_sample_tx_hex()
     result = json.loads(calc.script_verification(["02abcd", "51", tx_hex, 0, "CLEANSTACK"]))
@@ -1047,6 +1085,12 @@ def test_opcode_select_and_int_to_script_bytes():
     assert calc.int_to_script_bytes(4404774) == "263643"
     with pytest.raises(ValueError):
         calc.int_to_script_bytes("abc")
+
+
+def test_opcode_select_2of3_multisig_template():
+    assert calc.op_code_select(["2OF3_MULTISIG_PREFIX"]) == "5221"
+    # OP_3 OP_CHECKMULTISIG — no stray OP_2 after the last pubkey.
+    assert calc.op_code_select(["2OF3_MULTISIG_SUFFIX"]) == "53ae"
 
 
 def test_text_to_hex_and_block_sequence():
@@ -1258,6 +1302,12 @@ def test_address_to_scriptpubkey_rejects_garbage():
 def test_hex_byte_length():
     assert calc.hex_byte_length("00ff") == 2
     assert calc.hex_byte_length("") == 0
+    assert calc.hex_byte_length("0xdeadbeef") == 4  # 0x prefix not counted
+
+
+def test_hex_byte_length_rejects_non_hex():
+    with pytest.raises(ValueError, match="not valid hexadecimal"):
+        calc.hex_byte_length("zz")
 
 
 def test_bip67_sort_pubkeys_and_check_result():
@@ -1499,7 +1549,7 @@ def test_blocks_to_sequence_number_upper_bound():
 
 
 def test_hex_byte_length_odd_rejected():
-    with pytest.raises(ValueError, match="even number of characters"):
+    with pytest.raises(ValueError, match=r"\*even\* number of hex characters"):
         calc.hex_byte_length("0ff")
 
 

@@ -114,4 +114,97 @@ describe("importWithFreshIds", () => {
 
     expect(edges).toHaveLength(0);
   });
+
+  it("remaps groupBundlePortOffsets bundle keys when remapGroupBundleOffsets is set", () => {
+    // The file-level mock is deterministic (same bytes every call), which
+    // would spin uniqueId forever when renaming more than one node — use a
+    // per-call-unique sequence here instead.
+    let randomCall = 0;
+    vi
+      .spyOn(globalThis.crypto, "getRandomValues")
+      .mockImplementation(<T extends ArrayBufferView | null>(array: T): T => {
+        if (!array) return array;
+        randomCall += 1;
+        const view = new Uint8Array(
+          array.buffer,
+          array.byteOffset,
+          array.byteLength
+        );
+        for (let i = 0; i < view.length; i++) {
+          view[i] = (randomCall * 31 + i * 17 + 3) % 256;
+        }
+        return array;
+      });
+
+    const group = {
+      id: "group_1",
+      type: "shadcnGroup",
+      data: {
+        groupBundlePortOffsets: {
+          source: 0.25,
+          sourceByBundle: { "group_1->group_2": 0.7 },
+          targetByBundle: { "node:ext_1:input-0->group_1": 0.3 },
+        },
+      },
+    } as unknown as TestNode;
+    const otherGroup = {
+      id: "group_2",
+      type: "shadcnGroup",
+      data: {},
+    } as unknown as TestNode;
+    const external = { id: "ext_1", data: {} } as unknown as TestNode;
+
+    const { nodes, idMap } = importWithFreshIds<TestNode, TestEdge>({
+      currentNodes: [],
+      currentEdges: [],
+      importNodes: [group, otherGroup, external],
+      importEdges: [],
+      renameMode: "always",
+      remapGroupBundleOffsets: true,
+    });
+
+    const newGroup1 = idMap.get("group_1")!;
+    const newGroup2 = idMap.get("group_2")!;
+    const newExt = idMap.get("ext_1")!;
+    const offsets = (
+      (nodes[0] as unknown as { data: Record<string, unknown> }).data
+    ).groupBundlePortOffsets as {
+      source?: number;
+      sourceByBundle?: Record<string, number>;
+      targetByBundle?: Record<string, number>;
+    };
+
+    expect(offsets.source).toBe(0.25);
+    expect(offsets.sourceByBundle).toEqual({
+      [`${newGroup1}->${newGroup2}`]: 0.7,
+    });
+    expect(offsets.targetByBundle).toEqual({
+      [`node:${newExt}:input-0->${newGroup1}`]: 0.3,
+    });
+  });
+
+  it("leaves groupBundlePortOffsets untouched without the flag (copy/paste does its own remap)", () => {
+    const group = {
+      id: "group_1",
+      type: "shadcnGroup",
+      data: {
+        groupBundlePortOffsets: {
+          sourceByBundle: { "group_1->group_2": 0.7 },
+        },
+      },
+    } as unknown as TestNode;
+
+    const { nodes } = importWithFreshIds<TestNode, TestEdge>({
+      currentNodes: [],
+      currentEdges: [],
+      importNodes: [group],
+      importEdges: [],
+      renameMode: "always",
+    });
+
+    const offsets = (
+      (nodes[0] as unknown as { data: Record<string, unknown> }).data
+    ).groupBundlePortOffsets as { sourceByBundle?: Record<string, number> };
+    expect(offsets.sourceByBundle).toEqual({ "group_1->group_2": 0.7 });
+  });
 });

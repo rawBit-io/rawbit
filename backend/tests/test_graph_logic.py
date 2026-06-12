@@ -818,6 +818,65 @@ def test_bulk_calculate_logic_times_out(monkeypatch):
     assert slow_data["extendedError"].startswith("Flow evaluation exceeded")
 
 
+def test_bulk_calculate_logic_timeout_cleans_sentinels(monkeypatch):
+    nodes = [
+        {
+            # Executes first and trips the deadline while "dst" still carries
+            # its preflight sentinels.
+            "id": "slow",
+            "data": {"functionName": "identity", "value": "payload", "dirty": True},
+        },
+        {
+            "id": "dst",
+            "data": {"functionName": "identity", "dirty": True},
+        },
+    ]
+    edges = [{"source": "ghost", "target": "dst", "targetHandle": "dst-0"}]
+
+    monkeypatch.setattr(graph_logic, "CALCULATION_TIMEOUT_SECONDS", 0.01)
+    monkeypatch.setattr(graph_logic, "_HAS_SIGALRM", False)
+
+    call_counter = {"count": 0}
+
+    def fake_perf_counter():
+        call_counter["count"] += 1
+        if call_counter["count"] <= 3:
+            return 0.0
+        return 0.02
+
+    monkeypatch.setattr(graph_logic.time, "perf_counter", fake_perf_counter)
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic(copy.deepcopy(nodes), edges)
+    updated = {node["id"]: node for node in updated_nodes}
+
+    assert any(err["nodeId"] == CALCULATION_TIMEOUT_NODE_ID for err in errors)
+    dst_data = updated["dst"]["data"]
+    assert "_preflightErrors" not in dst_data
+    assert "_invalidEdge" not in dst_data
+    assert "_cycle" not in dst_data
+
+
+def test_bulk_calculate_logic_handles_malformed_nodes():
+    nodes = [
+        "garbage",
+        {"data": {"functionName": "identity", "value": "2"}},
+        {"id": "bad-data", "data": "nope"},
+        {"id": "ok", "data": {"functionName": "identity", "value": "1", "dirty": True}},
+    ]
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic(nodes, [])
+    updated = {node["id"]: node for node in updated_nodes}
+
+    assert updated["ok"]["data"]["result"] == "1"
+    rejected = [err for err in errors if err["nodeId"] is None]
+    assert len(rejected) == 2
+    assert all("string 'id'" in err["error"] for err in rejected)
+    assert any(
+        err["nodeId"] == "bad-data" and "must be an object" in err["error"]
+        for err in errors
+    )
+
+
 def test_bulk_calculate_logic_missing_function_sets_error():
     nodes = [{"id": "bad", "data": {"functionName": "does_not_exist", "dirty": True}}]
 
@@ -938,13 +997,49 @@ def test_bulk_calculate_logic_marks_cycles():
     updated_nodes, errors = graph_logic.bulk_calculate_logic(copy.deepcopy(nodes), edges)
     updated = {node["id"]: node for node in updated_nodes}
 
-    assert errors == []
+    assert sorted(err["nodeId"] for err in errors) == ["a", "b"]
+    assert all(err["error"] == "Cycle detected in graph" for err in errors)
     for nid in ("a", "b"):
         data = updated[nid]["data"]
-        assert data["_cycle"] is True
+        assert "_cycle" not in data  # sentinel must not leak to clients
         assert data["error"] is True
         assert data["extendedError"] == "Cycle detected in graph"
         assert data["dirty"] is False
+
+
+def test_bulk_calculate_logic_recovers_after_cycle_removed():
+    nodes = [
+        {
+            "id": "a",
+            "data": {"functionName": "identity", "value": "1", "dirty": True},
+        },
+        {
+            "id": "b",
+            "data": {"functionName": "identity", "value": "2", "dirty": True},
+        },
+    ]
+    cyclic_edges = [
+        {"source": "a", "target": "b", "targetHandle": "b-0"},
+        {"source": "b", "target": "a", "targetHandle": "a-0"},
+    ]
+
+    first_nodes, _ = graph_logic.bulk_calculate_logic(copy.deepcopy(nodes), cyclic_edges)
+    resent = copy.deepcopy(list(first_nodes))
+    # Simulate a stale client-side sentinel surviving the round trip.
+    for node in resent:
+        node["data"]["_cycle"] = True
+
+    second_nodes, errors = graph_logic.bulk_calculate_logic(
+        resent, [{"source": "a", "target": "b", "targetHandle": "b-0"}]
+    )
+    updated = {node["id"]: node for node in second_nodes}
+
+    assert errors == []
+    for nid in ("a", "b"):
+        data = updated[nid]["data"]
+        assert "_cycle" not in data
+        assert "error" not in data
+    assert updated["a"]["data"]["result"] == "1"
 
 
 def test_bulk_calculate_logic_rejects_unwired_outputs():

@@ -41,6 +41,7 @@ export interface UseCalcNodeMutationsResult {
 
 export function useCalcNodeMutations(
   id: string,
+  data: NodeData,
   setNodes: (updater: (nodes: FlowNode[]) => FlowNode[]) => void,
   setEdges: (updater: (edges: Edge[]) => Edge[]) => void,
   snapshotHooks?: {
@@ -158,7 +159,15 @@ export function useCalcNodeMutations(
 
   const resizeTxFieldExtractFields = useCallback(
     (increment: boolean) => {
-      let removedHandle: string | undefined;
+      // useReactFlow's setNodes only queues the updater, so values assigned
+      // inside it are not readable synchronously afterwards. Derive the
+      // removed handle from the node's current data before mutating state,
+      // so the edge cleanup below actually runs.
+      const currentFields = normalizeTxFieldExtractFields(data.txExtractFields);
+      const removedHandle =
+        !increment && currentFields.length > 1
+          ? `output-${currentFields.length - 1}`
+          : undefined;
 
       setNodes((nodes) =>
         nodes.map((node) => {
@@ -167,13 +176,14 @@ export function useCalcNodeMutations(
           const current = node.data as NodeData;
           const fields = normalizeTxFieldExtractFields(current.txExtractFields);
           let nextFields = fields;
+          let droppedHandle: string | undefined;
 
           if (increment) {
             if (fields.length >= TX_FIELD_EXTRACT_MAX_OUTPUTS) return node;
             nextFields = [...fields, nextTxFieldExtractField(fields.length)];
           } else {
             if (fields.length <= 1) return node;
-            removedHandle = `output-${fields.length - 1}`;
+            droppedHandle = `output-${fields.length - 1}`;
             nextFields = fields.slice(0, -1);
           }
 
@@ -181,8 +191,8 @@ export function useCalcNodeMutations(
             current.outputValues && typeof current.outputValues === "object"
               ? { ...current.outputValues }
               : undefined;
-          if (removedHandle && outputValues) {
-            delete outputValues[removedHandle];
+          if (droppedHandle && outputValues) {
+            delete outputValues[droppedHandle];
           }
 
           return {
@@ -200,7 +210,7 @@ export function useCalcNodeMutations(
         })
       );
 
-      if (!increment && removedHandle) {
+      if (removedHandle) {
         setEdges((edges) =>
           edges.filter(
             (edge) =>
@@ -209,7 +219,7 @@ export function useCalcNodeMutations(
         );
       }
     },
-    [id, setEdges, setNodes]
+    [data.txExtractFields, id, setEdges, setNodes]
   );
 
   const updateGroupTitle = useCallback(

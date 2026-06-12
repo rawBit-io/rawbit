@@ -398,6 +398,22 @@ export function CalculationNodeView({
     },
     [mut]
   );
+
+  // onlyRenderVisibleElements unmounts off-viewport nodes without firing
+  // blur; flush an in-progress comment edit so typed text isn't lost.
+  const commentFlushRef = useRef({
+    isCommentEditing,
+    commentDraft,
+    handleCommentBlur,
+  });
+  commentFlushRef.current = { isCommentEditing, commentDraft, handleCommentBlur };
+  useEffect(
+    () => () => {
+      const pending = commentFlushRef.current;
+      if (pending.isCommentEditing) pending.handleCommentBlur(pending.commentDraft);
+    },
+    []
+  );
   const [anchoredHandleTops, setAnchoredHandleTops] = useState<
     Record<string, number | null>
   >({});
@@ -1278,7 +1294,9 @@ export function CalculationNodeView({
                 <TooltipContent className="max-w-md">
                   <div className="flex flex-col gap-2">
                     <div className="max-h-[200px] overflow-y-auto whitespace-pre-wrap">
-                      {String(data.extendedError) || "Unknown error"}
+                      {data.extendedError
+                        ? String(data.extendedError)
+                        : "Unknown error"}
                     </div>
                     <div className="flex justify-end">
                       <Button

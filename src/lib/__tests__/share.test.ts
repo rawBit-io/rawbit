@@ -172,6 +172,23 @@ describe("buildSharePayload", () => {
   it("normalizes shared edge handles and removes exact structural duplicates", async () => {
     const { buildSharePayload } = await import("../share/buildSharePayload");
 
+    // Both edge endpoints must be in the payload — dangling edges are
+    // filtered out of exports because import validation hard-rejects them.
+    const endpointNodes: FlowNode[] = [
+      {
+        id: "source",
+        type: "calculation",
+        position: { x: 0, y: 0 },
+        data: { functionName: "identity" },
+      },
+      {
+        id: "target",
+        type: "calculation",
+        position: { x: 10, y: 0 },
+        data: { functionName: "identity" },
+      },
+    ];
+
     const edges: Edge[] = [
       {
         id: "edge-a",
@@ -189,7 +206,7 @@ describe("buildSharePayload", () => {
       } as Edge,
     ];
 
-    const payload = buildSharePayload([], edges);
+    const payload = buildSharePayload(endpointNodes, edges);
 
     expect(payload.edges).toEqual([
       expect.objectContaining({

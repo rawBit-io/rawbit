@@ -58,7 +58,7 @@ describe("useCalcNodeMutations", () => {
 
   it("allows sentinel values to overwrite connected inputs", () => {
     const { result } = renderHook(() =>
-      useCalcNodeMutations(nodeId, setNodes, setEdges)
+      useCalcNodeMutations(nodeId, nodes[0].data, setNodes, setEdges)
     );
 
     act(() => {
@@ -117,8 +117,10 @@ describe("useCalcNodeMutations", () => {
       },
     ];
 
-    const { result } = renderHook(() =>
-      useCalcNodeMutations(nodeId, setNodes, setEdges)
+    const { result, rerender } = renderHook(
+      ({ data }: { data: FlowNode["data"] }) =>
+        useCalcNodeMutations(nodeId, data, setNodes, setEdges),
+      { initialProps: { data: nodes[0].data } }
     );
 
     act(() => {
@@ -135,6 +137,8 @@ describe("useCalcNodeMutations", () => {
     });
     expect(nodes[0].data.dirty).toBe(true);
 
+    rerender({ data: nodes[0].data });
+
     act(() => {
       result.current.resizeTxFieldExtractFields(false);
     });
@@ -144,11 +148,66 @@ describe("useCalcNodeMutations", () => {
     expect(edges.map((edge) => edge.id)).toEqual(["e-keep"]);
   });
 
+  it("removes edges for deleted outputs even when setNodes defers updaters", () => {
+    // Regression for RB-09: useReactFlow's setNodes only queues updaters,
+    // so the removed handle must be derived before the queue is drained.
+    nodes = [
+      {
+        ...baseNode(),
+        data: {
+          functionName: "extract_tx_field",
+          txFieldExtractMode: "dynamic",
+          txExtractFields: ["txid", "vout.scriptPubKey"],
+          outputPorts: [
+            { label: "txid", handleId: "output-0" },
+            { label: "vout.scriptPubKey", handleId: "output-1" },
+          ],
+        },
+      },
+    ];
+    edges = [
+      {
+        id: "e-keep",
+        source: nodeId,
+        sourceHandle: "output-0",
+        target: "node-2",
+      },
+      {
+        id: "e-remove",
+        source: nodeId,
+        sourceHandle: "output-1",
+        target: "node-3",
+      },
+    ];
+
+    const nodeQueue: Array<(current: FlowNode[]) => FlowNode[]> = [];
+    const queuedSetNodes = vi.fn((updater) => {
+      nodeQueue.push(updater);
+    });
+
+    const { result } = renderHook(() =>
+      useCalcNodeMutations(nodeId, nodes[0].data, queuedSetNodes, setEdges)
+    );
+
+    act(() => {
+      result.current.resizeTxFieldExtractFields(false);
+    });
+
+    // Edge cleanup must not depend on the queued node updater having run.
+    expect(edges.map((edge) => edge.id)).toEqual(["e-keep"]);
+
+    // Draining the queue afterwards still shrinks the output list.
+    nodeQueue.forEach((updater) => {
+      nodes = updater(nodes);
+    });
+    expect(nodes[0].data.txExtractFields).toEqual(["txid"]);
+  });
+
   it("removes a node and attached edges with one node-removal snapshot", () => {
     const scheduleSnapshot = vi.fn();
 
     const { result } = renderHook(() =>
-      useCalcNodeMutations(nodeId, setNodes, setEdges, {
+      useCalcNodeMutations(nodeId, nodes[0].data, setNodes, setEdges, {
         scheduleSnapshot,
       })
     );
@@ -169,7 +228,7 @@ describe("useCalcNodeMutations", () => {
     edges = [];
 
     const { result } = renderHook(() =>
-      useCalcNodeMutations(nodeId, setNodes, setEdges)
+      useCalcNodeMutations(nodeId, nodes[0].data, setNodes, setEdges)
     );
 
     act(() => {
@@ -185,7 +244,9 @@ describe("useCalcNodeMutations", () => {
   it("normalises empty titles and comment toggles", () => {
     const scheduleSnapshot = vi.fn();
     const { result } = renderHook(() =>
-      useCalcNodeMutations(nodeId, setNodes, setEdges, { scheduleSnapshot })
+      useCalcNodeMutations(nodeId, nodes[0].data, setNodes, setEdges, {
+        scheduleSnapshot,
+      })
     );
 
     act(() => {

@@ -31,6 +31,7 @@ interface UseSnapshotSchedulerArgs {
     loadingUndoRef: React.MutableRefObject<boolean>;
   };
   getCalcSnapshot?: () => CalcSnapshot;
+  getActiveTabId?: () => string;
 }
 
 export interface SnapshotOptions {
@@ -70,12 +71,17 @@ export function useSnapshotScheduler({
   refreshBanner,
   autoAfterCalc,
   getCalcSnapshot,
+  getActiveTabId,
 }: UseSnapshotSchedulerArgs): SnapshotScheduler {
   const pendingSnapshotRef = useRef(false);
   const skipNextEdgeSnapshotRef = useRef(false);
   const skipNextNodeRemovalRef = useRef(false);
   const pendingTokenRef = useRef(0);
   const lastSnapshotTokenRef = useRef(0);
+  // Tab the pending after-calc snapshot belongs to: the marker is set by an
+  // edit on a specific tab, but the deferred snapshot reads the live canvas,
+  // so it must never fire while another tab is active.
+  const pendingTabIdRef = useRef<string | null>(null);
   const snapshotFramesRef = useRef<Map<string, number>>(new Map());
 
   const pushCleanState = useCallback(
@@ -107,7 +113,11 @@ export function useSnapshotScheduler({
 
   const scheduleSnapshot = useCallback(
     (label: string, options?: SnapshotOptions) => {
-      const snapshotKey = options?.tabId ?? "__active__";
+      // Resolve the target tab now, not at frame time: the rAF callback may
+      // fire after a tab switch, and pushing through a stale closure would
+      // write the new tab's live graph into the old tab's history.
+      const resolvedTabId = options?.tabId ?? getActiveTabId?.();
+      const snapshotKey = resolvedTabId ?? "__active__";
       log(
         "snapshots",
         `[scheduleSnapshot] request label='${label}' refresh=${Boolean(
@@ -141,6 +151,20 @@ export function useSnapshotScheduler({
           return;
         }
 
+        if (
+          !options?.state &&
+          resolvedTabId !== undefined &&
+          getActiveTabId &&
+          getActiveTabId() !== resolvedTabId
+        ) {
+          // No explicit state and the live canvas belongs to another tab now
+          // — capturing it would snapshot the wrong graph.
+          log(
+            "snapshots",
+            `[scheduleSnapshot] dropped label='${label}' (tab switched away from '${resolvedTabId}')`
+          );
+          return;
+        }
         const state = options?.state ?? getSnapshotState?.() ?? storeApi.getState();
         log(
           "snapshots",
@@ -148,12 +172,12 @@ export function useSnapshotScheduler({
         );
         if (options?.refresh && refreshBanner) {
           log("snapshots", `[scheduleSnapshot] refreshing banner for '${label}'`);
-          refreshBanner(state.nodes, options.tabId, {
+          refreshBanner(state.nodes, resolvedTabId, {
             sticky: false,
             immediate: true,
           });
         }
-        pushCleanState(state.nodes, state.edges, label, options?.tabId);
+        pushCleanState(state.nodes, state.edges, label, resolvedTabId);
       };
 
       if (options?.immediate) {
@@ -174,17 +198,18 @@ export function useSnapshotScheduler({
         `[scheduleSnapshot] queued frame id=${frameId} key='${snapshotKey}' label='${label}'`
       );
     },
-    [getSnapshotState, pushCleanState, refreshBanner, storeApi]
+    [getActiveTabId, getSnapshotState, pushCleanState, refreshBanner, storeApi]
   );
 
   const markPendingAfterDirtyChange = useCallback(() => {
     pendingTokenRef.current += 1;
     pendingSnapshotRef.current = true;
+    pendingTabIdRef.current = getActiveTabId?.() ?? null;
     log(
       "snapshots",
       `[dirtyChange] pendingSnapshotRef -> true token=${pendingTokenRef.current}`
     );
-  }, []);
+  }, [getActiveTabId]);
 
   const clearPendingAfterCalc = useCallback(() => {
     pendingSnapshotRef.current = false;
@@ -229,6 +254,23 @@ export function useSnapshotScheduler({
       return;
     }
 
+    const pendingTabId = pendingTabIdRef.current;
+    const currentTabId = getActiveTabId?.();
+    if (
+      pendingTabId !== null &&
+      currentTabId !== undefined &&
+      currentTabId !== pendingTabId
+    ) {
+      // The pending edit belongs to another tab; the live canvas now holds
+      // this tab's graph. Keep the token pending — the snapshot fires with
+      // the right content when the user returns to that tab.
+      log(
+        "snapshots",
+        `[afterCalc] skip auto snapshot (active tab '${currentTabId}' != pending '${pendingTabId}')`
+      );
+      return;
+    }
+
     const state = getSnapshotState?.() ?? storeApi.getState();
     const hasDirty = state.nodes.some((node) => node.data?.dirty);
     if (hasDirty) {
@@ -256,12 +298,24 @@ export function useSnapshotScheduler({
       "snapshots",
       `[afterCalc] capturing label='${labelForSnapshot}' status=${calcStatus}`
     );
-    pushCleanState(state.nodes, state.edges, labelForSnapshot);
+    pushCleanState(
+      state.nodes,
+      state.edges,
+      labelForSnapshot,
+      pendingTabId ?? undefined
+    );
     pendingSnapshotRef.current = false;
     lastSnapshotTokenRef.current = token;
     skipNextEdgeSnapshotRef.current = false;
     log("snapshots", `[afterCalc] pendingSnapshotRef -> false`);
-  }, [autoAfterCalc, getSnapshotState, pushCleanState, skipLoadRef, storeApi]);
+  }, [
+    autoAfterCalc,
+    getActiveTabId,
+    getSnapshotState,
+    pushCleanState,
+    skipLoadRef,
+    storeApi,
+  ]);
 
   return {
     pushCleanState,

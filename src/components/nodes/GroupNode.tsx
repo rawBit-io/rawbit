@@ -36,7 +36,6 @@ import {
 import { cn } from "@/lib/utils";
 import { useClipboardLite } from "@/hooks/nodes/useClipboardLite";
 import { useSnapshotSchedulerContext } from "@/hooks/useSnapshotSchedulerContext";
-import { useUndoRedo } from "@/hooks/useUndoRedo";
 import { useFlowActions } from "@/hooks/useFlowActions";
 import type { CalculationNodeData, FlowNode } from "@/types";
 import { produce, setAutoFreeze } from "immer";
@@ -95,7 +94,9 @@ export default function ShadcnGroupNode({
   selected,
 }: NodeProps<FlowNode>) {
   const rf = useReactFlow<FlowNode>();
-  const { pushState } = useUndoRedo();
+  // Snapshots go through the scheduler (pushCleanState) — raw pushState
+  // moves the history pointer without skipLoadRef, which Flow's load
+  // effect misreads as undo navigation and reloads stale state.
   const { scheduleSnapshot } = useSnapshotSchedulerContext();
   const { ungroupWithUndo } = useFlowActions();
 
@@ -199,10 +200,7 @@ export default function ShadcnGroupNode({
   ---------------------------------------------------------------- */
   const commitTitle = (val: string) => {
     mutateNode((d) => (d.title = val));
-    setTimeout(
-      () => pushState(rf.getNodes(), rf.getEdges(), "Change Group Title"),
-      0
-    );
+    scheduleSnapshot("Change Group Title");
   };
 
   const clearSelectedEdges = useCallback(() => {
@@ -426,10 +424,7 @@ export default function ShadcnGroupNode({
         }
       );
       selectGroupNode();
-      setTimeout(
-        () => pushState(rf.getNodes(), rf.getEdges(), "Increase Font Size"),
-        0
-      );
+      scheduleSnapshot("Increase Font Size");
     }
   };
 
@@ -443,10 +438,7 @@ export default function ShadcnGroupNode({
         }
       );
       selectGroupNode();
-      setTimeout(
-        () => pushState(rf.getNodes(), rf.getEdges(), "Decrease Font Size"),
-        0
-      );
+      scheduleSnapshot("Decrease Font Size");
     }
   };
 
@@ -484,11 +476,7 @@ export default function ShadcnGroupNode({
     );
   };
 
-  const endResize = () =>
-    setTimeout(
-      () => pushState(rf.getNodes(), rf.getEdges(), "Resize Group"),
-      0
-    );
+  const endResize = () => scheduleSnapshot("Resize Group");
 
   /* ----------------------------------------------------------------
        Body interactions – pan canvas with LMB, respect selection mode

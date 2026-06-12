@@ -35,6 +35,13 @@ export type ImportArgs<
   dedupeEdges?: boolean; // default: true
   /** Controls how imported IDs are handled */
   renameMode?: "always" | "collision"; // default: "always"
+  /**
+   * Rewrite group nodes' data.groupBundlePortOffsets bundle keys (which embed
+   * node/group ids) through the rename map. File/shared imports need this so
+   * dragged bundle-port positions survive the rename; copy/paste does its own
+   * richer remap and must leave this off.
+   */
+  remapGroupBundleOffsets?: boolean; // default: false
 };
 
 export type ImportResult<N extends NodeLike, E extends EdgeLike> = {
@@ -81,6 +88,68 @@ const structureKey = (
   tH: string | undefined
 ) => `${src}|${sH ?? ""}|${tgt}|${tH ?? ""}`;
 
+/* ---------- group-bundle offset key remapping ---------- */
+
+// Bundle keys are `<endpoint>-><endpoint>` where an endpoint is either a
+// group id or `node:<nodeId>:<handle>` (see bundleEndpointKey in
+// groupEdgeBundling.ts). Unknown ids are kept as-is.
+const remapBundleEndpointSegment = (
+  segment: string,
+  idMap: Map<string, string>
+): string => {
+  if (segment.startsWith("node:")) {
+    const rest = segment.slice("node:".length);
+    const sep = rest.indexOf(":");
+    const nodeId = sep === -1 ? rest : rest.slice(0, sep);
+    const suffix = sep === -1 ? "" : rest.slice(sep);
+    return `node:${idMap.get(nodeId) ?? nodeId}${suffix}`;
+  }
+  return idMap.get(segment) ?? segment;
+};
+
+const remapBundleKey = (key: string, idMap: Map<string, string>): string => {
+  const sep = key.indexOf("->");
+  if (sep === -1) return key;
+  const src = key.slice(0, sep);
+  const tgt = key.slice(sep + 2);
+  return `${remapBundleEndpointSegment(src, idMap)}->${remapBundleEndpointSegment(tgt, idMap)}`;
+};
+
+const remapBundleOffsetRecordKeys = (
+  record: Record<string, number> | undefined,
+  idMap: Map<string, string>
+): Record<string, number> | undefined => {
+  if (!record) return undefined;
+  const next: Record<string, number> = {};
+  Object.entries(record).forEach(([bundleId, value]) => {
+    next[remapBundleKey(bundleId, idMap)] = value;
+  });
+  return next;
+};
+
+type GroupBundleOffsetsLike = {
+  sourceByBundle?: Record<string, number>;
+  targetByBundle?: Record<string, number>;
+} & Record<string, unknown>;
+
+const remapGroupBundleOffsetKeys = (
+  offsets: GroupBundleOffsetsLike,
+  idMap: Map<string, string>
+): GroupBundleOffsetsLike => {
+  const next: GroupBundleOffsetsLike = { ...offsets };
+  const sourceByBundle = remapBundleOffsetRecordKeys(
+    offsets.sourceByBundle,
+    idMap
+  );
+  const targetByBundle = remapBundleOffsetRecordKeys(
+    offsets.targetByBundle,
+    idMap
+  );
+  if (sourceByBundle) next.sourceByBundle = sourceByBundle;
+  if (targetByBundle) next.targetByBundle = targetByBundle;
+  return next;
+};
+
 /* ---------- main ---------- */
 
 export function importWithFreshIds<N extends NodeLike, E extends EdgeLike>({
@@ -90,6 +159,7 @@ export function importWithFreshIds<N extends NodeLike, E extends EdgeLike>({
   importEdges,
   dedupeEdges = true,
   renameMode = "always",
+  remapGroupBundleOffsets = false,
 }: ImportArgs<N, E>): ImportResult<N, E> {
   // Nodes
   const usedNodeIds = new Set<string>(currentNodes.map((n) => n.id));
@@ -109,6 +179,18 @@ export function importWithFreshIds<N extends NodeLike, E extends EdgeLike>({
     if (n.parentId) out.parentId = idMap.get(n.parentId) ?? n.parentId;
     if (n.parentNode) out.parentNode = idMap.get(n.parentNode) ?? n.parentNode;
     if (n.group) out.group = idMap.get(n.group) ?? n.group;
+    if (remapGroupBundleOffsets) {
+      const data = (n as { data?: Record<string, unknown> }).data;
+      const offsets = data?.groupBundlePortOffsets as
+        | GroupBundleOffsetsLike
+        | undefined;
+      if (offsets && (offsets.sourceByBundle || offsets.targetByBundle)) {
+        out.data = {
+          ...data,
+          groupBundlePortOffsets: remapGroupBundleOffsetKeys(offsets, idMap),
+        };
+      }
+    }
     return out as N;
   });
 

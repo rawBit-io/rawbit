@@ -42,11 +42,15 @@ export function buildSharePayload(
     return sharedNode;
   });
 
-  const cleanedEdges: SharedEdge[] = normalizeAndDedupeEdgeConnections(edges).map(
-    (edge) => ({
+  // Import validation hard-rejects dangling edges, so never share one.
+  const sharedNodeIds = new Set(cleanedNodes.map((n) => n.id));
+  const cleanedEdges: SharedEdge[] = normalizeAndDedupeEdgeConnections(edges)
+    .filter(
+      (edge) => sharedNodeIds.has(edge.source) && sharedNodeIds.has(edge.target)
+    )
+    .map((edge) => ({
       ...edge,
-    })
-  );
+    }));
 
   return {
     name: "shared",

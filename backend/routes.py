@@ -269,7 +269,6 @@ def _find_flow_path(slug: str) -> Path | None:
 
 
 @app.route("/flows", methods=["GET"])
-@limiter.exempt
 def list_flows():
     if not FLOW_CATALOG:
         return _json({"flows": []})
@@ -280,7 +279,6 @@ def list_flows():
 
 
 @app.route("/flows/<slug>", methods=["GET"])
-@limiter.exempt
 def get_flow(slug: str):
     path = _find_flow_path(slug)
     if path is None:
@@ -308,6 +306,11 @@ def bulk_calculate():
 
     if not isinstance(nodes, list) or not isinstance(edges, list):
         return _json({"error": "nodes and edges must be arrays"}, 400)
+
+    if any(not isinstance(n, dict) or not isinstance(n.get("id"), str) for n in nodes):
+        return _json({"error": "each node must be an object with a string 'id'"}, 400)
+    if any(not isinstance(e, dict) for e in edges):
+        return _json({"error": "each edge must be an object"}, 400)
 
     client_ip = get_client_ip()
     check_wall_time = _budget_now()

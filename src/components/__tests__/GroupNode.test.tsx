@@ -33,11 +33,6 @@ vi.mock("@/hooks/useFlowActions", () => ({
   useFlowActions: () => flowActionsMock,
 }));
 
-const pushState = vi.fn();
-vi.mock("@/hooks/useUndoRedo", () => ({
-  useUndoRedo: () => ({ pushState }),
-}));
-
 const reactFlowInstance = {
   setNodes: vi.fn<(updater: FlowNode[] | ((current: FlowNode[]) => FlowNode[])) => void>(),
   setEdges: vi.fn<(updater: Edge[] | ((current: Edge[]) => Edge[])) => void>(),
@@ -163,7 +158,6 @@ beforeEach(() => {
   clipboardMock.copyId.mockClear();
   flowActionsMock.groupWithUndo.mockClear();
   flowActionsMock.ungroupWithUndo.mockClear();
-  pushState.mockClear();
   snapshotMock.scheduleSnapshot.mockClear();
 
   reactFlowInstance.setNodes.mockImplementation((updater) => {
@@ -383,7 +377,9 @@ describe("GroupNode interactions", () => {
     });
 
     expect(nodes[0].data.title).toBe("Renamed");
-    expect(pushState).toHaveBeenCalledWith(nodes, edges, "Change Group Title");
+    expect(snapshotMock.scheduleSnapshot).toHaveBeenCalledWith(
+      "Change Group Title"
+    );
   });
 
   it("starts title editing when double-clicking the title area outside the text button", () => {
@@ -443,7 +439,7 @@ describe("GroupNode interactions", () => {
     act(() => {
       vi.runAllTimers();
     });
-    expect(pushState).not.toHaveBeenCalled();
+    expect(snapshotMock.scheduleSnapshot).not.toHaveBeenCalled();
   });
 
   it("increases font size with dynamic step", () => {
@@ -457,7 +453,9 @@ describe("GroupNode interactions", () => {
     });
 
     expect(nodes[0].data.fontSize).toBe(36); // step 4 because >= 32
-    expect(pushState).toHaveBeenCalledWith(nodes, edges, "Increase Font Size");
+    expect(snapshotMock.scheduleSnapshot).toHaveBeenCalledWith(
+      "Increase Font Size"
+    );
   });
 
   it("renders a top title pill without reducing body height", () => {
@@ -493,7 +491,7 @@ describe("GroupNode interactions", () => {
     });
 
     expect(nodes[0].data.fontSize).toBe(12); // already at minimum
-    expect(pushState).not.toHaveBeenCalled();
+    expect(snapshotMock.scheduleSnapshot).not.toHaveBeenCalled();
   });
 
   it("applies resize changes and records undo state", () => {
@@ -519,7 +517,7 @@ describe("GroupNode interactions", () => {
       vi.runAllTimers();
     });
 
-    expect(pushState).toHaveBeenCalledWith(nodes, edges, "Resize Group");
+    expect(snapshotMock.scheduleSnapshot).toHaveBeenCalledWith("Resize Group");
   });
 
   it("pans the viewport when dragging inside the body", () => {

@@ -477,6 +477,148 @@ const createMockInstance = (
     expect(childB?.position).toEqual({ x: 140, y: 250 });
   });
 
+  it("lifts children of a nested group by the full ancestor offset when ungrouping", () => {
+    const { result } = renderHook(() => useNodeOperations(), { wrapper });
+    const mockRf = createMockInstance(result);
+
+    act(() => {
+      result.current.onInit(mockRf);
+    });
+
+    act(() => {
+      result.current.setNodes(() => [
+        buildFlowNode({
+          id: "outer",
+          type: "shadcnGroup",
+          position: { x: 100, y: 100 },
+          data: { isGroup: true, width: 600, height: 500, title: "Outer" },
+        }),
+        buildFlowNode({
+          id: "inner",
+          type: "shadcnGroup",
+          parentId: "outer",
+          position: { x: 50, y: 60 },
+          selected: true,
+          data: { isGroup: true, width: 300, height: 200, title: "Inner" },
+        }),
+        buildFlowNode({
+          id: "child",
+          type: "calculation",
+          parentId: "inner",
+          extent: "parent",
+          position: { x: 10, y: 20 },
+          data: { functionName: "identity" },
+        }),
+      ]);
+    });
+
+    act(() => {
+      mockRf.getNodes = () => result.current.nodes;
+      result.current.ungroupSelectedNodes();
+    });
+
+    const child = result.current.nodes.find((n) => n.id === "child");
+    expect(result.current.nodes.find((n) => n.id === "inner")).toBeUndefined();
+    expect(child?.parentId).toBeUndefined();
+    // outer (100,100) + inner (50,60) + child (10,20) — not just one level
+    expect(child?.position).toEqual({ x: 160, y: 180 });
+  });
+
+  it("lifts a partially ungrouped child of a nested group to its absolute position", () => {
+    const { result } = renderHook(() => useNodeOperations(), { wrapper });
+    const mockRf = createMockInstance(result);
+
+    act(() => {
+      result.current.onInit(mockRf);
+    });
+
+    act(() => {
+      result.current.setNodes(() => [
+        buildFlowNode({
+          id: "outer",
+          type: "shadcnGroup",
+          position: { x: 100, y: 100 },
+          data: { isGroup: true, width: 600, height: 500, title: "Outer" },
+        }),
+        buildFlowNode({
+          id: "inner",
+          type: "shadcnGroup",
+          parentId: "outer",
+          position: { x: 50, y: 60 },
+          data: { isGroup: true, width: 300, height: 200, title: "Inner" },
+        }),
+        buildFlowNode({
+          id: "child",
+          type: "calculation",
+          parentId: "inner",
+          extent: "parent",
+          position: { x: 10, y: 20 },
+          selected: true,
+          data: { functionName: "identity" },
+        }),
+      ]);
+    });
+
+    act(() => {
+      mockRf.getNodes = () => result.current.nodes;
+      result.current.ungroupSelectedNodes();
+    });
+
+    const child = result.current.nodes.find((n) => n.id === "child");
+    expect(child?.parentId).toBeUndefined();
+    expect(child?.position).toEqual({ x: 160, y: 180 });
+  });
+
+  it("does not re-queue persisted top-level nodes for group adoption on init", () => {
+    const { result } = renderHook(() => useNodeOperations(), { wrapper });
+    const mockRf = createMockInstance(result);
+
+    act(() => {
+      result.current.setNodes(() => [
+        buildFlowNode({
+          id: "group-1",
+          type: "shadcnGroup",
+          position: { x: 0, y: 0 },
+          data: {
+            isGroup: true,
+            width: 400,
+            height: 300,
+            title: "Group Node",
+          },
+        }),
+        // Explicitly ungrouped before save: still overlaps the group rect.
+        buildFlowNode({
+          id: "ungrouped",
+          type: "calculation",
+          position: { x: 40, y: 50 },
+          measured: { width: 250, height: 150 },
+          data: { functionName: "identity" },
+        }),
+      ]);
+    });
+
+    act(() => {
+      mockRf.getNodes = () => result.current.nodes;
+      mockRf.getIntersectingNodes = () =>
+        result.current.nodes.filter((n) => n.type === "shadcnGroup");
+      result.current.onInit(mockRf);
+    });
+
+    act(() => {
+      result.current.onNodesChange([
+        {
+          id: "ungrouped",
+          type: "dimensions",
+          dimensions: { width: 250, height: 150 },
+        } as NodeChange<FlowNode>,
+      ]);
+    });
+
+    expect(
+      result.current.nodes.find((n) => n.id === "ungrouped")?.parentId
+    ).toBeUndefined();
+  });
+
   it("does not ungroup the only group when nothing is selected", () => {
     const { result } = renderHook(() => useNodeOperations(), { wrapper });
     const mockRf = createMockInstance(result);

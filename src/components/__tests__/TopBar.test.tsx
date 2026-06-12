@@ -585,6 +585,68 @@ describe("TopBar", () => {
     expect(onSaveLlmExport).toHaveBeenCalledTimes(1);
   });
 
+  it("ignores modified S/L combos so save shortcut flags cannot get stuck", () => {
+    const onSaveSimplified = vi.fn();
+    const onSaveLlmExport = vi.fn();
+
+    render(
+      <TopBar
+        {...baseProps}
+        onSaveSimplified={onSaveSimplified}
+        onSaveLlmExport={onSaveLlmExport}
+      />
+    );
+
+    const saveButton = screen.getByRole("button", { name: "Save" });
+
+    // macOS suppresses the keyup for character keys released while Cmd is
+    // held, so a modified combo must never latch the shortcut flag.
+    fireEvent.keyDown(window, { key: "s", metaKey: true, shiftKey: true });
+    fireEvent.pointerDown(saveButton, { pointerType: "mouse" });
+    expect(onSaveSimplified).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(window, { key: "l", ctrlKey: true });
+    fireEvent.pointerDown(saveButton, { pointerType: "mouse" });
+    expect(onSaveLlmExport).not.toHaveBeenCalled();
+
+    // A plain hold still triggers the shortcut afterwards.
+    fireEvent.keyDown(window, { key: "s" });
+    fireEvent.pointerDown(saveButton, { pointerType: "mouse" });
+    fireEvent.keyUp(window, { key: "s" });
+    expect(onSaveSimplified).toHaveBeenCalledTimes(1);
+    expect(onSaveLlmExport).not.toHaveBeenCalled();
+  });
+
+  it("does not activate a background tab when its close button is pressed", () => {
+    const onTabSelect = vi.fn();
+    const onCloseTab = vi.fn();
+
+    const { container } = render(
+      <TopBar
+        {...baseProps}
+        tabs={[
+          { id: "tab-1", title: "Flow 1" },
+          { id: "tab-2", title: "Flow 2" },
+        ]}
+        activeTabId="tab-1"
+        onTabSelect={onTabSelect}
+        onCloseTab={onCloseTab}
+      />
+    );
+
+    const closeButtons = container.querySelectorAll(".app-tab-close");
+    expect(closeButtons).toHaveLength(2);
+    const backgroundTabClose = closeButtons[1];
+
+    // Radix TabsTrigger selects on mousedown; pressing the close X must not
+    // switch the active tab before the close confirmation appears.
+    fireEvent.mouseDown(backgroundTabClose, { button: 0 });
+    fireEvent.click(backgroundTabClose);
+
+    expect(onTabSelect).not.toHaveBeenCalled();
+    expect(onCloseTab).toHaveBeenCalledWith("tab-2");
+  });
+
   it("shows the save menu hint in the hover title", () => {
     render(<TopBar {...baseProps} />);
 

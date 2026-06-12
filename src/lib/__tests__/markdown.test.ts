@@ -21,6 +21,21 @@ describe("mdToHtml", () => {
     expect(html).toMatch(/<td[^>]*>B<\/td>/);
   });
 
+  it("keeps empty table cells so columns stay aligned", () => {
+    const table = `| a |  | c |\n| --- | --- | --- |\n| 1 |  | 3 |\n`;
+    const html = mdToHtml(table);
+
+    expect(html).toContain("<th>a</th><th></th><th>c</th>");
+    expect(html).toContain("<td>1</td><td></td><td>3</td>");
+  });
+
+  it("renders tables inside code fences as literal text", () => {
+    const html = mdToHtml("```\n| a | b |\n| --- | --- |\n| c | d |\n```");
+
+    expect(html).not.toContain("<table>");
+    expect(html).toContain("<pre><code>| a | b |");
+  });
+
   it("converts code blocks and escapes raw html", () => {
     const source = '```\nconsole.log("hi");\n```\n\n<script>alert(1)</script>';
     const html = mdToHtml(source);

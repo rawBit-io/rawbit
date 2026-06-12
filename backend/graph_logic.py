@@ -255,6 +255,25 @@ def _mark_invalid_edge(node, message, errors, *, block_execution):
     errors.append({"nodeId": node.get("id"), "error": message})
 
 
+def _normalize_nodes(nodes, errors):
+    """Keep only dict nodes with a string id and coerce data to a dict."""
+    valid = []
+    for n in nodes:
+        if not isinstance(n, dict) or not isinstance(n.get("id"), str):
+            errors.append(
+                {"nodeId": None, "error": "Malformed node: expected an object with a string 'id'"}
+            )
+            continue
+        data = n.setdefault("data", {})
+        if not isinstance(data, dict):
+            n["data"] = {}
+            errors.append({"nodeId": n["id"], "error": "Node 'data' must be an object"})
+        # Drop the stale cycle sentinel so it only reflects this request.
+        n["data"].pop("_cycle", None)
+        valid.append(n)
+    return valid
+
+
 def _sanitize_edges(node_map, edges):
     """Drop edges that reference unknown nodes and collect errors."""
     valid = []
@@ -304,7 +323,7 @@ def topological_sort(nodes, edges):
     return order
 
 
-def _mark_cycle_errors(nodes, topo_order):
+def _mark_cycle_errors(nodes, topo_order, errors):
     """Add _cycle flag + error markup to every node outside topo_order."""
     if len(topo_order) == len(nodes):
         return
@@ -319,6 +338,7 @@ def _mark_cycle_errors(nodes, topo_order):
                     "dirty": False,
                 }
             )
+            errors.append({"nodeId": n["id"], "error": "Cycle detected in graph"})
 
 # ───────────────────────────────────────────────────────────────
 #  validation helpers
@@ -647,14 +667,15 @@ PARAM_BUILDERS = {
 #  main entry
 # ───────────────────────────────────────────────────────────────
 def bulk_calculate_logic(nodes, edges):
+    errors = []
+    nodes = _normalize_nodes(nodes, errors)
     node_map = {n["id"]: n for n in nodes}
 
     edges, preflight_errors = _sanitize_edges(node_map, edges)
 
     order = topological_sort(nodes, edges)
-    _mark_cycle_errors(nodes, order)
+    _mark_cycle_errors(nodes, order, errors)
 
-    errors = []
     if preflight_errors:
         errors.extend(preflight_errors)
 
@@ -914,10 +935,18 @@ def bulk_calculate_logic(nodes, edges):
     except CalculationTimeoutError as exc:
         message = str(exc) if str(exc) else _timeout_message(timeout_seconds)
         _annotate_timeout_and_collect_errors(node_map, errors, message)
+        # Drop internal sentinels here too; the timeout annotation already
+        # overrides node errors, so no preflight re-annotation is needed.
+        for node in node_map.values():
+            data = node.get("data") or {}
+            data.pop("_preflightErrors", None)
+            data.pop("_invalidEdge", None)
+            data.pop("_cycle", None)
         return node_map.values(), errors
 
     for node in node_map.values():
         data = node.get("data") or {}
+        data.pop("_cycle", None)
         preflight = data.pop("_preflightErrors", None)
         if not preflight:
             data.pop("_invalidEdge", None)

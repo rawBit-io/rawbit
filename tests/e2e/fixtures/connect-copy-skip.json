@@ -5,14 +5,19 @@
     {
       "id": "node_in_a",
       "type": "calculation",
-      "position": { "x": -600, "y": -180 },
+      "position": {
+        "x": -600,
+        "y": -180
+      },
       "data": {
         "functionName": "identity",
         "title": "Input A",
         "numInputs": 0,
         "showField": true,
         "value": "aa",
-        "inputs": { "val": "aa" },
+        "inputs": {
+          "val": "aa"
+        },
         "result": "aa",
         "dirty": true,
         "inputStructure": {
@@ -26,14 +31,19 @@
     {
       "id": "node_in_c",
       "type": "calculation",
-      "position": { "x": -600, "y": 200 },
+      "position": {
+        "x": -600,
+        "y": 200
+      },
       "data": {
         "functionName": "identity",
         "title": "Input C",
         "numInputs": 0,
         "showField": true,
         "value": "cc",
-        "inputs": { "val": "cc" },
+        "inputs": {
+          "val": "cc"
+        },
         "result": "cc",
         "dirty": true,
         "inputStructure": {
@@ -47,14 +57,19 @@
     {
       "id": "node_in_d",
       "type": "calculation",
-      "position": { "x": -600, "y": 340 },
+      "position": {
+        "x": -600,
+        "y": 340
+      },
       "data": {
         "functionName": "identity",
         "title": "Input D",
         "numInputs": 0,
         "showField": true,
         "value": "dd",
-        "inputs": { "val": "dd" },
+        "inputs": {
+          "val": "dd"
+        },
         "result": "dd",
         "dirty": true,
         "inputStructure": {
@@ -68,14 +83,19 @@
     {
       "id": "node_in_b",
       "type": "calculation",
-      "position": { "x": -600, "y": 60 },
+      "position": {
+        "x": -600,
+        "y": 60
+      },
       "data": {
         "functionName": "identity",
         "title": "Input B",
         "numInputs": 0,
         "showField": true,
         "value": "bb",
-        "inputs": { "val": "bb" },
+        "inputs": {
+          "val": "bb"
+        },
         "result": "bb",
         "dirty": true,
         "inputStructure": {
@@ -89,7 +109,10 @@
     {
       "id": "node_source",
       "type": "calculation",
-      "position": { "x": 260, "y": 20 },
+      "position": {
+        "x": 260,
+        "y": 20
+      },
       "selected": true,
       "data": {
         "functionName": "concat_hex",
@@ -107,9 +130,21 @@
         "dirty": true,
         "inputStructure": {
           "ungrouped": [
-            { "index": 0, "label": "First", "rows": 1 },
-            { "index": 1, "label": "Second", "rows": 1 },
-            { "index": 2, "label": "Third", "rows": 1 }
+            {
+              "index": 0,
+              "label": "First",
+              "rows": 1
+            },
+            {
+              "index": 1,
+              "label": "Second",
+              "rows": 1
+            },
+            {
+              "index": 2,
+              "label": "Third",
+              "rows": 1
+            }
           ],
           "groups": [],
           "afterGroups": []
@@ -120,7 +155,10 @@
     {
       "id": "node_target",
       "type": "calculation",
-      "position": { "x": 520, "y": 20 },
+      "position": {
+        "x": 520,
+        "y": 20
+      },
       "selected": true,
       "data": {
         "functionName": "concat_hex",
@@ -138,8 +176,21 @@
         "dirty": true,
         "inputStructure": {
           "ungrouped": [
-            { "index": 0, "label": "First", "rows": 1 },
-            { "index": 1, "label": "Second", "rows": 1 }
+            {
+              "index": 0,
+              "label": "First",
+              "rows": 1
+            },
+            {
+              "index": 1,
+              "label": "Second",
+              "rows": 1
+            },
+            {
+              "index": 2,
+              "label": "Third",
+              "rows": 1
+            }
           ],
           "groups": [],
           "afterGroups": []

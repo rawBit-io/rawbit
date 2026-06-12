@@ -419,11 +419,16 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
 
   useEffect(() => {
     const updateSaveHotKey = (event: KeyboardEvent, isPressed: boolean) => {
+      // Ignore modified combos (e.g. Cmd+Shift+S): macOS suppresses the keyup
+      // for character keys released while Cmd is held, so latching them would
+      // leave the flag stuck. Keyup always clears, regardless of modifiers.
+      const nextPressed =
+        isPressed && !(event.metaKey || event.ctrlKey || event.altKey);
       if (event.key.toLowerCase() === "s") {
-        saveSimplifiedHotKeyRef.current = isPressed;
+        saveSimplifiedHotKeyRef.current = nextPressed;
       }
       if (event.key.toLowerCase() === "l") {
-        saveLlmHotKeyRef.current = isPressed;
+        saveLlmHotKeyRef.current = nextPressed;
       }
     };
 
@@ -1248,6 +1253,12 @@ export function TopBar(props: TopBarProps & ExtraTopBarProps) {
                         {onCloseTab && !isRenaming && (
                           <span
                             className="app-tab-close ml-2 cursor-pointer rounded-full p-0.5"
+                            onMouseDown={(e) => {
+                              // Radix TabsTrigger selects the tab on mousedown;
+                              // closing a background tab must not activate it.
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
                             onClick={(e) => {
                               e.stopPropagation();
                               onCloseTab(t.id);

@@ -44,6 +44,19 @@ describe("ErrorPanel", () => {
     expect(onClose).toHaveBeenCalled();
   });
 
+  it("does not select the node when keyboard-activating the nested copy button", () => {
+    const onSelect = vi.fn();
+    render(
+      <ErrorPanel isOpen errors={errors} nodes={nodes} onSelect={onSelect} hasVisibleTabs />
+    );
+
+    const copyButton = screen.getByLabelText("Copy error info for Node One");
+    fireEvent.keyDown(copyButton, { key: "Enter" });
+    fireEvent.keyDown(copyButton, { key: " " });
+
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
   it("copies error info via navigator.clipboard when available", async () => {
     const clipboard = mockClipboard();
     render(

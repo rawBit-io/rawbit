@@ -39,8 +39,10 @@ describe("resetWorkspaceStorageAndReload", () => {
 
     await resetWorkspaceStorageAndReload(targetWindow);
 
-    expect(localStorageClear).toHaveBeenCalledTimes(1);
-    expect(sessionStorageClear).toHaveBeenCalledTimes(1);
+    // Cleared once up front and once right before reload, so in-flight
+    // persistence writers cannot undo the reset.
+    expect(localStorageClear).toHaveBeenCalledTimes(2);
+    expect(sessionStorageClear).toHaveBeenCalledTimes(2);
     expect(sessionStorageSetItem).toHaveBeenCalledWith(
       "rawbit:code-source-cache-bust",
       expect.any(String)

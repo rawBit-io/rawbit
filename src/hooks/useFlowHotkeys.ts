@@ -55,6 +55,12 @@ export function useFlowHotkeys({
       } else if (key === "v" && hasCopiedNodesRef.current) {
         evt.preventDefault();
         pasteNodesRef.current?.(false);
+      } else if (key === "z" && evt.shiftKey) {
+        // Cmd/Ctrl+Shift+Z is the standard redo shortcut
+        if (canRedoRef.current) {
+          evt.preventDefault();
+          redoRef.current?.();
+        }
       } else if (key === "z" && canUndoRef.current) {
         evt.preventDefault();
         undoRef.current?.();

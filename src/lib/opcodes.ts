@@ -84,8 +84,8 @@ export const OP_CODES = {
     },
     {
       name: "2OF3_MULTISIG_SUFFIX",
-      hex: "5253ae",
-      description: "OP_2 OP_3 OP_CHECKMULTISIG",
+      hex: "53ae",
+      description: "OP_3 OP_CHECKMULTISIG",
     },
   ],
   constants: [

@@ -162,6 +162,71 @@ describe("NodeCodeDialog", () => {
     expect(screen.queryByText("def first(): pass")).not.toBeInTheDocument();
   });
 
+  const selectInCodeContainer = (element: HTMLElement) => {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const selection = window.getSelection()!;
+    selection.removeAllRanges();
+    selection.addRange(range);
+  };
+
+  const dispatchCopyEvent = () => {
+    const setData = vi.fn();
+    const event = new Event("copy", {
+      bubbles: true,
+      cancelable: true,
+    }) as ClipboardEvent;
+    Object.defineProperty(event, "clipboardData", { value: { setData } });
+    document.dispatchEvent(event);
+    return { event, setData };
+  };
+
+  it("leaves the native copy untouched when no line numbers are selected", async () => {
+    render(
+      <NodeCodeDialog open onClose={vi.fn()} functionName="sample_function" />
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("syntax-code")).toBeInTheDocument()
+    );
+
+    const container = document.querySelector(
+      ".syntax-highlighter-container"
+    ) as HTMLElement;
+    const code = document.createElement("span");
+    code.textContent = '    118: "OP_DUP",';
+    container.appendChild(code);
+    selectInCodeContainer(code);
+
+    const { event, setData } = dispatchCopyEvent();
+
+    expect(setData).not.toHaveBeenCalled();
+    expect(event.defaultPrevented).toBe(false);
+  });
+
+  it("strips only line-number gutters that leak into the copied selection", async () => {
+    render(
+      <NodeCodeDialog open onClose={vi.fn()} functionName="sample_function" />
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("syntax-code")).toBeInTheDocument()
+    );
+
+    const container = document.querySelector(
+      ".syntax-highlighter-container"
+    ) as HTMLElement;
+    const row = document.createElement("span");
+    row.innerHTML =
+      '<span class="linenumber react-syntax-highlighter-line-number">42</span>' +
+      '<span>    118: "OP_DUP",</span>';
+    container.appendChild(row);
+    selectInCodeContainer(row);
+
+    const { event, setData } = dispatchCopyEvent();
+
+    expect(setData).toHaveBeenCalledWith("text/plain", '    118: "OP_DUP",');
+    expect(event.defaultPrevented).toBe(true);
+  });
+
   it("renders large code prefixes as plain text and highlights the tail", async () => {
     const largeCode = Array.from(
       { length: 501 },

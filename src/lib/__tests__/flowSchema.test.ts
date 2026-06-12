@@ -182,4 +182,91 @@ describe("validateFlowData", () => {
       )
     ).toBe(true);
   });
+
+  it("rejects crafted numInputs before collecting handle metadata", () => {
+    const hostile = makeNode("hostile", { numInputs: 30_000_000 });
+
+    const started = performance.now();
+    const result = validateFlowData({
+      schemaVersion: FLOW_SCHEMA_VERSION,
+      nodes: [hostile],
+      edges: [],
+    } as FlowData);
+    const elapsed = performance.now() - started;
+
+    expect(result.ok).toBe(false);
+    expect(
+      result.errors.some((err) => err.code === "NODE_NUM_INPUTS_INVALID")
+    ).toBe(true);
+    // Validation must reject without iterating numInputs times.
+    expect(elapsed).toBeLessThan(500);
+  });
+
+  it("rejects non-integer and negative numInputs", () => {
+    for (const numInputs of [-1, 1.5, Number.NaN, "12" as unknown as number]) {
+      const result = validateFlowData({
+        schemaVersion: FLOW_SCHEMA_VERSION,
+        nodes: [makeNode("bad", { numInputs })],
+        edges: [],
+      } as FlowData);
+      expect(result.ok).toBe(false);
+      expect(
+        result.errors.some((err) => err.code === "NODE_NUM_INPUTS_INVALID")
+      ).toBe(true);
+    }
+  });
+
+  it("rejects group parent cycles", () => {
+    const groupA = {
+      id: "group-a",
+      type: "shadcnGroup",
+      position: { x: 0, y: 0 },
+      data: {},
+      parentId: "group-b",
+    } as unknown as FlowNode;
+    const groupB = {
+      id: "group-b",
+      type: "shadcnGroup",
+      position: { x: 0, y: 0 },
+      data: {},
+      parentId: "group-a",
+    } as unknown as FlowNode;
+
+    const result = validateFlowData({
+      schemaVersion: FLOW_SCHEMA_VERSION,
+      nodes: [groupA, groupB],
+      edges: [],
+    } as FlowData);
+
+    expect(result.ok).toBe(false);
+    expect(
+      result.errors.some((err) => err.code === "NODE_PARENT_CYCLE")
+    ).toBe(true);
+  });
+
+  it("accepts valid nested group parents", () => {
+    const outer = {
+      id: "outer",
+      type: "shadcnGroup",
+      position: { x: 0, y: 0 },
+      data: {},
+    } as unknown as FlowNode;
+    const inner = {
+      id: "inner",
+      type: "shadcnGroup",
+      position: { x: 10, y: 10 },
+      data: {},
+      parentId: "outer",
+    } as unknown as FlowNode;
+
+    const result = validateFlowData({
+      schemaVersion: FLOW_SCHEMA_VERSION,
+      nodes: [outer, inner],
+      edges: [],
+    } as FlowData);
+
+    expect(
+      result.errors.some((err) => err.code === "NODE_PARENT_CYCLE")
+    ).toBe(false);
+  });
 });

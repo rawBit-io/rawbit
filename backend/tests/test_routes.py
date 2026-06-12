@@ -70,6 +70,15 @@ def test_get_flow_404_for_unknown_slug(client):
     assert resp.get_json()["error"] == "flow_not_found"
 
 
+def test_flow_routes_are_rate_limited(client):
+    routes.limiter.reset()
+    # No @limiter.exempt: the default limit must apply (headers enabled).
+    resp = client.get("/flows")
+    assert "X-RateLimit-Limit" in resp.headers
+    resp = client.get("/flows/p9_SegWit_P2WSH")
+    assert "X-RateLimit-Limit" in resp.headers
+
+
 def test_bulk_calculate_rejects_invalid_body(client):
     resp = client.post("/bulk_calculate", data="not json", content_type="application/json")
     assert resp.status_code == 400
@@ -80,6 +89,17 @@ def test_bulk_calculate_requires_array_payloads(client):
     resp = client.post("/bulk_calculate", json={"nodes": [], "edges": "bad"})
     assert resp.status_code == 400
     assert resp.get_json()["error"] == "nodes and edges must be arrays"
+
+
+def test_bulk_calculate_rejects_malformed_elements(client):
+    for nodes in ([1], ["x"], [{}], [{"id": 7}]):
+        resp = client.post("/bulk_calculate", json={"nodes": nodes, "edges": []})
+        assert resp.status_code == 400
+        assert resp.get_json()["error"] == "each node must be an object with a string 'id'"
+
+    resp = client.post("/bulk_calculate", json={"nodes": [], "edges": ["x"]})
+    assert resp.status_code == 400
+    assert resp.get_json()["error"] == "each edge must be an object"
 
 
 def test_bulk_calculate_success(monkeypatch, client):

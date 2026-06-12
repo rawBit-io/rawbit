@@ -524,13 +524,25 @@ export function useFlowInteractions({
         rawOnNodesChange(changes);
       } else {
         const posChanges: NodePositionChange[] = [];
+        const structuralChanges: NodeChange<FlowNode>[] = [];
         const otherChanges: NodeChange<FlowNode>[] = [];
 
         changes.forEach((change) => {
           if (change.type === "position")
             posChanges.push(change as NodePositionChange);
+          else if (change.type === "remove" || change.type === "add")
+            structuralChanges.push(change);
           else otherChanges.push(change);
         });
+
+        // Apply structural changes synchronously (like the unthrottled path)
+        // so the "Node(s) removed/added" snapshot scheduled below captures
+        // nodes and edges from the same post-change state. Deferring them to
+        // the next frame produced torn undo entries (nodes pre-delete, edges
+        // post-delete).
+        if (structuralChanges.length) {
+          rawOnNodesChange(structuralChanges);
+        }
 
         if (otherChanges.length) {
           pendingNonPosRef.current = pendingNonPosRef.current

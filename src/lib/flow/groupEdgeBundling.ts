@@ -119,10 +119,10 @@ interface GroupBundleCanonicalElements {
   edges: Edge[];
 }
 
-const asFiniteNumber = (value: unknown): number | undefined => {
-  const numeric = Number(value);
-  return Number.isFinite(numeric) ? numeric : undefined;
-};
+// Non-numbers must fall through the ?? fallback chains (null/""/false would
+// coerce to a finite 0 via Number() and collapse group geometry).
+const asFiniteNumber = (value: unknown): number | undefined =>
+  typeof value === "number" && Number.isFinite(value) ? value : undefined;
 
 const pointFromData = (value: unknown): Point | undefined => {
   if (!value || typeof value !== "object") return undefined;

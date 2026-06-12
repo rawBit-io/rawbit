@@ -108,6 +108,15 @@ describe("useFlowHotkeys", () => {
     expect(ungroup).toHaveBeenCalled();
   });
 
+  it("treats Ctrl/Cmd+Shift+Z as redo, not undo", () => {
+    const { undo, redo } = setup();
+
+    fireKey("z", { shiftKey: true });
+
+    expect(redo).toHaveBeenCalledTimes(1);
+    expect(undo).not.toHaveBeenCalled();
+  });
+
   it("does not call ungroup shortcut without an ungroupable selection", () => {
     const { canUngroupSelectedRef, ungroup } = setup();
     canUngroupSelectedRef.current = () => false;

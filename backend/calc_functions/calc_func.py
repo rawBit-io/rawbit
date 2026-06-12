@@ -342,10 +342,21 @@ def _destroy_ctxs():
 # ===== END CONTEXT REUSE =====
 
 # ===== TRANSACTION CACHE OPTIMIZATION =====
+# Entry count is capped by lru_cache, but bytes are not: requests may carry
+# multi-MB transactions, so cache only small ones to bound retained memory.
+_TX_CACHE_MAX_HEX_CHARS = 65536
+
+
 @lru_cache(maxsize=2048)
+def _deserialize_tx_small_cached(raw_hex: str) -> CTransaction:
+    return CTransaction.deserialize(bytes.fromhex(raw_hex))
+
+
 def _deserialize_tx_cached(raw_hex: str) -> CTransaction:
     """Cache parsed transactions to avoid redundant deserialization."""
-    return CTransaction.deserialize(bytes.fromhex(raw_hex))
+    if len(raw_hex) > _TX_CACHE_MAX_HEX_CHARS:
+        return CTransaction.deserialize(bytes.fromhex(raw_hex))
+    return _deserialize_tx_small_cached(raw_hex)
 # ===== END TRANSACTION CACHE =====
 
 # ----------------------------------------------------------------------
@@ -373,6 +384,26 @@ def _bytes_from_even_hex(h: str, *, name: str = "value") -> bytes:
 # ----------------------------------------------------------------------
 _TAG_HASH_CACHE: dict[str, bytes] = {}
 
+# Only memoize known protocol tags; user-supplied tags would grow the cache
+# without bound, and an extra sha256 per call is negligible.
+_KNOWN_PROTOCOL_TAGS = frozenset(
+    {
+        "BIP0340/aux",
+        "BIP0340/nonce",
+        "BIP0340/challenge",
+        "TapTweak",
+        "TapLeaf",
+        "TapBranch",
+        "TapSighash",
+        "KeyAgg list",
+        "KeyAgg coefficient",
+        "MuSig/aux",
+        "MuSig/nonce",
+        "MuSig/noncecoef",
+        "BatchSchnorr",
+    }
+)
+
 
 def _tagged_hash_bytes(tag: str, data: bytes) -> bytes:
     """Return tagged_hash(tag, data) bytes."""
@@ -381,9 +412,9 @@ def _tagged_hash_bytes(tag: str, data: bytes) -> bytes:
 
     tag_hash = _TAG_HASH_CACHE.get(tag)
     if tag_hash is None:
-        t = hashlib.sha256(tag.encode("utf-8")).digest()
-        _TAG_HASH_CACHE[tag] = t
-        tag_hash = t
+        tag_hash = hashlib.sha256(tag.encode("utf-8")).digest()
+        if tag in _KNOWN_PROTOCOL_TAGS:
+            _TAG_HASH_CACHE[tag] = tag_hash
     return hashlib.sha256(tag_hash + tag_hash + data).digest()
 
 
@@ -955,8 +986,10 @@ def taproot_sighash_default(vals: list[str]) -> str:
         b"".join(struct.pack("<I", txin.nSequence) for txin in vin)
     ).digest()
 
+    # bitcointx parses nValue/nVersion signed ("<q"/"<i"); pack the same way
+    # so bit-63/bit-31 values round-trip instead of raising struct.error.
     outputs_ser = b"".join(
-        struct.pack("<Q", txout.nValue)
+        struct.pack("<q", txout.nValue)
         + _ser_varint(len(bytes(txout.scriptPubKey)))
         + bytes(txout.scriptPubKey)
         for txout in vout
@@ -968,7 +1001,7 @@ def taproot_sighash_default(vals: list[str]) -> str:
     spend_type = 0x00  # ext_flag*2 + annex_present
     sigmsg = (
         bytes([hash_type])
-        + struct.pack("<I", tx.nVersion)
+        + struct.pack("<i", tx.nVersion)
         + struct.pack("<I", tx.nLockTime)
         + sha_prevouts
         + sha_amounts
@@ -2843,11 +2876,16 @@ def script_verification(vals: list) -> str:
     # 2.  Provide a dummy tx if none was supplied
     # ------------------------------------------------------------------
     if not tx_hex:
+        # Legacy serialization: a segwit-flagged 0-input tx is rejected as
+        # "Superfluous witness record"; one null input keeps inIdx=0 valid.
         tx_hex = (
-            "010000000001"  # version 1 | marker+flag
-            "00"            # 0 inputs
-            "00"            # 0 outputs
-            "00000000"      # lock-time
+            "01000000"            # version 1 (legacy, no marker/flag)
+            "01" + "00" * 32 +    # 1 input, null prevout hash
+            "ffffffff"            # prevout index
+            "00"                  # empty scriptSig
+            "ffffffff"            # sequence
+            "01" + "0000000000000000" + "00"  # 1 output, 0 sats, empty script
+            "00000000"            # lock-time
         )
 
     try:
@@ -3687,20 +3725,15 @@ def hex_byte_length(val: str) -> int:
     """
     Return the size (in *bytes*) of a hex‑encoded string.
 
-    • Whitespace (spaces, new‑lines, tabs) is ignored.
-    • Raises ValueError if the cleaned hex has an odd number of characters.
+    • Whitespace (spaces, new‑lines, tabs) is ignored, a 0x prefix is allowed.
+    • Raises ValueError on odd-length or non-hex input.
 
     Example
     -------
     >>> hex_byte_length("0200000001 … 000000")
     192
     """
-    cleaned = "".join(val.split())           # tolerate whitespace & new‑lines
-    if len(cleaned) % 2:
-        raise ValueError(
-            f"Hex string must have an even number of characters (got {len(cleaned)})"
-        )
-    return len(cleaned) // 2
+    return len(_bytes_from_even_hex(val, name="input"))
 
 def address_to_scriptpubkey(val: str) -> str:
     """

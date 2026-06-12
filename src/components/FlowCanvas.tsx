@@ -79,7 +79,7 @@ const edgeTypes = {
   [GROUP_BUNDLE_EDGE_TYPE]: GroupBundleEdge,
 } satisfies ReactFlowProps<FlowNode>["edgeTypes"];
 const GROUP_CURVE_OFFSET_RESET_STORAGE_KEY =
-  "rawbit.flow.groupCurveOffsetsReset.2026-05-03";
+  "rawbit.flow.groupCurveOffsetsReset.2026-06-11";
 
 const isEditableTarget = (target: EventTarget | null): boolean => {
   if (!(target instanceof HTMLElement)) return false;
@@ -92,10 +92,10 @@ const isEditableTarget = (target: EventTarget | null): boolean => {
   );
 };
 
-const asFiniteNumber = (value: unknown): number | undefined => {
-  const numeric = Number(value);
-  return Number.isFinite(numeric) ? numeric : undefined;
-};
+// Non-numbers must fall through the ?? fallback chains (null/""/false would
+// coerce to a finite 0 via Number() and break height fallbacks).
+const asFiniteNumber = (value: unknown): number | undefined =>
+  typeof value === "number" && Number.isFinite(value) ? value : undefined;
 
 const nodeAbsoluteY = (node: FlowNode): number =>
   node.positionAbsolute?.y ?? node.position.y;
@@ -335,6 +335,12 @@ export function FlowCanvas({
 
   useEffect(() => {
     if (isReadOnly || !onEdgesChange || hasRunGroupCurveOffsetResetRef.current) {
+      return;
+    }
+    // The first commit renders the pre-hydration default flow (no edges yet);
+    // latching the one-time marker against it would permanently skip the
+    // migration for the persisted graph that hydrates afterwards.
+    if (edges.length === 0) {
       return;
     }
     hasRunGroupCurveOffsetResetRef.current = true;

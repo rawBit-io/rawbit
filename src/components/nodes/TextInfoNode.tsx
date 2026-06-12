@@ -26,7 +26,6 @@ import { Minus, Plus, MoreHorizontal, Copy, Trash2, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mdToHtml } from "@/lib/markdown";
 import { useClipboardLite } from "@/hooks/nodes/useClipboardLite";
-import { useUndoRedo } from "@/hooks/useUndoRedo";
 import { useSnapshotSchedulerContext } from "@/hooks/useSnapshotSchedulerContext";
 import type { CalculationNodeData, FlowNode } from "@/types";
 import { resolveTextInfoDimensions } from "@/lib/textInfoDimensions";
@@ -145,7 +144,9 @@ export default function TextInfoNode({
 
   /* ───────── hooks & helpers ──────────────────────────────── */
   const rf = useReactFlow<FlowNode>();
-  const { pushState } = useUndoRedo();
+  // Snapshots go through the scheduler (pushCleanState) — raw pushState
+  // moves the history pointer without skipLoadRef, which Flow's load
+  // effect misreads as undo navigation and reloads stale state.
   const { scheduleSnapshot } = useSnapshotSchedulerContext();
 
   /* ---------- O(1) node patch helper ------------------------ */
@@ -373,9 +374,9 @@ export default function TextInfoNode({
       updateNode((d) => {
         d.fontSize = normalizeFontSize((d.fontSize || 16) + delta);
       });
-      setTimeout(() => pushState(rf.getNodes(), rf.getEdges(), "Font Size"), 0);
+      scheduleSnapshot("Font Size");
     },
-    [normalizeFontSize, updateNode, pushState, rf]
+    [normalizeFontSize, updateNode, scheduleSnapshot]
   );
 
   /* ───────── editing lifecycle ───────────────────────────── */
@@ -396,9 +397,26 @@ export default function TextInfoNode({
       updateNode((d) => {
         d.content = newText;
       });
-      setTimeout(() => pushState(rf.getNodes(), rf.getEdges(), "Edit Text"), 0);
+      scheduleSnapshot("Edit Text");
     }
-  }, [draft, content, updateNode, pushState, rf]);
+  }, [draft, content, updateNode, scheduleSnapshot]);
+
+  // onlyRenderVisibleElements unmounts off-viewport nodes without firing
+  // blur; flush an in-progress edit on unmount so typed text isn't lost.
+  const draftRef = useRef(draft);
+  draftRef.current = draft;
+  const isEditingRef = useRef(isEditing);
+  isEditingRef.current = isEditing;
+  useEffect(
+    () => () => {
+      if (!isEditingRef.current) return;
+      const newText = draftRef.current.trim() ? draftRef.current : DEFAULT_TEXT;
+      updateNode((d) => {
+        d.content = newText;
+      });
+    },
+    [updateNode]
+  );
 
   /* keyboard and change handlers */
   const handleKeyDown = useCallback(
@@ -439,12 +457,8 @@ export default function TextInfoNode({
   );
 
   const onResizeEnd = useCallback(
-    () =>
-      setTimeout(
-        () => pushState(rf.getNodes(), rf.getEdges(), "Resize Text Node"),
-        0
-      ),
-    [pushState, rf]
+    () => scheduleSnapshot("Resize Text Node"),
+    [scheduleSnapshot]
   );
 
   /* ───────── Portaled menu handlers ───────────────────────── */

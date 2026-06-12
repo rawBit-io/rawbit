@@ -35,7 +35,7 @@ export function ConfirmationDialog({
   confirmVariant = "default",
   confirmClassName,
   confirmText = "Confirm",
-  cancelText = "Cancel",
+  cancelText,
 }: ConfirmationDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

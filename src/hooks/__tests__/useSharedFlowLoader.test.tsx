@@ -290,7 +290,8 @@ describe("useSharedFlowLoader", () => {
 
     expect(replaceGraph).not.toHaveBeenCalled();
     expect(nodesState.map((node) => node.id)).toEqual(["existing"]);
-    expect(window.location.search).toBe("?s=test-shared");
+    // Failure resets the trigger so the same id can be re-submitted.
+    expect(window.location.search).toBe("");
   });
 
   it("dedupes an in-flight shared load across remounts", async () => {
@@ -349,7 +350,8 @@ describe("useSharedFlowLoader", () => {
       open: true,
       message: "Could not load shared flow: boom",
     }));
-    expect(window.location.search).toBe("?s=test-shared");
+    // Failure resets the trigger so the same id can be re-submitted.
+    expect(window.location.search).toBe("");
   });
 
   it("rejects shared payloads without nodes arrays", async () => {

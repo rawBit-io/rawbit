@@ -1,6 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { buildPorts } from "@/lib/nodes/ports";
+import { allSidebarNodes } from "@/components/sidebar-nodes";
 import type { FlowNode } from "@/types";
+
+const nodeFromTemplate = (title: string): FlowNode => {
+  const template = allSidebarNodes.find((t) => t.nodeData?.title === title);
+  if (!template) throw new Error(`sidebar template not found: ${title}`);
+  return {
+    id: title,
+    type: template.type,
+    position: { x: 0, y: 0 },
+    data: template.nodeData,
+  } as FlowNode;
+};
 
 describe("buildPorts", () => {
   it("returns handles for numInputs when no structure provided", () => {
@@ -114,6 +126,146 @@ describe("buildPorts", () => {
 
     expect(handles).toEqual(["input-0", "input-10"]);
     expect(handles).not.toContain("input-1");
+  });
+
+  it.each([
+    [
+      "P2WPKH Witness",
+      ["input-0", "input-10", "input-20", "input-30", "input-40"],
+    ],
+    [
+      "Data to Sign (SegWit)",
+      [
+        "input-0",
+        "input-10",
+        "input-20",
+        "input-30",
+        "input-40",
+        "input-50",
+        "input-60",
+        "input-70",
+        "input-80",
+        "input-90",
+      ],
+    ],
+    [
+      "Data to Sign (Taproot)",
+      [
+        "input-0",
+        "input-10",
+        "input-20",
+        "input-30",
+        "input-40",
+        "input-50",
+        "input-60",
+        "input-70",
+        "input-80",
+        "input-90",
+        "input-100",
+      ],
+    ],
+    ["Taproot Control Block", ["input-0", "input-100", "input-200"]],
+    ["OUTPOINT Builder", ["input-0", "input-10"]],
+    ["SCRIPTCODE Builder", ["input-0", "input-10", "input-20", "input-30"]],
+  ])(
+    "does not invent phantom numInputs ports for sparse-index template %s",
+    (title, expected) => {
+      const handles = buildPorts(nodeFromTemplate(title)).inputs.map(
+        (p) => p.handleId
+      );
+      expect(handles).toEqual(expected);
+    }
+  );
+
+  it("exposes no input ports for zero-input source templates", () => {
+    expect(buildPorts(nodeFromTemplate("Input")).inputs).toEqual([]);
+    expect(buildPorts(nodeFromTemplate("Random 32 Bytes")).inputs).toEqual([]);
+  });
+
+  it("exposes no input ports for saved single-val nodes with numInputs 0", () => {
+    // Legacy saved identity node: field not yet flagged unconnectable and a
+    // typed value present — must still expose no connect target.
+    const node = {
+      id: "legacy-input",
+      type: "calculation",
+      position: { x: 0, y: 0 },
+      data: {
+        functionName: "identity",
+        title: "Input",
+        numInputs: 0,
+        inputs: { val: "deadbeef" },
+        inputStructure: {
+          ungrouped: [{ index: 0, label: "INPUT VALUE:", rows: 1 }],
+        },
+      },
+    } as FlowNode;
+
+    expect(buildPorts(node).inputs).toEqual([]);
+  });
+
+  it("never registers dropdown (options) fields as ports", () => {
+    const getAddress = buildPorts(nodeFromTemplate("Trezor Get Address"));
+    expect(getAddress.inputs.map((p) => p.handleId)).toEqual([
+      "input-0",
+      "input-1",
+      "input-2",
+    ]);
+
+    const signParams = buildPorts(nodeFromTemplate("Trezor Sign Params"));
+    const handles = signParams.inputs.map((p) => p.handleId);
+    expect(handles).not.toContain("input-1050"); // Input Script Type dropdown
+    expect(handles).not.toContain("input-3020"); // Output Script Type dropdown
+    expect(handles).toEqual([
+      "input-0",
+      "input-1",
+      "input-2",
+      "input-1000",
+      "input-1010",
+      "input-1020",
+      "input-1030",
+      "input-1040",
+      "input-3000",
+      "input-3010",
+      "input-5000",
+    ]);
+  });
+
+  it("honors unconnectable and options on group, betweenGroups and afterGroups fields", () => {
+    const node = {
+      id: "guarded",
+      type: "calculation",
+      position: { x: 0, y: 0 },
+      data: {
+        functionName: "concat_all",
+        paramExtraction: "multi_val",
+        numInputs: 4,
+        inputStructure: {
+          ungrouped: [{ index: 0, label: "Operator:", options: ["+", "-"] }],
+          groups: [
+            {
+              title: "ITEMS[]",
+              baseIndex: 100,
+              fields: [
+                { index: 0, label: "Value:" },
+                { index: 10, label: "Mode:", options: ["a", "b"] },
+                { index: 20, label: "Locked:", unconnectable: true },
+              ],
+            },
+          ],
+          betweenGroups: {
+            "ITEMS[]": [{ index: 50, label: "Helper:", unconnectable: true }],
+          },
+          afterGroups: [
+            { index: 200, label: "Tail:", options: ["x"] },
+            { index: 210, label: "Free:" },
+          ],
+        },
+        groupInstanceKeys: { "ITEMS[]": [100] },
+      },
+    } as FlowNode;
+
+    const handles = buildPorts(node).inputs.map((p) => p.handleId);
+    expect(handles).toEqual(["input-100", "input-210"]);
   });
 
   it("omits hidden outputs so connect ports match visible canvas handles", () => {

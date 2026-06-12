@@ -529,7 +529,7 @@ describe("Flow autosave scheduling", () => {
     act(() => {
       vi.runAllTimers();
     });
-    expect(saveTabDataMock).toHaveBeenCalledWith("tab-1");
+    expect(saveTabDataMock).toHaveBeenCalledWith("tab-1", undefined);
   });
 
   it("reschedules when skipLoadRef is true until guard clears", () => {

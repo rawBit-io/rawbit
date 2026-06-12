@@ -203,15 +203,20 @@ export function NodeCodeDialog({
       );
 
       if (codeContainer && codeContainer.contains(container as Node)) {
-        // Get the selected text
-        let text = selection.toString();
+        // Line numbers are unselectable, but some browsers (Safari) can
+        // still leak them into the copied text. Only rewrite the clipboard
+        // when actual line-number gutters made it into the selection, and
+        // strip exactly those elements — never digits in the code itself.
+        const fragment = range.cloneContents();
+        const lineNumbers = fragment.querySelectorAll(
+          ".react-syntax-highlighter-line-number"
+        );
+        if (lineNumbers.length === 0) return;
 
-        // Clean up any potential formatting issues
-        // Remove line numbers if they somehow got included
-        text = text.replace(/^\s*\d+\s*/gm, "");
+        lineNumbers.forEach((el) => el.remove());
 
         // Set the cleaned text to clipboard
-        e.clipboardData?.setData("text/plain", text);
+        e.clipboardData?.setData("text/plain", fragment.textContent ?? "");
         e.preventDefault();
       }
     };

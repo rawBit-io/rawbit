@@ -402,6 +402,7 @@ function hydrateTabs(): HydratedTabsState {
     }
 
     const hydratedTabs: FlowTab[] = [];
+    let legacyMigrationFailed = false;
     for (const tab of tabs) {
       const storageKey = getArchiveStorageKey(tab.id);
       let entry: FlowTabArchiveEntry | undefined;
@@ -417,12 +418,15 @@ function hydrateTabs(): HydratedTabsState {
           try {
             window.localStorage.setItem(storageKey, compressed);
           } catch (error) {
+            legacyMigrationFailed = true;
             console.warn(
               "Failed to migrate tab archive to dedicated storage",
               error
             );
           }
           entry = { ...entry, compressed };
+        } else {
+          legacyMigrationFailed = true;
         }
       }
 
@@ -440,7 +444,10 @@ function hydrateTabs(): HydratedTabsState {
       return fallback;
     }
 
-    if (legacyArchive.size > 0) {
+    // Remove the legacy blob only after every per-tab write succeeded —
+    // it is the sole durable copy for tabs whose dedicated write failed
+    // (e.g. QuotaExceededError while the footprint is transiently doubled).
+    if (legacyArchive.size > 0 && !legacyMigrationFailed) {
       try {
         window.localStorage.removeItem(TABS_ARCHIVE_STORAGE_KEY);
       } catch (error) {
@@ -471,17 +478,27 @@ function hydrateActiveTab(tabs: FlowTab[]): string {
 }
 
 function hydrateCounter(tabs: FlowTab[]): number {
-  if (typeof window === "undefined") return tabs.length || 1;
+  // The counter must never sit below the highest existing tab-id suffix:
+  // closed tabs leave gaps (e.g. [tab-1, tab-3]), so a count-based floor
+  // would let addTab re-mint an existing id and wipe that tab's archive.
+  const maxSuffix = tabs.reduce((max, tab) => {
+    const match = /^tab-(\d+)$/.exec(tab.id);
+    if (!match) return max;
+    const suffix = Number.parseInt(match[1], 10);
+    return Number.isFinite(suffix) && suffix > max ? suffix : max;
+  }, 0);
+  const floor = Math.max(maxSuffix, tabs.length) || 1;
+  if (typeof window === "undefined") return floor;
   try {
     const stored = window.localStorage.getItem(TAB_COUNTER_STORAGE_KEY);
     const parsed = stored ? Number.parseInt(stored, 10) : Number.NaN;
-    if (Number.isFinite(parsed) && parsed >= tabs.length) {
+    if (Number.isFinite(parsed) && parsed >= floor) {
       return parsed;
     }
   } catch (error) {
     console.warn("Failed to hydrate tab counter from storage", error);
   }
-  return tabs.length || 1;
+  return floor;
 }
 
 interface UseTabsArgs {
@@ -587,7 +604,13 @@ export function useTabs({
     return JSON.parse(JSON.stringify(value));
   }, []);
 
-  const archivePersistDisabledRef = useRef(false);
+  // After a QuotaExceededError, archive writes are skipped only while the
+  // payload is at least as large as the one that failed; any smaller payload
+  // (or freed storage via removeTabArchive) re-enables persistence.
+  const archivePersistStateRef = useRef({
+    disabled: false,
+    lastFailedSize: Number.POSITIVE_INFINITY,
+  });
   const metaPersistStateRef = useRef<TabsPersistState>({
     disabled: false,
     lastPayloadSize: 0,
@@ -629,16 +652,30 @@ export function useTabs({
   const persistTabCompressed = useCallback(
     (tabId: string, compressed?: string) => {
       if (typeof window === "undefined") return;
-      if (!compressed || archivePersistDisabledRef.current) return;
+      if (!compressed) return;
+      const persistState = archivePersistStateRef.current;
+      if (
+        persistState.disabled &&
+        compressed.length >= persistState.lastFailedSize
+      ) {
+        return;
+      }
       try {
         window.localStorage.setItem(
           getArchiveStorageKey(tabId),
           compressed
         );
+        archivePersistStateRef.current = {
+          disabled: false,
+          lastFailedSize: Number.POSITIVE_INFINITY,
+        };
       } catch (error) {
         console.warn("Failed to persist tab archive", error);
         if (isQuotaExceededError(error)) {
-          archivePersistDisabledRef.current = true;
+          archivePersistStateRef.current = {
+            disabled: true,
+            lastFailedSize: compressed.length,
+          };
         }
       }
     },
@@ -649,6 +686,11 @@ export function useTabs({
     if (typeof window === "undefined") return;
     try {
       window.localStorage.removeItem(getArchiveStorageKey(tabId));
+      // Storage was freed — give archive persistence another chance.
+      archivePersistStateRef.current = {
+        disabled: false,
+        lastFailedSize: Number.POSITIVE_INFINITY,
+      };
     } catch (error) {
       console.warn("Failed to remove tab archive", error);
     }
@@ -744,6 +786,11 @@ export function useTabs({
       const idx = getTabIndex(tabId);
       const hasExplicitData = Boolean(options?.data);
       if (idx < 0 && !hasExplicitData) return;
+      // The live canvas (getNodes/getEdges) always holds the ACTIVE tab's
+      // graph. Snapshotting it under another tab's key would overwrite that
+      // tab's archive with this one's content — callers saving an inactive
+      // tab must pass options.data explicitly.
+      if (!hasExplicitData && tabId !== activeTabId) return;
       const force = options?.force === true;
 
       const rawCurrentNodes = options?.data?.nodes ?? getNodes();
@@ -810,6 +857,7 @@ export function useTabs({
       });
     },
     [
+      activeTabId,
       clone,
       compressTabArchive,
       ensureArchiveEntry,
@@ -822,13 +870,21 @@ export function useTabs({
     ]
   );
 
+  // Generation counter: every restore invalidates the scheduled callbacks
+  // (rAF retries, fitView retry timers) of all previous restores, so a stale
+  // timer can never clobber the viewport of a tab switched to later.
+  const restoreGenRef = useRef(0);
+
   const runViewportRestore = useCallback(
     (tab?: FlowTab, archive?: FlowTabArchive) => {
+      restoreGenRef.current += 1;
+      const gen = restoreGenRef.current;
       const shouldFit = archive
         ? shouldFitArchiveOnRestore(tab, archive)
         : false;
 
       const apply = (attempt = 0) => {
+        if (restoreGenRef.current !== gen) return;
         const instance = getFlowInstance();
         if (!instance) {
           if (typeof window !== "undefined" && attempt < 8) {
@@ -841,6 +897,7 @@ export function useTabs({
           const fitView = (instance as Partial<ReactFlowInstance>).fitView;
           if (typeof fitView === "function") {
             const runFit = () => {
+              if (restoreGenRef.current !== gen) return;
               fitView.call(instance, {
                 padding: 0.2,
                 minZoom: RESTORE_FIT_MIN_ZOOM,
@@ -915,7 +972,13 @@ export function useTabs({
       saveTabData(previousTabId, { force: true });
       if (previousTabId !== tabId) {
         const previousEntry = archiveRef.current.get(previousTabId);
-        if (previousEntry?.compressed) {
+        // Keep raw while a compression is still in flight: entry.compressed
+        // holds the PREVIOUS payload until the worker responds, so dropping
+        // raw now would restore stale data on a quick switch back.
+        if (
+          previousEntry?.compressed &&
+          previousEntry.pendingRequestId === undefined
+        ) {
           previousEntry.raw = undefined;
         }
       }
@@ -963,7 +1026,27 @@ export function useTabs({
     captureCurrentViewport(activeTabId);
     saveTabData(activeTabId, { force: true });
 
-    const newIndex = tabCounter + 1;
+    // Skip ids that are already taken (open tab, in-memory archive, or a
+    // persisted archive key written by another window) — re-minting one
+    // would overwrite that tab's stored flow with an empty archive.
+    const isTabIdTaken = (id: string): boolean => {
+      if (tabs.some((tab) => tab.id === id)) return true;
+      if (archiveRef.current.has(id)) return true;
+      if (typeof window !== "undefined") {
+        try {
+          if (window.localStorage.getItem(getArchiveStorageKey(id)) !== null) {
+            return true;
+          }
+        } catch {
+          // Storage unavailable — fall through to the in-memory checks above.
+        }
+      }
+      return false;
+    };
+    let newIndex = tabCounter + 1;
+    while (isTabIdTaken(`tab-${newIndex}`)) {
+      newIndex += 1;
+    }
     setTabCounter(newIndex);
     const newId = `tab-${newIndex}`;
     const newTab: FlowTab = {
@@ -1007,6 +1090,7 @@ export function useTabs({
     setActiveTabCtx,
     persistTabCompressed,
     tabCounter,
+    tabs,
   ]);
 
   const discardTabData = useCallback(
@@ -1280,11 +1364,20 @@ export function useTabs({
         if (message.error) {
           console.warn("Tabs archive compression worker failed", message.error);
           const entry = archiveRef.current.get(message.tabId);
-          const fallback =
-            encodeArchiveRaw(entry?.raw ?? createEmptyArchive()) ??
-            encodeStoragePayload(entry?.raw ?? createEmptyArchive());
+          const raw = entry?.raw;
+          if (!raw) {
+            // Keep the last known-good compressed payload — never synthesize
+            // an empty archive over real tab data.
+            if (entry && entry.pendingRequestId === message.requestId) {
+              entry.pendingRequestId = undefined;
+            }
+            return;
+          }
+          const fallback = encodeArchiveRaw(raw) ?? encodeStoragePayload(raw);
           if (fallback) {
             applyCompressedResult(message.tabId, message.requestId, fallback);
+          } else if (entry.pendingRequestId === message.requestId) {
+            entry.pendingRequestId = undefined;
           }
         }
       };
@@ -1296,11 +1389,20 @@ export function useTabs({
         );
         archiveWorkerPendingRef.current.forEach(({ tabId }, requestId) => {
           const entry = archiveRef.current.get(tabId);
-          const fallback =
-            encodeArchiveRaw(entry?.raw ?? createEmptyArchive()) ??
-            encodeStoragePayload(entry?.raw ?? createEmptyArchive());
+          const raw = entry?.raw;
+          if (!raw) {
+            // Keep the last known-good compressed payload — never synthesize
+            // an empty archive over real tab data.
+            if (entry && entry.pendingRequestId === requestId) {
+              entry.pendingRequestId = undefined;
+            }
+            return;
+          }
+          const fallback = encodeArchiveRaw(raw) ?? encodeStoragePayload(raw);
           if (fallback) {
             applyCompressedResult(tabId, requestId, fallback);
+          } else if (entry.pendingRequestId === requestId) {
+            entry.pendingRequestId = undefined;
           }
         });
         archiveWorkerPendingRef.current = new Map();

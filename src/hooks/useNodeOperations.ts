@@ -102,6 +102,26 @@ function getNodeDimension(
   );
 }
 
+/**
+ * Absolute canvas position of a node, accumulated over its whole parent
+ * chain (a single-level offset is wrong for children of nested groups).
+ */
+function getAbsoluteNodePosition(node: FlowNode, all: FlowNode[]) {
+  let x = node.position.x;
+  let y = node.position.y;
+  const seen = new Set<string>([node.id]);
+  let parentId = node.parentId;
+  while (parentId && !seen.has(parentId)) {
+    seen.add(parentId);
+    const parent = all.find((p) => p.id === parentId);
+    if (!parent) break;
+    x += parent.position.x;
+    y += parent.position.y;
+    parentId = parent.parentId;
+  }
+  return { x, y };
+}
+
 function scheduleNodeInternalsUpdate(rf: RF, ids: string[]) {
   const update = rf.updateNodeInternals;
   if (!update) return;
@@ -236,12 +256,10 @@ export function useNodeOperations() {
 
       const allNodes = stripGroupBundlePortNodes(inst.getNodes() as FlowNode[]);
 
-      // Only mark nodes that need parent checking (not already parented, not groups)
-      allNodes.forEach((node) => {
-        if (!node.parentId && node.type !== "shadcnGroup") {
-          pendingIds.current.add(node.id);
-        }
-      });
+      // Persisted top-level nodes are NOT queued for geometric group adoption
+      // here: doing so silently re-grouped nodes the user had explicitly
+      // ungrouped before saving. Adoption only applies to nodes created
+      // in-session (createNode / onDrop populate pendingIds).
 
       // Resize existing groups with children
       const groups = allNodes.filter((n) => n.type === "shadcnGroup");
@@ -739,13 +757,7 @@ export function useNodeOperations() {
 
           /* lift every child of any selected group */
           if (n.parentId && gidSet.has(n.parentId)) {
-            const parent = all.find((p) => p.id === n.parentId);
-            const absPos = parent
-              ? {
-                  x: parent.position.x + n.position.x,
-                  y: parent.position.y + n.position.y,
-                }
-              : n.position;
+            const absPos = getAbsoluteNodePosition(n, all);
 
             return [
               {
@@ -790,13 +802,7 @@ export function useNodeOperations() {
         nds.map((n) => {
           if (!n.selected || !n.parentId) return n;
 
-          const parent = all.find((p) => p.id === n.parentId);
-          const absPos = parent
-            ? {
-                x: parent.position.x + n.position.x,
-                y: parent.position.y + n.position.y,
-              }
-            : n.position;
+          const absPos = getAbsoluteNodePosition(n, all);
 
           return {
             ...n,

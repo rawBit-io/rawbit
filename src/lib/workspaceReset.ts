@@ -61,5 +61,20 @@ export async function resetWorkspaceStorageAndReload(
     }
   }
 
+  // The app keeps running during the async cleanup above, so an in-flight
+  // persistence writer (compression-worker result, debounced autosave) may
+  // have re-written keys since the first clear. Clear again right before
+  // navigating so the reset cannot be undone.
+  try {
+    targetWindow.localStorage.clear();
+  } catch (error) {
+    console.warn("Failed to re-clear localStorage during workspace reset", error);
+  }
+  try {
+    targetWindow.sessionStorage.clear();
+  } catch (error) {
+    console.warn("Failed to re-clear sessionStorage during workspace reset", error);
+  }
+
   targetWindow.location.reload();
 }

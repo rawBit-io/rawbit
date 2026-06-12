@@ -21,6 +21,8 @@ if TYPE_CHECKING:
     from redis import Redis
 
 
+_LOGGER = logging.getLogger(__name__)
+
 CalculationBudget = Tuple[bool, float]
 
 
@@ -124,7 +126,12 @@ class RedisCalculationBudgetTracker(CalculationBudgetTracker):
         pipe = self._client.pipeline(transaction=False)
         pipe.zremrangebyscore(redis_key, 0, cutoff)
         pipe.zrange(redis_key, 0, -1)
-        _, entries = pipe.execute()
+        try:
+            _, entries = pipe.execute()
+        except RedisError as exc:
+            # Fail open: a Redis blip should not turn requests into 500s.
+            _LOGGER.warning("Redis budget check failed (%s); allowing request", exc)
+            return True, 0.0
 
         total = 0.0
         for entry in entries:
@@ -154,7 +161,14 @@ class RedisCalculationBudgetTracker(CalculationBudgetTracker):
         pipe.zadd(redis_key, {member: timestamp})
         pipe.expire(redis_key, ttl_seconds)
         pipe.sadd(self._registry_key, redis_key)
-        pipe.execute()
+        # Keep the registry set from growing without bound.
+        pipe.expire(self._registry_key, ttl_seconds)
+        try:
+            pipe.execute()
+        except RedisError as exc:
+            # record() runs in a finally block; raising here would replace an
+            # already-successful response with a 500.
+            _LOGGER.warning("Redis budget record failed (%s); sample dropped", exc)
 
     def reset(self) -> None:
         raw_keys = self._client.smembers(self._registry_key)

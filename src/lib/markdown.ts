@@ -76,9 +76,18 @@ export function parseTable(tableText: string): string {
     return tableText;
   }
 
+  // Strip only the boundary fields created by the outer pipes so that
+  // empty interior cells keep their column position.
+  const splitRow = (line: string) => {
+    const parts = line.trim().split("|");
+    parts.shift();
+    parts.pop();
+    return parts;
+  };
+
   let html = "<table>";
 
-  const headerCells = lines[0].split("|").filter((cell) => cell.trim());
+  const headerCells = splitRow(lines[0]);
   html += "<thead><tr>";
   headerCells.forEach((cell) => {
     html += `<th>${cell.trim()}</th>`;
@@ -88,7 +97,7 @@ export function parseTable(tableText: string): string {
   if (lines.length > 2) {
     html += "<tbody>";
     for (let i = 2; i < lines.length; i++) {
-      const cells = lines[i].split("|").filter((cell) => cell.trim());
+      const cells = splitRow(lines[i]);
       if (cells.length > 0) {
         html += "<tr>";
         cells.forEach((cell) => {
@@ -237,8 +246,8 @@ export function mdToHtml(src: string): string {
     return `@@RAWBIT_MD_BLOCK_${index}@@`;
   };
 
-  result = result.replace(TABLE, (match) => parseTable(match));
-
+  // Stash code fences first so block patterns (e.g. tables) never match
+  // inside fenced content.
   result = result.replace(CODE_BLOCK, (_, language, content) => {
     const languageAttr = language ? ` data-language="${language}"` : "";
     const normalizedContent = content.replace(/^\n/, "").replace(/\n$/, "");
@@ -246,6 +255,8 @@ export function mdToHtml(src: string): string {
       `<pre><code${languageAttr}>${normalizedContent}</code></pre>`
     );
   });
+
+  result = result.replace(TABLE, (match) => parseTable(match));
 
   result = result
     .replace(H1, "<h1>$1</h1>")

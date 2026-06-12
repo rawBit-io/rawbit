@@ -9,28 +9,10 @@ import { resolve } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const clipboardHook = vi.fn();
-const pushStateMock = vi.fn();
 const updateNodeInternalsMock = vi.fn();
 
 vi.mock("@/hooks/nodes/useClipboardLite", () => ({
   useClipboardLite: (...args: unknown[]) => clipboardHook(...args),
-}));
-
-vi.mock("@/hooks/useUndoRedo", () => ({
-  useUndoRedo: () => ({
-    pushState: pushStateMock,
-    undo: vi.fn(),
-    redo: vi.fn(),
-    jumpTo: vi.fn(),
-    setActiveTab: vi.fn(),
-    initializeTabHistory: vi.fn(),
-    removeTabHistory: vi.fn(),
-    history: [],
-    pointer: 0,
-    canUndo: false,
-    canRedo: false,
-  }),
-  UndoRedoProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 let setNodesMock: ReturnType<typeof vi.fn>;
@@ -113,7 +95,6 @@ describe("TextInfoNode", () => {
     };
 
     clipboardHook.mockReset();
-    pushStateMock.mockReset();
     updateNodeInternalsMock.mockReset();
     resizeHandlers.onResize = undefined;
     resizeHandlers.onResizeEnd = undefined;
@@ -163,9 +144,55 @@ describe("TextInfoNode", () => {
     await user.type(textarea, " Updated");
     await user.tab();
 
-    await waitFor(() => expect(pushStateMock).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(scheduler.scheduleSnapshot).toHaveBeenCalledWith("Edit Text")
+    );
 
     expect(nodesState[0].data.content).toContain("Updated");
+  });
+
+  it("commits an in-progress edit when the node unmounts", async () => {
+    // Regression for RB-26: onlyRenderVisibleElements unmounts off-viewport
+    // nodes without firing blur, which used to discard the typed draft.
+    const clipboardMock = {
+      prettyResult: "",
+      copyResult: vi.fn(),
+      copyError: vi.fn(),
+      copyId: vi.fn(),
+      resultCopied: false,
+      errorCopied: false,
+      idCopied: false,
+    };
+    clipboardHook.mockReturnValue(clipboardMock);
+
+    const user = userEvent.setup();
+
+    const { container, unmount } = renderWithProviders(
+      <TextInfoNode
+        id="text-1"
+        data={nodesState[0].data}
+        selected={false}
+        type="text"
+        dragging={false}
+        zIndex={0}
+        width={nodesState[0].width}
+        height={nodesState[0].height}
+        isConnectable={true}
+        positionAbsoluteX={0}
+        positionAbsoluteY={0}
+      />,
+      { snapshotScheduler: scheduler }
+    );
+
+    const display = container.querySelector(".text-info-markdown") as HTMLElement;
+    await user.dblClick(display);
+
+    const textarea = await screen.findByPlaceholderText("Type markdown here…");
+    await user.type(textarea, " Offscreen");
+
+    unmount();
+
+    expect(nodesState[0].data.content).toContain("Offscreen");
   });
 
   it("does not cap rendered markdown width inside wide text nodes", () => {
@@ -212,8 +239,9 @@ describe("TextInfoNode", () => {
     await user.click(screen.getByTitle("Larger font"));
 
     expect(nodesState[0].data.fontSize).toBe(18);
-    await waitFor(() => expect(pushStateMock).toHaveBeenCalled());
-    pushStateMock.mockClear();
+    await waitFor(() =>
+      expect(scheduler.scheduleSnapshot).toHaveBeenCalledWith("Font Size")
+    );
 
     resizeHandlers.onResize?.(null, { width: 420, height: 200 });
     expect(nodesState[0].data.width).toBe(420);
@@ -224,7 +252,11 @@ describe("TextInfoNode", () => {
     await waitFor(() => expect(updateNodeInternalsMock).toHaveBeenCalledWith("text-1"));
 
     resizeHandlers.onResizeEnd?.();
-    await waitFor(() => expect(pushStateMock).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(scheduler.scheduleSnapshot).toHaveBeenCalledWith(
+        "Resize Text Node"
+      )
+    );
   });
 
   it("repairs stale React Flow geometry from saved text info dimensions", async () => {

@@ -106,9 +106,20 @@ export default function OpCodeNode({
   }, [currentComment, isCommentEditing]);
 
   /* ------------ Derive selected opcodes from node data ------------ */
+  // Keep display indices aligned with the stored name list: unknown names
+  // (e.g. from flows saved with another catalogue version) render as
+  // placeholders instead of being filtered out, so removeOp(index) below
+  // targets the right entry.
   const selectedOps = useMemo(() => {
     const names = getOpcodeInputNames(data);
-    return names.map(findOpItemByName).filter((i): i is OpItem => i !== null);
+    return names.map(
+      (name): OpItem =>
+        findOpItemByName(name) ?? {
+          name,
+          hex: "??",
+          description: "Unknown opcode (not in catalogue)",
+        }
+    );
   }, [data]);
 
   const resultHex = typeof data.result === "string" ? data.result : "";
@@ -227,6 +238,28 @@ export default function OpCodeNode({
       scheduleSnapshot("Update Node Comment");
     },
     [id, scheduleSnapshot, setNodes]
+  );
+
+  // onlyRenderVisibleElements unmounts off-viewport nodes without firing
+  // blur; flush an in-progress comment edit so typed text isn't lost.
+  const commentFlushRef = useRef({
+    isCommentEditing,
+    commentDraft,
+    commitCommentOnBlur,
+  });
+  commentFlushRef.current = {
+    isCommentEditing,
+    commentDraft,
+    commitCommentOnBlur,
+  };
+  useEffect(
+    () => () => {
+      const pending = commentFlushRef.current;
+      if (pending.isCommentEditing) {
+        pending.commitCommentOnBlur(pending.commentDraft);
+      }
+    },
+    []
   );
 
   const deleteNode = useCallback(() => {

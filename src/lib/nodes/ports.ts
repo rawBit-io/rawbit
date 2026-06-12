@@ -51,10 +51,16 @@ export function buildPorts(n: FlowNode): NodePorts {
 
   const numInputs = data.numInputs;
   const hasExplicitNumInputs = typeof numInputs === "number";
+  const isMultiVal = (data.paramExtraction ?? "single_val") === "multi_val";
+
+  // Dropdown (options) fields and unconnectable fields render no handle, so
+  // they must never be offered as connect targets.
+  const isConnectableField = (field: FieldDefinition) =>
+    !field.unconnectable && !field.options?.length;
 
   const ungrouped = inputStructure?.ungrouped ?? [];
   ungrouped.forEach((field) => {
-    if (!field.unconnectable) registerHandle(field.index, field.label);
+    if (isConnectableField(field)) registerHandle(field.index, field.label);
   });
 
   const groups = inputStructure?.groups ?? [];
@@ -64,24 +70,33 @@ export function buildPorts(n: FlowNode): NodePorts {
     const bases = instanceKeys[group.title] ?? [];
     bases.forEach((base) => {
       group.fields.forEach((field) => {
-        registerHandle(base + field.index, field.label);
+        if (isConnectableField(field)) {
+          registerHandle(base + field.index, field.label);
+        }
       });
     });
 
     const helpers: FieldDefinition[] =
       inputStructure?.betweenGroups?.[group.title] ?? [];
-    helpers.forEach((field) => registerHandle(field.index, field.label));
+    helpers.forEach((field) => {
+      if (isConnectableField(field)) registerHandle(field.index, field.label);
+    });
   });
 
   const afterGroups = inputStructure?.afterGroups ?? [];
-  afterGroups.forEach((field) => registerHandle(field.index, field.label));
+  afterGroups.forEach((field) => {
+    if (isConnectableField(field)) registerHandle(field.index, field.label);
+  });
 
-  const betweenGroups = inputStructure?.betweenGroups ?? {};
-  const hasGroupedStructure =
-    groups.length > 0 || Object.keys(betweenGroups).length > 0;
-
-  if (hasExplicitNumInputs && (numInputs as number) > 0 && !hasGroupedStructure) {
-    for (let i = 0; i < numInputs; i += 1) {
+  // Contiguous numInputs fallback only applies to legacy nodes without an
+  // inputStructure; structured nodes use sparse field indices, so the
+  // fallback would invent phantom ports that no rendered handle backs.
+  // The iteration count is capped because numInputs can come from imported
+  // (untrusted) JSON — validateFlowData rejects out-of-range values, but
+  // buildPorts must not freeze the tab even if called before validation.
+  if (hasExplicitNumInputs && (numInputs as number) > 0 && !inputStructure) {
+    const boundedNumInputs = Math.min(numInputs as number, 4096);
+    for (let i = 0; i < boundedNumInputs; i += 1) {
       if (!handleLabels.has(`input-${i}`)) {
         registerHandle(i);
       }
@@ -101,9 +116,16 @@ export function buildPorts(n: FlowNode): NodePorts {
     if (shouldDefaultSingleInput) registerHandle(0);
   }
 
-  const inputs: PortInfo[] = Array.from(handleLabels.entries()).map(
-    ([handleId, lbl]) => ({ label: lbl, handleId })
-  );
+  // Single-val nodes that declare zero inputs (e.g. identity 'Input',
+  // 'Random 32 Bytes') render no target handle at all.
+  const acceptsNoInputs = hasExplicitNumInputs && numInputs === 0 && !isMultiVal;
+
+  const inputs: PortInfo[] = acceptsNoInputs
+    ? []
+    : Array.from(handleLabels.entries()).map(([handleId, lbl]) => ({
+        label: lbl,
+        handleId,
+      }));
 
   return {
     id: n.id,

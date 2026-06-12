@@ -3,7 +3,7 @@ import type { NodeData } from "@/types";
 import type { UseCalcNodeDerivedResult } from "@/hooks/nodes/useCalcNodeDerived";
 import type { ClipboardLiteResult } from "@/hooks/nodes/useClipboardLite";
 import userEvent from "@testing-library/user-event";
-import { screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/components/dialog/ScriptExecutionSteps", () => ({
@@ -214,6 +214,49 @@ describe("CalculationNodeView", () => {
 
     const copyIdItem = screen.getByRole("menuitem", { name: /copied ✓/i });
     expect(copyIdItem).toBeInTheDocument();
+  });
+
+  it("falls back to 'Unknown error' in the tooltip when extendedError is missing", async () => {
+    // Regression for RB-52: String(undefined) is the truthy "undefined",
+    // which used to render literally instead of the fallback.
+    const clip = createClip();
+    const mut = createMut();
+
+    renderWithProviders(
+      <CalculationNodeView
+        selected={false}
+        data={{ ...data, error: true, extendedError: undefined } as NodeData}
+        rawTitle="Calc Node"
+        derived={derived}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        singleValue={undefined}
+        result={undefined}
+        error={true}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: false,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    const icon = document.querySelector(".node-error-icon");
+    expect(icon).not.toBeNull();
+    // Radix tooltips open without delay on focus (hover needs a real pointer).
+    fireEvent.focus(icon!.parentElement as HTMLElement);
+
+    // Radix renders the tooltip content plus a visually-hidden a11y copy.
+    expect(
+      (await screen.findAllByText("Unknown error")).length
+    ).toBeGreaterThan(0);
+    expect(screen.queryByText("undefined")).toBeNull();
   });
 
   it("renders signet for network-dependent nodes", () => {

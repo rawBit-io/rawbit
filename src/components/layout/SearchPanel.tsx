@@ -298,7 +298,11 @@ export function SearchPanel(props: SearchPanelFullProps) {
                         onLocateMatch?.(n.id, sanitizedTerm);
                       }}
                       onKeyDown={(e) => {
+                        // Ignore key events bubbling from the nested copy
+                        // button; only react to keys aimed at the row itself.
+                        if (e.target !== e.currentTarget) return;
                         if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
                           onSelect(n.id);
                           onLocateMatch?.(n.id, sanitizedTerm);
                         }

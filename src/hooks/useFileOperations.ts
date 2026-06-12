@@ -353,9 +353,15 @@ export function useFileOperations(
       nodes,
       edges,
     });
-    const canonicalEdges = normalizeAndDedupeEdgeConnections(canonicalGraph.edges);
     const nodesWithSteps = hydrateNodesWithScriptSteps(
       stripLegacyFlowMapNodeData(canonicalGraph.nodes)
+    );
+    // Import validation hard-rejects dangling edges, so never export one.
+    const exportedNodeIds = new Set(nodesWithSteps.map((n) => n.id));
+    const canonicalEdges = normalizeAndDedupeEdgeConnections(
+      canonicalGraph.edges
+    ).filter(
+      (e) => exportedNodeIds.has(e.source) && exportedNodeIds.has(e.target)
     );
 
     const payload: FullExportPayload = {
@@ -527,6 +533,7 @@ export function useFileOperations(
             importEdges: parsed.edges,
             dedupeEdges: true,
             renameMode: "collision", // rename only when IDs collide
+            remapGroupBundleOffsets: true,
           });
 
           const sanitizedMergedNodes = stripLegacyFlowMapNodeData(

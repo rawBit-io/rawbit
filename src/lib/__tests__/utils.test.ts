@@ -22,4 +22,9 @@ describe("vals helpers", () => {
     const cleared = setVal(dict, 0, "");
     expect(cleared).toEqual({ 1: "b", 2: "c" });
   });
+
+  it("starts from an empty dictionary when the store is missing", () => {
+    expect(setVal(undefined, 2, "x")).toEqual({ 2: "x" });
+    expect(setVal(null, 0, "")).toEqual({});
+  });
 });

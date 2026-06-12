@@ -434,7 +434,7 @@ export default function ScriptExecutionSteps({
       const stackAfter = s.stack_after ?? [];
       const prettyName = prettify(s.opcode, s.opcode_name);
       lines.push(
-        `Step #${i}  PC=${s.pc}  opcode_name=${prettyName}`,
+        `Step #${i + 1}  PC=${s.pc}  opcode_name=${prettyName}`,
         `StackBefore: [${stackBefore.join(", ")}]`,
         `StackAfter: [${stackAfter.join(", ")}]`,
         ...(s.failed ? [`ERROR: ${s.error ?? "Unknown error"}`] : []),
@@ -481,7 +481,10 @@ export default function ScriptExecutionSteps({
 
   /* ----- trace available ----- */
   const steps = scriptResult.steps as StepData[];
-  const step = steps[idx];
+  // A recalculation can shrink the trace while the dialog is open; the
+  // reset effect only runs after render, so clamp idx for this render.
+  const safeIdx = Math.min(idx, steps.length - 1);
+  const step = steps[safeIdx];
   const phase = step.phase ?? "scriptSig";
 
   const ssHex = scriptSigInputHex || scriptResult.scriptSig || "";
@@ -538,7 +541,7 @@ export default function ScriptExecutionSteps({
             size="sm"
             className="select-none"
             onClick={prev}
-            disabled={idx === 0}
+            disabled={safeIdx === 0}
           >
             Prev
           </Button>
@@ -547,12 +550,12 @@ export default function ScriptExecutionSteps({
             size="sm"
             className="select-none"
             onClick={next}
-            disabled={idx === steps.length - 1}
+            disabled={safeIdx === steps.length - 1}
           >
             Next
           </Button>
           <div className="mx-2 text-sm text-muted-foreground">
-            Step {idx + 1}/{steps.length} — {phaseText}
+            Step {safeIdx + 1}/{steps.length} — {phaseText}
           </div>
         </div>
 

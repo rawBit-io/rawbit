@@ -34,7 +34,7 @@ describe("useAutoRefreshVersion", () => {
       } as Response);
 
     const { unmount } = renderHook(() =>
-      useAutoRefreshVersion({ tabs: [], saveTabData: vi.fn() })
+      useAutoRefreshVersion({ activeTabId: "tab-1", saveTabData: vi.fn() })
     );
 
     await waitFor(() => {
@@ -58,7 +58,7 @@ describe("useAutoRefreshVersion", () => {
       } as unknown as Response);
 
     const { unmount } = renderHook(() =>
-      useAutoRefreshVersion({ tabs: [], saveTabData: vi.fn() })
+      useAutoRefreshVersion({ activeTabId: "tab-1", saveTabData: vi.fn() })
     );
 
     await waitFor(() => {
@@ -90,7 +90,7 @@ describe("useAutoRefreshVersion", () => {
       } as Response);
 
     const { unmount } = renderHook(() =>
-      useAutoRefreshVersion({ tabs: [], saveTabData: vi.fn() })
+      useAutoRefreshVersion({ activeTabId: "tab-1", saveTabData: vi.fn() })
     );
 
     await waitFor(() => {
@@ -101,7 +101,7 @@ describe("useAutoRefreshVersion", () => {
     unmount();
   });
 
-  it("persists tabs and reloads once when returning from idle with pending flag", async () => {
+  it("persists only the active tab and reloads once when returning from idle with pending flag", async () => {
     vi.useFakeTimers();
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
@@ -115,10 +115,7 @@ describe("useAutoRefreshVersion", () => {
 
     const { unmount } = renderHook(() =>
       useAutoRefreshVersion({
-        tabs: [
-          { id: "tab-a" },
-          { id: "tab-b" },
-        ],
+        activeTabId: "tab-a",
         saveTabData,
         onReload: reloadSpy,
       })
@@ -133,8 +130,14 @@ describe("useAutoRefreshVersion", () => {
       document.dispatchEvent(new Event("visibilitychange"));
     });
 
-    expect(saveTabData).toHaveBeenCalledWith("tab-a");
-    expect(saveTabData).toHaveBeenCalledWith("tab-b");
+    // Only the active tab may be saved here: saveTabData snapshots the live
+    // canvas (always the active tab's graph), so saving any other tab id
+    // would overwrite that tab's archive with the active tab's content.
+    expect(saveTabData).toHaveBeenCalledTimes(1);
+    expect(saveTabData).toHaveBeenCalledWith("tab-a", {
+      force: true,
+      immediate: true,
+    });
     expect(reloadSpy).toHaveBeenCalledTimes(1);
     expect(window.localStorage.getItem(NEEDS_RELOAD_KEY)).toBeNull();
 

@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useRef } from "react";
 
 type AutoRefreshArgs = {
-  tabs: { id: string }[];
-  saveTabData: (tabId: string) => void;
+  activeTabId: string;
+  saveTabData: (
+    tabId: string,
+    options?: { force?: boolean; immediate?: boolean }
+  ) => void;
   onReload?: () => void;
   disableVersionPolling?: boolean;
 };
@@ -107,7 +110,7 @@ async function fetchVersion(): Promise<string | null> {
 }
 
 export function useAutoRefreshVersion({
-  tabs,
+  activeTabId,
   saveTabData,
   onReload,
   disableVersionPolling = false,
@@ -120,11 +123,14 @@ export function useAutoRefreshVersion({
     reloadingRef.current = true;
 
     try {
-      tabs.forEach((tab) => {
-        if (tab?.id) {
-          saveTabData(tab.id);
-        }
-      });
+      // Save only the active tab: saveTabData snapshots the live canvas,
+      // which always holds the active tab's graph — saving any other tab id
+      // would overwrite that tab's archive with this one. Inactive tabs were
+      // already persisted when they were switched away from. `immediate`
+      // encodes synchronously so the write lands before location.reload().
+      if (activeTabId) {
+        saveTabData(activeTabId, { force: true, immediate: true });
+      }
     } catch (error) {
       console.error("Failed to persist tabs before reload", error);
     } finally {
@@ -135,7 +141,7 @@ export function useAutoRefreshVersion({
         window.location.reload();
       }
     }
-  }, [onReload, saveTabData, tabs]);
+  }, [activeTabId, onReload, saveTabData]);
 
   useEffect(() => {
     if (typeof window === "undefined" || typeof document === "undefined") {

@@ -213,6 +213,15 @@ export function useSharedFlowLoader({
     loadingSharedIdRef.current = sharedId;
     let cancelled = false;
 
+    // Reset the trigger state on failure so re-submitting the same id from
+    // the Load-Link dialog re-runs this effect; with sharedId left set, an
+    // identical setSharedId bails out (Object.is) and the retry is a silent
+    // no-op. loadedSharedIdRef stays unset so a later attempt still loads.
+    const resetFailedShareTrigger = () => {
+      clearSharedIdFromLocation();
+      setSharedId(null);
+    };
+
     (async () => {
       try {
         const data = await loadSharedOnce(sharedId);
@@ -226,6 +235,7 @@ export function useSharedFlowLoader({
             const message = `Shared flow is ${formatBytes(rawBytes)}, over the ${formatBytes(MAX_FLOW_BYTES)} limit.`;
             console.error(message);
             options.setInfoDialog({ open: true, message });
+            resetFailedShareTrigger();
             return;
           }
         } catch (sizeErr) {
@@ -237,6 +247,7 @@ export function useSharedFlowLoader({
             open: true,
             message: "Shared flow payload is empty or unreadable.",
           });
+          resetFailedShareTrigger();
           return;
         }
 
@@ -254,6 +265,7 @@ export function useSharedFlowLoader({
             message:
               "Shared flow is a simplified snapshot that omits layout data and can't be loaded; request a full export instead.",
           });
+          resetFailedShareTrigger();
           return;
         }
 
@@ -284,6 +296,7 @@ export function useSharedFlowLoader({
             open: true,
             message,
           });
+          resetFailedShareTrigger();
           return;
         }
 
@@ -311,6 +324,7 @@ export function useSharedFlowLoader({
               message:
                 "Could not open a new tab for the shared flow. Your current tab was left unchanged.",
             });
+            resetFailedShareTrigger();
             return;
           }
           targetTabId = ensuredId;
@@ -338,6 +352,7 @@ export function useSharedFlowLoader({
           importEdges: sharedEdges,
           dedupeEdges: true,
           renameMode: "collision",
+          remapGroupBundleOffsets: true,
         });
 
         if (shouldReplaceGraph) {
@@ -452,6 +467,7 @@ export function useSharedFlowLoader({
           open: true,
           message: `Could not load shared flow: ${message}`,
         });
+        resetFailedShareTrigger();
       } finally {
         if (loadingSharedIdRef.current === sharedId) {
           loadingSharedIdRef.current = null;

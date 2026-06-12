@@ -81,6 +81,19 @@ def test_expand_function_source_includes_manual_bip39_seed_helpers():
     assert "def bip39_mnemonic_to_seed" in expanded
 
 
+def test_expand_function_source_bip32_excludes_wordlist():
+    # HMAC-SHA512 use alone must not pull in the 2048-word BIP39 wordlist.
+    func = calc_ops.bip32_derive_private_key
+    source = inspect.getsource(func)
+
+    expanded = expand_function_source(func, source)
+
+    assert "BIP39 English wordlist" not in expanded
+    assert "_BIP39_ENGLISH_WORDLIST" not in expanded
+    assert "def _hmac_sha512" in expanded
+    assert "def bip32_derive_private_key" in expanded
+
+
 def test_expand_function_source_includes_opcode_sequence_conversion():
     func = calc_ops.op_code_select
     source = inspect.getsource(func)

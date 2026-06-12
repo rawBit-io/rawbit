@@ -47,15 +47,12 @@ _BECH32_HELPERS = [
     "_bech32_decode",
     "_hrp_for_network",
 ]
-_BIP39_HELPERS = [
-    "_bip39_mnemonic_to_entropy",
-    "_hmac_sha512",
-    "_pbkdf2_hmac_sha512",
-]
-_BIP39_SYMBOLS = [
+# Symbols that actually consult the wordlist; generic crypto helpers like
+# _hmac_sha512 are covered by the local-helper block instead.
+_BIP39_WORDLIST_SYMBOLS = [
     "_BIP39_ENGLISH_WORDLIST",
     "_BIP39_ENGLISH_INDEX",
-    *_BIP39_HELPERS,
+    "_bip39_mnemonic_to_entropy",
 ]
 
 # Regex that detects usage of any helper name in the function source
@@ -63,7 +60,7 @@ _HELPER_PATTERN = re.compile(
     r"\b(" + "|".join(map(re.escape, _BASE58_HELPERS + _BECH32_HELPERS)) + r")\b"
 )
 _BIP39_PATTERN = re.compile(
-    r"\b(" + "|".join(map(re.escape, _BIP39_SYMBOLS)) + r")\b"
+    r"\b(" + "|".join(map(re.escape, _BIP39_WORDLIST_SYMBOLS)) + r")\b"
 )
 _OPCODE_SEQUENCE_HELPERS = ["_ordered_values", "opcode_sequence_to_hex"]
 
@@ -254,8 +251,10 @@ def expand_function_source(_func_obj: SourceObject, func_source: str) -> str:
     uses_bech32 = bool(direct_uses.intersection(_BECH32_HELPERS)) or bool(
         helper_name_set.intersection(_BECH32_HELPERS)
     )
-    uses_bip39 = bool(_BIP39_PATTERN.search(source)) or bool(
-        helper_name_set.intersection(_BIP39_SYMBOLS)
+    uses_bip39 = (
+        bool(_BIP39_PATTERN.search(source))
+        or "_bip39_mnemonic_to_entropy" in helper_name_set
+        or any("_BIP39_ENGLISH_" in src for _, src in helper_entries)
     )
     uses_opcode_sequence = (
         getattr(_func_obj, "__name__", "") == "op_code_select"

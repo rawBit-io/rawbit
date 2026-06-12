@@ -615,11 +615,15 @@ function FlowContent() {
   }>({});
   const pendingExampleViewportRef = useRef<Viewport | null>(null);
   const exampleFitRetryTimeoutIdsRef = useRef<number[]>([]);
-  const graphRev = useRef(0); // monotonically-increasing revision counter
+  const graphRev = useRef(0); // revision counter (rewound to tab.version on tab switch)
   const [revTick, setRevTick] = useState(0);
   const incrementGraphRev = useCallback(() => {
     graphRev.current += 1;
-    setRevTick(graphRev.current);
+    // revTick is a pure change counter, deliberately decoupled from
+    // graphRev: useTabs rewinds graphRev on tab switch, so mirroring its
+    // value here can hand React the state it already has (Object.is bail)
+    // and silently skip the autosave effect for the next edit.
+    setRevTick((tick) => tick + 1);
     return graphRev.current;
   }, []);
   const { theme, setTheme } = useTheme(); // "light" | "dark" | "system"
@@ -1168,6 +1172,10 @@ function FlowContent() {
       pendingSharedGraphRef.current = null;
       return;
     }
+    // The live canvas belongs to the active tab — if the user switched away
+    // before a deferred reapply fired, writing pending's graph into the
+    // canvas (and saving it) would clobber the now-active tab.
+    if (activeTabIdRef.current !== pending.tabId) return;
 
     const currentNodes = nodesRef.current;
     const currentEdges = edgesRef.current;
@@ -1229,7 +1237,7 @@ function FlowContent() {
   ]);
 
   const saveTabDataGuardingSharedImport = useCallback(
-    (tabId: string) => {
+    (tabId: string, options?: Parameters<typeof saveTabData>[1]) => {
       const pending = pendingSharedGraphRef.current;
       if (pending?.tabId === tabId) {
         reapplyPendingSharedGraph();
@@ -1237,7 +1245,7 @@ function FlowContent() {
           return;
         }
       }
-      saveTabData(tabId);
+      saveTabData(tabId, options);
     },
     [reapplyPendingSharedGraph, saveTabData]
   );
@@ -1298,7 +1306,7 @@ function FlowContent() {
   );
 
   useAutoRefreshVersion({
-    tabs,
+    activeTabId,
     saveTabData: saveTabDataGuardingSharedImport,
     disableVersionPolling: import.meta.env.MODE === "test",
   });
@@ -1372,6 +1380,7 @@ function FlowContent() {
       loadingUndoRef,
     },
     getCalcSnapshot,
+    getActiveTabId: () => activeTabIdRef.current ?? activeTabId,
   });
 
   const {
@@ -1757,7 +1766,23 @@ function FlowContent() {
       });
     });
 
+    const introTabId = activeTabIdRef.current;
     scheduleIntroDropStep(INTRO_FLOW_DROP_MS, () => {
+      // Bail if the user started building or switched tabs while the
+      // animation played — loading the example now would silently replace
+      // their work (or land in the wrong tab).
+      if (
+        nodesRef.current.length > 0 ||
+        edgesRef.current.length > 0 ||
+        activeTabIdRef.current !== introTabId
+      ) {
+        clearIntroDropAnimationTimers();
+        introDropScheduledRef.current = false;
+        setIsIntroDropAnimating(false);
+        setIntroDropState(null);
+        markWelcomeComplete();
+        return;
+      }
       const targetScreen = getIntroTargetScreenPosition();
       const loaded = loadExampleFlow(introFlowId, {
         placement: "top-left-drop",
@@ -1795,6 +1820,7 @@ function FlowContent() {
       });
     });
   }, [
+    clearIntroDropAnimationTimers,
     exampleFlowMap,
     exampleFlowOptions,
     edges.length,
@@ -3115,6 +3141,9 @@ function FlowContent() {
 
   // remember which history index we have already mounted
   const lastLoadedPtr = useRef<number>(pointer);
+  // Invalidates the deferred edge writes of superseded restores so rapid
+  // undo/redo can't pair one snapshot's nodes with another's edges.
+  const historyRestoreGenRef = useRef(0);
 
   useEffect(() => {
     if (skipLoadRef.current) {
@@ -3126,6 +3155,11 @@ function FlowContent() {
     if (lastLoadedPtr.current === pointer) return;
     lastLoadedPtr.current = pointer;
     if (pointer < 0 || pointer >= history.length) return;
+
+    // Incremented only after the early-return guards: a skipped effect run
+    // must not cancel the previous restore's still-pending edge write.
+    historyRestoreGenRef.current += 1;
+    const restoreGen = historyRestoreGenRef.current;
 
     const snap = history[pointer];
     loadingUndoRef.current = true;
@@ -3150,6 +3184,7 @@ function FlowContent() {
 
     setNodes(restoredNodes);
     requestAnimationFrame(() => {
+      if (historyRestoreGenRef.current !== restoreGen) return;
       const hasMissingHandle = restoredEdges.some((edge) => {
         const targetNode = restoredNodes.find(
           (node) => node.id === edge.target
@@ -3166,7 +3201,10 @@ function FlowContent() {
       if (hasMissingHandle) {
         // Keep the current edges visible while handles remount to avoid a flash.
         requestAnimationFrame(() => {
-          setTimeout(() => setEdges(restoredEdges), 0);
+          setTimeout(() => {
+            if (historyRestoreGenRef.current !== restoreGen) return;
+            setEdges(restoredEdges);
+          }, 0);
         });
       } else {
         setEdges(restoredEdges);

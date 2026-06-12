@@ -59,6 +59,19 @@ describe("SearchPanel", () => {
     expect(onSelect).toHaveBeenCalledWith("hash-node");
   });
 
+  it("does not fire the row action when keyboard-activating the nested copy button", async () => {
+    const onSelect = vi.fn();
+    const onLocateMatch = vi.fn();
+    renderPanel({ query: "hash", setQuery: vi.fn(), onSelect, onLocateMatch });
+
+    const copyButton = await screen.findByLabelText(/Copy: Hash Node hash-node/);
+    fireEvent.keyDown(copyButton, { key: "Enter" });
+    fireEvent.keyDown(copyButton, { key: " " });
+
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(onLocateMatch).not.toHaveBeenCalled();
+  });
+
   it("copies text using navigator.clipboard when available", async () => {
     const clipboard = mockClipboard();
     renderPanel({ query: "hash", setQuery: vi.fn() });

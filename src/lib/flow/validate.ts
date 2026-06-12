@@ -53,6 +53,10 @@ const DEFAULT_ALLOWED_NODE_TYPES = new Set<string>([
 
 const HANDLE_PLACEHOLDER = "__DEFAULT_HANDLE__";
 
+// buildPorts iterates numInputs times, so untrusted values must be bounded
+// before any handle metadata is collected (far above any real template).
+const MAX_NODE_NUM_INPUTS = 4096;
+
 const isFiniteNumber = (value: unknown): value is number =>
   typeof value === "number" && Number.isFinite(value);
 
@@ -262,6 +266,26 @@ export function validateFlowData(
       }
     }
 
+    if (isPlainObject(node.data) && node.data.numInputs !== undefined) {
+      const numInputs = node.data.numInputs;
+      if (
+        typeof numInputs !== "number" ||
+        !Number.isInteger(numInputs) ||
+        numInputs < 0 ||
+        numInputs > MAX_NODE_NUM_INPUTS
+      ) {
+        issues.push({
+          level: "error",
+          code: "NODE_NUM_INPUTS_INVALID",
+          message: `Node ${label} has invalid numInputs (expected integer 0-${MAX_NODE_NUM_INPUTS}).`,
+          nodeId: node.id,
+        });
+        // Skip handle collection: buildPorts iterates numInputs times, so a
+        // crafted value would freeze the tab right here in validation.
+        return;
+      }
+    }
+
     const meta = collectHandleMetadata(node);
     handleMeta.set(node.id, meta);
   });
@@ -310,6 +334,38 @@ export function validateFlowData(
       });
     }
   });
+
+  // Parent cycles (A->B->A) pass every per-node check above but have no
+  // valid parent-before-child order, which React Flow requires.
+  {
+    const parentById = new Map<string, string>();
+    nodes.forEach((node) => {
+      const parentId = (node as { parentId?: unknown }).parentId;
+      if (typeof parentId === "string" && parentId && parentId !== node.id) {
+        parentById.set(node.id, parentId);
+      }
+    });
+    const cycleReported = new Set<string>();
+    nodes.forEach((node, index) => {
+      if (cycleReported.has(node.id)) return;
+      const seen = new Set<string>([node.id]);
+      let current = parentById.get(node.id);
+      while (current !== undefined) {
+        if (seen.has(current)) {
+          issues.push({
+            level: "error",
+            code: "NODE_PARENT_CYCLE",
+            message: `Node ${nodeLabel(node, index)} is part of a group parent cycle.`,
+            nodeId: node.id,
+          });
+          seen.forEach((id) => cycleReported.add(id));
+          break;
+        }
+        seen.add(current);
+        current = parentById.get(current);
+      }
+    });
+  }
 
   const incomingPerNode = new Map<string, Map<string, string>>();
   const edgeIds = new Set<string>();

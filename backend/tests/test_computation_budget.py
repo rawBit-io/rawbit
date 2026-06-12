@@ -88,8 +88,53 @@ def test_redis_tracker_record_sets_ttl_and_registry():
     pipeline = fake_client.pipelines[-1]
 
     assert any(call[0] == "zadd" for call in pipeline.calls)
-    assert any(call[0] == "expire" for call in pipeline.calls)
     assert any(call[0] == "sadd" for call in pipeline.calls)
+    expire_targets = [call[1][0] for call in pipeline.calls if call[0] == "expire"]
+    assert tracker._make_key("user") in expire_targets
+    # The registry set must also expire or it grows without bound.
+    assert tracker._registry_key in expire_targets
+
+
+def test_redis_tracker_check_fails_open_on_redis_error(caplog, monkeypatch):
+    class FakeRedisError(Exception):
+        pass
+
+    class FailingPipeline(FakePipeline):
+        def execute(self):
+            raise FakeRedisError("connection lost")
+
+    monkeypatch.setattr(computation_budget, "RedisError", FakeRedisError)
+    fake_client = RecordingRedisClient(pipeline_factory=FailingPipeline)
+    tracker = RedisCalculationBudgetTracker(
+        fake_client, window_seconds=60, budget_seconds=1.0
+    )
+
+    caplog.set_level(logging.WARNING)
+    allowed, total = tracker.check("user", now=100.0)
+
+    assert allowed is True
+    assert total == 0.0
+    assert "Redis budget check failed" in caplog.text
+
+
+def test_redis_tracker_record_swallows_redis_error(caplog, monkeypatch):
+    class FakeRedisError(Exception):
+        pass
+
+    class FailingPipeline(FakePipeline):
+        def execute(self):
+            raise FakeRedisError("connection lost")
+
+    monkeypatch.setattr(computation_budget, "RedisError", FakeRedisError)
+    fake_client = RecordingRedisClient(pipeline_factory=FailingPipeline)
+    tracker = RedisCalculationBudgetTracker(
+        fake_client, window_seconds=60, budget_seconds=1.0
+    )
+
+    caplog.set_level(logging.WARNING)
+    tracker.record("user", duration_seconds=0.5, now=100.0)  # must not raise
+
+    assert "Redis budget record failed" in caplog.text
 
 
 def test_redis_tracker_reset_clears_registry(monkeypatch):

@@ -362,6 +362,86 @@ describe("useFlowInteractions", () => {
     );
   });
 
+  it("applies remove changes synchronously when a large selection is throttled", () => {
+    // Regression for RB-10: queue rAF callbacks instead of running them so
+    // a deferred (torn) remove path would be observable.
+    const rafQueue: FrameRequestCallback[] = [];
+    vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => {
+      rafQueue.push(cb);
+      return rafQueue.length;
+    });
+    vi.stubGlobal("cancelAnimationFrame", () => {});
+
+    const deps = baseDeps();
+    let nodesState: FlowNode[] = Array.from({ length: 30 }, (_, index) => ({
+      id: `node-${index}`,
+      type: "calculation",
+      position: { x: index * 10, y: 0 },
+      data: {},
+      selected: true,
+    })) as FlowNode[];
+    let edgesState: Edge[] = [
+      { id: "edge-0-1", source: "node-0", target: "node-1" } as Edge,
+    ];
+
+    const getNodes = () => nodesState;
+    const getEdges = () => edgesState;
+    const setNodes = (updater: (nodes: FlowNode[]) => FlowNode[]) => {
+      nodesState = updater(nodesState);
+    };
+    const setEdges = (updater: (edges: Edge[]) => Edge[]) => {
+      edgesState = updater(edgesState);
+    };
+
+    const { result } = renderHook(() =>
+      useFlowInteractions({
+        ...deps,
+        rawOnNodesChange: deps.rawOnNodesChange,
+        rawOnEdgesChange: deps.rawOnEdgesChange,
+        onConnect: deps.onConnect,
+        onDrop: deps.onDrop,
+        onNodeDragStop: deps.onNodeDragStop,
+        getNodes,
+        getEdges,
+        setNodes,
+        setEdges,
+        getTopLeftPosition: deps.getTopLeftPosition,
+        pasteNodes: deps.pasteNodes,
+        isSidebarOpen: false,
+        setTabTooltip: deps.setTabTooltip,
+        renameTab: deps.renameTab,
+        activeTabId: "tab-1",
+        groupSelectedNodes: deps.groupSelectedNodes,
+        ungroupSelectedNodes: deps.ungroupSelectedNodes,
+        clearHighlights: deps.clearHighlights,
+        setIsSearchHighlight: deps.setIsSearchHighlight,
+        incRev: deps.incRev,
+        pushCleanState: deps.pushCleanState,
+        updatePaletteEligibility: deps.updatePaletteEligibility,
+        skipNextNodeRemovalRef: deps.skipNextNodeRemovalRef,
+        releaseNodeRemovalSnapshotSkip: deps.releaseNodeRemovalSnapshotSkip,
+      })
+    );
+
+    const removeChanges = nodesState.map(
+      (node) => ({ id: node.id, type: "remove" }) as NodeChange<FlowNode>
+    );
+
+    act(() => {
+      result.current.onNodesChange(removeChanges);
+    });
+
+    // Structural changes must reach React Flow synchronously (not on the
+    // next frame) so the "Node(s) removed" snapshot captures nodes and
+    // edges from the same post-delete state.
+    expect(deps.rawOnNodesChange).toHaveBeenCalledWith(removeChanges);
+    expect(edgesState).toEqual([]);
+    expect(deps.scheduleSnapshot).toHaveBeenCalledWith(
+      "Node(s) removed",
+      expect.objectContaining({ refresh: true })
+    );
+  });
+
   it("removes child edges when a group is removed", () => {
     const deps = baseDeps();
     let nodesState: FlowNode[] = [

@@ -7,6 +7,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 type TurnstileTheme = "light" | "dark" | "auto";
 
@@ -28,6 +29,36 @@ declare global {
   }
 }
 
+const TURNSTILE_SCRIPT_SRC =
+  "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+
+let turnstileScriptPromise: Promise<void> | null = null;
+
+const loadTurnstileScript = (): Promise<void> => {
+  if (window.turnstile) return Promise.resolve();
+  if (turnstileScriptPromise) return turnstileScriptPromise;
+  const load = new Promise<void>((resolve, reject) => {
+    const existing = document.head.querySelector<HTMLScriptElement>(
+      `script[src="${TURNSTILE_SCRIPT_SRC}"]`
+    );
+    const script = existing ?? document.createElement("script");
+    script.onload = () => resolve();
+    script.onerror = () => {
+      script.remove();
+      reject(new Error("Turnstile script failed to load"));
+    };
+    if (!existing) {
+      script.src = TURNSTILE_SCRIPT_SRC;
+      script.async = true;
+      document.head.appendChild(script);
+    }
+  });
+  turnstileScriptPromise = load.finally(() => {
+    turnstileScriptPromise = null;
+  });
+  return turnstileScriptPromise;
+};
+
 type Props = {
   open: boolean;
   onClose: () => void;
@@ -43,30 +74,33 @@ export function SoftGateDialog({
 }: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [ready, setReady] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  // Keep the latest onVerified in a ref so an unstable prop identity does not
+  // force the widget effect to destroy and recreate the Turnstile widget.
+  const onVerifiedRef = useRef(onVerified);
+  onVerifiedRef.current = onVerified;
 
   useEffect(() => {
     if (!open) return;
     const ensure = async () => {
-      if (window.turnstile) return setReady(true);
-      await new Promise<void>((resolve) => {
-        const s = document.createElement("script");
-        s.src =
-          "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-        s.async = true;
-        s.onload = () => resolve();
-        document.head.appendChild(s);
-      });
-      setReady(true);
+      try {
+        await loadTurnstileScript();
+        setLoadFailed(false);
+        setReady(true);
+      } catch {
+        setLoadFailed(true);
+      }
     };
     ensure();
-  }, [open]);
+  }, [open, loadAttempt]);
 
   useEffect(() => {
     if (!open || !ready || !ref.current || !window.turnstile) return;
     const widgetId = window.turnstile.render(ref.current, {
       sitekey: siteKey,
       theme: "auto",
-      callback: (token: string) => onVerified(token),
+      callback: (token: string) => onVerifiedRef.current(token),
       "error-callback": () => {
         /* ignore */
       },
@@ -74,7 +108,7 @@ export function SoftGateDialog({
     return () => {
       window.turnstile?.remove?.(widgetId);
     };
-  }, [open, ready, siteKey, onVerified]);
+  }, [open, ready, siteKey]);
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
@@ -86,7 +120,23 @@ export function SoftGateDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-center my-4">
-          <div ref={ref} />
+          {loadFailed ? (
+            <div className="flex flex-col items-center gap-3 text-center">
+              <p className="text-sm text-muted-foreground">
+                The verification widget could not be loaded. Check your
+                connection or content blocker, then try again.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setLoadAttempt((attempt) => attempt + 1)}
+              >
+                Retry
+              </Button>
+            </div>
+          ) : (
+            <div ref={ref} />
+          )}
         </div>
       </DialogContent>
     </Dialog>

@@ -21,6 +21,31 @@ import {
   SENTINEL_NULL,
 } from "@/lib/nodes/constants";
 
+type ConnectedInputMeta = { value: unknown; error: boolean; message?: string };
+
+// Equality fn for the connectedInputMeta useStore selector below: the
+// selector allocates a fresh Map per call, so without content comparison
+// every store update (drag/pan/selection) would re-render every calc node.
+const inputMetaMapsEqual = (
+  a: Map<number, ConnectedInputMeta>,
+  b: Map<number, ConnectedInputMeta>
+) => {
+  if (a === b) return true;
+  if (a.size !== b.size) return false;
+  for (const [index, meta] of a) {
+    const other = b.get(index);
+    if (
+      !other ||
+      other.value !== meta.value ||
+      other.error !== meta.error ||
+      other.message !== meta.message
+    ) {
+      return false;
+    }
+  }
+  return true;
+};
+
 function CalculationNode({ id, data, selected }: NodeProps<FlowNode>) {
   const { setNodes, setEdges, getEdges } = useReactFlow<FlowNode>();
   const snapshotScheduler = useSnapshotSchedulerContext();
@@ -30,10 +55,7 @@ function CalculationNode({ id, data, selected }: NodeProps<FlowNode>) {
   const connectedInputMeta = useStore(
     React.useCallback(
       (state: { edges: Edge[]; nodes: FlowNode[] }) => {
-        const meta = new Map<
-          number,
-          { value: unknown; error: boolean; message?: string }
-        >();
+        const meta = new Map<number, ConnectedInputMeta>();
         const graphEdges = canonicalGraph?.edges ?? state.edges;
         const graphNodes = canonicalGraph?.nodes ?? state.nodes;
         if (!graphEdges.length) return meta;
@@ -73,7 +95,8 @@ function CalculationNode({ id, data, selected }: NodeProps<FlowNode>) {
         return meta;
       },
       [canonicalGraph, id]
-    )
+    ),
+    inputMetaMapsEqual
   );
   const group = useGroupInstances(
     id,
@@ -81,7 +104,7 @@ function CalculationNode({ id, data, selected }: NodeProps<FlowNode>) {
     setNodes,
     setEdges
   );
-  const mut = useCalcNodeMutations(id, setNodes, setEdges, {
+  const mut = useCalcNodeMutations(id, data as NodeData, setNodes, setEdges, {
     scheduleSnapshot: snapshotScheduler.scheduleSnapshot,
   });
 

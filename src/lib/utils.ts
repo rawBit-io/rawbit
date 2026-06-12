@@ -62,12 +62,14 @@ export function setVal(
   idx: number,
   value: string
 ): Record<number, string> {
-  // 1) normalise to Record<number,string>
+  // 1) normalise to Record<number,string> (a missing store starts empty)
   const dict: Record<number, string> = isValsDict(store)
     ? { ...store }
-    : Object.fromEntries(
-        (store as string[]).map((v, i) => [i, v]).filter(([, v]) => v !== "")
-      );
+    : Array.isArray(store)
+      ? Object.fromEntries(
+          (store as string[]).map((v, i) => [i, v]).filter(([, v]) => v !== "")
+        )
+      : {};
 
   // 2) write / delete
   if (value === "") delete dict[idx];

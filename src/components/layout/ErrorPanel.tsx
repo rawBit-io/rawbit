@@ -128,8 +128,13 @@ export function ErrorPanel({
                       tabIndex={0}
                       onClick={() => onSelect(e.nodeId)}
                       onKeyDown={(ev) => {
-                        if (ev.key === "Enter" || ev.key === " ")
+                        // Ignore key events bubbling from the nested copy
+                        // button; only react to keys aimed at the row itself.
+                        if (ev.target !== ev.currentTarget) return;
+                        if (ev.key === "Enter" || ev.key === " ") {
+                          ev.preventDefault();
                           onSelect(e.nodeId);
+                        }
                       }}
                       aria-label={`Select node ${labelFor(e.nodeId)}`}
                       /* NOTE: this wrapper is the hover/focus "group" */

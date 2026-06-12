@@ -26,7 +26,7 @@ OPCODE_TO_HEX = {
     "P2TR_PREFIX": "5120",
     "OP_RETURN_PREFIX": "6a",
     "2OF3_MULTISIG_PREFIX": "5221",
-    "2OF3_MULTISIG_SUFFIX": "5253ae",
+    "2OF3_MULTISIG_SUFFIX": "53ae",
     "OP_0 / OP_FALSE": "00",
     "OP_1NEGATE": "4f",
     "OP_1 / OP_TRUE": "51",

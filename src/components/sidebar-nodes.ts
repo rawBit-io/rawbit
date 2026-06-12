@@ -39,7 +39,9 @@ export const allSidebarNodes: NodeTemplate[] = [
       inputs: { val: "" },
       result: "",
       inputStructure: {
-        ungrouped: [{ index: 0, label: "INPUT VALUE:", rows: 1 }],
+        ungrouped: [
+          { index: 0, label: "INPUT VALUE:", rows: 1, unconnectable: true },
+        ],
       },
       groupInstances: {},
     },
@@ -715,7 +717,7 @@ export const allSidebarNodes: NodeTemplate[] = [
       title: "P2WPKH Witness",
       paramExtraction: "multi_val",
       numInputs: 5,
-      inputs: { vals: [] },
+      inputs: { vals: { 0: "02", 30: "21" } },
 
       version: 0,
       result: "",
@@ -725,7 +727,6 @@ export const allSidebarNodes: NodeTemplate[] = [
             index: 0,
             label: "ITEM_COUNT:",
             placeholder: "02",
-            value: "02",
             rows: 1,
             small: true,
           },
@@ -746,7 +747,6 @@ export const allSidebarNodes: NodeTemplate[] = [
             index: 30,
             label: "PUBKEY_LENGTH:",
             placeholder: "21",
-            value: "21",
             rows: 1,
             small: true,
           },
@@ -2270,7 +2270,9 @@ export const allSidebarNodes: NodeTemplate[] = [
           },
           {
             title: "PARTIAL_SIGS[]",
-            baseIndex: 1000,
+            // 2000 keeps the full PUBKEYS[] range (100..1000 for 10
+            // instances) collision-free; 1000 blocked the 10th pubkey.
+            baseIndex: 2000,
             expandable: true,
             fieldCountToAdd: 1,
             minInstances: 2,
@@ -2293,7 +2295,7 @@ export const allSidebarNodes: NodeTemplate[] = [
       },
       groupInstanceKeys: {
         "PUBKEYS[]": [100, 200],
-        "PARTIAL_SIGS[]": [1000, 1100],
+        "PARTIAL_SIGS[]": [2000, 2100],
       },
       result: "",
     },
@@ -2735,6 +2737,7 @@ export const allSidebarNodes: NodeTemplate[] = [
           {
             index: 3,
             label: "Show On Trezor:",
+            unconnectable: true, // dropdown, no cables
             options: ["true", "false"],
             comment: "Keep true for classroom address confirmation.",
           },
@@ -2854,6 +2857,7 @@ export const allSidebarNodes: NodeTemplate[] = [
               {
                 index: 50,
                 label: "Input Script Type:",
+                unconnectable: true, // dropdown, no cables
                 options: [
                   "AUTO",
                   "SPENDADDRESS",
@@ -2892,6 +2896,7 @@ export const allSidebarNodes: NodeTemplate[] = [
               {
                 index: 20,
                 label: "Output Script Type:",
+                unconnectable: true, // dropdown, no cables
                 options: [
                   "AUTO",
                   "PAYTOADDRESS",

@@ -322,10 +322,55 @@ describe("ScriptExecutionSteps", () => {
       });
     }
 
+    // numbering matches the dialog's 1-based "Step N/M" indicator
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      expect.stringContaining("Step #1")
+    );
+    expect(navigator.clipboard.writeText).not.toHaveBeenCalledWith(
       expect.stringContaining("Step #0")
     );
     await screen.findByRole("button", { name: /Copied!/i });
+  });
+
+  it("survives the trace shrinking while the dialog is open", async () => {
+    const user = userEvent.setup();
+    const longSteps = Array.from({ length: 7 }, (_, index) => ({
+      pc: index,
+      opcode: 118,
+      opcode_name: "OP_DUP",
+      stack_before: ["02"],
+      stack_after: ["02", "02"],
+      phase: "scriptPubKey",
+    }));
+
+    const { rerender } = render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{ isValid: true, steps: longSteps }}
+        scriptSigInputHex="76"
+        scriptPubKeyInputHex="88"
+      />
+    );
+
+    const nextButton = screen.getByRole("button", { name: /Next/i });
+    for (let i = 0; i < 6; i += 1) {
+      await user.click(nextButton);
+    }
+    expect(screen.getByText(/Step 7\/7/i)).toBeInTheDocument();
+
+    // a recalculation replaces the trace with a shorter one
+    rerender(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{ isValid: false, steps: longSteps.slice(0, 3) }}
+        scriptSigInputHex="76"
+        scriptPubKeyInputHex="88"
+      />
+    );
+
+    expect(screen.getByText(/Step 1\/3/i)).toBeInTheDocument();
   });
 
   it("renders an empty-state message when no steps are available", () => {
