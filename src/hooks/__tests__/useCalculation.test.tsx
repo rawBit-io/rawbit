@@ -101,4 +101,39 @@ describe("useGlobalCalculationLogic", () => {
     expect(onStatusChange).toHaveBeenCalledWith("CALC");
     expect(onStatusChange).toHaveBeenCalledWith("OK", []);
   });
+
+  it("dedupes structurally-identical edges before the backend round-trip", async () => {
+    // Regression for the Safari shared-import bug: the live edge state can
+    // transiently hold a duplicate cable (same source→target+handle, different
+    // edge id). Sending both yields "Multiple cables connected to input N".
+    recalculateGraphMock.mockResolvedValue({ version: 1, nodes: [], errors: [] });
+    const onStatusChange = vi.fn();
+
+    const dupEdges: Edge[] = [
+      { id: "e1", source: "a", target: "b", targetHandle: "input-0" } as Edge,
+      { id: "e2", source: "a", target: "b", targetHandle: "input-0" } as Edge,
+    ];
+
+    renderHook(() =>
+      useGlobalCalculationLogic({
+        nodes: [makeNode("a", false), makeNode("b", true)],
+        edges: dupEdges,
+        debounceMs: 0,
+        onStatusChange,
+      })
+    );
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(recalculateGraphMock).toHaveBeenCalledTimes(1);
+    const sentEdges = recalculateGraphMock.mock.calls[0][1] as Edge[];
+    expect(sentEdges).toHaveLength(1);
+    expect(sentEdges[0]).toMatchObject({
+      source: "a",
+      target: "b",
+      targetHandle: "input-0",
+    });
+  });
 });

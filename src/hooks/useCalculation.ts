@@ -23,6 +23,7 @@ import {
   checkForCyclesAndMarkErrors,
 } from "@/lib/graphUtils";
 import { isCalculableNode } from "@/lib/flow/nonCalculableNodes";
+import { normalizeAndDedupeEdgeConnections } from "@/lib/flow/edgeNormalization";
 import { log } from "@/lib/logConfig";
 import type {
   UseNodeCalculationLogicProps,
@@ -108,11 +109,15 @@ export function useGlobalCalculationLogic({
 
       /* 1) which sub-graph changed? */
       const subgraphOptions = { eligibleNodeIds: eligibleIds };
-      const { affectedNodes, affectedEdges } = getAffectedSubgraph(
-        nodes,
-        edges,
-        subgraphOptions
-      );
+      const { affectedNodes, affectedEdges: rawAffectedEdges } =
+        getAffectedSubgraph(nodes, edges, subgraphOptions);
+      // The persisted graph is always deduped (saveTabData), but the live edge
+      // state can transiently hold a structural duplicate — e.g. Safari's
+      // shared-import store-resync repair re-applying edges mid-recalc. Sending
+      // those to the backend yields "Multiple cables connected to input N",
+      // which keeps the nodes dirty and re-fires the recalc (the long "CALC").
+      // Dedupe by connection here, exactly as the save path does.
+      const affectedEdges = normalizeAndDedupeEdgeConnections(rawAffectedEdges);
       if (affectedNodes.length === 0) {
         if (!isCurrentRun()) return;
         const mergedErrors = buildErrorArray([], nodes);
