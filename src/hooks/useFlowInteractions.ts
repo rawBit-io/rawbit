@@ -10,6 +10,7 @@ import type {
 } from "@xyflow/react";
 import { reconnectEdge } from "@xyflow/react";
 import type { FlowNode } from "@/types";
+import { isSafariBrowser } from "@/lib/device";
 
 const LARGE_DRAG_THRESHOLD = 30;
 const DRAG_FPS_BANDS = [
@@ -30,17 +31,6 @@ const fpsForCount = (count: number) => {
 const nowMs = () =>
   typeof performance !== "undefined" ? performance.now() : Date.now();
 
-const isSafariBrowser = (): boolean => {
-  if (typeof navigator === "undefined") return false;
-
-  const ua = navigator.userAgent;
-  return (
-    /\bVersion\//i.test(ua) &&
-    /\bSafari\//i.test(ua) &&
-    !/\b(Chrome|Chromium|CriOS|FxiOS|Edg|EdgiOS|OPR|OPiOS)\//i.test(ua) &&
-    !/\bAndroid\b/i.test(ua)
-  );
-};
 
 interface DragStartInfo {
   x: number;

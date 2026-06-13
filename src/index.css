@@ -346,6 +346,17 @@
   transform: translateZ(0);
 }
 
+/* Safari only: never layer-promote a dragged GROUP card. WebKit allocates and
+   CPU-rasters a backing layer spanning the whole group up front (measured
+   ~3.4s first-frame stall on large groups); other engines GPU-raster it and
+   keep the promotion. Uses the persistent engine flag (set at app init in
+   main.tsx) so the rule is armed the instant React Flow adds .dragging —
+   gating on the per-drag flag would lose the first-frame race. */
+body[data-engine-webkit="true"] .react-flow__node-shadcnGroup.dragging > * {
+  backface-visibility: visible;
+  transform: none;
+}
+
 .react-flow__node-calculation > * > .calc-node-header,
 .react-flow__node-opCodeNode > * > .calc-node-header {
   border-top-left-radius: inherit;
@@ -818,6 +829,15 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
   .react-flow__edge.group-bundle-segment-edge.group-bundle-edge-path-selected
   .react-flow__edge-path {
   stroke-width: var(--edge-dark-dashed-selected-stroke-width, 2.1px) !important;
+}
+
+/* Safari CPU-rasterizes the whole SVG edge layer on every drag frame (no GPU
+   path raster / display-list cache like Blink): with ~200 long paths a group
+   drag produced multi-second frames, regardless of dashes (measured: 4.3s max
+   frame stock vs 17ms with edges unpainted, WebKit probe 2026-06-12). Skip
+   edge paint entirely while a Safari drag is active; edges reappear on drop. */
+body[data-safari-node-drag="true"] .react-flow__edges {
+  visibility: hidden !important;
 }
 
 /* Safari repaints dashed SVG paths slowly during drags; simplify them only while nodes move. */
