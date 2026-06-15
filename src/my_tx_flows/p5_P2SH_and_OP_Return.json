@@ -1,5 +1,5 @@
 {
-  "name": "Intro P2PKH (6) (1)",
+  "name": "P2SH Recovery with OP_RETURN",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -424,10 +424,7 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100
-          ]
+          "INPUTS[]": [0, 100]
         },
         "baseHeight": 80,
         "title": "Preimage",
@@ -488,10 +485,7 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100
-          ]
+          "INPUTS[]": [0, 100]
         },
         "baseHeight": 80,
         "title": "Signature + Flag",
@@ -554,12 +548,7 @@
           "INPUTS[]": 4
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100,
-            200,
-            300
-          ]
+          "INPUTS[]": [0, 100, 200, 300]
         },
         "baseHeight": 80,
         "title": "scriptSig (push sig & pubkey)",
@@ -718,13 +707,8 @@
           "OUTPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            1000
-          ],
-          "OUTPUTS[]": [
-            3000,
-            3100
-          ]
+          "INPUTS[]": [1000],
+          "OUTPUTS[]": [3000, 3100]
         },
         "baseHeight": 120,
         "totalInputs": 15,
@@ -878,13 +862,8 @@
           "OUTPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            1000
-          ],
-          "OUTPUTS[]": [
-            3000,
-            3100
-          ]
+          "INPUTS[]": [1000],
+          "OUTPUTS[]": [3000, 3100]
         },
         "baseHeight": 120,
         "totalInputs": 15,
@@ -1685,9 +1664,7 @@
                 "304402202946d9cc83b13b01ec5c695c6a229342c705e689e854a991c496ab2c30adeb62022017f45d23f60585ab818c3c7e109cb1b53ec7d66c6fac4a8587434e57c6e959fa01",
                 "03fb57eb961faed8cc9123b8a0292bff31d09f8ddf3a26e97e5409fd714e7afb1d"
               ],
-              "stack_after": [
-                "01"
-              ],
+              "stack_after": ["01"],
               "phase": "scriptPubKey"
             }
           ],
@@ -1811,10 +1788,7 @@
           }
         },
         "txFieldExtractMode": "dynamic",
-        "txExtractFields": [
-          "txid",
-          "vout.scriptPubKey"
-        ],
+        "txExtractFields": ["txid", "vout.scriptPubKey"],
         "outputPorts": [
           {
             "label": "txid",
@@ -2035,18 +2009,7 @@
         },
         "groupInstanceKeys": {
           "INPUTS[]": [
-            0,
-            100,
-            200,
-            300,
-            400,
-            500,
-            600,
-            700,
-            800,
-            900,
-            1000,
-            1100
+            0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100
           ]
         },
         "baseHeight": 80,
@@ -2221,12 +2184,7 @@
           "INPUTS[]": 4
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100,
-            200,
-            300
-          ]
+          "INPUTS[]": [0, 100, 200, 300]
         },
         "baseHeight": 80,
         "totalInputs": 4,
@@ -2853,11 +2811,7 @@
           "INPUTS[]": 3
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100,
-            200
-          ]
+          "INPUTS[]": [0, 100, 200]
         },
         "baseHeight": 80,
         "title": "OP_RETURN",

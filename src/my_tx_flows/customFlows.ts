@@ -9,6 +9,7 @@ import intro from "@/my_tx_flows/p0_Intro_P2PKH.json";
 import p2pk from "@/my_tx_flows/p1_P2PK_vs_P2PKH.json";
 import p2pkhMultiInputSigning from "@/my_tx_flows/p2_P2PKH_multi_input_signing.json";
 import bareMultisig from "@/my_tx_flows/p3_Bare_MultiSig.json";
+import p2shRecoveryOpReturn from "@/my_tx_flows/p5_P2SH_and_OP_Return.json";
 import intro_p2pkh_p2pk from "@/my_tx_flows/old/p1_Intro_P2PKH_and_P2PK.json";
 import p2_multisig from "@/my_tx_flows/old/p2_Bare_P2MS_and_P2SH_MultiSig.json";
 import locktime_tx from "@/my_tx_flows/old/p3_Locktime_Intro.json";
@@ -76,6 +77,14 @@ export const customFlows: CustomFlowTemplate[] = [
     section: "legacy",
     level: "intermediate",
     tags: ["legacy", "multisig", "p2ms", "script"],
+  },
+  {
+    id: "flow-04",
+    label: "P2SH Recovery with OP_RETURN",
+    data: p2shRecoveryOpReturn as unknown as FlowData,
+    section: "legacy",
+    level: "intermediate",
+    tags: ["legacy", "p2sh", "op-return", "redeemscript", "recovery"],
   },
   {
     id: "flow-1",
