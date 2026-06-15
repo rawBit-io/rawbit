@@ -31,7 +31,6 @@ const fpsForCount = (count: number) => {
 const nowMs = () =>
   typeof performance !== "undefined" ? performance.now() : Date.now();
 
-
 interface DragStartInfo {
   x: number;
   y: number;

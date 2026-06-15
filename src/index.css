@@ -348,10 +348,10 @@
 
 /* Safari only: never layer-promote a dragged GROUP card. WebKit allocates and
    CPU-rasters a backing layer spanning the whole group up front (measured
-   ~3.4s first-frame stall on large groups); other engines GPU-raster it and
-   keep the promotion. Uses the persistent engine flag (set at app init in
-   main.tsx) so the rule is armed the instant React Flow adds .dragging —
-   gating on the per-drag flag would lose the first-frame race. */
+   ~3.4s stall on the first drag of a large group); other engines GPU-raster it
+   cheaply and keep the promotion. Uses the persistent engine flag (set at app
+   init in main.tsx) so the rule is armed the instant React Flow adds .dragging
+   — gating on the per-drag flag would lose the first-frame race. */
 body[data-engine-webkit="true"] .react-flow__node-shadcnGroup.dragging > * {
   backface-visibility: visible;
   transform: none;
@@ -831,27 +831,17 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
   stroke-width: var(--edge-dark-dashed-selected-stroke-width, 2.1px) !important;
 }
 
-/* Safari CPU-rasterizes the whole SVG edge layer on every drag frame (no GPU
-   path raster / display-list cache like Blink): with ~200 long paths a group
-   drag produced multi-second frames, regardless of dashes (measured: 4.3s max
-   frame stock vs 17ms with edges unpainted, WebKit probe 2026-06-12). Skip
-   edge paint entirely while a Safari drag is active; edges reappear on drop. */
+/* Safari only: WebKit re-rasterizes the entire .react-flow__edges SVG layer on
+   every group-drag frame (no GPU path raster / display-list cache like Blink),
+   producing multi-second frames once a flow has many edges — and it is the
+   whole-layer raster, not the dashes (hiding only the dashed helpers barely
+   helped; promoting the layer fixes it). Hint WebKit to composite the edge
+   layer during a drag so it rasterizes once and reuses the backing store while
+   nodes move; every edge (dashes included) stays fully visible. Gated on the
+   per-drag Safari flag, so the promotion is dropped on drop and Chrome / Edge —
+   which never set the flag — keep their default fast path. */
 body[data-safari-node-drag="true"] .react-flow__edges {
-  visibility: hidden !important;
-}
-
-/* Safari repaints dashed SVG paths slowly during drags; simplify them only while nodes move. */
-body[data-safari-node-drag="true"] .react-flow__edge.group-bundle-segment-edge,
-body[data-safari-node-drag="true"]
-  .react-flow__edge.group-bundle-segment-edge
-  .react-flow__edge-path {
-  shape-rendering: optimizeSpeed;
-}
-
-body[data-safari-node-drag="true"]
-  .react-flow__edge.group-bundle-segment-edge
-  .react-flow__edge-path {
-  stroke-dasharray: none !important;
+  will-change: transform;
 }
 
 body[data-safari-node-drag="true"]

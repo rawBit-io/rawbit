@@ -3,8 +3,9 @@ const MOBILE_USER_AGENT_REGEX =
 
 /**
  * True for real Safari/WebKit (not Chrome/Edge/Firefox/Opera, not Android).
- * WebKit's SVG/layer rasterization differs enough from Blink that a few
- * drag-performance mitigations are gated on this.
+ * WebKit rasterizes SVG/layers differently enough from Blink that a couple of
+ * group-drag performance mitigations are gated on this; other engines stay on
+ * the default path.
  */
 export function isSafariBrowser(userAgent?: string): boolean {
   const ua =
