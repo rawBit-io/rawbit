@@ -3312,6 +3312,22 @@ def text_to_hex(val: str) -> str:
     return val.encode('utf-8').hex()
 
 
+def hex_to_text(val: str) -> str:
+    """
+    Convert hex-encoded UTF-8 bytes to text.
+
+    Examples:
+        "32303039" -> "2009"
+        "62616e6b73" -> "banks"
+        "7361746f736869" -> "satoshi"
+    """
+    raw = _bytes_from_even_hex(val, name="text hex")
+    try:
+        return raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValueError("Text hex is not valid UTF-8") from exc
+
+
 def blocks_to_sequence_number(val: int) -> int:
     """
     Convert block delay to BIP 68 sequence number value.
@@ -3686,6 +3702,48 @@ def extract_tx_field(vals: list[str]) -> str:
         if i < 0 or i >= len(arr):
             raise IndexError(f"{what} index {i} out of range (have {len(arr)})")
 
+    def read_push(script: bytes, offset: int) -> tuple[bytes, int]:
+        if offset >= len(script):
+            return b"", offset
+
+        opcode = script[offset]
+        offset += 1
+
+        if opcode <= 0x4B:
+            size = opcode
+        elif opcode == 0x4C:
+            if offset + 1 > len(script):
+                raise ValueError("Malformed OP_RETURN PUSHDATA1 length")
+            size = script[offset]
+            offset += 1
+        elif opcode == 0x4D:
+            if offset + 2 > len(script):
+                raise ValueError("Malformed OP_RETURN PUSHDATA2 length")
+            size = int.from_bytes(script[offset : offset + 2], "little")
+            offset += 2
+        elif opcode == 0x4E:
+            if offset + 4 > len(script):
+                raise ValueError("Malformed OP_RETURN PUSHDATA4 length")
+            size = int.from_bytes(script[offset : offset + 4], "little")
+            offset += 4
+        else:
+            raise ValueError(
+                f"OP_RETURN payload contains non-push opcode 0x{opcode:02x}"
+            )
+
+        end = offset + size
+        if end > len(script):
+            raise ValueError("Malformed OP_RETURN push: length exceeds script size")
+        return script[offset:end], end
+
+    def op_return_payload(script: bytes) -> bytes:
+        offset = 1  # skip OP_RETURN
+        chunks: list[bytes] = []
+        while offset < len(script):
+            chunk, offset = read_push(script, offset)
+            chunks.append(chunk)
+        return b"".join(chunks)
+
     # -------- top-level fields ----------------------------------------
     if field == "version":
         return str(tx.nVersion)
@@ -3697,6 +3755,18 @@ def extract_tx_field(vals: list[str]) -> str:
         return str(len(vout))
     if field == "txid":
         return tx.GetTxid().hex()
+
+    # -------- OP_RETURN fields ----------------------------------------
+    if field.startswith("op_return."):
+        assert_idx(vout, index, "vout")
+        txout = vout[index]
+        script = bytes(txout.scriptPubKey)
+        if not script.startswith(b"\x6a"):
+            raise ValueError(f"vout index {index} is not an OP_RETURN output")
+        sub = field[len("op_return.") :]
+        if sub == "data":
+            return op_return_payload(script).hex()
+        raise ValueError(f"Unknown op_return sub-field '{sub}'")
 
     # -------- per-input fields ----------------------------------------
     if field.startswith("vin."):

@@ -344,6 +344,37 @@ export const allSidebarNodes: NodeTemplate[] = [
     },
   },
   {
+    functionName: "hex_to_text",
+    label: "Hex → Text",
+    category: "Encoding & Script Data",
+    subcategory: "Bytes, Integers & Pushdata",
+    description:
+      "Decode hex-encoded UTF-8 text (e.g., '32303039' → '2009')",
+    type: "calculation",
+    nodeData: {
+      functionName: "hex_to_text",
+      title: "Hex → Text",
+
+      numInputs: 1,
+
+      version: 0,
+      inputs: { val: "" },
+      result: "",
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "Hex input:",
+            rows: 2,
+            autoResizeMaxRows: 5,
+            placeholder: "e.g., 32303039",
+          },
+        ],
+      },
+      groupInstances: {},
+    },
+  },
+  {
     functionName: "blocks_to_sequence_number", // Changed
     label: "Blocks → Relative Lock", // Changed
     category: "Encoding & Script Data",

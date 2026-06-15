@@ -306,6 +306,12 @@ FUNCTION_SPECS = {
         "val": {"type": "string", "required": True}
     }
 },
+"hex_to_text": {
+    "paramExtraction": "single_val",
+    "params": {
+        "val": {"type": "string", "required": True}
+    }
+},
 "blocks_to_sequence_number": {
     "paramExtraction": "single_val",
     "params": {

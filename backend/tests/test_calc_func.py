@@ -59,6 +59,25 @@ def build_sample_tx_hex() -> str:
     return b2x(tx.serialize())
 
 
+def build_tx_with_op_returns() -> str:
+    prev_txid = bytes.fromhex("00" * 32)
+    tx_in = CMutableTxIn(COutPoint(prev_txid, 0), CScript([1]), 0xFFFFFFFF)
+    hello = bytes.fromhex("48656c6c6f")
+    long_payload = b"\xff" * 80
+    tx = CMutableTransaction(
+        vin=[tx_in],
+        vout=[
+            CMutableTxOut(1000, CScript([1])),
+            CMutableTxOut(0, CScript(bytes([0x6A, len(hello)]) + hello)),
+            CMutableTxOut(
+                0,
+                CScript(bytes([0x6A, 0x4C, len(long_payload)]) + long_payload),
+            ),
+        ],
+    )
+    return b2x(tx.serialize())
+
+
 def build_p2wsh_op_true_tx():
     witness_script = CScript([1])
     wsh = hashlib.sha256(bytes(witness_script)).hexdigest()
@@ -1157,6 +1176,12 @@ def test_opcode_select_2of3_multisig_template():
 
 def test_text_to_hex_and_block_sequence():
     assert calc.text_to_hex("satoshi") == "7361746f736869"
+    assert calc.hex_to_text("7361746f736869") == "satoshi"
+    assert calc.hex_to_text("48656c6c6f20e282bf") == "Hello ₿"
+    with pytest.raises(ValueError, match=r"\*even\* number"):
+        calc.hex_to_text("abc")
+    with pytest.raises(ValueError, match="not valid UTF-8"):
+        calc.hex_to_text("ff")
     assert calc.blocks_to_sequence_number(144) == 144
     with pytest.raises(ValueError):
         calc.blocks_to_sequence_number(-1)
@@ -1268,6 +1293,24 @@ def test_extract_tx_field_reads_components():
     assert calc.extract_tx_field([SAMPLE_TX_HEX, "vin.sequence", "0"]) == values["vin.sequence"]
     assert calc.extract_tx_field([SAMPLE_TX_HEX, "vout.value", "0"]) == values["vout.value"]
     assert calc.extract_tx_field([SAMPLE_TX_HEX, "vout.scriptPubKey", "0"]) == values["vout.scriptPubKey"]
+
+
+def test_extract_tx_field_reads_op_return_payloads_by_vout_index():
+    raw_tx = build_tx_with_op_returns()
+    long_payload = (b"\xff" * 80).hex()
+
+    assert calc.extract_tx_field([raw_tx, "op_return.data", "1"]) == "48656c6c6f"
+    assert calc.extract_tx_field([raw_tx, "op_return.data", "2"]) == long_payload
+
+
+def test_extract_tx_field_rejects_missing_or_non_op_return_vout():
+    raw_tx = build_tx_with_op_returns()
+
+    with pytest.raises(ValueError, match="vout index 0 is not an OP_RETURN output"):
+        calc.extract_tx_field([raw_tx, "op_return.data", "0"])
+
+    with pytest.raises(IndexError, match="vout index 3 out of range"):
+        calc.extract_tx_field([raw_tx, "op_return.data", "3"])
 
 
 def test_compare_equal_and_numeric_parsers():

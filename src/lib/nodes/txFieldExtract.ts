@@ -12,6 +12,7 @@ export const TX_FIELD_EXTRACT_OPTIONS = [
   "vin.sequence",
   "vout.value",
   "vout.scriptPubKey",
+  "op_return.data",
   "raw_no_witness",
 ] as const;
 
@@ -36,6 +37,7 @@ export function nextTxFieldExtractField(currentCount: number): string {
   const defaults = [
     ...DEFAULT_TX_FIELD_EXTRACT_FIELDS,
     "vout.value",
+    "op_return.data",
     "vin.txid",
     "vin.vout",
     "input_count",
