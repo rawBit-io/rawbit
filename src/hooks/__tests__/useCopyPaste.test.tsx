@@ -376,6 +376,109 @@ describe("useCopyPaste", () => {
     });
   });
 
+  it("parents pasted top-level nodes to the group under the paste point", () => {
+    state.nodes = [
+      buildFlowNode({
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 100, y: 100 },
+        width: 400,
+        height: 300,
+        data: { title: "A", width: 400, height: 300 },
+      }),
+      buildFlowNode({
+        id: "source",
+        type: "calculation",
+        position: { x: 0, y: 0 },
+        width: 120,
+        height: 80,
+        data: { title: "Source" },
+        selected: true,
+      }),
+    ];
+
+    const { result } = renderHook(() => useCopyPaste());
+
+    act(() => {
+      result.current.copyNodes();
+    });
+
+    act(() => {
+      result.current.pasteNodes({ x: 160, y: 180 });
+    });
+
+    const pasted = state.nodes.find(
+      (node) => !["group-a", "source"].includes(node.id)
+    );
+    expect(pasted).toBeTruthy();
+    if (!pasted) throw new Error("Expected pasted node");
+
+    expect(pasted.parentId).toBe("group-a");
+    expect(pasted.extent).toBe("parent");
+    expect(pasted.position).toEqual({ x: 60, y: 80 });
+  });
+
+  it("preserves pasted spacing when multiple nodes are pasted into a group", () => {
+    state.nodes = [
+      buildFlowNode({
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 100, y: 100 },
+        width: 500,
+        height: 300,
+        data: { title: "A", width: 500, height: 300 },
+      }),
+      buildFlowNode({
+        id: "left",
+        type: "calculation",
+        position: { x: 0, y: 0 },
+        data: { title: "Left" },
+        selected: true,
+      }),
+      buildFlowNode({
+        id: "right",
+        type: "calculation",
+        position: { x: 240, y: 40 },
+        data: { title: "Right" },
+        selected: true,
+      }),
+    ];
+
+    const { result } = renderHook(() => useCopyPaste());
+
+    act(() => {
+      result.current.copyNodes();
+    });
+
+    act(() => {
+      result.current.pasteNodes({ x: 180, y: 150 });
+    });
+
+    const pasted = state.nodes.filter(
+      (node) => !["group-a", "left", "right"].includes(node.id)
+    );
+    const byTitle = new Map(pasted.map((node) => [String(node.data.title), node]));
+    const pastedLeft = byTitle.get("Left");
+    const pastedRight = byTitle.get("Right");
+
+    expect(pastedLeft).toBeTruthy();
+    expect(pastedRight).toBeTruthy();
+    if (!pastedLeft || !pastedRight) {
+      throw new Error("Expected pasted nodes");
+    }
+
+    expect(pastedLeft).toMatchObject({
+      parentId: "group-a",
+      extent: "parent",
+      position: { x: 80, y: 50 },
+    });
+    expect(pastedRight).toMatchObject({
+      parentId: "group-a",
+      extent: "parent",
+      position: { x: 320, y: 90 },
+    });
+  });
+
   it("can paste selected nodes with incoming connections from existing nodes", () => {
     state.nodes = [
       buildFlowNode({

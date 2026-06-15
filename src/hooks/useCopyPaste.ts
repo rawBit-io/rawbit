@@ -56,6 +56,8 @@ type UseCopyPasteOptions = {
   getClipboardEdges?: () => Edge[];
 };
 
+const GROUP_PADDING = 32;
+
 const cloneScriptSteps = (
   steps: ScriptExecutionResult | undefined
 ): ScriptExecutionResult | undefined => {
@@ -81,6 +83,143 @@ const getRenderedSelectedNodeIds = (): Set<string> => {
 const asFiniteNumber = (value: unknown): number | undefined => {
   const numeric = Number(value);
   return Number.isFinite(numeric) ? numeric : undefined;
+};
+
+const getNodeDimension = (
+  node: FlowNode,
+  axis: "width" | "height",
+  fallback: number
+): number =>
+  Math.max(
+    asFiniteNumber(node.data?.[axis]) ?? 0,
+    asFiniteNumber(node[axis]) ?? 0,
+    asFiniteNumber(node.measured?.[axis]) ?? 0,
+    fallback
+  );
+
+const getAbsoluteNodePosition = (
+  node: FlowNode,
+  lookup: Map<string, FlowNode>
+): XYPosition => {
+  let x = node.position.x;
+  let y = node.position.y;
+  const seen = new Set<string>([node.id]);
+  let parentId = node.parentId;
+
+  while (parentId && !seen.has(parentId)) {
+    seen.add(parentId);
+    const parent = lookup.get(parentId);
+    if (!parent) break;
+    x += parent.position.x;
+    y += parent.position.y;
+    parentId = parent.parentId;
+  }
+
+  return { x, y };
+};
+
+const findGroupAtPoint = (
+  point: XYPosition,
+  nodes: FlowNode[]
+): { node: FlowNode; abs: XYPosition } | null => {
+  const lookup = new Map(nodes.map((node) => [node.id, node]));
+  const candidates = nodes
+    .filter((node) => node.type === "shadcnGroup")
+    .map((node) => {
+      const abs = node.positionAbsolute ?? getAbsoluteNodePosition(node, lookup);
+      const width = getNodeDimension(node, "width", 300);
+      const height = getNodeDimension(node, "height", 200);
+      return { node, abs, width, height };
+    })
+    .filter(({ abs, width, height }) => {
+      return (
+        point.x >= abs.x &&
+        point.x <= abs.x + width &&
+        point.y >= abs.y &&
+        point.y <= abs.y + height
+      );
+    });
+
+  if (!candidates.length) return null;
+
+  const best = candidates.reduce((winner, candidate) => {
+    const bestArea = winner.width * winner.height;
+    const candidateArea = candidate.width * candidate.height;
+    return candidateArea < bestArea ? candidate : winner;
+  });
+
+  return { node: best.node, abs: best.abs };
+};
+
+const fitGroupToChildrenInNodes = (
+  nodes: FlowNode[],
+  groupId: string
+): FlowNode[] => {
+  const group = nodes.find(
+    (node) => node.id === groupId && node.type === "shadcnGroup"
+  );
+  if (!group) return nodes;
+
+  const children = nodes.filter((node) => node.parentId === groupId);
+  if (!children.length) return nodes;
+
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  children.forEach((child) => {
+    const width = getNodeDimension(child, "width", 250);
+    const height = getNodeDimension(child, "height", 150);
+    minX = Math.min(minX, child.position.x);
+    minY = Math.min(minY, child.position.y);
+    maxX = Math.max(maxX, child.position.x + width);
+    maxY = Math.max(maxY, child.position.y + height);
+  });
+
+  const shiftX = Math.max(0, GROUP_PADDING - minX);
+  const shiftY = Math.max(0, GROUP_PADDING - minY);
+  const currentWidth = getNodeDimension(group, "width", 300);
+  const currentHeight = getNodeDimension(group, "height", 200);
+  const nextWidth = Math.max(currentWidth, maxX + shiftX + GROUP_PADDING);
+  const nextHeight = Math.max(currentHeight, maxY + shiftY + GROUP_PADDING);
+
+  if (
+    shiftX === 0 &&
+    shiftY === 0 &&
+    nextWidth === currentWidth &&
+    nextHeight === currentHeight
+  ) {
+    return nodes;
+  }
+
+  return nodes.map((node) => {
+    if (node.id === groupId) {
+      return {
+        ...node,
+        width: nextWidth,
+        height: nextHeight,
+        measured: {
+          ...node.measured,
+          width: nextWidth,
+          height: nextHeight,
+        },
+        data: { ...node.data, width: nextWidth, height: nextHeight },
+      };
+    }
+
+    if (node.parentId === groupId) {
+      return {
+        ...node,
+        position: {
+          x: node.position.x + shiftX,
+          y: node.position.y + shiftY,
+        },
+      };
+    }
+
+    return node;
+  });
 };
 
 type GroupEndpointNodeInfo = {
@@ -403,19 +542,31 @@ export function useCopyPaste({
           { id: node.id, type: node.type, parentId: node.parentId },
         ])
       );
+      const pasteTargetGroup = findGroupAtPoint(base, currentNodes);
 
       // 1) Build "raw" nodes in their final positions but with ORIGINAL IDs.
       //    The utility will remap ids/parentId and edges in one pass.
       const rawNodes: FlowNode[] = copied.map((c) => {
         const parentIncluded = !!(c.parentId && copiedLookup.has(c.parentId));
+        const adoptIntoPasteTarget =
+          !!pasteTargetGroup && !parentIncluded && c.type !== "shadcnGroup";
+        const absolutePosition = {
+          x: base.x + (c.absX - minX),
+          y: base.y + (c.absY - minY),
+        };
         const position = parentIncluded
           ? // child of a copied group: position relative to parent
             (() => {
               const p = copiedLookup.get(c.parentId!)!;
               return { x: c.absX - p.absX, y: c.absY - p.absY };
             })()
+          : adoptIntoPasteTarget
+            ? {
+                x: absolutePosition.x - pasteTargetGroup.abs.x,
+                y: absolutePosition.y - pasteTargetGroup.abs.y,
+              }
           : // top-level: translate to base cursor with same offset as during copy
-            { x: base.x + (c.absX - minX), y: base.y + (c.absY - minY) };
+            absolutePosition;
 
         return {
           id: c.id, // keep original for now; will be renamed as a batch
@@ -423,8 +574,13 @@ export function useCopyPaste({
           data: c.data,
           width: c.width,
           height: c.height,
-          parentId: parentIncluded ? c.parentId : undefined,
-          extent: parentIncluded ? "parent" : undefined,
+          parentId: parentIncluded
+            ? c.parentId
+            : adoptIntoPasteTarget
+              ? pasteTargetGroup.node.id
+              : undefined,
+          extent:
+            parentIncluded || adoptIntoPasteTarget ? "parent" : undefined,
           position,
           dragHandle:
             c.dragHandle ??
@@ -487,10 +643,15 @@ export function useCopyPaste({
       ];
 
       // 4) Deselect existing, then append
-      setNodes((existing) => [
-        ...existing.map((n) => ({ ...n, selected: false })),
-        ...ordered,
-      ]);
+      setNodes((existing) => {
+        const combined = [
+          ...existing.map((n) => ({ ...n, selected: false })),
+          ...ordered,
+        ];
+        return pasteTargetGroup
+          ? fitGroupToChildrenInNodes(combined, pasteTargetGroup.node.id)
+          : combined;
+      });
       setEdges((existing) => [...existing, ...filteredEdges]);
 
       log("copyPaste", "Pasted", {
