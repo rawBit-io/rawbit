@@ -427,6 +427,68 @@ def test_public_key_from_private_key_known_vector():
     )
 
 
+def test_ecies_encrypt_decrypt_roundtrip_with_deterministic_demo_inputs():
+    recipient_priv = SAMPLE_PRIV_KEY
+    recipient_pub = calc.public_key_from_private_key(recipient_priv)
+    plaintext = "63210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ac"
+    aad = calc.hash160_hex(plaintext)
+    ephemeral_priv = "02".rjust(64, "0")
+    salt = "000102030405060708090a0b0c0d0e0f"
+
+    envelope = calc.ecies_encrypt([
+        recipient_pub,
+        plaintext,
+        aad,
+        ephemeral_priv,
+        salt,
+    ])
+
+    assert bytes.fromhex(envelope).startswith(b"RBECIES1")
+    assert calc.ecies_decrypt([recipient_priv, envelope, aad]) == plaintext
+    assert calc.ecies_encrypt([
+        recipient_pub,
+        plaintext,
+        aad,
+        ephemeral_priv,
+        salt,
+    ]) == envelope
+
+
+def test_ecies_decrypt_rejects_wrong_aad_or_tampered_envelope():
+    recipient_priv = SAMPLE_PRIV_KEY
+    recipient_pub = calc.public_key_from_private_key(recipient_priv)
+    plaintext = "00" * 20
+    envelope = calc.ecies_encrypt([
+        recipient_pub,
+        plaintext,
+        "aa",
+        "02".rjust(64, "0"),
+        "11" * 16,
+    ])
+
+    with pytest.raises(ValueError, match="authentication failed"):
+        calc.ecies_decrypt([recipient_priv, envelope, "bb"])
+
+    tampered = envelope[:-2] + ("00" if envelope[-2:] != "00" else "01")
+    with pytest.raises(ValueError, match="authentication failed"):
+        calc.ecies_decrypt([recipient_priv, tampered, "aa"])
+
+
+def test_ecies_encrypt_accepts_uncompressed_recipient_pubkey():
+    recipient_priv = SAMPLE_PRIV_KEY
+    sk = SigningKey.from_string(bytes.fromhex(recipient_priv), curve=calc.SECP256k1)
+    uncompressed_pub = "04" + sk.get_verifying_key().to_string().hex()
+    envelope = calc.ecies_encrypt([
+        uncompressed_pub,
+        "deadbeef",
+        "",
+        "02".rjust(64, "0"),
+        "22" * 16,
+    ])
+
+    assert calc.ecies_decrypt([recipient_priv, envelope, ""]) == "deadbeef"
+
+
 def test_uint32_to_little_endian():
     assert calc.uint32_to_little_endian_4_bytes(1) == "01000000"
     with pytest.raises(ValueError):

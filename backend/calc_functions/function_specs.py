@@ -186,6 +186,18 @@ FUNCTION_SPECS = {
             "val": {"type": "string", "required": True}
         }
     },
+    "ecies_encrypt": {
+        "paramExtraction": "multi_val",
+        "params": {
+            "vals": {"type": "any", "required": True}
+        }
+    },
+    "ecies_decrypt": {
+        "paramExtraction": "multi_val",
+        "params": {
+            "vals": {"type": "any", "required": True}
+        }
+    },
 
 
    

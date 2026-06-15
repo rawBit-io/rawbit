@@ -1,6 +1,7 @@
 import os
 import sys
 import hashlib
+import hmac
 import logging
 import struct
 import binascii
@@ -36,6 +37,9 @@ _CURVE_ORDER = SECP256k1.order
 _CURVE_GEN = SECP256k1.generator
 _CURVE_P = SECP256k1.curve.p()
 _BIP32_HARDENED = 0x80000000
+_ECIES_MAGIC = b"RBECIES1"
+_ECIES_SALT_LEN = 16
+_ECIES_TAG_LEN = 32
 from bitcointx.core import CTransaction, CTxOut, b2x
 from bitcointx.core.script import CScript
 from .opcodes import opcode_sequence_to_hex
@@ -468,6 +472,172 @@ def _point_from_compressed(comp: bytes) -> ellipticcurve.Point:
     if (pt.y() & 1) != (prefix & 1):
         pt = _negate_point(pt)
     return pt
+
+
+def _private_key_int_from_bytes(priv_bytes: bytes, *, name: str = "private key") -> int:
+    if len(priv_bytes) != 32:
+        raise ValueError(f"{name.capitalize()} must be exactly 32 bytes (64 hex characters)")
+    d = int.from_bytes(priv_bytes, "big")
+    if not 1 <= d < _CURVE_ORDER:
+        raise ValueError(f"{name.capitalize()} integer must be in the range [1, n-1]")
+    return d
+
+
+def _point_from_public_key(pub: bytes) -> ellipticcurve.Point:
+    if len(pub) == 33:
+        return _point_from_compressed(pub)
+
+    if len(pub) != 65 or pub[0] != 4:
+        raise ValueError("Public key must be compressed 33-byte or uncompressed 65-byte hex")
+
+    x = int.from_bytes(pub[1:33], "big")
+    y = int.from_bytes(pub[33:], "big")
+    if not (0 <= x < _CURVE_P and 0 <= y < _CURVE_P):
+        raise ValueError("Public key coordinates out of range")
+    if (y * y - (pow(x, 3, _CURVE_P) + 7)) % _CURVE_P != 0:
+        raise ValueError("Public key point is not on secp256k1")
+    return ellipticcurve.Point(SECP256k1.curve, x, y)
+
+
+def _hkdf_sha256(ikm: bytes, salt: bytes, info: bytes, length: int) -> bytes:
+    if length <= 0:
+        raise ValueError("HKDF length must be positive")
+
+    prk = hmac.new(salt or b"\x00" * hashlib.sha256().digest_size, ikm, hashlib.sha256).digest()
+    out = b""
+    t = b""
+    counter = 1
+    while len(out) < length:
+        t = hmac.new(prk, t + info + bytes([counter]), hashlib.sha256).digest()
+        out += t
+        counter += 1
+    return out[:length]
+
+
+def _ecies_stream_xor(key: bytes, data: bytes) -> bytes:
+    stream = b""
+    counter = 0
+    while len(stream) < len(data):
+        block_input = b"rawbit-ecies-stream-v1" + counter.to_bytes(4, "big")
+        stream += hmac.new(key, block_input, hashlib.sha256).digest()
+        counter += 1
+    return bytes(a ^ b for a, b in zip(data, stream))
+
+
+def _ecies_shared_secret(priv_int: int, peer_point: ellipticcurve.Point) -> bytes:
+    shared = peer_point * priv_int
+    if shared == ellipticcurve.INFINITY:
+        raise ValueError("Invalid ECDH shared point")
+    return _int_to_32(shared.x())
+
+
+def _ecies_key_material(
+    shared_secret: bytes,
+    salt: bytes,
+    ephemeral_pubkey: bytes,
+    recipient_pubkey: bytes,
+    aad: bytes,
+) -> tuple[bytes, bytes, bytes]:
+    aad_hash = hashlib.sha256(aad).digest()
+    info = b"rawbit-ecies-v1" + ephemeral_pubkey + recipient_pubkey + aad_hash
+    material = _hkdf_sha256(shared_secret, salt, info, 64)
+    return material[:32], material[32:], aad_hash
+
+
+def ecies_encrypt(vals: list[str]) -> str:
+    """
+    ECIES-style authenticated encryption on secp256k1.
+
+    vals[0]: recipient public key, compressed or uncompressed hex
+    vals[1]: plaintext hex
+    vals[2]: optional associated data hex
+    vals[3]: optional ephemeral private key hex for deterministic demos
+    vals[4]: optional 16-byte salt hex for deterministic demos
+
+    Returns a hex envelope:
+      magic || ephemeral_pubkey || salt || ciphertext || tag
+    """
+    if len(vals) < 2:
+        raise ValueError(
+            "Need [recipientPubKeyHex, plaintextHex, aadHex?, ephemeralPrivKeyHex?, saltHex?]"
+        )
+
+    recipient_raw = _bytes_from_even_hex(str(vals[0]).strip(), name="recipient public key")
+    recipient_point = _point_from_public_key(recipient_raw)
+    recipient_pubkey = _point_to_compressed(recipient_point)
+    plaintext = _bytes_from_even_hex(str(vals[1]), name="plaintext")
+    aad = _bytes_from_even_hex(str(vals[2]), name="associated data") if len(vals) > 2 and str(vals[2]).strip() else b""
+
+    eph_raw = str(vals[3]).strip() if len(vals) > 3 else ""
+    if eph_raw:
+        eph_int = _private_key_int_from_bytes(
+            _bytes_from_even_hex(eph_raw, name="ephemeral private key"),
+            name="ephemeral private key",
+        )
+    else:
+        eph_int = secrets.randbelow(_CURVE_ORDER - 1) + 1
+
+    salt_raw = str(vals[4]).strip() if len(vals) > 4 else ""
+    salt = _bytes_from_even_hex(salt_raw, name="salt") if salt_raw else secrets.token_bytes(_ECIES_SALT_LEN)
+    if len(salt) != _ECIES_SALT_LEN:
+        raise ValueError("Salt must be exactly 16 bytes (32 hex characters)")
+
+    ephemeral_pubkey = _point_to_compressed(_CURVE_GEN * eph_int)
+    shared_secret = _ecies_shared_secret(eph_int, recipient_point)
+    enc_key, mac_key, aad_hash = _ecies_key_material(
+        shared_secret, salt, ephemeral_pubkey, recipient_pubkey, aad
+    )
+
+    ciphertext = _ecies_stream_xor(enc_key, plaintext)
+    header = _ECIES_MAGIC + ephemeral_pubkey + salt
+    tag = hmac.new(mac_key, header + aad_hash + ciphertext, hashlib.sha256).digest()
+    return (header + ciphertext + tag).hex()
+
+
+def ecies_decrypt(vals: list[str]) -> str:
+    """
+    Decrypt a rawBit ECIES envelope.
+
+    vals[0]: recipient private key hex
+    vals[1]: envelope hex from ECIES Encrypt
+    vals[2]: optional associated data hex, must match encryption
+    """
+    if len(vals) < 2:
+        raise ValueError("Need [recipientPrivKeyHex, envelopeHex, aadHex?]")
+
+    priv_int = _private_key_int_from_bytes(
+        _bytes_from_even_hex(str(vals[0]).strip(), name="recipient private key"),
+        name="recipient private key",
+    )
+    envelope = _bytes_from_even_hex(str(vals[1]).strip(), name="envelope")
+    min_len = len(_ECIES_MAGIC) + 33 + _ECIES_SALT_LEN + _ECIES_TAG_LEN
+    if len(envelope) < min_len:
+        raise ValueError("ECIES envelope is too short")
+    if envelope[: len(_ECIES_MAGIC)] != _ECIES_MAGIC:
+        raise ValueError("ECIES envelope has unknown magic/version")
+
+    offset = len(_ECIES_MAGIC)
+    ephemeral_pubkey = envelope[offset : offset + 33]
+    offset += 33
+    salt = envelope[offset : offset + _ECIES_SALT_LEN]
+    offset += _ECIES_SALT_LEN
+    ciphertext = envelope[offset:-_ECIES_TAG_LEN]
+    tag = envelope[-_ECIES_TAG_LEN:]
+
+    ephemeral_point = _point_from_compressed(ephemeral_pubkey)
+    recipient_pubkey = _point_to_compressed(_CURVE_GEN * priv_int)
+    aad = _bytes_from_even_hex(str(vals[2]), name="associated data") if len(vals) > 2 and str(vals[2]).strip() else b""
+
+    shared_secret = _ecies_shared_secret(priv_int, ephemeral_point)
+    enc_key, mac_key, aad_hash = _ecies_key_material(
+        shared_secret, salt, ephemeral_pubkey, recipient_pubkey, aad
+    )
+    expected_tag = hmac.new(mac_key, envelope[:offset] + aad_hash + ciphertext, hashlib.sha256).digest()
+    if not hmac.compare_digest(tag, expected_tag):
+        raise ValueError("ECIES authentication failed")
+
+    return _ecies_stream_xor(enc_key, ciphertext).hex()
+
 
 def _bip340_challenge(r_x: bytes, pub_x: bytes, msg: bytes) -> int:
     return int.from_bytes(

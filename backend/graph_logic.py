@@ -17,6 +17,8 @@ from calc_functions.calc_func import (
     build_trezor_sign_transaction_params,
   
     public_key_from_private_key,
+    ecies_encrypt,
+    ecies_decrypt,
    
  
     uint32_to_little_endian_4_bytes,
@@ -102,6 +104,8 @@ CALC_FUNCTIONS = {
     "bip32_derive_private_key": bip32_derive_private_key,
     "build_trezor_sign_transaction_params": build_trezor_sign_transaction_params,
     "public_key_from_private_key": public_key_from_private_key,
+    "ecies_encrypt": ecies_encrypt,
+    "ecies_decrypt": ecies_decrypt,
   
 
     "uint32_to_little_endian_4_bytes": uint32_to_little_endian_4_bytes,

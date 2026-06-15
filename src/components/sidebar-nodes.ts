@@ -1711,6 +1711,76 @@ export const allSidebarNodes: NodeTemplate[] = [
     },
   },
   {
+    functionName: "ecies_encrypt",
+    label: "ECIES Encrypt",
+    category: "Signing & Verification",
+    subcategory: "Encryption",
+    description:
+      "Encrypt hex data to a secp256k1 public key with an authenticated ECIES-style envelope",
+    type: "calculation",
+    nodeData: {
+      functionName: "ecies_encrypt",
+      title: "ECIES Encrypt",
+      paramExtraction: "multi_val",
+      numInputs: 2,
+      inputs: { vals: ["", ""] },
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "Recipient PubKey:",
+            placeholder: "<compressed or uncompressed pubkey hex>",
+            rows: 2,
+          },
+          {
+            index: 1,
+            label: "Plaintext Hex:",
+            placeholder: "<data to encrypt>",
+            rows: 3,
+            autoResizeMaxRows: 6,
+          },
+        ],
+      },
+      groupInstances: {},
+      result: "",
+    },
+  },
+  {
+    functionName: "ecies_decrypt",
+    label: "ECIES Decrypt",
+    category: "Signing & Verification",
+    subcategory: "Encryption",
+    description:
+      "Decrypt and authenticate a rawBit ECIES-style envelope with the recipient private key",
+    type: "calculation",
+    nodeData: {
+      functionName: "ecies_decrypt",
+      title: "ECIES Decrypt",
+      paramExtraction: "multi_val",
+      numInputs: 2,
+      inputs: { vals: ["", ""] },
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "Recipient PrivKey:",
+            placeholder: "<recipient private key hex>",
+            rows: 2,
+          },
+          {
+            index: 1,
+            label: "Envelope Hex:",
+            placeholder: "<ECIES Encrypt result>",
+            rows: 4,
+            autoResizeMaxRows: 8,
+          },
+        ],
+      },
+      groupInstances: {},
+      result: "",
+    },
+  },
+  {
     functionName: "xonly_pubkey",
     label: "Even-Y PrivKey → X-only PubKey",
     category: "Keys & Addresses",
