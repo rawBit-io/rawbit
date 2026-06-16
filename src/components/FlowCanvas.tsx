@@ -27,11 +27,13 @@ import {
   GroupBundleEdge,
   GroupBundleEdgeSelectionProvider,
 } from "@/components/edges/GroupBundleEdge";
+import { GroupBundleSegmentEdge } from "@/components/edges/GroupBundleSegmentEdge";
 import { CanonicalGraphContext } from "@/contexts/canonical-graph";
 import {
   buildGroupBundledElements,
   getGroupBundleSegmentEdgeIds,
   GROUP_BUNDLE_EDGE_TYPE,
+  GROUP_BUNDLE_SEGMENT_EDGE_TYPE,
   type GroupBundleEdgeData,
   type GroupBundleSegmentEdgeData,
   isGroupBundleEdgeId,
@@ -78,6 +80,7 @@ const PRO_OPTIONS = { hideAttribution: true } as const;
 const CLEAR_BUNDLE_EDGE_SELECTION_EVENT = "rawbit:clear-bundle-edge-selection";
 const edgeTypes = {
   [GROUP_BUNDLE_EDGE_TYPE]: GroupBundleEdge,
+  [GROUP_BUNDLE_SEGMENT_EDGE_TYPE]: GroupBundleSegmentEdge,
 } satisfies ReactFlowProps<FlowNode>["edgeTypes"];
 const GROUP_CURVE_OFFSET_RESET_STORAGE_KEY =
   "rawbit.flow.groupCurveOffsetsReset.2026-06-11";

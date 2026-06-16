@@ -800,9 +800,9 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
   stroke-width: var(--group-bundle-light-outside-edge-width, 2px);
 }
 
-.react-flow__edge.group-bundle-segment-edge .react-flow__edge-path {
+.react-flow__edge.group-bundle-segment-edge
+  .group-bundle-segment-dash-piece {
   stroke-width: var(--edge-light-dashed-stroke-width, 1.4px) !important;
-  stroke-dasharray: 6 5 !important;
   opacity: var(--edge-light-dashed-opacity, 0.325) !important;
 }
 
@@ -811,35 +811,32 @@ body[data-flow-selection-mode="true"] .react-flow__node * {
   cursor: pointer !important;
 }
 
-.dark .react-flow__edge.group-bundle-segment-edge .react-flow__edge-path {
+.dark
+  .react-flow__edge.group-bundle-segment-edge
+  .group-bundle-segment-dash-piece {
   stroke-width: var(--edge-dark-dashed-stroke-width, 1.4px) !important;
   opacity: var(--edge-dark-dashed-opacity, 0.325) !important;
 }
 
-.react-flow__edge.group-bundle-segment-edge.selected .react-flow__edge-path,
+.react-flow__edge.group-bundle-segment-edge.selected
+  .group-bundle-segment-dash-piece,
 .react-flow__edge.group-bundle-segment-edge.group-bundle-edge-path-selected
-  .react-flow__edge-path {
+  .group-bundle-segment-dash-piece {
   stroke-width: var(--edge-light-dashed-selected-stroke-width, 2.1px) !important;
-  stroke-dasharray: 7 5 !important;
   opacity: 0.95 !important;
 }
 
-.dark .react-flow__edge.group-bundle-segment-edge.selected .react-flow__edge-path,
+.dark
+  .react-flow__edge.group-bundle-segment-edge.selected
+  .group-bundle-segment-dash-piece,
 .dark
   .react-flow__edge.group-bundle-segment-edge.group-bundle-edge-path-selected
-  .react-flow__edge-path {
+  .group-bundle-segment-dash-piece {
   stroke-width: var(--edge-dark-dashed-selected-stroke-width, 2.1px) !important;
 }
 
-/* Safari only: WebKit re-rasterizes the entire .react-flow__edges SVG layer on
-   every group-drag frame (no GPU path raster / display-list cache like Blink),
-   producing multi-second frames once a flow has many edges — and it is the
-   whole-layer raster, not the dashes (hiding only the dashed helpers barely
-   helped; promoting the layer fixes it). Hint WebKit to composite the edge
-   layer during a drag so it rasterizes once and reuses the backing store while
-   nodes move; every edge (dashes included) stays fully visible. Gated on the
-   per-drag Safari flag, so the promotion is dropped on drop and Chrome / Edge —
-   which never set the flag — keep their default fast path. */
+/* During Safari node drag, hint WebKit to keep the edge layer composited and
+   disable helper-edge hit areas while the pointer is already committed to drag. */
 body[data-safari-node-drag="true"] .react-flow__edges {
   will-change: transform;
 }

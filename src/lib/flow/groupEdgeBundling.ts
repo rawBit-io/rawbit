@@ -3,6 +3,7 @@ import { Position, type Edge } from "@xyflow/react";
 import type { FlowNode, NodeData } from "@/types";
 
 export const GROUP_BUNDLE_EDGE_TYPE = "groupBundle";
+export const GROUP_BUNDLE_SEGMENT_EDGE_TYPE = "groupBundleSegment";
 export const GROUP_BUNDLE_EDGE_ID_PREFIX = "__group_bundle__:";
 export const GROUP_BUNDLE_PORT_NODE_TYPE = "groupBundlePort";
 export const GROUP_BUNDLE_PORT_NODE_ID_PREFIX = "__group_bundle_port__:";
@@ -906,6 +907,7 @@ export const buildGroupBundledElements = ({
             sourceSegment.nodeId,
             sourceSegment.handle
           ),
+          type: GROUP_BUNDLE_SEGMENT_EDGE_TYPE,
           source: sourceSegment.nodeId,
           sourceHandle: sourceSegment.handle,
           target: sourcePortId,
@@ -944,6 +946,7 @@ export const buildGroupBundledElements = ({
             targetSegment.nodeId,
             targetSegment.handle
           ),
+          type: GROUP_BUNDLE_SEGMENT_EDGE_TYPE,
           source: targetPortId,
           sourceHandle: GROUP_BUNDLE_PORT_SOURCE_HANDLE,
           target: targetSegment.nodeId,

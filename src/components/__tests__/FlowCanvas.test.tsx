@@ -7,6 +7,7 @@ import { FlowCanvas } from "@/components/FlowCanvas";
 import {
   GROUP_BUNDLE_EDGE_ID_PREFIX,
   GROUP_BUNDLE_PORT_NODE_TYPE,
+  GROUP_BUNDLE_SEGMENT_EDGE_TYPE,
   isGroupBundleSegmentEdgeId,
 } from "@/lib/flow/groupEdgeBundling";
 import type { FlowNode } from "@/types";
@@ -330,6 +331,11 @@ describe("FlowCanvas", () => {
     ).toHaveLength(2);
     expect(passedEdges.filter((edge) => isGroupBundleSegmentEdgeId(edge.id)))
       .toHaveLength(2);
+    expect(
+      passedEdges
+        .filter((edge) => isGroupBundleSegmentEdgeId(edge.id))
+        .every((edge) => edge.type === GROUP_BUNDLE_SEGMENT_EDGE_TYPE)
+    ).toBe(true);
     expect(
       passedEdges.find((edge) => edge.id === "__group_bundle__:group-a->group-b")
     ).toMatchObject({
