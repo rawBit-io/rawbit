@@ -76,6 +76,7 @@ const nodeLabel = (node: FlowNode, index: number) =>
 interface HandleMetadata {
   validHandles: Set<string>;
   hasInputs: boolean;
+  outputHandles: Set<string>;
 }
 
 function collectHandleMetadata(node: FlowNode): HandleMetadata {
@@ -85,10 +86,21 @@ function collectHandleMetadata(node: FlowNode): HandleMetadata {
     ports.inputs.forEach((input) => {
       if (input.handleId) handles.add(input.handleId);
     });
-    return { validHandles: handles, hasInputs: handles.size > 0 };
+    // Non-empty output handle ids only — the default single output uses
+    // handleId === "" (i.e. "no explicit source handle"), so an edge with an
+    // absent/empty sourceHandle is always valid against it.
+    const outputHandles = new Set<string>();
+    ports.outputs.forEach((output) => {
+      if (output.handleId) outputHandles.add(output.handleId);
+    });
+    return { validHandles: handles, hasInputs: handles.size > 0, outputHandles };
   } catch (err) {
     console.warn("validateFlowData: failed to build ports for node", node.id, err);
-    return { validHandles: new Set<string>(), hasInputs: false };
+    return {
+      validHandles: new Set<string>(),
+      hasInputs: false,
+      outputHandles: new Set<string>(),
+    };
   }
 }
 
@@ -406,6 +418,29 @@ export function validateFlowData(
         message: `Edge ${label} references missing source node ${source}.`,
         edgeId: edge.id,
       });
+    } else {
+      // Validate the sourceHandle against the source node's output ports (the
+      // source-side dual of the target-handle checks below). Only meaningful
+      // for multi-output nodes (explicit outputPorts, or extract_tx_field
+      // dynamic outputs); skip when the node exposes only the default single
+      // output (outputHandles empty) so an absent/empty sourceHandle stays
+      // valid and legitimate imports are never blocked.
+      const srcMeta = handleMeta.get(source);
+      if (srcMeta && srcMeta.outputHandles.size > 0) {
+        const normalisedSource = normalizeHandle(edge.sourceHandle);
+        if (
+          normalisedSource !== undefined &&
+          !srcMeta.outputHandles.has(normalisedSource)
+        ) {
+          issues.push({
+            level: "error",
+            code: "EDGE_SOURCE_HANDLE_UNKNOWN",
+            message: `Edge ${label} references unknown output handle ${normalisedSource} on node ${source}.`,
+            edgeId: edge.id,
+            nodeId: source,
+          });
+        }
+      }
     }
 
     if (typeof target !== "string" || target.trim() === "") {

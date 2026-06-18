@@ -80,10 +80,20 @@ function getCoreMode() {
 
 async function ensureInitialized() {
   if (!initPromise) {
-    initPromise = TrezorConnect.init({
+    // A failed init() leaves the SDK uninitialized, so re-calling it is valid.
+    // Clear the cached promise on rejection (with an identity guard so a
+    // concurrent retry's newer promise is not clobbered) — otherwise the stale
+    // rejection is re-thrown on every later call and Trezor stays dead for the
+    // whole session even after the user fixes the cause (popup/device). A
+    // resolved init stays cached so init() is never called twice on success.
+    const pending = TrezorConnect.init({
       manifest: buildManifest(),
       coreMode: getCoreMode(),
       popup: true,
+    });
+    initPromise = pending;
+    pending.catch(() => {
+      if (initPromise === pending) initPromise = null;
     });
   }
 

@@ -43,6 +43,79 @@ describe("validateFlowData", () => {
     expect(result.warnings.some((w) => w.code === "SCHEMA_VERSION_MISSING")).toBe(true);
   });
 
+  it("flags an edge whose sourceHandle is not an output of the source node", () => {
+    const source = makeNode("src", {
+      outputPorts: [{ label: "A", handleId: "output-0" }],
+    } as Partial<FlowNode["data"]>);
+    const target = makeNode("tgt");
+    const staleEdge: Edge = {
+      id: "e-stale",
+      source: "src",
+      target: "tgt",
+      sourceHandle: "output-7",
+      targetHandle: "input-0",
+    } as Edge;
+
+    const result = validateFlowData({
+      schemaVersion: FLOW_SCHEMA_VERSION,
+      nodes: [source, target],
+      edges: [staleEdge],
+    } as FlowData);
+
+    expect(result.ok).toBe(false);
+    expect(
+      result.errors.some((e) => e.code === "EDGE_SOURCE_HANDLE_UNKNOWN")
+    ).toBe(true);
+  });
+
+  it("accepts an edge whose sourceHandle matches a real output port", () => {
+    const source = makeNode("src", {
+      outputPorts: [{ label: "A", handleId: "output-0" }],
+    } as Partial<FlowNode["data"]>);
+    const target = makeNode("tgt");
+    const goodEdge: Edge = {
+      id: "e-good",
+      source: "src",
+      target: "tgt",
+      sourceHandle: "output-0",
+      targetHandle: "input-0",
+    } as Edge;
+
+    const result = validateFlowData({
+      schemaVersion: FLOW_SCHEMA_VERSION,
+      nodes: [source, target],
+      edges: [goodEdge],
+    } as FlowData);
+
+    expect(
+      result.errors.some((e) => e.code === "EDGE_SOURCE_HANDLE_UNKNOWN")
+    ).toBe(false);
+  });
+
+  it("ignores sourceHandle on single-default-output nodes (no false positive)", () => {
+    // identity exposes only the default output (handleId ""), so even a
+    // nonsensical sourceHandle must not be flagged — matches buildPorts.
+    const source = makeNode("src");
+    const target = makeNode("tgt");
+    const edge: Edge = {
+      id: "e",
+      source: "src",
+      target: "tgt",
+      sourceHandle: "input-0",
+      targetHandle: "input-0",
+    } as Edge;
+
+    const result = validateFlowData({
+      schemaVersion: FLOW_SCHEMA_VERSION,
+      nodes: [source, target],
+      edges: [edge],
+    } as FlowData);
+
+    expect(
+      result.errors.some((e) => e.code === "EDGE_SOURCE_HANDLE_UNKNOWN")
+    ).toBe(false);
+  });
+
   it("flags duplicate node ids and unknown types", () => {
     const nodeA = makeNode("dup");
     const nodeB = { ...makeNode("dup"), type: "unknown" };

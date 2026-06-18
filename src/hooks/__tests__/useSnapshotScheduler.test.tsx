@@ -432,6 +432,74 @@ describe("useSnapshotScheduler", () => {
     );
   });
 
+  it("keeps each tab's pending after-calc isolated across tab switches (NB-01)", () => {
+    const loadingUndoRef = { current: false };
+    let activeTab = "tab-a";
+    const { result, rerender } = renderHook(
+      ({ calc }: { calc?: Parameters<typeof useSnapshotScheduler>[0]["autoAfterCalc"] }) =>
+        useSnapshotScheduler({
+          storeApi: { getState: () => storeState },
+          pushState,
+          replaceState,
+          incrementGraphRev,
+          skipLoadRef,
+          refreshBanner,
+          autoAfterCalc: calc,
+          getActiveTabId: () => activeTab,
+        }),
+      { initialProps: { calc: undefined as Parameters<typeof useSnapshotScheduler>[0]["autoAfterCalc"] } }
+    );
+
+    // Tab A: structural delete pushes its entry and arms coalescing for tab-a.
+    act(() => {
+      result.current.scheduleSnapshot("Node(s) removed");
+      result.current.markPendingAfterDirtyChange();
+      result.current.armAfterCalcCoalesce("Node(s) removed");
+    });
+    expect(pushState).toHaveBeenCalledTimes(1);
+
+    // Within tab A's recalc window, switch to tab B and edit there. This must
+    // NOT touch tab A's pending entry (the NB-01 collision).
+    activeTab = "tab-b";
+    act(() => {
+      result.current.markPendingAfterDirtyChange();
+    });
+
+    // Tab B's recalc settles while tab B is active → tab B captures its own
+    // plain "After calc"; tab A's coalesce has not fired.
+    storeState = makeState();
+    storeState.nodes[0].data.dirty = false;
+    act(() => {
+      rerender({ calc: { calcStatus: "OK", loadingUndoRef } });
+    });
+    expect(pushState).toHaveBeenCalledTimes(2);
+    expect(pushState).toHaveBeenNthCalledWith(
+      2,
+      expect.any(Array),
+      storeState.edges,
+      expect.objectContaining({ label: "After calc", tabId: "tab-b" })
+    );
+    expect(replaceState).not.toHaveBeenCalled();
+
+    // Return to tab A; its recalc settles → its after-calc now folds into the
+    // "Node(s) removed" structural entry (the step that used to be lost).
+    activeTab = "tab-a";
+    storeState = makeState();
+    storeState.nodes[0].data.dirty = false;
+    act(() => {
+      rerender({ calc: { calcStatus: "OK", loadingUndoRef } });
+    });
+    expect(replaceState).toHaveBeenCalledTimes(1);
+    expect(replaceState).toHaveBeenCalledWith(
+      expect.any(Array),
+      storeState.edges,
+      expect.objectContaining({
+        coalesceFromLabel: "Node(s) removed",
+        tabId: "tab-a",
+      })
+    );
+  });
+
   it("does not coalesce a plain edit's after-calc (no structural entry to fold into)", () => {
     const loadingUndoRef = { current: false };
     const { result, rerender } = renderScheduler();

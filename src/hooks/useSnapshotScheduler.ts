@@ -12,6 +12,17 @@ interface CalcSnapshot {
   errors: CalcError[];
 }
 
+// Per-tab after-calc bookkeeping. Keying this by tab (instead of a single set
+// of globals) prevents an edit on one tab from abandoning another tab's still
+// pending after-calc snapshot during the recalc window (NB-01).
+interface PendingEntry {
+  pending: boolean;
+  token: number;
+  lastToken: number;
+  coalesceLabel: string | null;
+  coalesceToken: number | null;
+}
+
 interface UseSnapshotSchedulerArgs {
   storeApi: {
     getState: () => { nodes: FlowNode[]; edges: Edge[] };
@@ -96,20 +107,56 @@ export function useSnapshotScheduler({
   getCalcSnapshot,
   getActiveTabId,
 }: UseSnapshotSchedulerArgs): SnapshotScheduler {
-  const pendingSnapshotRef = useRef(false);
   const skipNextEdgeSnapshotRef = useRef(false);
   const skipNextNodeRemovalRef = useRef(false);
-  const pendingTokenRef = useRef(0);
-  const lastSnapshotTokenRef = useRef(0);
-  // When a structural snapshot opts into coalescing, remember its label and the
-  // pending-recalc token at push time. The next "After calc" for that same token
-  // folds into the structural entry instead of appending a second undo step.
-  const coalesceLabelRef = useRef<string | null>(null);
-  const coalesceTokenRef = useRef<number | null>(null);
-  // Tab the pending after-calc snapshot belongs to: the marker is set by an
-  // edit on a specific tab, but the deferred snapshot reads the live canvas,
-  // so it must never fire while another tab is active.
-  const pendingTabIdRef = useRef<string | null>(null);
+
+  // After-calc bookkeeping (pending flag, token, last-captured token, and the
+  // coalesce label/token) is keyed PER TAB. The old design used a single set of
+  // global refs, so an edit on tab B inside tab A's recalc window overwrote tab
+  // A's pending token/owner — tab A's coalesced "After calc" never fired and its
+  // structural entry kept stale post-edit results (NB-01). The effect only ever
+  // flushes the entry for the currently active tab, so other tabs' pending
+  // entries survive untouched until the user returns to them.
+  const pendingByTabRef = useRef<Map<string, PendingEntry>>(new Map());
+  const getActiveTabIdRef = useRef(getActiveTabId);
+  getActiveTabIdRef.current = getActiveTabId;
+  const resolveTabKey = useCallback(
+    () => getActiveTabIdRef.current?.() ?? "__active__",
+    []
+  );
+  const getPendingEntry = useCallback((key: string): PendingEntry => {
+    let entry = pendingByTabRef.current.get(key);
+    if (!entry) {
+      entry = {
+        pending: false,
+        token: 0,
+        lastToken: 0,
+        coalesceLabel: null,
+        coalesceToken: null,
+      };
+      pendingByTabRef.current.set(key, entry);
+    }
+    return entry;
+  }, []);
+
+  // Backward-compatible façade for the public pendingSnapshotRef. External
+  // callers (drag-stop, history-load) read/write `.current` in the context of
+  // the active tab, so proxy it to that tab's entry. Built once so the object
+  // identity stays stable across renders.
+  const pendingSnapshotFacadeRef = useRef<React.MutableRefObject<boolean> | null>(
+    null
+  );
+  if (pendingSnapshotFacadeRef.current === null) {
+    pendingSnapshotFacadeRef.current = {
+      get current() {
+        return getPendingEntry(resolveTabKey()).pending;
+      },
+      set current(value: boolean) {
+        getPendingEntry(resolveTabKey()).pending = value;
+      },
+    } as React.MutableRefObject<boolean>;
+  }
+  const pendingSnapshotRef = pendingSnapshotFacadeRef.current;
   const snapshotFramesRef = useRef<Map<string, number>>(new Map());
 
   const pushCleanState = useCallback(
@@ -249,11 +296,12 @@ export function useSnapshotScheduler({
         pushCleanState(state.nodes, state.edges, label, resolvedTabId);
 
         if (options?.coalesceFollowingCalc) {
-          // The recalc this action triggers already armed pendingTokenRef
-          // (synchronously, before this frame). Remember it so the matching
-          // "After calc" folds into this structural entry.
-          coalesceLabelRef.current = label;
-          coalesceTokenRef.current = pendingTokenRef.current;
+          // The recalc this action triggers already bumped this tab's pending
+          // token (synchronously, before this frame). Remember it so the
+          // matching "After calc" folds into this structural entry.
+          const entry = getPendingEntry(snapshotKey);
+          entry.coalesceLabel = label;
+          entry.coalesceToken = entry.token;
         }
       };
 
@@ -275,34 +323,36 @@ export function useSnapshotScheduler({
         `[scheduleSnapshot] queued frame id=${frameId} key='${snapshotKey}' label='${label}'`
       );
     },
-    [getActiveTabId, getSnapshotState, pushCleanState, refreshBanner, storeApi]
+    [getActiveTabId, getPendingEntry, getSnapshotState, pushCleanState, refreshBanner, storeApi]
   );
 
   const markPendingAfterDirtyChange = useCallback(() => {
-    pendingTokenRef.current += 1;
-    pendingSnapshotRef.current = true;
-    pendingTabIdRef.current = getActiveTabId?.() ?? null;
+    const entry = getPendingEntry(resolveTabKey());
+    entry.token += 1;
+    entry.pending = true;
     log(
       "snapshots",
-      `[dirtyChange] pendingSnapshotRef -> true token=${pendingTokenRef.current}`
+      `[dirtyChange] pendingSnapshotRef -> true token=${entry.token}`
     );
-  }, [getActiveTabId]);
+  }, [getPendingEntry, resolveTabKey]);
 
-  const armAfterCalcCoalesce = useCallback((label: string) => {
-    coalesceLabelRef.current = label;
-    coalesceTokenRef.current = pendingTokenRef.current;
-    log(
-      "snapshots",
-      `[armCoalesce] label='${label}' token=${pendingTokenRef.current}`
-    );
-  }, []);
+  const armAfterCalcCoalesce = useCallback(
+    (label: string) => {
+      const entry = getPendingEntry(resolveTabKey());
+      entry.coalesceLabel = label;
+      entry.coalesceToken = entry.token;
+      log("snapshots", `[armCoalesce] label='${label}' token=${entry.token}`);
+    },
+    [getPendingEntry, resolveTabKey]
+  );
 
   const clearPendingAfterCalc = useCallback(() => {
-    pendingSnapshotRef.current = false;
+    const entry = getPendingEntry(resolveTabKey());
+    entry.pending = false;
+    entry.lastToken = entry.token;
     skipNextEdgeSnapshotRef.current = false;
-    lastSnapshotTokenRef.current = pendingTokenRef.current;
     log("snapshots", `[afterCalc] cleared pending snapshot flags`);
-  }, []);
+  }, [getPendingEntry, resolveTabKey]);
 
   const lockNodeRemovalSnapshotSkip = useCallback(() => {
     skipNextNodeRemovalRef.current = true;
@@ -334,26 +384,15 @@ export function useSnapshotScheduler({
       return;
     }
 
-    if (!pendingSnapshotRef.current) return;
+    // Only ever consider the currently active tab's pending entry. Another
+    // tab's pending snapshot stays armed in its own entry until the user
+    // returns to it and that tab's recalc settles (this per-tab keying is what
+    // replaces the old cross-tab guard).
+    const tabKey = resolveTabKey();
+    const entry = getPendingEntry(tabKey);
+    if (!entry.pending) return;
     if (calcStatus === "CALC") {
       log("snapshots", `[afterCalc] calc still running; waiting`);
-      return;
-    }
-
-    const pendingTabId = pendingTabIdRef.current;
-    const currentTabId = getActiveTabId?.();
-    if (
-      pendingTabId !== null &&
-      currentTabId !== undefined &&
-      currentTabId !== pendingTabId
-    ) {
-      // The pending edit belongs to another tab; the live canvas now holds
-      // this tab's graph. Keep the token pending — the snapshot fires with
-      // the right content when the user returns to that tab.
-      log(
-        "snapshots",
-        `[afterCalc] skip auto snapshot (active tab '${currentTabId}' != pending '${pendingTabId}')`
-      );
       return;
     }
 
@@ -367,13 +406,13 @@ export function useSnapshotScheduler({
       return;
     }
 
-    const token = pendingTokenRef.current;
-    if (token === lastSnapshotTokenRef.current) {
+    const token = entry.token;
+    if (token === entry.lastToken) {
       log(
         "snapshots",
         `[afterCalc] skip auto snapshot (token already captured)`
       );
-      pendingSnapshotRef.current = false;
+      entry.pending = false;
       return;
     }
 
@@ -385,10 +424,11 @@ export function useSnapshotScheduler({
     // paste) that armed coalescing for this exact token, fold into that
     // structural entry instead of appending a second undo step.
     const coalesceInto =
-      coalesceTokenRef.current === token ? coalesceLabelRef.current : null;
-    coalesceLabelRef.current = null;
-    coalesceTokenRef.current = null;
+      entry.coalesceToken === token ? entry.coalesceLabel : null;
+    entry.coalesceLabel = null;
+    entry.coalesceToken = null;
 
+    const tabIdForSnapshot = getActiveTabIdRef.current?.();
     if (coalesceInto) {
       log(
         "snapshots",
@@ -399,7 +439,7 @@ export function useSnapshotScheduler({
         state.edges,
         labelForSnapshot,
         coalesceInto,
-        pendingTabId ?? undefined
+        tabIdForSnapshot
       );
     } else {
       log(
@@ -410,19 +450,21 @@ export function useSnapshotScheduler({
         state.nodes,
         state.edges,
         labelForSnapshot,
-        pendingTabId ?? undefined
+        tabIdForSnapshot
       );
     }
-    pendingSnapshotRef.current = false;
-    lastSnapshotTokenRef.current = token;
+    entry.pending = false;
+    entry.lastToken = token;
     skipNextEdgeSnapshotRef.current = false;
     log("snapshots", `[afterCalc] pendingSnapshotRef -> false`);
   }, [
     autoAfterCalc,
     getActiveTabId,
+    getPendingEntry,
     getSnapshotState,
     pushCleanState,
     replaceCleanState,
+    resolveTabKey,
     skipLoadRef,
     storeApi,
   ]);

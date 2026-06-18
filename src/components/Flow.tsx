@@ -3215,6 +3215,11 @@ function FlowContent() {
     // must not cancel the previous restore's still-pending edge write.
     historyRestoreGenRef.current += 1;
     const restoreGen = historyRestoreGenRef.current;
+    // The live canvas belongs to the active tab. If the user switches tabs
+    // before a deferred edge restore fires, writing these edges would clobber
+    // the now-active tab's canvas (and autosave the corruption). Re-check tab
+    // ownership in every deferred callback, mirroring reapplyPendingSharedGraph.
+    const restoreTabId = activeTabId;
 
     const snap = history[pointer];
     loadingUndoRef.current = true;
@@ -3239,7 +3244,11 @@ function FlowContent() {
 
     setNodes(restoredNodes);
     requestAnimationFrame(() => {
-      if (historyRestoreGenRef.current !== restoreGen) return;
+      if (
+        historyRestoreGenRef.current !== restoreGen ||
+        activeTabIdRef.current !== restoreTabId
+      )
+        return;
       const hasMissingHandle = restoredEdges.some((edge) => {
         const targetNode = restoredNodes.find(
           (node) => node.id === edge.target
@@ -3257,7 +3266,11 @@ function FlowContent() {
         // Keep the current edges visible while handles remount to avoid a flash.
         requestAnimationFrame(() => {
           setTimeout(() => {
-            if (historyRestoreGenRef.current !== restoreGen) return;
+            if (
+              historyRestoreGenRef.current !== restoreGen ||
+              activeTabIdRef.current !== restoreTabId
+            )
+              return;
             setEdges(restoredEdges);
           }, 0);
         });
