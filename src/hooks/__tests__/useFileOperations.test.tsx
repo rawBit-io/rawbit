@@ -75,6 +75,7 @@ describe("useFileOperations", () => {
     initialNodes?: FlowNode[];
     initialEdges?: Edge[];
     tabTitle?: string;
+    activeTabId?: string | null;
   }) => {
     const nodes: FlowNode[] =
       options?.initialNodes ?? [
@@ -98,12 +99,19 @@ describe("useFileOperations", () => {
     const getActiveTabTitle = options?.tabTitle
       ? () => options.tabTitle
       : undefined;
+    let currentActiveTabId: string | null =
+      options?.activeTabId ?? "tab-active";
+    const getActiveTabId = () => currentActiveTabId;
+    const setActiveTabId = (id: string | null) => {
+      currentActiveTabId = id;
+    };
 
     const { result } = renderHook(() =>
       useFileOperations(nodes, edges, onNodesChange, onEdgesChange, {
         getNodes,
         getEdges,
         getActiveTabTitle,
+        getActiveTabId,
         scheduleSnapshot,
         fitView,
         onTooltip,
@@ -125,6 +133,7 @@ describe("useFileOperations", () => {
       renameActiveTab,
       getNodes,
       getEdges,
+      setActiveTabId,
     };
   };
 
@@ -291,10 +300,50 @@ describe("useFileOperations", () => {
 
     await waitFor(() => expect(onNodesChange).toHaveBeenCalled());
     expect(onEdgesChange).toHaveBeenCalledWith([]);
-    expect(scheduleSnapshot).toHaveBeenCalledWith("Import file", { refresh: true });
+    expect(scheduleSnapshot).toHaveBeenCalledWith(
+      "Import file",
+      expect.objectContaining({ refresh: true })
+    );
     expect(fitView).toHaveBeenCalled();
     expect(onTooltip).toHaveBeenCalledWith("flow.json");
     expect(validationSpy).toHaveBeenCalled();
+  });
+
+  it("does not apply the import if the active tab changed during read (NB-24)", async () => {
+    const { result, onNodesChange, onEdgesChange, onError, setActiveTabId } =
+      renderUseFileOperations({ activeTabId: "tab-1" });
+
+    const payload: FlowData = {
+      nodes: [
+        {
+          id: "imported",
+          type: "calculation",
+          position: { x: 10, y: 20 },
+          data: { functionName: "identity" },
+        } as FlowNode,
+      ],
+      edges: [],
+      schemaVersion: 1,
+    };
+    const json = JSON.stringify(payload);
+    const file = {
+      name: "flow.json",
+      size: json.length,
+      text: () => Promise.resolve(json),
+    } as unknown as File;
+    const event = {
+      target: { files: [file] },
+    } as unknown as ChangeEvent<HTMLInputElement>;
+
+    act(() => {
+      result.current.handleFileSelect(event);
+    });
+    // User switches tabs before the FileReader resolves.
+    setActiveTabId("tab-2");
+
+    await waitFor(() => expect(onError).toHaveBeenCalled());
+    expect(onNodesChange).not.toHaveBeenCalled();
+    expect(onEdgesChange).not.toHaveBeenCalled();
   });
 
   it("skips simplified snapshots without positions", async () => {

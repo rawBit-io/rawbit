@@ -244,3 +244,34 @@ def test_in_memory_tracker_reset_clears_state():
     tracker.reset()
     _, total = tracker.check("user", now=5.0)
     assert total == 0.0
+
+
+def test_in_memory_tracker_does_not_leak_window_for_idle_ip(monkeypatch):
+    # NB-10: a check() for a never-recorded key, and a window that fully prunes,
+    # must not leave a permanent per-IP dict entry behind.
+    tracker = InMemoryCalculationBudgetTracker(window_seconds=10, budget_seconds=5)
+
+    allowed, total = tracker.check("fresh-ip", now=0.0)
+    assert allowed is True and total == 0.0
+    assert "fresh-ip" not in tracker._entries
+
+    tracker.record("busy-ip", 2.0, now=0.0)
+    assert "busy-ip" in tracker._entries
+    # After the window fully prunes, the next check evicts the empty entry.
+    tracker.check("busy-ip", now=100.0)
+    assert "busy-ip" not in tracker._entries
+
+
+def test_in_memory_tracker_sweeps_abandoned_one_off_ips():
+    # NB-10: 1,000 IPs each run once (check + record) and never return. Their
+    # recorded windows must not leak forever — a single later request past the
+    # window sweeps them globally.
+    tracker = InMemoryCalculationBudgetTracker(window_seconds=10, budget_seconds=5)
+    for i in range(1000):
+        ip = f"ip-{i}"
+        tracker.check(ip, now=0.0)
+        tracker.record(ip, 0.1, now=0.0)
+    assert len(tracker._entries) == 1000
+
+    tracker.check("new-ip", now=100.0)
+    assert len(tracker._entries) == 0

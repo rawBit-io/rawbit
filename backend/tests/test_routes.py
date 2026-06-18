@@ -251,14 +251,12 @@ def test_bulk_calculate_enforces_calculation_budget(monkeypatch, client):
     assert data["errors"]
     assert any("Calculation requests are limited" in entry["error"] for entry in data["errors"])
 
-    returned_nodes = data.get("nodes")
-    assert returned_nodes
-    first_node = returned_nodes[0]
-    assert first_node["id"] == "n1"
-    node_data = first_node["data"]
-    assert node_data["error"] is True
-    assert node_data["dirty"] is False
-    assert "Calculation requests are limited" in node_data["extendedError"]
+    # NB-11: the rejection path is O(1) — it must NOT echo the request nodes;
+    # the client annotates its own local nodes from the synthetic error entry.
+    assert data.get("nodes") is None
+    assert any(
+        entry["nodeId"] == "__calculation_budget__" for entry in data["errors"]
+    )
 
 
 def test_get_code_requires_function_name(client):

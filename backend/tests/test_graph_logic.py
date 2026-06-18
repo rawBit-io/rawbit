@@ -933,6 +933,68 @@ def test_bulk_calculate_logic_dynamic_tx_field_extract_outputs():
     assert "vout.scriptPubKey: 51" in data["result"]
 
 
+def _dynamic_extract_node(fields, vals):
+    return {
+        "id": "extract",
+        "type": "calculation",
+        "data": {
+            "functionName": "extract_tx_field",
+            "paramExtraction": "multi_val",
+            "txFieldExtractMode": "dynamic",
+            "txExtractFields": list(fields),
+            "inputStructure": {
+                "ungrouped": [
+                    {"index": 0, "label": "Raw TX (hex):"},
+                    {"index": 1, "label": "VIN/VOUT Index:"},
+                ]
+            },
+            "inputs": {"vals": dict(vals)},
+            "dirty": True,
+        },
+    }
+
+
+def test_dynamic_tx_field_extract_failing_field_keeps_sibling_outputs():
+    # NB-15: an op_return.data field whose indexed vout is not OP_RETURN must not
+    # wipe the sibling fields — it gets an empty value and an inline error line.
+    node = _dynamic_extract_node(
+        ["txid", "op_return.data"], {"0": SAMPLE_TX_HEX, "1": "0"}
+    )
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic([node], [])
+    data = list(updated_nodes)[0]["data"]
+
+    assert errors == []
+    assert data["dirty"] is False
+    assert data["outputValues"]["output-0"] == calc.extract_tx_field(
+        [SAMPLE_TX_HEX, "txid", "0"]
+    )
+    assert data["outputValues"]["output-1"] == ""
+    assert "txid:" in data["result"]
+    assert "op_return.data: <error:" in data["result"]
+
+
+def test_dynamic_tx_field_extract_clears_stale_outputs_on_bad_input():
+    # NB-12: after a successful run populates outputValues, re-running the same
+    # node with invalid input must not leave the previous value behind for a
+    # downstream consumer to read as current.
+    first_nodes, _ = graph_logic.bulk_calculate_logic(
+        [_dynamic_extract_node(["txid"], {"0": SAMPLE_TX_HEX, "1": "0"})], []
+    )
+    populated = list(first_nodes)[0]
+    good_txid = populated["data"]["outputValues"]["output-0"]
+    assert good_txid
+
+    # Same node data, now fed an undeserializable tx hex, marked dirty again.
+    populated["data"]["inputs"]["vals"]["0"] = "00"
+    populated["data"]["dirty"] = True
+    second_nodes, _ = graph_logic.bulk_calculate_logic([populated], [])
+    data2 = list(second_nodes)[0]["data"]
+
+    assert data2["outputValues"]["output-0"] != good_txid
+    assert data2["outputValues"]["output-0"] == ""
+
+
 def test_build_val_with_network_params_includes_selected_network():
     node = {
         "id": "addr",

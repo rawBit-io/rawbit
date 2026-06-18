@@ -151,7 +151,7 @@ const findGroupAtPoint = (
   return { node: best.node, abs: best.abs };
 };
 
-const fitGroupToChildrenInNodes = (
+export const fitGroupToChildrenInNodes = (
   nodes: FlowNode[],
   groupId: string
 ): FlowNode[] => {
@@ -197,6 +197,19 @@ const fitGroupToChildrenInNodes = (
     if (node.id === groupId) {
       return {
         ...node,
+        // Compensate the group origin for the child shift so EXISTING children
+        // keep their absolute screen position — the frame just grows on the
+        // top-left side to make room for the pasted node, instead of jolting
+        // every untouched child down-right (NB-05). Origin is relative to the
+        // group's own parent, so this is safe for nested groups too.
+        ...(shiftX !== 0 || shiftY !== 0
+          ? {
+              position: {
+                x: node.position.x - shiftX,
+                y: node.position.y - shiftY,
+              },
+            }
+          : {}),
         width: nextWidth,
         height: nextHeight,
         measured: {

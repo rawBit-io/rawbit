@@ -203,6 +203,39 @@ export default function ShadcnGroupNode({
     scheduleSnapshot("Change Group Title");
   };
 
+  // onlyRenderVisibleElements unmounts off-viewport GroupNodes without firing
+  // the title input's blur, so an in-progress rename is silently dropped
+  // (NB-23, a regression of RB-26). Flush it on unmount, mirroring TextInfoNode.
+  // Escape/Enter clear titleDraft (-> null) before unmount, so a cancel never
+  // commits; the titleDraft !== rawTitle guard avoids a no-op snapshot.
+  const titleFlushRef = useRef({
+    isEditing: titleDraft !== null,
+    titleDraft,
+    rawTitle,
+    commitTitle,
+  });
+  titleFlushRef.current = {
+    isEditing: titleDraft !== null,
+    titleDraft,
+    rawTitle,
+    commitTitle,
+  };
+  useEffect(
+    () => () => {
+      const pending = titleFlushRef.current;
+      if (
+        pending.isEditing &&
+        pending.titleDraft != null &&
+        pending.titleDraft !== pending.rawTitle
+      ) {
+        pending.commitTitle(
+          pending.titleDraft.trim().length ? pending.titleDraft : "Group Node"
+        );
+      }
+    },
+    []
+  );
+
   const clearSelectedEdges = useCallback(() => {
     if (typeof window !== "undefined") {
       window.dispatchEvent(new Event(CLEAR_BUNDLE_EDGE_SELECTION_EVENT));

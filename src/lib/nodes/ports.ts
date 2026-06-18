@@ -1,6 +1,7 @@
 import type { NodePorts, PortInfo } from "@/lib/nodes/connectActions";
 import type { FlowNode, InputStructure, FieldDefinition } from "@/types";
 import { isCalculableNode } from "@/lib/flow/nonCalculableNodes";
+import { INSTANCE_STRIDE } from "@/lib/utils";
 import {
   buildTxFieldExtractOutputPorts,
   normalizeTxFieldExtractFields,
@@ -67,7 +68,18 @@ export function buildPorts(n: FlowNode): NodePorts {
   const instanceKeys = data.groupInstanceKeys ?? {};
 
   groups.forEach((group) => {
-    const bases = instanceKeys[group.title] ?? [];
+    // Fall back to the groupInstances COUNT when groupInstanceKeys is absent,
+    // mirroring the renderer (CalculationNodeView) and fieldUtils. Otherwise a
+    // legacy/un-migrated node renders handles the Connect dialog can't offer as
+    // targets (NB-03).
+    const keys = instanceKeys[group.title];
+    const bases =
+      keys && keys.length
+        ? keys
+        : Array.from(
+            { length: data.groupInstances?.[group.title] ?? 0 },
+            (_, i) => group.baseIndex + i * INSTANCE_STRIDE
+          );
     bases.forEach((base) => {
       group.fields.forEach((field) => {
         if (isConnectableField(field)) {

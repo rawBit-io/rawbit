@@ -367,6 +367,10 @@ function setCursorOnElement(
 }
 
 function openScriptSteps(ctx?: DemoStepContext, attempts = 0) {
+  // Abort if the demo was stopped or the tab switched (NB-20): these rAF chains
+  // schedule via window.requestAnimationFrame directly, so they survive
+  // stopHelpDemo unless they consult ownership themselves.
+  if (ctx && !ctx.isRunning()) return;
   if (getScriptStepsDialog()) return;
 
   const button = findScriptStepsButton();
@@ -380,6 +384,7 @@ function openScriptSteps(ctx?: DemoStepContext, attempts = 0) {
 }
 
 function closeScriptSteps(ctx?: DemoStepContext, attempts = 0) {
+  if (ctx && !ctx.isRunning()) return;
   const button = findDialogCloseButton();
   if (button) {
     button.click();
@@ -390,6 +395,7 @@ function closeScriptSteps(ctx?: DemoStepContext, attempts = 0) {
 }
 
 function clickNext(ctx?: DemoStepContext, attempts = 0) {
+  if (ctx && !ctx.isRunning()) return;
   const button = findNextButton();
   if (button && !button.disabled) {
     button.click();

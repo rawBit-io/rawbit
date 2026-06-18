@@ -1369,12 +1369,22 @@ function FlowContent() {
     });
   }, [nodes, activeTabId, setCalcStateByTab]);
 
+  // Stable references so the scheduler object (and the SnapshotContext value it
+  // feeds) doesn't churn every Flow render — otherwise every node re-renders on
+  // each drag frame (NB-17). getSavedNodes/Edges are useCallback([]) and
+  // activeTabIdRef is a ref, so these stay stable mid-drag.
+  const getSnapshotState = useCallback(
+    () => ({ nodes: getSavedNodes(), edges: getSavedEdges() }),
+    [getSavedNodes, getSavedEdges]
+  );
+  const resolveActiveTabId = useCallback(
+    () => activeTabIdRef.current ?? activeTabId,
+    [activeTabId]
+  );
+
   const snapshotScheduler = useSnapshotScheduler({
     storeApi,
-    getSnapshotState: () => ({
-      nodes: getSavedNodes(),
-      edges: getSavedEdges(),
-    }),
+    getSnapshotState,
     pushState,
     replaceState,
     incrementGraphRev,
@@ -1385,7 +1395,7 @@ function FlowContent() {
       loadingUndoRef,
     },
     getCalcSnapshot,
-    getActiveTabId: () => activeTabIdRef.current ?? activeTabId,
+    getActiveTabId: resolveActiveTabId,
   });
 
   const {
@@ -2031,6 +2041,7 @@ function FlowContent() {
       const activeTab = tabs.find((tab) => tab.id === tabId);
       return activeTab?.title;
     },
+    getActiveTabId: resolveActiveTabId,
     renameActiveTab: (title, options) => {
       const tabId = activeTabIdRef.current ?? activeTabId;
       if (tabId) {

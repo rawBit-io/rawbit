@@ -117,27 +117,18 @@ describe("P0-5 error paths", () => {
     let mode: "echo" | "budget" = "echo";
     const capture = installCalcCapture((body) => {
       if (mode === "budget") {
-        // exact backend shape: routes.py _calculation_budget_error
-        const annotated = body.nodes.map((node) => ({
-          ...node,
-          data: {
-            ...node.data,
-            dirty: false,
-            error: true,
-            extendedError: budgetDetail,
-          },
-        }));
+        // exact backend shape: routes.py _calculation_budget_error — O(1), no
+        // echoed `nodes` array (NB-11). The client annotates its own nodes from
+        // the single synthetic error entry.
         return HttpResponse.json(
           {
             error: "calculation_time_limited",
             detail: budgetDetail,
             observedSeconds: 11.2,
             version: body.version,
-            nodes: annotated,
-            errors: annotated.map((node) => ({
-              nodeId: node.id,
-              error: budgetDetail,
-            })),
+            errors: [
+              { nodeId: "__calculation_budget__", error: budgetDetail },
+            ],
           },
           { status: 429 }
         );
@@ -170,11 +161,11 @@ describe("P0-5 error paths", () => {
     expect(limited.data.value).toBe("00000000");
     expect(limited.data.inputs?.val).toBe("00000000");
 
-    // PINNED side effect of any error round on script_verification nodes:
-    // mergePartialResultsIntoFullGraph deletes their committed result and
-    // nulls the cached script steps. A real backend recompute restores
-    // them; the echo responder cannot.
-    expect(getScriptSteps(INTRO.scriptVerify)).toBeNull();
+    // The cheap budget rejection (NB-11) annotates the dirty nodes locally
+    // instead of echoing an error-annotated graph, so — exactly like the
+    // network/timeout error paths — it does NOT null other nodes' cached
+    // script steps.
+    expect(getScriptSteps(INTRO.scriptVerify)).not.toBeNull();
 
     mode = "echo";
     await captureCalcPayload(harness, capture, async () => {
@@ -182,17 +173,7 @@ describe("P0-5 error paths", () => {
       await u.type(textarea, baselineValue);
     });
     const restored = await captureRecalcAllPayload(harness, capture);
-    const projectedBaseline = projectCalcPayload(baseline);
-    const baselineMinusVerifyResult = {
-      ...projectedBaseline,
-      nodes: projectedBaseline.nodes.map((node) => {
-        if (node.id !== INTRO.scriptVerify) return node;
-        const data = { ...node.data };
-        delete data.result;
-        return { ...node, data };
-      }),
-    };
-    expect(projectCalcPayload(restored)).toEqual(baselineMinusVerifyResult);
+    expect(projectCalcPayload(restored)).toEqual(projectCalcPayload(baseline));
     expect(harness.status()).toBe("OK");
   });
 

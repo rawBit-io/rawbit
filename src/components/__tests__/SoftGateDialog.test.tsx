@@ -24,9 +24,18 @@ describe("SoftGateDialog", () => {
     appendStub.mock.calls.filter(([el]) => el instanceof HTMLScriptElement)
       .length;
 
+  // onload now means "tag loaded"; the loader then polls for window.turnstile
+  // (NB-16), so a success-path stub must define it before firing onload.
+  const defineTurnstile = () => {
+    (window as typeof window & { turnstile?: TurnstileMock }).turnstile = {
+      render: vi.fn(() => "widget-id"),
+    };
+  };
+
   beforeEach(() => {
     appendStub.mockImplementation((el: Node) => {
       if (el instanceof HTMLScriptElement) {
+        defineTurnstile();
         el.onload?.(new Event("load"));
       }
       return el;
@@ -138,6 +147,7 @@ describe("SoftGateDialog", () => {
     // Retry re-injects the script; a successful load clears the error state.
     appendStub.mockImplementation((el: Node) => {
       if (el instanceof HTMLScriptElement) {
+        defineTurnstile();
         el.onload?.(new Event("load"));
       }
       return el;
@@ -174,7 +184,48 @@ describe("SoftGateDialog", () => {
 
     // Settle the shared load promise so later tests start fresh.
     await act(async () => {
+      defineTurnstile();
       pendingScripts[0]?.onload?.(new Event("load"));
     });
+  });
+
+  it("surfaces Retry (no hang) when the script loads but turnstile never defines, even on reopen (NB-16)", async () => {
+    vi.useFakeTimers();
+    try {
+      // Script tag loads but window.turnstile is never defined (e.g. a blocker
+      // returned 200 with a stubbed body).
+      appendStub.mockImplementation((el: Node) => {
+        if (el instanceof HTMLScriptElement) {
+          el.onload?.(new Event("load"));
+        }
+        return el;
+      });
+
+      const { rerender } = render(
+        <SoftGateDialog open onClose={vi.fn()} onVerified={vi.fn()} />
+      );
+
+      // Past the 5s poll deadline → the loader rejects instead of hanging.
+      await act(async () => {
+        vi.advanceTimersByTime(5100);
+      });
+      expect(
+        screen.getByText(/verification widget could not be loaded/i)
+      ).toBeInTheDocument();
+
+      // Close and reopen — it must still surface Retry, not hang silently.
+      rerender(
+        <SoftGateDialog open={false} onClose={vi.fn()} onVerified={vi.fn()} />
+      );
+      rerender(<SoftGateDialog open onClose={vi.fn()} onVerified={vi.fn()} />);
+      await act(async () => {
+        vi.advanceTimersByTime(5100);
+      });
+      expect(
+        screen.getByText(/verification widget could not be loaded/i)
+      ).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

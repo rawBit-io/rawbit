@@ -192,52 +192,22 @@ def _json(data, status=200):
     return Response(orjson.dumps(data), status=status, mimetype="application/json")
 
 
-def _calculation_budget_error(
-    observed: float,
-    *,
-    version: int,
-    request_nodes,
-) -> Response:
+def _calculation_budget_error(observed: float, *, version: int) -> Response:
+    # Keep the rejection path O(1): no per-node copy and no echoed `nodes` array
+    # (a rejected over-budget request would otherwise do O(nodes) work + a full
+    # ~5MB serialization outside the deadline guard — DoS amplification, NB-11).
+    # The client annotates its own local nodes from this single synthetic error.
     detail = (
         "Calculation requests are limited to "
         f"{CALCULATION_TIME_BUDGET_SECONDS:.1f} seconds of server-side work per "
         f"{CALCULATION_TIME_WINDOW_SECONDS:.0f}-second window"
     )
-    updated_nodes = []
-    errors = []
-
-    for raw_node in request_nodes or []:
-        if not isinstance(raw_node, dict):
-            continue
-        node_id = raw_node.get("id")
-        data = raw_node.get("data")
-        if not isinstance(data, dict):
-            continue
-
-        node_copy = raw_node.copy()
-        data_copy = data.copy()
-        data_copy.update({
-            "dirty": False,
-            "error": True,
-            "extendedError": detail,
-        })
-        data_copy.pop("scriptDebugSteps", None)
-        node_copy["data"] = data_copy
-        updated_nodes.append(node_copy)
-
-        if isinstance(node_id, str):
-            errors.append({"nodeId": node_id, "error": detail})
-
-    if not errors:
-        errors.append({"nodeId": "__calculation_budget__", "error": detail})
-
     payload = {
         "error": "calculation_time_limited",
         "detail": detail,
         "observedSeconds": observed,
         "version": version,
-        "nodes": updated_nodes,
-        "errors": errors,
+        "errors": [{"nodeId": "__calculation_budget__", "error": detail}],
     }
     return _json(payload, 429)
 
@@ -321,11 +291,7 @@ def bulk_calculate():
             client_ip,
             observed,
         )
-        return _calculation_budget_error(
-            observed,
-            version=version,
-            request_nodes=nodes,
-        )
+        return _calculation_budget_error(observed, version=version)
 
     started_at = time.perf_counter()
     try:

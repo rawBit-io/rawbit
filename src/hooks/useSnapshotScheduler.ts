@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { Edge } from "@xyflow/react";
 import { log } from "@/lib/logConfig";
 import type { CalcStatus, CalcError, FlowNode } from "@/types";
@@ -469,16 +469,33 @@ export function useSnapshotScheduler({
     storeApi,
   ]);
 
-  return {
-    pushCleanState,
-    scheduleSnapshot,
-    pendingSnapshotRef,
-    skipNextEdgeSnapshotRef,
-    skipNextNodeRemovalRef,
-    markPendingAfterDirtyChange,
-    armAfterCalcCoalesce,
-    clearPendingAfterCalc,
-    lockNodeRemovalSnapshotSkip,
-    releaseNodeRemovalSnapshotSkip,
-  };
+  // Stable object identity so the SnapshotContext value doesn't change every
+  // render and re-render all node consumers mid-drag (NB-17). Refs are omitted
+  // from deps (their identity is already stable).
+  return useMemo(
+    () => ({
+      pushCleanState,
+      scheduleSnapshot,
+      pendingSnapshotRef,
+      skipNextEdgeSnapshotRef,
+      skipNextNodeRemovalRef,
+      markPendingAfterDirtyChange,
+      armAfterCalcCoalesce,
+      clearPendingAfterCalc,
+      lockNodeRemovalSnapshotSkip,
+      releaseNodeRemovalSnapshotSkip,
+    }),
+    [
+      pushCleanState,
+      scheduleSnapshot,
+      pendingSnapshotRef,
+      skipNextEdgeSnapshotRef,
+      skipNextNodeRemovalRef,
+      markPendingAfterDirtyChange,
+      armAfterCalcCoalesce,
+      clearPendingAfterCalc,
+      lockNodeRemovalSnapshotSkip,
+      releaseNodeRemovalSnapshotSkip,
+    ]
+  );
 }

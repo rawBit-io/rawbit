@@ -62,17 +62,27 @@ class InMemoryCalculationBudgetTracker(CalculationBudgetTracker):
         self.budget_seconds = budget_seconds
         self._entries: Dict[str, _Window] = {}
         self._lock = threading.Lock()
+        self._last_sweep: float = 0.0
 
     def check(self, key: str, now: float | None = None) -> CalculationBudget:
         timestamp = time.time() if now is None else now
         with self._lock:
+            self._maybe_sweep(timestamp)
             window = self._entries.get(key)
             if window is None:
                 window = _Window()
                 self._entries[key] = window
             self._prune(window, timestamp)
             allowed = window.total_seconds < self.budget_seconds
-            return allowed, window.total_seconds
+            total = window.total_seconds
+            # Drop the key once its window is empty so an unseen/idle IP does not
+            # leak a permanent dict entry (NB-10). Only here, never in record():
+            # there the window is always non-empty after the append, and deleting
+            # it would orphan the just-recorded sample. The lock serializes
+            # check()/record(), so this is race-free.
+            if not window.entries:
+                del self._entries[key]
+            return allowed, total
 
     def record(self, key: str, duration_seconds: float, now: float | None = None) -> None:
         duration = max(duration_seconds, 0.0)
@@ -81,6 +91,7 @@ class InMemoryCalculationBudgetTracker(CalculationBudgetTracker):
 
         timestamp = time.time() if now is None else now
         with self._lock:
+            self._maybe_sweep(timestamp)
             window = self._entries.setdefault(key, _Window())
             self._prune(window, timestamp)
             window.entries.append((timestamp, duration))
@@ -89,6 +100,25 @@ class InMemoryCalculationBudgetTracker(CalculationBudgetTracker):
     def reset(self) -> None:
         with self._lock:
             self._entries.clear()
+            self._last_sweep = 0.0
+
+    def _maybe_sweep(self, now: float) -> None:
+        # Per-key eviction in check() only frees an IP that is checked again
+        # after its window empties. A one-off IP that runs once (check + record)
+        # and never returns leaves a window whose entries expire but are never
+        # pruned — a slow per-IP leak under real traffic (NB-10). Sweep the
+        # whole table at most once per window so the amortized per-request cost
+        # stays O(1); memory is then bounded to IPs seen within ~one window.
+        if now - self._last_sweep < self.window_seconds:
+            return
+        self._last_sweep = now
+        stale = []
+        for entry_key, window in self._entries.items():
+            self._prune(window, now)
+            if not window.entries:
+                stale.append(entry_key)
+        for entry_key in stale:
+            del self._entries[entry_key]
 
     def _prune(self, window: _Window, now: float) -> None:
         cutoff = now - self.window_seconds

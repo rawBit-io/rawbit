@@ -232,6 +232,20 @@ export async function recalculateGraph(
       throw new Error(`Invalid response from server (status: ${res.status})`);
     }
 
+    // The budget-rejection path returns no `nodes` array (it stays O(1) — NB-11),
+    // so annotate the local dirty nodes here, mirroring the payload-limit path.
+    if (!res.ok && json?.error === "calculation_time_limited") {
+      const detail =
+        typeof json.detail === "string"
+          ? json.detail
+          : "Calculation time limit reached.";
+      return {
+        nodes: annotateDirtyNodesWithError(nodes, detail),
+        version: json.version || version,
+        errors: json.errors ?? [],
+      };
+    }
+
     return {
       nodes: json.nodes || nodes,
       version: json.version || version,

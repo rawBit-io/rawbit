@@ -1,7 +1,7 @@
 import { renderHook, act } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { useCopyPaste } from "../useCopyPaste";
+import { useCopyPaste, fitGroupToChildrenInNodes } from "../useCopyPaste";
 import {
   buildGroupBundledElements,
   GROUP_BUNDLE_PORT_NODE_ID_PREFIX,
@@ -549,6 +549,71 @@ describe("useCopyPaste", () => {
       id: expect.not.stringContaining("edge-source-target"),
       sourceHandle: "out",
       targetHandle: "in",
+    });
+  });
+});
+
+describe("fitGroupToChildrenInNodes (NB-05)", () => {
+  it("keeps existing children at their absolute position when a paste lands in the top-left padding band", () => {
+    const group = buildFlowNode({
+      id: "group-a",
+      type: "shadcnGroup",
+      position: { x: 0, y: 0 },
+      data: { title: "A", width: 300, height: 200 },
+    });
+    const existing = buildFlowNode({
+      id: "existing",
+      parentId: "group-a",
+      position: { x: 100, y: 100 },
+    });
+    // Pasted node adopted near the corner (relative < GROUP_PADDING of 32).
+    const pasted = buildFlowNode({
+      id: "pasted",
+      parentId: "group-a",
+      position: { x: 10, y: 10 },
+    });
+
+    const result = fitGroupToChildrenInNodes(
+      [group, existing, pasted],
+      "group-a"
+    );
+
+    const groupOut = result.find((n) => n.id === "group-a")!;
+    const existingOut = result.find((n) => n.id === "existing")!;
+    const shiftX = 32 - 10; // GROUP_PADDING - minX
+    const shiftY = 32 - 10;
+
+    // The group frame grew on the top-left side (origin moved by -shift)…
+    expect(groupOut.position).toEqual({ x: -shiftX, y: -shiftY });
+    // …and the existing child's ABSOLUTE position is unchanged:
+    // group.x + child.relX  ===  (-shiftX) + (100 + shiftX)  ===  100.
+    expect(groupOut.position.x + existingOut.position.x).toBe(100);
+    expect(groupOut.position.y + existingOut.position.y).toBe(100);
+  });
+
+  it("does not move the group when the paste needs no shift", () => {
+    const group = buildFlowNode({
+      id: "group-a",
+      type: "shadcnGroup",
+      position: { x: 5, y: 5 },
+      data: { title: "A", width: 300, height: 200 },
+    });
+    const child = buildFlowNode({
+      id: "child",
+      parentId: "group-a",
+      position: { x: 80, y: 80 },
+    });
+
+    const result = fitGroupToChildrenInNodes([group, child], "group-a");
+    // shift is 0 (80 > padding), so the group keeps its origin and the child
+    // is untouched.
+    expect(result.find((n) => n.id === "group-a")!.position).toEqual({
+      x: 5,
+      y: 5,
+    });
+    expect(result.find((n) => n.id === "child")!.position).toEqual({
+      x: 80,
+      y: 80,
     });
   });
 });

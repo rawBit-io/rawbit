@@ -3,6 +3,18 @@ import { describe, expect, it } from "vitest";
 import { mdToHtml } from "../markdown";
 
 describe("mdToHtml", () => {
+  it("protects inline code from emphasis/link processing (NB-22)", () => {
+    const html = mdToHtml("`a*b*c` and `[a](b)`");
+    expect(html).toContain("<code>a*b*c</code>");
+    expect(html).toContain("<code>[a](b)</code>");
+    expect(html).not.toContain("<em>");
+    expect(html).not.toContain("<a ");
+  });
+
+  it("still wraps a code-only line in a paragraph", () => {
+    expect(mdToHtml("`solo`")).toContain("<p><code>solo</code></p>");
+  });
+
   it("formats headings, emphasis, and lists", () => {
     const html = mdToHtml(`# Title\n\n## Subtitle\n\n- item **bold**\n- item *italic*\n`);
 

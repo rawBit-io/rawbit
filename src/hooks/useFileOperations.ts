@@ -163,11 +163,15 @@ interface SimplifiedExportPayload {
 interface ImportBehaviorOptions {
   getNodes?: () => FlowNode[];
   getEdges?: () => Edge[];
-  scheduleSnapshot?: (label: string, options?: { refresh?: boolean }) => void;
+  scheduleSnapshot?: (
+    label: string,
+    options?: { refresh?: boolean; tabId?: string }
+  ) => void;
   fitView?: () => void;
   onTooltip?: (filename?: string) => void;
   onError?: (message: string, details?: FlowValidationIssue[]) => void;
   getActiveTabTitle?: () => string | undefined;
+  getActiveTabId?: () => string | null | undefined;
   renameActiveTab?: (title: string, options?: { onlyIfEmpty?: boolean }) => void;
 }
 
@@ -451,6 +455,16 @@ export function useFileOperations(
         return;
       }
 
+      // Capture the tab that owns this import NOW. The FileReader resolves
+      // asynchronously and the finalize poll runs up to ~2s, during which the
+      // user can switch tabs — applying the parsed graph then would append it to
+      // (and autosave it onto) the wrong tab's canvas (NB-24).
+      const capturedTabId = importOptions?.getActiveTabId?.();
+      const activeTabChanged = () => {
+        const getId = importOptions?.getActiveTabId;
+        return getId !== undefined && getId() !== capturedTabId;
+      };
+
       const reader = new FileReader();
       reader.onload = (evt) => {
         try {
@@ -588,6 +602,16 @@ export function useFileOperations(
               selected: false,
             }));
 
+          // The write below targets the single live canvas. If the user
+          // switched tabs while the file was reading, bail rather than clobber
+          // the now-active tab (NB-24).
+          if (activeTabChanged()) {
+            importOptions?.onError?.(
+              "Switched tabs during import — re-open the file to import into the current tab."
+            );
+            return;
+          }
+
           onNodesChange([...deselect, ...addNodes]);
           onEdgesChange(addEdges);
 
@@ -598,8 +622,15 @@ export function useFileOperations(
             : undefined;
 
           const finalizeImport = () => {
+            // The rAF poll can run ~2s; skip fit/snapshot/rename if the user
+            // switched away in the meantime, and pin the snapshot to the tab the
+            // import actually landed on (NB-24).
+            if (activeTabChanged()) return;
             importOptions?.fitView?.();
-            importOptions?.scheduleSnapshot?.("Import file", { refresh: true });
+            importOptions?.scheduleSnapshot?.("Import file", {
+              refresh: true,
+              ...(capturedTabId ? { tabId: capturedTabId } : {}),
+            });
             if (filename) {
               importOptions?.onTooltip?.(filename);
               if (importOptions?.renameActiveTab && beforeCount === 0) {

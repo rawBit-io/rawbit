@@ -38,20 +38,52 @@ const loadTurnstileScript = (): Promise<void> => {
   if (window.turnstile) return Promise.resolve();
   if (turnstileScriptPromise) return turnstileScriptPromise;
   const load = new Promise<void>((resolve, reject) => {
-    const existing = document.head.querySelector<HTMLScriptElement>(
-      `script[src="${TURNSTILE_SCRIPT_SRC}"]`
-    );
-    const script = existing ?? document.createElement("script");
-    script.onload = () => resolve();
-    script.onerror = () => {
+    if (window.turnstile) {
+      resolve();
+      return;
+    }
+    // Always start from a FRESH element so onload/onerror fire deterministically.
+    // Re-finding a previously-loaded-but-stubbed script (e.g. an ad blocker
+    // returned 200 with an empty body) attached handlers that never re-fire, so
+    // the promise hung forever with no Retry (NB-16).
+    document.head
+      .querySelector<HTMLScriptElement>(`script[src="${TURNSTILE_SCRIPT_SRC}"]`)
+      ?.remove();
+    const script = document.createElement("script");
+    let settled = false;
+    const fail = () => {
+      if (settled) return;
+      settled = true;
       script.remove();
       reject(new Error("Turnstile script failed to load"));
     };
-    if (!existing) {
-      script.src = TURNSTILE_SCRIPT_SRC;
-      script.async = true;
-      document.head.appendChild(script);
-    }
+    const succeed = () => {
+      if (settled) return;
+      settled = true;
+      resolve();
+    };
+    const deadline = Date.now() + 5000;
+    script.onerror = fail;
+    script.onload = () => {
+      // onload only means the tag loaded; poll until window.turnstile is
+      // actually defined (a blocked/stubbed body never defines it), and fail
+      // out at the deadline so the dialog surfaces Retry instead of blanking.
+      const poll = () => {
+        if (window.turnstile) {
+          succeed();
+          return;
+        }
+        if (Date.now() > deadline) {
+          fail();
+          return;
+        }
+        window.setTimeout(poll, 50);
+      };
+      poll();
+    };
+    script.src = TURNSTILE_SCRIPT_SRC;
+    script.async = true;
+    document.head.appendChild(script);
   });
   turnstileScriptPromise = load.finally(() => {
     turnstileScriptPromise = null;

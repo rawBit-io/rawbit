@@ -298,6 +298,60 @@ export function validateFlowData(
       }
     }
 
+    // Bound the declared input-port fan-out too. numInputs is guarded above, but
+    // collectHandleMetadata -> buildPorts also iterates groups x instanceKeys x
+    // fields; a crafted inputStructure/groupInstanceKeys cross-product (e.g. a
+    // multi-million-entry groupInstanceKeys array) would freeze the tab during
+    // validation (NB-18). This sum only reads .length values (O(groups)), never
+    // the huge arrays, and short-circuits once the cap is exceeded.
+    if (isPlainObject(node.data)) {
+      const structure = node.data.inputStructure;
+      if (isPlainObject(structure)) {
+        const lenOf = (v: unknown) => (Array.isArray(v) ? v.length : 0);
+        const instanceKeys = isPlainObject(node.data.groupInstanceKeys)
+          ? node.data.groupInstanceKeys
+          : {};
+        const groupInstances = isPlainObject(node.data.groupInstances)
+          ? node.data.groupInstances
+          : {};
+        const betweenGroups = isPlainObject(structure.betweenGroups)
+          ? structure.betweenGroups
+          : {};
+        // Mirror buildPorts' instance count: groupInstanceKeys when present,
+        // otherwise the groupInstances COUNT fallback (added for NB-03) — else a
+        // crafted legacy node with a huge groupInstances and no keys would slip
+        // past this guard and freeze buildPorts (NB-18).
+        const instanceCountFor = (title: string): number => {
+          const keys = instanceKeys[title];
+          if (Array.isArray(keys) && keys.length > 0) return keys.length;
+          const count = groupInstances[title];
+          return typeof count === "number" && Number.isFinite(count) && count > 0
+            ? count
+            : 0;
+        };
+        let total = lenOf(structure.ungrouped) + lenOf(structure.afterGroups);
+        const groups = structure.groups;
+        if (Array.isArray(groups)) {
+          for (const group of groups) {
+            if (total > MAX_NODE_NUM_INPUTS) break;
+            if (!isPlainObject(group) || !Array.isArray(group.fields)) continue;
+            const title = typeof group.title === "string" ? group.title : "";
+            total += instanceCountFor(title) * group.fields.length;
+            total += lenOf(betweenGroups[title]);
+          }
+        }
+        if (total > MAX_NODE_NUM_INPUTS) {
+          issues.push({
+            level: "error",
+            code: "NODE_PORT_FANOUT_INVALID",
+            message: `Node ${label} declares too many input ports (max ${MAX_NODE_NUM_INPUTS}).`,
+            nodeId: node.id,
+          });
+          return;
+        }
+      }
+    }
+
     const meta = collectHandleMetadata(node);
     handleMeta.set(node.id, meta);
   });

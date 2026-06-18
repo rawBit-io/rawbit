@@ -327,4 +327,35 @@ describe("buildPorts", () => {
       { label: "address", handleId: "" },
     ]);
   });
+
+  it("falls back to groupInstances count when groupInstanceKeys is absent (NB-03)", () => {
+    const node = {
+      id: "legacy",
+      type: "calculation",
+      position: { x: 0, y: 0 },
+      data: {
+        functionName: "concat_all",
+        inputStructure: {
+          groups: [
+            {
+              title: "OUTPUTS[]",
+              baseIndex: 3000,
+              fields: [
+                { index: 0, label: "AMOUNT[8]:" },
+                { index: 10, label: "SCRIPT_PUBKEY[]:" },
+              ],
+            },
+          ],
+        },
+        // legacy node: count present, no groupInstanceKeys
+        groupInstances: { "OUTPUTS[]": 2 },
+      },
+    } as FlowNode;
+
+    const handles = buildPorts(node).inputs.map((p) => p.handleId);
+    // first instance (3000/3010) AND second instance (3100/3110) must appear
+    expect(handles).toEqual(
+      expect.arrayContaining(["input-3000", "input-3010", "input-3100", "input-3110"])
+    );
+  });
 });

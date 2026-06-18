@@ -650,9 +650,17 @@ def _calculate_dynamic_tx_field_extract(data, inp_dict):
     result_lines = []
     for output_index, field in enumerate(fields):
         handle_id = f"output-{output_index}"
-        value = extract_tx_field([str(raw_tx_hex), field, str(index or "")])
-        output_values[handle_id] = value
-        result_lines.append(f"{field}: {value}")
+        # Per-field isolation: a field that can't be extracted (e.g. an
+        # op_return.data field whose indexed vout isn't OP_RETURN) gets an empty
+        # value (rendered as "--", copy disabled) and an inline error line,
+        # instead of raising and wiping every sibling field's output (NB-15).
+        try:
+            value = extract_tx_field([str(raw_tx_hex), field, str(index or "")])
+            output_values[handle_id] = value
+            result_lines.append(f"{field}: {value}")
+        except Exception as exc:  # noqa: BLE001 - surface per field, never abort the node
+            output_values[handle_id] = ""
+            result_lines.append(f"{field}: <error: {exc}>")
 
     data["txExtractFields"] = fields
     data["outputPorts"] = _tx_field_extract_output_ports(fields)
@@ -731,6 +739,16 @@ def bulk_calculate_logic(nodes, edges):
                 if fn_name == "taproot_tree_builder":
                     data["taprootTree"] = None
                     data.pop("outputValues", None)
+                # Pre-clear dynamic TX-field-extract outputs so a per-field
+                # raise mid-loop cannot leave the previous run's outputValues/
+                # result behind for a downstream consumer to read as current
+                # (NB-12). On success both are repopulated below.
+                if (
+                    fn_name == "extract_tx_field"
+                    and data.get("txFieldExtractMode") == "dynamic"
+                ):
+                    data.pop("outputValues", None)
+                    data["result"] = ""
 
                 func = CALC_FUNCTIONS.get(fn_name)
                 if not func:

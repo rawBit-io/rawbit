@@ -275,6 +275,68 @@ describe("validateFlowData", () => {
     expect(elapsed).toBeLessThan(500);
   });
 
+  it("rejects crafted groupInstanceKeys fan-out before collecting handle metadata (NB-18)", () => {
+    const hostile = makeNode("fanout", {
+      inputStructure: {
+        groups: [
+          { title: "G", baseIndex: 0, fields: [{ index: 0 }, { index: 10 }] },
+        ],
+      },
+      // 5,000,000 instances x 2 fields = 10M handles if buildPorts ran
+      groupInstanceKeys: { G: Array.from({ length: 5_000_000 }, (_, i) => i) },
+    } as unknown as Partial<FlowNode["data"]>);
+
+    const started = performance.now();
+    const result = validateFlowData({
+      schemaVersion: FLOW_SCHEMA_VERSION,
+      nodes: [hostile],
+      edges: [],
+    } as FlowData);
+    const elapsed = performance.now() - started;
+
+    expect(result.ok).toBe(false);
+    expect(
+      result.errors.some((err) => err.code === "NODE_PORT_FANOUT_INVALID")
+    ).toBe(true);
+    // Rejected by reading .length only — never iterating the 10M cross-product.
+    expect(elapsed).toBeLessThan(500);
+  });
+
+  it("rejects crafted groupInstances fan-out (no groupInstanceKeys) too (NB-18)", () => {
+    // buildPorts falls back to the groupInstances count when keys are absent
+    // (NB-03), so the fan-out guard must count it the same way.
+    const hostile = makeNode("fanout-count", {
+      inputStructure: {
+        groups: [
+          {
+            title: "G",
+            baseIndex: 0,
+            fields: [
+              { index: 0, label: "a" },
+              { index: 10, label: "b" },
+            ],
+          },
+        ],
+      },
+      groupInstances: { G: 5_000_000 },
+      // no groupInstanceKeys
+    } as unknown as Partial<FlowNode["data"]>);
+
+    const started = performance.now();
+    const result = validateFlowData({
+      schemaVersion: FLOW_SCHEMA_VERSION,
+      nodes: [hostile],
+      edges: [],
+    } as FlowData);
+    const elapsed = performance.now() - started;
+
+    expect(result.ok).toBe(false);
+    expect(
+      result.errors.some((err) => err.code === "NODE_PORT_FANOUT_INVALID")
+    ).toBe(true);
+    expect(elapsed).toBeLessThan(500);
+  });
+
   it("rejects non-integer and negative numInputs", () => {
     for (const numInputs of [-1, 1.5, Number.NaN, "12" as unknown as number]) {
       const result = validateFlowData({

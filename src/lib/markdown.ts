@@ -14,6 +14,7 @@ const CODE = /`(.+?)`/g;
 const CODE_BLOCK = /```(?:([a-zA-Z0-9_-]+)\n)?([\s\S]*?)```/g;
 const TABLE = /^(\|[^\n]+\|)\n(\|[-:\s|]+\|)(\n\|[^\n]+\|)*$/gm;
 const BLOCK_TOKEN = /@@RAWBIT_MD_BLOCK_(\d+)@@/g;
+const INLINE_TOKEN = /@@RAWBIT_MD_INLINE_(\d+)@@/g;
 
 export function decodeHtmlEntities(str: string): string {
   return str
@@ -245,6 +246,13 @@ export function mdToHtml(src: string): string {
     const index = blocks.push(html) - 1;
     return `@@RAWBIT_MD_BLOCK_${index}@@`;
   };
+  // Inline code uses its OWN token namespace (not stashBlock) so wrapParagraphs
+  // still wraps a code-only line in <p> rather than treating it as pre-wrapped.
+  const inlines: string[] = [];
+  const stashInline = (html: string) => {
+    const index = inlines.push(html) - 1;
+    return `@@RAWBIT_MD_INLINE_${index}@@`;
+  };
 
   // Stash code fences first so block patterns (e.g. tables) never match
   // inside fenced content.
@@ -255,6 +263,13 @@ export function mdToHtml(src: string): string {
       `<pre><code${languageAttr}>${normalizedContent}</code></pre>`
     );
   });
+
+  // Stash inline code BEFORE emphasis/link/table processing so backticked
+  // literals (e.g. `[a](b)` or `a*b*c`) are never mangled into <a>/<em>/<strong>
+  // (NB-22). Content is already escaped by escapeHtml above.
+  result = result.replace(CODE, (_, content) =>
+    stashInline(`<code>${content}</code>`)
+  );
 
   result = result.replace(TABLE, (match) => parseTable(match));
 
@@ -275,13 +290,14 @@ export function mdToHtml(src: string): string {
         return `<span class="text-primary underline underline-offset-2">${text}</span>`;
       }
       return `<a href="${escapeHtml(safeUrl)}" class="text-primary underline underline-offset-2 hover:opacity-90" target="_blank" rel="noopener noreferrer">${text}</a>`;
-    })
-    .replace(CODE, (_, content) => {
-      return `<code>${content}</code>`;
     });
 
   result = wrapParagraphs(result);
   result = result.replace(BLOCK_TOKEN, (_, index) => blocks[Number(index)] ?? "");
+  result = result.replace(
+    INLINE_TOKEN,
+    (_, index) => inlines[Number(index)] ?? ""
+  );
 
   return result;
 }

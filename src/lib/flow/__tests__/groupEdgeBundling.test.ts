@@ -474,12 +474,15 @@ describe("buildGroupBundledEdges", () => {
 
     expect(bundleToB).toMatchObject({
       data: {
+        // dragged port keeps its persisted offset (center 100 + 40)
         sourceBoundaryPoint: { x: 300, y: 140 },
       },
     });
     expect(bundleToC).toMatchObject({
       data: {
-        sourceBoundaryPoint: { x: 300, y: 100 },
+        // NB-19: the un-dragged sibling now recovers fan-out spacing (center
+        // 100 + 9) instead of collapsing to the bare center (100).
+        sourceBoundaryPoint: { x: 300, y: 109 },
       },
     });
   });

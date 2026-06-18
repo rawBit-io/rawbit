@@ -382,6 +382,43 @@ describe("GroupNode interactions", () => {
     );
   });
 
+  it("flushes an in-progress title edit when the node unmounts (NB-23)", () => {
+    const node = createNode();
+    setupNodes([node], []);
+    const { unmount } = render(<ShadcnGroupNode {...buildNodeProps(node)} />);
+
+    fireEvent.doubleClick(screen.getByRole("button", { name: "Group Node" }));
+    const input = screen.getByDisplayValue("Group Node");
+    fireEvent.change(input, { target: { value: "Unmounted Name" } });
+    // No Enter/blur: the group scrolls off-viewport and React Flow unmounts it.
+    act(() => {
+      unmount();
+    });
+
+    expect(nodes[0].data.title).toBe("Unmounted Name");
+    expect(snapshotMock.scheduleSnapshot).toHaveBeenCalledWith(
+      "Change Group Title"
+    );
+  });
+
+  it("does not commit a cancelled (Escape) title edit on unmount (NB-23)", () => {
+    const node = createNode();
+    setupNodes([node], []);
+    const { unmount } = render(<ShadcnGroupNode {...buildNodeProps(node)} />);
+
+    fireEvent.doubleClick(screen.getByRole("button", { name: "Group Node" }));
+    const input = screen.getByDisplayValue("Group Node");
+    fireEvent.change(input, { target: { value: "Discard me" } });
+    fireEvent.keyDown(input, { key: "Escape" });
+    snapshotMock.scheduleSnapshot.mockClear();
+    act(() => {
+      unmount();
+    });
+
+    expect(nodes[0].data.title).toBe("Group Node");
+    expect(snapshotMock.scheduleSnapshot).not.toHaveBeenCalled();
+  });
+
   it("starts title editing when double-clicking the title area outside the text button", () => {
     renderGroupNode();
 

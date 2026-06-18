@@ -80,6 +80,10 @@ function setCursorOnShowCodeItem(
 }
 
 function openCodeDialog(ctx?: DemoStepContext, attempts = 0) {
+  // Abort if the demo was stopped / tab switched (NB-21): this rAF loop
+  // schedules directly via window.requestAnimationFrame, so it must check
+  // ownership itself or it keeps clicking the live DOM after Stop.
+  if (ctx && !ctx.isRunning()) return;
   if (isCodeDialogOpen()) {
     ctx?.setOverlay({ cursor: null, ghost: null });
     return;

@@ -163,31 +163,54 @@ const groupLabel = (node: FlowNode): string =>
 const nodeLabel = (node: FlowNode | undefined, fallbackId: string): string =>
   node ? groupLabel(node) : fallbackId;
 
+const perBundleOffsetMap = (
+  data: NodeData | undefined,
+  role: "source" | "target"
+): Record<string, unknown> | undefined => {
+  const map =
+    role === "source"
+      ? data?.groupBundlePortOffsets?.sourceByBundle
+      : data?.groupBundlePortOffsets?.targetByBundle;
+  return map as Record<string, unknown> | undefined;
+};
+
+const hasPerBundleOffsetMap = (map: Record<string, unknown> | undefined) =>
+  !!map && typeof map === "object" && Object.keys(map).length > 0;
+
 const groupBundlePortOffset = (
   data: NodeData | undefined,
   role: "source" | "target",
   bundleId: string,
   defaultOffset = 0
-): number =>
-  asFiniteNumber(
-    role === "source"
-      ? data?.groupBundlePortOffsets?.sourceByBundle?.[bundleId]
-      : data?.groupBundlePortOffsets?.targetByBundle?.[bundleId]
-  ) ??
-  asFiniteNumber(data?.groupBundlePortOffsets?.[role]) ??
-  defaultOffset;
+): number => {
+  const map = perBundleOffsetMap(data, role);
+  const perBundle = asFiniteNumber(map?.[bundleId]);
+  if (perBundle !== undefined) return perBundle;
+  // The legacy single `[role]` value only applies when there is NO per-bundle
+  // map — otherwise it would broadcast one dragged value onto every sibling
+  // bundle port and stack them at the same offset (NB-19).
+  if (!hasPerBundleOffsetMap(map)) {
+    const legacy = asFiniteNumber(data?.groupBundlePortOffsets?.[role]);
+    if (legacy !== undefined) return legacy;
+  }
+  return defaultOffset;
+};
 
 const hasPersistedGroupBundlePortOffset = (
   data: NodeData | undefined,
   role: "source" | "target",
   bundleId: string
-): boolean =>
-  asFiniteNumber(
-    role === "source"
-      ? data?.groupBundlePortOffsets?.sourceByBundle?.[bundleId]
-      : data?.groupBundlePortOffsets?.targetByBundle?.[bundleId]
-  ) !== undefined ||
-  asFiniteNumber(data?.groupBundlePortOffsets?.[role]) !== undefined;
+): boolean => {
+  const map = perBundleOffsetMap(data, role);
+  if (asFiniteNumber(map?.[bundleId]) !== undefined) return true;
+  // Mirror groupBundlePortOffset: a legacy `[role]` value counts as persisted
+  // only when no per-bundle map exists, so default fan-out is still written for
+  // sibling ports of legacy-mixed nodes.
+  if (!hasPerBundleOffsetMap(map)) {
+    return asFiniteNumber(data?.groupBundlePortOffsets?.[role]) !== undefined;
+  }
+  return false;
+};
 
 const groupRect = (node: FlowNode): GroupRect => {
   const data = node.data as NodeData | undefined;
@@ -579,21 +602,28 @@ const buildDefaultPortOffsets = ({
   const defaultOffsets = new Map<string, number>();
   for (const ports of portBuckets.values()) {
     if (ports.length < 2) continue;
-    const hasSavedOffset = ports.some((port) =>
-      hasPersistedGroupBundlePortOffset(
-        groupRects.get(port.groupId)?.data,
-        port.role,
-        port.bundleId
-      )
-    );
-    if (hasSavedOffset) continue;
 
+    // Compute fan-out indices from the full sorted bucket so positions stay
+    // correct, but only WRITE a default for ports that don't already carry a
+    // persisted (dragged) offset. Previously one saved offset suppressed the
+    // default for ALL siblings, collapsing un-dragged ports to the group
+    // center (NB-19). A dragged port keeps its own value; its siblings recover
+    // fan-out spacing.
     const sortedPorts = ports.sort(
       (a, b) =>
         a.oppositeY - b.oppositeY || compareStrings(a.bundleId, b.bundleId)
     );
     const centerIndex = (sortedPorts.length - 1) / 2;
     sortedPorts.forEach((port, index) => {
+      if (
+        hasPersistedGroupBundlePortOffset(
+          groupRects.get(port.groupId)?.data,
+          port.role,
+          port.bundleId
+        )
+      ) {
+        return;
+      }
       defaultOffsets.set(
         portOffsetKey(port.role, port.bundleId),
         Math.round((index - centerIndex) * BUNDLE_PORT_DEFAULT_SPACING * 100) /

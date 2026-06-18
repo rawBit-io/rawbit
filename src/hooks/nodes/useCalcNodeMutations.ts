@@ -141,12 +141,26 @@ export function useCalcNodeMutations(
           const nextFields = [...fields];
           nextFields[index] = field;
 
+          // Drop the changed output's cached value so the copy button and any
+          // downstream consumer don't read the PREVIOUS field's value mislabeled
+          // as the new field during the debounce+recalc window (NB-04). dirty:
+          // true always triggers a recalc that repopulates it; until then the
+          // view shows "--" and consumers fall back to default.
+          const outputValues =
+            current.outputValues && typeof current.outputValues === "object"
+              ? { ...current.outputValues }
+              : undefined;
+          if (outputValues) {
+            delete outputValues[`output-${index}`];
+          }
+
           return {
             ...node,
             data: {
               ...current,
               txExtractFields: nextFields,
               outputPorts: buildTxFieldExtractOutputPorts(nextFields),
+              ...(outputValues ? { outputValues } : {}),
               dirty: true,
               error: false,
               extendedError: undefined,

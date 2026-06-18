@@ -136,6 +136,9 @@ describe("useCalcNodeMutations", () => {
       handleId: "output-0",
     });
     expect(nodes[0].data.dirty).toBe(true);
+    // NB-04: changing the field type clears that output's stale cached value so
+    // it can't be read mislabeled as the new field before recalc.
+    expect(nodes[0].data.outputValues).toEqual({ "output-1": "script" });
 
     rerender({ data: nodes[0].data });
 
@@ -144,7 +147,8 @@ describe("useCalcNodeMutations", () => {
     });
 
     expect(nodes[0].data.txExtractFields).toEqual(["vin.txid"]);
-    expect(nodes[0].data.outputValues).toEqual({ "output-0": "tx" });
+    // output-0 was cleared by the field change above; output-1 by the resize.
+    expect(nodes[0].data.outputValues).toEqual({});
     expect(edges.map((edge) => edge.id)).toEqual(["e-keep"]);
   });
 
