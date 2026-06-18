@@ -30,8 +30,8 @@
       "id": "group_7v4cyqu",
       "type": "shadcnGroup",
       "position": {
-        "x": 5037.105715790048,
-        "y": 2278.677406198388
+        "x": 4917.459074724119,
+        "y": 2426.1026123233496
       },
       "data": {
         "isGroup": true,
@@ -58,8 +58,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 19668.688426740708,
-        "y": -372.1827281209107
+        "x": 19587.185010644713,
+        "y": -360.9833254599987
       },
       "data": {
         "isGroup": true,
@@ -91,8 +91,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 16044.238965680885,
-        "y": -4036.9609054234943
+        "x": 15962.73554958489,
+        "y": -4025.7615027625825
       },
       "data": {
         "isGroup": true,
@@ -121,8 +121,8 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 10908.046285420605,
-        "y": -2400.2465552853882
+        "x": 10826.54286932461,
+        "y": -2389.0471526244764
       },
       "data": {
         "isGroup": true,
@@ -155,8 +155,8 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": 269.17570150480424,
-        "y": 845.4913366711953
+        "x": 187.67228540880956,
+        "y": 856.6907393321073
       },
       "data": {
         "isGroup": true,
@@ -184,8 +184,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 7649.232633169069,
-        "y": -4906.115396534422
+        "x": 7567.729217073074,
+        "y": -4894.91599387351
       },
       "data": {
         "isGroup": true,
@@ -1899,11 +1899,11 @@
       "id": "node_nd5uge0",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 270,
-        "y": 270
+        "x": 165,
+        "y": 330
       },
       "data": {
-        "content": "## ScriptPubkey - Inheritance  \n```\nOP_IF\n    <owner_pubkey> OP_CHECKSIG                 \nOP_ELSE\n    <timestamp> OP_CHECKLOCKTIMEVERIFY OP_DROP\n    <heir_pubkey> OP_CHECKSIG                  \nOP_ENDIF\n```",
+        "content": "#  Inheritance Script\n```\nOP_IF\n    <owner_pubkey> OP_CHECKSIG                 \nOP_ELSE\n    <unlock_time> OP_CHECKLOCKTIMEVERIFY OP_DROP\n    <heir_pubkey> OP_CHECKSIG                  \nOP_ENDIF\n```",
         "fontSize": 28,
         "width": 776,
         "height": 450,
@@ -3080,8 +3080,8 @@
       "id": "node_75JB67PO",
       "type": "shadcnGroup",
       "position": {
-        "x": 37786.09698622711,
-        "y": 10426.46972639971
+        "x": 36111.80217302259,
+        "y": 9212.44497743868
       },
       "data": {
         "isGroup": true,
@@ -3109,8 +3109,8 @@
       "id": "node_TC7BVduR",
       "type": "shadcnGroup",
       "position": {
-        "x": 33060.55470712574,
-        "y": 6642.310393741705
+        "x": 31386.259893921215,
+        "y": 5428.285644780675
       },
       "data": {
         "isGroup": true,
@@ -3141,8 +3141,8 @@
       "id": "node_L0EP4zuC",
       "type": "shadcnGroup",
       "position": {
-        "x": 26066.741406502675,
-        "y": 8390.972362300134
+        "x": 24392.44659329815,
+        "y": 7176.947613339104
       },
       "data": {
         "isGroup": true,
@@ -4755,8 +4755,8 @@
       "id": "node_JXkIOct0",
       "type": "shadcnGroup",
       "position": {
-        "x": 23229.925873441727,
-        "y": 11777.86081626108
+        "x": 21555.631060237203,
+        "y": 10563.83606730005
       },
       "data": {
         "isGroup": true,
@@ -5320,6 +5320,79 @@
       },
       "parentId": "node_L0EP4zuC",
       "extent": "parent"
+    },
+    {
+      "id": "node_3gpktfq",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 4904.671770349498,
+        "y": 1768.0531719232572
+      },
+      "data": {
+        "content": "## Using Identifiers in OP_RETURN\n\nWhen storing encrypted recovery data in an `OP_RETURN`, it is useful to add a short, human-readable **prefix** at the beginning.\n\n**Why it helps:**\n- Makes the transaction easy to find on block explorers\n- Distinguishes it from other `OP_RETURN` outputs\n- Supports versioning and can include short instructions\n\n**Recommended approach:**  \nUse a short cleartext prefix followed by the encrypted redeemScript. This improves discoverability while keeping the sensitive content encrypted.",
+        "fontSize": 28,
+        "width": 992,
+        "height": 595,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 992,
+      "height": 595
+    },
+    {
+      "id": "node_kn7y2jz",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 9302.301747289832,
+        "y": -1171.6703608774974
+      },
+      "data": {
+        "content": "## Try it yourself\n\n- Do it the **classical way**: Instead of using the decrypted data from the `OP_RETURN`, get the redeemScript directly from the original **redeemScript builder** node (as if you had saved it off-chain when creating the inheritance). Feed it into the spending `scriptSig` and verify that **Verify Script** still passes.\n\n### Start with fresh funding address\n*These exercises modify the transaction structure — fund a new address first so you can broadcast and verify your variation on testnet4.*\n\n- Create your own inheritance transaction using a **new funding UTXO**.\n- In a real setup you would typically create **two `OP_RETURN` outputs** — one encrypted to the owner and one encrypted to the heir (each using their respective public key). Try implementing this.\n- Add a short **human-readable identifier** at the beginning of the `OP_RETURN`(s).\n- Spend the P2SH output using the **heir path** (`OP_0` + sufficient `nLockTime`).\n- Verify the transaction with the **Verify Script** node.",
+        "fontSize": 28,
+        "width": 1112,
+        "height": 865,
+        "title": "Text Info Node",
+        "borderColor": "#2d5fb3",
+        "dirty": false
+      },
+      "width": 1112,
+      "height": 865
+    },
+    {
+      "id": "node_x52rof9",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 9284.397064542367,
+        "y": -2345.8256254695953
+      },
+      "data": {
+        "content": "# Overview: P2SH Recovery with Encrypted OP_RETURN\n\nThis flow demonstrates a **P2SH inheritance pattern** on testnet4 where the redeemScript is stored encrypted on-chain inside an `OP_RETURN`.\n\nThe funding transaction creates two outputs:\n- **Output 1**: P2SH output locking funds to `HASH160(redeemScript)`\n- **Output 2**: `OP_RETURN` containing the redeemScript encrypted with ECIES\n\n**Why this matters:**\n\nIn classic P2SH inheritance, heirs must securely store and update the redeemScript off-chain. Losing it can make coins permanently unspendable.\n\nThis flow puts the recovery data **on-chain but encrypted**, removing the need for heirs to manage off-chain backups.\n\n> **Note:** With many heirs, a more efficient approach is to encrypt the redeemScript once (symmetric encryption) and then encrypt the key for each heir. This example uses per-heir encryption for simplicity.",
+        "fontSize": 28,
+        "width": 950,
+        "height": 1055,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 950,
+      "height": 1055
+    },
+    {
+      "id": "node_wpwsvgv",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 6065.97474102457,
+        "y": -5061.986052555135
+      },
+      "data": {
+        "content": "## P2SH Inheritance: Risk vs On-Chain Recovery\n\n**The Problem with Classic P2SH Inheritance**\n\nIn traditional P2SH setups, the full `redeemScript` is **not stored on-chain**. Heirs must receive, securely store, and update this script off-chain for many years. If the redeemScript is lost or corrupted the coins can become permanently unspendable — even if the heir still controls the correct private key.\n\n**How This Flow Works**\n\nThis flow demonstrates the following on testnet4:\n\n1. Create and fund a **P2PKH address** with testnet coins.\n2. Spend that UTXO in a **setup transaction** that creates:\n   - A P2SH output (the actual inheritance funds)\n   - An `OP_RETURN` output containing the redeemScript encrypted with ECIES\n3. Spend the P2SH output in a **recovery transaction** using the owner path (`OP_1`).\n\n**How This Flow Improves It**\n\nInstead of relying only on off-chain storage, this approach stores an encrypted copy of the redeemScript directly on-chain inside the `OP_RETURN`. This reduces the risk of losing the redeemScript while keeping the actual script content private.\n\n> **Note:** In this simplified example, the redeemScript is encrypted to the **owner** key. In a real inheritance setup, you would typically encrypt it to the heir(s).",
+        "fontSize": 36,
+        "width": 1311,
+        "height": 1619,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 1311,
+      "height": 1619
     }
   ],
   "edges": [

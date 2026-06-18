@@ -1,0 +1,4438 @@
+{
+  "nodes": [
+    {
+      "id": "group_7v4cyqu",
+      "type": "shadcnGroup",
+      "dirty": false
+    },
+    {
+      "id": "group_ixnjwes",
+      "type": "shadcnGroup",
+      "dirty": false
+    },
+    {
+      "id": "group_cd0gkcz",
+      "type": "shadcnGroup",
+      "dirty": false
+    },
+    {
+      "id": "group_7w6adu7",
+      "type": "shadcnGroup",
+      "dirty": false
+    },
+    {
+      "id": "group_hegqa99",
+      "type": "shadcnGroup",
+      "dirty": false
+    },
+    {
+      "id": "group_zi8x2qm",
+      "type": "shadcnGroup",
+      "dirty": false
+    },
+    {
+      "id": "node_8QSOHj19",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "2"
+      },
+      "value": "2",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_1AL3tCpN",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "1"
+      },
+      "value": "1",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_kSTGvvaL",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "2"
+      },
+      "value": "2",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_IRajBmor",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "244000"
+      },
+      "value": "244000",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_bkJNiVtV",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "01"
+      },
+      "value": "01",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_Xoq2K65O",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "concat_all",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "0200000001cc1a91fdcbd16a4b6b060512d0558027828af352664e9f3469906b283b2a4490000000001976a9142ac255dc3eb0e0c14406b41bd89745d165822c5a88acfdffffff0220b903000000000017a914031c71e45837d9a1591bf6faf999ebb50d181ef5870000000000000000fc6a4cf95242454349455331036cc3e56ac4a36b6b85f2fa29f93caab2997b560881f4d0527f85e6fad78ff8b22e7b28bc73466bcb38ad5f496b6aa23c8e127503facf009d5b2e1b3460b8ed49439bbe43c3b9b86cd287833bd3d2137664b33448c9153cfe4581a00af0c7058d3ecf1d5df94396d756adb1a32ff53ab1aac0aa900120163129144c997d770f15966020ae06e63b0df4cce6cf11b2c7fb86c5cd5d86234686e5b26444f8ba43f536d1f816f9578d0008c140b62afacddb66c693a45e51efe14faa2b092f5795528a7ca92d2a5f58eeed396c0a684fdf6662b0b77adecaf6f08a9a55a84306e49a22853bbe76c1807b20f8bc4a04cffb0800000000",
+          "100": "01000000"
+        }
+      },
+      "inputStructure": {
+        "afterGroups": [],
+        "groups": [
+          {
+            "baseIndex": 0,
+            "expandable": true,
+            "fieldCountToAdd": 1,
+            "fields": [
+              {
+                "index": 0,
+                "label": "Value:",
+                "placeholder": "<multi‑line input>",
+                "rows": 3
+              }
+            ],
+            "maxInstances": 25,
+            "minInstances": 1,
+            "title": "INPUTS[]"
+          }
+        ],
+        "ungrouped": []
+      },
+      "groupInstanceKeys": {
+        "INPUTS[]": [
+          0,
+          100
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {
+        "INPUTS[]": 2
+      },
+      "dirty": false
+    },
+    {
+      "id": "node_wIq0zQQK",
+      "type": "calculation",
+      "parentId": "group_cd0gkcz",
+      "functionName": "concat_all",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "304302205bf086d6e8db953e2ea4f50a09d2562fcc407d0792afc1990757a0e9e61d8e96021f6c9463a09fc81527d051c59bd2d67c150e5357d8705841458aed444926d1ee",
+          "100": "01"
+        }
+      },
+      "inputStructure": {
+        "afterGroups": [],
+        "groups": [
+          {
+            "baseIndex": 0,
+            "expandable": true,
+            "fieldCountToAdd": 1,
+            "fields": [
+              {
+                "index": 0,
+                "label": "Value:",
+                "placeholder": "<multi‑line input>",
+                "rows": 3
+              }
+            ],
+            "maxInstances": 25,
+            "minInstances": 1,
+            "title": "INPUTS[]"
+          }
+        ],
+        "ungrouped": []
+      },
+      "groupInstanceKeys": {
+        "INPUTS[]": [
+          0,
+          100
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {
+        "INPUTS[]": 2
+      },
+      "dirty": false
+    },
+    {
+      "id": "node_gH7sxRGZ",
+      "type": "calculation",
+      "parentId": "group_cd0gkcz",
+      "functionName": "concat_all",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "46",
+          "100": "304302205bf086d6e8db953e2ea4f50a09d2562fcc407d0792afc1990757a0e9e61d8e96021f6c9463a09fc81527d051c59bd2d67c150e5357d8705841458aed444926d1ee01",
+          "200": "21",
+          "300": "03b7881c8fe895e5d5b0b02c5b35057a61e54621cf146c095afd36b4ef5887ed36"
+        }
+      },
+      "inputStructure": {
+        "afterGroups": [],
+        "groups": [
+          {
+            "baseIndex": 0,
+            "expandable": true,
+            "fieldCountToAdd": 1,
+            "fields": [
+              {
+                "index": 0,
+                "label": "Value:",
+                "placeholder": "<multi‑line input>",
+                "rows": 3
+              }
+            ],
+            "maxInstances": 25,
+            "minInstances": 1,
+            "title": "INPUTS[]"
+          }
+        ],
+        "ungrouped": []
+      },
+      "groupInstanceKeys": {
+        "INPUTS[]": [
+          0,
+          100,
+          200,
+          300
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {
+        "INPUTS[]": 4
+      },
+      "dirty": false
+    },
+    {
+      "id": "node_UIgo6BTD",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "concat_all",
+      "numInputs": 12,
+      "inputs": {
+        "vals": {
+          "0": "02000000",
+          "10": "01",
+          "1000": "cc1a91fdcbd16a4b6b060512d0558027828af352664e9f3469906b283b2a4490",
+          "1010": "00000000",
+          "1020": "19",
+          "1030": "76a9142ac255dc3eb0e0c14406b41bd89745d165822c5a88ac",
+          "1040": "fdffffff",
+          "2000": "02",
+          "3000": "20b9030000000000",
+          "3010": "17",
+          "3020": "a914031c71e45837d9a1591bf6faf999ebb50d181ef587",
+          "3100": "0000000000000000",
+          "3110": "fc",
+          "3120": "6a4cf95242454349455331036cc3e56ac4a36b6b85f2fa29f93caab2997b560881f4d0527f85e6fad78ff8b22e7b28bc73466bcb38ad5f496b6aa23c8e127503facf009d5b2e1b3460b8ed49439bbe43c3b9b86cd287833bd3d2137664b33448c9153cfe4581a00af0c7058d3ecf1d5df94396d756adb1a32ff53ab1aac0aa900120163129144c997d770f15966020ae06e63b0df4cce6cf11b2c7fb86c5cd5d86234686e5b26444f8ba43f536d1f816f9578d0008c140b62afacddb66c693a45e51efe14faa2b092f5795528a7ca92d2a5f58eeed396c0a684fdf6662b0b77adecaf6f08a9a55a84306e49a22853bbe76c1807b20f8bc4a04cffb08",
+          "4000": "00000000"
+        }
+      },
+      "inputStructure": {
+        "afterGroups": [
+          {
+            "index": 4000,
+            "label": "LOCKTIME[4]:",
+            "placeholder": "00000000",
+            "rows": 1
+          }
+        ],
+        "betweenGroups": {
+          "INPUTS[]": [
+            {
+              "index": 2000,
+              "label": "OUTPUT_COUNT (VarInt):",
+              "rows": 1,
+              "small": true
+            }
+          ]
+        },
+        "groups": [
+          {
+            "baseIndex": 1000,
+            "expandable": true,
+            "fieldCountToAdd": 5,
+            "fields": [
+              {
+                "index": 0,
+                "label": "TXID[32]:",
+                "placeholder": "Prev TX ID",
+                "rows": 2
+              },
+              {
+                "index": 10,
+                "label": "VOUT[4]:",
+                "placeholder": "00000000",
+                "rows": 1
+              },
+              {
+                "allowEmpty00": true,
+                "index": 20,
+                "label": "SCRIPT_LENGTH (VarInt):",
+                "rows": 1
+              },
+              {
+                "allowEmptyBlank": true,
+                "index": 30,
+                "label": "SCRIPT_SIG[]:",
+                "placeholder": "<sig> <pk>",
+                "rows": 3
+              },
+              {
+                "index": 40,
+                "label": "SEQUENCE[4]:",
+                "placeholder": "ffffffff",
+                "rows": 1
+              }
+            ],
+            "maxInstances": 10,
+            "minInstances": 1,
+            "title": "INPUTS[]"
+          },
+          {
+            "baseIndex": 3000,
+            "expandable": true,
+            "fieldCountToAdd": 3,
+            "fields": [
+              {
+                "index": 0,
+                "label": "AMOUNT[8]:",
+                "placeholder": "Satoshis (hex)",
+                "rows": 1
+              },
+              {
+                "index": 10,
+                "label": "SCRIPT_PUBKEY_LENGTH:",
+                "rows": 1,
+                "small": true
+              },
+              {
+                "index": 20,
+                "label": "SCRIPT_PUBKEY[]:",
+                "placeholder": "Locking script",
+                "rows": 3
+              }
+            ],
+            "maxInstances": 10,
+            "minInstances": 1,
+            "title": "OUTPUTS[]"
+          }
+        ],
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "VERSION[4]:",
+            "rows": 1
+          },
+          {
+            "index": 10,
+            "label": "INPUT_COUNT (VarInt):",
+            "rows": 1,
+            "small": true
+          }
+        ]
+      },
+      "groupInstanceKeys": {
+        "INPUTS[]": [
+          1000
+        ],
+        "OUTPUTS[]": [
+          3000,
+          3100
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {
+        "INPUTS[]": 1,
+        "OUTPUTS[]": 2
+      },
+      "dirty": false
+    },
+    {
+      "id": "node_qMmh8Zrk",
+      "type": "calculation",
+      "parentId": "group_ixnjwes",
+      "functionName": "concat_all",
+      "numInputs": 12,
+      "inputs": {
+        "vals": {
+          "0": "02000000",
+          "10": "01",
+          "1000": "cc1a91fdcbd16a4b6b060512d0558027828af352664e9f3469906b283b2a4490",
+          "1010": "00000000",
+          "1020": "69",
+          "1030": "46304302205bf086d6e8db953e2ea4f50a09d2562fcc407d0792afc1990757a0e9e61d8e96021f6c9463a09fc81527d051c59bd2d67c150e5357d8705841458aed444926d1ee012103b7881c8fe895e5d5b0b02c5b35057a61e54621cf146c095afd36b4ef5887ed36",
+          "1040": "fdffffff",
+          "2000": "02",
+          "3000": "20b9030000000000",
+          "3010": "17",
+          "3020": "a914031c71e45837d9a1591bf6faf999ebb50d181ef587",
+          "3100": "0000000000000000",
+          "3110": "fc",
+          "3120": "6a4cf95242454349455331036cc3e56ac4a36b6b85f2fa29f93caab2997b560881f4d0527f85e6fad78ff8b22e7b28bc73466bcb38ad5f496b6aa23c8e127503facf009d5b2e1b3460b8ed49439bbe43c3b9b86cd287833bd3d2137664b33448c9153cfe4581a00af0c7058d3ecf1d5df94396d756adb1a32ff53ab1aac0aa900120163129144c997d770f15966020ae06e63b0df4cce6cf11b2c7fb86c5cd5d86234686e5b26444f8ba43f536d1f816f9578d0008c140b62afacddb66c693a45e51efe14faa2b092f5795528a7ca92d2a5f58eeed396c0a684fdf6662b0b77adecaf6f08a9a55a84306e49a22853bbe76c1807b20f8bc4a04cffb08",
+          "4000": "00000000"
+        }
+      },
+      "inputStructure": {
+        "afterGroups": [
+          {
+            "index": 4000,
+            "label": "LOCKTIME[4]:",
+            "placeholder": "00000000",
+            "rows": 1
+          }
+        ],
+        "betweenGroups": {
+          "INPUTS[]": [
+            {
+              "index": 2000,
+              "label": "OUTPUT_COUNT (VarInt):",
+              "rows": 1,
+              "small": true
+            }
+          ]
+        },
+        "groups": [
+          {
+            "baseIndex": 1000,
+            "expandable": true,
+            "fieldCountToAdd": 5,
+            "fields": [
+              {
+                "index": 0,
+                "label": "TXID[32]:",
+                "placeholder": "Prev TX ID",
+                "rows": 2
+              },
+              {
+                "index": 10,
+                "label": "VOUT[4]:",
+                "placeholder": "00000000",
+                "rows": 1
+              },
+              {
+                "allowEmpty00": true,
+                "index": 20,
+                "label": "SCRIPT_LENGTH (VarInt):",
+                "rows": 1
+              },
+              {
+                "allowEmptyBlank": true,
+                "index": 30,
+                "label": "SCRIPT_SIG[]:",
+                "placeholder": "<sig> <pk>",
+                "rows": 3
+              },
+              {
+                "index": 40,
+                "label": "SEQUENCE[4]:",
+                "placeholder": "ffffffff",
+                "rows": 1
+              }
+            ],
+            "maxInstances": 10,
+            "minInstances": 1,
+            "title": "INPUTS[]"
+          },
+          {
+            "baseIndex": 3000,
+            "expandable": true,
+            "fieldCountToAdd": 3,
+            "fields": [
+              {
+                "index": 0,
+                "label": "AMOUNT[8]:",
+                "placeholder": "Satoshis (hex)",
+                "rows": 1
+              },
+              {
+                "index": 10,
+                "label": "SCRIPT_PUBKEY_LENGTH:",
+                "rows": 1,
+                "small": true
+              },
+              {
+                "index": 20,
+                "label": "SCRIPT_PUBKEY[]:",
+                "placeholder": "Locking script",
+                "rows": 3
+              }
+            ],
+            "maxInstances": 10,
+            "minInstances": 1,
+            "title": "OUTPUTS[]"
+          }
+        ],
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "VERSION[4]:",
+            "rows": 1
+          },
+          {
+            "index": 10,
+            "label": "INPUT_COUNT (VarInt):",
+            "rows": 1,
+            "small": true
+          }
+        ]
+      },
+      "groupInstanceKeys": {
+        "INPUTS[]": [
+          1000
+        ],
+        "OUTPUTS[]": [
+          3000,
+          3100
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {
+        "INPUTS[]": 1,
+        "OUTPUTS[]": 2
+      },
+      "dirty": false
+    },
+    {
+      "id": "node_yf0EwOn6",
+      "type": "calculation",
+      "parentId": "group_zi8x2qm",
+      "functionName": "public_key_from_private_key",
+      "numInputs": 1,
+      "inputs": {
+        "val": "76c79bec9494751c011f9084b42445d86eb5b365d3d4901b61e0d32e202fd2ed"
+      },
+      "showField": false,
+      "groupInstances": {},
+      "hasRegenerate": false,
+      "dirty": false
+    },
+    {
+      "id": "node_MlkWePnK",
+      "type": "calculation",
+      "parentId": "group_zi8x2qm",
+      "functionName": "hash160_hex",
+      "numInputs": 1,
+      "inputs": {
+        "val": "03b7881c8fe895e5d5b0b02c5b35057a61e54621cf146c095afd36b4ef5887ed36"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT HEX:",
+            "rows": 2
+          }
+        ]
+      },
+      "paramExtraction": "single_val",
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_CLVgEw37",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "encode_varint",
+      "numInputs": 1,
+      "inputs": {
+        "val": 1
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_A97ESBMe",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "encode_varint",
+      "numInputs": 1,
+      "inputs": {
+        "val": 2
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_uc3qXmHd",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "satoshi_to_8_le",
+      "numInputs": 1,
+      "inputs": {
+        "val": 244000
+      },
+      "value": "50000000",
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_NRUA8pnX",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "varint_encoded_byte_length",
+      "numInputs": 1,
+      "inputs": {
+        "val": "76a9142ac255dc3eb0e0c14406b41bd89745d165822c5a88ac"
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_fL7jxPA0",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "double_sha256_hex",
+      "numInputs": 1,
+      "inputs": {
+        "val": "0200000001cc1a91fdcbd16a4b6b060512d0558027828af352664e9f3469906b283b2a4490000000001976a9142ac255dc3eb0e0c14406b41bd89745d165822c5a88acfdffffff0220b903000000000017a914031c71e45837d9a1591bf6faf999ebb50d181ef5870000000000000000fc6a4cf95242454349455331036cc3e56ac4a36b6b85f2fa29f93caab2997b560881f4d0527f85e6fad78ff8b22e7b28bc73466bcb38ad5f496b6aa23c8e127503facf009d5b2e1b3460b8ed49439bbe43c3b9b86cd287833bd3d2137664b33448c9153cfe4581a00af0c7058d3ecf1d5df94396d756adb1a32ff53ab1aac0aa900120163129144c997d770f15966020ae06e63b0df4cce6cf11b2c7fb86c5cd5d86234686e5b26444f8ba43f536d1f816f9578d0008c140b62afacddb66c693a45e51efe14faa2b092f5795528a7ca92d2a5f58eeed396c0a684fdf6662b0b77adecaf6f08a9a55a84306e49a22853bbe76c1807b20f8bc4a04cffb080000000001000000"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Input Hex:",
+            "rows": 2
+          }
+        ]
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_b1GSXfdE",
+      "type": "calculation",
+      "parentId": "group_cd0gkcz",
+      "functionName": "sign_as_bitcoin_core_low_r",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "76c79bec9494751c011f9084b42445d86eb5b365d3d4901b61e0d32e202fd2ed",
+          "1": "ee92c635f8def570eb76493418949e6cac5e599e41971700fa38e3e798816e9d"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Private Key (32 bytes hex):",
+            "rows": 2
+          },
+          {
+            "index": 1,
+            "label": "Message Hash (32 bytes hex):",
+            "rows": 2
+          }
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_3LLc1EbO",
+      "type": "calculation",
+      "parentId": "group_cd0gkcz",
+      "functionName": "varint_encoded_byte_length",
+      "numInputs": 1,
+      "inputs": {
+        "val": "46304302205bf086d6e8db953e2ea4f50a09d2562fcc407d0792afc1990757a0e9e61d8e96021f6c9463a09fc81527d051c59bd2d67c150e5357d8705841458aed444926d1ee012103b7881c8fe895e5d5b0b02c5b35057a61e54621cf146c095afd36b4ef5887ed36"
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_m3ArBCgv",
+      "type": "calculation",
+      "parentId": "group_ixnjwes",
+      "functionName": "double_sha256_hex",
+      "numInputs": 1,
+      "inputs": {
+        "val": "0200000001cc1a91fdcbd16a4b6b060512d0558027828af352664e9f3469906b283b2a4490000000006946304302205bf086d6e8db953e2ea4f50a09d2562fcc407d0792afc1990757a0e9e61d8e96021f6c9463a09fc81527d051c59bd2d67c150e5357d8705841458aed444926d1ee012103b7881c8fe895e5d5b0b02c5b35057a61e54621cf146c095afd36b4ef5887ed36fdffffff0220b903000000000017a914031c71e45837d9a1591bf6faf999ebb50d181ef5870000000000000000fc6a4cf95242454349455331036cc3e56ac4a36b6b85f2fa29f93caab2997b560881f4d0527f85e6fad78ff8b22e7b28bc73466bcb38ad5f496b6aa23c8e127503facf009d5b2e1b3460b8ed49439bbe43c3b9b86cd287833bd3d2137664b33448c9153cfe4581a00af0c7058d3ecf1d5df94396d756adb1a32ff53ab1aac0aa900120163129144c997d770f15966020ae06e63b0df4cce6cf11b2c7fb86c5cd5d86234686e5b26444f8ba43f536d1f816f9578d0008c140b62afacddb66c693a45e51efe14faa2b092f5795528a7ca92d2a5f58eeed396c0a684fdf6662b0b77adecaf6f08a9a55a84306e49a22853bbe76c1807b20f8bc4a04cffb0800000000"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Input Hex:",
+            "rows": 2
+          }
+        ]
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_24bD1CIj",
+      "type": "calculation",
+      "parentId": "group_ixnjwes",
+      "functionName": "reverse_txid_bytes",
+      "numInputs": 1,
+      "inputs": {
+        "val": "fb522febeccdb83931549d39d0eb569b56b2d5d226a74fde71b30548ab7c7d40"
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_bxUeWR17",
+      "type": "calculation",
+      "parentId": "group_cd0gkcz",
+      "functionName": "encode_script_push_data",
+      "numInputs": 1,
+      "inputs": {
+        "val": "304302205bf086d6e8db953e2ea4f50a09d2562fcc407d0792afc1990757a0e9e61d8e96021f6c9463a09fc81527d051c59bd2d67c150e5357d8705841458aed444926d1ee01"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Hex Data:",
+            "placeholder": "Enter hex data to calculate push opcode",
+            "rows": 2
+          }
+        ]
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_d4b67dsm",
+      "type": "calculation",
+      "parentId": "group_cd0gkcz",
+      "functionName": "encode_script_push_data",
+      "numInputs": 1,
+      "inputs": {
+        "val": "03b7881c8fe895e5d5b0b02c5b35057a61e54621cf146c095afd36b4ef5887ed36"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Hex Data:",
+            "placeholder": "Enter hex data to calculate push opcode",
+            "rows": 2
+          }
+        ]
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_CWfi6O88",
+      "type": "calculation",
+      "parentId": "group_zi8x2qm",
+      "functionName": "random_256",
+      "numInputs": 0,
+      "groupInstances": {},
+      "hasRegenerate": true,
+      "dirty": false,
+      "result": "76c79bec9494751c011f9084b42445d86eb5b365d3d4901b61e0d32e202fd2ed"
+    },
+    {
+      "id": "node_C85oMB8J",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "uint32_to_little_endian_4_bytes",
+      "numInputs": 1,
+      "inputs": {
+        "val": 0
+      },
+      "value": "2",
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_iG1CdtRQ",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "uint32_to_little_endian_4_bytes",
+      "numInputs": 1,
+      "inputs": {
+        "val": 2
+      },
+      "value": "2",
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_v7K1rBTw",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "fffffffd"
+      },
+      "value": "fffffffd",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_E7c0t33i",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "reverse_bytes_4",
+      "numInputs": 1,
+      "inputs": {
+        "val": "fffffffd"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "4-byte hex:",
+            "placeholder": "e.g., fffffffd",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_GJptZvmY",
+      "type": "calculation",
+      "parentId": "group_zi8x2qm",
+      "functionName": "hash160_to_p2pkh_address",
+      "numInputs": 1,
+      "inputs": {
+        "val": "2ac255dc3eb0e0c14406b41bd89745d165822c5a",
+        "selectedNetwork": "testnet"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "HASH160:",
+            "placeholder": "20-byte hash (40 hex characters)",
+            "rows": 2
+          }
+        ]
+      },
+      "selectedNetwork": "testnet",
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_hHXC5ZW3",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "0"
+      },
+      "value": "0",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_o6vul7a",
+      "type": "calculation",
+      "parentId": "group_ixnjwes",
+      "functionName": "script_verification",
+      "numInputs": 6,
+      "inputs": {
+        "vals": {
+          "0": "46304302205bf086d6e8db953e2ea4f50a09d2562fcc407d0792afc1990757a0e9e61d8e96021f6c9463a09fc81527d051c59bd2d67c150e5357d8705841458aed444926d1ee012103b7881c8fe895e5d5b0b02c5b35057a61e54621cf146c095afd36b4ef5887ed36",
+          "1": "76a9142ac255dc3eb0e0c14406b41bd89745d165822c5a88ac",
+          "2": "0200000001cc1a91fdcbd16a4b6b060512d0558027828af352664e9f3469906b283b2a4490000000006946304302205bf086d6e8db953e2ea4f50a09d2562fcc407d0792afc1990757a0e9e61d8e96021f6c9463a09fc81527d051c59bd2d67c150e5357d8705841458aed444926d1ee012103b7881c8fe895e5d5b0b02c5b35057a61e54621cf146c095afd36b4ef5887ed36fdffffff0220b903000000000017a914031c71e45837d9a1591bf6faf999ebb50d181ef5870000000000000000fc6a4cf95242454349455331036cc3e56ac4a36b6b85f2fa29f93caab2997b560881f4d0527f85e6fad78ff8b22e7b28bc73466bcb38ad5f496b6aa23c8e127503facf009d5b2e1b3460b8ed49439bbe43c3b9b86cd287833bd3d2137664b33448c9153cfe4581a00af0c7058d3ecf1d5df94396d756adb1a32ff53ab1aac0aa900120163129144c997d770f15966020ae06e63b0df4cce6cf11b2c7fb86c5cd5d86234686e5b26444f8ba43f536d1f816f9578d0008c140b62afacddb66c693a45e51efe14faa2b092f5795528a7ca92d2a5f58eeed396c0a684fdf6662b0b77adecaf6f08a9a55a84306e49a22853bbe76c1807b20f8bc4a04cffb0800000000",
+          "3": "0",
+          "5": "__EMPTY__"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "scriptSig_hex",
+            "rows": 3,
+            "placeholder": "Hex-encoded scriptSig",
+            "allowEmptyBlank": true
+          },
+          {
+            "index": 1,
+            "label": "scriptPubKey_hex",
+            "rows": 3,
+            "placeholder": "Hex-encoded scriptPubKey"
+          },
+          {
+            "index": 2,
+            "label": "tx_hex",
+            "rows": 3,
+            "placeholder": "Hex-encoded Transaction"
+          },
+          {
+            "index": 3,
+            "label": "input_index_to_verify",
+            "rows": 1,
+            "placeholder": "0",
+            "unconnectable": true
+          },
+          {
+            "index": 4,
+            "label": "exclude_flags",
+            "rows": 1,
+            "placeholder": "e.g., WITNESS,CLEANSTACK",
+            "unconnectable": true
+          },
+          {
+            "index": 5,
+            "label": "spent_amount_sats",
+            "rows": 1,
+            "placeholder": "Amount in satoshis (for SegWit/Taproot)",
+            "unconnectable": false,
+            "allowEmptyBlank": true
+          }
+        ],
+        "groups": [
+          {
+            "title": "Taproot Prevouts (vin order)",
+            "baseIndex": 100,
+            "expandable": true,
+            "fieldCountToAdd": 1,
+            "minInstances": 0,
+            "maxInstances": 10,
+            "fields": [
+              {
+                "index": 0,
+                "label": "prevout_amount_sats",
+                "rows": 1,
+                "placeholder": "Amount (sats)",
+                "allowEmptyBlank": true
+              },
+              {
+                "index": 1,
+                "label": "prevout_scriptPubKey_hex",
+                "rows": 3,
+                "placeholder": "Hex-encoded scriptPubKey",
+                "allowEmptyBlank": true
+              }
+            ]
+          }
+        ],
+        "afterGroups": []
+      },
+      "groupInstanceKeys": {},
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_ljj3f78",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "0"
+      },
+      "value": "0",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_xfz2u3e",
+      "type": "calculation",
+      "parentId": "group_zi8x2qm",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "02000000000101d105c4acd16da129b27aa26b28c0cbc2ab220d5f2b9580fd8213ffa2c4a1bdf10100000000fdffffff0207be0300000000001976a9142ac255dc3eb0e0c14406b41bd89745d165822c5a88ac57088566000000001976a9141df6a156199addd59664d2fb7ae57b159ddf851788ac0247304402207df4b636c430069ce1abc3281d9712508b2cc0a42d3439b05980419561922c0b02203342b5731c6132b0bfb5bf7e412286292fdc92df99e229864a6a961622ecb3c5012103d52da0dad0132cc2311057104ceb581abe035fad4afb23c7995617d59bfb99e055240200"
+      },
+      "value": "02000000000101d105c4acd16da129b27aa26b28c0cbc2ab220d5f2b9580fd8213ffa2c4a1bdf10100000000fdffffff0207be0300000000001976a9142ac255dc3eb0e0c14406b41bd89745d165822c5a88ac57088566000000001976a9141df6a156199addd59664d2fb7ae57b159ddf851788ac0247304402207df4b636c430069ce1abc3281d9712508b2cc0a42d3439b05980419561922c0b02203342b5731c6132b0bfb5bf7e412286292fdc92df99e229864a6a961622ecb3c5012103d52da0dad0132cc2311057104ceb581abe035fad4afb23c7995617d59bfb99e055240200",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_kzcs3gx",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "extract_tx_field",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "02000000000101d105c4acd16da129b27aa26b28c0cbc2ab220d5f2b9580fd8213ffa2c4a1bdf10100000000fdffffff0207be0300000000001976a9142ac255dc3eb0e0c14406b41bd89745d165822c5a88ac57088566000000001976a9141df6a156199addd59664d2fb7ae57b159ddf851788ac0247304402207df4b636c430069ce1abc3281d9712508b2cc0a42d3439b05980419561922c0b02203342b5731c6132b0bfb5bf7e412286292fdc92df99e229864a6a961622ecb3c5012103d52da0dad0132cc2311057104ceb581abe035fad4afb23c7995617d59bfb99e055240200",
+          "1": "0"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Raw TX (hex):",
+            "rows": 3,
+            "placeholder": "<transaction hex>"
+          },
+          {
+            "index": 1,
+            "label": "VIN/VOUT Index:",
+            "rows": 1,
+            "placeholder": "0"
+          }
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "outputValues": {
+        "output-0": "cc1a91fdcbd16a4b6b060512d0558027828af352664e9f3469906b283b2a4490",
+        "output-1": "76a9142ac255dc3eb0e0c14406b41bd89745d165822c5a88ac"
+      },
+      "outputPorts": [
+        {
+          "label": "txid",
+          "handleId": "output-0",
+          "showLabel": false
+        },
+        {
+          "label": "vout.scriptPubKey",
+          "handleId": "output-1",
+          "showLabel": false
+        }
+      ],
+      "txFieldExtractMode": "dynamic",
+      "txExtractFields": [
+        "txid",
+        "vout.scriptPubKey"
+      ],
+      "dirty": false
+    },
+    {
+      "id": "node_Wi6L506K",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "uint32_to_little_endian_4_bytes",
+      "numInputs": 1,
+      "inputs": {
+        "val": 0
+      },
+      "value": "2",
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_p0kp4lg",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "sighash_type_to_le4",
+      "numInputs": 1,
+      "inputs": {
+        "val": "01"
+      },
+      "value": "01",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "SIGHASH TYPE:",
+            "rows": 1
+          }
+        ]
+      },
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_nd5uge0",
+      "type": "shadcnTextInfo",
+      "dirty": false
+    },
+    {
+      "id": "node_ux06rKV8",
+      "type": "calculation",
+      "parentId": "group_hegqa99",
+      "functionName": "public_key_from_private_key",
+      "numInputs": 1,
+      "inputs": {
+        "val": "1085512ccdaa3aa4994177427cc21461a2ade6ce8c36e58b5c34ffe36da2dcdb"
+      },
+      "showField": false,
+      "groupInstances": {},
+      "hasRegenerate": false,
+      "dirty": false
+    },
+    {
+      "id": "node_PLQzVjhU",
+      "type": "calculation",
+      "parentId": "group_hegqa99",
+      "functionName": "random_256",
+      "numInputs": 0,
+      "groupInstances": {},
+      "hasRegenerate": true,
+      "dirty": false,
+      "result": "1085512ccdaa3aa4994177427cc21461a2ade6ce8c36e58b5c34ffe36da2dcdb"
+    },
+    {
+      "id": "node_uOPuPcje",
+      "type": "calculation",
+      "parentId": "group_hegqa99",
+      "functionName": "concat_all",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "63",
+          "100": "21",
+          "200": "03248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5",
+          "300": "ac",
+          "400": "67",
+          "500": "04",
+          "600": "a721316a",
+          "700": "b175",
+          "800": "21",
+          "900": "029d6b8399f89c5fc633cdec81c4f4685ae13858494a2c501a0721c15f9ed086d7",
+          "1000": "ac",
+          "1100": "68"
+        }
+      },
+      "inputStructure": {
+        "afterGroups": [],
+        "groups": [
+          {
+            "baseIndex": 0,
+            "expandable": true,
+            "fieldCountToAdd": 1,
+            "fields": [
+              {
+                "index": 0,
+                "label": "Value:",
+                "placeholder": "<multi‑line input>",
+                "rows": 3
+              }
+            ],
+            "maxInstances": 25,
+            "minInstances": 1,
+            "title": "INPUTS[]"
+          }
+        ],
+        "ungrouped": []
+      },
+      "groupInstanceKeys": {
+        "INPUTS[]": [
+          0,
+          100,
+          200,
+          300,
+          400,
+          500,
+          600,
+          700,
+          800,
+          900,
+          1000,
+          1100
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {
+        "INPUTS[]": 12
+      },
+      "dirty": false
+    },
+    {
+      "id": "node_vGORc4OP",
+      "type": "calculation",
+      "parentId": "group_hegqa99",
+      "functionName": "encode_script_push_data",
+      "numInputs": 1,
+      "inputs": {
+        "val": "03248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Hex Data:",
+            "placeholder": "Enter hex data to calculate push opcode",
+            "rows": 2
+          }
+        ]
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_H66jIoAy",
+      "type": "calculation",
+      "parentId": "group_hegqa99",
+      "functionName": "varint_encoded_byte_length",
+      "numInputs": 1,
+      "inputs": {
+        "val": "a914031c71e45837d9a1591bf6faf999ebb50d181ef587"
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_NB9oE2VE",
+      "type": "opCodeNode",
+      "parentId": "group_hegqa99",
+      "functionName": "op_code_select",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "OP_CHECKLOCKTIMEVERIFY",
+          "100": "OP_DROP"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Opcode:",
+            "rows": 1,
+            "unconnectable": true
+          },
+          {
+            "index": 100,
+            "label": "Opcode:",
+            "rows": 1,
+            "unconnectable": true
+          }
+        ],
+        "groups": [],
+        "betweenGroups": {},
+        "afterGroups": []
+      },
+      "groupInstanceKeys": {},
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_2EIKuWvc",
+      "type": "calculation",
+      "parentId": "group_hegqa99",
+      "functionName": "concat_all",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "a9",
+          "100": "14",
+          "200": "031c71e45837d9a1591bf6faf999ebb50d181ef5",
+          "300": "87"
+        }
+      },
+      "inputStructure": {
+        "afterGroups": [],
+        "groups": [
+          {
+            "baseIndex": 0,
+            "expandable": true,
+            "fieldCountToAdd": 1,
+            "fields": [
+              {
+                "index": 0,
+                "label": "Value:",
+                "placeholder": "<multi‑line input>",
+                "rows": 3
+              }
+            ],
+            "maxInstances": 25,
+            "minInstances": 1,
+            "title": "INPUTS[]"
+          }
+        ],
+        "ungrouped": []
+      },
+      "groupInstanceKeys": {
+        "INPUTS[]": [
+          0,
+          100,
+          200,
+          300
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {
+        "INPUTS[]": 4
+      },
+      "dirty": false
+    },
+    {
+      "id": "node_60aUXw0G",
+      "type": "opCodeNode",
+      "parentId": "group_hegqa99",
+      "functionName": "op_code_select",
+      "numInputs": 1,
+      "inputs": {
+        "vals": {
+          "0": "OP_HASH160"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Opcode:",
+            "rows": 1,
+            "unconnectable": true
+          }
+        ],
+        "groups": [],
+        "betweenGroups": {},
+        "afterGroups": []
+      },
+      "groupInstanceKeys": {},
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_Bi1uPTkI",
+      "type": "calculation",
+      "parentId": "group_hegqa99",
+      "functionName": "encode_script_push_data",
+      "numInputs": 1,
+      "inputs": {
+        "val": "031c71e45837d9a1591bf6faf999ebb50d181ef5"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Hex Data:",
+            "placeholder": "Enter hex data to calculate push opcode",
+            "rows": 2
+          }
+        ]
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_GOwsAdNt",
+      "type": "calculation",
+      "parentId": "group_hegqa99",
+      "functionName": "hash160_hex",
+      "numInputs": 1,
+      "inputs": {
+        "val": "632103248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5ac6704a721316ab17521029d6b8399f89c5fc633cdec81c4f4685ae13858494a2c501a0721c15f9ed086d7ac68"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT HEX:",
+            "rows": 2
+          }
+        ]
+      },
+      "paramExtraction": "single_val",
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_XReTXNge",
+      "type": "opCodeNode",
+      "parentId": "group_hegqa99",
+      "functionName": "op_code_select",
+      "numInputs": 1,
+      "inputs": {
+        "vals": {
+          "0": "OP_EQUAL"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Opcode:",
+            "rows": 1,
+            "unconnectable": true
+          }
+        ],
+        "groups": [],
+        "betweenGroups": {},
+        "afterGroups": []
+      },
+      "groupInstanceKeys": {},
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_awSuFiUN",
+      "type": "opCodeNode",
+      "parentId": "group_hegqa99",
+      "functionName": "op_code_select",
+      "numInputs": 1,
+      "inputs": {
+        "vals": {
+          "0": "OP_IF"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Opcode:",
+            "rows": 1,
+            "unconnectable": true
+          }
+        ],
+        "groups": [],
+        "betweenGroups": {},
+        "afterGroups": []
+      },
+      "groupInstanceKeys": {},
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_j7fU1fT6",
+      "type": "opCodeNode",
+      "parentId": "group_hegqa99",
+      "functionName": "op_code_select",
+      "numInputs": 1,
+      "inputs": {
+        "vals": {
+          "0": "OP_CHECKSIG"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Opcode:",
+            "rows": 1,
+            "unconnectable": true
+          }
+        ],
+        "groups": [],
+        "betweenGroups": {},
+        "afterGroups": []
+      },
+      "groupInstanceKeys": {},
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_8f3hMjz6",
+      "type": "opCodeNode",
+      "parentId": "group_hegqa99",
+      "functionName": "op_code_select",
+      "numInputs": 1,
+      "inputs": {
+        "vals": {
+          "0": "OP_ELSE"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Opcode:",
+            "rows": 1,
+            "unconnectable": true
+          }
+        ],
+        "groups": [],
+        "betweenGroups": {},
+        "afterGroups": []
+      },
+      "groupInstanceKeys": {},
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_WvN674hE",
+      "type": "calculation",
+      "parentId": "group_hegqa99",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "2026-06-16T10:12:55Z"
+      },
+      "value": "2026-06-16T10:12:55Z",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_1POPqL3b",
+      "type": "calculation",
+      "parentId": "group_hegqa99",
+      "functionName": "date_to_unix_timestamp",
+      "numInputs": 1,
+      "inputs": {
+        "val": "2026-06-16T10:12:55Z"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Date (UTC):",
+            "placeholder": "2025-01-01T00:00:00Z",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_vB21lenX",
+      "type": "calculation",
+      "parentId": "group_hegqa99",
+      "functionName": "int_to_script_bytes",
+      "numInputs": 1,
+      "inputs": {
+        "val": 1781604775
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Integer value:",
+            "placeholder": "e.g. 4404774",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_BbP2Blp2",
+      "type": "calculation",
+      "parentId": "group_hegqa99",
+      "functionName": "encode_script_push_data",
+      "numInputs": 1,
+      "inputs": {
+        "val": "a721316a"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Hex Data:",
+            "placeholder": "Enter hex data to calculate push opcode",
+            "rows": 2
+          }
+        ]
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_hUiDLZY0",
+      "type": "calculation",
+      "parentId": "group_hegqa99",
+      "functionName": "public_key_from_private_key",
+      "numInputs": 1,
+      "inputs": {
+        "val": "0de27d23accdfd729d85fb9c03552775bf63ca4e40836f877f8120d08b3fba8b"
+      },
+      "showField": false,
+      "groupInstances": {},
+      "hasRegenerate": false,
+      "dirty": false
+    },
+    {
+      "id": "node_h7NTkjgl",
+      "type": "calculation",
+      "parentId": "group_hegqa99",
+      "functionName": "random_256",
+      "numInputs": 0,
+      "groupInstances": {},
+      "hasRegenerate": true,
+      "dirty": false,
+      "result": "0de27d23accdfd729d85fb9c03552775bf63ca4e40836f877f8120d08b3fba8b"
+    },
+    {
+      "id": "node_L2HSJ1O6",
+      "type": "calculation",
+      "parentId": "group_hegqa99",
+      "functionName": "encode_script_push_data",
+      "numInputs": 1,
+      "inputs": {
+        "val": "029d6b8399f89c5fc633cdec81c4f4685ae13858494a2c501a0721c15f9ed086d7"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Hex Data:",
+            "placeholder": "Enter hex data to calculate push opcode",
+            "rows": 2
+          }
+        ]
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_w2iOoFGP",
+      "type": "opCodeNode",
+      "parentId": "group_hegqa99",
+      "functionName": "op_code_select",
+      "numInputs": 1,
+      "inputs": {
+        "vals": {
+          "0": "OP_CHECKSIG"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Opcode:",
+            "rows": 1,
+            "unconnectable": true
+          }
+        ],
+        "groups": [],
+        "betweenGroups": {},
+        "afterGroups": []
+      },
+      "groupInstanceKeys": {},
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_BGFe0FHK",
+      "type": "opCodeNode",
+      "parentId": "group_hegqa99",
+      "functionName": "op_code_select",
+      "numInputs": 1,
+      "inputs": {
+        "vals": {
+          "0": "OP_ENDIF"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Opcode:",
+            "rows": 1,
+            "unconnectable": true
+          }
+        ],
+        "groups": [],
+        "betweenGroups": {},
+        "afterGroups": []
+      },
+      "groupInstanceKeys": {},
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_k6z1XgFS",
+      "type": "calculation",
+      "parentId": "group_7v4cyqu",
+      "functionName": "concat_all",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "6a",
+          "100": "4cf9",
+          "200": "5242454349455331036cc3e56ac4a36b6b85f2fa29f93caab2997b560881f4d0527f85e6fad78ff8b22e7b28bc73466bcb38ad5f496b6aa23c8e127503facf009d5b2e1b3460b8ed49439bbe43c3b9b86cd287833bd3d2137664b33448c9153cfe4581a00af0c7058d3ecf1d5df94396d756adb1a32ff53ab1aac0aa900120163129144c997d770f15966020ae06e63b0df4cce6cf11b2c7fb86c5cd5d86234686e5b26444f8ba43f536d1f816f9578d0008c140b62afacddb66c693a45e51efe14faa2b092f5795528a7ca92d2a5f58eeed396c0a684fdf6662b0b77adecaf6f08a9a55a84306e49a22853bbe76c1807b20f8bc4a04cffb08"
+        }
+      },
+      "inputStructure": {
+        "afterGroups": [],
+        "groups": [
+          {
+            "baseIndex": 0,
+            "expandable": true,
+            "fieldCountToAdd": 1,
+            "fields": [
+              {
+                "index": 0,
+                "label": "Value:",
+                "placeholder": "<multi‑line input>",
+                "rows": 3
+              }
+            ],
+            "maxInstances": 25,
+            "minInstances": 1,
+            "title": "INPUTS[]"
+          }
+        ],
+        "ungrouped": []
+      },
+      "groupInstanceKeys": {
+        "INPUTS[]": [
+          0,
+          100,
+          200
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {
+        "INPUTS[]": 3
+      },
+      "dirty": false
+    },
+    {
+      "id": "node_rweUBy2U",
+      "type": "calculation",
+      "parentId": "group_7v4cyqu",
+      "functionName": "text_to_hex",
+      "numInputs": 1,
+      "inputs": {
+        "val": "632103248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5ac6704a721316ab17521029d6b8399f89c5fc633cdec81c4f4685ae13858494a2c501a0721c15f9ed086d7ac68"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Text input:",
+            "placeholder": "e.g., 2009",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_LzDDfap2",
+      "type": "opCodeNode",
+      "parentId": "group_7v4cyqu",
+      "functionName": "op_code_select",
+      "numInputs": 1,
+      "inputs": {
+        "vals": {
+          "0": "OP_RETURN"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Opcode:",
+            "rows": 1,
+            "unconnectable": true
+          }
+        ],
+        "groups": [],
+        "betweenGroups": {},
+        "afterGroups": []
+      },
+      "groupInstanceKeys": {},
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_fqn435AJ",
+      "type": "calculation",
+      "parentId": "group_7v4cyqu",
+      "functionName": "encode_script_push_data",
+      "numInputs": 1,
+      "inputs": {
+        "val": "5242454349455331036cc3e56ac4a36b6b85f2fa29f93caab2997b560881f4d0527f85e6fad78ff8b22e7b28bc73466bcb38ad5f496b6aa23c8e127503facf009d5b2e1b3460b8ed49439bbe43c3b9b86cd287833bd3d2137664b33448c9153cfe4581a00af0c7058d3ecf1d5df94396d756adb1a32ff53ab1aac0aa900120163129144c997d770f15966020ae06e63b0df4cce6cf11b2c7fb86c5cd5d86234686e5b26444f8ba43f536d1f816f9578d0008c140b62afacddb66c693a45e51efe14faa2b092f5795528a7ca92d2a5f58eeed396c0a684fdf6662b0b77adecaf6f08a9a55a84306e49a22853bbe76c1807b20f8bc4a04cffb08"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Hex Data:",
+            "placeholder": "Enter hex data to calculate push opcode",
+            "rows": 2
+          }
+        ]
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_etLEX9PD",
+      "type": "calculation",
+      "parentId": "group_7v4cyqu",
+      "functionName": "varint_encoded_byte_length",
+      "numInputs": 1,
+      "inputs": {
+        "val": "6a4cf95242454349455331036cc3e56ac4a36b6b85f2fa29f93caab2997b560881f4d0527f85e6fad78ff8b22e7b28bc73466bcb38ad5f496b6aa23c8e127503facf009d5b2e1b3460b8ed49439bbe43c3b9b86cd287833bd3d2137664b33448c9153cfe4581a00af0c7058d3ecf1d5df94396d756adb1a32ff53ab1aac0aa900120163129144c997d770f15966020ae06e63b0df4cce6cf11b2c7fb86c5cd5d86234686e5b26444f8ba43f536d1f816f9578d0008c140b62afacddb66c693a45e51efe14faa2b092f5795528a7ca92d2a5f58eeed396c0a684fdf6662b0b77adecaf6f08a9a55a84306e49a22853bbe76c1807b20f8bc4a04cffb08"
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_0v7egjz",
+      "type": "calculation",
+      "parentId": "group_7v4cyqu",
+      "functionName": "ecies_encrypt",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "03248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5",
+          "1": "36333231303332343866323433636565373437373832323039663938646664653434306332383765313564386631626331626532303534326665383362336530646134656435616336373034613732313331366162313735323130323964366238333939663839633566633633336364656338316334663436383561653133383538343934613263353031613037323163313566396564303836643761633638"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Recipient PubKey:",
+            "placeholder": "<compressed or uncompressed pubkey hex>",
+            "rows": 2
+          },
+          {
+            "index": 1,
+            "label": "Plaintext Hex:",
+            "placeholder": "<data to encrypt>",
+            "rows": 3,
+            "autoResizeMaxRows": 6
+          }
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_4BFBEZJp",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "0"
+      },
+      "value": "0",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_pJEhh73h",
+      "type": "calculation",
+      "parentId": "group_7w6adu7",
+      "functionName": "satoshi_to_8_le",
+      "numInputs": 1,
+      "inputs": {
+        "val": 0
+      },
+      "value": "50000000",
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_75JB67PO",
+      "type": "shadcnGroup",
+      "dirty": false
+    },
+    {
+      "id": "node_TC7BVduR",
+      "type": "shadcnGroup",
+      "dirty": false
+    },
+    {
+      "id": "node_L0EP4zuC",
+      "type": "shadcnGroup",
+      "dirty": false
+    },
+    {
+      "id": "node_VeKuK57A",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "2"
+      },
+      "value": "2",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_Sr57ljkb",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "1"
+      },
+      "value": "1",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_11huHJeg",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "1"
+      },
+      "value": "1",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_r8VAbdiM",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "240000"
+      },
+      "value": "240000",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_zrX8eFjH",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "01"
+      },
+      "value": "01",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_EQYObGsk",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "concat_all",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "0200000001fb522febeccdb83931549d39d0eb569b56b2d5d226a74fde71b30548ab7c7d400000000050632103248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5ac6704a721316ab17521029d6b8399f89c5fc633cdec81c4f4685ae13858494a2c501a0721c15f9ed086d7ac68fdffffff0180a90300000000001976a91448f06b2114a1c291c8fc57671e314dceda0ea90e88ac00000000",
+          "100": "01000000"
+        }
+      },
+      "inputStructure": {
+        "afterGroups": [],
+        "groups": [
+          {
+            "baseIndex": 0,
+            "expandable": true,
+            "fieldCountToAdd": 1,
+            "fields": [
+              {
+                "index": 0,
+                "label": "Value:",
+                "placeholder": "<multi‑line input>",
+                "rows": 3
+              }
+            ],
+            "maxInstances": 25,
+            "minInstances": 1,
+            "title": "INPUTS[]"
+          }
+        ],
+        "ungrouped": []
+      },
+      "groupInstanceKeys": {
+        "INPUTS[]": [
+          0,
+          100
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {
+        "INPUTS[]": 2
+      },
+      "dirty": false
+    },
+    {
+      "id": "node_G0HTm0pF",
+      "type": "calculation",
+      "parentId": "node_TC7BVduR",
+      "functionName": "concat_all",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "304402202c64540aad20d80311b4dce8b4a9f2e928b5fc1fa0891a311798760f8a65e32c022018f8a5883beaa9cd6469f29666705e28cc387a634266cc6b165419d37d0f5ff0",
+          "100": "01"
+        }
+      },
+      "inputStructure": {
+        "afterGroups": [],
+        "groups": [
+          {
+            "baseIndex": 0,
+            "expandable": true,
+            "fieldCountToAdd": 1,
+            "fields": [
+              {
+                "index": 0,
+                "label": "Value:",
+                "placeholder": "<multi‑line input>",
+                "rows": 3
+              }
+            ],
+            "maxInstances": 25,
+            "minInstances": 1,
+            "title": "INPUTS[]"
+          }
+        ],
+        "ungrouped": []
+      },
+      "groupInstanceKeys": {
+        "INPUTS[]": [
+          0,
+          100
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {
+        "INPUTS[]": 2
+      },
+      "dirty": false
+    },
+    {
+      "id": "node_zHaHc24U",
+      "type": "calculation",
+      "parentId": "node_TC7BVduR",
+      "functionName": "concat_all",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "47",
+          "100": "304402202c64540aad20d80311b4dce8b4a9f2e928b5fc1fa0891a311798760f8a65e32c022018f8a5883beaa9cd6469f29666705e28cc387a634266cc6b165419d37d0f5ff001",
+          "200": "51",
+          "300": "4c50",
+          "400": "632103248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5ac6704a721316ab17521029d6b8399f89c5fc633cdec81c4f4685ae13858494a2c501a0721c15f9ed086d7ac68"
+        }
+      },
+      "inputStructure": {
+        "afterGroups": [],
+        "groups": [
+          {
+            "baseIndex": 0,
+            "expandable": true,
+            "fieldCountToAdd": 1,
+            "fields": [
+              {
+                "index": 0,
+                "label": "Value:",
+                "placeholder": "<multi‑line input>",
+                "rows": 3
+              }
+            ],
+            "maxInstances": 25,
+            "minInstances": 1,
+            "title": "INPUTS[]"
+          }
+        ],
+        "ungrouped": []
+      },
+      "groupInstanceKeys": {
+        "INPUTS[]": [
+          0,
+          100,
+          200,
+          300,
+          400
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {
+        "INPUTS[]": 5
+      },
+      "dirty": false
+    },
+    {
+      "id": "node_KhBksA9T",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "concat_all",
+      "numInputs": 12,
+      "inputs": {
+        "vals": {
+          "0": "02000000",
+          "10": "01",
+          "1000": "fb522febeccdb83931549d39d0eb569b56b2d5d226a74fde71b30548ab7c7d40",
+          "1010": "00000000",
+          "1020": "50",
+          "1030": "632103248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5ac6704a721316ab17521029d6b8399f89c5fc633cdec81c4f4685ae13858494a2c501a0721c15f9ed086d7ac68",
+          "1040": "fdffffff",
+          "2000": "01",
+          "3000": "80a9030000000000",
+          "3010": "19",
+          "3020": "76a91448f06b2114a1c291c8fc57671e314dceda0ea90e88ac",
+          "4000": "00000000"
+        }
+      },
+      "inputStructure": {
+        "afterGroups": [
+          {
+            "index": 4000,
+            "label": "LOCKTIME[4]:",
+            "placeholder": "00000000",
+            "rows": 1
+          }
+        ],
+        "betweenGroups": {
+          "INPUTS[]": [
+            {
+              "index": 2000,
+              "label": "OUTPUT_COUNT (VarInt):",
+              "rows": 1,
+              "small": true
+            }
+          ]
+        },
+        "groups": [
+          {
+            "baseIndex": 1000,
+            "expandable": true,
+            "fieldCountToAdd": 5,
+            "fields": [
+              {
+                "index": 0,
+                "label": "TXID[32]:",
+                "placeholder": "Prev TX ID",
+                "rows": 2
+              },
+              {
+                "index": 10,
+                "label": "VOUT[4]:",
+                "placeholder": "00000000",
+                "rows": 1
+              },
+              {
+                "allowEmpty00": true,
+                "index": 20,
+                "label": "SCRIPT_LENGTH (VarInt):",
+                "rows": 1
+              },
+              {
+                "allowEmptyBlank": true,
+                "index": 30,
+                "label": "SCRIPT_SIG[]:",
+                "placeholder": "<sig> <pk>",
+                "rows": 3
+              },
+              {
+                "index": 40,
+                "label": "SEQUENCE[4]:",
+                "placeholder": "ffffffff",
+                "rows": 1
+              }
+            ],
+            "maxInstances": 10,
+            "minInstances": 1,
+            "title": "INPUTS[]"
+          },
+          {
+            "baseIndex": 3000,
+            "expandable": true,
+            "fieldCountToAdd": 3,
+            "fields": [
+              {
+                "index": 0,
+                "label": "AMOUNT[8]:",
+                "placeholder": "Satoshis (hex)",
+                "rows": 1
+              },
+              {
+                "index": 10,
+                "label": "SCRIPT_PUBKEY_LENGTH:",
+                "rows": 1,
+                "small": true
+              },
+              {
+                "index": 20,
+                "label": "SCRIPT_PUBKEY[]:",
+                "placeholder": "Locking script",
+                "rows": 3
+              }
+            ],
+            "maxInstances": 10,
+            "minInstances": 1,
+            "title": "OUTPUTS[]"
+          }
+        ],
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "VERSION[4]:",
+            "rows": 1
+          },
+          {
+            "index": 10,
+            "label": "INPUT_COUNT (VarInt):",
+            "rows": 1,
+            "small": true
+          }
+        ]
+      },
+      "groupInstanceKeys": {
+        "INPUTS[]": [
+          1000
+        ],
+        "OUTPUTS[]": [
+          3000
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {
+        "INPUTS[]": 1,
+        "OUTPUTS[]": 1
+      },
+      "dirty": false
+    },
+    {
+      "id": "node_k87GKtyf",
+      "type": "calculation",
+      "parentId": "node_75JB67PO",
+      "functionName": "concat_all",
+      "numInputs": 12,
+      "inputs": {
+        "vals": {
+          "0": "02000000",
+          "10": "01",
+          "1000": "fb522febeccdb83931549d39d0eb569b56b2d5d226a74fde71b30548ab7c7d40",
+          "1010": "00000000",
+          "1020": "9b",
+          "1030": "47304402202c64540aad20d80311b4dce8b4a9f2e928b5fc1fa0891a311798760f8a65e32c022018f8a5883beaa9cd6469f29666705e28cc387a634266cc6b165419d37d0f5ff001514c50632103248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5ac6704a721316ab17521029d6b8399f89c5fc633cdec81c4f4685ae13858494a2c501a0721c15f9ed086d7ac68",
+          "1040": "fdffffff",
+          "2000": "01",
+          "3000": "80a9030000000000",
+          "3010": "19",
+          "3020": "76a91448f06b2114a1c291c8fc57671e314dceda0ea90e88ac",
+          "4000": "00000000"
+        }
+      },
+      "inputStructure": {
+        "afterGroups": [
+          {
+            "index": 4000,
+            "label": "LOCKTIME[4]:",
+            "placeholder": "00000000",
+            "rows": 1
+          }
+        ],
+        "betweenGroups": {
+          "INPUTS[]": [
+            {
+              "index": 2000,
+              "label": "OUTPUT_COUNT (VarInt):",
+              "rows": 1,
+              "small": true
+            }
+          ]
+        },
+        "groups": [
+          {
+            "baseIndex": 1000,
+            "expandable": true,
+            "fieldCountToAdd": 5,
+            "fields": [
+              {
+                "index": 0,
+                "label": "TXID[32]:",
+                "placeholder": "Prev TX ID",
+                "rows": 2
+              },
+              {
+                "index": 10,
+                "label": "VOUT[4]:",
+                "placeholder": "00000000",
+                "rows": 1
+              },
+              {
+                "allowEmpty00": true,
+                "index": 20,
+                "label": "SCRIPT_LENGTH (VarInt):",
+                "rows": 1
+              },
+              {
+                "allowEmptyBlank": true,
+                "index": 30,
+                "label": "SCRIPT_SIG[]:",
+                "placeholder": "<sig> <pk>",
+                "rows": 3
+              },
+              {
+                "index": 40,
+                "label": "SEQUENCE[4]:",
+                "placeholder": "ffffffff",
+                "rows": 1
+              }
+            ],
+            "maxInstances": 10,
+            "minInstances": 1,
+            "title": "INPUTS[]"
+          },
+          {
+            "baseIndex": 3000,
+            "expandable": true,
+            "fieldCountToAdd": 3,
+            "fields": [
+              {
+                "index": 0,
+                "label": "AMOUNT[8]:",
+                "placeholder": "Satoshis (hex)",
+                "rows": 1
+              },
+              {
+                "index": 10,
+                "label": "SCRIPT_PUBKEY_LENGTH:",
+                "rows": 1,
+                "small": true
+              },
+              {
+                "index": 20,
+                "label": "SCRIPT_PUBKEY[]:",
+                "placeholder": "Locking script",
+                "rows": 3
+              }
+            ],
+            "maxInstances": 10,
+            "minInstances": 1,
+            "title": "OUTPUTS[]"
+          }
+        ],
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "VERSION[4]:",
+            "rows": 1
+          },
+          {
+            "index": 10,
+            "label": "INPUT_COUNT (VarInt):",
+            "rows": 1,
+            "small": true
+          }
+        ]
+      },
+      "groupInstanceKeys": {
+        "INPUTS[]": [
+          1000
+        ],
+        "OUTPUTS[]": [
+          3000
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {
+        "INPUTS[]": 1,
+        "OUTPUTS[]": 1
+      },
+      "dirty": false
+    },
+    {
+      "id": "node_XNpg4JYz",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "encode_varint",
+      "numInputs": 1,
+      "inputs": {
+        "val": 1
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_55VPPBVH",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "encode_varint",
+      "numInputs": 1,
+      "inputs": {
+        "val": 1
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_lxt0FlaH",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "satoshi_to_8_le",
+      "numInputs": 1,
+      "inputs": {
+        "val": 240000
+      },
+      "value": "50000000",
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_AKdvFkrT",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "varint_encoded_byte_length",
+      "numInputs": 1,
+      "inputs": {
+        "val": "632103248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5ac6704a721316ab17521029d6b8399f89c5fc633cdec81c4f4685ae13858494a2c501a0721c15f9ed086d7ac68"
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_WjOxW5Ky",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "double_sha256_hex",
+      "numInputs": 1,
+      "inputs": {
+        "val": "0200000001fb522febeccdb83931549d39d0eb569b56b2d5d226a74fde71b30548ab7c7d400000000050632103248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5ac6704a721316ab17521029d6b8399f89c5fc633cdec81c4f4685ae13858494a2c501a0721c15f9ed086d7ac68fdffffff0180a90300000000001976a91448f06b2114a1c291c8fc57671e314dceda0ea90e88ac0000000001000000"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Input Hex:",
+            "rows": 2
+          }
+        ]
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_eL3hNvQF",
+      "type": "calculation",
+      "parentId": "node_TC7BVduR",
+      "functionName": "sign_as_bitcoin_core_low_r",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "1085512ccdaa3aa4994177427cc21461a2ade6ce8c36e58b5c34ffe36da2dcdb",
+          "1": "ec987d614a9def95265ff34826c650823c94635a5b54b136dbc4b24532a61cbf"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Private Key (32 bytes hex):",
+            "rows": 2
+          },
+          {
+            "index": 1,
+            "label": "Message Hash (32 bytes hex):",
+            "rows": 2
+          }
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_esLcXepZ",
+      "type": "calculation",
+      "parentId": "node_TC7BVduR",
+      "functionName": "varint_encoded_byte_length",
+      "numInputs": 1,
+      "inputs": {
+        "val": "47304402202c64540aad20d80311b4dce8b4a9f2e928b5fc1fa0891a311798760f8a65e32c022018f8a5883beaa9cd6469f29666705e28cc387a634266cc6b165419d37d0f5ff001514c50632103248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5ac6704a721316ab17521029d6b8399f89c5fc633cdec81c4f4685ae13858494a2c501a0721c15f9ed086d7ac68"
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_F7qb380u",
+      "type": "calculation",
+      "parentId": "node_75JB67PO",
+      "functionName": "double_sha256_hex",
+      "numInputs": 1,
+      "inputs": {
+        "val": "0200000001fb522febeccdb83931549d39d0eb569b56b2d5d226a74fde71b30548ab7c7d40000000009b47304402202c64540aad20d80311b4dce8b4a9f2e928b5fc1fa0891a311798760f8a65e32c022018f8a5883beaa9cd6469f29666705e28cc387a634266cc6b165419d37d0f5ff001514c50632103248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5ac6704a721316ab17521029d6b8399f89c5fc633cdec81c4f4685ae13858494a2c501a0721c15f9ed086d7ac68fdffffff0180a90300000000001976a91448f06b2114a1c291c8fc57671e314dceda0ea90e88ac00000000"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Input Hex:",
+            "rows": 2
+          }
+        ]
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_eNCddbzM",
+      "type": "calculation",
+      "parentId": "node_75JB67PO",
+      "functionName": "reverse_txid_bytes",
+      "numInputs": 1,
+      "inputs": {
+        "val": "f7062cbd51db0839de62274fe0a745561b83ce357dbc6cee2be11925e96c1a80"
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_IuVPAEBd",
+      "type": "calculation",
+      "parentId": "node_TC7BVduR",
+      "functionName": "encode_script_push_data",
+      "numInputs": 1,
+      "inputs": {
+        "val": "304402202c64540aad20d80311b4dce8b4a9f2e928b5fc1fa0891a311798760f8a65e32c022018f8a5883beaa9cd6469f29666705e28cc387a634266cc6b165419d37d0f5ff001"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Hex Data:",
+            "placeholder": "Enter hex data to calculate push opcode",
+            "rows": 2
+          }
+        ]
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_pVN29R9O",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "uint32_to_little_endian_4_bytes",
+      "numInputs": 1,
+      "inputs": {
+        "val": 0
+      },
+      "value": "2",
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_nvYUQPEG",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "uint32_to_little_endian_4_bytes",
+      "numInputs": 1,
+      "inputs": {
+        "val": 2
+      },
+      "value": "2",
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_wYMseO1G",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "fffffffd"
+      },
+      "value": "fffffffd",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_l7k4lqwP",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "reverse_bytes_4",
+      "numInputs": 1,
+      "inputs": {
+        "val": "fffffffd"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "4-byte hex:",
+            "placeholder": "e.g., fffffffd",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_geSsd5CH",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "0"
+      },
+      "value": "0",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_DL8WMoIO",
+      "type": "calculation",
+      "parentId": "node_75JB67PO",
+      "functionName": "script_verification",
+      "numInputs": 6,
+      "inputs": {
+        "vals": {
+          "0": "47304402202c64540aad20d80311b4dce8b4a9f2e928b5fc1fa0891a311798760f8a65e32c022018f8a5883beaa9cd6469f29666705e28cc387a634266cc6b165419d37d0f5ff001514c50632103248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5ac6704a721316ab17521029d6b8399f89c5fc633cdec81c4f4685ae13858494a2c501a0721c15f9ed086d7ac68",
+          "1": "a914031c71e45837d9a1591bf6faf999ebb50d181ef587",
+          "2": "0200000001fb522febeccdb83931549d39d0eb569b56b2d5d226a74fde71b30548ab7c7d40000000009b47304402202c64540aad20d80311b4dce8b4a9f2e928b5fc1fa0891a311798760f8a65e32c022018f8a5883beaa9cd6469f29666705e28cc387a634266cc6b165419d37d0f5ff001514c50632103248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5ac6704a721316ab17521029d6b8399f89c5fc633cdec81c4f4685ae13858494a2c501a0721c15f9ed086d7ac68fdffffff0180a90300000000001976a91448f06b2114a1c291c8fc57671e314dceda0ea90e88ac00000000",
+          "3": "0",
+          "5": "__EMPTY__"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "scriptSig_hex",
+            "rows": 3,
+            "placeholder": "Hex-encoded scriptSig",
+            "allowEmptyBlank": true
+          },
+          {
+            "index": 1,
+            "label": "scriptPubKey_hex",
+            "rows": 3,
+            "placeholder": "Hex-encoded scriptPubKey"
+          },
+          {
+            "index": 2,
+            "label": "tx_hex",
+            "rows": 3,
+            "placeholder": "Hex-encoded Transaction"
+          },
+          {
+            "index": 3,
+            "label": "input_index_to_verify",
+            "rows": 1,
+            "placeholder": "0",
+            "unconnectable": true
+          },
+          {
+            "index": 4,
+            "label": "exclude_flags",
+            "rows": 1,
+            "placeholder": "e.g., WITNESS,CLEANSTACK",
+            "unconnectable": true
+          },
+          {
+            "index": 5,
+            "label": "spent_amount_sats",
+            "rows": 1,
+            "placeholder": "Amount in satoshis (for SegWit/Taproot)",
+            "unconnectable": false,
+            "allowEmptyBlank": true
+          }
+        ],
+        "groups": [
+          {
+            "title": "Taproot Prevouts (vin order)",
+            "baseIndex": 100,
+            "expandable": true,
+            "fieldCountToAdd": 1,
+            "minInstances": 0,
+            "maxInstances": 10,
+            "fields": [
+              {
+                "index": 0,
+                "label": "prevout_amount_sats",
+                "rows": 1,
+                "placeholder": "Amount (sats)",
+                "allowEmptyBlank": true
+              },
+              {
+                "index": 1,
+                "label": "prevout_scriptPubKey_hex",
+                "rows": 3,
+                "placeholder": "Hex-encoded scriptPubKey",
+                "allowEmptyBlank": true
+              }
+            ]
+          }
+        ],
+        "afterGroups": []
+      },
+      "groupInstanceKeys": {},
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_8r035mYC",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "0"
+      },
+      "value": "0",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_Bd3AR5Eo",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "extract_tx_field",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "0200000001cc1a91fdcbd16a4b6b060512d0558027828af352664e9f3469906b283b2a4490000000006946304302205bf086d6e8db953e2ea4f50a09d2562fcc407d0792afc1990757a0e9e61d8e96021f6c9463a09fc81527d051c59bd2d67c150e5357d8705841458aed444926d1ee012103b7881c8fe895e5d5b0b02c5b35057a61e54621cf146c095afd36b4ef5887ed36fdffffff0220b903000000000017a914031c71e45837d9a1591bf6faf999ebb50d181ef5870000000000000000fc6a4cf95242454349455331036cc3e56ac4a36b6b85f2fa29f93caab2997b560881f4d0527f85e6fad78ff8b22e7b28bc73466bcb38ad5f496b6aa23c8e127503facf009d5b2e1b3460b8ed49439bbe43c3b9b86cd287833bd3d2137664b33448c9153cfe4581a00af0c7058d3ecf1d5df94396d756adb1a32ff53ab1aac0aa900120163129144c997d770f15966020ae06e63b0df4cce6cf11b2c7fb86c5cd5d86234686e5b26444f8ba43f536d1f816f9578d0008c140b62afacddb66c693a45e51efe14faa2b092f5795528a7ca92d2a5f58eeed396c0a684fdf6662b0b77adecaf6f08a9a55a84306e49a22853bbe76c1807b20f8bc4a04cffb0800000000",
+          "1": "0"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Raw TX (hex):",
+            "rows": 3,
+            "placeholder": "<transaction hex>"
+          },
+          {
+            "index": 1,
+            "label": "VIN/VOUT Index:",
+            "rows": 1,
+            "placeholder": "0"
+          }
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "outputValues": {
+        "output-0": "fb522febeccdb83931549d39d0eb569b56b2d5d226a74fde71b30548ab7c7d40",
+        "output-1": "a914031c71e45837d9a1591bf6faf999ebb50d181ef587"
+      },
+      "outputPorts": [
+        {
+          "label": "txid",
+          "handleId": "output-0",
+          "showLabel": false
+        },
+        {
+          "label": "vout.scriptPubKey",
+          "handleId": "output-1",
+          "showLabel": false
+        }
+      ],
+      "txFieldExtractMode": "dynamic",
+      "txExtractFields": [
+        "txid",
+        "vout.scriptPubKey"
+      ],
+      "dirty": false
+    },
+    {
+      "id": "node_yAhW3pYN",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "uint32_to_little_endian_4_bytes",
+      "numInputs": 1,
+      "inputs": {
+        "val": 0
+      },
+      "value": "2",
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_mw7IFYVy",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "sighash_type_to_le4",
+      "numInputs": 1,
+      "inputs": {
+        "val": "01"
+      },
+      "value": "01",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "SIGHASH TYPE:",
+            "rows": 1
+          }
+        ]
+      },
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_JXkIOct0",
+      "type": "shadcnGroup",
+      "dirty": false
+    },
+    {
+      "id": "node_Dj53D8z4",
+      "type": "opCodeNode",
+      "parentId": "node_JXkIOct0",
+      "functionName": "op_code_select",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "OP_DUP",
+          "100": "OP_HASH160"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Opcode:",
+            "rows": 1,
+            "unconnectable": true
+          },
+          {
+            "index": 100,
+            "label": "Opcode:",
+            "rows": 1,
+            "unconnectable": true
+          }
+        ],
+        "groups": [],
+        "betweenGroups": {},
+        "afterGroups": []
+      },
+      "groupInstanceKeys": {},
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_YVC3JSpC",
+      "type": "opCodeNode",
+      "parentId": "node_JXkIOct0",
+      "functionName": "op_code_select",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "OP_EQUALVERIFY",
+          "100": "OP_CHECKSIG"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Opcode:",
+            "rows": 1,
+            "unconnectable": true
+          },
+          {
+            "index": 100,
+            "label": "Opcode:",
+            "rows": 1,
+            "unconnectable": true
+          }
+        ],
+        "groups": [],
+        "betweenGroups": {},
+        "afterGroups": []
+      },
+      "groupInstanceKeys": {},
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_7bQgp6gF",
+      "type": "calculation",
+      "parentId": "node_JXkIOct0",
+      "functionName": "concat_all",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "76a9",
+          "100": "14",
+          "200": "48f06b2114a1c291c8fc57671e314dceda0ea90e",
+          "300": "88ac"
+        }
+      },
+      "inputStructure": {
+        "afterGroups": [],
+        "groups": [
+          {
+            "baseIndex": 0,
+            "expandable": true,
+            "fieldCountToAdd": 1,
+            "fields": [
+              {
+                "index": 0,
+                "label": "Value:",
+                "placeholder": "<multi‑line input>",
+                "rows": 3
+              }
+            ],
+            "maxInstances": 25,
+            "minInstances": 1,
+            "title": "INPUTS[]"
+          }
+        ],
+        "ungrouped": []
+      },
+      "groupInstanceKeys": {
+        "INPUTS[]": [
+          0,
+          100,
+          200,
+          300
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {
+        "INPUTS[]": 4
+      },
+      "dirty": false
+    },
+    {
+      "id": "node_jM1BkHeL",
+      "type": "calculation",
+      "parentId": "node_JXkIOct0",
+      "functionName": "varint_encoded_byte_length",
+      "numInputs": 1,
+      "inputs": {
+        "val": "76a91448f06b2114a1c291c8fc57671e314dceda0ea90e88ac"
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_hXZugDJb",
+      "type": "calculation",
+      "parentId": "node_JXkIOct0",
+      "functionName": "encode_script_push_data",
+      "numInputs": 1,
+      "inputs": {
+        "val": "48f06b2114a1c291c8fc57671e314dceda0ea90e"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Hex Data:",
+            "placeholder": "Enter hex data to calculate push opcode",
+            "rows": 2
+          }
+        ]
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_opeFHAE6",
+      "type": "calculation",
+      "parentId": "node_JXkIOct0",
+      "functionName": "public_key_from_private_key",
+      "numInputs": 1,
+      "inputs": {
+        "val": "635462b8466218147ee8ee4477d2cd4ab0ea1b3d8af0194795bedf857442eb50"
+      },
+      "showField": false,
+      "groupInstances": {},
+      "hasRegenerate": false,
+      "dirty": false
+    },
+    {
+      "id": "node_Lwo0cZDT",
+      "type": "calculation",
+      "parentId": "node_JXkIOct0",
+      "functionName": "hash160_hex",
+      "numInputs": 1,
+      "inputs": {
+        "val": "02ed196c85b1b765fcac358b40d4aff131d4d09802bb76ebfef6135e9abc80cefd"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT HEX:",
+            "rows": 2
+          }
+        ]
+      },
+      "paramExtraction": "single_val",
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_JMarfc2B",
+      "type": "calculation",
+      "parentId": "node_JXkIOct0",
+      "functionName": "random_256",
+      "numInputs": 0,
+      "groupInstances": {},
+      "hasRegenerate": true,
+      "dirty": false,
+      "result": "635462b8466218147ee8ee4477d2cd4ab0ea1b3d8af0194795bedf857442eb50"
+    },
+    {
+      "id": "node_beq61RtG",
+      "type": "opCodeNode",
+      "parentId": "node_TC7BVduR",
+      "functionName": "op_code_select",
+      "numInputs": 1,
+      "inputs": {
+        "vals": {
+          "0": "OP_1"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Opcode:",
+            "rows": 1,
+            "unconnectable": true
+          }
+        ],
+        "groups": [],
+        "betweenGroups": {},
+        "afterGroups": []
+      },
+      "groupInstanceKeys": {},
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_yQ99yG0Y",
+      "type": "calculation",
+      "parentId": "node_TC7BVduR",
+      "functionName": "encode_script_push_data",
+      "numInputs": 1,
+      "inputs": {
+        "val": "632103248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5ac6704a721316ab17521029d6b8399f89c5fc633cdec81c4f4685ae13858494a2c501a0721c15f9ed086d7ac68"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Hex Data:",
+            "placeholder": "Enter hex data to calculate push opcode",
+            "rows": 2
+          }
+        ]
+      },
+      "showField": false,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_AZFvFk1v",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "ecies_decrypt",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "1085512ccdaa3aa4994177427cc21461a2ade6ce8c36e58b5c34ffe36da2dcdb",
+          "1": "5242454349455331036cc3e56ac4a36b6b85f2fa29f93caab2997b560881f4d0527f85e6fad78ff8b22e7b28bc73466bcb38ad5f496b6aa23c8e127503facf009d5b2e1b3460b8ed49439bbe43c3b9b86cd287833bd3d2137664b33448c9153cfe4581a00af0c7058d3ecf1d5df94396d756adb1a32ff53ab1aac0aa900120163129144c997d770f15966020ae06e63b0df4cce6cf11b2c7fb86c5cd5d86234686e5b26444f8ba43f536d1f816f9578d0008c140b62afacddb66c693a45e51efe14faa2b092f5795528a7ca92d2a5f58eeed396c0a684fdf6662b0b77adecaf6f08a9a55a84306e49a22853bbe76c1807b20f8bc4a04cffb08"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Recipient PrivKey:",
+            "placeholder": "<recipient private key hex>",
+            "rows": 2
+          },
+          {
+            "index": 1,
+            "label": "Envelope Hex:",
+            "placeholder": "<ECIES Encrypt result>",
+            "rows": 4,
+            "autoResizeMaxRows": 8
+          }
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_6hj0yFUe",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "hex_to_text",
+      "numInputs": 1,
+      "inputs": {
+        "val": "36333231303332343866323433636565373437373832323039663938646664653434306332383765313564386631626331626532303534326665383362336530646134656435616336373034613732313331366162313735323130323964366238333939663839633566633633336364656338316334663436383561653133383538343934613263353031613037323163313566396564303836643761633638"
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Hex input:",
+            "rows": 2,
+            "autoResizeMaxRows": 5,
+            "placeholder": "e.g., 32303039"
+          }
+        ]
+      },
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_r7XyOgof",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "identity",
+      "numInputs": 0,
+      "inputs": {
+        "val": "1"
+      },
+      "value": "1",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "INPUT VALUE:",
+            "rows": 1
+          }
+        ]
+      },
+      "showField": true,
+      "groupInstances": {},
+      "dirty": false
+    },
+    {
+      "id": "node_Y3G6Rw74",
+      "type": "calculation",
+      "parentId": "node_L0EP4zuC",
+      "functionName": "extract_tx_field",
+      "numInputs": 2,
+      "inputs": {
+        "vals": {
+          "0": "0200000001cc1a91fdcbd16a4b6b060512d0558027828af352664e9f3469906b283b2a4490000000006946304302205bf086d6e8db953e2ea4f50a09d2562fcc407d0792afc1990757a0e9e61d8e96021f6c9463a09fc81527d051c59bd2d67c150e5357d8705841458aed444926d1ee012103b7881c8fe895e5d5b0b02c5b35057a61e54621cf146c095afd36b4ef5887ed36fdffffff0220b903000000000017a914031c71e45837d9a1591bf6faf999ebb50d181ef5870000000000000000fc6a4cf95242454349455331036cc3e56ac4a36b6b85f2fa29f93caab2997b560881f4d0527f85e6fad78ff8b22e7b28bc73466bcb38ad5f496b6aa23c8e127503facf009d5b2e1b3460b8ed49439bbe43c3b9b86cd287833bd3d2137664b33448c9153cfe4581a00af0c7058d3ecf1d5df94396d756adb1a32ff53ab1aac0aa900120163129144c997d770f15966020ae06e63b0df4cce6cf11b2c7fb86c5cd5d86234686e5b26444f8ba43f536d1f816f9578d0008c140b62afacddb66c693a45e51efe14faa2b092f5795528a7ca92d2a5f58eeed396c0a684fdf6662b0b77adecaf6f08a9a55a84306e49a22853bbe76c1807b20f8bc4a04cffb0800000000",
+          "1": "1"
+        }
+      },
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "Raw TX (hex):",
+            "rows": 3,
+            "placeholder": "<transaction hex>"
+          },
+          {
+            "index": 1,
+            "label": "VIN/VOUT Index:",
+            "rows": 1,
+            "placeholder": "0"
+          }
+        ]
+      },
+      "paramExtraction": "multi_val",
+      "groupInstances": {},
+      "outputValues": {
+        "output-0": "5242454349455331036cc3e56ac4a36b6b85f2fa29f93caab2997b560881f4d0527f85e6fad78ff8b22e7b28bc73466bcb38ad5f496b6aa23c8e127503facf009d5b2e1b3460b8ed49439bbe43c3b9b86cd287833bd3d2137664b33448c9153cfe4581a00af0c7058d3ecf1d5df94396d756adb1a32ff53ab1aac0aa900120163129144c997d770f15966020ae06e63b0df4cce6cf11b2c7fb86c5cd5d86234686e5b26444f8ba43f536d1f816f9578d0008c140b62afacddb66c693a45e51efe14faa2b092f5795528a7ca92d2a5f58eeed396c0a684fdf6662b0b77adecaf6f08a9a55a84306e49a22853bbe76c1807b20f8bc4a04cffb08"
+      },
+      "outputPorts": [
+        {
+          "label": "op_return.data",
+          "handleId": "output-0",
+          "showLabel": false
+        }
+      ],
+      "txFieldExtractMode": "dynamic",
+      "txExtractFields": [
+        "op_return.data"
+      ],
+      "dirty": false
+    },
+    {
+      "id": "node_3gpktfq",
+      "type": "shadcnTextInfo",
+      "dirty": false
+    },
+    {
+      "id": "node_kn7y2jz",
+      "type": "shadcnTextInfo",
+      "dirty": false
+    },
+    {
+      "id": "node_x52rof9",
+      "type": "shadcnTextInfo",
+      "dirty": false
+    },
+    {
+      "id": "node_wpwsvgv",
+      "type": "shadcnTextInfo",
+      "dirty": false
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_vfBa47CI",
+      "source": "node_bkJNiVtV",
+      "target": "node_wIq0zQQK",
+      "targetHandle": "input-100"
+    },
+    {
+      "id": "edge_8aCGGSg4",
+      "source": "node_wIq0zQQK",
+      "target": "node_gH7sxRGZ",
+      "targetHandle": "input-100"
+    },
+    {
+      "id": "edge_mVJt1Y80",
+      "source": "node_UIgo6BTD",
+      "target": "node_Xoq2K65O",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_Kuv1TZVB",
+      "source": "node_gH7sxRGZ",
+      "target": "node_qMmh8Zrk",
+      "targetHandle": "input-1030"
+    },
+    {
+      "id": "edge_juB030IU",
+      "source": "node_yf0EwOn6",
+      "target": "node_gH7sxRGZ",
+      "targetHandle": "input-300"
+    },
+    {
+      "id": "edge_cFT76el4",
+      "source": "node_yf0EwOn6",
+      "target": "node_MlkWePnK",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_1wLmawcH",
+      "source": "node_CLVgEw37",
+      "target": "node_qMmh8Zrk",
+      "targetHandle": "input-10"
+    },
+    {
+      "id": "edge_bT6Hmi4C",
+      "source": "node_CLVgEw37",
+      "target": "node_UIgo6BTD",
+      "targetHandle": "input-10"
+    },
+    {
+      "id": "edge_0mgeMyj8",
+      "source": "node_1AL3tCpN",
+      "target": "node_CLVgEw37",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_Zeg5Z0cl",
+      "source": "node_kSTGvvaL",
+      "target": "node_A97ESBMe",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_72Xq6MH9",
+      "source": "node_A97ESBMe",
+      "target": "node_qMmh8Zrk",
+      "targetHandle": "input-2000"
+    },
+    {
+      "id": "edge_aG4emvS3",
+      "source": "node_A97ESBMe",
+      "target": "node_UIgo6BTD",
+      "targetHandle": "input-2000"
+    },
+    {
+      "id": "edge_hNjSq5F0",
+      "source": "node_uc3qXmHd",
+      "target": "node_qMmh8Zrk",
+      "targetHandle": "input-3000"
+    },
+    {
+      "id": "edge_2GO69aU7",
+      "source": "node_uc3qXmHd",
+      "target": "node_UIgo6BTD",
+      "targetHandle": "input-3000"
+    },
+    {
+      "id": "edge_j14G0z4F",
+      "source": "node_IRajBmor",
+      "target": "node_uc3qXmHd",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_262dCoOW",
+      "source": "node_NRUA8pnX",
+      "target": "node_UIgo6BTD",
+      "targetHandle": "input-1020"
+    },
+    {
+      "id": "edge_ud2Av3vJ",
+      "source": "node_Xoq2K65O",
+      "target": "node_fL7jxPA0",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_pHB7iKXs",
+      "source": "node_b1GSXfdE",
+      "target": "node_wIq0zQQK",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_T6PySwXb",
+      "source": "node_fL7jxPA0",
+      "target": "node_b1GSXfdE",
+      "targetHandle": "input-1"
+    },
+    {
+      "id": "edge_yfq5m3nS",
+      "source": "node_gH7sxRGZ",
+      "target": "node_3LLc1EbO",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_5Lqj27ai",
+      "source": "node_3LLc1EbO",
+      "target": "node_qMmh8Zrk",
+      "targetHandle": "input-1020"
+    },
+    {
+      "id": "edge_PpiSDGS3",
+      "source": "node_qMmh8Zrk",
+      "target": "node_m3ArBCgv",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_7v22jK0c",
+      "source": "node_m3ArBCgv",
+      "target": "node_24bD1CIj",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_y1WhZQsS",
+      "source": "node_wIq0zQQK",
+      "target": "node_bxUeWR17",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_S2EDQJbr",
+      "source": "node_bxUeWR17",
+      "target": "node_gH7sxRGZ",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_Zc9ORlr9",
+      "source": "node_yf0EwOn6",
+      "target": "node_d4b67dsm",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_RGdEI6aV",
+      "source": "node_d4b67dsm",
+      "target": "node_gH7sxRGZ",
+      "targetHandle": "input-200"
+    },
+    {
+      "id": "edge_v4UKc1K7",
+      "source": "node_CWfi6O88",
+      "target": "node_b1GSXfdE",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_mQML0jGD",
+      "source": "node_CWfi6O88",
+      "target": "node_yf0EwOn6",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_fiSesSeD",
+      "source": "node_C85oMB8J",
+      "target": "node_UIgo6BTD",
+      "targetHandle": "input-1010"
+    },
+    {
+      "id": "edge_glGJxg5n",
+      "source": "node_C85oMB8J",
+      "target": "node_qMmh8Zrk",
+      "targetHandle": "input-1010"
+    },
+    {
+      "id": "edge_uKsu7SHP",
+      "source": "node_8QSOHj19",
+      "target": "node_iG1CdtRQ",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_lronnHFp",
+      "source": "node_iG1CdtRQ",
+      "target": "node_UIgo6BTD",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_R4jOlute",
+      "source": "node_iG1CdtRQ",
+      "target": "node_qMmh8Zrk",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_L19UZW6Q",
+      "source": "node_v7K1rBTw",
+      "target": "node_E7c0t33i",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_1Kyp0Tsh",
+      "source": "node_E7c0t33i",
+      "target": "node_qMmh8Zrk",
+      "targetHandle": "input-1040"
+    },
+    {
+      "id": "edge_3X23W5nm",
+      "source": "node_E7c0t33i",
+      "target": "node_UIgo6BTD",
+      "targetHandle": "input-1040"
+    },
+    {
+      "id": "edge_MkScuwWE",
+      "source": "node_MlkWePnK",
+      "target": "node_GJptZvmY",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "enode_gH7sxRGZ-node_o6vul7a-input-0",
+      "source": "node_gH7sxRGZ",
+      "target": "node_o6vul7a",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "enode_qMmh8Zrk-node_o6vul7a-input-2",
+      "source": "node_qMmh8Zrk",
+      "target": "node_o6vul7a",
+      "targetHandle": "input-2"
+    },
+    {
+      "id": "edge_jn7bwol",
+      "source": "node_ljj3f78",
+      "target": "node_C85oMB8J",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_pq3003f",
+      "source": "node_ljj3f78",
+      "target": "node_kzcs3gx",
+      "targetHandle": "input-1"
+    },
+    {
+      "id": "edge_q2swcx8",
+      "source": "node_xfz2u3e",
+      "target": "node_kzcs3gx",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_pu5uhu2",
+      "source": "node_kzcs3gx",
+      "sourceHandle": "output-0",
+      "target": "node_UIgo6BTD",
+      "targetHandle": "input-1000"
+    },
+    {
+      "id": "edge_ft6hnvv",
+      "source": "node_kzcs3gx",
+      "sourceHandle": "output-1",
+      "target": "node_NRUA8pnX",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_enhuiox",
+      "source": "node_kzcs3gx",
+      "sourceHandle": "output-1",
+      "target": "node_UIgo6BTD",
+      "targetHandle": "input-1030"
+    },
+    {
+      "id": "edge_y33xcw9",
+      "source": "node_kzcs3gx",
+      "sourceHandle": "output-0",
+      "target": "node_qMmh8Zrk",
+      "targetHandle": "input-1000"
+    },
+    {
+      "id": "edge_un9m3vd",
+      "source": "node_kzcs3gx",
+      "sourceHandle": "output-1",
+      "target": "node_o6vul7a",
+      "targetHandle": "input-1"
+    },
+    {
+      "id": "edge_hr5azll",
+      "source": "node_hHXC5ZW3",
+      "target": "node_Wi6L506K",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_117ppst",
+      "source": "node_Wi6L506K",
+      "target": "node_UIgo6BTD",
+      "targetHandle": "input-4000"
+    },
+    {
+      "id": "edge_l6dk74v",
+      "source": "node_Wi6L506K",
+      "target": "node_qMmh8Zrk",
+      "targetHandle": "input-4000"
+    },
+    {
+      "id": "xy-edge__node_bkJNiVtV-node_p0kp4lginput-0",
+      "source": "node_bkJNiVtV",
+      "target": "node_p0kp4lg",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "xy-edge__node_p0kp4lg-node_Xoq2K65Oinput-100",
+      "source": "node_p0kp4lg",
+      "target": "node_Xoq2K65O",
+      "targetHandle": "input-100"
+    },
+    {
+      "id": "edge_zxuiSqIH",
+      "source": "node_PLQzVjhU",
+      "target": "node_ux06rKV8",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_Pj2kvoa2",
+      "source": "node_ux06rKV8",
+      "target": "node_vGORc4OP",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_oOsKjhQC",
+      "source": "node_60aUXw0G",
+      "target": "node_2EIKuWvc",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_bfGlSEFw",
+      "source": "node_GOwsAdNt",
+      "target": "node_Bi1uPTkI",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_dM4ao6Yg",
+      "source": "node_Bi1uPTkI",
+      "target": "node_2EIKuWvc",
+      "targetHandle": "input-100"
+    },
+    {
+      "id": "edge_gUqnevru",
+      "source": "node_GOwsAdNt",
+      "target": "node_2EIKuWvc",
+      "targetHandle": "input-200"
+    },
+    {
+      "id": "edge_IeyB4U1o",
+      "source": "node_XReTXNge",
+      "target": "node_2EIKuWvc",
+      "targetHandle": "input-300"
+    },
+    {
+      "id": "edge_jctvw1kI",
+      "source": "node_2EIKuWvc",
+      "target": "node_H66jIoAy",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_j2v8Rjep",
+      "source": "node_uOPuPcje",
+      "target": "node_GOwsAdNt",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_VpfKXxoa",
+      "source": "node_awSuFiUN",
+      "target": "node_uOPuPcje",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_6tEJDBPk",
+      "source": "node_vGORc4OP",
+      "target": "node_uOPuPcje",
+      "targetHandle": "input-100"
+    },
+    {
+      "id": "edge_dqJUa4CG",
+      "source": "node_ux06rKV8",
+      "target": "node_uOPuPcje",
+      "targetHandle": "input-200"
+    },
+    {
+      "id": "edge_5eDxVK03",
+      "source": "node_j7fU1fT6",
+      "target": "node_uOPuPcje",
+      "targetHandle": "input-300"
+    },
+    {
+      "id": "edge_6xHCrhwo",
+      "source": "node_8f3hMjz6",
+      "target": "node_uOPuPcje",
+      "targetHandle": "input-400"
+    },
+    {
+      "id": "edge_0ep9jcTb",
+      "source": "node_WvN674hE",
+      "target": "node_1POPqL3b",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_0L3GK63V",
+      "source": "node_1POPqL3b",
+      "target": "node_vB21lenX",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_b2cTJq1e",
+      "source": "node_vB21lenX",
+      "target": "node_BbP2Blp2",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_7Ye2BUam",
+      "source": "node_BbP2Blp2",
+      "target": "node_uOPuPcje",
+      "targetHandle": "input-500"
+    },
+    {
+      "id": "edge_YdSvPIWK",
+      "source": "node_vB21lenX",
+      "target": "node_uOPuPcje",
+      "targetHandle": "input-600"
+    },
+    {
+      "id": "edge_IL4IbrME",
+      "source": "node_NB9oE2VE",
+      "target": "node_uOPuPcje",
+      "targetHandle": "input-700"
+    },
+    {
+      "id": "edge_iVvklgpr",
+      "source": "node_h7NTkjgl",
+      "target": "node_hUiDLZY0",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_RI81cIDv",
+      "source": "node_hUiDLZY0",
+      "target": "node_L2HSJ1O6",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_Mk0EzfXi",
+      "source": "node_L2HSJ1O6",
+      "target": "node_uOPuPcje",
+      "targetHandle": "input-800"
+    },
+    {
+      "id": "edge_MG8aOOVE",
+      "source": "node_hUiDLZY0",
+      "target": "node_uOPuPcje",
+      "targetHandle": "input-900"
+    },
+    {
+      "id": "edge_k01Xcuzk",
+      "source": "node_w2iOoFGP",
+      "target": "node_uOPuPcje",
+      "targetHandle": "input-1000"
+    },
+    {
+      "id": "edge_1p8kddk",
+      "source": "node_BGFe0FHK",
+      "target": "node_uOPuPcje",
+      "targetHandle": "input-1100"
+    },
+    {
+      "id": "edge_ugz6zzx",
+      "source": "node_H66jIoAy",
+      "target": "node_UIgo6BTD",
+      "targetHandle": "input-3010"
+    },
+    {
+      "id": "edge_l66019w",
+      "source": "node_2EIKuWvc",
+      "target": "node_UIgo6BTD",
+      "targetHandle": "input-3020"
+    },
+    {
+      "id": "edge_jx31g0t",
+      "source": "node_H66jIoAy",
+      "target": "node_qMmh8Zrk",
+      "targetHandle": "input-3010"
+    },
+    {
+      "id": "edge_m47r47u",
+      "source": "node_2EIKuWvc",
+      "target": "node_qMmh8Zrk",
+      "targetHandle": "input-3020"
+    },
+    {
+      "id": "edge_WdDT9296",
+      "source": "node_LzDDfap2",
+      "target": "node_k6z1XgFS",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_COsqD195",
+      "source": "node_fqn435AJ",
+      "target": "node_k6z1XgFS",
+      "targetHandle": "input-100"
+    },
+    {
+      "id": "edge_wlXbjgB5",
+      "source": "node_k6z1XgFS",
+      "target": "node_etLEX9PD",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_ht3eu9o",
+      "source": "node_uOPuPcje",
+      "target": "node_rweUBy2U",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "xy-edge__node_0v7egjz-node_k6z1XgFSinput-200",
+      "source": "node_0v7egjz",
+      "target": "node_k6z1XgFS",
+      "targetHandle": "input-200"
+    },
+    {
+      "id": "xy-edge__node_0v7egjz-node_fqn435AJinput-0",
+      "source": "node_0v7egjz",
+      "target": "node_fqn435AJ",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_6cpvci7",
+      "source": "node_rweUBy2U",
+      "target": "node_0v7egjz",
+      "targetHandle": "input-1"
+    },
+    {
+      "id": "edge_jepclcl",
+      "source": "node_ux06rKV8",
+      "target": "node_0v7egjz",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_Kb6K6WHU",
+      "source": "node_4BFBEZJp",
+      "target": "node_pJEhh73h",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_3uvbn3a",
+      "source": "node_pJEhh73h",
+      "target": "node_UIgo6BTD",
+      "targetHandle": "input-3100"
+    },
+    {
+      "id": "edge_nkp55lm",
+      "source": "node_etLEX9PD",
+      "target": "node_UIgo6BTD",
+      "targetHandle": "input-3110"
+    },
+    {
+      "id": "edge_s9eoxc8",
+      "source": "node_k6z1XgFS",
+      "target": "node_UIgo6BTD",
+      "targetHandle": "input-3120"
+    },
+    {
+      "id": "edge_3096mwx",
+      "source": "node_pJEhh73h",
+      "target": "node_qMmh8Zrk",
+      "targetHandle": "input-3100"
+    },
+    {
+      "id": "edge_5bidi7s",
+      "source": "node_etLEX9PD",
+      "target": "node_qMmh8Zrk",
+      "targetHandle": "input-3110"
+    },
+    {
+      "id": "edge_3xtaav7",
+      "source": "node_k6z1XgFS",
+      "target": "node_qMmh8Zrk",
+      "targetHandle": "input-3120"
+    },
+    {
+      "id": "edge_710cWTUm",
+      "source": "node_zrX8eFjH",
+      "target": "node_G0HTm0pF",
+      "targetHandle": "input-100"
+    },
+    {
+      "id": "edge_hpFIhp3R",
+      "source": "node_G0HTm0pF",
+      "target": "node_zHaHc24U",
+      "targetHandle": "input-100"
+    },
+    {
+      "id": "edge_oK0HvDCK",
+      "source": "node_KhBksA9T",
+      "target": "node_EQYObGsk",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_9x9PgZes",
+      "source": "node_zHaHc24U",
+      "target": "node_k87GKtyf",
+      "targetHandle": "input-1030"
+    },
+    {
+      "id": "edge_xngHNKdm",
+      "source": "node_XNpg4JYz",
+      "target": "node_k87GKtyf",
+      "targetHandle": "input-10"
+    },
+    {
+      "id": "edge_jWRbTm2V",
+      "source": "node_XNpg4JYz",
+      "target": "node_KhBksA9T",
+      "targetHandle": "input-10"
+    },
+    {
+      "id": "edge_YMaxYzVW",
+      "source": "node_Sr57ljkb",
+      "target": "node_XNpg4JYz",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_05vWS527",
+      "source": "node_11huHJeg",
+      "target": "node_55VPPBVH",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_u6YmXH9O",
+      "source": "node_55VPPBVH",
+      "target": "node_k87GKtyf",
+      "targetHandle": "input-2000"
+    },
+    {
+      "id": "edge_dCjxR07U",
+      "source": "node_55VPPBVH",
+      "target": "node_KhBksA9T",
+      "targetHandle": "input-2000"
+    },
+    {
+      "id": "edge_Ulrbh5BV",
+      "source": "node_lxt0FlaH",
+      "target": "node_k87GKtyf",
+      "targetHandle": "input-3000"
+    },
+    {
+      "id": "edge_xcvmsP9S",
+      "source": "node_lxt0FlaH",
+      "target": "node_KhBksA9T",
+      "targetHandle": "input-3000"
+    },
+    {
+      "id": "edge_kK57WBKU",
+      "source": "node_r8VAbdiM",
+      "target": "node_lxt0FlaH",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_VALqOsKg",
+      "source": "node_AKdvFkrT",
+      "target": "node_KhBksA9T",
+      "targetHandle": "input-1020"
+    },
+    {
+      "id": "edge_PkDU4mDT",
+      "source": "node_EQYObGsk",
+      "target": "node_WjOxW5Ky",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_7L8H6RwY",
+      "source": "node_eL3hNvQF",
+      "target": "node_G0HTm0pF",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_52Rj3VWq",
+      "source": "node_WjOxW5Ky",
+      "target": "node_eL3hNvQF",
+      "targetHandle": "input-1"
+    },
+    {
+      "id": "edge_FGbtQCCj",
+      "source": "node_zHaHc24U",
+      "target": "node_esLcXepZ",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_aHCYx1RA",
+      "source": "node_esLcXepZ",
+      "target": "node_k87GKtyf",
+      "targetHandle": "input-1020"
+    },
+    {
+      "id": "edge_CC56LD4J",
+      "source": "node_k87GKtyf",
+      "target": "node_F7qb380u",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_s5C3rRZu",
+      "source": "node_F7qb380u",
+      "target": "node_eNCddbzM",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_ZAJzR3S2",
+      "source": "node_G0HTm0pF",
+      "target": "node_IuVPAEBd",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_1mfny0tY",
+      "source": "node_IuVPAEBd",
+      "target": "node_zHaHc24U",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_oef3h0ke",
+      "source": "node_pVN29R9O",
+      "target": "node_KhBksA9T",
+      "targetHandle": "input-1010"
+    },
+    {
+      "id": "edge_MMNMflT8",
+      "source": "node_pVN29R9O",
+      "target": "node_k87GKtyf",
+      "targetHandle": "input-1010"
+    },
+    {
+      "id": "edge_yRBHF0UR",
+      "source": "node_VeKuK57A",
+      "target": "node_nvYUQPEG",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_JyUMcI5o",
+      "source": "node_nvYUQPEG",
+      "target": "node_KhBksA9T",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_1jBKKGr4",
+      "source": "node_nvYUQPEG",
+      "target": "node_k87GKtyf",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_b58SwU9a",
+      "source": "node_wYMseO1G",
+      "target": "node_l7k4lqwP",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_PCyNCfN4",
+      "source": "node_l7k4lqwP",
+      "target": "node_k87GKtyf",
+      "targetHandle": "input-1040"
+    },
+    {
+      "id": "edge_plFErCI3",
+      "source": "node_l7k4lqwP",
+      "target": "node_KhBksA9T",
+      "targetHandle": "input-1040"
+    },
+    {
+      "id": "edge_yXjC8EbC",
+      "source": "node_zHaHc24U",
+      "target": "node_DL8WMoIO",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_reThNNQv",
+      "source": "node_k87GKtyf",
+      "target": "node_DL8WMoIO",
+      "targetHandle": "input-2"
+    },
+    {
+      "id": "edge_jOmFJCl3",
+      "source": "node_8r035mYC",
+      "target": "node_pVN29R9O",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_Zt7BII9P",
+      "source": "node_8r035mYC",
+      "target": "node_Bd3AR5Eo",
+      "targetHandle": "input-1"
+    },
+    {
+      "id": "edge_5c6mGoCo",
+      "source": "node_Bd3AR5Eo",
+      "sourceHandle": "output-0",
+      "target": "node_KhBksA9T",
+      "targetHandle": "input-1000"
+    },
+    {
+      "id": "edge_xB5p7fRI",
+      "source": "node_Bd3AR5Eo",
+      "sourceHandle": "output-0",
+      "target": "node_k87GKtyf",
+      "targetHandle": "input-1000"
+    },
+    {
+      "id": "edge_NW1fZL5O",
+      "source": "node_geSsd5CH",
+      "target": "node_yAhW3pYN",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_6iAqpRMU",
+      "source": "node_yAhW3pYN",
+      "target": "node_KhBksA9T",
+      "targetHandle": "input-4000"
+    },
+    {
+      "id": "edge_COytqh9R",
+      "source": "node_yAhW3pYN",
+      "target": "node_k87GKtyf",
+      "targetHandle": "input-4000"
+    },
+    {
+      "id": "edge_FsOPGsWa",
+      "source": "node_zrX8eFjH",
+      "target": "node_mw7IFYVy",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_2eh07r8q",
+      "source": "node_mw7IFYVy",
+      "target": "node_EQYObGsk",
+      "targetHandle": "input-100"
+    },
+    {
+      "id": "edge_wzzcw94",
+      "source": "node_qMmh8Zrk",
+      "target": "node_Bd3AR5Eo",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_jiihjd7j",
+      "source": "node_Dj53D8z4",
+      "target": "node_7bQgp6gF",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_SqE6uTPf",
+      "source": "node_YVC3JSpC",
+      "target": "node_7bQgp6gF",
+      "targetHandle": "input-300"
+    },
+    {
+      "id": "edge_76dXRc4x",
+      "source": "node_7bQgp6gF",
+      "target": "node_jM1BkHeL",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_rAtrLCPV",
+      "source": "node_hXZugDJb",
+      "target": "node_7bQgp6gF",
+      "targetHandle": "input-100"
+    },
+    {
+      "id": "edge_dqDSTIB9",
+      "source": "node_opeFHAE6",
+      "target": "node_Lwo0cZDT",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_qRu82BGR",
+      "source": "node_JMarfc2B",
+      "target": "node_opeFHAE6",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_4og5nda",
+      "source": "node_Lwo0cZDT",
+      "target": "node_hXZugDJb",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_umo3ka2",
+      "source": "node_Lwo0cZDT",
+      "target": "node_7bQgp6gF",
+      "targetHandle": "input-200"
+    },
+    {
+      "id": "edge_jci5qww",
+      "source": "node_jM1BkHeL",
+      "target": "node_KhBksA9T",
+      "targetHandle": "input-3010"
+    },
+    {
+      "id": "edge_o47a32x",
+      "source": "node_7bQgp6gF",
+      "target": "node_KhBksA9T",
+      "targetHandle": "input-3020"
+    },
+    {
+      "id": "edge_gxkw3ke",
+      "source": "node_PLQzVjhU",
+      "target": "node_eL3hNvQF",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_3g1v6e0",
+      "source": "node_beq61RtG",
+      "target": "node_zHaHc24U",
+      "targetHandle": "input-200"
+    },
+    {
+      "id": "edge_bfcajf7",
+      "source": "node_yQ99yG0Y",
+      "target": "node_zHaHc24U",
+      "targetHandle": "input-300"
+    },
+    {
+      "id": "edge_hof6gwx",
+      "source": "node_jM1BkHeL",
+      "target": "node_k87GKtyf",
+      "targetHandle": "input-3010"
+    },
+    {
+      "id": "edge_uei6fir",
+      "source": "node_7bQgp6gF",
+      "target": "node_k87GKtyf",
+      "targetHandle": "input-3020"
+    },
+    {
+      "id": "edge_T3BKnDsm",
+      "source": "node_AZFvFk1v",
+      "target": "node_6hj0yFUe",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_c0TlScBD",
+      "source": "node_r7XyOgof",
+      "target": "node_Y3G6Rw74",
+      "targetHandle": "input-1"
+    },
+    {
+      "id": "edge_17uopz3",
+      "source": "node_Y3G6Rw74",
+      "sourceHandle": "output-0",
+      "target": "node_AZFvFk1v",
+      "targetHandle": "input-1"
+    },
+    {
+      "id": "edge_55teiat",
+      "source": "node_PLQzVjhU",
+      "target": "node_AZFvFk1v",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "enode_qMmh8Zrk-node_Y3G6Rw74-input-0",
+      "source": "node_qMmh8Zrk",
+      "target": "node_Y3G6Rw74",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_9v832sq",
+      "source": "node_6hj0yFUe",
+      "target": "node_AKdvFkrT",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_50eowq5",
+      "source": "node_6hj0yFUe",
+      "target": "node_KhBksA9T",
+      "targetHandle": "input-1030"
+    },
+    {
+      "id": "edge_ws1abqa",
+      "source": "node_6hj0yFUe",
+      "target": "node_yQ99yG0Y",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_jhhgk4z",
+      "source": "node_6hj0yFUe",
+      "target": "node_zHaHc24U",
+      "targetHandle": "input-400"
+    },
+    {
+      "id": "edge_nt6cxt1",
+      "source": "node_Bd3AR5Eo",
+      "sourceHandle": "output-1",
+      "target": "node_DL8WMoIO",
+      "targetHandle": "input-1"
+    }
+  ]
+}
