@@ -473,6 +473,28 @@ def test_ecies_encrypt_decrypt_roundtrip_with_deterministic_demo_inputs():
     ]) == envelope
 
 
+def test_ecies_encrypt_is_deterministic_without_explicit_ephemeral_or_salt():
+    recipient_priv = SAMPLE_PRIV_KEY
+    recipient_pub = calc.public_key_from_private_key(recipient_priv)
+    plaintext = "deadbeefcafe"
+    aad = "0011"
+
+    # Default path (no ephemeral key, no salt) must reproduce byte-for-byte.
+    env1 = calc.ecies_encrypt([recipient_pub, plaintext, aad])
+    env2 = calc.ecies_encrypt([recipient_pub, plaintext, aad])
+    assert env1 == env2
+    assert calc.ecies_decrypt([recipient_priv, env1, aad]) == plaintext
+
+    # A different plaintext yields different ephemeral material (no keystream reuse).
+    env_other = calc.ecies_encrypt([recipient_pub, "deadbeefcaff", aad])
+    assert env_other != env1
+    header_len = len(b"RBECIES1") + 33 + 16  # magic || ephemeral_pubkey || salt
+    assert env_other[: header_len * 2] != env1[: header_len * 2]
+
+    # A different aad also changes the envelope.
+    assert calc.ecies_encrypt([recipient_pub, plaintext, "0012"]) != env1
+
+
 def test_ecies_decrypt_rejects_wrong_aad_or_tampered_envelope():
     recipient_priv = SAMPLE_PRIV_KEY
     recipient_pub = calc.public_key_from_private_key(recipient_priv)

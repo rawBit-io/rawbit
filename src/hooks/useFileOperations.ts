@@ -74,6 +74,7 @@ import {
 } from "@/lib/flow/guards";
 import { sanitizeGroupBundleVisualElementsForState } from "@/lib/flow/groupEdgeBundling";
 import { normalizeAndDedupeEdgeConnections } from "@/lib/flow/edgeNormalization";
+import { pruneDanglingEdges } from "@/lib/flow/pruneDanglingEdges";
 import {
   omitEphemeralOrLegacyNodeData,
   stripLegacyFlowMapNodeData,
@@ -356,13 +357,19 @@ export function useFileOperations(
     const nodesWithSteps = hydrateNodesWithScriptSteps(
       stripLegacyFlowMapNodeData(canonicalGraph.nodes)
     );
-    // Import validation hard-rejects dangling edges, so never export one.
+    // Import validation hard-rejects dangling edges, so never export one. Drop
+    // both node-orphan edges and edges whose handle no longer exists on the node
+    // (e.g. a leftover connection to a removed transaction-template output).
     const exportedNodeIds = new Set(nodesWithSteps.map((n) => n.id));
-    const canonicalEdges = normalizeAndDedupeEdgeConnections(
+    const nodeScopedEdges = normalizeAndDedupeEdgeConnections(
       canonicalGraph.edges
     ).filter(
       (e) => exportedNodeIds.has(e.source) && exportedNodeIds.has(e.target)
     );
+    const canonicalEdges = pruneDanglingEdges(
+      nodesWithSteps,
+      nodeScopedEdges
+    ).edges;
 
     const payload: FullExportPayload = {
       name: getExportName(),

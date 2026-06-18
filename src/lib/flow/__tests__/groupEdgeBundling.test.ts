@@ -589,3 +589,94 @@ describe("buildGroupBundledEdges", () => {
     ).toBe(false);
   });
 });
+
+describe("buildGroupBundledElements dangling-handle guard", () => {
+  // A transaction template inside a group, reduced to a single OUTPUTS instance
+  // (keys = [3000]) so the second output's handles (3100/3110/3120) no longer
+  // render. Mirrors p5's "Final Raw Transaction" builder.
+  const txTemplate = (id: string) =>
+    buildFlowNode({
+      id,
+      parentId: "group-b",
+      data: {
+        functionName: "concat_all",
+        inputStructure: {
+          ungrouped: [{ index: 0, label: "VERSION[4]:" }],
+          groups: [
+            {
+              baseIndex: 3000,
+              title: "OUTPUTS[]",
+              minInstances: 1,
+              maxInstances: 10,
+              fields: [
+                { index: 0, label: "AMOUNT[8]:" },
+                { index: 10, label: "SCRIPT_PUBKEY_LENGTH:" },
+                { index: 20, label: "SCRIPT_PUBKEY[]:" },
+              ],
+            },
+          ],
+        },
+        groupInstanceKeys: { "OUTPUTS[]": [3000] },
+      },
+    });
+
+  const sceneNodes = (): FlowNode[] => [
+    buildFlowNode({
+      id: "group-a",
+      type: "shadcnGroup",
+      position: { x: 0, y: 0 },
+      data: { title: "Amounts", width: 300, height: 200 },
+    }),
+    buildFlowNode({
+      id: "group-b",
+      type: "shadcnGroup",
+      position: { x: 500, y: 0 },
+      data: { title: "Final TX", width: 300, height: 200 },
+    }),
+    txTemplate("tx"),
+    buildFlowNode({ id: "sat", parentId: "group-a", data: { title: "Satoshi → LE-8" } }),
+  ];
+
+  it("excludes an edge to a removed group-instance handle (no phantom bundle to the group)", () => {
+    const nodes = sceneNodes();
+    const edges = [
+      buildEdge({ id: "stale", source: "sat", target: "tx", targetHandle: "input-3100" }),
+    ];
+
+    const visual = buildGroupBundledElements({ nodes, edges });
+
+    // the dangling edge must not survive as a direct edge, a bundle, or a segment
+    expect(visual.edges.find((edge) => edge.id === "stale")).toBeUndefined();
+    expect(
+      visual.edges.some(
+        (edge) =>
+          edge.id.startsWith(GROUP_BUNDLE_EDGE_ID_PREFIX) ||
+          edge.id.startsWith(GROUP_BUNDLE_SEGMENT_EDGE_ID_PREFIX)
+      )
+    ).toBe(false);
+    expect(
+      visual.nodes.some((node) =>
+        node.id.startsWith(GROUP_BUNDLE_PORT_NODE_ID_PREFIX)
+      )
+    ).toBe(false);
+  });
+
+  it("still bundles an edge to a valid handle on the same template", () => {
+    const nodes = sceneNodes();
+    const edges = [
+      buildEdge({ id: "good", source: "sat", target: "tx", targetHandle: "input-3000" }),
+    ];
+
+    const visual = buildGroupBundledElements({ nodes, edges });
+
+    // a valid cross-group edge is bundled (port node + bundle edge created)
+    expect(
+      visual.nodes.some((node) =>
+        node.id.startsWith(GROUP_BUNDLE_PORT_NODE_ID_PREFIX)
+      )
+    ).toBe(true);
+    expect(
+      visual.edges.some((edge) => edge.id.startsWith(GROUP_BUNDLE_EDGE_ID_PREFIX))
+    ).toBe(true);
+  });
+});

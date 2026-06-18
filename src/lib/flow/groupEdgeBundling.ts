@@ -1,5 +1,10 @@
 import { Position, type Edge } from "@xyflow/react";
 
+import { normalizeHandle } from "@/lib/flow/edgeNormalization";
+import {
+  renderedInputHandleIds,
+  renderedOutputHandleIds,
+} from "@/lib/nodes/renderedHandles";
 import type { FlowNode, NodeData } from "@/types";
 
 export const GROUP_BUNDLE_EDGE_TYPE = "groupBundle";
@@ -665,11 +670,49 @@ export const buildGroupBundledElements = ({
   );
   const sourceEdges = sanitizeGroupBundleRenderEdgesForState(edges);
   const nodeById = new Map(sourceNodes.map((node) => [node.id, node]));
+
+  // An edge whose handle no longer exists on its endpoint node (e.g. a leftover
+  // connection to a transaction template's second output after it was reduced to
+  // one output) has nothing to anchor to. React Flow would render it against the
+  // node/group origin — a phantom dashed connection "to the group that goes
+  // nowhere". Drop such edges from the projection so they neither render directly
+  // nor inflate a group bundle. (Handle validity matches the renderer; an empty
+  // handle set means "unknown", so we keep the edge.)
+  const inputHandleCache = new Map<string, Set<string>>();
+  const outputHandleCache = new Map<string, Set<string>>();
+  const handleResolves = (
+    nodeId: string,
+    rawHandle: string | null | undefined,
+    kind: "input" | "output"
+  ): boolean => {
+    const handle = normalizeHandle(rawHandle);
+    if (handle === undefined) return true;
+    // Only judge connectable input handles, which always follow the `input-<n>`
+    // convention (buildPorts). Leave any other handle id alone so the guard can
+    // never false-positive on a non-standard handle.
+    if (kind === "input" && !handle.startsWith("input-")) return true;
+    const cache = kind === "input" ? inputHandleCache : outputHandleCache;
+    let set = cache.get(nodeId);
+    if (!set) {
+      const node = nodeById.get(nodeId);
+      set = node
+        ? kind === "input"
+          ? renderedInputHandleIds(node)
+          : renderedOutputHandleIds(node)
+        : new Set<string>();
+      cache.set(nodeId, set);
+    }
+    if (set.size === 0) return true;
+    return set.has(handle);
+  };
+
   const validSourceEdges = sourceEdges.filter(
     (edge) =>
       !hiddenEdgeIds.has(edge.id || edgeFallbackId(edge)) &&
       nodeById.has(edge.source) &&
-      nodeById.has(edge.target)
+      nodeById.has(edge.target) &&
+      handleResolves(edge.target, edge.targetHandle, "input") &&
+      handleResolves(edge.source, edge.sourceHandle, "output")
   );
   const groupRects = new Map<string, GroupRect>();
   const nodeToGroup = new Map<string, string>();

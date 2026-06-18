@@ -544,6 +544,29 @@ def _ecies_key_material(
     return material[:32], material[32:], aad_hash
 
 
+def _ecies_deterministic_material(
+    recipient_pubkey: bytes, plaintext: bytes, aad: bytes
+) -> tuple[int, bytes]:
+    """
+    Derive the ephemeral scalar and salt deterministically from the message.
+
+    RFC6979-style synthetic determinism: binding the ephemeral key + salt to
+    (recipient || aad || plaintext) makes identical inputs reproduce byte-for-byte
+    (essential for rawBit's reproducible flows), while ANY change in the recipient,
+    plaintext, or aad yields fresh ephemeral material -- so the keystream is never
+    reused across distinct messages (no two-time pad).
+    """
+    seed = hmac.new(
+        b"rawbit-ecies-det-v1",
+        recipient_pubkey + b"\x00" + hashlib.sha256(aad).digest() + b"\x00" + plaintext,
+        hashlib.sha256,
+    ).digest()
+    eph_bytes = hmac.new(seed, b"ephemeral-key", hashlib.sha256).digest()
+    eph_int = (int.from_bytes(eph_bytes, "big") % (_CURVE_ORDER - 1)) + 1
+    salt = hmac.new(seed, b"salt", hashlib.sha256).digest()[:_ECIES_SALT_LEN]
+    return eph_int, salt
+
+
 def ecies_encrypt(vals: list[str]) -> str:
     """
     ECIES-style authenticated encryption on secp256k1.
@@ -551,8 +574,14 @@ def ecies_encrypt(vals: list[str]) -> str:
     vals[0]: recipient public key, compressed or uncompressed hex
     vals[1]: plaintext hex
     vals[2]: optional associated data hex
-    vals[3]: optional ephemeral private key hex for deterministic demos
-    vals[4]: optional 16-byte salt hex for deterministic demos
+    vals[3]: optional ephemeral private key hex (overrides the deterministic default)
+    vals[4]: optional 16-byte salt hex (overrides the deterministic default)
+
+    By default the ephemeral key and salt are derived deterministically from the
+    message (recipient || aad || plaintext), so identical inputs always produce the
+    identical envelope -- byte-exact reproducibility for rawBit flows -- while
+    distinct messages still get distinct ephemeral material (no keystream reuse).
+    vals[3]/vals[4] remain available to pin specific values for demos.
 
     Returns a hex envelope:
       magic || ephemeral_pubkey || salt || ciphertext || tag
@@ -568,6 +597,8 @@ def ecies_encrypt(vals: list[str]) -> str:
     plaintext = _bytes_from_even_hex(str(vals[1]), name="plaintext")
     aad = _bytes_from_even_hex(str(vals[2]), name="associated data") if len(vals) > 2 and str(vals[2]).strip() else b""
 
+    det_eph_int, det_salt = _ecies_deterministic_material(recipient_pubkey, plaintext, aad)
+
     eph_raw = str(vals[3]).strip() if len(vals) > 3 else ""
     if eph_raw:
         eph_int = _private_key_int_from_bytes(
@@ -575,10 +606,10 @@ def ecies_encrypt(vals: list[str]) -> str:
             name="ephemeral private key",
         )
     else:
-        eph_int = secrets.randbelow(_CURVE_ORDER - 1) + 1
+        eph_int = det_eph_int
 
     salt_raw = str(vals[4]).strip() if len(vals) > 4 else ""
-    salt = _bytes_from_even_hex(salt_raw, name="salt") if salt_raw else secrets.token_bytes(_ECIES_SALT_LEN)
+    salt = _bytes_from_even_hex(salt_raw, name="salt") if salt_raw else det_salt
     if len(salt) != _ECIES_SALT_LEN:
         raise ValueError("Salt must be exactly 16 bytes (32 hex characters)")
 

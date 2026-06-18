@@ -69,6 +69,7 @@ const allowedNodeTaxonomy = new Map<string, Set<string>>([
       "Script Verification",
       "MuSig2",
       "Trezor",
+      "Encryption",
     ]),
   ],
   [

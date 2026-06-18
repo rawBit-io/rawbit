@@ -102,6 +102,8 @@ import {
   stripGroupBundlePortNodes,
 } from "@/lib/flow/groupEdgeBundling";
 import { edgesHaveSameIdentity } from "@/lib/flow/edgeNormalization";
+import { pruneDanglingEdges } from "@/lib/flow/pruneDanglingEdges";
+import { log } from "@/lib/logConfig";
 import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
 import {
   getFlowTemplateViewport,
@@ -1592,9 +1594,22 @@ function FlowContent() {
         )
       );
 
-      const normalizedEdges = edgesFromFlow.map((edge) => ({
-        ...edge,
-      })) as Edge[];
+      // Drop edges that point at handles which no longer exist on the loaded
+      // nodes (e.g. an edge to a transaction template's second output that was
+      // left behind after the template was reduced to one output). React Flow
+      // would otherwise render them against the node origin — looking like a
+      // stray connection to the group and highlighting the node on selection.
+      const { edges: normalizedEdges, removed: prunedEdges } = pruneDanglingEdges(
+        normalizedNodes,
+        edgesFromFlow.map((edge) => ({ ...edge })) as Edge[]
+      );
+      if (prunedEdges.length) {
+        log(
+          "flow",
+          `Dropped ${prunedEdges.length} dangling edge(s) while loading "${displayTitle}"`,
+          prunedEdges.map((edge) => edge.id)
+        );
+      }
       setMobileCanvasMode("canvas");
       setNodes(() => normalizedNodes);
       setEdges(() => normalizedEdges);
