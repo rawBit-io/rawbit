@@ -30,8 +30,8 @@
       "id": "node_ROZuZDm2",
       "type": "shadcnGroup",
       "position": {
-        "x": 15181.583306334482,
-        "y": 4155.323910275287
+        "x": 15031.583306334482,
+        "y": 4050.323910275287
       },
       "data": {
         "isGroup": true,
@@ -60,8 +60,8 @@
       "id": "node_MK258d3e",
       "type": "shadcnGroup",
       "position": {
-        "x": 11557.133845274659,
-        "y": 500.99840626142463
+        "x": 11407.133845274659,
+        "y": 395.99840626142463
       },
       "data": {
         "isGroup": true,
@@ -90,8 +90,8 @@
       "id": "node_nrvb8KUa",
       "type": "shadcnGroup",
       "position": {
-        "x": 5809.498006449803,
-        "y": 1345.615937349971
+        "x": 5659.498006449803,
+        "y": 1240.615937349971
       },
       "data": {
         "isGroup": true,
@@ -122,8 +122,8 @@
       "id": "node_kht0iiVH",
       "type": "shadcnGroup",
       "position": {
-        "x": 2404.3285237551836,
-        "y": 4802.909946973704
+        "x": 2254.3285237551836,
+        "y": 4697.909946973704
       },
       "data": {
         "isGroup": true,
@@ -149,8 +149,8 @@
       "id": "node_5CvQEOUN",
       "type": "shadcnGroup",
       "position": {
-        "x": 14654.434722159445,
-        "y": 14963.926548345138
+        "x": 14504.434722159445,
+        "y": 14858.926548345138
       },
       "data": {
         "isGroup": true,
@@ -176,8 +176,8 @@
       "id": "node_yLMUFpMY",
       "type": "shadcnGroup",
       "position": {
-        "x": 11043.881561317741,
-        "y": 10760.616042929203
+        "x": 10893.881561317741,
+        "y": 10655.616042929203
       },
       "data": {
         "isGroup": true,
@@ -206,8 +206,8 @@
       "id": "node_qHLs1Tu4",
       "type": "shadcnGroup",
       "position": {
-        "x": 5265.529964972273,
-        "y": 12143.765902131097
+        "x": 5115.529964972273,
+        "y": 12038.765902131097
       },
       "data": {
         "isGroup": true,
@@ -237,8 +237,8 @@
       "id": "node_y4kVQeNY",
       "type": "shadcnGroup",
       "position": {
-        "x": 1503.7030071628778,
-        "y": 15739.059141988902
+        "x": 1353.7030071628778,
+        "y": 15634.059141988902
       },
       "data": {
         "isGroup": true,
@@ -3714,8 +3714,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 2952.92281975924,
-        "y": 386.24057975781693
+        "x": 2802.92281975924,
+        "y": 281.24057975781693
       },
       "data": {
         "isGroup": true,
@@ -3725,7 +3725,8 @@
         "groupBundlePortOffsets": {
           "source": 409.13,
           "sourceByBundle": {
-            "group_zi8x2qm->node_MK258d3e": 68.32
+            "group_zi8x2qm->node_MK258d3e": -13.59,
+            "group_zi8x2qm->node_nrvb8KUa": 110.31
           }
         },
         "dirty": false,
@@ -3893,8 +3894,8 @@
       "id": "node_1jj7t0a",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 300,
-        "y": 345
+        "x": 150,
+        "y": 240
       },
       "data": {
         "content": "## P2PK Overview\n\n**P2PK** (Pay-to-Public-Key) is Bitcoin’s simplest legacy output type. Instead of locking coins to the *hash* of a public key (like P2PKH), it locks them directly to the public key:\n\n`<pubKey> OP_CHECKSIG`\n\nThis flow demonstrates a complete P2PK lifecycle on testnet4:\n\n- First transaction: Spends a P2PKH UTXO and creates a P2PK output\n- Second transaction: Spends that P2PK output and creates a P2PKH output\n\n**Key characteristics of P2PK:**\n- The full public key is stored on-chain in the output\n- `scriptSig` contains **only the signature** when spending\n- P2PK has no standard address format\n- For the P2PK spend, script verification is just a public-key push plus `OP_CHECKSIG`",
@@ -3911,8 +3912,8 @@
       "id": "node_79grnt7",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1794.2554512229408,
-        "y": 367.86154877361344
+        "x": 1644.2554512229408,
+        "y": 262.86154877361344
       },
       "data": {
         "content": "## Creating and Spending a P2PK Output\n\n**Creating a P2PK output (TX 1)**  \nThe input is spent using normal P2PKH rules.  \nThe output uses this locking script:\n\n`<pubKey> OP_CHECKSIG`\n\n**Spending a P2PK output (TX 2)**  \nIn the preimage, the input’s script placeholder contains the full previous P2PK locking script.  \nThe final `scriptSig` only provides the signature — exactly what `OP_CHECKSIG` requires from the locking script.\n\nBecause the public key is already stored in the locking script, it does not need to be supplied again in the `scriptSig`.\n\nThe **Verify Script** node shows the execution: it pushes the signature, then the public key from the locking script, and runs `OP_CHECKSIG`.",
@@ -3929,8 +3930,8 @@
       "id": "node_1evdaey",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1793.4661737305341,
-        "y": 1261.3067652538932
+        "x": 1643.4661737305341,
+        "y": 1156.3067652538932
       },
       "data": {
         "content": "## Try it yourself \n\n- In **TX 2**, observe that the `scriptSig` does **not** contain a public key. Explain why this works.\n- With P2PK, the public key that can spend the coins is **visible on-chain** in the output. What are the implications compared to P2PKH?\n- Try adding a public key push into the `scriptSig` of TX 2 anyway. Does verification still succeed?",
@@ -4353,7 +4354,8 @@
       "source": "node_DbEuwK2d",
       "target": "node_PdEoqN7d",
       "sourceHandle": "output-0",
-      "targetHandle": "input-1000"
+      "targetHandle": "input-1000",
+      "selected": false
     },
     {
       "id": "edge_0xlHLB1O",
@@ -4381,7 +4383,8 @@
       "id": "edge_TBmRaEAU",
       "source": "node_KyMYcWwT",
       "target": "node_PdEoqN7d",
-      "targetHandle": "input-4000"
+      "targetHandle": "input-4000",
+      "selected": false
     },
     {
       "source": "node_5SzlwDrd",
@@ -4759,7 +4762,8 @@
       "source": "node_oBe36h7R",
       "target": "node_LvQBklrC",
       "sourceHandle": "output-0",
-      "targetHandle": "input-1000"
+      "targetHandle": "input-1000",
+      "selected": false
     },
     {
       "id": "edge_Hf5HN3N2",
@@ -4787,7 +4791,8 @@
       "id": "edge_5Yrm4tvl",
       "source": "node_A1SKHmKA",
       "target": "node_LvQBklrC",
-      "targetHandle": "input-4000"
+      "targetHandle": "input-4000",
+      "selected": false
     },
     {
       "source": "node_58wLfEm1",
@@ -4863,13 +4868,15 @@
       "id": "edge_t6xliws",
       "source": "node_fQjUAQXx",
       "target": "node_aSWfvK6L",
-      "targetHandle": "input-3010"
+      "targetHandle": "input-3010",
+      "selected": false
     },
     {
       "id": "edge_jq1cdxz",
       "source": "node_7CkyCdQr",
       "target": "node_aSWfvK6L",
-      "targetHandle": "input-3020"
+      "targetHandle": "input-3020",
+      "selected": false
     },
     {
       "id": "edge_t4qfz9g",
@@ -4882,19 +4889,22 @@
       "id": "edge_lraolj9",
       "source": "node_JQzHfsfJ",
       "target": "node_7PIF61L7",
-      "targetHandle": "input-0"
+      "targetHandle": "input-0",
+      "selected": false
     },
     {
       "id": "enode_fQjUAQXx-node_LvQBklrC-input-3010",
       "source": "node_fQjUAQXx",
       "target": "node_LvQBklrC",
-      "targetHandle": "input-3010"
+      "targetHandle": "input-3010",
+      "selected": false
     },
     {
       "id": "enode_7CkyCdQr-node_LvQBklrC-input-3020",
       "source": "node_7CkyCdQr",
       "target": "node_LvQBklrC",
-      "targetHandle": "input-3020"
+      "targetHandle": "input-3020",
+      "selected": false
     },
     {
       "source": "node_yf0EwOn6",
@@ -4921,13 +4931,15 @@
       "id": "edge_xmu6yal",
       "source": "node_xfz2u3e",
       "target": "node_DbEuwK2d",
-      "targetHandle": "input-0"
+      "targetHandle": "input-0",
+      "selected": false
     },
     {
       "id": "edge_fyo9tq5",
       "source": "node_yf0EwOn6",
       "target": "node_CgbGOcE2",
-      "targetHandle": "input-0"
+      "targetHandle": "input-0",
+      "selected": false
     },
     {
       "id": "edge_bnxouf0",
@@ -4940,7 +4952,8 @@
       "id": "edge_dtmo3m1",
       "source": "node_CWfi6O88",
       "target": "node_06kZgeMZ",
-      "targetHandle": "input-0"
+      "targetHandle": "input-0",
+      "selected": false
     }
   ]
 }

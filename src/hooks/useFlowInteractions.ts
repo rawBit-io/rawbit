@@ -640,17 +640,21 @@ export function useFlowInteractions({
           dragStartPositionsRef.current.clear();
         }
       } else if (typedChange) {
+        incRev();
         requestAnimationFrame(() => {
           const anyDirty = getNodes().some((node) => node.data?.dirty);
           if (anyDirty) {
             markPendingAfterDirtyChange();
             skipNextEdgeSnapshotRef.current = true;
+          } else {
+            scheduleSnapshot("Node data changed", { refresh: true });
           }
         });
       }
     },
     [
       getNodes,
+      incRev,
       isPastingRef,
       loadingUndoRef,
       markPendingAfterDirtyChange,

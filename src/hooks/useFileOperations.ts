@@ -352,11 +352,20 @@ export function useFileOperations(
     [getTabBaseTitle]
   );
 
+  const getCurrentGraph = useCallback(
+    () => ({
+      nodes: importOptions?.getNodes?.() ?? nodes,
+      edges: importOptions?.getEdges?.() ?? edges,
+    }),
+    [edges, importOptions, nodes]
+  );
+
   /* ─────────────────────  SAVE FULL FLOW (unchanged)  ─────────────────── */
   const saveFlow = useCallback(() => {
+    const currentGraph = getCurrentGraph();
     const canonicalGraph = sanitizeGroupBundleVisualElementsForState({
-      nodes,
-      edges,
+      nodes: currentGraph.nodes,
+      edges: currentGraph.edges,
     });
     const nodesWithSteps = hydrateNodesWithScriptSteps(
       stripLegacyFlowMapNodeData(canonicalGraph.nodes)
@@ -424,8 +433,7 @@ export function useFileOperations(
 
     log("fileOps", "Flow saved to JSON file.");
   }, [
-    nodes,
-    edges,
+    getCurrentGraph,
     importOptions,
     getExportName,
     getTabBaseTitle,
@@ -540,6 +548,8 @@ export function useFileOperations(
             console.warn("Flow import warnings", validation.warnings);
           }
 
+          const currentGraph = getCurrentGraph();
+
           // ① Use collision mode: keep IDs unless they conflict with existing nodes
           const {
             nodes: mergedNodes,
@@ -548,8 +558,8 @@ export function useFileOperations(
             FlowNode,
             Edge
           >({
-            currentNodes: nodes,
-            currentEdges: edges,
+            currentNodes: currentGraph.nodes,
+            currentEdges: currentGraph.edges,
             importNodes: stripLegacyFlowMapNodeData(parsed.nodes),
             importEdges: parsed.edges,
             dedupeEdges: true,
@@ -594,7 +604,7 @@ export function useFileOperations(
           }));
 
           // ⑤ deselect current, then append
-          const deselect = nodes
+          const deselect = currentGraph.nodes
             .filter((n) => n.selected)
             .map((n) => ({
               type: "select" as const,
@@ -678,13 +688,14 @@ export function useFileOperations(
 
       reader.readAsText(file);
     },
-    [nodes, edges, onNodesChange, onEdgesChange, importOptions]
+    [getCurrentGraph, onNodesChange, onEdgesChange, importOptions]
   );
 
   const buildSimplifiedSnapshot = useCallback(() => {
+    const currentGraph = getCurrentGraph();
     const canonicalGraph = sanitizeGroupBundleVisualElementsForState({
-      nodes,
-      edges,
+      nodes: currentGraph.nodes,
+      edges: currentGraph.edges,
     });
     const canonicalEdges = normalizeAndDedupeEdgeConnections(canonicalGraph.edges);
     const { selectedCount, nodesToSave } = getExpandedExportNodeSelection(
@@ -908,7 +919,7 @@ export function useFileOperations(
       edges: simplifiedEdges,
       functionNames: backendFunctionNames,
     };
-  }, [nodes, edges]);
+  }, [getCurrentGraph]);
 
   /* ────────────────────  SAVE SIMPLIFIED SNAPSHOT  ──────────────────── */
   const saveSimplifiedFlow = useCallback(() => {

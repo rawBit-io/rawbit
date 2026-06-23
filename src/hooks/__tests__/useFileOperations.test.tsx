@@ -74,6 +74,8 @@ describe("useFileOperations", () => {
   const renderUseFileOperations = (options?: {
     initialNodes?: FlowNode[];
     initialEdges?: Edge[];
+    currentNodes?: FlowNode[];
+    currentEdges?: Edge[];
     tabTitle?: string;
     activeTabId?: string | null;
   }) => {
@@ -94,8 +96,8 @@ describe("useFileOperations", () => {
     const onTooltip = vi.fn();
     const onError = vi.fn();
     const renameActiveTab = vi.fn();
-    const getNodes = () => nodes;
-    const getEdges = () => edges;
+    const getNodes = () => options?.currentNodes ?? nodes;
+    const getEdges = () => options?.currentEdges ?? edges;
     const getActiveTabTitle = options?.tabTitle
       ? () => options.tabTitle
       : undefined;
@@ -721,6 +723,69 @@ describe("useFileOperations", () => {
           ])
         );
       }
+    } finally {
+      restore();
+    }
+  });
+
+  it("saves fresh group bundle port offsets from live graph getters", async () => {
+    const staleNodes: FlowNode[] = [
+      buildFlowNode({
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: { title: "Group A", width: 300, height: 200 },
+      }),
+      buildFlowNode({
+        id: "group-b",
+        type: "shadcnGroup",
+        position: { x: 500, y: 0 },
+        data: { title: "Group B", width: 300, height: 200 },
+      }),
+      buildFlowNode({ id: "a1", parentId: "group-a" }),
+      buildFlowNode({ id: "b1", parentId: "group-b" }),
+    ];
+    const liveNodes: FlowNode[] = staleNodes.map((node) =>
+      node.id === "group-a"
+        ? {
+            ...node,
+            data: {
+              ...node.data,
+              groupBundlePortOffsets: {
+                sourceByBundle: {
+                  "group-a->group-b": 64,
+                },
+              },
+            },
+          }
+        : node
+    );
+    const sourceEdges: Edge[] = [
+      buildEdge({ id: "edge-cross-1", source: "a1", target: "b1" }),
+      buildEdge({ id: "edge-cross-2", source: "a1", target: "b1" }),
+    ];
+    const { blobs, restore } = setupDownloadCapture();
+
+    try {
+      const { result } = renderUseFileOperations({
+        initialNodes: staleNodes,
+        initialEdges: sourceEdges,
+        currentNodes: liveNodes,
+        currentEdges: sourceEdges,
+      });
+
+      act(() => {
+        result.current.saveFlow();
+      });
+
+      expect(blobs).toHaveLength(1);
+      const saved = JSON.parse(await readDownloadedBlobText(blobs[0])) as FlowData;
+      const groupA = saved.nodes.find((node) => node.id === "group-a");
+      expect(groupA?.data?.groupBundlePortOffsets).toEqual({
+        sourceByBundle: {
+          "group-a->group-b": 64,
+        },
+      });
     } finally {
       restore();
     }

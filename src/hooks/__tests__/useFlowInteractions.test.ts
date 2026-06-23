@@ -1044,4 +1044,87 @@ describe("useFlowInteractions", () => {
     expect(deps.markPendingAfterDirtyChange).not.toHaveBeenCalled();
     expect(deps.scheduleSnapshot).toHaveBeenCalledWith("Edge shape changed");
   });
+
+  it("records non-dirty node replacements for autosave and undo", () => {
+    const deps = baseDeps();
+    let nodesState: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: {
+          title: "Group A",
+          groupBundlePortOffsets: {
+            sourceByBundle: {
+              "group-a->group-b": 12,
+            },
+          },
+        },
+      } as FlowNode,
+    ];
+    const edgesState: Edge[] = [];
+
+    const getNodes = () => nodesState;
+    const getEdges = () => edgesState;
+    const setNodes = (updater: (nodes: FlowNode[]) => FlowNode[]) => {
+      nodesState = updater(nodesState);
+    };
+    const setEdges = vi.fn<(updater: (edges: Edge[]) => Edge[]) => void>();
+    const change = {
+      id: "group-a",
+      type: "replace",
+      item: {
+        ...nodesState[0],
+        data: {
+          ...nodesState[0].data,
+          groupBundlePortOffsets: {
+            sourceByBundle: {
+              "group-a->group-b": 64,
+            },
+          },
+        },
+      },
+    } as NodeChange<FlowNode>;
+
+    const { result } = renderHook(() =>
+      useFlowInteractions({
+        ...deps,
+        rawOnNodesChange: deps.rawOnNodesChange,
+        rawOnEdgesChange: deps.rawOnEdgesChange,
+        onConnect: deps.onConnect,
+        onDrop: deps.onDrop,
+        onNodeDragStop: deps.onNodeDragStop,
+        getNodes,
+        getEdges,
+        setNodes,
+        setEdges,
+        getTopLeftPosition: deps.getTopLeftPosition,
+        pasteNodes: deps.pasteNodes,
+        isSidebarOpen: false,
+        setTabTooltip: deps.setTabTooltip,
+        renameTab: deps.renameTab,
+        activeTabId: "tab-1",
+        groupSelectedNodes: deps.groupSelectedNodes,
+        ungroupSelectedNodes: deps.ungroupSelectedNodes,
+        clearHighlights: deps.clearHighlights,
+        setIsSearchHighlight: deps.setIsSearchHighlight,
+        incRev: deps.incRev,
+        pushCleanState: deps.pushCleanState,
+        updatePaletteEligibility: deps.updatePaletteEligibility,
+        skipNextNodeRemovalRef: deps.skipNextNodeRemovalRef,
+        releaseNodeRemovalSnapshotSkip: deps.releaseNodeRemovalSnapshotSkip,
+      })
+    );
+
+    act(() => {
+      result.current.onNodesChange([change]);
+    });
+
+    expect(deps.rawOnNodesChange).toHaveBeenCalledWith([change]);
+    expect(deps.incRev).toHaveBeenCalledTimes(1);
+    expect(deps.markPendingAfterDirtyChange).not.toHaveBeenCalled();
+    expect(deps.scheduleSnapshot).toHaveBeenCalledWith("Node data changed", {
+      refresh: true,
+    });
+  });
 });
