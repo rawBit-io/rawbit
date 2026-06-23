@@ -22,11 +22,11 @@ export function placeFlowDataAtPosition(
   const hasTopLevel = topLevelNodes.length > 0;
   const nodesToConsider = hasTopLevel ? topLevelNodes : flowData.nodes;
 
-  const minX = Math.min(...nodesToConsider.map((node) => node.position.x));
+  const minY = Math.min(...nodesToConsider.map((node) => node.position.y));
   const anchor = nodesToConsider
-    .filter((node) => Math.abs(node.position.x - minX) < EPS)
-    .reduce((top, node) =>
-      node.position.y < top.position.y ? node : top
+    .filter((node) => Math.abs(node.position.y - minY) < EPS)
+    .reduce((left, node) =>
+      node.position.x < left.position.x ? node : left
     );
 
   const dx = dropX - anchor.position.x;

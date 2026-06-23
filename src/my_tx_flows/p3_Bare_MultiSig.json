@@ -30,8 +30,8 @@
       "id": "node_ROZuZDm2",
       "type": "shadcnGroup",
       "position": {
-        "x": 15046.583306334482,
-        "y": 4215.323910275287
+        "x": 15827.390101347615,
+        "y": 4443.126676450112
       },
       "data": {
         "isGroup": true,
@@ -60,8 +60,8 @@
       "id": "node_MK258d3e",
       "type": "shadcnGroup",
       "position": {
-        "x": 11422.133845274659,
-        "y": 560.9984062614246
+        "x": 12202.940640287792,
+        "y": 788.8011724362499
       },
       "data": {
         "isGroup": true,
@@ -75,7 +75,7 @@
           },
           "targetByBundle": {
             "node_nrvb8KUa->node_MK258d3e": 88.2,
-            "group_zi8x2qm->node_MK258d3e": -349.59
+            "group_zi8x2qm->node_MK258d3e": -338.17
           }
         },
         "dirty": false,
@@ -90,8 +90,8 @@
       "id": "node_nrvb8KUa",
       "type": "shadcnGroup",
       "position": {
-        "x": 5674.498006449803,
-        "y": 1405.615937349971
+        "x": 6455.304801462937,
+        "y": 1633.4187035247965
       },
       "data": {
         "isGroup": true,
@@ -122,8 +122,8 @@
       "id": "node_kht0iiVH",
       "type": "shadcnGroup",
       "position": {
-        "x": 2394.3285237551836,
-        "y": 4949.909946973704
+        "x": 3175.135318768317,
+        "y": 5177.7127131485295
       },
       "data": {
         "isGroup": true,
@@ -149,8 +149,8 @@
       "id": "node_5CvQEOUN",
       "type": "shadcnGroup",
       "position": {
-        "x": 16250.232550958397,
-        "y": 16268.22634641737
+        "x": 17031.03934597153,
+        "y": 16496.029112592194
       },
       "data": {
         "isGroup": true,
@@ -176,8 +176,8 @@
       "id": "node_yLMUFpMY",
       "type": "shadcnGroup",
       "position": {
-        "x": 11020.666915387897,
-        "y": 11035.144069675427
+        "x": 11801.473710401031,
+        "y": 11262.946835850253
       },
       "data": {
         "isGroup": true,
@@ -206,8 +206,8 @@
       "id": "node_qHLs1Tu4",
       "type": "shadcnGroup",
       "position": {
-        "x": 5376.3890262584155,
-        "y": 13564.358790610024
+        "x": 6157.195821271549,
+        "y": 13792.16155678485
       },
       "data": {
         "isGroup": true,
@@ -222,7 +222,8 @@
             "node_qHLs1Tu4->node_yLMUFpMY": -1276.99
           },
           "targetByBundle": {
-            "node_ROZuZDm2->node_qHLs1Tu4": -1309.79
+            "node_ROZuZDm2->node_qHLs1Tu4": -1309.79,
+            "node_y4kVQeNY->node_qHLs1Tu4": 37.35
           }
         },
         "dirty": false,
@@ -237,8 +238,8 @@
       "id": "node_y4kVQeNY",
       "type": "shadcnGroup",
       "position": {
-        "x": 1413.0265101424266,
-        "y": 17173.087734354936
+        "x": 2193.83330515556,
+        "y": 17400.89050052976
       },
       "data": {
         "isGroup": true,
@@ -247,7 +248,13 @@
         "title": "Locking Script P2PKH",
         "dirty": false,
         "borderColor": "#a83a32",
-        "fontSize": 44
+        "fontSize": 44,
+        "groupBundlePortOffsets": {
+          "sourceByBundle": {
+            "node_y4kVQeNY->node_5CvQEOUN": 72.82,
+            "node_y4kVQeNY->node_qHLs1Tu4": -37.72
+          }
+        }
       },
       "width": 2478,
       "height": 1092,
@@ -3633,8 +3640,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 2817.92281975924,
-        "y": 446.24057975781693
+        "x": 3598.7296147723737,
+        "y": 674.0433459326422
       },
       "data": {
         "isGroup": true,
@@ -3644,7 +3651,8 @@
         "groupBundlePortOffsets": {
           "source": 409.13,
           "sourceByBundle": {
-            "group_zi8x2qm->node_MK258d3e": 68.32
+            "group_zi8x2qm->node_MK258d3e": 56.22,
+            "group_zi8x2qm->node_nrvb8KUa": 426.46
           }
         },
         "dirty": false,
@@ -4410,8 +4418,8 @@
       "id": "node_m89ql3q",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -465.8067950131334,
-        "y": 27.197233825174763
+        "x": 315,
+        "y": 255
       },
       "data": {
         "content": "# Overview: Bare Multisig\n\n**Bare multisig** is the original legacy way to require multiple signatures to spend coins\n(standard only up to **3 public keys**).\n\nA bare multisig locking script follows this structure:\n\n```\nOP_M\n<pubKey1>\n<pubKey2>\n...\n<pubKeyN>\nOP_N\nOP_CHECKMULTISIG\n```\n\n`OP_M` defines how many signatures are required to spend.  \n`OP_N` defines how many public keys are available.\n\nIn this flow we use the classic **2-of-3** case (`M = 2`, `N = 3`). Any 2 valid signatures from the 3 public keys can spend the output.\n\nWhen spending a bare multisig output, the `scriptSig` must push:\n\n```\nOP_0\n<signature 1>\n<signature 2>\n```\n\nThe leading `OP_0` is required due to a historical quirk in how `OP_CHECKMULTISIG` works (it pops one extra item from the stack).\n\nBare multisig is useful for learning because the entire spending condition is visible directly in the output. However, it also has clear drawbacks: the full set of public keys and the threshold are public on-chain, the output is relatively large, and there is no compact address format.\n\nMore practical constructions usually wrap or upgrade the same idea:\n\n* **P2SH multisig** locks to a hash of the redeem script and reveals the script only when spending\n* **P2WSH multisig** moves the script and signatures into SegWit witness data\n* **Taproot / P2TR** can hide unused script paths, and cooperative multisig can look like a single-key spend\n",
@@ -4428,8 +4436,8 @@
       "id": "node_55qr6do",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1392.4552280537832,
-        "y": 402.3509308998824
+        "x": 2173.2620230669168,
+        "y": 630.1536970747077
       },
       "data": {
         "content": "\n## Creating and Spending a Bare Multisig Output\n\n**Creating a bare multisig output (TX 1)**  \nThe input is spent using normal P2PKH rules.  \nThe output uses this locking script:\n\n```\nOP_2\n<pubKey1>\n<pubKey2>\n<pubKey3>\nOP_3\nOP_CHECKMULTISIG\n```\n\n**Spending a bare multisig output (TX 2)**  \nIn the preimage, the input’s script placeholder contains the full previous bare multisig locking script.  \nThe final `scriptSig` provides `OP_0` followed by two signatures — exactly what `OP_CHECKMULTISIG` requires.  \n\nThe **Verify Script** node shows the execution: it pushes `OP_0` and the two signatures, then runs the locking script with the three public keys and `OP_CHECKMULTISIG`.\n",
@@ -4446,8 +4454,8 @@
       "id": "node_rglftgr",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1413.658488193455,
-        "y": 1471.476944615411
+        "x": 2194.4652832065885,
+        "y": 1699.279710790236
       },
       "data": {
         "content": "## Try it yourself\n\n- Remove the leading `OP_0` from the multisig `scriptSig` in TX2. Observe how `OP_CHECKMULTISIG` fails without the dummy item.\n- Swap the order of the two signatures in TX2. Check whether the verification still succeeds.\n- Change the multisig from **2-of-3** to **1-of-3**. Update the locking script, the number of signatures, and the `scriptSig`.\n",

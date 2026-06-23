@@ -30,8 +30,8 @@
       "id": "group_o1psyyo",
       "type": "shadcnGroup",
       "position": {
-        "x": 5552.872500165424,
-        "y": -1448.9020426070929
+        "x": -3610.2005920235606,
+        "y": 1997.327638537316
       },
       "data": {
         "isGroup": true,
@@ -56,8 +56,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 14094.721235764368,
-        "y": 3197.841037593131
+        "x": 4931.648143575383,
+        "y": 6644.07071873754
       },
       "data": {
         "isGroup": true,
@@ -83,8 +83,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 9718.073092188984,
-        "y": -3236.229681144409
+        "x": 555,
+        "y": 210
       },
       "data": {
         "isGroup": true,
@@ -114,8 +114,8 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 681.8649318770408,
-        "y": -120.68705808739867
+        "x": -8481.208160311944,
+        "y": 3325.54262305701
       },
       "data": {
         "isGroup": true,
@@ -147,8 +147,8 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": -2148.723479271483,
-        "y": 4818.859818948748
+        "x": -11311.796571460467,
+        "y": 8265.089500093158
       },
       "data": {
         "isGroup": true,
@@ -173,8 +173,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": -2353.7136341587816,
-        "y": -1861.091026352867
+        "x": -11621.6179738757,
+        "y": -173.69672039935793
       },
       "data": {
         "isGroup": true,
@@ -3730,8 +3730,8 @@
       "id": "node_0d0btic",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -3475.3136833523217,
-        "y": -874.3092284828375
+        "x": -12825.522020384677,
+        "y": 736.8947971487561
       },
       "data": {
         "content": "## Try it yourself\n\n- Create a transaction that spends **three inputs** and produces only **one output** (transaction consolidation during low fees)\n\n### Start with fresh funding address\n*These exercises modify the transaction structure — fund a new address first so you can broadcast and verify your variation on testnet4.*",
@@ -3748,8 +3748,8 @@
       "id": "node_om5wa2i",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -3702.2838928763445,
-        "y": -1960.7636049393068
+        "x": -12970.188232593264,
+        "y": -300.2910837324418
       },
       "data": {
         "content": "## Overview\n\nThis flow builds a legacy P2PKH transaction with **two inputs and two outputs**.\n\nThe key new concept (compared to single-input transactions) is how legacy inputs are signed when there are multiple inputs.\n\nIn a multi-input transaction, each input must be signed **independently**. For each input you create a separate preimage in which:\n- The input being signed uses its real `scriptPubKey`\n- All other inputs have an **empty script** (`00`) in their `scriptSig` field\n\nOnly after both signatures are created are the real `scriptSig`s inserted into the final transaction.",

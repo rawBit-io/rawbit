@@ -199,7 +199,7 @@ const createMockInstance = (
     });
   });
 
-  it("anchors dropped flow templates by left-most then top-most node", () => {
+  it("anchors dropped flow templates by top-most then left-most node", () => {
     const { result } = renderHook(() => useNodeOperations(), { wrapper });
     const mockRf = createMockInstance(result);
 
@@ -248,12 +248,12 @@ const createMockInstance = (
     });
 
     expect(result.current.nodes.find((n) => n.id === "left-lower")?.position).toEqual({
-      x: 50,
-      y: 60,
+      x: 40,
+      y: 160,
     });
     expect(result.current.nodes.find((n) => n.id === "top-right")?.position).toEqual({
-      x: 60,
-      y: -40,
+      x: 50,
+      y: 60,
     });
     expect(mockRf.setViewport).toHaveBeenCalledWith(
       { x: 25, y: 30, zoom: 0.5 },

@@ -264,7 +264,7 @@ export function Sidebar({
   const [openSubcategories, setOpenSubcategories] = useState<
     Record<string, string[]>
   >({});
-  const [openFlowSections, setOpenFlowSections] = useState<string[]>([]);
+  const [openFlowSections, setOpenFlowSections] = useState<string[]>(["legacy"]);
   const [showOlderFlowExamples, setShowOlderFlowExamples] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const envBadge =
