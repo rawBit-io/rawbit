@@ -14,6 +14,65 @@ import { gotoEditor, loadFixture, resolveFixturePath } from './utils';
 const HASH_FLOW_DOWNLOAD_BASE = 'hash-flow';
 
 test.describe('Clipboard and tabs workflows', () => {
+  test('does not carry selected same-flow edges or endpoint highlights into a new tab', async ({ page }) => {
+    await gotoEditor(page);
+
+    const dropP2shFlow = async (
+      targetPosition: { x: number; y: number },
+      options: { fitAfterDrop?: boolean } = {},
+    ) => {
+      await page.getByPlaceholder('Search nodes...').fill('p2sh recovery');
+      const flowTile = page.locator('[data-flow-template-id="flow-04"]');
+      await expect(flowTile).toBeVisible();
+      await flowTile.dragTo(page.locator('.react-flow__pane'), { targetPosition });
+
+      await expect
+        .poll(async () => page.locator('.react-flow__node').count(), { timeout: 15_000 })
+        .toBeGreaterThan(0);
+      if (options.fitAfterDrop) {
+        await page.getByRole('button', { name: 'fit view' }).click();
+        await expect
+          .poll(async () => page.locator('.react-flow__node').count(), { timeout: 15_000 })
+          .toBeGreaterThan(5);
+        await expect
+          .poll(async () => page.locator('.react-flow__edge').count(), { timeout: 15_000 })
+          .toBeGreaterThan(5);
+      }
+    };
+
+    const selectedAndHighlightedCounts = async () =>
+      page.evaluate(() => ({
+        selectedEdges: document.querySelectorAll(
+          '.react-flow__edge.selected, .group-bundle-edge-path-selected',
+        ).length,
+        highlightedNodes: document.querySelectorAll('.react-flow__node.is-highlighted').length,
+      }));
+
+    await dropP2shFlow({ x: 620, y: 320 }, { fitAfterDrop: true });
+
+    const edgePath = page.locator('.react-flow__edge path').first();
+    await expect(edgePath).toBeVisible();
+    await edgePath.click({ force: true });
+
+    await expect
+      .poll(async () => {
+        const counts = await selectedAndHighlightedCounts();
+        return counts.selectedEdges > 0 && counts.highlightedNodes > 0;
+      })
+      .toBe(true);
+
+    await page.getByTitle('New tab').click();
+    await expect(tabByIndex(page, 1)).toHaveAttribute('data-state', 'active');
+    await expect(page.locator('.react-flow__node')).toHaveCount(0);
+
+    await dropP2shFlow({ x: 620, y: 320 });
+
+    await expect.poll(selectedAndHighlightedCounts).toEqual({
+      selectedEdges: 0,
+      highlightedNodes: 0,
+    });
+  });
+
   test('tab lifecycle resets viewport and updates tooltip', async ({ page }) => {
     test.setTimeout(60_000);
 

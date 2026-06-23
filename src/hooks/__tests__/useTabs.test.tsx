@@ -175,6 +175,47 @@ describe("useTabs", () => {
     expect(restoredNodes?.[0]?.selected).toBe(false);
   });
 
+  it("does not restore selected edge state when switching tabs", async () => {
+    const { result } = renderTabs();
+
+    await waitFor(() => expect(result.current.initialHydrationDone).toBe(true));
+
+    act(() => {
+      nodesState = [makeNode("source"), makeNode("target")];
+      edgesState = [
+        {
+          id: "edge-selected",
+          source: "source",
+          target: "target",
+          selected: true,
+        },
+      ];
+      graphRevRef.current = 1;
+      result.current.saveTabData("tab-1");
+    });
+
+    await waitFor(() => {
+      const tab = result.current.tabs.find((t) => t.id === "tab-1");
+      expect(tab?.version).toBe(1);
+    });
+
+    act(() => {
+      result.current.addTab();
+    });
+
+    baseSetEdges.mockClear();
+
+    act(() => {
+      result.current.selectTab("tab-1");
+    });
+
+    const restoredEdges = baseSetEdges.mock.calls.at(-1)?.[0] as
+      | Edge[]
+      | undefined;
+    expect(Array.isArray(restoredEdges)).toBe(true);
+    expect(restoredEdges?.[0]?.selected).toBe(false);
+  });
+
   it("requests and confirms close", () => {
     const { result } = renderTabs();
 

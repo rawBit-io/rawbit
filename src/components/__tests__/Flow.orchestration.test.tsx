@@ -50,6 +50,7 @@ const setInfoDialogMock = vi.fn();
 const setTabTooltipMock = vi.fn();
 const renameTabMock = vi.fn();
 const addTabMock = vi.fn(() => "tab-2");
+const selectTabMock = vi.fn();
 const markPendingAfterDirtyChangeMock = vi.fn();
 const saveLlmExportMock = vi.fn();
 const saveSimplifiedFlowMock = vi.fn();
@@ -240,7 +241,7 @@ vi.mock("@/hooks/useTabs", () => ({
     skipLoadRef,
     initialHydrationDone: true,
     closeDialog: { open: false, tabId: null },
-    selectTab: vi.fn(),
+    selectTab: selectTabMock,
     addTab: addTabMock,
     requestCloseTab: vi.fn(),
     confirmCloseTab: vi.fn(),
@@ -462,6 +463,7 @@ beforeEach(() => {
   rfSetEdgesMock.mockClear();
   updateNodeInternalsMock.mockClear();
   addTabMock.mockClear();
+  selectTabMock.mockClear();
   saveConfirmationHookCalls.length = 0;
   skipLoadRef.current = false;
   localStorage.clear();
@@ -1045,6 +1047,107 @@ describe("Flow color palette controls", () => {
 
     rafSpy.mockRestore();
     consoleErrorSpy.mockRestore();
+  });
+});
+
+describe("Flow tab transition cleanup", () => {
+  function seedSelectedCanvasState() {
+    store.nodes = [
+      { id: "node-a", selected: true } as FlowNode,
+      { id: "node-b", selected: false } as FlowNode,
+    ];
+    store.edges = [
+      { id: "edge-a", source: "node-a", target: "node-b", selected: true } as Edge,
+    ];
+    mockNodesState.current = [
+      {
+        id: "node-a",
+        type: "calculation",
+        position: { x: 0, y: 0 },
+        data: { isHighlighted: true },
+        className: "foo is-highlighted",
+        selected: true,
+      } as FlowNode,
+      {
+        id: "node-b",
+        type: "calculation",
+        position: { x: 100, y: 0 },
+        data: {},
+        selected: false,
+      } as FlowNode,
+    ];
+    mockEdgesState.current = [
+      {
+        id: "edge-a",
+        source: "node-a",
+        target: "node-b",
+        selected: true,
+        data: { selectedEdgeIds: ["edge-a"] },
+      } as Edge,
+    ];
+  }
+
+  function expectSelectionCleanupRan() {
+    expect(setIsSearchHighlightMock).toHaveBeenCalledWith(false);
+    expect(clearHighlightsMock).toHaveBeenCalled();
+    expect(store.resetSelectedElements).toHaveBeenCalled();
+    expect(store.unselectNodesAndEdges).toHaveBeenCalledWith({
+      nodes: [store.nodes[0]],
+      edges: [store.edges[0]],
+    });
+
+    const nodeUpdater = setNodesMock.mock.calls.at(-1)?.[0] as
+      | ((nodes: FlowNode[]) => FlowNode[])
+      | undefined;
+    const edgeUpdater = setEdgesMock.mock.calls.at(-1)?.[0] as
+      | ((edges: Edge[]) => Edge[])
+      | undefined;
+
+    expect(nodeUpdater).toBeDefined();
+    expect(edgeUpdater).toBeDefined();
+
+    const cleanedNodes = nodeUpdater!(mockNodesState.current);
+    const cleanedEdges = edgeUpdater!(mockEdgesState.current);
+
+    expect(cleanedNodes[0]?.selected).toBe(false);
+    expect(cleanedNodes[0]?.className).toBe("foo");
+    expect(cleanedNodes[0]?.data?.isHighlighted).toBeUndefined();
+    expect(cleanedEdges[0]?.selected).toBe(false);
+    expect(cleanedEdges[0]?.data).not.toHaveProperty("selectedEdgeIds");
+  }
+
+  it("clears live canvas selection before adding a tab", async () => {
+    seedSelectedCanvasState();
+    await act(async () => {
+      renderFlow();
+    });
+
+    await act(async () => {
+      topBarProps.current?.onAddTab?.();
+      await Promise.resolve();
+    });
+
+    expectSelectionCleanupRan();
+    expect(addTabMock).toHaveBeenCalled();
+  });
+
+  it("clears live canvas selection before selecting another tab", async () => {
+    tabsState.current = [
+      { id: "tab-1", title: "Flow 1" },
+      { id: "tab-2", title: "Flow 2" },
+    ];
+    seedSelectedCanvasState();
+    await act(async () => {
+      renderFlow();
+    });
+
+    await act(async () => {
+      topBarProps.current?.onTabSelect?.("tab-2");
+      await Promise.resolve();
+    });
+
+    expectSelectionCleanupRan();
+    expect(selectTabMock).toHaveBeenCalledWith("tab-2");
   });
 });
 

@@ -118,6 +118,64 @@ const createMockInstance = (
     );
   });
 
+  it("clears transient selected edge state when dropping flow templates", () => {
+    const { result } = renderHook(() => useNodeOperations(), { wrapper });
+    const mockRf = createMockInstance(result);
+
+    act(() => {
+      result.current.onInit(mockRf);
+    });
+
+    const flowData = buildFlowData({
+      nodes: [
+        buildFlowNode({
+          id: "source",
+          type: "calculation",
+          position: { x: 10, y: 20 },
+          data: { functionName: "identity" },
+        }),
+        buildFlowNode({
+          id: "target",
+          type: "calculation",
+          position: { x: 200, y: 20 },
+          data: { functionName: "identity" },
+        }),
+      ],
+      edges: [
+        {
+          id: "selected-template-edge",
+          source: "source",
+          target: "target",
+          selected: true,
+          data: { selectedEdgeIds: ["selected-template-edge"] },
+        } as Edge,
+      ],
+    });
+
+    const event = {
+      preventDefault: vi.fn(),
+      dataTransfer: {
+        getData: (type: string) =>
+          type === "application/reactflow"
+            ? JSON.stringify({
+                functionName: "flow_template",
+                nodeData: { flowData },
+              })
+            : "",
+      },
+      clientX: 50,
+      clientY: 60,
+    } as unknown as React.DragEvent<HTMLDivElement>;
+
+    act(() => {
+      result.current.onDrop(event);
+    });
+
+    expect(result.current.edges).toHaveLength(1);
+    expect(result.current.edges[0]?.selected).toBe(false);
+    expect(result.current.edges[0]?.data).not.toHaveProperty("selectedEdgeIds");
+  });
+
   it("remaps group bundle offset keys when a re-dropped template renames colliding ids", () => {
     // Regression for the RB-59 follow-up: template drops also go through
     // importWithFreshIds and must remap data.groupBundlePortOffsets keys.

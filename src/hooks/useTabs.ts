@@ -26,6 +26,10 @@ import type {
 import { sanitizeGroupBundleVisualElementsForState } from "@/lib/flow/groupEdgeBundling";
 import { normalizeAndDedupeEdgeConnections } from "@/lib/flow/edgeNormalization";
 import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
+import {
+  stripEphemeralEdgeUiState,
+  stripEphemeralNodeUiState,
+} from "@/lib/flow/ephemeralState";
 
 export interface FlowTab {
   id: string;
@@ -142,9 +146,13 @@ function normalizeArchive(value: unknown): FlowTabArchive {
     nodes: rawNodes,
     edges: rawEdges,
   });
-  const nodes = stripLegacyFlowMapNodeData(canonicalGraph.nodes);
+  const nodes = stripEphemeralNodeUiState(
+    stripLegacyFlowMapNodeData(canonicalGraph.nodes)
+  );
   const normalizedEdges = normalizeAndDedupeEdgeConnections(canonicalGraph.edges);
-  const edges = filterEdgesForNodes(nodes, normalizedEdges);
+  const edges = stripEphemeralEdgeUiState(
+    filterEdgesForNodes(nodes, normalizedEdges)
+  );
   const scriptSteps = sanitizeScriptSteps(maybe.scriptSteps);
   return {
     nodes,
@@ -799,13 +807,14 @@ export function useTabs({
         nodes: rawCurrentNodes,
         edges: rawCurrentEdges,
       });
-      const currentNodes = stripLegacyFlowMapNodeData(canonicalGraph.nodes);
+      const currentNodes = stripEphemeralNodeUiState(
+        stripLegacyFlowMapNodeData(canonicalGraph.nodes)
+      );
       const canonicalCurrentEdges = normalizeAndDedupeEdgeConnections(
         canonicalGraph.edges
       );
-      const currentEdges = filterEdgesForNodes(
-        currentNodes,
-        canonicalCurrentEdges
+      const currentEdges = stripEphemeralEdgeUiState(
+        filterEdgesForNodes(currentNodes, canonicalCurrentEdges)
       );
       if (currentEdges.length !== canonicalCurrentEdges.length) {
         console.warn(

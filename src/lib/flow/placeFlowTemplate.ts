@@ -1,6 +1,10 @@
 import type { Edge, Viewport } from "@xyflow/react";
 
 import type { FlowData, FlowNode } from "@/types";
+import {
+  stripEphemeralEdgeUiState,
+  stripEphemeralNodeUiState,
+} from "@/lib/flow/ephemeralState";
 
 export const FLOW_TEMPLATE_DROP_ZOOM = 0.5;
 
@@ -41,8 +45,13 @@ export function placeFlowDataAtPosition(
   });
 
   return {
-    nodes: translated,
-    edges: flowData.edges,
+    nodes: stripEphemeralNodeUiState(translated, true),
+    edges: stripEphemeralEdgeUiState(
+      flowData.edges.map((edge) => ({
+        ...edge,
+        ...(edge.data ? { data: { ...edge.data } } : {}),
+      }))
+    ),
     anchorPosition: { x: dropX, y: dropY },
   };
 }

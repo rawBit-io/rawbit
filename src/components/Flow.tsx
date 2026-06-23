@@ -106,6 +106,10 @@ import { pruneDanglingEdges } from "@/lib/flow/pruneDanglingEdges";
 import { log } from "@/lib/logConfig";
 import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
 import {
+  stripEphemeralEdgeUiState,
+  stripEphemeralNodeUiState,
+} from "@/lib/flow/ephemeralState";
+import {
   getFlowTemplateViewport,
   placeFlowDataAtPosition,
 } from "@/lib/flow/placeFlowTemplate";
@@ -2158,16 +2162,45 @@ function FlowContent() {
     setShowSearchPanel,
   });
 
+  const clearLiveCanvasSelection = useCallback(() => {
+    setIsSearchHighlight(false);
+    clearHighlights();
+
+    const store = storeApi.getState();
+    const selectedNodes = store.nodes.filter((node) => node.selected);
+    const selectedEdges = store.edges.filter((edge) => edge.selected);
+
+    store.resetSelectedElements?.();
+    if (selectedNodes.length || selectedEdges.length) {
+      store.unselectNodesAndEdges?.({
+        nodes: selectedNodes,
+        edges: selectedEdges,
+      });
+    }
+
+    setNodes((existing) => stripEphemeralNodeUiState(existing));
+    setEdges((existing) => stripEphemeralEdgeUiState(existing));
+  }, [
+    clearHighlights,
+    setEdges,
+    setIsSearchHighlight,
+    setNodes,
+    storeApi,
+  ]);
+
   const handleSelectTab = useCallback(
     (tabId: string) => {
+      if (tabId === activeTabId) return;
+      clearLiveCanvasSelection();
       selectTab(tabId);
     },
-    [selectTab]
+    [activeTabId, clearLiveCanvasSelection, selectTab]
   );
 
   const handleAddTab = useCallback(() => {
+    clearLiveCanvasSelection();
     addTab();
-  }, [addTab]);
+  }, [addTab, clearLiveCanvasSelection]);
 
   /* -------------------------------------------------------------------- */
   /*  Help system — open a help tab, play concept demos, stop demos.      */
