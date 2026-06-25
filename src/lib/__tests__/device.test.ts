@@ -11,13 +11,24 @@ describe("shouldBlockMobile", () => {
     ).toBe(true);
   });
 
-  it("does not block wide screens even with mobile UA", () => {
+  it("blocks wide screens with mobile or tablet user agents", () => {
     expect(
       shouldBlockMobile({
         width: DESKTOP_BREAKPOINT + 200,
         userAgent: "iPad",
       })
-    ).toBe(false);
+    ).toBe(true);
+  });
+
+  it("blocks iPadOS desktop-mode Safari", () => {
+    expect(
+      shouldBlockMobile({
+        width: DESKTOP_BREAKPOINT + 200,
+        userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15)",
+        platform: "MacIntel",
+        maxTouchPoints: 5,
+      })
+    ).toBe(true);
   });
 
   it("blocks when coarse pointer is detected on small viewports", () => {
@@ -40,6 +51,8 @@ describe("shouldBlockMobile", () => {
       shouldBlockMobile({
         width: belowDesktop,
         userAgent: "Mozilla/5.0 (Macintosh)",
+        platform: "MacIntel",
+        maxTouchPoints: 0,
         coarsePointer: false,
         userAgentDataMobile: false,
       })

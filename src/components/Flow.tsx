@@ -242,6 +242,7 @@ const LIMIT_ERROR_PATTERNS = [
 const FIRST_RUN_STORAGE_KEY = "rawbit.ui.welcomeSeen";
 const INTRO_FLOW_ID = "flow-0";
 const TOP_LEVEL_FLOW_SECTION = "top-level";
+const MOBILE_EXAMPLE_FLOW_SECTIONS = new Set([TOP_LEVEL_FLOW_SECTION, "legacy"]);
 const INTRO_FLOW_DROP_FLOW_POSITION = { x: 0, y: 0 };
 const INTRO_FLOW_DROP_POINT = { x: 112, y: 88 };
 const INTRO_FLOW_DROP_ZOOM = 0.27;
@@ -391,6 +392,8 @@ function getCurrentMobileBlockState() {
     width: window.innerWidth,
     coarsePointer,
     userAgent: nav?.userAgent,
+    platform: nav?.platform,
+    maxTouchPoints: nav?.maxTouchPoints,
     userAgentDataMobile: nav?.userAgentData?.mobile,
   });
 }
@@ -646,16 +649,13 @@ function FlowContent() {
     () => customFlows.map((flow) => ({ id: flow.id, label: flow.label })),
     []
   );
-  const visibleExampleFlowOptions = useMemo(
+  const mobileExampleFlowOptions = useMemo(
     () =>
       customFlows
-        .filter((flow) => flow.section === TOP_LEVEL_FLOW_SECTION)
+        .filter((flow) => MOBILE_EXAMPLE_FLOW_SECTIONS.has(flow.section))
         .map((flow) => ({ id: flow.id, label: flow.label })),
     []
   );
-  const mobileExampleFlowOptions = visibleExampleFlowOptions.length
-    ? visibleExampleFlowOptions
-    : exampleFlowOptions;
   const mobileIntroGraph = useMemo(() => {
     if (!showMobileIntroPreview) return null;
 

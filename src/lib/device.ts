@@ -24,19 +24,24 @@ export const DESKTOP_BREAKPOINT = 1280;
 export type MobileBlockContext = {
   width: number;
   userAgent?: string;
+  platform?: string;
   coarsePointer?: boolean;
+  maxTouchPoints?: number;
   userAgentDataMobile?: boolean;
 };
 
 /**
- * Returns true when the current environment looks like a touch/mobile device
- * and the viewport width is below the desktop breakpoint.
+ * Returns true when the current environment looks like a phone/tablet device.
+ * Explicit mobile/tablet signals win at any viewport width; the desktop
+ * breakpoint is only a fallback for ambiguous coarse-pointer environments.
  */
 export function shouldBlockMobile(context: MobileBlockContext): boolean {
   const {
     width,
     userAgent = "",
+    platform = "",
     coarsePointer = false,
+    maxTouchPoints = 0,
     userAgentDataMobile = false,
   } = context;
 
@@ -45,9 +50,16 @@ export function shouldBlockMobile(context: MobileBlockContext): boolean {
   }
 
   const uaLooksMobile = MOBILE_USER_AGENT_REGEX.test(userAgent);
-  const isLikelyTouch = Boolean(
-    coarsePointer || userAgentDataMobile || uaLooksMobile
+  const isIpadDesktopMode = Boolean(
+    /\bMac/i.test(platform) && maxTouchPoints > 1
+  );
+  const hasExplicitMobileSignal = Boolean(
+    userAgentDataMobile || uaLooksMobile || isIpadDesktopMode
   );
 
-  return isLikelyTouch && width < DESKTOP_BREAKPOINT;
+  if (hasExplicitMobileSignal) {
+    return true;
+  }
+
+  return coarsePointer && width < DESKTOP_BREAKPOINT;
 }

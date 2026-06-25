@@ -275,13 +275,13 @@ vi.mock("@/my_tx_flows/customFlows", () => ({
       } as FlowData,
     },
     {
-      id: "older-flow",
-      label: "Older flow",
-      section: "legacy-foundations",
+      id: "legacy-flow",
+      label: "Legacy flow",
+      section: "legacy",
       data: {
         nodes: [
           {
-            id: "older-node",
+            id: "legacy-node",
             type: "calculation",
             position: { x: 0, y: 0 },
             data: { functionName: "identity", numInputs: 1 },
@@ -289,7 +289,25 @@ vi.mock("@/my_tx_flows/customFlows", () => ({
         ],
         edges: [],
         schemaVersion: 1,
-        name: "Older flow data",
+        name: "Legacy flow data",
+      } as FlowData,
+    },
+    {
+      id: "legacy-foundations-flow",
+      label: "Legacy foundations flow",
+      section: "legacy-foundations",
+      data: {
+        nodes: [
+          {
+            id: "legacy-foundations-node",
+            type: "calculation",
+            position: { x: 0, y: 0 },
+            data: { functionName: "identity", numInputs: 1 },
+          } as FlowNode,
+        ],
+        edges: [],
+        schemaVersion: 1,
+        name: "Legacy foundations flow data",
       } as FlowData,
     },
   ],
@@ -775,7 +793,7 @@ describe("Flow first-run dialog", () => {
       });
 
     try {
-      const { getByText, queryByText } = renderFlow();
+      const { getByText } = renderFlow();
 
       await waitFor(() => {
         rafCallbacks.splice(0).forEach((cb) => cb(0));
@@ -786,8 +804,7 @@ describe("Flow first-run dialog", () => {
       expect(getByText("Load example flow")).toBeTruthy();
       expect(
         firstRunDialogProps.current?.flows.map((flow) => flow.label)
-      ).toEqual(["Example flow"]);
-      expect(queryByText("Older flow")).toBeNull();
+      ).toEqual(["Example flow", "Legacy flow"]);
       expect(flowCanvasProps.current?.nodes.map((node) => node.id)).toEqual([
         "overview-node",
         "calc-node",
