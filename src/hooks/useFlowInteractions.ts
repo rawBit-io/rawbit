@@ -113,6 +113,43 @@ const dirtyNodeIdsFromEdgeChanges = (
   return dirtyIds;
 };
 
+const hasOwn = (value: object, key: PropertyKey): boolean =>
+  Object.prototype.hasOwnProperty.call(value, key);
+
+const groupBundlePortOffsetsChanged = (
+  before: FlowNode | undefined,
+  after: FlowNode | undefined
+): boolean => {
+  const beforeData = before?.data as Record<string, unknown> | undefined;
+  const afterData = after?.data as Record<string, unknown> | undefined;
+  const beforeHasOffsets = beforeData
+    ? hasOwn(beforeData, "groupBundlePortOffsets")
+    : false;
+  const afterHasOffsets = afterData
+    ? hasOwn(afterData, "groupBundlePortOffsets")
+    : false;
+
+  if (!beforeHasOffsets && !afterHasOffsets) return false;
+
+  return (
+    JSON.stringify(beforeData?.groupBundlePortOffsets ?? null) !==
+    JSON.stringify(afterData?.groupBundlePortOffsets ?? null)
+  );
+};
+
+const hasUndoableCleanNodeReplacement = (
+  changes: NodeChange<FlowNode>[],
+  beforeNodes: FlowNode[]
+): boolean => {
+  const beforeById = new Map(beforeNodes.map((node) => [node.id, node]));
+
+  return changes.some(
+    (change) =>
+      change.type === "replace" &&
+      groupBundlePortOffsetsChanged(beforeById.get(change.id), change.item)
+  );
+};
+
 interface UseFlowInteractionsOptions {
   rawOnNodesChange: (changes: NodeChange<FlowNode>[]) => void;
   rawOnEdgesChange: (changes: EdgeChange[]) => void;
@@ -640,13 +677,19 @@ export function useFlowInteractions({
           dragStartPositionsRef.current.clear();
         }
       } else if (typedChange) {
+        const shouldSnapshotCleanReplacement =
+          hasUndoableCleanNodeReplacement(changes, beforeNodes);
         incRev();
         requestAnimationFrame(() => {
           const anyDirty = getNodes().some((node) => node.data?.dirty);
           if (anyDirty) {
-            markPendingAfterDirtyChange();
+            if (!pendingSnapshotRef.current) {
+              markPendingAfterDirtyChange();
+            }
             skipNextEdgeSnapshotRef.current = true;
-          } else {
+          } else if (pendingSnapshotRef.current) {
+            skipNextEdgeSnapshotRef.current = true;
+          } else if (shouldSnapshotCleanReplacement) {
             scheduleSnapshot("Node data changed", { refresh: true });
           }
         });
@@ -658,6 +701,7 @@ export function useFlowInteractions({
       isPastingRef,
       loadingUndoRef,
       markPendingAfterDirtyChange,
+      pendingSnapshotRef,
       rawOnNodesChange,
       scheduleSnapshot,
       skipNextEdgeSnapshotRef,

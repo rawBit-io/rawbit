@@ -105,6 +105,21 @@ const FLOW_SCENARIOS: Scenario[] = [
     scriptNode: 'node_NwoZ2skX', // Verify Script (bare multisig spend, tx2)
   },
   {
+    // Always-visible lesson flow #04 (sidebar "P2SH Recovery with OP_RETURN").
+    // Tx1 creates the P2SH inheritance output plus encrypted OP_RETURN data;
+    // tx2 recovers the redeemScript and spends the P2SH output. Tweaking both
+    // output amounts must ripple through setup txid, recovery preimage,
+    // signature, final txid, and P2SH script verification.
+    name: 'p5_P2SH_and_OP_Return',
+    relativePath: path.join('src', 'my_tx_flows', 'p5_P2SH_and_OP_Return.json'),
+    nodeChanges: {
+      node_IRajBmor: '243000', // Setup tx P2SH output amount (244000 → 243000)
+      node_r8VAbdiM: '239000', // Recovery tx output amount (240000 → 239000)
+    },
+    txidNode: 'node_eNCddbzM', // TXID → Reversed of the P2SH recovery spend
+    scriptNode: 'node_DL8WMoIO', // Verify Script (P2SH recovery spend)
+  },
+  {
     name: 'p1_Intro_P2PKH_and_P2PK',
     relativePath: path.join('src', 'my_tx_flows', 'old', 'p1_Intro_P2PKH_and_P2PK.json'),
     nodeChanges: {

@@ -30,8 +30,8 @@
       "id": "group_7v4cyqu",
       "type": "shadcnGroup",
       "position": {
-        "x": 5157.459074724119,
-        "y": 2321.1026123233496
+        "x": -328.02791238450936,
+        "y": 7766.563841699623
       },
       "data": {
         "isGroup": true,
@@ -58,8 +58,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 19827.185010644713,
-        "y": -465.9833254599987
+        "x": 14341.698023536084,
+        "y": 4979.477903916274
       },
       "data": {
         "isGroup": true,
@@ -91,8 +91,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 16202.73554958489,
-        "y": -4130.7615027625825
+        "x": 10717.248562476261,
+        "y": 1314.6997266136905
       },
       "data": {
         "isGroup": true,
@@ -121,8 +121,8 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 11066.54286932461,
-        "y": -2494.0471526244764
+        "x": 5581.055882215982,
+        "y": 2951.4140767517965
       },
       "data": {
         "isGroup": true,
@@ -155,8 +155,8 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": 427.67228540880956,
-        "y": 751.6907393321073
+        "x": -5057.814701699819,
+        "y": 6197.15196870838
       },
       "data": {
         "isGroup": true,
@@ -184,8 +184,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 7807.729217073074,
-        "y": -4999.91599387351
+        "x": 2322.242229964446,
+        "y": 445.5452355027628
       },
       "data": {
         "isGroup": true,
@@ -1899,8 +1899,8 @@
       "id": "node_nd5uge0",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 405,
-        "y": 225
+        "x": -5080.486987108628,
+        "y": 5670.461229376273
       },
       "data": {
         "content": "#  Inheritance Script\n```\nOP_IF\n    <owner_pubkey> OP_CHECKSIG                 \nOP_ELSE\n    <unlock_time> OP_CHECKLOCKTIMEVERIFY OP_DROP\n    <heir_pubkey> OP_CHECKSIG                  \nOP_ENDIF\n```",
@@ -3080,8 +3080,8 @@
       "id": "node_75JB67PO",
       "type": "shadcnGroup",
       "position": {
-        "x": 36351.80217302259,
-        "y": 9107.44497743868
+        "x": 30866.31518591396,
+        "y": 14552.906206814952
       },
       "data": {
         "isGroup": true,
@@ -3109,8 +3109,8 @@
       "id": "node_TC7BVduR",
       "type": "shadcnGroup",
       "position": {
-        "x": 31626.259893921215,
-        "y": 5323.285644780675
+        "x": 26140.772906812585,
+        "y": 10768.746874156948
       },
       "data": {
         "isGroup": true,
@@ -3141,8 +3141,8 @@
       "id": "node_L0EP4zuC",
       "type": "shadcnGroup",
       "position": {
-        "x": 24632.44659329815,
-        "y": 7071.947613339104
+        "x": 19146.95960618952,
+        "y": 12517.408842715377
       },
       "data": {
         "isGroup": true,
@@ -4755,8 +4755,8 @@
       "id": "node_JXkIOct0",
       "type": "shadcnGroup",
       "position": {
-        "x": 21795.631060237203,
-        "y": 10458.83606730005
+        "x": 16310.144073128575,
+        "y": 15904.297296676323
       },
       "data": {
         "isGroup": true,
@@ -5325,8 +5325,8 @@
       "id": "node_3gpktfq",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 5144.671770349498,
-        "y": 1663.0531719232572
+        "x": -340.81521675913064,
+        "y": 7108.51440129953
       },
       "data": {
         "content": "## Using Identifiers in OP_RETURN\n\nWhen storing encrypted recovery data in an `OP_RETURN`, it is useful to add a short, human-readable **prefix** at the beginning.\n\n**Why it helps:**\n- Makes the transaction easy to find on block explorers\n- Distinguishes it from other `OP_RETURN` outputs\n- Supports versioning and can include short instructions\n\n**Recommended approach:**  \nUse a short cleartext prefix followed by the encrypted redeemScript. This improves discoverability while keeping the sensitive content encrypted.",
@@ -5343,8 +5343,8 @@
       "id": "node_kn7y2jz",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 9542.301747289832,
-        "y": -1276.6703608774974
+        "x": 4056.8147601812034,
+        "y": 4168.790868498776
       },
       "data": {
         "content": "## Try it yourself\n\n- Do it the **classical way**: Instead of using the decrypted data from the `OP_RETURN`, get the redeemScript directly from the original **redeemScript builder** node (as if you had saved it off-chain when creating the inheritance). Feed it into the spending `scriptSig` and verify that **Verify Script** still passes.\n\n### Start with fresh funding address\n*These exercises modify the transaction structure — fund a new address first so you can broadcast and verify your variation on testnet4.*\n\n- Create your own inheritance transaction using a **new funding UTXO**.\n- In a real setup you would typically create **two `OP_RETURN` outputs** — one encrypted to the owner and one encrypted to the heir (each using their respective public key). Try implementing this.\n- Add a short **human-readable identifier** at the beginning of the `OP_RETURN`(s).\n- Spend the P2SH output using the **heir path** (`OP_0` + sufficient `nLockTime`).\n- Verify the transaction with the **Verify Script** node.",
@@ -5362,8 +5362,8 @@
       "id": "node_x52rof9",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 9524.397064542367,
-        "y": -2450.8256254695953
+        "x": 4038.9100774337385,
+        "y": 2994.6356039066777
       },
       "data": {
         "content": "# Overview: P2SH Recovery with Encrypted OP_RETURN\n\nThis flow demonstrates a **P2SH inheritance pattern** on testnet4 where the redeemScript is stored encrypted on-chain inside an `OP_RETURN`.\n\nThe funding transaction creates two outputs:\n- **Output 1**: P2SH output locking funds to `HASH160(redeemScript)`\n- **Output 2**: `OP_RETURN` containing the redeemScript encrypted with ECIES\n\n**Why this matters:**\n\nIn classic P2SH inheritance, heirs must securely store and update the redeemScript off-chain. Losing it can make coins permanently unspendable.\n\nThis flow puts the recovery data **on-chain but encrypted**, removing the need for heirs to manage off-chain backups.\n\n> **Note:** With many heirs, a more efficient approach is to encrypt the redeemScript once (symmetric encryption) and then encrypt the key for each heir. This example uses per-heir encryption for simplicity.",
@@ -5380,11 +5380,11 @@
       "id": "node_wpwsvgv",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 5800.486987108628,
-        "y": -5280.461229376273
+        "x": 265.7409321322611,
+        "y": 255.30829109085465
       },
       "data": {
-        "content": "## P2SH Inheritance: Risk vs On-Chain Recovery\n\n**The Problem with Classic P2SH Inheritance**\n\nIn traditional P2SH setups, the full `redeemScript` is **not stored on-chain**. Heirs must receive, securely store, and update this script off-chain for many years. If the redeemScript is lost or corrupted the coins can become permanently unspendable — even if the heir still controls the correct private key.\n\n### Proposal\n\nInstead of relying only on off-chain storage, this approach stores an encrypted copy of the redeemScript directly on-chain inside the `OP_RETURN`. This reduces the risk of losing the redeemScript while keeping the actual script content private.\n\n",
+        "content": "## P2SH Inheritance: Risk vs On-Chain Recovery\n\n**The Problem with Classic P2SH Inheritance**\n\nIn traditional P2SH setups, the full `redeemScript` is **not stored on-chain**. Heirs must receive and securely store  it off-chain for many years. If the redeemScript is lost or corrupted the coins can become permanently unspendable — even if the heir still controls the correct private key.\n\n### Proposal\n\nInstead of relying only on off-chain storage, this approach stores an encrypted copy of the redeemScript directly on-chain inside the `OP_RETURN`. This reduces the risk of losing the redeemScript while keeping the actual script content private.\n\n",
         "fontSize": 36,
         "width": 958,
         "height": 968,
@@ -5398,8 +5398,8 @@
       "id": "node_mhkgx80",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 6977.856727488895,
-        "y": -4972.461596106199
+        "x": 1492.3697403802662,
+        "y": 472.9996332700739
       },
       "data": {
         "content": "## How This Flow Works\n\nThis flow demonstrates the following on testnet4:\n\n1. Create and fund a **P2PKH address** with testnet coins.\n2. Spend that UTXO in a **setup transaction** that creates:\n   - A P2SH output (the actual inheritance funds)\n   - An `OP_RETURN` output containing the redeemScript encrypted with ECIES\n3. Spend the P2SH output in a **recovery transaction** using the owner path (`OP_1`).\n\n\n> **Note:** In this simplified example, the redeemScript is encrypted to the **owner** key. In a real inheritance setup, you would typically encrypt it to the heir(s).",
@@ -6096,19 +6096,22 @@
       "id": "edge_nkp55lm",
       "source": "node_etLEX9PD",
       "target": "node_UIgo6BTD",
-      "targetHandle": "input-3110"
+      "targetHandle": "input-3110",
+      "selected": false
     },
     {
       "id": "edge_s9eoxc8",
       "source": "node_k6z1XgFS",
       "target": "node_UIgo6BTD",
-      "targetHandle": "input-3120"
+      "targetHandle": "input-3120",
+      "selected": false
     },
     {
       "id": "edge_3096mwx",
       "source": "node_pJEhh73h",
       "target": "node_qMmh8Zrk",
-      "targetHandle": "input-3100"
+      "targetHandle": "input-3100",
+      "selected": false
     },
     {
       "id": "edge_5bidi7s",
@@ -6121,7 +6124,8 @@
       "id": "edge_3xtaav7",
       "source": "node_k6z1XgFS",
       "target": "node_qMmh8Zrk",
-      "targetHandle": "input-3120"
+      "targetHandle": "input-3120",
+      "selected": false
     },
     {
       "source": "node_zrX8eFjH",
@@ -6443,7 +6447,8 @@
       "id": "edge_wzzcw94",
       "source": "node_qMmh8Zrk",
       "target": "node_Bd3AR5Eo",
-      "targetHandle": "input-0"
+      "targetHandle": "input-0",
+      "selected": false
     },
     {
       "source": "node_Dj53D8z4",
@@ -6505,13 +6510,15 @@
       "id": "edge_jci5qww",
       "source": "node_jM1BkHeL",
       "target": "node_KhBksA9T",
-      "targetHandle": "input-3010"
+      "targetHandle": "input-3010",
+      "selected": false
     },
     {
       "id": "edge_o47a32x",
       "source": "node_7bQgp6gF",
       "target": "node_KhBksA9T",
-      "targetHandle": "input-3020"
+      "targetHandle": "input-3020",
+      "selected": false
     },
     {
       "id": "edge_gxkw3ke",
@@ -6538,13 +6545,15 @@
       "id": "edge_hof6gwx",
       "source": "node_jM1BkHeL",
       "target": "node_k87GKtyf",
-      "targetHandle": "input-3010"
+      "targetHandle": "input-3010",
+      "selected": false
     },
     {
       "id": "edge_uei6fir",
       "source": "node_7bQgp6gF",
       "target": "node_k87GKtyf",
-      "targetHandle": "input-3020"
+      "targetHandle": "input-3020",
+      "selected": false
     },
     {
       "id": "edge_T3BKnDsm",
@@ -6572,13 +6581,15 @@
       "id": "edge_55teiat",
       "source": "node_PLQzVjhU",
       "target": "node_AZFvFk1v",
-      "targetHandle": "input-0"
+      "targetHandle": "input-0",
+      "selected": false
     },
     {
       "id": "enode_qMmh8Zrk-node_Y3G6Rw74-input-0",
       "source": "node_qMmh8Zrk",
       "target": "node_Y3G6Rw74",
-      "targetHandle": "input-0"
+      "targetHandle": "input-0",
+      "selected": false
     },
     {
       "id": "edge_9v832sq",
@@ -6598,20 +6609,23 @@
       "id": "edge_ws1abqa",
       "source": "node_6hj0yFUe",
       "target": "node_yQ99yG0Y",
-      "targetHandle": "input-0"
+      "targetHandle": "input-0",
+      "selected": false
     },
     {
       "id": "edge_jhhgk4z",
       "source": "node_6hj0yFUe",
       "target": "node_zHaHc24U",
-      "targetHandle": "input-400"
+      "targetHandle": "input-400",
+      "selected": false
     },
     {
       "id": "edge_nt6cxt1",
       "source": "node_Bd3AR5Eo",
       "target": "node_DL8WMoIO",
       "sourceHandle": "output-1",
-      "targetHandle": "input-1"
+      "targetHandle": "input-1",
+      "selected": false
     }
   ]
 }

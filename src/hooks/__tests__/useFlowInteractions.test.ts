@@ -1127,4 +1127,152 @@ describe("useFlowInteractions", () => {
       refresh: true,
     });
   });
+
+  it("does not bump the after-calc token for dirty replacements while one is already pending", () => {
+    const deps = baseDeps();
+    deps.pendingSnapshotRef.current = true;
+    let nodesState: FlowNode[] = [
+      {
+        id: "node-a",
+        type: "calculation",
+        position: { x: 0, y: 0 },
+        data: {
+          dirty: true,
+          value: "old result",
+        },
+      } as FlowNode,
+    ];
+    const edgesState: Edge[] = [];
+
+    const getNodes = () => nodesState;
+    const getEdges = () => edgesState;
+    const setNodes = (updater: (nodes: FlowNode[]) => FlowNode[]) => {
+      nodesState = updater(nodesState);
+    };
+    const setEdges = vi.fn<(updater: (edges: Edge[]) => Edge[]) => void>();
+    const change = {
+      id: "node-a",
+      type: "replace",
+      item: {
+        ...nodesState[0],
+        data: {
+          ...nodesState[0].data,
+          value: "new result",
+        },
+      },
+    } as NodeChange<FlowNode>;
+
+    const { result } = renderHook(() =>
+      useFlowInteractions({
+        ...deps,
+        rawOnNodesChange: deps.rawOnNodesChange,
+        rawOnEdgesChange: deps.rawOnEdgesChange,
+        onConnect: deps.onConnect,
+        onDrop: deps.onDrop,
+        onNodeDragStop: deps.onNodeDragStop,
+        getNodes,
+        getEdges,
+        setNodes,
+        setEdges,
+        getTopLeftPosition: deps.getTopLeftPosition,
+        pasteNodes: deps.pasteNodes,
+        isSidebarOpen: false,
+        setTabTooltip: deps.setTabTooltip,
+        renameTab: deps.renameTab,
+        activeTabId: "tab-1",
+        groupSelectedNodes: deps.groupSelectedNodes,
+        ungroupSelectedNodes: deps.ungroupSelectedNodes,
+        clearHighlights: deps.clearHighlights,
+        setIsSearchHighlight: deps.setIsSearchHighlight,
+        incRev: deps.incRev,
+        pushCleanState: deps.pushCleanState,
+        updatePaletteEligibility: deps.updatePaletteEligibility,
+        skipNextNodeRemovalRef: deps.skipNextNodeRemovalRef,
+        releaseNodeRemovalSnapshotSkip: deps.releaseNodeRemovalSnapshotSkip,
+      })
+    );
+
+    act(() => {
+      result.current.onNodesChange([change]);
+    });
+
+    expect(deps.rawOnNodesChange).toHaveBeenCalledWith([change]);
+    expect(deps.incRev).toHaveBeenCalledTimes(1);
+    expect(deps.markPendingAfterDirtyChange).not.toHaveBeenCalled();
+    expect(deps.scheduleSnapshot).not.toHaveBeenCalled();
+    expect(deps.skipNextEdgeSnapshotRef.current).toBe(true);
+  });
+
+  it("does not record clean calculation result replacements as undo snapshots", () => {
+    const deps = baseDeps();
+    let nodesState: FlowNode[] = [
+      {
+        id: "node-a",
+        type: "calculation",
+        position: { x: 0, y: 0 },
+        data: {
+          dirty: false,
+          result: "old result",
+        },
+      } as FlowNode,
+    ];
+    const edgesState: Edge[] = [];
+
+    const getNodes = () => nodesState;
+    const getEdges = () => edgesState;
+    const setNodes = (updater: (nodes: FlowNode[]) => FlowNode[]) => {
+      nodesState = updater(nodesState);
+    };
+    const setEdges = vi.fn<(updater: (edges: Edge[]) => Edge[]) => void>();
+    const change = {
+      id: "node-a",
+      type: "replace",
+      item: {
+        ...nodesState[0],
+        data: {
+          ...nodesState[0].data,
+          result: "new result",
+        },
+      },
+    } as NodeChange<FlowNode>;
+
+    const { result } = renderHook(() =>
+      useFlowInteractions({
+        ...deps,
+        rawOnNodesChange: deps.rawOnNodesChange,
+        rawOnEdgesChange: deps.rawOnEdgesChange,
+        onConnect: deps.onConnect,
+        onDrop: deps.onDrop,
+        onNodeDragStop: deps.onNodeDragStop,
+        getNodes,
+        getEdges,
+        setNodes,
+        setEdges,
+        getTopLeftPosition: deps.getTopLeftPosition,
+        pasteNodes: deps.pasteNodes,
+        isSidebarOpen: false,
+        setTabTooltip: deps.setTabTooltip,
+        renameTab: deps.renameTab,
+        activeTabId: "tab-1",
+        groupSelectedNodes: deps.groupSelectedNodes,
+        ungroupSelectedNodes: deps.ungroupSelectedNodes,
+        clearHighlights: deps.clearHighlights,
+        setIsSearchHighlight: deps.setIsSearchHighlight,
+        incRev: deps.incRev,
+        pushCleanState: deps.pushCleanState,
+        updatePaletteEligibility: deps.updatePaletteEligibility,
+        skipNextNodeRemovalRef: deps.skipNextNodeRemovalRef,
+        releaseNodeRemovalSnapshotSkip: deps.releaseNodeRemovalSnapshotSkip,
+      })
+    );
+
+    act(() => {
+      result.current.onNodesChange([change]);
+    });
+
+    expect(deps.rawOnNodesChange).toHaveBeenCalledWith([change]);
+    expect(deps.incRev).toHaveBeenCalledTimes(1);
+    expect(deps.markPendingAfterDirtyChange).not.toHaveBeenCalled();
+    expect(deps.scheduleSnapshot).not.toHaveBeenCalled();
+  });
 });
