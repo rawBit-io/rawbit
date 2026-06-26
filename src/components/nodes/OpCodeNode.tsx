@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils";
 import type { FlowNode } from "@/types";
 import { useSnapshotSchedulerContext } from "@/hooks/useSnapshotSchedulerContext";
 import { useClipboardLite } from "@/hooks/nodes/useClipboardLite";
+import { useDismissNodeMenuOnCanvasPointerDown } from "@/hooks/nodes/useDismissNodeMenuOnCanvasPointerDown";
 import { OpcodeMiniView } from "./opcode/OpcodeMiniView";
 
 import {
@@ -90,6 +91,7 @@ export default function OpCodeNode({
 
   /* ------------ UI state ------------ */
   const [showCode, setShowCode] = useState(false);
+  const [nodeMenuOpen, setNodeMenuOpen] = useState(false);
   const [miniSearch, setMiniSearch] = useState("");
   const currentComment = typeof data.comment === "string" ? data.comment : "";
   const [commentDraft, setCommentDraft] = useState(currentComment);
@@ -104,6 +106,10 @@ export default function OpCodeNode({
       setCommentDraft(currentComment);
     }
   }, [currentComment, isCommentEditing]);
+
+  useDismissNodeMenuOnCanvasPointerDown(nodeMenuOpen, () => {
+    setNodeMenuOpen(false);
+  });
 
   /* ------------ Derive selected opcodes from node data ------------ */
   // Keep display indices aligned with the stored name list: unknown names
@@ -320,7 +326,11 @@ export default function OpCodeNode({
           {data.title || "Opcode Sequence"}
         </div>
         <div className="flex shrink-0 items-center space-x-1">
-          <DropdownMenu modal={false}>
+          <DropdownMenu
+            modal={false}
+            open={nodeMenuOpen}
+            onOpenChange={setNodeMenuOpen}
+          >
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-6 w-6 p-1">
                 <MoreHorizontal className="h-4 w-4" />

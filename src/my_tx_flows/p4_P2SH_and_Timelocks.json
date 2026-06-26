@@ -30,8 +30,8 @@
       "id": "node_ROZuZDm2",
       "type": "shadcnGroup",
       "position": {
-        "x": 12603.660486575242,
-        "y": 4069.08333051747
+        "x": 12528.660486575242,
+        "y": 4294.08333051747
       },
       "data": {
         "isGroup": true,
@@ -60,8 +60,8 @@
       "id": "node_MK258d3e",
       "type": "shadcnGroup",
       "position": {
-        "x": 8979.211025515418,
-        "y": 414.7578265036077
+        "x": 8904.211025515418,
+        "y": 639.7578265036077
       },
       "data": {
         "isGroup": true,
@@ -90,8 +90,8 @@
       "id": "node_nrvb8KUa",
       "type": "shadcnGroup",
       "position": {
-        "x": 3231.575186690563,
-        "y": 1259.3753575921542
+        "x": 3156.575186690563,
+        "y": 1484.3753575921542
       },
       "data": {
         "isGroup": true,
@@ -122,14 +122,14 @@
       "id": "node_kht0iiVH",
       "type": "shadcnGroup",
       "position": {
-        "x": -3335.3335187383545,
-        "y": 6362.362695289518
+        "x": -3410.3335187383545,
+        "y": 6587.362695289518
       },
       "data": {
         "isGroup": true,
         "width": 4917,
         "height": 3479,
-        "title": " ScriptPubkey",
+        "title": "Locking Script (P2PSH)",
         "dirty": false,
         "borderColor": "#a83a32",
         "fontSize": 36,
@@ -150,8 +150,8 @@
       "id": "node_5CvQEOUN",
       "type": "shadcnGroup",
       "position": {
-        "x": 13807.309731199157,
-        "y": 16121.985766659553
+        "x": 13732.309731199157,
+        "y": 16346.985766659553
       },
       "data": {
         "isGroup": true,
@@ -177,8 +177,8 @@
       "id": "node_yLMUFpMY",
       "type": "shadcnGroup",
       "position": {
-        "x": 8577.744095628657,
-        "y": 10888.903489917611
+        "x": 8502.744095628657,
+        "y": 11113.903489917611
       },
       "data": {
         "isGroup": true,
@@ -207,8 +207,8 @@
       "id": "node_qHLs1Tu4",
       "type": "shadcnGroup",
       "position": {
-        "x": 2933.4662064991753,
-        "y": 13418.118210852208
+        "x": 2858.4662064991753,
+        "y": 13643.118210852208
       },
       "data": {
         "isGroup": true,
@@ -239,14 +239,14 @@
       "id": "node_y4kVQeNY",
       "type": "shadcnGroup",
       "position": {
-        "x": -1029.8963096168136,
-        "y": 17026.84715459712
+        "x": -1104.8963096168136,
+        "y": 17251.84715459712
       },
       "data": {
         "isGroup": true,
         "width": 2478,
         "height": 1092,
-        "title": "Locking Script P2PKH",
+        "title": "Locking Script (P2PKH)",
         "dirty": false,
         "borderColor": "#a83a32",
         "fontSize": 44,
@@ -3285,8 +3285,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 375,
-        "y": 300
+        "x": 300,
+        "y": 525
       },
       "data": {
         "isGroup": true,
@@ -4192,8 +4192,8 @@
       "id": "node_nd5uge0",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -3342.565991058189,
-        "y": 5500.395230852403
+        "x": -3417.565991058189,
+        "y": 5725.395230852403
       },
       "data": {
         "content": "#  2 of 3 MultiSig with delayed recovery path\n```\nOP_IF\n    OP_2 <pubkey1> <pubkey2> <pubkey3> OP_3 OP_CHECKMULTISIG\nOP_ELSE\n    <block_delay> OP_CHECKSEQUENCEVERIFY OP_DROP\n    <recoveryPubkey> OP_CHECKSIG\nOP_ENDIF\n```",

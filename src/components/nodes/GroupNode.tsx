@@ -41,6 +41,7 @@ import type { CalculationNodeData, FlowNode } from "@/types";
 import { produce, setAutoFreeze } from "immer";
 import { EditableLabel } from "./common/EditableLabel";
 import { BorderDragHandles } from "./common/BorderDragHandles";
+import { useDismissNodeMenuOnCanvasPointerDown } from "@/hooks/nodes/useDismissNodeMenuOnCanvasPointerDown";
 import { useNodePortalMenu } from "@/hooks/nodes/useNodePortalMenu";
 
 setAutoFreeze(false);
@@ -125,6 +126,10 @@ export default function ShadcnGroupNode({
       anchorRef: menuAnchorRef as React.MutableRefObject<HTMLElement | null>,
       onClose: () => setShowMenu(false),
     });
+  useDismissNodeMenuOnCanvasPointerDown(showMenu, () => {
+    setShowMenu(false);
+  });
+
   const rawTitle = data.title || "Group Node";
   const { copyId, idCopied } = useClipboardLite({
     result: undefined,
@@ -855,7 +860,7 @@ export default function ShadcnGroupNode({
                   width: titleControlButtonSize,
                   height: titleControlButtonSize,
                 }}
-                onClick={() => setShowMenu((v) => !v)}
+                onClick={() => setShowMenu(!showMenu)}
                 onPointerDownCapture={handleHeaderControlPointerDown}
                 aria-label="More"
                 title="More"

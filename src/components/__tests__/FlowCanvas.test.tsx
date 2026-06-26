@@ -10,6 +10,7 @@ import {
   GROUP_BUNDLE_SEGMENT_EDGE_TYPE,
   isGroupBundleSegmentEdgeId,
 } from "@/lib/flow/groupEdgeBundling";
+import { DISMISS_NODE_MENUS_EVENT } from "@/lib/flow/nodeMenuEvents";
 import type { FlowNode } from "@/types";
 
 type ReactFlowSpyProps = Record<string, unknown>;
@@ -129,6 +130,26 @@ describe("FlowCanvas", () => {
 
     expect(reactFlowSpy.props.selectionOnDrag).toBe(true);
     expect(reactFlowSpy.props.panOnDrag).toEqual([1]);
+  });
+
+  it("broadcasts node-menu dismissal before canvas pointer downs reach nodes", () => {
+    const onDismiss = vi.fn();
+    window.addEventListener(DISMISS_NODE_MENUS_EVENT, onDismiss);
+
+    try {
+      render(<FlowCanvas {...baseProps} />);
+
+      const handler = reactFlowSpy.props.onPointerDownCapture as
+        | (() => void)
+        | undefined;
+      expect(typeof handler).toBe("function");
+
+      handler?.();
+
+      expect(onDismiss).toHaveBeenCalledTimes(1);
+    } finally {
+      window.removeEventListener(DISMISS_NODE_MENUS_EVENT, onDismiss);
+    }
   });
 
   it("disables edge selectability while drag-selection mode is active", () => {

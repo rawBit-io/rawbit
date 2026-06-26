@@ -3,7 +3,8 @@ import type { NodeData } from "@/types";
 import type { UseCalcNodeDerivedResult } from "@/hooks/nodes/useCalcNodeDerived";
 import type { ClipboardLiteResult } from "@/hooks/nodes/useClipboardLite";
 import userEvent from "@testing-library/user-event";
-import { fireEvent, screen } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
+import { DISMISS_NODE_MENUS_EVENT } from "@/lib/flow/nodeMenuEvents";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/components/dialog/ScriptExecutionSteps", () => ({
@@ -214,6 +215,55 @@ describe("CalculationNodeView", () => {
 
     const copyIdItem = screen.getByRole("menuitem", { name: /copied ✓/i });
     expect(copyIdItem).toBeInTheDocument();
+  });
+
+  it("closes the node menu on canvas pointer-down dismiss events", async () => {
+    const mut = createMut();
+    const clip = createClip();
+    const user = userEvent.setup();
+
+    renderWithProviders(
+      <CalculationNodeView
+        selected={false}
+        data={data}
+        rawTitle="Calc Node"
+        derived={derived}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        singleValue={undefined}
+        result="OK"
+        error={false}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: false,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    const menuTrigger = screen
+      .getAllByRole("button")
+      .find((btn) => btn.getAttribute("aria-haspopup") === "menu");
+    expect(menuTrigger).toBeDefined();
+
+    await user.click(menuTrigger!);
+    expect(screen.getByRole("menuitem", { name: /copy id/i })).toBeInTheDocument();
+
+    act(() => {
+      window.dispatchEvent(new Event(DISMISS_NODE_MENUS_EVENT));
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole("menuitem", { name: /copy id/i })
+      ).not.toBeInTheDocument();
+    });
   });
 
   it("falls back to 'Unknown error' in the tooltip when extendedError is missing", async () => {

@@ -29,6 +29,7 @@ import {
 } from "@/components/edges/GroupBundleEdge";
 import { GroupBundleSegmentEdge } from "@/components/edges/GroupBundleSegmentEdge";
 import { CanonicalGraphContext } from "@/contexts/canonical-graph";
+import { dispatchDismissNodeMenusEvent } from "@/lib/flow/nodeMenuEvents";
 import {
   buildGroupBundledElements,
   getGroupBundleSegmentEdgeIds,
@@ -705,6 +706,10 @@ export function FlowCanvas({
     [onPaneClick]
   );
 
+  const handleCanvasPointerDownCapture = useCallback(() => {
+    dispatchDismissNodeMenusEvent();
+  }, []);
+
   return (
     <CanonicalGraphContext.Provider value={canonicalGraph}>
       <GroupBundleEdgeSelectionProvider onSelectEdgeIds={handleBundleEdgeSelect}>
@@ -739,6 +744,7 @@ export function FlowCanvas({
           onDragOver={onDragOver}
           onNodeDragStop={onNodeDragStop}
           onPaneClick={handlePaneClick}
+          onPointerDownCapture={handleCanvasPointerDownCapture}
           onMoveEnd={onMoveEnd}
           minZoom={minZoom}
           maxZoom={maxZoom}

@@ -77,6 +77,7 @@ import type { ConnectionStatus } from "@/hooks/nodes/useCalcNodeDerived";
 import type { UseCalcNodeMutationsResult } from "@/hooks/nodes/useCalcNodeMutations";
 import type { UseGroupInstancesResult } from "@/hooks/nodes/useGroupInstances";
 import type { ClipboardLiteResult } from "@/hooks/nodes/useClipboardLite";
+import { useDismissNodeMenuOnCanvasPointerDown } from "@/hooks/nodes/useDismissNodeMenuOnCanvasPointerDown";
 
 const ScriptExecutionSteps = React.lazy(
   () => import("@/components/dialog/ScriptExecutionSteps")
@@ -366,6 +367,7 @@ export function CalculationNodeView({
   script,
 }: CalculationNodeViewProps) {
   const [showCode, setShowCode] = useState(false);
+  const [nodeMenuOpen, setNodeMenuOpen] = useState(false);
   const [showSteps, setShowSteps] = useState(false);
   const [scriptVerifyAdvancedOpen, setScriptVerifyAdvancedOpen] =
     useState(false);
@@ -378,6 +380,10 @@ export function CalculationNodeView({
       setCommentDraft(comment);
     }
   }, [comment, isCommentEditing]);
+
+  useDismissNodeMenuOnCanvasPointerDown(nodeMenuOpen, () => {
+    setNodeMenuOpen(false);
+  });
 
   const handleCommentFocus = useCallback((value: string) => {
     setIsCommentEditing(true);
@@ -1357,7 +1363,11 @@ export function CalculationNodeView({
             </Button>
           )}
 
-          <DropdownMenu modal={false}>
+          <DropdownMenu
+            modal={false}
+            open={nodeMenuOpen}
+            onOpenChange={setNodeMenuOpen}
+          >
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"

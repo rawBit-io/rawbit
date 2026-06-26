@@ -26,6 +26,7 @@ import { Minus, Plus, MoreHorizontal, Copy, Trash2, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mdToHtml } from "@/lib/markdown";
 import { useClipboardLite } from "@/hooks/nodes/useClipboardLite";
+import { useDismissNodeMenuOnCanvasPointerDown } from "@/hooks/nodes/useDismissNodeMenuOnCanvasPointerDown";
 import { useSnapshotSchedulerContext } from "@/hooks/useSnapshotSchedulerContext";
 import type { CalculationNodeData, FlowNode } from "@/types";
 import { resolveTextInfoDimensions } from "@/lib/textInfoDimensions";
@@ -295,6 +296,10 @@ export default function TextInfoNode({
   useEffect(() => {
     if (!selected) setShowMenu(false);
   }, [selected]);
+
+  useDismissNodeMenuOnCanvasPointerDown(showMenu, () => {
+    setShowMenu(false);
+  });
 
   /* keep draft in sync when external content changes */
   useEffect(() => {
