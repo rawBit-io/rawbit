@@ -30,8 +30,8 @@
       "id": "node_ROZuZDm2",
       "type": "shadcnGroup",
       "position": {
-        "x": 12528.660486575242,
-        "y": 4294.08333051747
+        "x": 12423.660486575242,
+        "y": 4009.08333051747
       },
       "data": {
         "isGroup": true,
@@ -60,8 +60,8 @@
       "id": "node_MK258d3e",
       "type": "shadcnGroup",
       "position": {
-        "x": 8904.211025515418,
-        "y": 639.7578265036077
+        "x": 8799.211025515418,
+        "y": 354.7578265036077
       },
       "data": {
         "isGroup": true,
@@ -90,14 +90,14 @@
       "id": "node_nrvb8KUa",
       "type": "shadcnGroup",
       "position": {
-        "x": 3156.575186690563,
-        "y": 1484.3753575921542
+        "x": 3051.575186690563,
+        "y": 1199.3753575921542
       },
       "data": {
         "isGroup": true,
         "width": 4981,
         "height": 2702,
-        "title": "TX1 Preimage — P2PKH → Bare Multisig",
+        "title": "TX1 Preimage — P2PKH → P2SH",
         "groupBundlePortOffsets": {
           "source": 1199.26,
           "target": 1028.2,
@@ -122,17 +122,17 @@
       "id": "node_kht0iiVH",
       "type": "shadcnGroup",
       "position": {
-        "x": -3410.3335187383545,
-        "y": 6587.362695289518
+        "x": -3515.3335187383545,
+        "y": 6302.362695289518
       },
       "data": {
         "isGroup": true,
         "width": 4917,
         "height": 3479,
-        "title": "Locking Script (P2PSH)",
+        "title": "Locking Script (P2SH)",
         "dirty": false,
         "borderColor": "#a83a32",
-        "fontSize": 36,
+        "fontSize": 32,
         "groupBundlePortOffsets": {
           "sourceByBundle": {
             "node_kht0iiVH->node_ROZuZDm2": 30.62,
@@ -150,8 +150,8 @@
       "id": "node_5CvQEOUN",
       "type": "shadcnGroup",
       "position": {
-        "x": 13732.309731199157,
-        "y": 16346.985766659553
+        "x": 13627.309731199157,
+        "y": 16061.985766659553
       },
       "data": {
         "isGroup": true,
@@ -177,14 +177,14 @@
       "id": "node_yLMUFpMY",
       "type": "shadcnGroup",
       "position": {
-        "x": 8502.744095628657,
-        "y": 11113.903489917611
+        "x": 8397.744095628657,
+        "y": 10828.903489917611
       },
       "data": {
         "isGroup": true,
         "width": 3159,
         "height": 2041,
-        "title": "Signature and scriptSig",
+        "title": "TX2 Recovery Signature and scriptSig",
         "groupBundlePortOffsets": {
           "target": -559.24,
           "sourceByBundle": {
@@ -207,14 +207,14 @@
       "id": "node_qHLs1Tu4",
       "type": "shadcnGroup",
       "position": {
-        "x": 2858.4662064991753,
-        "y": 13643.118210852208
+        "x": 2753.4662064991753,
+        "y": 13358.118210852208
       },
       "data": {
         "isGroup": true,
         "width": 4981,
         "height": 2702,
-        "title": "TX2 Preimage — Bare Multisig → P2PKH",
+        "title": "TX2 Preimage — P2SH Recovery → P2PKH",
         "groupBundlePortOffsets": {
           "source": 1199.26,
           "target": 1028.2,
@@ -239,8 +239,8 @@
       "id": "node_y4kVQeNY",
       "type": "shadcnGroup",
       "position": {
-        "x": -1104.8963096168136,
-        "y": 17251.84715459712
+        "x": -1209.8963096168136,
+        "y": 16966.84715459712
       },
       "data": {
         "isGroup": true,
@@ -2140,7 +2140,7 @@
           "INPUTS[]": [0, 100, 200, 300, 400]
         },
         "baseHeight": 80,
-        "title": "recovery path scriptSig",
+        "title": "Recovery path scriptSig",
         "totalInputs": 5,
         "unwiredCount": 0,
         "error": false,
@@ -3285,8 +3285,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 300,
-        "y": 525
+        "x": 195,
+        "y": 240
       },
       "data": {
         "isGroup": true,
@@ -3575,7 +3575,7 @@
           ]
         },
         "baseHeight": 80,
-        "title": "scriptpubkey (2/3 bare multisig) + recovery path",
+        "title": "redeemScript (2-of-3 multisig + recovery path)",
         "borderColor": "#22c55e",
         "showComment": true,
         "comment": "OP_IF\n    OP_2 <pubkey1> <pubkey2> <pubkey3> OP_3 OP_CHECKMULTISIG\nOP_ELSE\n    <block_delay> OP_CHECKSEQUENCEVERIFY OP_DROP\n    <recoveryPubkey> OP_CHECKSIG\nOP_ENDIF",
@@ -3983,7 +3983,7 @@
       },
       "data": {
         "functionName": "concat_all",
-        "title": "P2SH scriptpubkey",
+        "title": "P2SH scriptPubkey",
         "paramExtraction": "multi_val",
         "numInputs": 2,
         "inputs": {
@@ -4192,8 +4192,8 @@
       "id": "node_nd5uge0",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -3417.565991058189,
-        "y": 5725.395230852403
+        "x": -592.5835751371546,
+        "y": 5629.465386924701
       },
       "data": {
         "content": "#  2 of 3 MultiSig with delayed recovery path\n```\nOP_IF\n    OP_2 <pubkey1> <pubkey2> <pubkey3> OP_3 OP_CHECKMULTISIG\nOP_ELSE\n    <block_delay> OP_CHECKSEQUENCEVERIFY OP_DROP\n    <recoveryPubkey> OP_CHECKSIG\nOP_ENDIF\n```",
@@ -4334,8 +4334,8 @@
       "id": "node_WvN674hE",
       "type": "calculation",
       "position": {
-        "x": 556.8400684023247,
-        "y": 2007.8982997226976
+        "x": 526.2081779504292,
+        "y": 2047.4644915563958
       },
       "data": {
         "functionName": "identity",
@@ -4359,8 +4359,9 @@
           ]
         },
         "groupInstances": {},
-        "showComment": false,
-        "error": false
+        "showComment": true,
+        "error": false,
+        "comment": "CSV relative delay in blocks. TX2 input sequence must be at least this value."
       },
       "parentId": "node_kht0iiVH",
       "extent": "parent"
@@ -4595,8 +4596,8 @@
       "id": "node_16frfbo",
       "type": "calculation",
       "position": {
-        "x": 888.3255711966476,
-        "y": 2017.8050337603254
+        "x": 873.0096259707002,
+        "y": 2013.9760474538389
       },
       "data": {
         "functionName": "blocks_to_sequence_number",
@@ -5032,6 +5033,107 @@
           "val": 21
         },
         "result": "15000000",
+        "error": false
+      },
+      "parentId": "node_qHLs1Tu4",
+      "extent": "parent"
+    },
+    {
+      "id": "node_yfvwcgo",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -5706.588527552701,
+        "y": 2100.7406404467647
+      },
+      "data": {
+        "content": "# Bitcoin Lock / Unlock Matrix and rawBit nodes implementation\n\n| Case | Lock Field | rawBit Lock Nodes | What Must Be True When Spending |\n|---|---|---|---|\n| `nLockTime` block | absolute block height | `Input height` → `Uint32 → LE-4` | Final TX has `LOCKTIME[4] >= height`; every input that should obey locktime uses non-final sequence, not `ffffffff`. |\n| `nLockTime` time | absolute Unix time | `Date → Unix Time` → `Uint32 → LE-4` | Final TX has `LOCKTIME[4] >= timestamp`; sequence is non-final. Timestamp locktimes are values `>= 500000000`. |\n| `nSequence` blocks | relative block delay | `Blocks → Relative Lock` → `Uint32 → LE-4` | Final TX uses version `2`; input `SEQUENCE[4] >= delay`; spent UTXO is old enough in blocks. |\n| `nSequence` time | relative time delay | `Hours → Relative Lock` → `Sequence → Time Flag` → `Uint32 → LE-4` | Final TX uses version `2`; input `SEQUENCE[4] >= flagged delay`; spent UTXO is old enough by median-time-past. |\n| `CLTV` block | script absolute block height | `Input height` → `Int → ScriptBytes` → `Data → Push Opcode` | RedeemScript contains `<height> OP_CHECKLOCKTIMEVERIFY OP_DROP`; final TX has `LOCKTIME[4] >= height`; sequence is non-final. Unlock stack is just `<sig> <redeemScript>`. |\n| `CLTV` time | script absolute Unix time | `Date → Unix Time` → `Int → ScriptBytes` → `Data → Push Opcode` | RedeemScript contains `<timestamp> OP_CHECKLOCKTIMEVERIFY OP_DROP`; final TX has `LOCKTIME[4] >= timestamp`; sequence is non-final. Unlock stack is just `<sig> <redeemScript>`. |\n| `CSV` blocks | script relative block delay | `Blocks → Relative Lock` → `Int → ScriptBytes` → `Data → Push Opcode` | RedeemScript contains `<delay> OP_CHECKSEQUENCEVERIFY OP_DROP`; final TX uses version `2`; input `SEQUENCE[4] >= delay`; UTXO is old enough. Unlock stack is just `<sig> <redeemScript>`. |\n| `CSV` time | script relative time delay | `Hours → Relative Lock` → `Sequence → Time Flag` → `Int → ScriptBytes` → `Data → Push Opcode` | RedeemScript contains `<flagged delay> OP_CHECKSEQUENCEVERIFY OP_DROP`; final TX uses version `2`; input `SEQUENCE[4] >= flagged delay`; UTXO is old enough. Unlock stack is just `<sig> <redeemScript>`. |\n\n## Script Forms\n\n| Lock | RedeemScript Pattern |\n|---|---|\n| `CLTV` | `<lock> OP_CHECKLOCKTIMEVERIFY OP_DROP <pubkey> OP_CHECKSIG` |\n| `CSV` | `<delay> OP_CHECKSEQUENCEVERIFY OP_DROP <pubkey> OP_CHECKSIG` |\n\n## Minimal Push\n\nBitcoin standardness requires small script constants to use the shortest possible push form. This matters for the `<lock>` or `<delay>` value inside CLTV/CSV redeemScripts.\n\n| Value | Minimal Encoding | rawBit Pattern |\n|---|---|---|\n| `0` | `OP_0` | `Opcode Sequence: OP_0` |\n| `1` | `OP_1` | `Opcode Sequence: OP_1` |\n| `10` | `OP_10` | `Opcode Sequence: OP_10` |\n| `16` | `OP_16` | `Opcode Sequence: OP_16` |\n| `17+` | normal data push | `Int → ScriptBytes` → `Data → Push Opcode` |\n\nExample:\n\n| Intended Value | Non-Minimal | Minimal |\n|---|---|---|\n| `10` | `010a` | `5a` (`OP_10`) |\n| `21` | `0115` | `0115` already minimal |\n\n`21 blocks` delay (node chain is already minimal):\n\n`Input 21` → `Blocks → Relative Lock` → `Int → ScriptBytes` → `Data → Push Opcode`\n\nFor a small delay like `10 blocks`, use `Opcode Sequence: OP_10` in the script instead.\n\n## Key Rules\n\n| Rule | Why |\n|---|---|\n| `nLockTime` needs non-final sequence | `ffffffff` disables transaction locktime. |\n| Relative locks need version `2` | BIP68 / CSV require transaction version 2. |\n| `fffffffd` is not a CSV delay | It has the BIP68 disable bit set. |\n| CLTV script value and tx `nLockTime` must match type | Block with block, timestamp with timestamp. |\n| CSV script value and input `nSequence` must match type | Block delay with block sequence, time delay with flagged sequence. |\n| The lock value is not supplied during unlock | CLTV/CSV lock values live inside the redeemScript; the spender supplies signatures and the redeemScript. |",
+        "fontSize": 28,
+        "width": 3017,
+        "height": 2850,
+        "title": "Text Info Node"
+      },
+      "width": 3017,
+      "height": 2850
+    },
+    {
+      "id": "node_idew7ub",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -4545,
+        "y": -630
+      },
+      "data": {
+        "content": "# Overview — P2SH and Timelocks\n\nThis flow shows how **P2SH** (Pay-to-Script-Hash) and **relative timelocks via OP_CHECKSEQUENCEVERIFY (CSV)** work together in practice.\n\nYou will build two real testnet4 transactions:\n\n- **TX1**: Spend a normal P2PKH UTXO and lock the coins to a **P2SH** output. The P2SH locks to a conditional redeem script that contains both a 2-of-3 multisig path and a timelocked recovery path.\n- **TX2**: Spend that P2SH output using the **recovery path** (after satisfying a 21-block relative timelock) and send the coins to a fresh P2PKH address.\n\nEverything is fully constructed from scratch — preimages, signatures, scriptSig assembly, and final raw transactions. The two **Verify Script** nodes confirm both transactions are valid according to Bitcoin’s consensus rules.\n\nThis is the natural next step after the “Intro P2PKH” flow. You will learn the new output type P2SH and how timelocks are expressed inside scripts.",
+        "fontSize": 28,
+        "width": 931,
+        "height": 983,
+        "title": "Text Info Node"
+      },
+      "width": 931,
+      "height": 983
+    },
+    {
+      "id": "node_0uszewz",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -3516.6332326258544,
+        "y": 5400.613596496181
+      },
+      "data": {
+        "content": "# What is P2SH?\n\n**P2SH (Pay-to-Script-Hash)** was introduced in BIP 16. It solves a very practical problem: complex spending conditions (multisig, timelocks, vaults, etc.) produce long `scriptPubKey`s. Long locking scripts are expensive in fees and ugly in wallets/explorers.\n\nWith P2SH the **locking script is always short and fixed**:\n```\nOP_HASH160 <20-byte-hash-of-redeemScript> OP_EQUAL\n```\n\n\nThe actual complex script (called the **redeemScript**) is **not revealed until spending time**. It is supplied inside the `scriptSig` together with the data that satisfies it.\n\nWhen a Bitcoin node sees a P2SH output being spent it does three things:\n1. Checks that the last item in `scriptSig` (the redeemScript) hashes to the value in the `scriptPubKey`.\n2. If the hash matches, it **replaces** the P2SH `scriptPubKey` with the redeemScript.\n3. Executes the redeemScript against the remaining items from `scriptSig`.\n\n",
+        "fontSize": 28,
+        "width": 1230,
+        "height": 779,
+        "title": "Text Info Node"
+      },
+      "width": 1230,
+      "height": 779
+    },
+    {
+      "id": "node_8twykdm",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -5722.3576464357075,
+        "y": 1267.6486752444007
+      },
+      "data": {
+        "content": "# Timelocks in Bitcoin + rawBit Implementation\n\nBitcoin has two families of timelocks:\n\n- **Absolute timelocks** — “this output cannot be spent before block X or timestamp Y”\n  - Transaction-level: `nLockTime`\n  - Script-level: `OP_CHECKLOCKTIMEVERIFY` (CLTV)\n\n- **Relative timelocks** — “this input cannot be spent until it has N confirmations or M seconds of median-time-past”\n  - Input-level: `nSequence` (with version ≥ 2)\n  - Script-level: `OP_CHECKSEQUENCEVERIFY` (CSV)\n\nThis flow uses a **relative block timelock via CSV** inside the P2SH redeem script as a recovery/backup spending path. The normal multisig path can be used immediately; the recovery path only becomes available after 21 blocks.\n\nFor the complete reference of every timelock variant (nLockTime, nSequence, CLTV, CSV, block vs time, required flags, minimal push rules, etc.) and exactly which rawBit nodes implement each one, see the **“Bitcoin Lock / Unlock Matrix and rawBit nodes implementation”** text info node tbelow. It contains the definitive table you will use when building your own timelocked scripts.",
+        "fontSize": 28,
+        "width": 1579,
+        "height": 774,
+        "title": "Text Info Node"
+      },
+      "width": 1579,
+      "height": 774
+    },
+    {
+      "id": "node_dMdA4QVa",
+      "type": "calculation",
+      "position": {
+        "x": 1276.9735209938635,
+        "y": 1509.76492528587
+      },
+      "data": {
+        "functionName": "blocks_to_sequence_number",
+        "title": "Blocks → Relative Lock",
+        "numInputs": 1,
+        "version": 0,
+        "inputs": {
+          "val": 21
+        },
+        "result": 21,
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Delay (blocks):",
+              "rows": 1,
+              "placeholder": "e.g., 10"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
         "error": false
       },
       "parentId": "node_qHLs1Tu4",
@@ -6165,11 +6267,17 @@
       "selected": false
     },
     {
-      "id": "edge_h47otsz",
-      "source": "node_16frfbo",
+      "id": "edge_h5s6vr7",
+      "source": "node_dMdA4QVa",
       "target": "node_0QNanfYy",
+      "targetHandle": "input-0"
+    },
+    {
+      "source": "node_WvN674hE",
+      "target": "node_dMdA4QVa",
       "targetHandle": "input-0",
-      "selected": false
+      "selected": false,
+      "id": "xy-edge__node_WvN674hE-node_dMdA4QVainput-0"
     }
   ]
 }
