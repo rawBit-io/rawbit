@@ -4033,8 +4033,8 @@
         "error": false,
         "customFieldLabels": {
           "0": "OP code",
-          "100": "scriptpubkey hash len",
-          "200": "scriptpubkey hash",
+          "100": "scriptHash len",
+          "200": "scriptHash",
           "300": "OP code"
         }
       },
@@ -4187,24 +4187,6 @@
       },
       "parentId": "node_kht0iiVH",
       "extent": "parent"
-    },
-    {
-      "id": "node_nd5uge0",
-      "type": "shadcnTextInfo",
-      "position": {
-        "x": -592.5835751371546,
-        "y": 5629.465386924701
-      },
-      "data": {
-        "content": "#  2 of 3 MultiSig with delayed recovery path\n```\nOP_IF\n    OP_2 <pubkey1> <pubkey2> <pubkey3> OP_3 OP_CHECKMULTISIG\nOP_ELSE\n    <block_delay> OP_CHECKSEQUENCEVERIFY OP_DROP\n    <recoveryPubkey> OP_CHECKSIG\nOP_ENDIF\n```",
-        "fontSize": 30,
-        "width": 1180,
-        "height": 532,
-        "title": "Text Info Node",
-        "dirty": false
-      },
-      "width": 1180,
-      "height": 532
     },
     {
       "id": "node_awSuFiUN",
@@ -5042,15 +5024,16 @@
       "id": "node_yfvwcgo",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -5706.588527552701,
-        "y": 2100.7406404467647
+        "x": -6706.693447605665,
+        "y": 2007.7970605161663
       },
       "data": {
-        "content": "# Bitcoin Lock / Unlock Matrix and rawBit nodes implementation\n\n| Case | Lock Field | rawBit Lock Nodes | What Must Be True When Spending |\n|---|---|---|---|\n| `nLockTime` block | absolute block height | `Input height` → `Uint32 → LE-4` | Final TX has `LOCKTIME[4] >= height`; every input that should obey locktime uses non-final sequence, not `ffffffff`. |\n| `nLockTime` time | absolute Unix time | `Date → Unix Time` → `Uint32 → LE-4` | Final TX has `LOCKTIME[4] >= timestamp`; sequence is non-final. Timestamp locktimes are values `>= 500000000`. |\n| `nSequence` blocks | relative block delay | `Blocks → Relative Lock` → `Uint32 → LE-4` | Final TX uses version `2`; input `SEQUENCE[4] >= delay`; spent UTXO is old enough in blocks. |\n| `nSequence` time | relative time delay | `Hours → Relative Lock` → `Sequence → Time Flag` → `Uint32 → LE-4` | Final TX uses version `2`; input `SEQUENCE[4] >= flagged delay`; spent UTXO is old enough by median-time-past. |\n| `CLTV` block | script absolute block height | `Input height` → `Int → ScriptBytes` → `Data → Push Opcode` | RedeemScript contains `<height> OP_CHECKLOCKTIMEVERIFY OP_DROP`; final TX has `LOCKTIME[4] >= height`; sequence is non-final. Unlock stack is just `<sig> <redeemScript>`. |\n| `CLTV` time | script absolute Unix time | `Date → Unix Time` → `Int → ScriptBytes` → `Data → Push Opcode` | RedeemScript contains `<timestamp> OP_CHECKLOCKTIMEVERIFY OP_DROP`; final TX has `LOCKTIME[4] >= timestamp`; sequence is non-final. Unlock stack is just `<sig> <redeemScript>`. |\n| `CSV` blocks | script relative block delay | `Blocks → Relative Lock` → `Int → ScriptBytes` → `Data → Push Opcode` | RedeemScript contains `<delay> OP_CHECKSEQUENCEVERIFY OP_DROP`; final TX uses version `2`; input `SEQUENCE[4] >= delay`; UTXO is old enough. Unlock stack is just `<sig> <redeemScript>`. |\n| `CSV` time | script relative time delay | `Hours → Relative Lock` → `Sequence → Time Flag` → `Int → ScriptBytes` → `Data → Push Opcode` | RedeemScript contains `<flagged delay> OP_CHECKSEQUENCEVERIFY OP_DROP`; final TX uses version `2`; input `SEQUENCE[4] >= flagged delay`; UTXO is old enough. Unlock stack is just `<sig> <redeemScript>`. |\n\n## Script Forms\n\n| Lock | RedeemScript Pattern |\n|---|---|\n| `CLTV` | `<lock> OP_CHECKLOCKTIMEVERIFY OP_DROP <pubkey> OP_CHECKSIG` |\n| `CSV` | `<delay> OP_CHECKSEQUENCEVERIFY OP_DROP <pubkey> OP_CHECKSIG` |\n\n## Minimal Push\n\nBitcoin standardness requires small script constants to use the shortest possible push form. This matters for the `<lock>` or `<delay>` value inside CLTV/CSV redeemScripts.\n\n| Value | Minimal Encoding | rawBit Pattern |\n|---|---|---|\n| `0` | `OP_0` | `Opcode Sequence: OP_0` |\n| `1` | `OP_1` | `Opcode Sequence: OP_1` |\n| `10` | `OP_10` | `Opcode Sequence: OP_10` |\n| `16` | `OP_16` | `Opcode Sequence: OP_16` |\n| `17+` | normal data push | `Int → ScriptBytes` → `Data → Push Opcode` |\n\nExample:\n\n| Intended Value | Non-Minimal | Minimal |\n|---|---|---|\n| `10` | `010a` | `5a` (`OP_10`) |\n| `21` | `0115` | `0115` already minimal |\n\n`21 blocks` delay (node chain is already minimal):\n\n`Input 21` → `Blocks → Relative Lock` → `Int → ScriptBytes` → `Data → Push Opcode`\n\nFor a small delay like `10 blocks`, use `Opcode Sequence: OP_10` in the script instead.\n\n## Key Rules\n\n| Rule | Why |\n|---|---|\n| `nLockTime` needs non-final sequence | `ffffffff` disables transaction locktime. |\n| Relative locks need version `2` | BIP68 / CSV require transaction version 2. |\n| `fffffffd` is not a CSV delay | It has the BIP68 disable bit set. |\n| CLTV script value and tx `nLockTime` must match type | Block with block, timestamp with timestamp. |\n| CSV script value and input `nSequence` must match type | Block delay with block sequence, time delay with flagged sequence. |\n| The lock value is not supplied during unlock | CLTV/CSV lock values live inside the redeemScript; the spender supplies signatures and the redeemScript. |",
+        "content": "# Bitcoin Lock / Unlock Matrix and rawBit nodes implementation\n\n| Case | Lock Field | rawBit Lock Nodes | What Must Be True When Spending |\n|---|---|---|---|\n| `nLockTime` block | absolute block height | `Input height` → `Uint32 → LE-4` | Final TX has `LOCKTIME[4] >= height`; every input that should obey locktime uses non-final sequence, not `ffffffff`. |\n| `nLockTime` time | absolute Unix time | `Date → Unix Time` → `Uint32 → LE-4` | Final TX has `LOCKTIME[4] >= timestamp`; sequence is non-final. Timestamp locktimes are values `>= 500000000`. |\n| `nSequence` blocks | relative block delay | `Blocks → Relative Lock` → `Uint32 → LE-4` | Final TX uses version `2`; input `SEQUENCE[4] >= delay`; spent UTXO is old enough in blocks. |\n| `nSequence` time | relative time delay | `Hours → Relative Lock` → `Sequence → Time Flag` → `Uint32 → LE-4` | Final TX uses version `2`; input `SEQUENCE[4] >= flagged delay`; spent UTXO is old enough by median-time-past. |\n| `CLTV` block | script absolute block height | `Input height` → `Int → ScriptBytes` → `Data → Push Opcode` | RedeemScript contains `<height> OP_CHECKLOCKTIMEVERIFY OP_DROP`; final TX has `LOCKTIME[4] >= height`; sequence is non-final. Unlock stack is just `<sig> <redeemScript>`. Branching or multisig scripts need extra stack items.|\n| `CLTV` time | script absolute Unix time | `Date → Unix Time` → `Int → ScriptBytes` → `Data → Push Opcode` | RedeemScript contains `<timestamp> OP_CHECKLOCKTIMEVERIFY OP_DROP`; final TX has `LOCKTIME[4] >= timestamp`; sequence is non-final. Unlock stack is just `<sig> <redeemScript>`. |\n| `CSV` blocks | script relative block delay | `Blocks → Relative Lock` → `Int → ScriptBytes` → `Data → Push Opcode` | RedeemScript contains `<delay> OP_CHECKSEQUENCEVERIFY OP_DROP`; final TX uses version `2`; input `SEQUENCE[4] >= delay`; UTXO is old enough. Unlock stack is just `<sig> <redeemScript>`. |\n| `CSV` time | script relative time delay | `Hours → Relative Lock` → `Sequence → Time Flag` → `Int → ScriptBytes` → `Data → Push Opcode` | RedeemScript contains `<flagged delay> OP_CHECKSEQUENCEVERIFY OP_DROP`; final TX uses version `2`; input `SEQUENCE[4] >= flagged delay`; UTXO is old enough. Unlock stack is just `<sig> <redeemScript>`. |\n\n## Script Forms\n\n| Lock | redeemScript Pattern |\n|---|---|\n| `CLTV` | `<lock> OP_CHECKLOCKTIMEVERIFY OP_DROP <pubkey> OP_CHECKSIG` |\n| `CSV` | `<delay> OP_CHECKSEQUENCEVERIFY OP_DROP <pubkey> OP_CHECKSIG` |\n\n## Minimal Push\n\nBitcoin standardness requires small script constants to use the shortest possible push form. This matters for the `<lock>` or `<delay>` value inside CLTV/CSV redeemScripts.\n\n| Value | Minimal Encoding | rawBit Pattern |\n|---|---|---|\n| `0` | `OP_0` | `Opcode Sequence: OP_0` |\n| `1` | `OP_1` | `Opcode Sequence: OP_1` |\n| `10` | `OP_10` | `Opcode Sequence: OP_10` |\n| `16` | `OP_16` | `Opcode Sequence: OP_16` |\n| `17+` | normal data push | `Int → ScriptBytes` → `Data → Push Opcode` |\n\nExample:\n\n| Intended Value | Non-Minimal | Minimal |\n|---|---|---|\n| `10` | `010a` | `5a` (`OP_10`) |\n| `21` | `0115` | `0115` already minimal |\n\n`21 blocks` delay (node chain is already minimal):\n\n`Input 21` → `Blocks → Relative Lock` → `Int → ScriptBytes` → `Data → Push Opcode`\n\nFor a small delay like `10 blocks`, use `Opcode Sequence: OP_10` in the script instead.\n\n## Key Rules\n\n| Rule | Why |\n|---|---|\n| `nLockTime` needs non-final sequence | `ffffffff` disables transaction locktime. |\n| Relative locks need version `2` | BIP68 / CSV require transaction version 2. |\n| `fffffffd` is not a CSV delay | It has the BIP68 disable bit set. |\n| CLTV script value and tx `nLockTime` must match type | Block with block, timestamp with timestamp. |\n| CSV script value and input `nSequence` must match type | Block delay with block sequence, time delay with flagged sequence. |\n| The lock value is not supplied during unlock | CLTV/CSV lock values live inside the redeemScript; the spender supplies signatures and the redeemScript. |",
         "fontSize": 28,
         "width": 3017,
         "height": 2850,
-        "title": "Text Info Node"
+        "title": "Text Info Node",
+        "dirty": false
       },
       "width": 3017,
       "height": 2850
@@ -5059,49 +5042,34 @@
       "id": "node_idew7ub",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -4545,
-        "y": -630
+        "x": -2953.906571059783,
+        "y": -171.50378760284832
       },
       "data": {
         "content": "# Overview — P2SH and Timelocks\n\nThis flow shows how **P2SH** (Pay-to-Script-Hash) and **relative timelocks via OP_CHECKSEQUENCEVERIFY (CSV)** work together in practice.\n\nYou will build two real testnet4 transactions:\n\n- **TX1**: Spend a normal P2PKH UTXO and lock the coins to a **P2SH** output. The P2SH locks to a conditional redeem script that contains both a 2-of-3 multisig path and a timelocked recovery path.\n- **TX2**: Spend that P2SH output using the **recovery path** (after satisfying a 21-block relative timelock) and send the coins to a fresh P2PKH address.\n\nEverything is fully constructed from scratch — preimages, signatures, scriptSig assembly, and final raw transactions. The two **Verify Script** nodes confirm both transactions are valid according to Bitcoin’s consensus rules.\n\nThis is the natural next step after the “Intro P2PKH” flow. You will learn the new output type P2SH and how timelocks are expressed inside scripts.",
-        "fontSize": 28,
-        "width": 931,
-        "height": 983,
-        "title": "Text Info Node"
+        "fontSize": 36,
+        "width": 1196,
+        "height": 1248,
+        "title": "Text Info Node",
+        "dirty": false
       },
-      "width": 931,
-      "height": 983
-    },
-    {
-      "id": "node_0uszewz",
-      "type": "shadcnTextInfo",
-      "position": {
-        "x": -3516.6332326258544,
-        "y": 5400.613596496181
-      },
-      "data": {
-        "content": "# What is P2SH?\n\n**P2SH (Pay-to-Script-Hash)** was introduced in BIP 16. It solves a very practical problem: complex spending conditions (multisig, timelocks, vaults, etc.) produce long `scriptPubKey`s. Long locking scripts are expensive in fees and ugly in wallets/explorers.\n\nWith P2SH the **locking script is always short and fixed**:\n```\nOP_HASH160 <20-byte-hash-of-redeemScript> OP_EQUAL\n```\n\n\nThe actual complex script (called the **redeemScript**) is **not revealed until spending time**. It is supplied inside the `scriptSig` together with the data that satisfies it.\n\nWhen a Bitcoin node sees a P2SH output being spent it does three things:\n1. Checks that the last item in `scriptSig` (the redeemScript) hashes to the value in the `scriptPubKey`.\n2. If the hash matches, it **replaces** the P2SH `scriptPubKey` with the redeemScript.\n3. Executes the redeemScript against the remaining items from `scriptSig`.\n\n",
-        "fontSize": 28,
-        "width": 1230,
-        "height": 779,
-        "title": "Text Info Node"
-      },
-      "width": 1230,
-      "height": 779
+      "width": 1196,
+      "height": 1248
     },
     {
       "id": "node_8twykdm",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -5722.3576464357075,
-        "y": 1267.6486752444007
+        "x": -2054.462547171179,
+        "y": 5197.13064387462
       },
       "data": {
-        "content": "# Timelocks in Bitcoin + rawBit Implementation\n\nBitcoin has two families of timelocks:\n\n- **Absolute timelocks** — “this output cannot be spent before block X or timestamp Y”\n  - Transaction-level: `nLockTime`\n  - Script-level: `OP_CHECKLOCKTIMEVERIFY` (CLTV)\n\n- **Relative timelocks** — “this input cannot be spent until it has N confirmations or M seconds of median-time-past”\n  - Input-level: `nSequence` (with version ≥ 2)\n  - Script-level: `OP_CHECKSEQUENCEVERIFY` (CSV)\n\nThis flow uses a **relative block timelock via CSV** inside the P2SH redeem script as a recovery/backup spending path. The normal multisig path can be used immediately; the recovery path only becomes available after 21 blocks.\n\nFor the complete reference of every timelock variant (nLockTime, nSequence, CLTV, CSV, block vs time, required flags, minimal push rules, etc.) and exactly which rawBit nodes implement each one, see the **“Bitcoin Lock / Unlock Matrix and rawBit nodes implementation”** text info node tbelow. It contains the definitive table you will use when building your own timelocked scripts.",
+        "content": "# Timelocks in Bitcoin + rawBit Implementation\n\nBitcoin has two families of timelocks:\n\n- **Absolute timelocks** — “this output cannot be spent before block X or timestamp Y”\n  - Transaction-level: `nLockTime`\n  - Script-level: `OP_CHECKLOCKTIMEVERIFY` (CLTV)\n\n- **Relative timelocks** — “this input cannot be spent until it has N confirmations or M seconds of median-time-past”\n  - Input-level: `nSequence` (with version ≥ 2)\n  - Script-level: `OP_CHECKSEQUENCEVERIFY` (CSV)\n\nThis flow uses a **relative block timelock via CSV** inside the P2SH redeem script as a recovery/backup spending path. The normal multisig path can be used immediately; the recovery path only becomes available after 21 blocks.\n\nFor the complete reference of every timelock variant (nLockTime, nSequence, CLTV, CSV, block vs time, required flags, minimal push rules, etc.) and exactly which rawBit nodes implement each one, see the **“Bitcoin Lock / Unlock Matrix and rawBit nodes implementation”** text info node below. It contains the definitive table you will use when building your own timelocked scripts.",
         "fontSize": 28,
         "width": 1579,
         "height": 774,
-        "title": "Text Info Node"
+        "title": "Text Info Node",
+        "dirty": false
       },
       "width": 1579,
       "height": 774
@@ -5138,6 +5106,79 @@
       },
       "parentId": "node_qHLs1Tu4",
       "extent": "parent"
+    },
+    {
+      "id": "node_g3pyk9j",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 1455,
+        "y": 13695
+      },
+      "data": {
+        "content": "# TX1 vs TX2 — How P2SH Changes the Construction\n\n**TX1 (P2PKH → P2SH)** is almost identical to the classic P2PKH spend from the Intro flow:\n- Input is a normal P2PKH UTXO.\n- We build the preimage, sign it, and assemble a normal `scriptSig` (signature + pubkey).\n- The only difference is the **destination** — we create a P2SH `scriptPubKey` instead of another P2PKH.\n\n**TX2 (P2SH → P2PKH)** introduces the new rules:\n\n1. **Preimage construction** — For legacy P2SH inputs the sighash preimage temporarily places the **redeemScript** (not the P2SH `scriptPubKey`) into the input’s script field. You can see this in the “Preimage Body” node for TX2 (length `93`, script starts with `6352...`).\n\n2. **scriptSig for P2SH** — The final `scriptSig` contains the data that satisfies the redeemScript **plus** the redeemScript itself:\n   `<sig> 00 <redeemScript>` (the `00` chooses the recovery path).\n\n3. **Relative timelock** — We set `nSequence = 15000000` (21 blocks) and use version 2 so CSV is active.\n\n4. **Verification** — The Verify Script node first runs the P2SH wrapper (`OP_HASH160 ... OP_EQUAL`), then executes the full redeemScript (including `OP_CHECKSEQUENCEVERIFY`). Both must succeed.\n\nAll of these details are visible live on the canvas and confirmed by the verification node.",
+        "fontSize": 28,
+        "width": 1044,
+        "height": 1166,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 1044,
+      "height": 1166
+    },
+    {
+      "id": "node_vjl7qpa",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -3467.1983511283306,
+        "y": 5211.4323153091
+      },
+      "data": {
+        "content": "# The Redeem Script (Multisig + CSV Recovery)\n\nThe redeemScript committed to by the P2SH output is:\n```\nOP_IF\n    OP_2 <pubkey1> <pubkey2> <pubkey3> OP_3 OP_CHECKMULTISIG\nOP_ELSE\n    <block_delay> OP_CHECKSEQUENCEVERIFY OP_DROP\n    <recoveryPubkey> OP_CHECKSIG\nOP_ENDIF\n```\n\n**Two spending paths:**\n\n- **Fast path (IF branch)**: Supply two valid signatures from the three pubkeys + a non-zero value (to take the IF) + the redeemScript. Anyone with two of the three keys can spend **immediately**.\n\n- **Recovery path (ELSE branch)**: Supply the single signature from the recovery key + `OP_0` (to take the ELSE branch) + the redeemScript. This path can **only** be used after the UTXO is at least 21 blocks old (the CSV value). This is the path demonstrated in TX2.\n\nIn TX2 we push:\n`<recovery-signature> 00 <redeemScript>`\n\nThe `00` selects the ELSE branch. The `nSequence` of the input is set to `15000000` so the relative lock is satisfied. You can watch the exact stack evolution (including the CSV check) in the **Verify Script** debug steps for TX2.",
+        "fontSize": 28,
+        "width": 1263,
+        "height": 1044,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 1263,
+      "height": 1044
+    },
+    {
+      "id": "node_id9cp9y",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -1238.0963650286196,
+        "y": 180.63674780708803
+      },
+      "data": {
+        "content": "# What is P2SH?\n\n**P2SH** (Pay-to-Script-Hash) lets you lock bitcoin to the *hash of a script*, instead of locking it directly to a public key.\n\nThe locking script that goes on-chain is always short and fixed:\n\n`OP_HASH160 <20-byte redeemScript hash> OP_EQUAL`\n\nThe actual spending rules live in a separate script called the **redeemScript**. This redeemScript is **not published** when the coins are locked — it only gets revealed later when someone spends them.\n\nWhen spending a P2SH output, the `scriptSig` must contain:\n- The data needed to satisfy the redeemScript, and\n- The redeemScript itself\n\nThe node then hashes the revealed redeemScript and checks that it matches the hash in the locking script. If it does, it executes the redeemScript.\n\nThis design allows complex spending conditions (such as the multisig + CSV recovery script in this flow) while keeping outputs small and cheap. The spending transaction later pays the cost of revealing the redeemScript.",
+        "fontSize": 28,
+        "width": 1310,
+        "height": 831,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 1310,
+      "height": 831
+    },
+    {
+      "id": "node_43s3y5f",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 197.0862994638341,
+        "y": 1447.5876701129919
+      },
+      "data": {
+        "content": "# Try it yourself\n\n**With the current flow:**\n- Set TX2 `SEQUENCE[4]` lower than the CSV delay → observe verification failure.\n- Change the branch selector from `OP_0` to `OP_1` and construct the 2-of-3 multisig spend.\n- Look inside the **Verify Script** node and step through the P2SH check + redeemScript execution.\n\n**Create your own variation:**\nBuild a new P2SH redeemScript that combines **both** timelock types:\n- One path protected by relative timelock (CSV)\n- One path protected by absolute timelock (CLTV)\n\nTry spending CLTV path.",
+        "fontSize": 28,
+        "width": 1115,
+        "height": 722,
+        "title": "Text Info Node",
+        "borderColor": "#2d5fb3",
+        "dirty": false
+      },
+      "width": 1115,
+      "height": 722
     }
   ],
   "edges": [
@@ -6270,7 +6311,8 @@
       "id": "edge_h5s6vr7",
       "source": "node_dMdA4QVa",
       "target": "node_0QNanfYy",
-      "targetHandle": "input-0"
+      "targetHandle": "input-0",
+      "selected": false
     },
     {
       "source": "node_WvN674hE",
