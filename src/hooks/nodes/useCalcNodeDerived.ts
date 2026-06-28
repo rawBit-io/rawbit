@@ -27,7 +27,9 @@ export interface UseCalcNodeDerivedResult {
   connectionStatus: ConnectionStatus;
 }
 
-const HANDLE_SPACING = 30;
+const INPUT_HANDLE_SPACING = 30;
+const OUTPUT_HANDLE_DIAMETER = 12;
+const OUTPUT_HANDLE_GAP = 2;
 const SINGLE_BASE_HEIGHT = 100;
 const MULTI_BASE_HEIGHT = 200;
 
@@ -73,7 +75,15 @@ export function useCalcNodeDerived(
 
   const nodeWidth = isMultiVal ? 400 : 250;
   const baseHeight = isMultiVal ? MULTI_BASE_HEIGHT : SINGLE_BASE_HEIGHT;
-  const minHeight = baseHeight + visibleInputs * HANDLE_SPACING;
+  const visibleOutputs = Array.isArray(data.outputPorts)
+    ? data.outputPorts.filter((port) => port.showHandle !== false).length
+    : 0;
+  const inputDrivenHeight = baseHeight + visibleInputs * INPUT_HANDLE_SPACING;
+  const outputDrivenHeight =
+    visibleOutputs > 0
+      ? (visibleOutputs + 1) * (OUTPUT_HANDLE_DIAMETER + OUTPUT_HANDLE_GAP)
+      : 0;
+  const minHeight = Math.max(inputDrivenHeight, outputDrivenHeight);
 
   const connectionStatus = useMemo<ConnectionStatus>(() => {
     if (!isMultiVal) {

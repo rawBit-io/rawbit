@@ -1179,6 +1179,41 @@ def test_encode_script_push_data_cases():
     assert calc.encode_script_push_data("00" * 300) == "4d2c01"
 
 
+def test_bip110_picture_p2sh_scripts_builds_520_byte_full_script():
+    pubkey = "02" + "11" * 32
+    picture_hex = "aa" * 480
+
+    result = json.loads(calc.bip110_picture_p2sh_scripts([picture_hex, pubkey]))
+    script = result["scripts"][0]["script"]
+
+    assert result["count"] == 1
+    assert result["total_bytes"] == 480
+    assert result["scripts"][0]["chunk1_bytes"] == 240
+    assert result["scripts"][0]["chunk2_bytes"] == 240
+    assert result["scripts"][0]["script_bytes"] == 520
+    assert script == (
+        "4cf0"
+        + "aa" * 240
+        + "4cf0"
+        + "aa" * 240
+        + "6d21"
+        + pubkey
+        + "ac"
+    )
+
+
+def test_bip110_picture_p2sh_scripts_uses_empty_second_chunk_for_partial_tail():
+    pubkey = "03" + "22" * 32
+
+    result = json.loads(calc.bip110_picture_p2sh_scripts(["bb" * 1, pubkey]))
+    script = result["scripts"][0]["script"]
+
+    assert result["count"] == 1
+    assert result["scripts"][0]["chunk1_bytes"] == 1
+    assert result["scripts"][0]["chunk2_bytes"] == 0
+    assert script == "01bb006d21" + pubkey + "ac"
+
+
 def test_opcode_select_and_int_to_script_bytes():
     assert calc.op_code_select(["OP_DUP", "OP_HASH160"]) == "76a9"
     assert calc.op_code_select(["P2PKH_PREFIX", "P2PKH_SUFFIX"]) == "76a91488ac"

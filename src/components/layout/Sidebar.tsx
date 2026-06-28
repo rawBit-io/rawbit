@@ -136,11 +136,16 @@ const subgroupLabelClass =
 const subgroupContentClass = "pt-1 pb-1";
 const subgroupItemsClass = "space-y-2 pb-1";
 const TOP_LEVEL_FLOW_SECTION = "top-level";
-const ALWAYS_VISIBLE_FLOW_SECTIONS = new Set([TOP_LEVEL_FLOW_SECTION, "legacy"]);
+const ALWAYS_VISIBLE_FLOW_SECTIONS = new Set([
+  TOP_LEVEL_FLOW_SECTION,
+  "legacy",
+  "misc",
+]);
 const SIDEBAR_REVEAL_ITEM_COUNT = 5;
 
 const flowSections = [
   { id: "legacy", label: "Legacy" },
+  { id: "misc", label: "Misc" },
   { id: "legacy-foundations", label: "Legacy Foundations" },
   {
     id: "scripts-timelocks-commitments",

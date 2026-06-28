@@ -29,6 +29,10 @@ vi.mock("@xyflow/react", async () => {
 
 import { CalculationNodeView } from "../calculation/CalculationNodeView";
 
+const TINY_PNG_HEX =
+  "89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c489" +
+  "0000000a49444154789c63000100000500010d0a2db40000000049454e44ae426082";
+
 function createMut() {
   return {
     setFieldValue: vi.fn(),
@@ -666,6 +670,84 @@ describe("CalculationNodeView", () => {
     ).toHaveTextContent("in");
     expect(screen.queryByText("> Calculation Result:")).not.toBeInTheDocument();
     expect(screen.queryByTestId("node-result")).not.toBeInTheDocument();
+    expect(screen.queryByTitle("Copy result to clipboard")).not.toBeInTheDocument();
+  });
+
+  it("shows picture script summary as info without a copy result button", () => {
+    const clip = createClip({
+      prettyResult:
+        "103 P2SH redeemScripts\n49416 picture bytes\n480 B/output, 240 B chunks\n<240B data> <240B data> OP_2DROP <pubkey> OP_CHECKSIG",
+    });
+    const mut = createMut();
+
+    renderWithProviders(
+      <CalculationNodeView
+        selected={false}
+        data={{
+          functionName: "bip110_picture_p2sh_scripts",
+          title: "Picture → P2SH Scripts",
+          paramExtraction: "multi_val",
+          inputs: {
+            vals: {
+              0: TINY_PNG_HEX,
+              1: "03c35139c7b76ef1c1d6cdc1bd56eb11ba5c260a7493b528bb74a8aa8f12cb7a63",
+            },
+          },
+          inputStructure: {
+            ungrouped: [
+              {
+                index: 0,
+                label: "Picture hex:",
+                fileInput: "image-hex",
+                autoResizeMaxRows: 4,
+              },
+              { index: 1, label: "Compressed pubkey:" },
+            ],
+          },
+          outputPorts: Array.from({ length: 20 }, (_, index) => ({
+            label: `script ${index + 1}`,
+            handleId: `output-${index}`,
+            showLabel: false,
+          })),
+        } as NodeData}
+        rawTitle="Picture → P2SH Scripts"
+        derived={{
+          ...derived,
+          isMultiVal: true,
+          nodeWidth: 400,
+          minHeight: 1200,
+          connectionStatus: { connected: 0, total: 2, shouldShow: true },
+        }}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        result={clip.prettyResult}
+        error={false}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: false,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    expect(screen.getByText("> Info:")).toBeInTheDocument();
+    expect(screen.queryByText("> Calculation Result:")).not.toBeInTheDocument();
+    expect(screen.getByTestId("picture-preview")).toHaveAttribute(
+      "src",
+      expect.stringMatching(/^data:image\/png;base64,/)
+    );
+    expect(screen.getByTestId("node-result")).toHaveTextContent(
+      "103 P2SH redeemScripts"
+    );
+    expect(screen.getByTestId("node-result")).toHaveTextContent(
+      "<240B data> <240B data> OP_2DROP <pubkey> OP_CHECKSIG"
+    );
     expect(screen.queryByTitle("Copy result to clipboard")).not.toBeInTheDocument();
   });
 });

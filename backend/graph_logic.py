@@ -38,6 +38,7 @@ from calc_functions.calc_func import (
     script_verification,
   
     encode_script_push_data,
+    bip110_picture_p2sh_scripts,
     op_code_select,
     int_to_script_bytes, 
     text_to_hex,
@@ -126,6 +127,7 @@ CALC_FUNCTIONS = {
     "sha256_hex": sha256_hex,
  
     "encode_script_push_data": encode_script_push_data,
+    "bip110_picture_p2sh_scripts": bip110_picture_p2sh_scripts,
     "op_code_select": op_code_select,
     "int_to_script_bytes": int_to_script_bytes,
     "text_to_hex": text_to_hex,
@@ -640,6 +642,40 @@ def _tx_field_extract_output_ports(fields):
     ]
 
 
+def _picture_p2sh_output_ports(count):
+    return [
+        {
+            "label": f"script {index + 1}",
+            "handleId": f"output-{index}",
+            "showLabel": False,
+        }
+        for index in range(count)
+    ]
+
+
+def _apply_picture_p2sh_outputs(data, result):
+    parsed = json.loads(result)
+    scripts = parsed.get("scripts") or []
+    output_values = {}
+
+    for index, script_info in enumerate(scripts):
+        if not isinstance(script_info, dict):
+            continue
+        output_values[f"output-{index}"] = str(script_info.get("script", ""))
+
+    count = len(output_values)
+    data["outputPorts"] = _picture_p2sh_output_ports(count)
+    data["outputValues"] = output_values
+    data["result"] = "\n".join(
+        [
+            f"{parsed.get('count', count)} P2SH redeemScripts",
+            f"{parsed.get('total_bytes', 0)} picture bytes",
+            f"{parsed.get('payload_bytes_per_full_script', 480)} B/output, {parsed.get('chunk_bytes', 240)} B chunks",
+            "<240B data> <240B data> OP_2DROP <pubkey> OP_CHECKSIG",
+        ]
+    )
+
+
 def _calculate_dynamic_tx_field_extract(data, inp_dict):
     vals = inp_dict.get("vals") or []
     raw_tx_hex = vals[0] if len(vals) > 0 else ""
@@ -748,6 +784,10 @@ def bulk_calculate_logic(nodes, edges):
                     and data.get("txFieldExtractMode") == "dynamic"
                 ):
                     data.pop("outputValues", None)
+                    data["result"] = ""
+                if fn_name == "bip110_picture_p2sh_scripts":
+                    data.pop("outputValues", None)
+                    data["outputPorts"] = []
                     data["result"] = ""
 
                 func = CALC_FUNCTIONS.get(fn_name)
@@ -903,6 +943,13 @@ def bulk_calculate_logic(nodes, edges):
                                 data.pop("outputValues", None)
                         except Exception:
                             data["result"] = result
+                            data.pop("outputValues", None)
+                    elif fn_name == "bip110_picture_p2sh_scripts":
+                        try:
+                            _apply_picture_p2sh_outputs(data, result)
+                        except Exception:
+                            data["result"] = result
+                            data["outputPorts"] = []
                             data.pop("outputValues", None)
                     else:
                         data["result"] = result

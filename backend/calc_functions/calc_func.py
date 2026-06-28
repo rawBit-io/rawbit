@@ -3293,6 +3293,90 @@ def encode_script_push_data(val: str) -> str:
     return "4e" + data_len.to_bytes(4, "little").hex()
 
 
+def _script_push_bytes(data: bytes) -> str:
+    data_len = len(data)
+    if data_len == 0:
+        return "00"
+    if data_len <= 75:
+        return f"{data_len:02x}" + data.hex()
+    if data_len <= 255:
+        return "4c" + f"{data_len:02x}" + data.hex()
+    if data_len <= 65535:
+        return "4d" + data_len.to_bytes(2, "little").hex() + data.hex()
+    return "4e" + data_len.to_bytes(4, "little").hex() + data.hex()
+
+
+def bip110_picture_p2sh_scripts(vals: Any) -> str:
+    """
+    Split image bytes into BIP110-sized data chunks and build P2SH redeemScripts.
+
+    Each full redeemScript is:
+        <240B data> <240B data> OP_2DROP <33B pubkey> OP_CHECKSIG
+
+    With two 240-byte pushes the redeemScript is exactly 520 bytes, so it stays
+    within the P2SH script element limit while each individual data push remains
+    below BIP110's 256-byte push limit.
+    """
+    if not isinstance(vals, (list, tuple)) or len(vals) < 2:
+        raise ValueError("Need [picture hex, compressed pubkey]")
+
+    picture = _bytes_from_even_hex(str(vals[0] or ""), name="picture hex")
+    pubkey = _bytes_from_even_hex(str(vals[1] or ""), name="compressed pubkey")
+
+    max_picture_bytes = 73 * 1024
+    chunk_bytes = 240
+    payload_per_script = chunk_bytes * 2
+    max_outputs = 156
+
+    if not picture:
+        raise ValueError("picture hex is empty")
+    if len(picture) > max_picture_bytes:
+        raise ValueError(
+            f"picture must be at most {max_picture_bytes} bytes (73 KiB)"
+        )
+    if len(pubkey) != 33 or pubkey[0] not in (2, 3):
+        raise ValueError("compressed pubkey must be 33 bytes and start with 02 or 03")
+
+    scripts = []
+    for index, start in enumerate(range(0, len(picture), payload_per_script)):
+        if index >= max_outputs:
+            raise ValueError(f"picture needs more than {max_outputs} P2SH outputs")
+
+        group = picture[start : start + payload_per_script]
+        chunk1 = group[:chunk_bytes]
+        chunk2 = group[chunk_bytes:]
+        redeem_script = (
+            _script_push_bytes(chunk1)
+            + _script_push_bytes(chunk2)
+            + "6d"  # OP_2DROP
+            + _script_push_bytes(pubkey)
+            + "ac"  # OP_CHECKSIG
+        )
+        scripts.append(
+            {
+                "index": index,
+                "payload_bytes": len(group),
+                "chunk1_bytes": len(chunk1),
+                "chunk2_bytes": len(chunk2),
+                "script_bytes": len(bytes.fromhex(redeem_script)),
+                "script": redeem_script,
+            }
+        )
+
+    return json.dumps(
+        {
+            "count": len(scripts),
+            "total_bytes": len(picture),
+            "max_bytes": max_picture_bytes,
+            "chunk_bytes": chunk_bytes,
+            "payload_bytes_per_full_script": payload_per_script,
+            "max_outputs": max_outputs,
+            "scripts": scripts,
+        },
+        separators=(",", ":"),
+    )
+
+
 def op_code_select(vals: Any) -> str:
     """
     Convert an ordered Script template/opcode list into serialized script hex.

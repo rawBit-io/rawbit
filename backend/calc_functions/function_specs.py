@@ -294,6 +294,12 @@ FUNCTION_SPECS = {
         "val": {"type": "string", "required": True}
     }
 },
+"bip110_picture_p2sh_scripts": {
+    "paramExtraction": "multi_val",
+    "params": {
+        "vals": {"type": "any", "required": True}
+    }
+},
 "int_to_script_bytes": {
     "paramExtraction": "single_val",
     "params": {

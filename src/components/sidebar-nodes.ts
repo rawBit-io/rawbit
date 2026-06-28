@@ -283,6 +283,51 @@ export const allSidebarNodes: NodeTemplate[] = [
     },
   },
   {
+    functionName: "bip110_picture_p2sh_scripts",
+    label: "Picture → P2SH Scripts",
+    category: "Encoding & Script Data",
+    subcategory: "Bytes, Integers & Pushdata",
+    description:
+      "Load an image and split it into BIP110-sized P2SH redeemScripts",
+    type: "calculation",
+    nodeData: {
+      functionName: "bip110_picture_p2sh_scripts",
+      title: "Picture → P2SH Scripts",
+      numInputs: 2,
+      paramExtraction: "multi_val",
+      version: 0,
+      inputs: { vals: { 0: "", 1: "" } },
+      result: "",
+      outputPorts: [{ label: "scripts", handleId: "", showHandle: false }],
+      outputValues: {},
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "Picture hex:",
+            rows: 3,
+            autoResizeMaxRows: 4,
+            placeholder: "Load an image file or paste hex bytes",
+            fileInput: "image-hex",
+            fileInputLabel: "Load Image",
+            accept: "image/*",
+            maxFileBytes: 73 * 1024,
+          },
+          {
+            index: 1,
+            label: "Compressed pubkey:",
+            rows: 2,
+            autoResizeMaxRows: 3,
+            placeholder: "33-byte compressed pubkey, starts 02 or 03",
+            comment:
+              "Appended as <pubkey> OP_CHECKSIG so each reveal spend still requires your signature.",
+          },
+        ],
+      },
+      groupInstances: {},
+    },
+  },
+  {
     functionName: "int_to_script_bytes",
     label: "Int → ScriptBytes",
     category: "Encoding & Script Data",

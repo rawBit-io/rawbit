@@ -152,6 +152,31 @@ describe("useCalcNodeDerived", () => {
     });
   });
 
+  it("grows min height from dynamic output handles", () => {
+    nodes = [
+      makeNode({
+        paramExtraction: "multi_val",
+        inputStructure: {
+          ungrouped: [
+            { label: "Picture hex:", index: 0 },
+            { label: "Compressed pubkey:", index: 1 },
+          ],
+        },
+        outputPorts: Array.from({ length: 20 }, (_, index) => ({
+          label: `script ${index + 1}`,
+          handleId: `output-${index}`,
+          showLabel: false,
+        })),
+      }),
+    ];
+    data = nodes[0].data as NodeData;
+
+    const { result } = renderHook(() => useCalcNodeDerived(nodeId, data, setNodes));
+
+    expect(result.current.visibleInputs).toBe(2);
+    expect(result.current.minHeight).toBe(14 * 21);
+  });
+
   it("uses canonical edges instead of rendered bundle edges", () => {
     storeState.edges = [
       {

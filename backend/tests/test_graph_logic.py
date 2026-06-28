@@ -933,6 +933,48 @@ def test_bulk_calculate_logic_dynamic_tx_field_extract_outputs():
     assert "vout.scriptPubKey: 51" in data["result"]
 
 
+def test_bulk_calculate_logic_picture_p2sh_dynamic_outputs():
+    pubkey = "02" + "11" * 32
+    picture_hex = "ab" * 481
+    nodes = [
+        {
+            "id": "picture",
+            "type": "calculation",
+            "data": {
+                "functionName": "bip110_picture_p2sh_scripts",
+                "paramExtraction": "multi_val",
+                "inputStructure": {
+                    "ungrouped": [
+                        {"index": 0, "label": "Picture hex:"},
+                        {"index": 1, "label": "Compressed pubkey:"},
+                    ]
+                },
+                "inputs": {"vals": {"0": picture_hex, "1": pubkey}},
+                "dirty": True,
+            },
+        }
+    ]
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic(copy.deepcopy(nodes), [])
+    data = list(updated_nodes)[0]["data"]
+
+    assert errors == []
+    assert data["dirty"] is False
+    assert data["outputPorts"] == [
+        {"label": "script 1", "handleId": "output-0", "showLabel": False},
+        {"label": "script 2", "handleId": "output-1", "showLabel": False},
+    ]
+    assert set(data["outputValues"]) == {"output-0", "output-1"}
+    assert len(bytes.fromhex(data["outputValues"]["output-0"])) == 520
+    assert data["outputValues"]["output-1"] == "01ab006d21" + pubkey + "ac"
+    assert "2 P2SH redeemScripts" in data["result"]
+    assert "481 picture bytes" in data["result"]
+    assert (
+        "<240B data> <240B data> OP_2DROP <pubkey> OP_CHECKSIG"
+        in data["result"]
+    )
+
+
 def _dynamic_extract_node(fields, vals):
     return {
         "id": "extract",

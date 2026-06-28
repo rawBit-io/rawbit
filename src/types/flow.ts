@@ -22,6 +22,10 @@ export interface FieldDefinition {
   comment?: string;
   options?: string[];
   value?: string;
+  fileInput?: "image-hex";
+  fileInputLabel?: string;
+  accept?: string;
+  maxFileBytes?: number;
 }
 
 export interface GroupDefinition {

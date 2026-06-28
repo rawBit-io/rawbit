@@ -45,6 +45,7 @@ import {
   Plus,
   RefreshCw,
   Trash2,
+  Upload,
   Usb,
 } from "lucide-react";
 
@@ -99,6 +100,98 @@ const isScriptVerifyTaprootGroup = (groupDef: GroupDefinition) =>
 
 const hasMeaningfulValue = (value: unknown) =>
   value !== undefined && value !== null && String(value).trim().length > 0;
+
+const normalizeHexInput = (value: unknown) => {
+  if (typeof value !== "string") return "";
+  const cleaned = value.replace(/\s+/g, "");
+  return cleaned.toLowerCase().startsWith("0x") ? cleaned.slice(2) : cleaned;
+};
+
+const bytesToBase64 = (bytes: Uint8Array) => {
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+    const chunk = bytes.subarray(offset, offset + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+  return window.btoa(binary);
+};
+
+const inferImageMime = (bytes: Uint8Array) => {
+  if (
+    bytes.length >= 8 &&
+    bytes[0] === 0x89 &&
+    bytes[1] === 0x50 &&
+    bytes[2] === 0x4e &&
+    bytes[3] === 0x47 &&
+    bytes[4] === 0x0d &&
+    bytes[5] === 0x0a &&
+    bytes[6] === 0x1a &&
+    bytes[7] === 0x0a
+  ) {
+    return "image/png";
+  }
+  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8) {
+    return "image/jpeg";
+  }
+  if (
+    bytes.length >= 6 &&
+    bytes[0] === 0x47 &&
+    bytes[1] === 0x49 &&
+    bytes[2] === 0x46 &&
+    bytes[3] === 0x38
+  ) {
+    return "image/gif";
+  }
+  if (
+    bytes.length >= 12 &&
+    bytes[0] === 0x52 &&
+    bytes[1] === 0x49 &&
+    bytes[2] === 0x46 &&
+    bytes[3] === 0x46 &&
+    bytes[8] === 0x57 &&
+    bytes[9] === 0x45 &&
+    bytes[10] === 0x42 &&
+    bytes[11] === 0x50
+  ) {
+    return "image/webp";
+  }
+  if (bytes.length >= 2 && bytes[0] === 0x42 && bytes[1] === 0x4d) {
+    return "image/bmp";
+  }
+
+  try {
+    const prefix = new TextDecoder()
+      .decode(bytes.slice(0, 256))
+      .trimStart()
+      .toLowerCase();
+    if (prefix.startsWith("<svg") || prefix.startsWith("<?xml")) {
+      return prefix.includes("<svg") ? "image/svg+xml" : null;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+};
+
+const buildImagePreviewDataUrl = (hexValue: unknown) => {
+  const hex = normalizeHexInput(hexValue);
+  if (!hex || hex.length % 2 !== 0 || /[^0-9a-f]/i.test(hex)) return null;
+
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let index = 0; index < bytes.length; index += 1) {
+    bytes[index] = Number.parseInt(hex.slice(index * 2, index * 2 + 2), 16);
+  }
+
+  const mime = inferImageMime(bytes);
+  if (!mime) return null;
+
+  return {
+    mime,
+    src: `data:${mime};base64,${bytesToBase64(bytes)}`,
+  };
+};
 
 const formatScriptVerifyFieldLabel = (label: string) => label.toUpperCase();
 const normalizedFieldLabelIncludes = (label: string, token: string) =>
@@ -457,6 +550,15 @@ export function CalculationNodeView({
   const isTaprootTreeBuilder = outputLayout === "taproot_tree_builder";
   const isTaprootTweakXonly = outputLayout === "taproot_tweak_xonly_pubkey";
   const isMusig2NonceGen = outputLayout === "musig2_nonce_gen";
+  const isPictureP2shScripts =
+    data.functionName === "bip110_picture_p2sh_scripts";
+  const picturePreview = useMemo(
+    () =>
+      isPictureP2shScripts
+        ? buildImagePreviewDataUrl(getVal(data.inputs?.vals, 0))
+        : null,
+    [data.inputs?.vals, isPictureP2shScripts]
+  );
   const isDynamicTxFieldExtract =
     data.functionName === "extract_tx_field" &&
     data.txFieldExtractMode === "dynamic";
@@ -629,6 +731,32 @@ export function CalculationNodeView({
     return { displayValue, placeholder };
   };
 
+  const handleImageHexFile = useCallback(
+    (fieldIndex: number, file: File | undefined, maxFileBytes?: number) => {
+      if (!file) return;
+      if (maxFileBytes && file.size > maxFileBytes) {
+        window.alert(
+          `Selected file is ${file.size} bytes; maximum is ${maxFileBytes} bytes.`
+        );
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const buffer = reader.result;
+        if (!(buffer instanceof ArrayBuffer)) return;
+        const bytes = new Uint8Array(buffer);
+        let hex = "";
+        for (const byte of bytes) {
+          hex += byte.toString(16).padStart(2, "0");
+        }
+        mut.setFieldValue(fieldIndex, hex, isInputConnected(fieldIndex), false);
+      };
+      reader.readAsArrayBuffer(file);
+    },
+    [isInputConnected, mut]
+  );
+
   const makeRenderSingleField =
     (scope: string) => (field: FieldDefinition) => {
       const fieldIndex = field.index;
@@ -652,12 +780,25 @@ export function CalculationNodeView({
       const allowNull =
         field.allowNull ||
         (data.functionName === "musig2_nonce_gen" && fieldIndex === 2);
+      const hasImageFileInput = field.fileInput === "image-hex";
+      const pictureHexMaxRows = hasImageFileInput
+        ? Math.max(
+            field.autoResizeMaxRows ?? 4,
+            Math.min(72, Math.floor((derived.minHeight - 380) / 20))
+          )
+        : undefined;
       const fieldRows = isConcatAll ? 1 : field.rows;
-      const autoResizeMaxRows = isConcatAll ? 3 : field.autoResizeMaxRows;
+      const autoResizeMaxRows = isConcatAll
+        ? 3
+        : pictureHexMaxRows ?? field.autoResizeMaxRows;
       const isTxFieldExtractRawTxField =
         isDynamicTxFieldExtract && fieldIndex === 0;
       const isTxFieldExtractIndexField =
         isDynamicTxFieldExtract && fieldIndex === 1;
+      const byteCount =
+        hasImageFileInput && rawValue
+          ? Math.floor(String(rawValue).replace(/\s+/g, "").length / 2)
+          : 0;
 
       if (field.options) {
         const current = rawValue ?? field.options[0];
@@ -674,9 +815,8 @@ export function CalculationNodeView({
         );
       }
 
-      return (
+      const fieldControl = (
         <FieldWithHandle
-          key={`${scope}-${fieldIndex}`}
           handleId={`input-${fieldIndex}`}
           connected={connected}
           label={fieldLabel}
@@ -712,6 +852,52 @@ export function CalculationNodeView({
           }
           onLabelChange={(label) => mut.updateFieldLabel(fieldIndex, label)}
         />
+      );
+
+      if (!hasImageFileInput) {
+        return (
+          <React.Fragment key={`${scope}-${fieldIndex}`}>
+            {fieldControl}
+          </React.Fragment>
+        );
+      }
+
+      return (
+        <div key={`${scope}-${fieldIndex}`} className="space-y-2">
+          <div
+            className="nodrag flex items-center justify-between gap-3 text-xs text-muted-foreground"
+            onPointerDownCapture={(event) => event.stopPropagation()}
+          >
+            <span>
+              {byteCount > 0 ? `${byteCount} bytes loaded` : "No file loaded"}
+            </span>
+            <label
+              className={cn(
+                "inline-flex h-7 cursor-pointer items-center gap-1 rounded-md border border-input bg-background px-2 font-mono text-primary shadow-sm transition-colors",
+                "hover:bg-accent hover:text-accent-foreground",
+                connected && "pointer-events-none cursor-not-allowed opacity-50"
+              )}
+            >
+              <Upload className="h-3.5 w-3.5" />
+              {field.fileInputLabel ?? "Load File"}
+              <input
+                type="file"
+                className="sr-only"
+                accept={field.accept ?? "image/*"}
+                disabled={connected}
+                onChange={(event) => {
+                  handleImageHexFile(
+                    fieldIndex,
+                    event.currentTarget.files?.[0],
+                    field.maxFileBytes
+                  );
+                  event.currentTarget.value = "";
+                }}
+              />
+            </label>
+          </div>
+          {fieldControl}
+        </div>
       );
     };
 
@@ -1664,13 +1850,24 @@ export function CalculationNodeView({
                 : "pt-2",
               isTxTemplateNode
                 ? "mt-5"
-                : isConcatAll
-                  ? "mt-1"
-                  : !isSimpleResultOnly && "mt-auto"
+              : isConcatAll
+                ? "mt-1"
+                : !isSimpleResultOnly && "mt-auto"
             )}
           >
+            {picturePreview ? (
+              <div className="mb-4 flex justify-center">
+                <img
+                  data-testid="picture-preview"
+                  src={picturePreview.src}
+                  alt="Loaded picture preview"
+                  className="max-h-64 max-w-full rounded border border-border object-contain"
+                  draggable={false}
+                />
+              </div>
+            ) : null}
             <div className="calc-node-result-label mb-2 text-sm text-primary">
-              {">"} Calculation Result:
+              {">"} {isPictureP2shScripts ? "Info:" : "Calculation Result:"}
             </div>
             {isMusig2NonceGen ? (
               <div className="space-y-3 text-sm">
@@ -1738,6 +1935,14 @@ export function CalculationNodeView({
                       <Copy className="h-4 w-4" />
                     )}
                   </Button>
+                </div>
+              </div>
+            ) : isPictureP2shScripts ? (
+              <div className="text-sm">
+                <div className="flex-1 min-w-0" data-testid="node-result">
+                  <span className="block whitespace-pre-wrap break-words">
+                    {clip.prettyResult}
+                  </span>
                 </div>
               </div>
             ) : (
