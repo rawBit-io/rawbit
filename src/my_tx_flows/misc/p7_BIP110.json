@@ -1,5 +1,5 @@
 {
-  "name": "BIP110",
+  "name": "Embed Picture in P2SH (up to 73 KiB, BIP",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -30,8 +30,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 14796.34266989044,
-        "y": 5465.201414599377
+        "x": 14661.34266989044,
+        "y": 5525.201414599377
       },
       "data": {
         "isGroup": true,
@@ -63,8 +63,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 11171.893208830617,
-        "y": 1800.4232372967936
+        "x": 11036.893208830617,
+        "y": 1860.4232372967936
       },
       "data": {
         "isGroup": true,
@@ -93,8 +93,8 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 6035.700528570338,
-        "y": 3437.1375874348996
+        "x": 5900.700528570338,
+        "y": 3497.1375874348996
       },
       "data": {
         "isGroup": true,
@@ -127,8 +127,8 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": 81.02202154809675,
-        "y": 6603.747578004854
+        "x": -53.977978451903255,
+        "y": 6663.747578004854
       },
       "data": {
         "isGroup": true,
@@ -156,8 +156,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 2776.886876318802,
-        "y": 931.2687461858658
+        "x": 2641.886876318802,
+        "y": 991.2687461858658
       },
       "data": {
         "isGroup": true,
@@ -2235,8 +2235,8 @@
       "id": "node_75JB67PO",
       "type": "shadcnGroup",
       "position": {
-        "x": 31320.959832268316,
-        "y": 15038.629717498055
+        "x": 31185.959832268316,
+        "y": 15098.629717498055
       },
       "data": {
         "isGroup": true,
@@ -2264,8 +2264,8 @@
       "id": "node_TC7BVduR",
       "type": "shadcnGroup",
       "position": {
-        "x": 25669.989747058662,
-        "y": 11280.66963197862
+        "x": 25534.989747058662,
+        "y": 11340.66963197862
       },
       "data": {
         "isGroup": true,
@@ -2296,8 +2296,8 @@
       "id": "node_L0EP4zuC",
       "type": "shadcnGroup",
       "position": {
-        "x": 19601.60425254388,
-        "y": 13003.13235339848
+        "x": 19466.60425254388,
+        "y": 13063.13235339848
       },
       "data": {
         "isGroup": true,
@@ -3772,8 +3772,8 @@
       "id": "node_JXkIOct0",
       "type": "shadcnGroup",
       "position": {
-        "x": 16764.78871948293,
-        "y": 16390.020807359426
+        "x": 16629.78871948293,
+        "y": 16450.020807359426
       },
       "data": {
         "isGroup": true,
@@ -4686,8 +4686,8 @@
       "id": "node_8xe9q1g",
       "type": "calculation",
       "position": {
-        "x": 527.3664768409717,
-        "y": 2141.943259738688
+        "x": 392.3664768409717,
+        "y": 2201.943259738688
       },
       "data": {
         "functionName": "bip110_picture_p2sh_scripts",
@@ -4983,47 +4983,11 @@
       }
     },
     {
-      "id": "node_bht3khu",
-      "type": "shadcnTextInfo",
-      "position": {
-        "x": 315,
-        "y": 435
-      },
-      "data": {
-        "content": "## BIP-110 Does Not Stop Data Embedding\n\nBIP-110 was created to reduce arbitrary data on Bitcoin by limiting push sizes and output scripts. However, it still leaves several vectors open.\n\nThis example deliberately uses **P2SH redeemScripts** to embed data. It was chosen because:\n\n- It is one of the more **harmful** methods (it creates many new UTXOs).\n- It clearly demonstrates that BIP-110 does **not** eliminate data storage — it only makes some methods more expensive or inconvenient.\n- There are **countless other ways** to put data on chain that are not addressed by this soft fork.\n\nThe construction shown here splits data into 240-byte chunks inside P2SH redeemScripts. Because BIP-110 explicitly exempts the redeemScript push in P2SH inputs, this method remains valid.",
-        "fontSize": 28,
-        "width": 922,
-        "height": 832,
-        "title": "Text Info Node",
-        "dirty": false
-      },
-      "width": 922,
-      "height": 832
-    },
-    {
-      "id": "node_neezn63",
-      "type": "shadcnTextInfo",
-      "position": {
-        "x": 1450.3855784866173,
-        "y": 831.0318017739577
-      },
-      "data": {
-        "content": "## How This Construction Works\n\nEach P2SH output uses a redeemScript with the following structure:\n```<240 bytes data> <240 bytes data> OP_2DROP <pubkey> OP_CHECKSIG\n```\n\n\n### Why it bypasses BIP-110:\n\n- The full 520-byte redeemScript is pushed in the spending transaction’s `scriptSig`. BIP-110 **exempts** this specific push.\n- Inside the redeemScript, each data chunk is only 240 bytes — under the 256-byte push limit.\n- `OP_2DROP` removes the data from the stack before `OP_CHECKSIG` executes.\n- The output itself is a standard 23-byte P2SH script \nThe full redeemScript is pushed in the scriptSig when spending the output. This reveals the embedded data on-chain. BIP-110 exempts this specific P2SH redeemScript push, while keeping internal data pushes under 256 bytes.\n\n\nThis method is deliberately inefficient: every 480 bytes of data requires creating a new UTXO. It was chosen for the demo precisely because it shows both the weakness in BIP-110 **and** the negative side effects of this kind of data embedding.",
-        "fontSize": 28,
-        "width": 1234,
-        "height": 927,
-        "title": "Text Info Node",
-        "dirty": false
-      },
-      "width": 1234,
-      "height": 927
-    },
-    {
       "id": "node_zijv446",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1009.6555750530761,
-        "y": 2155.4650488121774
+        "x": 1487.262456768483,
+        "y": 2225.7609627905877
       },
       "data": {
         "content": "## Try it yourself: Embed a Picture (2-Step TX)\n\nUse the **`Picture → P2SH Scripts`** node to generate redeemScripts from any image (<73kB). \n\n*node takes an image and splits it into multiple P2SH redeemScripts. Each redeemScript carries 480 bytes of data (two 240-byte chunks + `OP_2DROP` + pubkey + `OP_CHECKSIG`)*\n\nThen create two transactions:\n\n1. **Funding TX** — Create multiple P2SH outputs (one per redeemScript). \n2. **Reveal TX** — Spend all those P2SH outputs in one transaction. Provide the signature + full redeemScript in each input to reveal the data.\n\n### Questions:\n\n- How many new UTXOs did you create?\n- Why is this method harmful to the network?\n",
@@ -5041,8 +5005,8 @@
       "id": "node_0agwsdl",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 60.14559423370042,
-        "y": 5426.7306047826505
+        "x": -74.85440576629958,
+        "y": 5486.7306047826505
       },
       "data": {
         "content": "## Text Example: Manual RedeemScript Construction (BIP-110 Compliant)\n\nThis section manually builds a P2SH redeemScript that embeds the following text:\n\n> The main claim of the Knots supporters is that whether the data is stored on disk interrupted by other data or not (contiguous) has any bearing on whether it is legal. Therefore, they claim, we have to decrease the size of every bit of data Bitcoin stores to ensure nobody can do anything like that. The idea is already ridiculous.\n\n### What is happening here:\n\nThe text is split into **three chunks**. Each chunk is converted to hex and pushed onto the stack. The chunks are then removed using three separate `OP_DROP` instructions, followed by a public key and `OP_CHECKSIG`.\n\nThe resulting redeemScript structure is:\n```\n<push Chunk1> <push Chunk2> <push Chunk3> OP_DROP OP_DROP OP_DROP <pubkey> OP_CHECKSIG\n```\n\nThis example embeds the full text into **one P2SH output** (~540 bytes per output).\n\n### BIP-110 Compliance:\n\n- Each data push stays well under the **256-byte limit**.\n- The full redeemScript is allowed because BIP-110 exempts the redeemScript push inside P2SH inputs.\n- This example uses three individual `OP_DROP` opcodes (less efficient than `OP_2DROP`).\n\n### Purpose:\n\nThis manual construction is shown for educational purposes so you can see exactly how data is embedded at the script level. Later in the flow, the `Picture → P2SH Scripts` node automates a similar (but cleaner) process using `OP_2DROP`. It can scale up to **156 outputs**, allowing embedding of up to ~73 KiB of data in a single transaction.",
@@ -5059,8 +5023,8 @@
       "id": "node_iemxpcc",
       "type": "calculation",
       "position": {
-        "x": -240.7643828301842,
-        "y": 2717.5364322176347
+        "x": -375.7643828301842,
+        "y": 2777.5364322176347
       },
       "data": {
         "functionName": "random_256",
@@ -5077,8 +5041,8 @@
       "id": "node_ao5dkeg",
       "type": "calculation",
       "position": {
-        "x": 134.51057197561414,
-        "y": 2654.8368573252046
+        "x": -0.48942802438585886,
+        "y": 2714.8368573252046
       },
       "data": {
         "functionName": "public_key_from_private_key",
@@ -5093,6 +5057,137 @@
         "dirty": false,
         "error": false
       }
+    },
+    {
+      "id": "node_flz6d1t",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 1379.5758902360778,
+        "y": 572.3016290956914
+      },
+      "data": {
+        "content": "## How This Construction Works (Lock First, Reveal Later)\n\nThis is a two-transaction construction:\n\n1. **Funding TX** — Create one or more P2SH outputs.\n2. **Reveal TX** — Spend those P2SH outputs and reveal the full redeemScripts.\n\nIn the Funding Transaction, the data is not placed directly on-chain. Each output only contains a small, standard P2SH script:\n\n    ```OP_HASH160 <redeemScriptHash> OP_EQUAL```\n\nThis locks the coins to the *hash* of a script. The actual data only becomes visible later, when the output is spent and the full redeemScript is provided in the `scriptSig`.\n\nEach redeemScript used in this demo has the following structure:\n\n    ```<240 bytes data> <240 bytes data> OP_2DROP <pubkey> OP_CHECKSIG```\n\nDuring execution:\n\n- The two data chunks are pushed onto the stack.\n- `OP_2DROP` removes both of them.\n- What remains is a normal single-signature check.\n\nIf the signature is valid, the spend succeeds.\n\n### Why it fits within BIP-110 limits\n\n- Each data push is only 240 bytes (under the demonstrated push size limit).\n- The P2SH output script itself is small and standard.\n- The full redeemScript is only revealed when spending the P2SH output (this specific push is exempt).\n\nThis construction is intentionally inefficient. Every 480 bytes of data requires creating a new P2SH output first. That means the method creates many UTXOs before the data is even revealed. This is useful for the demo because it shows that restricting obvious data pushes can push users toward more wasteful constructions instead of removing data embedding completely.",
+        "fontSize": 28,
+        "width": 1210,
+        "height": 1482,
+        "title": "Text Info Node"
+      },
+      "width": 1210,
+      "height": 1482
+    },
+    {
+      "id": "node_A0YocdVc",
+      "type": "calculation",
+      "position": {
+        "x": 958.9025829975931,
+        "y": 2280.941266377046
+      },
+      "data": {
+        "functionName": "bip110_picture_p2sh_scripts",
+        "title": "Picture → P2SH Scripts",
+        "numInputs": 2,
+        "paramExtraction": "multi_val",
+        "version": 0,
+        "inputs": {
+          "vals": {
+            "0": "ffd8ffe100e84578696600004d4d002a000000080006011200030000000100010000011a00050000000100000056011b0005000000010000005e012800030000000100020000021300030000000100010000876900040000000100000066000000000000009000000001000000900000000100089000000700000004303232319101000700000004010203009286000700000012000000cca00000070000000430313030a00100030000000100010000a002000400000001000000bea00300040000000100000072a4060003000000010000000000000000415343494900000053637265656e73686f740000ffe202284943435f50524f46494c45000101000002186170706c040000006d6e74725247422058595a2007e600010001000000000000616373704150504c000000004150504c000000000000000000000000000000000000f6d6000100000000d32d6170706c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a64657363000000fc00000030637072740000012c00000050777470740000017c000000147258595a00000190000000146758595a000001a4000000146258595a000001b80000001472545243000001cc0000002063686164000001ec0000002c62545243000001cc0000002067545243000001cc000000206d6c756300000000000000010000000c656e5553000000140000001c0044006900730070006c006100790020005000336d6c756300000000000000010000000c656e5553000000340000001c0043006f00700079007200690067006800740020004100700070006c006500200049006e0063002e002c0020003200300032003258595a20000000000000f6d5000100000000d32c58595a2000000000000083df00003dbfffffffbb58595a200000000000004abf0000b13700000ab958595a2000000000000028380000110b0000c8b9706172610000000000030000000266660000f2a700000d59000013d000000a5b736633320000000000010c42000005defffff326000007930000fd90fffffba2fffffda3000003dc0000c06effdb0084001b1b1b1b1b1b2e1b1b2e412e2e2e415841414141586f58585858586f866f6f6f6f6f6f8686868686868686a1a1a1a1a1a1bcbcbcbcbcd3d3d3d3d3d3d3d3d3d3012123233632365c32325cdd967b96ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddffdd0004000cffc0001108007200be03012200021101031101ffc401a20000010501010101010100000000000000000102030405060708090a0b100002010303020403050504040000017d01020300041105122131410613516107227114328191a1082342b1c11552d1f02433627282090a161718191a25262728292a3435363738393a434445464748494a535455565758595a636465666768696a737475767778797a838485868788898a92939495969798999aa2a3a4a5a6a7a8a9aab2b3b4b5b6b7b8b9bac2c3c4c5c6c7c8c9cad2d3d4d5d6d7d8d9dae1e2e3e4e5e6e7e8e9eaf1f2f3f4f5f6f7f8f9fa0100030101010101010101010000000000000102030405060708090a0b1100020102040403040705040400010277000102031104052131061241510761711322328108144291a1b1c109233352f0156272d10a162434e125f11718191a262728292a35363738393a434445464748494a535455565758595a636465666768696a737475767778797a82838485868788898a92939495969798999aa2a3a4a5a6a7a8a9aab2b3b4b5b6b7b8b9bac2c3c4c5c6c7c8c9cad2d3d4d5d6d7d8d9dae2e3e4e5e6e7e8e9eaf2f3f4f5f6f7f8f9faffda000c03010002110311003f00e8e8a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a00ffd0e8e8a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a648e238da43d1467f2ac48f5bed2c7ff7cff85006cacf0b398d5d4b0e31df8a96b94d3de3fb679b3b05ea79f53562e6ee67bf096d26070a31d3fc2803a3a28a2803ffd1e8e8a28a0028acbbfbf7b47544507233cd476daa798923ce028403a5006c515cdc9acce4fee95547bf35aba75cc97509793190d8e3e82802fd159375aac509f2e21bd87e559c758bb3d028fc2803a7a2b9b8f5a9c1fde22b0f6e2b6edaea2ba4dd176ea3d2802cd158977a9cd6d3b43b1703a55fb1ba3770f98c0020e302802e514562ddea8f6f3b431a82171d68036a8aced3ef4de06dc0295c74f4ad1a0028ac9bed45ed65112283c64e6a5d3ef24bb0c5d4285c018a0035593cbb323fbc42d7310c4d3cab12756e2b5f5a93e78e11d866a1d1e3dd7264ec8bfcf8a00864d2ef23fe1dc3fd9aa5f3c4fdd597f0c577554ef6da3b881b70e54654fa50067d86a6646105c753c2b7f4adcae0c71c8aee6262d1ab1ee05007ffd2e8e8a28a00e735aff5d1ff00bb5950c524ee218fa9fcab575aff005d1ffbb4ba228f3646f400500598f45842fef5d89f6e053e680d9593c56bb98b9fa919fa7d2b5a8a00e361b2b896458f615cf723815be9a459aae18163eb9ff0ab135f5ac076bbf23b0e6a99d66d474563f80ff1a00a7a869a9047e7c1f747506a9584a61ba423a31da7e86afdceab1cd0344a87e618e6b220ff005f1ffbc28035f5a8b0e930ee36fe54689261e48bd4023f0ad1d522f32cdb1d53e6fcbffad581a749e5de467b1f97f3a00eb890a327a0ae1e4732cad27f78935d66a3279566e7d46d1f8d61e930896e72c3855fe7c500269327977617b38c57555c5736b73ef1b7f2aec5e45488cbd82e680392bf93ccbb91bd0e3f2e2ba1d2e2f2ecd7d5be6ff0fd2b955569640a3ab1c7e75dab1582027b46bfc8500729a849e6de39ec0ed1f8715369f7c9661832677771ed59a492727bd6e8d18344ac1f6b103208e2802f26ab64c3962bf51fe154ef75489a2315bf258633d302a8cda5ddc4320071fecff85518fcb57fde82477038a007db40f7328893f1f615db00000076aa964b6a210d6a30a7f3fc6add007fffd3e8e8a28a00e735aff5d1ff00bb4fd13ef4bf414cd6bfd747feed3f44fbd2fd0500741593aadd34112c719c17efec2b5ab9fd6d0ee8dfb608a00cab7b792ea4f2e3ff00eb015b2ba2263e790fe0315434cba8eda63e670ac319f4ae93ed36d8dde6263ea28031ee74ab782dde50cd951c74c7f2ac683fd747fef0ad5d4b504997ecf072bdcd6541feba3ff7850076cca1d0a1e8462b8821a1971dd0ff002aee6b93d522f2eec91d1c06a00b9ac4e1e38917a30dff00e1567468b6dbb49fdf3fa0ae75e46936eefe150a3e82bb3b68bc9b748bfba0500739ab45b2eb78e8e01fe956dee73a38f5384fcbff00ad536b316e81651fc07f435cf798de5793fc39ddfa62802ee95179976a7b20cd6deab27976647f7885aaba2c588de6f5381f8543ad49f3c708ec33401956d1f9b7091fa91f9576d5c4db4e6da512a8048f5adc8f5a88f12a15fa73fe1401b55ceeb30a23a4aa305b20fe15a3fdab658cee3f4c573f7b746ee5df8c28e00a00bda2c844af1762b9fcaba3ae7f4584ee79cf40368ae82803ffd4e8e8a28a00c5d52d2e2e244685770031d40a7697693db3399976e40c723fa56c51400543716f1dcc46293a76f6a9a8a00e566d2aea33f20de3d47f8542ba7de31c08c8faf15d851401869a518addfa3cacb81e82a8c5a6deaca8c63c0047715d551400564ea9692dc8468572cbc761c56b51401cc5be997427432a614104f23b574f45140105cc5e75bbc5ea38faf6ae67fb2efbfe79fea3fc6bada2802b59c260b6488f040e7eb52bc314a312286fa8a928a00e4678637bf36f00dabb82fd3d68beb3166caa1b76ef6c62ba8fb341e6098200c3b8aa779a70bb7126fda40c631c500612e9d78e81d53823239156e0d1a6620ce422fa0e4ff85746005014741c52d0032289218c4718c28a7d145007ffd5e8e8a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a00ffd6e8e8a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a00ffd9",
+            "1": "0327e82bb46e647b5566c54a0befd8f893914f5b8bec799761a46a9c495fbf5716"
+          }
+        },
+        "result": "7 P2SH redeemScripts\n3009 picture bytes\n480 B/output, 240 B chunks\n<240B data> <240B data> OP_2DROP <pubkey> OP_CHECKSIG",
+        "outputPorts": [
+          {
+            "label": "script 1",
+            "handleId": "output-0",
+            "showLabel": false
+          },
+          {
+            "label": "script 2",
+            "handleId": "output-1",
+            "showLabel": false
+          },
+          {
+            "label": "script 3",
+            "handleId": "output-2",
+            "showLabel": false
+          },
+          {
+            "label": "script 4",
+            "handleId": "output-3",
+            "showLabel": false
+          },
+          {
+            "label": "script 5",
+            "handleId": "output-4",
+            "showLabel": false
+          },
+          {
+            "label": "script 6",
+            "handleId": "output-5",
+            "showLabel": false
+          },
+          {
+            "label": "script 7",
+            "handleId": "output-6",
+            "showLabel": false
+          }
+        ],
+        "outputValues": {
+          "output-0": "4cf0ffd8ffe100e84578696600004d4d002a000000080006011200030000000100010000011a00050000000100000056011b0005000000010000005e012800030000000100020000021300030000000100010000876900040000000100000066000000000000009000000001000000900000000100089000000700000004303232319101000700000004010203009286000700000012000000cca00000070000000430313030a00100030000000100010000a002000400000001000000bea00300040000000100000072a4060003000000010000000000000000415343494900000053637265656e73686f740000ffe202284cf04943435f50524f46494c45000101000002186170706c040000006d6e74725247422058595a2007e600010001000000000000616373704150504c000000004150504c000000000000000000000000000000000000f6d6000100000000d32d6170706c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a64657363000000fc00000030637072740000012c00000050777470740000017c000000147258595a00000190000000146758595a000001a4000000146258595a000001b80000001472545243000001cc0000002063686164000001ec00006d210327e82bb46e647b5566c54a0befd8f893914f5b8bec799761a46a9c495fbf5716ac",
+          "output-1": "4cf0002c62545243000001cc0000002067545243000001cc000000206d6c756300000000000000010000000c656e5553000000140000001c0044006900730070006c006100790020005000336d6c756300000000000000010000000c656e5553000000340000001c0043006f00700079007200690067006800740020004100700070006c006500200049006e0063002e002c0020003200300032003258595a20000000000000f6d5000100000000d32c58595a2000000000000083df00003dbfffffffbb58595a200000000000004abf0000b13700000ab958595a2000000000000028380000110b0000c8b97061726100004cf0000000030000000266660000f2a700000d59000013d000000a5b736633320000000000010c42000005defffff326000007930000fd90fffffba2fffffda3000003dc0000c06effdb0084001b1b1b1b1b1b2e1b1b2e412e2e2e415841414141586f58585858586f866f6f6f6f6f6f8686868686868686a1a1a1a1a1a1bcbcbcbcbcd3d3d3d3d3d3d3d3d3d3012123233632365c32325cdd967b96ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddffdd0004000cffc0001108007200be03012200021101031101ffc401a2000001050101016d210327e82bb46e647b5566c54a0befd8f893914f5b8bec799761a46a9c495fbf5716ac",
+          "output-2": "4cf001010100000000000000000102030405060708090a0b100002010303020403050504040000017d01020300041105122131410613516107227114328191a1082342b1c11552d1f02433627282090a161718191a25262728292a3435363738393a434445464748494a535455565758595a636465666768696a737475767778797a838485868788898a92939495969798999aa2a3a4a5a6a7a8a9aab2b3b4b5b6b7b8b9bac2c3c4c5c6c7c8c9cad2d3d4d5d6d7d8d9dae1e2e3e4e5e6e7e8e9eaf1f2f3f4f5f6f7f8f9fa0100030101010101010101010000000000000102030405060708090a0b110002010204040304074cf005040400010277000102031104052131061241510761711322328108144291a1b1c109233352f0156272d10a162434e125f11718191a262728292a35363738393a434445464748494a535455565758595a636465666768696a737475767778797a82838485868788898a92939495969798999aa2a3a4a5a6a7a8a9aab2b3b4b5b6b7b8b9bac2c3c4c5c6c7c8c9cad2d3d4d5d6d7d8d9dae2e3e4e5e6e7e8e9eaf2f3f4f5f6f7f8f9faffda000c03010002110311003f00e8e8a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a00ffd0e8e8a28a00286d210327e82bb46e647b5566c54a0befd8f893914f5b8bec799761a46a9c495fbf5716ac",
+          "output-3": "4cf0a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a648e238da43d1467f2ac48f5bed2c7ff7cff85006cacf0b398d5d4b0e31df8a96b94d3de3fb679b3b05ea79f53562e6ee67bf096d26070a31d3fc2803a3a28a2803ffd1e8e8a28a0028acbbfbf7b47544507233cd476daa798923ce028403a5006c515cdc9acce4fee95547bf35aba75cc97509793190d8e3e82802fd159375aac509f2e21bd87e559c758bb3d028fc2803a7a2b9b8f5a9c1fde22b0f6e2b6edaea2ba4dd176ea3d2802cd158977a9cd6d3b43b1703a55fb1ba3770f98c0020e302802e514562ddea8f6f3b431a82174cf01d68036a8aced3ef4de06dc0295c74f4ad1a0028ac9bed45ed65112283c64e6a5d3ef24bb0c5d4285c018a0035593cbb323fbc42d7310c4d3cab12756e2b5f5a93e78e11d866a1d1e3dd7264ec8bfcf8a00864d2ef23fe1dc3fd9aa5f3c4fdd597f0c577554ef6da3b881b70e54654fa50067d86a6646105c753c2b7f4adcae0c71c8aee6262d1ab1ee05007ffd2e8e8a28a00e735aff5d1ff00bb5950c524ee218fa9fcab575aff005d1ffbb4ba228f3646f400500598f45842fef5d89f6e053e680d9593c56bb98b9fa919fa7d2b5a8a00e361b2b896458f615cf723815be9a459aae18163eb9ff0ab135f5ac076bb6d210327e82bb46e647b5566c54a0befd8f893914f5b8bec799761a46a9c495fbf5716ac",
+          "output-4": "4cf0f23b0e6a99d66d474563f80ff1a00a7a869a9047e7c1f747506a9584a61ba423a31da7e86afdceab1cd0344a87e618e6b220ff005f1ffbc28035f5a8b0e930ee36fe54689261e48bd4023f0ad1d522f32cdb1d53e6fcbffad581a749e5de467b1f97f3a00eb890a327a0ae1e4732cad27f78935d66a3279566e7d46d1f8d61e930896e72c3855fe7c500269327977617b38c57555c5736b73ef1b7f2aec5e45488cbd82e680392bf93ccbb91bd0e3f2e2ba1d2e2f2ecd7d5be6ff0fd2b955569640a3ab1c7e75dab1582027b46bfc8500729a849e6de39ec0ed1f8715369f7c9661832677771ed59a492727bd6e8d1834cf044ac1f6b103208e2802f26ab64c3962bf51fe154ef75489a2315bf258633d302a8cda5ddc4320071fecff85518fcb57fde82477038a007db40f7328893f1f615db00000076aa964b6a210d6a30a7f3fc6add007fffd3e8e8a28a00e735aff5d1ff00bb4fd13ef4bf414cd6bfd747feed3f44fbd2fd0500741593aadd34112c719c17efec2b5ab9fd6d0ee8dfb608a00cab7b792ea4f2e3ff00eb015b2ba2263e790fe0315434cba8eda63e670ac319f4ae93ed36d8dde6263ea28031ee74ab782dde50cd951c74c7f2ac683fd747fef0ad5d4b504997ecf072bdcd6541feba3ff7850076cca1d0a1e8462b8821a1971d6d210327e82bb46e647b5566c54a0befd8f893914f5b8bec799761a46a9c495fbf5716ac",
+          "output-5": "4cf0d0ff002aee6b93d522f2eec91d1c06a00b9ac4e1e38917a30dff00e1567468b6dbb49fdf3fa0ae75e46936eefe150a3e82bb3b68bc9b748bfba0500739ab45b2eb78e8e01fe956dee73a38f5384fcbff00ad536b316e81651fc07f435cf798de5793fc39ddfa62802ee95179976a7b20cd6deab27976647f7885aaba2c588de6f5381f8543ad49f3c708ec33401956d1f9b7091fa91f9576d5c4db4e6da512a8048f5adc8f5a88f12a15fa73fe1401b55ceeb30a23a4aa305b20fe15a3fdab658cee3f4c573f7b746ee5df8c28e00a00bda2c844af1762b9fcaba3ae7f4584ee79cf40368ae82803ffd4e8e8a28a00c54cf0d52d2e2e244685770031d40a7697693db3399976e40c723fa56c51400543716f1dcc46293a76f6a9a8a00e566d2aea33f20de3d47f8542ba7de31c08c8faf15d851401869a518addfa3cacb81e82a8c5a6deaca8c63c0047715d551400564ea9692dc8468572cbc761c56b51401cc5be997427432a614104f23b574f45140105cc5e75bbc5ea38faf6ae67fb2efbfe79fea3fc6bada2802b59c260b6488f040e7eb52bc314a312286fa8a928a00e4678637bf36f00dabb82fd3d68beb3166caa1b76ef6c62ba8fb341e6098200c3b8aa779a70bb7126fda40c631c500612e9d78e81d53823239156e0d1a6620ce422fa6d210327e82bb46e647b5566c54a0befd8f893914f5b8bec799761a46a9c495fbf5716ac",
+          "output-6": "4c810e4ff85746005014741c52d0032289218c4718c28a7d145007ffd5e8e8a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a00ffd6e8e8a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a0028a28a00ffd9006d210327e82bb46e647b5566c54a0befd8f893914f5b8bec799761a46a9c495fbf5716ac"
+        },
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Picture hex:",
+              "rows": 3,
+              "autoResizeMaxRows": 4,
+              "placeholder": "Load an image file or paste hex bytes",
+              "fileInput": "image-hex",
+              "fileInputLabel": "Load Image",
+              "accept": "image/*",
+              "maxFileBytes": 74752
+            },
+            {
+              "index": 1,
+              "label": "Compressed pubkey:",
+              "rows": 2,
+              "autoResizeMaxRows": 3,
+              "placeholder": "33-byte compressed pubkey, starts 02 or 03",
+              "comment": "Appended as <pubkey> OP_CHECKSIG so each reveal spend still requires your signature."
+            }
+          ]
+        },
+        "groupInstances": {},
+        "totalInputs": 2,
+        "unwiredCount": 1,
+        "dirty": false,
+        "error": false
+      }
+    },
+    {
+      "id": "node_bht3khu",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -74.74086627697987,
+        "y": 512.0937032075946
+      },
+      "data": {
+        "content": "## BIP-110 Does Not Stop Data Embedding\n\nBIP-110 was created to reduce arbitrary data on Bitcoin by limiting push sizes and output scripts. However, it still leaves several vectors open.\n\nThis example deliberately uses **P2SH redeemScripts** to embed data. It was chosen because:\n\n- It is one of the more **harmful** methods (it creates many new UTXOs).\n- It clearly demonstrates that BIP-110 does **not** eliminate data storage — it only makes some methods more expensive or inconvenient.\n- There are **countless other ways** to put data on chain that are not addressed by this soft fork.\n\nThe construction shown here splits data into 240-byte chunks inside P2SH redeemScripts. Because BIP-110 explicitly exempts the redeemScript push in P2SH inputs, this method remains valid.",
+        "fontSize": 36,
+        "width": 1241,
+        "height": 1017,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 1241,
+      "height": 1017
     }
   ],
   "edges": [
@@ -6166,6 +6261,13 @@
       "id": "edge_szu68p4",
       "source": "node_ao5dkeg",
       "target": "node_8xe9q1g",
+      "targetHandle": "input-1",
+      "selected": false
+    },
+    {
+      "id": "edge_ay6keh3",
+      "source": "node_ao5dkeg",
+      "target": "node_A0YocdVc",
       "targetHandle": "input-1",
       "selected": false
     }

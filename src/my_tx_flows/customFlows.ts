@@ -98,12 +98,12 @@ export const customFlows: CustomFlowTemplate[] = [
   },
   {
     id: "flow-07-bip110",
-    label: "BIP110",
+    label: "Embed Picture in P2SH (up to 73 KiB, BIP110-compliant)",
     data: bip110 as unknown as FlowData,
     section: "misc",
     flowNo: 7,
     level: "intermediate",
-    tags: ["bip110", "p2sh", "data", "policy", "spam"],
+    tags: ["bip110", "p2sh", "data", "picture", "policy", "spam"],
   },
   {
     id: "flow-1",
