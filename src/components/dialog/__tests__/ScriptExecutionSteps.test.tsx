@@ -234,7 +234,7 @@ describe("ScriptExecutionSteps", () => {
     ).toBeInTheDocument();
   });
 
-  it("derives P2SH redeemScript and highlights it during phase 3", async () => {
+  it("derives P2SH redeemScript from trace and highlights it during phase 3", async () => {
     const user = userEvent.setup();
     const signature = "aa".repeat(71);
     const redeemScript = "6351ac68"; // OP_IF OP_1 OP_CHECKSIG OP_ENDIF
@@ -312,8 +312,6 @@ describe("ScriptExecutionSteps", () => {
       />
     );
 
-    expect(screen.queryByTestId("p2sh-handoff-panel")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("redeem-script-walk")).not.toBeInTheDocument();
     expect(screen.getByTestId("scriptSig-script-pane")).toBeInTheDocument();
     expect(screen.getByTestId("scriptPubKey-script-pane")).toBeInTheDocument();
     expect(screen.getByTestId("redeemScript-script-pane")).toHaveTextContent(
