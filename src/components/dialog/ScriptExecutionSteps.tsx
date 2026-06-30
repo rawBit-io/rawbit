@@ -258,6 +258,92 @@ const verificationFailureSummary = (steps: StepData[], fallback?: string) => {
 const hexToBytes = (hex = "") =>
   Array.from({ length: hex.length / 2 }, (_, i) => hex.slice(i * 2, i * 2 + 2));
 
+const cleanHex = (hex = "") => hex.replace(/\s+/g, "").toLowerCase();
+
+const isCanonicalP2shScriptPubKey = (hex = "") =>
+  /^a914[0-9a-f]{40}87$/i.test(cleanHex(hex));
+
+type ParsedScriptItem = {
+  dataHex: string;
+  isPush: boolean;
+};
+
+const readLittleEndianLength = (bytes: string[], offset: number, width: number) => {
+  const raw = bytes.slice(offset, offset + width);
+  if (raw.length !== width) return null;
+  return Number.parseInt([...raw].reverse().join(""), 16);
+};
+
+const parseScriptItems = (scriptHex = ""): ParsedScriptItem[] => {
+  const bytes = hexToBytes(cleanHex(scriptHex));
+  const items: ParsedScriptItem[] = [];
+  let pc = 0;
+
+  while (pc < bytes.length) {
+    const start = pc;
+    const opcode = Number.parseInt(bytes[pc], 16);
+    pc += 1;
+
+    let dataHex = "";
+    let isPush = false;
+
+    const readPush = (len: number, headerBytes = 1) => {
+      const dataStart = start + headerBytes;
+      const dataEnd = dataStart + len;
+      if (dataEnd > bytes.length) {
+        dataHex = bytes.slice(dataStart).join("");
+        pc = bytes.length;
+        return;
+      }
+      dataHex = bytes.slice(dataStart, dataEnd).join("");
+      pc = dataEnd;
+    };
+
+    if (opcode === 0x00) {
+      dataHex = "";
+      isPush = true;
+    } else if (opcode >= 0x01 && opcode <= 0x4b) {
+      isPush = true;
+      readPush(opcode);
+    } else if (opcode === 0x4c) {
+      isPush = true;
+      const len = Number.parseInt(bytes[pc] ?? "", 16);
+      if (!Number.isFinite(len)) {
+        pc = bytes.length;
+      } else {
+        pc += 1;
+        readPush(len, 2);
+      }
+    } else if (opcode === 0x4d) {
+      isPush = true;
+      const len = readLittleEndianLength(bytes, pc, 2);
+      if (len === null) {
+        pc = bytes.length;
+      } else {
+        pc += 2;
+        readPush(len, 3);
+      }
+    } else if (opcode === 0x4e) {
+      isPush = true;
+      const len = readLittleEndianLength(bytes, pc, 4);
+      if (len === null) {
+        pc = bytes.length;
+      } else {
+        pc += 4;
+        readPush(len, 5);
+      }
+    } else if (opcode >= 0x51 && opcode <= 0x60) {
+      const value = opcode - 0x50;
+      dataHex = value.toString(16).padStart(2, "0");
+      isPush = true;
+    }
+
+    items.push({ dataHex, isPush });
+  }
+
+  return items;
+};
+
 function scriptByteRange(
   scriptHex: string,
   offset: number,
@@ -347,7 +433,7 @@ function ScriptPane({
     opcodeName,
   );
   return (
-    <div className="mb-3 text-xs">
+    <div className="mb-3 text-xs" data-testid={`${label}-script-pane`}>
       <div className="mb-1 font-semibold text-primary">{label}:</div>
       <div className="field-surface h-20 overflow-auto rounded-md border p-2 break-words font-mono leading-relaxed">
         {bytes.map((b, i) => {
@@ -489,7 +575,14 @@ export default function ScriptExecutionSteps({
 
   const ssHex = scriptSigInputHex || scriptResult.scriptSig || "";
   const spkHex = scriptPubKeyInputHex || scriptResult.scriptPubKey || "";
-  const redeemHex = scriptResult.redeemScript ?? "";
+  const scriptSigItems = parseScriptItems(ssHex);
+  const p2shScriptPubKey = isCanonicalP2shScriptPubKey(spkHex);
+  const redeemIndex = p2shScriptPubKey
+    ? scriptSigItems.map((item) => item.isPush).lastIndexOf(true)
+    : -1;
+  const derivedRedeemHex =
+    redeemIndex >= 0 ? scriptSigItems[redeemIndex]?.dataHex ?? "" : "";
+  const redeemHex = scriptResult.redeemScript ?? derivedRedeemHex;
   const witnessHex = scriptResult.witnessScript ?? "";
   const witnessStack =
     scriptResult.witnessStack ??
@@ -568,7 +661,6 @@ export default function ScriptExecutionSteps({
               output key.
             </div>
           )}
-
           {/* panes */}
           <ScriptPane
             scriptHex={ssHex}

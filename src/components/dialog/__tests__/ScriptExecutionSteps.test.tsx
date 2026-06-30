@@ -234,6 +234,106 @@ describe("ScriptExecutionSteps", () => {
     ).toBeInTheDocument();
   });
 
+  it("derives P2SH redeemScript and highlights it during phase 3", async () => {
+    const user = userEvent.setup();
+    const signature = "aa".repeat(71);
+    const redeemScript = "6351ac68"; // OP_IF OP_1 OP_CHECKSIG OP_ENDIF
+    const p2shHash = "11".repeat(20);
+    const p2shScriptPubKey = `a914${p2shHash}87`;
+    const scriptSig = `47${signature}0004${redeemScript}`;
+
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: true,
+          scriptSig,
+          scriptPubKey: p2shScriptPubKey,
+          steps: [
+            {
+              pc: 0,
+              opcode: 71,
+              opcode_name: "PUSH 71 bytes",
+              stack_before: [],
+              stack_after: [signature],
+              phase: "scriptSig",
+            },
+            {
+              pc: 72,
+              opcode: 0,
+              opcode_name: "OP_0",
+              stack_before: [signature],
+              stack_after: [signature, ""],
+              phase: "scriptSig",
+            },
+            {
+              pc: 73,
+              opcode: 4,
+              opcode_name: "PUSH 4 bytes",
+              stack_before: [signature, ""],
+              stack_after: [signature, "", redeemScript],
+              phase: "scriptSig",
+            },
+            {
+              pc: 0,
+              opcode: 169,
+              opcode_name: "OP_HASH160",
+              stack_before: [signature, "", redeemScript],
+              stack_after: [signature, "", p2shHash],
+              phase: "scriptPubKey",
+            },
+            {
+              pc: 1,
+              opcode: 20,
+              opcode_name: "PUSH 20 bytes",
+              stack_before: [signature, "", p2shHash],
+              stack_after: [signature, "", p2shHash, p2shHash],
+              phase: "scriptPubKey",
+            },
+            {
+              pc: 22,
+              opcode: 135,
+              opcode_name: "OP_EQUAL",
+              stack_before: [signature, "", p2shHash, p2shHash],
+              stack_after: [signature, "", "01"],
+              phase: "scriptPubKey",
+            },
+            {
+              pc: 0,
+              opcode: 99,
+              opcode_name: "OP_IF",
+              stack_before: [signature, ""],
+              stack_after: [signature],
+              phase: "redeemScript",
+            },
+          ],
+        }}
+      />
+    );
+
+    expect(screen.queryByTestId("p2sh-handoff-panel")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("redeem-script-walk")).not.toBeInTheDocument();
+    expect(screen.getByTestId("scriptSig-script-pane")).toBeInTheDocument();
+    expect(screen.getByTestId("scriptPubKey-script-pane")).toBeInTheDocument();
+    expect(screen.getByTestId("redeemScript-script-pane")).toHaveTextContent(
+      redeemScript
+    );
+
+    const nextButton = screen.getByRole("button", { name: /Next/i });
+    for (let i = 0; i < 6; i += 1) {
+      await user.click(nextButton);
+    }
+
+    expect(
+      screen.getByText(/Step 7\/7 — Phase 3 \(redeemScript\)/i)
+    ).toBeInTheDocument();
+    const redeemPane = screen.getByTestId("redeemScript-script-pane");
+    expect(
+      redeemPane.querySelector(".field-surface .font-semibold.text-primary")
+    ).toHaveTextContent("63");
+  });
+
   it("summarizes verification failure without duplicating the raw final error", async () => {
     const user = userEvent.setup();
     const failedSteps = Array.from({ length: 7 }, (_, index) => ({
