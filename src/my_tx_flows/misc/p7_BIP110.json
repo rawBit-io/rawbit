@@ -27,11 +27,30 @@
   },
   "nodes": [
     {
+      "id": "group_uucc931",
+      "type": "shadcnGroup",
+      "position": {
+        "x": 1229.56840449829,
+        "y": 3273.1816026852534
+      },
+      "data": {
+        "isGroup": true,
+        "width": 1868.188245778801,
+        "height": 1138.991291936015,
+        "title": "output1 locking Script (P2SH)",
+        "fontSize": 44,
+        "dirty": false
+      },
+      "width": 1868.188245778801,
+      "height": 1138.991291936015,
+      "dragHandle": "[data-drag-handle]"
+    },
+    {
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 14661.34266989044,
-        "y": 5525.201414599377
+        "x": 14901.08353616742,
+        "y": 5538.107711391783
       },
       "data": {
         "isGroup": true,
@@ -63,8 +82,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 11036.893208830617,
-        "y": 1860.4232372967936
+        "x": 11276.634075107597,
+        "y": 1873.3295340891991
       },
       "data": {
         "isGroup": true,
@@ -93,8 +112,8 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 5900.700528570338,
-        "y": 3497.1375874348996
+        "x": 6140.4413948473175,
+        "y": 3510.043884227305
       },
       "data": {
         "isGroup": true,
@@ -127,8 +146,8 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": -53.977978451903255,
-        "y": 6663.747578004854
+        "x": 185.76288782507663,
+        "y": 6676.65387479726
       },
       "data": {
         "isGroup": true,
@@ -156,8 +175,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 2641.886876318802,
-        "y": 991.2687461858658
+        "x": 2881.627742595782,
+        "y": 1004.1750429782712
       },
       "data": {
         "isGroup": true,
@@ -2235,8 +2254,8 @@
       "id": "node_75JB67PO",
       "type": "shadcnGroup",
       "position": {
-        "x": 31185.959832268316,
-        "y": 15098.629717498055
+        "x": 31425.700698545297,
+        "y": 15111.536014290461
       },
       "data": {
         "isGroup": true,
@@ -2264,8 +2283,8 @@
       "id": "node_TC7BVduR",
       "type": "shadcnGroup",
       "position": {
-        "x": 25534.989747058662,
-        "y": 11340.66963197862
+        "x": 25774.730613335643,
+        "y": 11353.575928771026
       },
       "data": {
         "isGroup": true,
@@ -2296,8 +2315,8 @@
       "id": "node_L0EP4zuC",
       "type": "shadcnGroup",
       "position": {
-        "x": 19466.60425254388,
-        "y": 13063.13235339848
+        "x": 19706.34511882086,
+        "y": 13076.038650190885
       },
       "data": {
         "isGroup": true,
@@ -3772,8 +3791,8 @@
       "id": "node_JXkIOct0",
       "type": "shadcnGroup",
       "position": {
-        "x": 16629.78871948293,
-        "y": 16450.020807359426
+        "x": 16869.529585759912,
+        "y": 16462.92710415183
       },
       "data": {
         "isGroup": true,
@@ -4686,8 +4705,8 @@
       "id": "node_8xe9q1g",
       "type": "calculation",
       "position": {
-        "x": 392.3664768409717,
-        "y": 2201.943259738688
+        "x": 1166.1527830694495,
+        "y": 2243.3319799951737
       },
       "data": {
         "functionName": "bip110_picture_p2sh_scripts",
@@ -4986,8 +5005,8 @@
       "id": "node_zijv446",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1487.262456768483,
-        "y": 2225.7609627905877
+        "x": 1727.0033230454628,
+        "y": 2238.667259582993
       },
       "data": {
         "content": "## Try it yourself: Embed a Picture (2-Step TX)\n\nUse the **`Picture → P2SH Scripts`** node to generate redeemScripts from any image (<73kB). \n\n*node takes an image and splits it into multiple P2SH redeemScripts. Each redeemScript carries 480 bytes of data (two 240-byte chunks + `OP_2DROP` + pubkey + `OP_CHECKSIG`)*\n\nThen create two transactions:\n\n1. **Funding TX** — Create multiple P2SH outputs (one per redeemScript). \n2. **Reveal TX** — Spend all those P2SH outputs in one transaction. Provide the signature + full redeemScript in each input to reveal the data.\n\n### Questions:\n\n- How many new UTXOs did you create?\n- Why is this method harmful to the network?\n",
@@ -5005,8 +5024,8 @@
       "id": "node_0agwsdl",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -74.85440576629958,
-        "y": 5486.7306047826505
+        "x": 164.8864605106803,
+        "y": 5499.636901575056
       },
       "data": {
         "content": "## Text Example: Manual RedeemScript Construction (BIP-110 Compliant)\n\nThis section manually builds a P2SH redeemScript that embeds the following text:\n\n> The main claim of the Knots supporters is that whether the data is stored on disk interrupted by other data or not (contiguous) has any bearing on whether it is legal. Therefore, they claim, we have to decrease the size of every bit of data Bitcoin stores to ensure nobody can do anything like that. The idea is already ridiculous.\n\n### What is happening here:\n\nThe text is split into **three chunks**. Each chunk is converted to hex and pushed onto the stack. The chunks are then removed using three separate `OP_DROP` instructions, followed by a public key and `OP_CHECKSIG`.\n\nThe resulting redeemScript structure is:\n```\n<push Chunk1> <push Chunk2> <push Chunk3> OP_DROP OP_DROP OP_DROP <pubkey> OP_CHECKSIG\n```\n\nThis example embeds the full text into **one P2SH output** (~540 bytes per output).\n\n### BIP-110 Compliance:\n\n- Each data push stays well under the **256-byte limit**.\n- The full redeemScript is allowed because BIP-110 exempts the redeemScript push inside P2SH inputs.\n- This example uses three individual `OP_DROP` opcodes (less efficient than `OP_2DROP`).\n\n### Purpose:\n\nThis manual construction is shown for educational purposes so you can see exactly how data is embedded at the script level. Later in the flow, the `Picture → P2SH Scripts` node automates a similar (but cleaner) process using `OP_2DROP`. It can scale up to **156 outputs**, allowing embedding of up to ~73 KiB of data in a single transaction.",
@@ -5023,8 +5042,8 @@
       "id": "node_iemxpcc",
       "type": "calculation",
       "position": {
-        "x": -375.7643828301842,
-        "y": 2777.5364322176347
+        "x": -136.02351655320433,
+        "y": 2790.4427290100402
       },
       "data": {
         "functionName": "random_256",
@@ -5041,8 +5060,8 @@
       "id": "node_ao5dkeg",
       "type": "calculation",
       "position": {
-        "x": -0.48942802438585886,
-        "y": 2714.8368573252046
+        "x": 239.25143825259403,
+        "y": 2727.74315411761
       },
       "data": {
         "functionName": "public_key_from_private_key",
@@ -5062,15 +5081,16 @@
       "id": "node_flz6d1t",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1379.5758902360778,
-        "y": 572.3016290956914
+        "x": 1619.3167565130577,
+        "y": 585.2079258880968
       },
       "data": {
         "content": "## How This Construction Works (Lock First, Reveal Later)\n\nThis is a two-transaction construction:\n\n1. **Funding TX** — Create one or more P2SH outputs.\n2. **Reveal TX** — Spend those P2SH outputs and reveal the full redeemScripts.\n\nIn the Funding Transaction, the data is not placed directly on-chain. Each output only contains a small, standard P2SH script:\n\n    ```OP_HASH160 <redeemScriptHash> OP_EQUAL```\n\nThis locks the coins to the *hash* of a script. The actual data only becomes visible later, when the output is spent and the full redeemScript is provided in the `scriptSig`.\n\nEach redeemScript used in this demo has the following structure:\n\n    ```<240 bytes data> <240 bytes data> OP_2DROP <pubkey> OP_CHECKSIG```\n\nDuring execution:\n\n- The two data chunks are pushed onto the stack.\n- `OP_2DROP` removes both of them.\n- What remains is a normal single-signature check.\n\nIf the signature is valid, the spend succeeds.\n\n### Why it fits within BIP-110 limits\n\n- Each data push is only 240 bytes (under the demonstrated push size limit).\n- The P2SH output script itself is small and standard.\n- The full redeemScript is only revealed when spending the P2SH output (this specific push is exempt).\n\nThis construction is intentionally inefficient. Every 480 bytes of data requires creating a new P2SH output first. That means the method creates many UTXOs before the data is even revealed. This is useful for the demo because it shows that restricting obvious data pushes can push users toward more wasteful constructions instead of removing data embedding completely.",
         "fontSize": 28,
         "width": 1210,
         "height": 1482,
-        "title": "Text Info Node"
+        "title": "Text Info Node",
+        "dirty": false
       },
       "width": 1210,
       "height": 1482
@@ -5079,8 +5099,8 @@
       "id": "node_A0YocdVc",
       "type": "calculation",
       "position": {
-        "x": 958.9025829975931,
-        "y": 2280.941266377046
+        "x": 60,
+        "y": 223.0579878193853
       },
       "data": {
         "functionName": "bip110_picture_p2sh_scripts",
@@ -5169,25 +5189,241 @@
         "unwiredCount": 1,
         "dirty": false,
         "error": false
-      }
+      },
+      "parentId": "group_uucc931",
+      "extent": "parent"
     },
     {
       "id": "node_bht3khu",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -74.74086627697987,
-        "y": 512.0937032075946
+        "x": 173.6333955857441,
+        "y": 511.18656706280944
       },
       "data": {
-        "content": "## BIP-110 Does Not Stop Data Embedding\n\nBIP-110 was created to reduce arbitrary data on Bitcoin by limiting push sizes and output scripts. However, it still leaves several vectors open.\n\nThis example deliberately uses **P2SH redeemScripts** to embed data. It was chosen because:\n\n- It is one of the more **harmful** methods (it creates many new UTXOs).\n- It clearly demonstrates that BIP-110 does **not** eliminate data storage — it only makes some methods more expensive or inconvenient.\n- There are **countless other ways** to put data on chain that are not addressed by this soft fork.\n\nThe construction shown here splits data into 240-byte chunks inside P2SH redeemScripts. Because BIP-110 explicitly exempts the redeemScript push in P2SH inputs, this method remains valid.",
+        "content": "## BIP-110 Does Not Stop Data Embedding\n\nBIP-110 was created to reduce arbitrary data on Bitcoin by limiting push sizes and output scripts. However, it still leaves several vectors open.\n\nThis example deliberately uses **P2SH redeemScripts** to embed data. It was chosen because:\n\n- It is one of the more **harmful** methods (it creates many new UTXOs).\n- It clearly demonstrates that BIP-110 does **not** eliminate data storage — it only makes some methods more expensive or inconvenient.\n- There are **countless other ways** to put data on chain that are not addressed by this soft fork.\n\nThe construction shown here splits data into 240-byte chunks inside P2SH redeemScripts. Because BIP-110 explicitly exempts the redeemScript push in P2SH inputs, this method remains valid.\n\nIt can scale up to **156 outputs**, allowing embedding of up to **~73 KiB** of data in a single P2SH transaction fully BIP110 compliant.",
         "fontSize": 36,
-        "width": 1241,
-        "height": 1017,
+        "width": 1247,
+        "height": 1023,
         "title": "Text Info Node",
         "dirty": false
       },
-      "width": 1241,
-      "height": 1017
+      "width": 1247,
+      "height": 1023
+    },
+    {
+      "id": "node_6EYYcBWH",
+      "type": "calculation",
+      "position": {
+        "x": 1408.188245778801,
+        "y": 267.24363306619307
+      },
+      "data": {
+        "functionName": "concat_all",
+        "title": "P2SH scriptpubkey",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": {
+          "vals": {
+            "0": "a9",
+            "100": "14",
+            "200": "8840008f4613ac3ee68eb27fe765fcc10f338712",
+            "300": "87"
+          }
+        },
+        "dirty": false,
+        "version": 0,
+        "result": "a9148840008f4613ac3ee68eb27fe765fcc10f33871287",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [
+                {
+                  "index": 0,
+                  "label": "Value:",
+                  "placeholder": "<multi‑line input>",
+                  "rows": 3
+                }
+              ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": {
+          "INPUTS[]": 4
+        },
+        "groupInstanceKeys": {
+          "INPUTS[]": [0, 100, 200, 300]
+        },
+        "baseHeight": 80,
+        "totalInputs": 4,
+        "unwiredCount": 0,
+        "showComment": true,
+        "comment": "OP_HASH160 <scriptHash> OP_EQUAL",
+        "error": false,
+        "customFieldLabels": {
+          "0": "OP code",
+          "100": "scriptpubkey hash len",
+          "200": "scriptpubkey hash",
+          "300": "OP code"
+        }
+      },
+      "parentId": "group_uucc931",
+      "extent": "parent"
+    },
+    {
+      "id": "node_BP7v6ZQr",
+      "type": "opCodeNode",
+      "position": {
+        "x": 989.6164838678013,
+        "y": 60
+      },
+      "data": {
+        "functionName": "op_code_select",
+        "inputs": {
+          "vals": {
+            "0": "OP_HASH160"
+          }
+        },
+        "dirty": false,
+        "version": 0,
+        "result": "a9",
+        "groupInstances": {},
+        "paramExtraction": "multi_val",
+        "title": "Opcode Sequence",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ],
+          "groups": [],
+          "betweenGroups": {},
+          "afterGroups": []
+        },
+        "numInputs": 1,
+        "groupInstanceKeys": {},
+        "error": false
+      },
+      "parentId": "group_uucc931",
+      "extent": "parent"
+    },
+    {
+      "id": "node_oOftLrqs",
+      "type": "calculation",
+      "position": {
+        "x": 1024.3863425122186,
+        "y": 346.27443531578865
+      },
+      "data": {
+        "functionName": "encode_script_push_data",
+        "title": "Data → Push Opcode",
+        "showField": false,
+        "numInputs": 1,
+        "dirty": false,
+        "version": 0,
+        "inputs": {
+          "val": "8840008f4613ac3ee68eb27fe765fcc10f338712"
+        },
+        "result": "14",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Hex Data:",
+              "placeholder": "Enter hex data to calculate push opcode",
+              "rows": 2
+            }
+          ]
+        },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group_uucc931",
+      "extent": "parent"
+    },
+    {
+      "id": "node_QvBhuJKo",
+      "type": "calculation",
+      "position": {
+        "x": 678.6203095736013,
+        "y": 468.25172265060246
+      },
+      "data": {
+        "functionName": "hash160_hex",
+        "title": "Data → HASH160",
+        "paramExtraction": "single_val",
+        "showField": false,
+        "numInputs": 1,
+        "dirty": false,
+        "inputs": {
+          "val": "4cf0ffd8ffe100e84578696600004d4d002a000000080006011200030000000100010000011a00050000000100000056011b0005000000010000005e012800030000000100020000021300030000000100010000876900040000000100000066000000000000009000000001000000900000000100089000000700000004303232319101000700000004010203009286000700000012000000cca00000070000000430313030a00100030000000100010000a002000400000001000000bea00300040000000100000072a4060003000000010000000000000000415343494900000053637265656e73686f740000ffe202284cf04943435f50524f46494c45000101000002186170706c040000006d6e74725247422058595a2007e600010001000000000000616373704150504c000000004150504c000000000000000000000000000000000000f6d6000100000000d32d6170706c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a64657363000000fc00000030637072740000012c00000050777470740000017c000000147258595a00000190000000146758595a000001a4000000146258595a000001b80000001472545243000001cc0000002063686164000001ec00006d210327e82bb46e647b5566c54a0befd8f893914f5b8bec799761a46a9c495fbf5716ac"
+        },
+        "result": "8840008f4613ac3ee68eb27fe765fcc10f338712",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT HEX:",
+              "rows": 2
+            }
+          ]
+        },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group_uucc931",
+      "extent": "parent"
+    },
+    {
+      "id": "node_FeZVTwac",
+      "type": "opCodeNode",
+      "position": {
+        "x": 933.1095656003944,
+        "y": 877.9912919360149
+      },
+      "data": {
+        "functionName": "op_code_select",
+        "inputs": {
+          "vals": {
+            "0": "OP_EQUAL"
+          }
+        },
+        "dirty": false,
+        "version": 0,
+        "result": "87",
+        "groupInstances": {},
+        "paramExtraction": "multi_val",
+        "title": "Opcode Sequence",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ],
+          "groups": [],
+          "betweenGroups": {},
+          "afterGroups": []
+        },
+        "numInputs": 1,
+        "groupInstanceKeys": {},
+        "error": false
+      },
+      "parentId": "group_uucc931",
+      "extent": "parent"
     }
   ],
   "edges": [
@@ -6269,6 +6505,49 @@
       "source": "node_ao5dkeg",
       "target": "node_A0YocdVc",
       "targetHandle": "input-1",
+      "selected": false
+    },
+    {
+      "id": "edge_qsFkdQ2V",
+      "source": "node_BP7v6ZQr",
+      "target": "node_6EYYcBWH",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_3jT7Sdob",
+      "source": "node_QvBhuJKo",
+      "target": "node_oOftLrqs",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_GwUEqVs1",
+      "source": "node_oOftLrqs",
+      "target": "node_6EYYcBWH",
+      "targetHandle": "input-100",
+      "selected": false
+    },
+    {
+      "id": "edge_LJXCtNbk",
+      "source": "node_QvBhuJKo",
+      "target": "node_6EYYcBWH",
+      "targetHandle": "input-200",
+      "selected": false
+    },
+    {
+      "id": "edge_e0rECOMV",
+      "source": "node_FeZVTwac",
+      "target": "node_6EYYcBWH",
+      "targetHandle": "input-300",
+      "selected": false
+    },
+    {
+      "id": "edge_l7s4ge4",
+      "source": "node_A0YocdVc",
+      "target": "node_QvBhuJKo",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-0",
       "selected": false
     }
   ]
