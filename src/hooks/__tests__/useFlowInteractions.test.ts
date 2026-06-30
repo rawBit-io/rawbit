@@ -1002,7 +1002,7 @@ describe("useFlowInteractions", () => {
       type: "replace",
       item: {
         ...edgesState[0],
-        data: { curveControlPointOffset: { x: 20, y: 20 } },
+        data: { labelOffset: { x: 20, y: 20 } },
       } as Edge,
     } as EdgeChange;
 

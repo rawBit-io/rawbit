@@ -80,6 +80,7 @@ const allowedNodeTaxonomy = new Map<string, Set<string>>([
 const allowedFlowSections = new Set([
   "top-level",
   "legacy",
+  "misc",
   "legacy-foundations",
   "scripts-timelocks-commitments",
   "channels",

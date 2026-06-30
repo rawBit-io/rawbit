@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, beforeEach, vi } from "vitest";
 import type { Edge } from "@xyflow/react";
 import type { ReactNode } from "react";
@@ -28,8 +28,6 @@ type MiniMapSpyProps = {
 const reactFlowSpy: { props: ReactFlowSpyProps } = { props: {} };
 const minimapSpy: { props: MiniMapSpyProps } = { props: {} };
 const controlsSpy: { props: Record<string, unknown> } = { props: {} };
-const GROUP_CURVE_OFFSET_RESET_STORAGE_KEY =
-  "rawbit.flow.groupCurveOffsetsReset.2026-06-11";
 
 vi.mock("@xyflow/react", () => {
   return {
@@ -117,7 +115,6 @@ describe("FlowCanvas", () => {
   beforeEach(() => {
     reactFlowSpy.props = {};
     minimapSpy.props = {};
-    localStorage.removeItem(GROUP_CURVE_OFFSET_RESET_STORAGE_KEY);
   });
 
   it("passes selection behaviour to ReactFlow", () => {
@@ -995,251 +992,6 @@ describe("FlowCanvas", () => {
     ]);
   });
 
-  it("does not render curve controls on group bundle edges", () => {
-    const groupedNodes: FlowNode[] = [
-      {
-        id: "group-a",
-        type: "shadcnGroup",
-        position: { x: 0, y: 0 },
-        data: { title: "A", width: 300, height: 200 },
-      } as FlowNode,
-      {
-        id: "group-b",
-        type: "shadcnGroup",
-        position: { x: 500, y: 0 },
-        data: { title: "B", width: 300, height: 200 },
-      } as FlowNode,
-      {
-        id: "inside-a",
-        type: "calculation",
-        parentId: "group-a",
-        position: { x: 40, y: 40 },
-        data: {},
-      } as FlowNode,
-      {
-        id: "inside-b",
-        type: "calculation",
-        parentId: "group-b",
-        position: { x: 40, y: 40 },
-        data: {},
-      } as FlowNode,
-      {
-        id: "outside",
-        type: "calculation",
-        position: { x: 900, y: 40 },
-        data: {},
-      } as FlowNode,
-    ];
-
-    const { unmount } = render(
-      <FlowCanvas
-        {...baseProps}
-        nodes={groupedNodes}
-        edges={[
-          { id: "group-edge", source: "inside-a", target: "inside-b" } as Edge,
-        ]}
-      />
-    );
-
-    expect(
-      screen.queryByRole("button", {
-        name: "Adjust group bundle edge curve",
-      })
-    ).toBeNull();
-
-    unmount();
-
-    render(
-      <FlowCanvas
-        {...baseProps}
-        nodes={groupedNodes}
-        edges={[
-          { id: "mixed-edge", source: "inside-a", target: "outside" } as Edge,
-        ]}
-      />
-    );
-
-    expect(
-      screen.queryByRole("button", {
-        name: "Adjust group bundle edge curve",
-      })
-    ).toBeNull();
-  });
-
-  it("clears existing group bundle curve offsets once", async () => {
-    const onEdgesChange = vi.fn();
-    const groupedNodes: FlowNode[] = [
-      {
-        id: "group-a",
-        type: "shadcnGroup",
-        position: { x: 0, y: 0 },
-        data: { title: "A", width: 300, height: 200 },
-      } as FlowNode,
-      {
-        id: "group-b",
-        type: "shadcnGroup",
-        position: { x: 500, y: 0 },
-        data: { title: "B", width: 300, height: 200 },
-      } as FlowNode,
-      {
-        id: "a1",
-        type: "calculation",
-        parentId: "group-a",
-        position: { x: 40, y: 40 },
-        data: {},
-      } as FlowNode,
-      {
-        id: "a2",
-        type: "calculation",
-        parentId: "group-a",
-        position: { x: 40, y: 120 },
-        data: {},
-      } as FlowNode,
-      {
-        id: "b1",
-        type: "calculation",
-        parentId: "group-b",
-        position: { x: 40, y: 40 },
-        data: {},
-      } as FlowNode,
-    ];
-
-    render(
-      <FlowCanvas
-        {...baseProps}
-        nodes={groupedNodes}
-        edges={[
-          {
-            id: "edge-1",
-            source: "a1",
-            target: "b1",
-            data: { curveControlPointOffset: { x: 20, y: 20 } },
-          } as Edge,
-          {
-            id: "edge-2",
-            source: "a2",
-            target: "b1",
-            data: { curveControlPointOffset: { x: -12, y: 8 } },
-          } as Edge,
-        ]}
-        onEdgesChange={onEdgesChange}
-      />
-    );
-
-    await waitFor(() => {
-      expect(onEdgesChange).toHaveBeenCalledWith([
-        expect.objectContaining({
-          id: "edge-1",
-          type: "replace",
-          item: expect.objectContaining({
-            id: "edge-1",
-            data: {},
-          }),
-        }),
-        expect.objectContaining({
-          id: "edge-2",
-          type: "replace",
-          item: expect.objectContaining({
-            id: "edge-2",
-            data: {},
-          }),
-        }),
-      ]);
-    });
-    expect(localStorage.getItem(GROUP_CURVE_OFFSET_RESET_STORAGE_KEY)).toBe("1");
-  });
-
-  it("defers the curve offset reset until edges hydrate instead of latching on the empty default flow", async () => {
-    const onEdgesChange = vi.fn();
-    const groupedNodes: FlowNode[] = [
-      {
-        id: "group-a",
-        type: "shadcnGroup",
-        position: { x: 0, y: 0 },
-        data: { title: "A", width: 300, height: 200 },
-      } as FlowNode,
-      {
-        id: "group-b",
-        type: "shadcnGroup",
-        position: { x: 500, y: 0 },
-        data: { title: "B", width: 300, height: 200 },
-      } as FlowNode,
-      {
-        id: "a1",
-        type: "calculation",
-        parentId: "group-a",
-        position: { x: 40, y: 40 },
-        data: {},
-      } as FlowNode,
-      {
-        id: "a2",
-        type: "calculation",
-        parentId: "group-a",
-        position: { x: 40, y: 120 },
-        data: {},
-      } as FlowNode,
-      {
-        id: "b1",
-        type: "calculation",
-        parentId: "group-b",
-        position: { x: 40, y: 40 },
-        data: {},
-      } as FlowNode,
-    ];
-
-    // First commit happens before tab hydration: the default flow has no edges.
-    const { rerender } = render(
-      <FlowCanvas
-        {...baseProps}
-        nodes={[]}
-        edges={[]}
-        onEdgesChange={onEdgesChange}
-      />
-    );
-
-    expect(onEdgesChange).not.toHaveBeenCalled();
-    expect(localStorage.getItem(GROUP_CURVE_OFFSET_RESET_STORAGE_KEY)).toBeNull();
-
-    // Hydration loads the persisted graph with stale offsets afterwards.
-    rerender(
-      <FlowCanvas
-        {...baseProps}
-        nodes={groupedNodes}
-        edges={[
-          {
-            id: "edge-1",
-            source: "a1",
-            target: "b1",
-            data: { curveControlPointOffset: { x: 20, y: 20 } },
-          } as Edge,
-          {
-            id: "edge-2",
-            source: "a2",
-            target: "b1",
-            data: { curveControlPointOffset: { x: -12, y: 8 } },
-          } as Edge,
-        ]}
-        onEdgesChange={onEdgesChange}
-      />
-    );
-
-    await waitFor(() => {
-      expect(onEdgesChange).toHaveBeenCalledWith([
-        expect.objectContaining({
-          id: "edge-1",
-          type: "replace",
-          item: expect.objectContaining({ id: "edge-1", data: {} }),
-        }),
-        expect.objectContaining({
-          id: "edge-2",
-          type: "replace",
-          item: expect.objectContaining({ id: "edge-2", data: {} }),
-        }),
-      ]);
-    });
-    expect(localStorage.getItem(GROUP_CURVE_OFFSET_RESET_STORAGE_KEY)).toBe("1");
-  });
-
   it("keeps the group bundle count label above the curve midpoint", () => {
     const groupedNodes: FlowNode[] = [
       {
@@ -1286,13 +1038,11 @@ describe("FlowCanvas", () => {
             id: "edge-1",
             source: "a1",
             target: "b1",
-            data: { curveControlPointOffset: { x: 20, y: 20 } },
           } as Edge,
           {
             id: "edge-2",
             source: "a2",
             target: "b1",
-            data: { curveControlPointOffset: { x: 20, y: 20 } },
           } as Edge,
         ]}
       />

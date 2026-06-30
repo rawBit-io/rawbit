@@ -87,7 +87,7 @@ describe("/bulk_calculate request contract", () => {
         sourceHandle: "output",
         target: "calc-1",
         targetHandle: "input-0",
-        data: { curveControlPointOffset: { x: 1, y: 2 } },
+        data: { customMeta: { x: 1, y: 2 } },
       },
     ];
 
@@ -108,7 +108,7 @@ describe("/bulk_calculate request contract", () => {
         sourceHandle: "output",
         target: "calc-1",
         targetHandle: "input-0",
-        data: { curveControlPointOffset: { x: 1, y: 2 } },
+        data: { customMeta: { x: 1, y: 2 } },
       },
     ]);
 

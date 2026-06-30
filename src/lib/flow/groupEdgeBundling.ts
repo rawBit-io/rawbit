@@ -74,7 +74,6 @@ export interface GroupBundleEdgeData extends Record<string, unknown> {
   bundledEdgeIds: string[];
   selectedEdgeIds: string[];
   representedEdges?: GroupBundleRepresentedEdge[];
-  curveControlPointOffset?: Point | null;
   count: number;
   sourceGroupId?: string;
   targetGroupId?: string;
@@ -129,30 +128,6 @@ interface GroupBundleCanonicalElements {
 // coerce to a finite 0 via Number() and collapse group geometry).
 const asFiniteNumber = (value: unknown): number | undefined =>
   typeof value === "number" && Number.isFinite(value) ? value : undefined;
-
-const pointFromData = (value: unknown): Point | undefined => {
-  if (!value || typeof value !== "object") return undefined;
-  const candidate = value as Partial<Point>;
-  const x = asFiniteNumber(candidate.x);
-  const y = asFiniteNumber(candidate.y);
-  return x === undefined || y === undefined ? undefined : { x, y };
-};
-
-const edgeCurveControlPointOffset = (edge: Edge): Point | undefined =>
-  pointFromData(
-    (edge.data as { curveControlPointOffset?: unknown } | undefined)
-      ?.curveControlPointOffset
-  );
-
-const bundleCurveControlPointOffset = (
-  edgeRefs: GroupBundleEdgeRef[]
-): Point | undefined => {
-  for (const edgeRef of edgeRefs) {
-    const offset = edgeCurveControlPointOffset(edgeRef.edge);
-    if (offset) return offset;
-  }
-  return undefined;
-};
 
 const asString = (value: unknown): string | undefined =>
   typeof value === "string" && value.trim() ? value.trim() : undefined;
@@ -1076,9 +1051,6 @@ export const buildGroupBundledElements = ({
       data: {
         bundledEdgeIds: bundle.edgeIds,
         selectedEdgeIds,
-        curveControlPointOffset: bundleCurveControlPointOffset(
-          bundle.edgeRefs
-        ),
         representedEdges: bundle.edgeRefs.map((edgeRef) => ({
           index: edgeRef.index,
           edge: edgeRef.edge,

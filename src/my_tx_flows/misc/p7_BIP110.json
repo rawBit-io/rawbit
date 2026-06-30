@@ -422,7 +422,10 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100]
+          "INPUTS[]": [
+            0,
+            100
+          ]
         },
         "baseHeight": 80,
         "title": "Preimage",
@@ -483,7 +486,10 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100]
+          "INPUTS[]": [
+            0,
+            100
+          ]
         },
         "baseHeight": 80,
         "title": "Signature + Flag",
@@ -546,7 +552,12 @@
           "INPUTS[]": 4
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200, 300]
+          "INPUTS[]": [
+            0,
+            100,
+            200,
+            300
+          ]
         },
         "baseHeight": 80,
         "title": "scriptSig (push sig & pubkey)",
@@ -702,8 +713,12 @@
           "OUTPUTS[]": 1
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [1000],
-          "OUTPUTS[]": [3000]
+          "INPUTS[]": [
+            1000
+          ],
+          "OUTPUTS[]": [
+            3000
+          ]
         },
         "baseHeight": 120,
         "totalInputs": 12,
@@ -854,8 +869,12 @@
           "OUTPUTS[]": 1
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [1000],
-          "OUTPUTS[]": [3000]
+          "INPUTS[]": [
+            1000
+          ],
+          "OUTPUTS[]": [
+            3000
+          ]
         },
         "baseHeight": 120,
         "totalInputs": 12,
@@ -1656,7 +1675,9 @@
                 "3044022047c61e861b510ada3dff49ba5abaabb11ce37fe260bf5bcd031771b060bb52880220793532c0e3a7debc9fdf07c7aa79b0c03cd44c8b8e81be0f89693f3906ba5faa01",
                 "02b853bcd49de868b051ef09d7c845e8dda1999dd93cfaca0a6eb04970d47ca37e"
               ],
-              "stack_after": ["01"],
+              "stack_after": [
+                "01"
+              ],
               "phase": "scriptPubKey"
             }
           ],
@@ -1780,7 +1801,10 @@
           }
         },
         "txFieldExtractMode": "dynamic",
-        "txExtractFields": ["txid", "vout.scriptPubKey"],
+        "txExtractFields": [
+          "txid",
+          "vout.scriptPubKey"
+        ],
         "outputPorts": [
           {
             "label": "txid",
@@ -1935,7 +1959,18 @@
           "INPUTS[]": 10
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200, 300, 400, 500, 600, 700, 800, 900]
+          "INPUTS[]": [
+            0,
+            100,
+            200,
+            300,
+            400,
+            500,
+            600,
+            700,
+            800,
+            900
+          ]
         },
         "baseHeight": 80,
         "totalInputs": 10,
@@ -2031,7 +2066,12 @@
           "INPUTS[]": 4
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200, 300]
+          "INPUTS[]": [
+            0,
+            100,
+            200,
+            300
+          ]
         },
         "baseHeight": 80,
         "totalInputs": 4,
@@ -2569,7 +2609,10 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100]
+          "INPUTS[]": [
+            0,
+            100
+          ]
         },
         "baseHeight": 80,
         "title": "Preimage",
@@ -2632,7 +2675,12 @@
           "INPUTS[]": 4
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200, 300]
+          "INPUTS[]": [
+            0,
+            100,
+            200,
+            300
+          ]
         },
         "baseHeight": 80,
         "title": "scriptSig",
@@ -2789,8 +2837,12 @@
           "OUTPUTS[]": 1
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [1000],
-          "OUTPUTS[]": [3000]
+          "INPUTS[]": [
+            1000
+          ],
+          "OUTPUTS[]": [
+            3000
+          ]
         },
         "baseHeight": 120,
         "totalInputs": 12,
@@ -2941,8 +2993,12 @@
           "OUTPUTS[]": 1
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [1000],
-          "OUTPUTS[]": [3000]
+          "INPUTS[]": [
+            1000
+          ],
+          "OUTPUTS[]": [
+            3000
+          ]
         },
         "baseHeight": 120,
         "totalInputs": 12,
@@ -3599,7 +3655,9 @@
                 "30440220310bae7073a4d164c116054d65cb408ad245ee26c43d3b84bd1aa85c975f4b06022031654d1ee85df80341b37cfba307d4f44ef73db3f692efc4cb30551abbb89bb901",
                 "03c35139c7b76ef1c1d6cdc1bd56eb11ba5c260a7493b528bb74a8aa8f12cb7a63"
               ],
-              "stack_after": ["01"],
+              "stack_after": [
+                "01"
+              ],
               "phase": "redeemScript"
             }
           ],
@@ -3687,7 +3745,10 @@
           }
         },
         "txFieldExtractMode": "dynamic",
-        "txExtractFields": ["txid", "vout.scriptPubKey"],
+        "txExtractFields": [
+          "txid",
+          "vout.scriptPubKey"
+        ],
         "outputPorts": [
           {
             "label": "txid",
@@ -3954,7 +4015,12 @@
           "INPUTS[]": 4
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200, 300]
+          "INPUTS[]": [
+            0,
+            100,
+            200,
+            300
+          ]
         },
         "baseHeight": 80,
         "title": "scriptPubKey",
@@ -4610,7 +4676,10 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100]
+          "INPUTS[]": [
+            0,
+            100
+          ]
         },
         "baseHeight": 80,
         "title": "Signature + Flag",
@@ -5260,7 +5329,12 @@
           "INPUTS[]": 4
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200, 300]
+          "INPUTS[]": [
+            0,
+            100,
+            200,
+            300
+          ]
         },
         "baseHeight": 80,
         "totalInputs": 4,
@@ -5447,12 +5521,7 @@
       "target": "node_Xoq2K65O",
       "targetHandle": "input-0",
       "selected": false,
-      "data": {
-        "curveControlPointOffset": {
-          "x": -30.86,
-          "y": -5
-        }
-      }
+      "data": {}
     },
     {
       "id": "edge_Kuv1TZVB",
@@ -5729,12 +5798,7 @@
       "source": "node_ljj3f78",
       "target": "node_C85oMB8J",
       "targetHandle": "input-0",
-      "data": {
-        "curveControlPointOffset": {
-          "x": -102.96,
-          "y": -103.93
-        }
-      },
+      "data": {},
       "selected": false
     },
     {
@@ -5909,12 +5973,7 @@
       "target": "node_EQYObGsk",
       "targetHandle": "input-0",
       "selected": false,
-      "data": {
-        "curveControlPointOffset": {
-          "x": -30.86,
-          "y": -5
-        }
-      }
+      "data": {}
     },
     {
       "id": "edge_9x9PgZes",
@@ -6111,12 +6170,7 @@
       "source": "node_8r035mYC",
       "target": "node_pVN29R9O",
       "targetHandle": "input-0",
-      "data": {
-        "curveControlPointOffset": {
-          "x": -102.96,
-          "y": -103.93
-        }
-      },
+      "data": {},
       "selected": false
     },
     {

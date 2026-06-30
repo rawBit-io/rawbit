@@ -83,8 +83,6 @@ const edgeTypes = {
   [GROUP_BUNDLE_EDGE_TYPE]: GroupBundleEdge,
   [GROUP_BUNDLE_SEGMENT_EDGE_TYPE]: GroupBundleSegmentEdge,
 } satisfies ReactFlowProps<FlowNode>["edgeTypes"];
-const GROUP_CURVE_OFFSET_RESET_STORAGE_KEY =
-  "rawbit.flow.groupCurveOffsetsReset.2026-06-11";
 const GROUP_BUNDLE_PORT_DRAGGING_CHANGE_KEY =
   "__rawbitGroupBundlePortDragging";
 const GROUP_BUNDLE_PORT_DRAG_ID_CHANGE_KEY =
@@ -125,35 +123,11 @@ const portBundleId = (node: FlowNode): string | undefined =>
     ? node.data.bundleId
     : undefined;
 
-const hasCurveControlPointOffset = (edge: Edge): boolean =>
-  Boolean(
-    edge.data &&
-      Object.prototype.hasOwnProperty.call(
-        edge.data,
-        "curveControlPointOffset"
-      )
-  );
-
 const segmentReconnectSide = (
   edge: Edge
 ): "source" | "target" | undefined => {
   const side = (edge.data as GroupBundleSegmentEdgeData | undefined)?.side;
   return side === "source" || side === "target" ? side : undefined;
-};
-
-const buildClearCurveOffsetChange = (edge: Edge): EdgeChange => {
-  const data = {
-    ...(edge.data as Record<string, unknown> | undefined),
-  };
-  delete data.curveControlPointOffset;
-  return {
-    id: edge.id,
-    type: "replace",
-    item: {
-      ...edge,
-      data,
-    },
-  };
 };
 
 const buildGroupPortOffsetChange = ({
@@ -280,7 +254,6 @@ export function FlowCanvas({
   const selectionEnabled = !isReadOnly && isSelectionModeActive;
   const minZoom = isReadOnly ? MOBILE_MIN_ZOOM : MIN_ZOOM;
   const maxZoom = isReadOnly ? MOBILE_MAX_ZOOM : MAX_ZOOM;
-  const hasRunGroupCurveOffsetResetRef = useRef(false);
   const [bundleSelectedEdgeIds, setBundleSelectedEdgeIds] = useState<string[]>(
     []
   );
@@ -358,61 +331,6 @@ export function FlowCanvas({
       .filter((edge) => edge.selected === true && !renderedEdgeIds.has(edge.id))
       .map((edge) => edge.id);
   }, [edges, visualElements.edges]);
-
-  useEffect(() => {
-    if (isReadOnly || !onEdgesChange || hasRunGroupCurveOffsetResetRef.current) {
-      return;
-    }
-    // The first commit renders the pre-hydration default flow (no edges yet);
-    // latching the one-time marker against it would permanently skip the
-    // migration for the persisted graph that hydrates afterwards.
-    if (edges.length === 0) {
-      return;
-    }
-    hasRunGroupCurveOffsetResetRef.current = true;
-
-    if (typeof window !== "undefined") {
-      try {
-        if (
-          window.localStorage.getItem(GROUP_CURVE_OFFSET_RESET_STORAGE_KEY) ===
-          "1"
-        ) {
-          return;
-        }
-      } catch (error) {
-        console.warn("Failed to read group curve reset marker", error);
-      }
-    }
-
-    const bundledGroupEdgeIds = new Set<string>();
-    for (const edge of visualElements.edges) {
-      if (!isGroupBundleEdgeId(edge.id)) continue;
-      const data = edge.data as GroupBundleEdgeData | undefined;
-      if (!data?.sourceGroupId || !data.targetGroupId) continue;
-      for (const bundledEdgeId of data.bundledEdgeIds) {
-        bundledGroupEdgeIds.add(bundledEdgeId);
-      }
-    }
-
-    const changes = edges
-      .filter(
-        (edge) =>
-          bundledGroupEdgeIds.has(edge.id) && hasCurveControlPointOffset(edge)
-      )
-      .map(buildClearCurveOffsetChange);
-
-    if (typeof window !== "undefined") {
-      try {
-        window.localStorage.setItem(GROUP_CURVE_OFFSET_RESET_STORAGE_KEY, "1");
-      } catch (error) {
-        console.warn("Failed to persist group curve reset marker", error);
-      }
-    }
-
-    if (changes.length > 0) {
-      onEdgesChange(changes);
-    }
-  }, [edges, isReadOnly, onEdgesChange, visualElements.edges]);
 
   useEffect(() => {
     if (isReadOnly || !onEdgesChange || selectedNonRenderedEdgeIds.length === 0) {

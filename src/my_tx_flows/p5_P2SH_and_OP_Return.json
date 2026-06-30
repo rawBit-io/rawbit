@@ -431,7 +431,10 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100]
+          "INPUTS[]": [
+            0,
+            100
+          ]
         },
         "baseHeight": 80,
         "title": "Preimage",
@@ -492,7 +495,10 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100]
+          "INPUTS[]": [
+            0,
+            100
+          ]
         },
         "baseHeight": 80,
         "title": "Signature + Flag",
@@ -555,7 +561,12 @@
           "INPUTS[]": 4
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200, 300]
+          "INPUTS[]": [
+            0,
+            100,
+            200,
+            300
+          ]
         },
         "baseHeight": 80,
         "title": "scriptSig (push sig & pubkey)",
@@ -714,8 +725,13 @@
           "OUTPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [1000],
-          "OUTPUTS[]": [3000, 3100]
+          "INPUTS[]": [
+            1000
+          ],
+          "OUTPUTS[]": [
+            3000,
+            3100
+          ]
         },
         "baseHeight": 120,
         "totalInputs": 15,
@@ -869,8 +885,13 @@
           "OUTPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [1000],
-          "OUTPUTS[]": [3000, 3100]
+          "INPUTS[]": [
+            1000
+          ],
+          "OUTPUTS[]": [
+            3000,
+            3100
+          ]
         },
         "baseHeight": 120,
         "totalInputs": 15,
@@ -1671,7 +1692,9 @@
                 "304302205bf086d6e8db953e2ea4f50a09d2562fcc407d0792afc1990757a0e9e61d8e96021f6c9463a09fc81527d051c59bd2d67c150e5357d8705841458aed444926d1ee01",
                 "03b7881c8fe895e5d5b0b02c5b35057a61e54621cf146c095afd36b4ef5887ed36"
               ],
-              "stack_after": ["01"],
+              "stack_after": [
+                "01"
+              ],
               "phase": "scriptPubKey"
             }
           ],
@@ -1795,7 +1818,10 @@
           }
         },
         "txFieldExtractMode": "dynamic",
-        "txExtractFields": ["txid", "vout.scriptPubKey"],
+        "txExtractFields": [
+          "txid",
+          "vout.scriptPubKey"
+        ],
         "outputPorts": [
           {
             "label": "txid",
@@ -2017,7 +2043,18 @@
         },
         "groupInstanceKeys": {
           "INPUTS[]": [
-            0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100
+            0,
+            100,
+            200,
+            300,
+            400,
+            500,
+            600,
+            700,
+            800,
+            900,
+            1000,
+            1100
           ]
         },
         "baseHeight": 80,
@@ -2192,7 +2229,12 @@
           "INPUTS[]": 4
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200, 300]
+          "INPUTS[]": [
+            0,
+            100,
+            200,
+            300
+          ]
         },
         "baseHeight": 80,
         "totalInputs": 4,
@@ -2819,7 +2861,11 @@
           "INPUTS[]": 3
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200]
+          "INPUTS[]": [
+            0,
+            100,
+            200
+          ]
         },
         "baseHeight": 80,
         "title": "OP_RETURN",
@@ -3395,7 +3441,10 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100]
+          "INPUTS[]": [
+            0,
+            100
+          ]
         },
         "baseHeight": 80,
         "title": "Preimage",
@@ -3456,7 +3505,10 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100]
+          "INPUTS[]": [
+            0,
+            100
+          ]
         },
         "baseHeight": 80,
         "title": "Signature + Flag",
@@ -3520,7 +3572,13 @@
           "INPUTS[]": 5
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200, 300, 400]
+          "INPUTS[]": [
+            0,
+            100,
+            200,
+            300,
+            400
+          ]
         },
         "baseHeight": 80,
         "title": "scriptSig (push sig & redeemScript)",
@@ -3677,8 +3735,12 @@
           "OUTPUTS[]": 1
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [1000],
-          "OUTPUTS[]": [3000]
+          "INPUTS[]": [
+            1000
+          ],
+          "OUTPUTS[]": [
+            3000
+          ]
         },
         "baseHeight": 120,
         "totalInputs": 12,
@@ -3829,8 +3891,12 @@
           "OUTPUTS[]": 1
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [1000],
-          "OUTPUTS[]": [3000]
+          "INPUTS[]": [
+            1000
+          ],
+          "OUTPUTS[]": [
+            3000
+          ]
         },
         "baseHeight": 120,
         "totalInputs": 12,
@@ -4507,63 +4573,93 @@
                 "304402202c64540aad20d80311b4dce8b4a9f2e928b5fc1fa0891a311798760f8a65e32c022018f8a5883beaa9cd6469f29666705e28cc387a634266cc6b165419d37d0f5ff001",
                 "03248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5"
               ],
-              "stack_after": ["01"],
+              "stack_after": [
+                "01"
+              ],
               "phase": "redeemScript"
             },
             {
               "pc": 36,
               "opcode": 103,
               "opcode_name": "OP_ELSE",
-              "stack_before": ["01"],
-              "stack_after": ["01"],
+              "stack_before": [
+                "01"
+              ],
+              "stack_after": [
+                "01"
+              ],
               "phase": "redeemScript"
             },
             {
               "pc": 37,
               "opcode": 4,
               "opcode_name": "PUSH 4 bytes",
-              "stack_before": ["01"],
-              "stack_after": ["01"],
+              "stack_before": [
+                "01"
+              ],
+              "stack_after": [
+                "01"
+              ],
               "phase": "redeemScript"
             },
             {
               "pc": 42,
               "opcode": 177,
               "opcode_name": "OP_CHECKLOCKTIMEVERIFY",
-              "stack_before": ["01"],
-              "stack_after": ["01"],
+              "stack_before": [
+                "01"
+              ],
+              "stack_after": [
+                "01"
+              ],
               "phase": "redeemScript"
             },
             {
               "pc": 43,
               "opcode": 117,
               "opcode_name": "OP_DROP",
-              "stack_before": ["01"],
-              "stack_after": ["01"],
+              "stack_before": [
+                "01"
+              ],
+              "stack_after": [
+                "01"
+              ],
               "phase": "redeemScript"
             },
             {
               "pc": 44,
               "opcode": 33,
               "opcode_name": "PUSH 33 bytes",
-              "stack_before": ["01"],
-              "stack_after": ["01"],
+              "stack_before": [
+                "01"
+              ],
+              "stack_after": [
+                "01"
+              ],
               "phase": "redeemScript"
             },
             {
               "pc": 78,
               "opcode": 172,
               "opcode_name": "OP_CHECKSIG",
-              "stack_before": ["01"],
-              "stack_after": ["01"],
+              "stack_before": [
+                "01"
+              ],
+              "stack_after": [
+                "01"
+              ],
               "phase": "redeemScript"
             },
             {
               "pc": 79,
               "opcode": 104,
               "opcode_name": "OP_ENDIF",
-              "stack_before": ["01"],
-              "stack_after": ["01"],
+              "stack_before": [
+                "01"
+              ],
+              "stack_after": [
+                "01"
+              ],
               "phase": "redeemScript"
             }
           ],
@@ -4651,7 +4747,10 @@
           }
         },
         "txFieldExtractMode": "dynamic",
-        "txExtractFields": ["txid", "vout.scriptPubKey"],
+        "txExtractFields": [
+          "txid",
+          "vout.scriptPubKey"
+        ],
         "outputPorts": [
           {
             "label": "txid",
@@ -4918,7 +5017,12 @@
           "INPUTS[]": 4
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200, 300]
+          "INPUTS[]": [
+            0,
+            100,
+            200,
+            300
+          ]
         },
         "baseHeight": 80,
         "title": "scriptPubKey",
@@ -5283,7 +5387,9 @@
           }
         },
         "txFieldExtractMode": "dynamic",
-        "txExtractFields": ["op_return.data"],
+        "txExtractFields": [
+          "op_return.data"
+        ],
         "outputPorts": [
           {
             "label": "op_return.data",
@@ -5433,12 +5539,7 @@
       "target": "node_Xoq2K65O",
       "targetHandle": "input-0",
       "selected": false,
-      "data": {
-        "curveControlPointOffset": {
-          "x": -30.86,
-          "y": -5
-        }
-      }
+      "data": {}
     },
     {
       "id": "edge_Kuv1TZVB",
@@ -5715,12 +5816,7 @@
       "source": "node_ljj3f78",
       "target": "node_C85oMB8J",
       "targetHandle": "input-0",
-      "data": {
-        "curveControlPointOffset": {
-          "x": -102.96,
-          "y": -103.93
-        }
-      },
+      "data": {},
       "selected": false
     },
     {
@@ -6147,12 +6243,7 @@
       "target": "node_EQYObGsk",
       "targetHandle": "input-0",
       "selected": false,
-      "data": {
-        "curveControlPointOffset": {
-          "x": -30.86,
-          "y": -5
-        }
-      }
+      "data": {}
     },
     {
       "id": "edge_9x9PgZes",
@@ -6377,12 +6468,7 @@
       "source": "node_8r035mYC",
       "target": "node_pVN29R9O",
       "targetHandle": "input-0",
-      "data": {
-        "curveControlPointOffset": {
-          "x": -102.96,
-          "y": -103.93
-        }
-      },
+      "data": {},
       "selected": false
     },
     {

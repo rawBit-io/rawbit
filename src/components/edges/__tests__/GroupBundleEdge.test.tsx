@@ -103,23 +103,8 @@ describe("GroupBundleEdge", () => {
     expect(onSelectEdgeIds).toHaveBeenCalledWith(["e1", "e2", "e3"]);
   });
 
-  it("keeps the default bundle curve", () => {
+  it("renders the default bundle curve", () => {
     const { container } = renderEdge(bundleData);
-    const outsidePath = container.querySelector(
-      ".group-bundle-outside-path"
-    );
-
-    expect(outsidePath).toHaveAttribute("d", "M 100 50 L 400 50");
-    expect(
-      container.querySelector('[data-testid^="edge-curve-control-"]')
-    ).toBeNull();
-  });
-
-  it("ignores persisted curve control offsets", () => {
-    const { container } = renderEdge({
-      ...bundleData,
-      curveControlPointOffset: { x: 30, y: 15 },
-    });
     const outsidePath = container.querySelector(
       ".group-bundle-outside-path"
     );

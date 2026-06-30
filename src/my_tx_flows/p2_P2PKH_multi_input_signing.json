@@ -515,7 +515,12 @@
           "INPUTS[]": 4
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200, 300]
+          "INPUTS[]": [
+            0,
+            100,
+            200,
+            300
+          ]
         },
         "baseHeight": 80,
         "title": "scriptPubKey out1",
@@ -580,7 +585,10 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100]
+          "INPUTS[]": [
+            0,
+            100
+          ]
         },
         "baseHeight": 80,
         "title": "Preimage",
@@ -641,7 +649,10 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100]
+          "INPUTS[]": [
+            0,
+            100
+          ]
         },
         "baseHeight": 80,
         "title": "Signature + Flag IN1",
@@ -704,7 +715,12 @@
           "INPUTS[]": 4
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200, 300]
+          "INPUTS[]": [
+            0,
+            100,
+            200,
+            300
+          ]
         },
         "baseHeight": 80,
         "title": "scriptSig IN1 (push sig & pubkey)",
@@ -868,8 +884,14 @@
           "OUTPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [1000, 1100],
-          "OUTPUTS[]": [3000, 3100]
+          "INPUTS[]": [
+            1000,
+            1100
+          ],
+          "OUTPUTS[]": [
+            3000,
+            3100
+          ]
         },
         "baseHeight": 120,
         "totalInputs": 20,
@@ -1805,7 +1827,9 @@
                 "3044022033be504934e489939cbbf5e82aab921bc643f874fd13be826e8a95f91b0ff4fe022026080d47abe5163a2a75c6dfbb61b244bd2e8179ed3c3b946fd27e2f16f1768201",
                 "03cca8472587864e1b78555dc7113fe86f94afef77b6f758f6bc3d44b0cbeefe8e"
               ],
-              "stack_after": ["01"],
+              "stack_after": [
+                "01"
+              ],
               "phase": "scriptPubKey"
             }
           ],
@@ -1929,7 +1953,10 @@
           }
         },
         "txFieldExtractMode": "dynamic",
-        "txExtractFields": ["txid", "vout.scriptPubKey"],
+        "txExtractFields": [
+          "txid",
+          "vout.scriptPubKey"
+        ],
         "outputPorts": [
           {
             "label": "txid",
@@ -2176,8 +2203,14 @@
           "OUTPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [1000, 1100],
-          "OUTPUTS[]": [3000, 3100]
+          "INPUTS[]": [
+            1000,
+            1100
+          ],
+          "OUTPUTS[]": [
+            3000,
+            3100
+          ]
         },
         "baseHeight": 120,
         "totalInputs": 20,
@@ -2336,8 +2369,14 @@
           "OUTPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [1000, 1100],
-          "OUTPUTS[]": [3000, 3100]
+          "INPUTS[]": [
+            1000,
+            1100
+          ],
+          "OUTPUTS[]": [
+            3000,
+            3100
+          ]
         },
         "baseHeight": 120,
         "totalInputs": 20,
@@ -2491,7 +2530,12 @@
           "INPUTS[]": 4
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200, 300]
+          "INPUTS[]": [
+            0,
+            100,
+            200,
+            300
+          ]
         },
         "baseHeight": 80,
         "title": "scriptPubKey out2",
@@ -2844,7 +2888,10 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100]
+          "INPUTS[]": [
+            0,
+            100
+          ]
         },
         "baseHeight": 80,
         "title": "Signature + Flag IN2",
@@ -2907,7 +2954,12 @@
           "INPUTS[]": 4
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200, 300]
+          "INPUTS[]": [
+            0,
+            100,
+            200,
+            300
+          ]
         },
         "baseHeight": 80,
         "title": "scriptSig IN2 (push sig & pubkey)",
@@ -3113,7 +3165,10 @@
           }
         },
         "txFieldExtractMode": "dynamic",
-        "txExtractFields": ["txid", "vout.scriptPubKey"],
+        "txExtractFields": [
+          "txid",
+          "vout.scriptPubKey"
+        ],
         "outputPorts": [
           {
             "label": "txid",
@@ -3403,7 +3458,9 @@
                 "3044022046dd9a21494a0c63e30570c573fe348c895d83b03e4c56d0b526df44df0ce5f8022021cf002fc7d3265a80b516259c208a31ccd33134bd893675abd37992b3f4e13301",
                 "035b1ff684e5b67eaa892b68b32797e8ffe2f71f09348b1cf2c546d60de92f59b8"
               ],
-              "stack_after": ["01"],
+              "stack_after": [
+                "01"
+              ],
               "phase": "scriptPubKey"
             }
           ],
@@ -3517,7 +3574,10 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100]
+          "INPUTS[]": [
+            0,
+            100
+          ]
         },
         "baseHeight": 80,
         "title": "Preimage",
@@ -3790,12 +3850,7 @@
       "target": "node_qMmh8Zrk",
       "targetHandle": "input-3020",
       "selected": false,
-      "data": {
-        "curveControlPointOffset": {
-          "x": 6.05,
-          "y": 52.1
-        }
-      }
+      "data": {}
     },
     {
       "source": "node_yf0EwOn6",
@@ -3803,12 +3858,7 @@
       "targetHandle": "input-300",
       "selected": false,
       "id": "edge_juB030IU",
-      "data": {
-        "curveControlPointOffset": {
-          "x": 78.2,
-          "y": -263.88
-        }
-      }
+      "data": {}
     },
     {
       "source": "node_yf0EwOn6",
@@ -3823,12 +3873,7 @@
       "targetHandle": "input-10",
       "selected": false,
       "id": "edge_1wLmawcH",
-      "data": {
-        "curveControlPointOffset": {
-          "x": 124.65,
-          "y": 79.78
-        }
-      }
+      "data": {}
     },
     {
       "source": "node_1AL3tCpN",
@@ -3850,12 +3895,7 @@
       "targetHandle": "input-2000",
       "selected": false,
       "id": "edge_72Xq6MH9",
-      "data": {
-        "curveControlPointOffset": {
-          "x": 124.65,
-          "y": 79.78
-        }
-      }
+      "data": {}
     },
     {
       "source": "node_7bQgp6gF",
@@ -3870,12 +3910,7 @@
       "targetHandle": "input-3010",
       "selected": false,
       "id": "edge_7LNB7voa",
-      "data": {
-        "curveControlPointOffset": {
-          "x": 6.05,
-          "y": 52.1
-        }
-      }
+      "data": {}
     },
     {
       "source": "node_uc3qXmHd",
@@ -3883,12 +3918,7 @@
       "targetHandle": "input-3000",
       "selected": false,
       "id": "edge_hNjSq5F0",
-      "data": {
-        "curveControlPointOffset": {
-          "x": 124.65,
-          "y": 79.78
-        }
-      }
+      "data": {}
     },
     {
       "source": "node_IRajBmor",
@@ -3952,12 +3982,7 @@
       "targetHandle": "input-0",
       "selected": false,
       "id": "edge_Zc9ORlr9",
-      "data": {
-        "curveControlPointOffset": {
-          "x": 78.2,
-          "y": -263.88
-        }
-      }
+      "data": {}
     },
     {
       "source": "node_d4b67dsm",
@@ -3979,12 +4004,7 @@
       "targetHandle": "input-0",
       "selected": false,
       "id": "edge_v4UKc1K7",
-      "data": {
-        "curveControlPointOffset": {
-          "x": 78.2,
-          "y": -263.88
-        }
-      }
+      "data": {}
     },
     {
       "source": "node_CWfi6O88",
@@ -3999,12 +4019,7 @@
       "targetHandle": "input-1010",
       "selected": false,
       "id": "edge_glGJxg5n",
-      "data": {
-        "curveControlPointOffset": {
-          "x": 124.65,
-          "y": 79.78
-        }
-      }
+      "data": {}
     },
     {
       "source": "node_8QSOHj19",
@@ -4019,12 +4034,7 @@
       "targetHandle": "input-0",
       "selected": false,
       "id": "edge_R4jOlute",
-      "data": {
-        "curveControlPointOffset": {
-          "x": 124.65,
-          "y": 79.78
-        }
-      }
+      "data": {}
     },
     {
       "id": "edge_L19UZW6Q",
@@ -4039,12 +4049,7 @@
       "targetHandle": "input-1040",
       "selected": false,
       "id": "edge_1Kyp0Tsh",
-      "data": {
-        "curveControlPointOffset": {
-          "x": 124.65,
-          "y": 79.78
-        }
-      }
+      "data": {}
     },
     {
       "id": "edge_MkScuwWE",
@@ -4100,12 +4105,7 @@
       "source": "node_ljj3f78",
       "target": "node_C85oMB8J",
       "targetHandle": "input-0",
-      "data": {
-        "curveControlPointOffset": {
-          "x": -102.96,
-          "y": -103.93
-        }
-      },
+      "data": {},
       "selected": false
     },
     {
