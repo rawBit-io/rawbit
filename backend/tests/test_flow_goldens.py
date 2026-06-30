@@ -133,7 +133,11 @@ def _flow_key(path: Path) -> str:
 
 
 def _discover_flows():
-    paths = sorted(FLOW_DIR.glob("*.json")) + sorted((FLOW_DIR / "old").glob("*.json"))
+    paths = (
+        sorted(FLOW_DIR.glob("*.json"))
+        + sorted((FLOW_DIR / "old").glob("*.json"))
+        + sorted((FLOW_DIR / "misc").glob("*.json"))
+    )
     flows = []
     for path in paths:
         if _flow_key(path) in SKIPPED_FLOWS:
