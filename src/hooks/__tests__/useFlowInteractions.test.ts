@@ -1128,6 +1128,110 @@ describe("useFlowInteractions", () => {
     });
   });
 
+  it("records one undo snapshot when a group bundle port drag is released", () => {
+    const deps = baseDeps();
+    let nodesState: FlowNode[] = [
+      {
+        id: "group-a",
+        type: "shadcnGroup",
+        position: { x: 0, y: 0 },
+        data: {
+          title: "Group A",
+          groupBundlePortOffsets: {
+            sourceByBundle: {
+              "group-a->group-b": 12,
+            },
+          },
+        },
+      } as FlowNode,
+    ];
+    const edgesState: Edge[] = [];
+
+    const getNodes = () => nodesState;
+    const getEdges = () => edgesState;
+    const setNodes = (updater: (nodes: FlowNode[]) => FlowNode[]) => {
+      nodesState = updater(nodesState);
+    };
+    const setEdges = vi.fn<(updater: (edges: Edge[]) => Edge[]) => void>();
+    const draggedNode = {
+      ...nodesState[0],
+      data: {
+        ...nodesState[0].data,
+        groupBundlePortOffsets: {
+          sourceByBundle: {
+            "group-a->group-b": 64,
+          },
+        },
+      },
+    } as FlowNode;
+    const activeChange = {
+      id: "group-a",
+      type: "replace",
+      item: draggedNode,
+      __rawbitGroupBundlePortDragging: true,
+      __rawbitGroupBundlePortDragId: "__group_bundle_port__:source:group-a->group-b",
+    } as NodeChange<FlowNode>;
+    const releaseChange = {
+      id: "group-a",
+      type: "replace",
+      item: draggedNode,
+      __rawbitGroupBundlePortDragging: false,
+      __rawbitGroupBundlePortDragId: "__group_bundle_port__:source:group-a->group-b",
+    } as NodeChange<FlowNode>;
+
+    const { result } = renderHook(() =>
+      useFlowInteractions({
+        ...deps,
+        rawOnNodesChange: deps.rawOnNodesChange,
+        rawOnEdgesChange: deps.rawOnEdgesChange,
+        onConnect: deps.onConnect,
+        onDrop: deps.onDrop,
+        onNodeDragStop: deps.onNodeDragStop,
+        getNodes,
+        getEdges,
+        setNodes,
+        setEdges,
+        getTopLeftPosition: deps.getTopLeftPosition,
+        pasteNodes: deps.pasteNodes,
+        isSidebarOpen: false,
+        setTabTooltip: deps.setTabTooltip,
+        renameTab: deps.renameTab,
+        activeTabId: "tab-1",
+        groupSelectedNodes: deps.groupSelectedNodes,
+        ungroupSelectedNodes: deps.ungroupSelectedNodes,
+        clearHighlights: deps.clearHighlights,
+        setIsSearchHighlight: deps.setIsSearchHighlight,
+        incRev: deps.incRev,
+        pushCleanState: deps.pushCleanState,
+        updatePaletteEligibility: deps.updatePaletteEligibility,
+        skipNextNodeRemovalRef: deps.skipNextNodeRemovalRef,
+        releaseNodeRemovalSnapshotSkip: deps.releaseNodeRemovalSnapshotSkip,
+      })
+    );
+
+    act(() => {
+      result.current.onNodesChange([activeChange]);
+    });
+
+    expect(deps.rawOnNodesChange).toHaveBeenCalledWith([activeChange]);
+    expect(deps.incRev).not.toHaveBeenCalled();
+    expect(deps.scheduleSnapshot).not.toHaveBeenCalled();
+
+    nodesState = [draggedNode];
+
+    act(() => {
+      result.current.onNodesChange([activeChange]);
+      result.current.onNodesChange([releaseChange]);
+    });
+
+    expect(deps.rawOnNodesChange).toHaveBeenCalledTimes(3);
+    expect(deps.incRev).toHaveBeenCalledTimes(1);
+    expect(deps.scheduleSnapshot).toHaveBeenCalledTimes(1);
+    expect(deps.scheduleSnapshot).toHaveBeenCalledWith("Node data changed", {
+      refresh: true,
+    });
+  });
+
   it("does not bump the after-calc token for dirty replacements while one is already pending", () => {
     const deps = baseDeps();
     deps.pendingSnapshotRef.current = true;

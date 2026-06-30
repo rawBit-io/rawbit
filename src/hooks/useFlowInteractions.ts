@@ -18,6 +18,15 @@ const DRAG_FPS_BANDS = [
   { upto: 80, fps: 20 },
   { upto: Infinity, fps: 12 },
 ] as const;
+const GROUP_BUNDLE_PORT_DRAGGING_CHANGE_KEY =
+  "__rawbitGroupBundlePortDragging";
+const GROUP_BUNDLE_PORT_DRAG_ID_CHANGE_KEY =
+  "__rawbitGroupBundlePortDragId";
+
+type GroupBundlePortOffsetNodeChange = NodeChange<FlowNode> & {
+  [GROUP_BUNDLE_PORT_DRAGGING_CHANGE_KEY]?: boolean;
+  [GROUP_BUNDLE_PORT_DRAG_ID_CHANGE_KEY]?: string;
+};
 
 const fpsForCount = (count: number) => {
   for (const band of DRAG_FPS_BANDS) {
@@ -150,6 +159,17 @@ const hasUndoableCleanNodeReplacement = (
   );
 };
 
+const isGroupBundlePortOffsetDragChange = (
+  change: NodeChange<FlowNode>
+): change is GroupBundlePortOffsetNodeChange =>
+  change.type === "replace" &&
+  typeof (change as GroupBundlePortOffsetNodeChange)[
+    GROUP_BUNDLE_PORT_DRAGGING_CHANGE_KEY
+  ] === "boolean" &&
+  typeof (change as GroupBundlePortOffsetNodeChange)[
+    GROUP_BUNDLE_PORT_DRAG_ID_CHANGE_KEY
+  ] === "string";
+
 interface UseFlowInteractionsOptions {
   rawOnNodesChange: (changes: NodeChange<FlowNode>[]) => void;
   rawOnEdgesChange: (changes: EdgeChange[]) => void;
@@ -241,6 +261,7 @@ export function useFlowInteractions({
   const nextFlushAtRef = useRef(0);
   const largeDragActiveRef = useRef(false);
   const activeNodeDragIdsRef = useRef<Set<string>>(new Set());
+  const activeGroupBundlePortDragIdsRef = useRef<Set<string>>(new Set());
   const dragStartPositionsRef = useRef<Map<string, DragStartInfo>>(new Map());
 
   const scheduleDoubleRAF = useCallback((cb: () => void) => {
@@ -458,10 +479,13 @@ export function useFlowInteractions({
 
   useEffect(() => {
     const activeNodeDragIds = activeNodeDragIdsRef.current;
+    const activeGroupBundlePortDragIds =
+      activeGroupBundlePortDragIdsRef.current;
 
     return () => {
       exitLargeDragMode(false, false);
       activeNodeDragIds.clear();
+      activeGroupBundlePortDragIds.clear();
       setSafariNodeDragMode(false);
       cancelNonPosRef.current?.();
       cancelNonPosRef.current = null;
@@ -477,6 +501,7 @@ export function useFlowInteractions({
     const resetInteractions = () => {
       exitLargeDragMode(true);
       activeNodeDragIdsRef.current.clear();
+      activeGroupBundlePortDragIdsRef.current.clear();
       setSafariNodeDragMode(false);
       cancelNonPosRef.current?.();
       cancelNonPosRef.current = null;
@@ -677,8 +702,49 @@ export function useFlowInteractions({
           dragStartPositionsRef.current.clear();
         }
       } else if (typedChange) {
+        const bundlePortDragChanges = changes.filter(
+          isGroupBundlePortOffsetDragChange
+        );
+        const isActiveBundlePortDragChange = (
+          change: NodeChange<FlowNode>
+        ) =>
+          isGroupBundlePortOffsetDragChange(change) &&
+          change[GROUP_BUNDLE_PORT_DRAGGING_CHANGE_KEY] === true;
+        const onlyActiveBundlePortDragChanges = changes.every(
+          (change) =>
+            isActiveBundlePortDragChange(change) || change.type === "select"
+        );
+
+        for (const change of bundlePortDragChanges) {
+          const dragId = change[GROUP_BUNDLE_PORT_DRAG_ID_CHANGE_KEY];
+          if (!dragId) continue;
+          if (change[GROUP_BUNDLE_PORT_DRAGGING_CHANGE_KEY] === true) {
+            activeGroupBundlePortDragIdsRef.current.add(dragId);
+          }
+        }
+
+        if (onlyActiveBundlePortDragChanges) {
+          return;
+        }
+
+        const completedBundlePortDrag = bundlePortDragChanges.some((change) => {
+          const dragId = change[GROUP_BUNDLE_PORT_DRAG_ID_CHANGE_KEY];
+          if (
+            !dragId ||
+            change[GROUP_BUNDLE_PORT_DRAGGING_CHANGE_KEY] !== false ||
+            !activeGroupBundlePortDragIdsRef.current.has(dragId)
+          ) {
+            return false;
+          }
+          activeGroupBundlePortDragIdsRef.current.delete(dragId);
+          return true;
+        });
         const shouldSnapshotCleanReplacement =
-          hasUndoableCleanNodeReplacement(changes, beforeNodes);
+          hasUndoableCleanNodeReplacement(
+            changes.filter((change) => !isActiveBundlePortDragChange(change)),
+            beforeNodes
+          ) ||
+          completedBundlePortDrag;
         incRev();
         requestAnimationFrame(() => {
           const anyDirty = getNodes().some((node) => node.data?.dirty);

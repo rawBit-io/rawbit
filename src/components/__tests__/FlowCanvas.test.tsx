@@ -861,6 +861,8 @@ describe("FlowCanvas", () => {
       expect.objectContaining({
         id: "group-a",
         type: "replace",
+        __rawbitGroupBundlePortDragging: false,
+        __rawbitGroupBundlePortDragId: sourcePort?.id,
         item: expect.objectContaining({
           data: expect.objectContaining({
             groupBundlePortOffsets: expect.objectContaining({
@@ -872,6 +874,8 @@ describe("FlowCanvas", () => {
       expect.objectContaining({
         id: "group-b",
         type: "replace",
+        __rawbitGroupBundlePortDragging: false,
+        __rawbitGroupBundlePortDragId: targetPort?.id,
         item: expect.objectContaining({
           data: expect.objectContaining({
             groupBundlePortOffsets: expect.objectContaining({

@@ -85,6 +85,10 @@ const edgeTypes = {
 } satisfies ReactFlowProps<FlowNode>["edgeTypes"];
 const GROUP_CURVE_OFFSET_RESET_STORAGE_KEY =
   "rawbit.flow.groupCurveOffsetsReset.2026-06-11";
+const GROUP_BUNDLE_PORT_DRAGGING_CHANGE_KEY =
+  "__rawbitGroupBundlePortDragging";
+const GROUP_BUNDLE_PORT_DRAG_ID_CHANGE_KEY =
+  "__rawbitGroupBundlePortDragId";
 
 const isEditableTarget = (target: EventTarget | null): boolean => {
   if (!(target instanceof HTMLElement)) return false;
@@ -156,10 +160,12 @@ const buildGroupPortOffsetChange = ({
   change,
   portNode,
   groupNode,
+  force = false,
 }: {
   change: NodeChange<FlowNode>;
   portNode: FlowNode;
   groupNode: FlowNode;
+  force?: boolean;
 }): NodeChange<FlowNode> | null => {
   if (change.type !== "position") return null;
   const role = portRole(portNode);
@@ -193,7 +199,7 @@ const buildGroupPortOffsetChange = ({
       role === "source" ? "sourceByBundle" : "targetByBundle";
     const currentBundleOffsets = currentOffsets[byBundleKey] ?? {};
     const currentOffset = currentBundleOffsets[bundleId] ?? currentOffsets[role];
-    if (currentOffset === nextOffset) return null;
+    if (!force && currentOffset === nextOffset) return null;
 
     return {
       id: groupNode.id,
@@ -214,7 +220,7 @@ const buildGroupPortOffsetChange = ({
     };
   }
 
-  if (currentOffsets[role] === nextOffset) return null;
+  if (!force && currentOffsets[role] === nextOffset) return null;
 
   return {
     id: groupNode.id,
@@ -230,6 +236,19 @@ const buildGroupPortOffsetChange = ({
       },
     },
   };
+};
+
+const withGroupBundlePortDragMetadata = (
+  change: NodeChange<FlowNode>,
+  dragging: boolean | undefined,
+  portNodeId: string
+): NodeChange<FlowNode> => {
+  if (dragging === undefined) return change;
+  return {
+    ...change,
+    [GROUP_BUNDLE_PORT_DRAGGING_CHANGE_KEY]: dragging,
+    [GROUP_BUNDLE_PORT_DRAG_ID_CHANGE_KEY]: portNodeId,
+  } as unknown as NodeChange<FlowNode>;
 };
 
 export function FlowCanvas({
@@ -265,6 +284,7 @@ export function FlowCanvas({
   const [bundleSelectedEdgeIds, setBundleSelectedEdgeIds] = useState<string[]>(
     []
   );
+  const activeBundlePortDragIdsRef = useRef<Set<string>>(new Set());
   const bundleSelectedEdgeIdSet = useMemo(
     () => new Set(bundleSelectedEdgeIds),
     [bundleSelectedEdgeIds]
@@ -550,12 +570,30 @@ export function FlowCanvas({
           typeof groupId === "string" ? canonicalNodeById.get(groupId) : undefined;
         if (!portNode || !groupNode) continue;
 
+        const dragging =
+          change.type === "position" && typeof change.dragging === "boolean"
+            ? change.dragging
+            : undefined;
+        const forceFinalDragChange =
+          dragging === false && activeBundlePortDragIdsRef.current.has(change.id);
         const offsetChange = buildGroupPortOffsetChange({
           change,
           portNode,
           groupNode,
+          force: forceFinalDragChange,
         });
-        if (offsetChange) forwarded.push(offsetChange);
+        if (offsetChange) {
+          if (dragging === true) {
+            activeBundlePortDragIdsRef.current.add(change.id);
+          } else if (dragging === false) {
+            activeBundlePortDragIdsRef.current.delete(change.id);
+          }
+          forwarded.push(
+            withGroupBundlePortDragMetadata(offsetChange, dragging, change.id)
+          );
+        } else if (dragging === false) {
+          activeBundlePortDragIdsRef.current.delete(change.id);
+        }
       }
 
       if (forwarded.length === 0) return;
