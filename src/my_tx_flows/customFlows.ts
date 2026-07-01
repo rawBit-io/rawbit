@@ -11,6 +11,7 @@ import p2pkhMultiInputSigning from "@/my_tx_flows/p2_P2PKH_multi_input_signing.j
 import bareMultisig from "@/my_tx_flows/p3_Bare_MultiSig.json";
 import p2shTimelocks from "@/my_tx_flows/p4_P2SH_and_Timelocks.json";
 import p2shRecoveryOpReturn from "@/my_tx_flows/p5_P2SH_and_OP_Return.json";
+import txMalleability from "@/my_tx_flows/misc/p6_TX_Malleability.json";
 import bip110 from "@/my_tx_flows/misc/p7_BIP110.json";
 import intro_p2pkh_p2pk from "@/my_tx_flows/old/p1_Intro_P2PKH_and_P2PK.json";
 import p2_multisig from "@/my_tx_flows/old/p2_Bare_P2MS_and_P2SH_MultiSig.json";
@@ -95,6 +96,15 @@ export const customFlows: CustomFlowTemplate[] = [
     section: "legacy",
     level: "intermediate",
     tags: ["legacy", "p2sh", "op-return", "redeemscript", "recovery"],
+  },
+  {
+    id: "flow-06-tx-malleability",
+    label: "Transaction Malleability",
+    data: txMalleability as unknown as FlowData,
+    section: "misc",
+    flowNo: 6,
+    level: "intermediate",
+    tags: ["malleability", "txid", "legacy", "scriptsig", "segwit"],
   },
   {
     id: "flow-07-bip110",
