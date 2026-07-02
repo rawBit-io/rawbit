@@ -100,6 +100,12 @@ for (const template of allSidebarNodes) {
   }
 }
 
+// Functions whose palette entry was removed but which stay fully supported
+// for existing/external flows (superseded nodes).
+// extract_tx_field: replaced in the palette by the self-parsing parse_tx_field
+// ("TX Parser"); published lessons and imported flows still use it.
+allowedFunctionNames.add("extract_tx_field");
+
 function loadFlow(fileName: string): FlowData {
   const fullPath = path.join(flowsDir, fileName);
   return JSON.parse(fs.readFileSync(fullPath, "utf8")) as FlowData;

@@ -2,7 +2,7 @@
 
 import type { NodeTemplate } from "@/types";
 import {
-  DEFAULT_TX_FIELD_EXTRACT_FIELDS,
+  DEFAULT_TX_PARSE_FIELDS,
   buildTxFieldExtractOutputPorts,
 } from "@/lib/nodes/txFieldExtract";
 import { buildOpcodeInputState } from "@/lib/opcodeNodeData";
@@ -2817,26 +2817,27 @@ export const allSidebarNodes: NodeTemplate[] = [
     },
   },
   {
-    /* ─ TX FIELD EXTRACT ────────────────────────────────────────────── */
-    functionName: "extract_tx_field",
-    label: "TX Field Extract",
+    /* ─ TX PARSER ───────────────────────────────────────────────────────
+       Replaces the old "TX Field Extract" palette entry. extract_tx_field
+       stays fully supported for existing/external flows — only the palette
+       entry was removed; the self-parsing TX Parser is a superset. */
+    functionName: "parse_tx_field",
+    label: "TX Parser",
     category: "Transactions",
     subcategory: "Parsing & Inspection",
-    description: "Pull selected fields out of a raw Bitcoin transaction",
-    type: "calculation", // still rendered by CalculationNode
+    description:
+      "Parse a raw transaction byte-by-byte (legacy + SegWit + Taproot) and extract fields incl. witness data",
+    type: "calculation",
     nodeData: {
-      functionName: "extract_tx_field",
-      title: "TX Field Extract",
+      functionName: "parse_tx_field",
+      title: "TX Parser",
       paramExtraction: "multi_val",
-      numInputs: 2, // [rawTx, index]
-
+      numInputs: 2,
       result: "",
       inputs: { vals: ["", "0"] },
       txFieldExtractMode: "dynamic",
-      txExtractFields: [...DEFAULT_TX_FIELD_EXTRACT_FIELDS],
-      outputPorts: buildTxFieldExtractOutputPorts([
-        ...DEFAULT_TX_FIELD_EXTRACT_FIELDS,
-      ]),
+      txExtractFields: [...DEFAULT_TX_PARSE_FIELDS],
+      outputPorts: buildTxFieldExtractOutputPorts([...DEFAULT_TX_PARSE_FIELDS]),
 
       inputStructure: {
         ungrouped: [
@@ -2848,7 +2849,9 @@ export const allSidebarNodes: NodeTemplate[] = [
             placeholder: "<transaction hex>",
           },
 
-          /* 1 ─ vin/vout index used by per-input/per-output fields */
+          /* 1 ─ vin/vout index used by per-input/per-output fields.
+             Witness stack items are addressed in the field name itself
+             (vin.witness.item0 … / vin.witness.last). */
           {
             index: 1,
             label: "VIN/VOUT Index:",

@@ -4069,6 +4069,347 @@ def extract_tx_field(vals: list[str]) -> str:
     raise ValueError(f"Unsupported field '{field}'")
 
 
+def _parse_tx_structure(raw_tx_hex: str) -> dict:
+    """
+    Parse a raw Bitcoin transaction byte-by-byte — no library.
+
+    Understands both serializations:
+      legacy:  version | vins | vouts | locktime
+      BIP144:  version | 0x00 0x01 | vins | vouts | witness stacks | locktime
+
+    Returns a dict with every wire component plus derived values
+    (txid, wtxid, sizes, weight). All hashes are in internal byte
+    order, exactly as the bytes appear on the wire.
+    """
+    hex_str = "".join(str(raw_tx_hex or "").split()).lower()
+    if not hex_str:
+        raise ValueError("Raw transaction hex is empty.")
+    if len(hex_str) > 2_000_000:
+        raise ValueError("Transaction too large (max 1,000,000 bytes).")
+    if any(c not in "0123456789abcdef" for c in hex_str):
+        raise ValueError("Not valid hex.")
+    if len(hex_str) % 2 != 0:
+        raise ValueError("Odd-length hex (incomplete byte).")
+
+    raw = bytes.fromhex(hex_str)
+    pos = 0
+
+    def take(n: int, what: str) -> bytes:
+        nonlocal pos
+        if pos + n > len(raw):
+            raise ValueError(f"Transaction truncated in {what}.")
+        chunk = raw[pos:pos + n]
+        pos += n
+        return chunk
+
+    def read_u32(what: str) -> int:
+        return int.from_bytes(take(4, what), "little")
+
+    def read_u64(what: str) -> int:
+        return int.from_bytes(take(8, what), "little")
+
+    def read_varint(what: str) -> int:
+        # Canonical CompactSize (matches Bitcoin Core's ReadCompactSize):
+        # each form is only valid for values that don't fit the shorter one.
+        first = take(1, what)[0]
+        if first < 0xFD:
+            return first
+        if first == 0xFD:
+            value = int.from_bytes(take(2, what), "little")
+            if value < 0xFD:
+                raise ValueError(f"Non-canonical CompactSize in {what}.")
+            return value
+        if first == 0xFE:
+            value = int.from_bytes(take(4, what), "little")
+            if value < 0x1_0000:
+                raise ValueError(f"Non-canonical CompactSize in {what}.")
+            return value
+        value = int.from_bytes(take(8, what), "little")
+        if value < 0x1_0000_0000:
+            raise ValueError(f"Non-canonical CompactSize in {what}.")
+        if value > 2**53 - 1:
+            raise ValueError(f"CompactSize in {what} is too large.")
+        return value
+
+    version = read_u32("version")
+
+    # BIP144 detection: a zero byte here cannot be a real input count (a
+    # transaction with 0 inputs is invalid), so it must be the SegWit marker.
+    segwit = pos < len(raw) and raw[pos] == 0x00
+    marker_flag = ""
+    if segwit:
+        take(1, "SegWit marker")
+        flag = take(1, "SegWit flag")[0]
+        if flag != 0x01:
+            raise ValueError(
+                f"Invalid SegWit flag 0x{flag:02x} (BIP144 requires 0x01)."
+            )
+        marker_flag = "0001"
+
+    in_out_start = pos
+
+    input_count = read_varint("input count")
+    # Each input needs at least 32+4+1+4 bytes — reject absurd counts before
+    # looping so hostile hex cannot spin the parser.
+    if input_count > (len(raw) - pos) // 41:
+        raise ValueError(f"Input count {input_count} exceeds remaining bytes.")
+    vins = []
+    for i in range(input_count):
+        prev_txid = take(32, f"input {i} previous txid").hex()
+        prev_vout = read_u32(f"input {i} previous vout")
+        script_len = read_varint(f"input {i} scriptSig length")
+        script_sig = take(script_len, f"input {i} scriptSig").hex()
+        sequence = read_u32(f"input {i} sequence")
+        vins.append(
+            {
+                "txid": prev_txid,
+                "vout": prev_vout,
+                "script_sig": script_sig,
+                "sequence": sequence,
+            }
+        )
+
+    output_count = read_varint("output count")
+    if output_count > (len(raw) - pos) // 9:
+        raise ValueError(f"Output count {output_count} exceeds remaining bytes.")
+    vouts = []
+    for i in range(output_count):
+        value = read_u64(f"output {i} amount")
+        script_len = read_varint(f"output {i} scriptPubKey length")
+        script_pubkey = take(script_len, f"output {i} scriptPubKey").hex()
+        vouts.append({"value": value, "script_pubkey": script_pubkey})
+
+    in_out_end = pos
+
+    witness: list = []
+    witness_wire: list = []
+    if segwit:
+        for i in range(input_count):
+            item_start = pos
+            item_count = read_varint(f"input {i} witness item count")
+            if item_count > (len(raw) - pos):
+                raise ValueError(
+                    f"Witness item count {item_count} exceeds remaining bytes."
+                )
+            items = []
+            for j in range(item_count):
+                item_len = read_varint(f"input {i} witness item {j} length")
+                items.append(take(item_len, f"input {i} witness item {j}").hex())
+            witness.append(items)
+            witness_wire.append(raw[item_start:pos].hex())
+
+        # Core rejects marker/flag serialization whose witness section is
+        # entirely empty ("Superfluous witness record") — such a transaction
+        # must use the legacy serialization instead.
+        if all(len(items) == 0 for items in witness):
+            raise ValueError(
+                "Superfluous witness record: marker/flag present "
+                "but every witness stack is empty."
+            )
+
+    locktime_start = pos
+    locktime = read_u32("locktime")
+    if pos != len(raw):
+        raise ValueError(f"Transaction has {len(raw) - pos} trailing byte(s).")
+
+    # txid always commits to the stripped (no-witness) serialization.
+    if segwit:
+        stripped = (
+            raw[:4]
+            + raw[in_out_start:in_out_end]
+            + raw[locktime_start:locktime_start + 4]
+        )
+    else:
+        stripped = raw
+
+    txid = hashlib.sha256(hashlib.sha256(stripped).digest()).digest().hex()
+    wtxid = (
+        hashlib.sha256(hashlib.sha256(raw).digest()).digest().hex()
+        if segwit
+        else txid
+    )
+
+    base_size = len(stripped)
+    total_size = len(raw)
+    weight = base_size * 3 + total_size
+
+    return {
+        "version": version,
+        "segwit": segwit,
+        "marker_flag": marker_flag,
+        "vin": vins,
+        "vout": vouts,
+        "witness": witness,
+        "witness_wire": witness_wire,
+        "locktime": locktime,
+        "stripped_hex": stripped.hex(),
+        "txid": txid,
+        "wtxid": wtxid,
+        "base_size": base_size,
+        "total_size": total_size,
+        "weight": weight,
+        "vsize": (weight + 3) // 4,
+    }
+
+
+def _tx_op_return_data(script: bytes) -> str:
+    """Concatenate the data pushes of an OP_RETURN scriptPubKey (hex)."""
+
+    def read_push(offset: int) -> tuple:
+        opcode = script[offset]
+        offset += 1
+        if opcode <= 0x4B:
+            size = opcode
+        elif opcode == 0x4C:
+            if offset + 1 > len(script):
+                raise ValueError("Malformed OP_RETURN PUSHDATA1 length")
+            size = script[offset]
+            offset += 1
+        elif opcode == 0x4D:
+            if offset + 2 > len(script):
+                raise ValueError("Malformed OP_RETURN PUSHDATA2 length")
+            size = int.from_bytes(script[offset:offset + 2], "little")
+            offset += 2
+        elif opcode == 0x4E:
+            if offset + 4 > len(script):
+                raise ValueError("Malformed OP_RETURN PUSHDATA4 length")
+            size = int.from_bytes(script[offset:offset + 4], "little")
+            offset += 4
+        else:
+            raise ValueError(
+                f"OP_RETURN payload contains non-push opcode 0x{opcode:02x}"
+            )
+        end = offset + size
+        if end > len(script):
+            raise ValueError("Malformed OP_RETURN push: length exceeds script size")
+        return script[offset:end], end
+
+    offset = 1  # skip OP_RETURN
+    chunks = []
+    while offset < len(script):
+        chunk, offset = read_push(offset)
+        chunks.append(chunk)
+    return b"".join(chunks).hex()
+
+
+def parse_tx_field(vals: list) -> str:
+    """
+    Extract a field from a raw Bitcoin transaction of ANY type — legacy,
+    SegWit, or Taproot-spending — using rawBit's own byte-by-byte parser
+    (see _parse_tx_structure) instead of an external library.
+
+    Witness stack items are addressed positionally in the field name itself:
+    `vin.witness.item0`, `vin.witness.item1`, … (any itemN works) and
+    `vin.witness.last` (witnessScript in P2WSH, control block in Taproot
+    script-path spends). The stack's meaning is defined by the script being
+    spent, so positional names are the only honest general addressing.
+
+    Parameters
+    ----------
+    vals[0]  raw_tx_hex        – full transaction in hex
+    vals[1]  field_name        – see dispatch below
+    vals[2]  (optional) index  – vin[] / vout[] look-ups (default 0)
+    """
+    if len(vals) < 2:
+        raise ValueError("Need at least rawTxHex and fieldName")
+
+    raw_hex = str(vals[0]).strip()
+    field = str(vals[1]).strip()
+    index = int(vals[2]) if len(vals) > 2 and vals[2] != "" else 0
+
+    tx = _parse_tx_structure(raw_hex)
+
+    def assert_idx(arr, i: int, what: str) -> None:
+        if i < 0 or i >= len(arr):
+            raise IndexError(f"{what} index {i} out of range (have {len(arr)})")
+
+    # -------- top-level fields ----------------------------------------
+    if field == "version":
+        return str(tx["version"])
+    if field == "locktime":
+        return str(tx["locktime"])
+    if field == "input_count":
+        return str(len(tx["vin"]))
+    if field == "output_count":
+        return str(len(tx["vout"]))
+    if field == "txid":
+        return tx["txid"]
+    if field == "wtxid":
+        return tx["wtxid"]
+    if field == "marker_flag":
+        return tx["marker_flag"]
+    if field == "size":
+        return str(tx["total_size"])
+    if field == "vsize":
+        return str(tx["vsize"])
+    if field == "weight":
+        return str(tx["weight"])
+    if field == "raw_no_witness":
+        return tx["stripped_hex"]
+
+    # -------- OP_RETURN fields ----------------------------------------
+    if field.startswith("op_return."):
+        assert_idx(tx["vout"], index, "vout")
+        script = bytes.fromhex(tx["vout"][index]["script_pubkey"])
+        if not script.startswith(b"\x6a"):
+            raise ValueError(f"vout index {index} is not an OP_RETURN output")
+        sub = field[len("op_return."):]
+        if sub == "data":
+            return _tx_op_return_data(script)
+        raise ValueError(f"Unknown op_return sub-field '{sub}'")
+
+    # -------- per-input fields ----------------------------------------
+    if field.startswith("vin."):
+        assert_idx(tx["vin"], index, "vin")
+        txin = tx["vin"][index]
+        sub = field[4:]
+        if sub == "txid":
+            return txin["txid"]
+        if sub == "vout":
+            return str(txin["vout"])
+        if sub == "scriptSig":
+            return txin["script_sig"]
+        if sub == "sequence":
+            return str(txin["sequence"])
+        if sub in ("witness", "witness_count") or sub.startswith("witness."):
+            if not tx["segwit"]:
+                raise ValueError(
+                    "Transaction has no witness data (legacy serialization)"
+                )
+            if sub == "witness":
+                return tx["witness_wire"][index]
+            if sub == "witness_count":
+                return str(len(tx["witness"][index]))
+            if sub == "witness.last":
+                items = tx["witness"][index]
+                if not items:
+                    raise IndexError(
+                        f"vin index {index} has an empty witness stack"
+                    )
+                return items[-1]
+            if sub.startswith("witness.item"):
+                suffix = sub[len("witness.item"):]
+                if suffix.isdigit():
+                    items = tx["witness"][index]
+                    assert_idx(items, int(suffix), "witness item")
+                    return items[int(suffix)]
+            raise ValueError(f"Unknown vin sub-field '{sub}'")
+        raise ValueError(f"Unknown vin sub-field '{sub}'")
+
+    # -------- per-output fields ---------------------------------------
+    if field.startswith("vout."):
+        assert_idx(tx["vout"], index, "vout")
+        txout = tx["vout"][index]
+        sub = field[5:]
+        if sub == "value":
+            return str(txout["value"])
+        if sub == "scriptPubKey":
+            return txout["script_pubkey"]
+        raise ValueError(f"Unknown vout sub-field '{sub}'")
+
+    raise ValueError(f"Unsupported field '{field}'")
+
+
 def compare_equal(vals: list[str]) -> str:
     """
     Return \"true\" if ALL provided vals are identical, else \"false\".

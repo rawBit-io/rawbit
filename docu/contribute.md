@@ -32,8 +32,6 @@ Promising directions:
 - Lightning: HTLCs, commitment transactions, success/timeout branches, revocation
 - CoinJoin structure and privacy intuition
 - Mining and block construction: coinbase, Merkle root, block header
-- PSBT workflows
-- Miniscript basics
 - Covenant proposal demos: OP_CAT, CTV-style
 - “Why this transaction is invalid” debugging flows
 

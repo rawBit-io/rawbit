@@ -135,7 +135,10 @@ export function useCalcNodeMutations(
           if (node.id !== id) return node;
 
           const current = node.data as NodeData;
-          const fields = normalizeTxFieldExtractFields(current.txExtractFields);
+          const fields = normalizeTxFieldExtractFields(
+            current.txExtractFields,
+            current.functionName
+          );
           if (index < 0 || index >= fields.length) return node;
 
           const nextFields = [...fields];
@@ -177,7 +180,10 @@ export function useCalcNodeMutations(
       // inside it are not readable synchronously afterwards. Derive the
       // removed handle from the node's current data before mutating state,
       // so the edge cleanup below actually runs.
-      const currentFields = normalizeTxFieldExtractFields(data.txExtractFields);
+      const currentFields = normalizeTxFieldExtractFields(
+        data.txExtractFields,
+        data.functionName
+      );
       const removedHandle =
         !increment && currentFields.length > 1
           ? `output-${currentFields.length - 1}`
@@ -188,13 +194,19 @@ export function useCalcNodeMutations(
           if (node.id !== id) return node;
 
           const current = node.data as NodeData;
-          const fields = normalizeTxFieldExtractFields(current.txExtractFields);
+          const fields = normalizeTxFieldExtractFields(
+            current.txExtractFields,
+            current.functionName
+          );
           let nextFields = fields;
           let droppedHandle: string | undefined;
 
           if (increment) {
             if (fields.length >= TX_FIELD_EXTRACT_MAX_OUTPUTS) return node;
-            nextFields = [...fields, nextTxFieldExtractField(fields.length)];
+            nextFields = [
+              ...fields,
+              nextTxFieldExtractField(fields.length, current.functionName),
+            ];
           } else {
             if (fields.length <= 1) return node;
             droppedHandle = `output-${fields.length - 1}`;
@@ -233,7 +245,7 @@ export function useCalcNodeMutations(
         );
       }
     },
-    [data.txExtractFields, id, setEdges, setNodes]
+    [data.txExtractFields, data.functionName, id, setEdges, setNodes]
   );
 
   const updateGroupTitle = useCallback(

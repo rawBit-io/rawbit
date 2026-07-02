@@ -64,8 +64,9 @@ import {
 import { canGrowGroup } from "@/lib/nodes/fieldUtils";
 import {
   TX_FIELD_EXTRACT_MAX_OUTPUTS,
-  TX_FIELD_EXTRACT_OPTIONS,
+  isDynamicTxExtractFunction,
   normalizeTxFieldExtractFields,
+  txExtractOptionsForFunction,
 } from "@/lib/nodes/txFieldExtract";
 import { INSTANCE_STRIDE, cn, getVal } from "@/lib/utils";
 import type {
@@ -560,13 +561,13 @@ export function CalculationNodeView({
     [data.inputs?.vals, isPictureP2shScripts]
   );
   const isDynamicTxFieldExtract =
-    data.functionName === "extract_tx_field" &&
+    isDynamicTxExtractFunction(data.functionName) &&
     data.txFieldExtractMode === "dynamic";
   const isConcatAll = data.functionName === "concat_all";
   const isInputNode = data.functionName === "identity" && showField;
   const txExtractFields = useMemo(
-    () => normalizeTxFieldExtractFields(data.txExtractFields),
-    [data.txExtractFields]
+    () => normalizeTxFieldExtractFields(data.txExtractFields, data.functionName),
+    [data.txExtractFields, data.functionName]
   );
   const txExtractOutputValues =
     data.outputValues && typeof data.outputValues === "object"
@@ -1793,7 +1794,7 @@ export function CalculationNodeView({
                           <SelectValue placeholder="Choose field" />
                         </SelectTrigger>
                         <SelectContent>
-                          {TX_FIELD_EXTRACT_OPTIONS.map((option) => (
+                          {txExtractOptionsForFunction(data.functionName).map((option) => (
                             <SelectItem
                               key={option}
                               value={option}

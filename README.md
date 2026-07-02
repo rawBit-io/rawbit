@@ -143,8 +143,6 @@ Community discussion: [Discord](https://discord.gg/HPSYkT9tq).
 
 - Lightning Network
 - CoinJoin
-- PSBT
-- Miniscript
 - Mining and block construction
 - Cross-chain swaps
 - Covenant proposals

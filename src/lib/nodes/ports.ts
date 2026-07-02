@@ -4,6 +4,7 @@ import { isCalculableNode } from "@/lib/flow/nonCalculableNodes";
 import { INSTANCE_STRIDE } from "@/lib/utils";
 import {
   buildTxFieldExtractOutputPorts,
+  isDynamicTxExtractFunction,
   normalizeTxFieldExtractFields,
 } from "@/lib/nodes/txFieldExtract";
 
@@ -16,10 +17,10 @@ export function buildPorts(n: FlowNode): NodePorts {
 
   const label = data.title || data.functionName || n.id;
   const dynamicTxExtractOutputs =
-    data.functionName === "extract_tx_field" &&
+    isDynamicTxExtractFunction(data.functionName) &&
     data.txFieldExtractMode === "dynamic"
       ? buildTxFieldExtractOutputPorts(
-          normalizeTxFieldExtractFields(data.txExtractFields)
+          normalizeTxFieldExtractFields(data.txExtractFields, data.functionName)
         )
       : undefined;
   const explicitOutputs =

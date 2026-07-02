@@ -72,6 +72,7 @@ from calc_functions.calc_func import (
     encode_sequence_time_flag,
     verify_signature,
     extract_tx_field,
+    parse_tx_field,
     compare_equal,
     compare_numbers,
     math_operation,
@@ -161,7 +162,8 @@ CALC_FUNCTIONS = {
     "encode_sequence_block_flag": encode_sequence_block_flag,
     "encode_sequence_time_flag": encode_sequence_time_flag,
     "verify_signature": verify_signature,
-    "extract_tx_field": extract_tx_field, 
+    "extract_tx_field": extract_tx_field,
+    "parse_tx_field": parse_tx_field,
     "compare_equal": compare_equal,
     "compare_numbers": compare_numbers,
     "math_operation": math_operation,
@@ -624,13 +626,30 @@ def build_multi_val_with_network_params(node, edges, _map, get_res):
     }
 
 
-def _tx_field_extract_fields(data):
+# Both dynamic TX extractors share the txExtractFields/outputPorts/
+# outputValues plumbing; parse_tx_field is the self-contained all-tx-types
+# parser, extract_tx_field the original legacy-field accessor.
+_DYNAMIC_TX_EXTRACT_FUNCS = {
+    "extract_tx_field": extract_tx_field,
+    "parse_tx_field": parse_tx_field,
+}
+
+_DYNAMIC_TX_EXTRACT_DEFAULT_FIELDS = {
+    "extract_tx_field": ["txid", "vout.scriptPubKey"],
+    "parse_tx_field": ["txid", "wtxid", "vin.witness"],
+}
+
+
+def _tx_field_extract_fields(data, fn_name="extract_tx_field"):
+    defaults = _DYNAMIC_TX_EXTRACT_DEFAULT_FIELDS.get(
+        fn_name, ["txid", "vout.scriptPubKey"]
+    )
     fields = data.get("txExtractFields")
     if not isinstance(fields, list):
-        return ["txid", "vout.scriptPubKey"]
+        return list(defaults)
 
     normalized = [str(field).strip() for field in fields if str(field).strip()]
-    return normalized or ["txid", "vout.scriptPubKey"]
+    return normalized or list(defaults)
 
 
 def _tx_field_extract_output_ports(fields):
@@ -678,11 +697,12 @@ def _apply_picture_p2sh_outputs(data, result):
     )
 
 
-def _calculate_dynamic_tx_field_extract(data, inp_dict):
+def _calculate_dynamic_tx_field_extract(data, inp_dict, fn_name="extract_tx_field"):
     vals = inp_dict.get("vals") or []
     raw_tx_hex = vals[0] if len(vals) > 0 else ""
     index = vals[1] if len(vals) > 1 else ""
-    fields = _tx_field_extract_fields(data)
+    extractor = _DYNAMIC_TX_EXTRACT_FUNCS[fn_name]
+    fields = _tx_field_extract_fields(data, fn_name)
 
     output_values = {}
     result_lines = []
@@ -693,7 +713,7 @@ def _calculate_dynamic_tx_field_extract(data, inp_dict):
         # value (rendered as "--", copy disabled) and an inline error line,
         # instead of raising and wiping every sibling field's output (NB-15).
         try:
-            value = extract_tx_field([str(raw_tx_hex), field, str(index or "")])
+            value = extractor([str(raw_tx_hex), field, str(index or "")])
             output_values[handle_id] = value
             result_lines.append(f"{field}: {value}")
         except Exception as exc:  # noqa: BLE001 - surface per field, never abort the node
@@ -782,7 +802,7 @@ def bulk_calculate_logic(nodes, edges):
                 # result behind for a downstream consumer to read as current
                 # (NB-12). On success both are repopulated below.
                 if (
-                    fn_name == "extract_tx_field"
+                    fn_name in _DYNAMIC_TX_EXTRACT_FUNCS
                     and data.get("txFieldExtractMode") == "dynamic"
                 ):
                     data.pop("outputValues", None)
@@ -846,10 +866,10 @@ def bulk_calculate_logic(nodes, edges):
                     validate_inputs(fn_name, inp_dict)
 
                     if (
-                        fn_name == "extract_tx_field"
+                        fn_name in _DYNAMIC_TX_EXTRACT_FUNCS
                         and data.get("txFieldExtractMode") == "dynamic"
                     ):
-                        _calculate_dynamic_tx_field_extract(data, inp_dict)
+                        _calculate_dynamic_tx_field_extract(data, inp_dict, fn_name)
                         store_inputs = inp_dict.copy()
                         if "_sparseVals" in store_inputs:
                             store_inputs["vals"] = store_inputs.pop("_sparseVals")

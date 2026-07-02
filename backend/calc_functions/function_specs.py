@@ -388,6 +388,12 @@ FUNCTION_SPECS = {
         "vals": {"type": "any", "required": True}
     }
 },
+"parse_tx_field": {
+    "paramExtraction": "multi_val",
+    "params": {
+        "vals": {"type": "any", "required": True}
+    }
+},
 "compare_equal": {
     "paramExtraction": "multi_val",
     "params": { "vals": { "type": "any", "required": True } }
