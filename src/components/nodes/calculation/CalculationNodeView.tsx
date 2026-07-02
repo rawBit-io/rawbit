@@ -63,7 +63,9 @@ import {
 } from "@/lib/nodes/constants";
 import { canGrowGroup } from "@/lib/nodes/fieldUtils";
 import {
+  TX_EXTRACT_CUSTOM_FIELD,
   TX_FIELD_EXTRACT_MAX_OUTPUTS,
+  isCustomTxExtractField,
   isDynamicTxExtractFunction,
   normalizeTxFieldExtractFields,
   txExtractOptionsForFunction,
@@ -521,6 +523,12 @@ export function CalculationNodeView({
   const [txCopiedOutputHandle, setTxCopiedOutputHandle] = useState<
     string | null
   >(null);
+  // Drafts for the TX Parser's "Custom…" free-text rows, keyed by output
+  // handle. Committed on blur (never an empty field, so the row can't be
+  // normalized away mid-edit).
+  const [txCustomFieldDrafts, setTxCustomFieldDrafts] = useState<
+    Record<string, string>
+  >({});
   const cardRef = useRef<HTMLDivElement | null>(null);
   const txOutputRowRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [txOutputHandleTops, setTxOutputHandleTops] = useState<
@@ -1783,28 +1791,100 @@ export function CalculationNodeView({
                     ref={setTxOutputRowRef(handleId)}
                     className="relative pb-2 last:pb-0"
                   >
-                    <div className="mb-1">
-                      <Select
-                        value={field}
-                        onValueChange={(value) =>
-                          mut.setTxFieldExtractField(index, value)
-                        }
-                      >
-                        <SelectTrigger className="field-surface h-7 min-w-0 rounded px-2 font-mono text-xs">
-                          <SelectValue placeholder="Choose field" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {txExtractOptionsForFunction(data.functionName).map((option) => (
-                            <SelectItem
-                              key={option}
-                              value={option}
-                              className="font-mono text-xs"
+                    <div className="mb-1 space-y-1">
+                      {(() => {
+                        const draftActive = handleId in txCustomFieldDrafts;
+                        const inCustom =
+                          draftActive ||
+                          isCustomTxExtractField(field, data.functionName);
+                        const customValue = draftActive
+                          ? txCustomFieldDrafts[handleId]
+                          : field;
+                        return (
+                          <>
+                            <Select
+                              value={inCustom ? TX_EXTRACT_CUSTOM_FIELD : field}
+                              onValueChange={(value) => {
+                                if (value === TX_EXTRACT_CUSTOM_FIELD) {
+                                  // Seed the draft from the current field so the
+                                  // committed value survives until they type.
+                                  setTxCustomFieldDrafts((drafts) => ({
+                                    ...drafts,
+                                    [handleId]: isCustomTxExtractField(
+                                      field,
+                                      data.functionName
+                                    )
+                                      ? field
+                                      : "",
+                                  }));
+                                } else {
+                                  setTxCustomFieldDrafts((drafts) => {
+                                    const next = { ...drafts };
+                                    delete next[handleId];
+                                    return next;
+                                  });
+                                  mut.setTxFieldExtractField(index, value);
+                                }
+                              }}
                             >
-                              {option}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                              <SelectTrigger className="field-surface h-7 min-w-0 rounded px-2 font-mono text-xs">
+                                <SelectValue placeholder="Choose field" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {txExtractOptionsForFunction(
+                                  data.functionName
+                                ).map((option) => (
+                                  <SelectItem
+                                    key={option}
+                                    value={option}
+                                    className="font-mono text-xs"
+                                  >
+                                    {option}
+                                  </SelectItem>
+                                ))}
+                                {data.functionName === "parse_tx_field" && (
+                                  <SelectItem
+                                    value={TX_EXTRACT_CUSTOM_FIELD}
+                                    className="font-mono text-xs italic"
+                                  >
+                                    Custom…
+                                  </SelectItem>
+                                )}
+                              </SelectContent>
+                            </Select>
+                            {inCustom && (
+                              <input
+                                type="text"
+                                value={customValue}
+                                placeholder="e.g. vin.witness.item7"
+                                className="field-surface nodrag h-7 w-full rounded border border-input px-2 font-mono text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                                onPointerDownCapture={(event) =>
+                                  event.stopPropagation()
+                                }
+                                onChange={(event) =>
+                                  setTxCustomFieldDrafts((drafts) => ({
+                                    ...drafts,
+                                    [handleId]: event.target.value,
+                                  }))
+                                }
+                                onBlur={(event) => {
+                                  const next = event.target.value.trim();
+                                  if (next && next !== field) {
+                                    mut.setTxFieldExtractField(index, next);
+                                  }
+                                  if (next) {
+                                    setTxCustomFieldDrafts((drafts) => {
+                                      const rest = { ...drafts };
+                                      delete rest[handleId];
+                                      return rest;
+                                    });
+                                  }
+                                }}
+                              />
+                            )}
+                          </>
+                        );
+                      })()}
                     </div>
                     <div className="grid grid-cols-[minmax(0,1fr)_2.5rem] items-start gap-2">
                       <div

@@ -40,4 +40,36 @@ test.describe('TX Parser node (parse_tx_field)', () => {
     // ...with 2 input handles + 4 output handles.
     await expect(parser.locator('.react-flow__handle')).toHaveCount(6);
   });
+
+  test('supports a manual custom field via the advanced dropdown', async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    await page.goto('/');
+    await loadFixture(page, 'tx-parser.json');
+
+    const parser = page.locator('[data-id="node_parser"]').first();
+    await parser.waitFor({ state: 'visible', timeout: 20_000 });
+    await expect(parser.getByText('EXTRACTED FIELDS')).toBeVisible({
+      timeout: 15_000,
+    });
+
+    // Open the last field row's dropdown and switch it to "Custom…".
+    await parser.getByRole('combobox').last().click();
+    await page.getByRole('option', { name: /^Custom/ }).click();
+
+    // A free-text input (no handle) appears; type a field the dropdown
+    // doesn't enumerate.
+    const custom = parser.locator(
+      'input[placeholder="e.g. vin.witness.item7"]'
+    );
+    await expect(custom).toBeVisible();
+    await custom.fill('vin.witness_count');
+    await custom.blur();
+
+    // Backend resolves the manually-typed field.
+    await expect(
+      parser.getByText(/^\d+$/, { exact: true }).last()
+    ).toBeVisible({ timeout: 15_000 });
+  });
 });

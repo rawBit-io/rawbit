@@ -59,6 +59,25 @@ export const DEFAULT_TX_PARSE_FIELDS = [
 export const TX_FIELD_EXTRACT_MAX_OUTPUTS = 12;
 
 /**
+ * Sentinel dropdown value for the TX Parser's "advanced" row: selecting it
+ * reveals a free-text field so power users can type any field the backend
+ * accepts (e.g. a deep witness item `vin.witness.item7`) without needing a
+ * dedicated dropdown entry. Not a real field name.
+ */
+export const TX_EXTRACT_CUSTOM_FIELD = "__custom__";
+
+/** True when `field` is not one of the node's enumerated dropdown options. */
+export function isCustomTxExtractField(
+  field: string,
+  functionName?: string
+): boolean {
+  if (functionName !== "parse_tx_field") return false;
+  return !TX_PARSE_FIELD_OPTIONS.includes(
+    field as (typeof TX_PARSE_FIELD_OPTIONS)[number]
+  );
+}
+
+/**
  * Both dynamic TX extractors (legacy-field extract_tx_field and the
  * self-parsing parse_tx_field) share the txExtractFields / output-N /
  * outputValues plumbing.

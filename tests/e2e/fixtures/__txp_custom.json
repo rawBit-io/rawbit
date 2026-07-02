@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "name": "tx-parser-custom",
+  "nodes": [
+    {
+      "id": "node_rawtx",
+      "type": "calculation",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "functionName": "identity",
+        "title": "seg",
+        "numInputs": 0,
+        "showField": true,
+        "value": "020000000001012646b0db05987e46faef156d16ca01e7576102dfccf5f7353dfc63559aa1cd230000000000fdffffff0190d6020000000000225120b116552202ac264a83ee54a89887e895b3db13937cea9177c6a411dd929f4cd30140719c596e42f3a96e6a19bc69f6123aef572c69b7361c93be7ce3354d74c1b57aec1e10965657a0ad47f61b0f8edcae868822e9e2f91b3b0c4f9352933c80626900000000",
+        "inputs": {
+          "val": "020000000001012646b0db05987e46faef156d16ca01e7576102dfccf5f7353dfc63559aa1cd230000000000fdffffff0190d6020000000000225120b116552202ac264a83ee54a89887e895b3db13937cea9177c6a411dd929f4cd30140719c596e42f3a96e6a19bc69f6123aef572c69b7361c93be7ce3354d74c1b57aec1e10965657a0ad47f61b0f8edcae868822e9e2f91b3b0c4f9352933c80626900000000"
+        },
+        "result": "",
+        "dirty": true,
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT VALUE:",
+              "rows": 1
+            }
+          ]
+        },
+        "groupInstances": {}
+      }
+    },
+    {
+      "id": "node_parser",
+      "type": "calculation",
+      "position": {
+        "x": 520,
+        "y": -40
+      },
+      "data": {
+        "functionName": "parse_tx_field",
+        "title": "TX Parser",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "result": "",
+        "txFieldExtractMode": "dynamic",
+        "txExtractFields": [
+          "txid",
+          "vin.witness_count",
+          "vin.witness.item1",
+          "vin.witness.last"
+        ],
+        "outputPorts": [
+          {
+            "label": "txid",
+            "handleId": "output-0",
+            "showLabel": false
+          },
+          {
+            "label": "vin.witness_count",
+            "handleId": "output-1",
+            "showLabel": false
+          },
+          {
+            "label": "vin.witness.item1",
+            "handleId": "output-2",
+            "showLabel": false
+          },
+          {
+            "label": "vin.witness.last",
+            "handleId": "output-3",
+            "showLabel": false
+          }
+        ],
+        "inputs": {
+          "vals": {
+            "1": "0"
+          }
+        },
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Raw TX (hex):",
+              "rows": 3,
+              "placeholder": "<transaction hex>"
+            },
+            {
+              "index": 1,
+              "label": "VIN/VOUT Index:",
+              "rows": 1,
+              "placeholder": "0"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": true
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "node_rawtx",
+      "target": "node_parser",
+      "sourceHandle": "",
+      "targetHandle": "input-0"
+    }
+  ]
+}
