@@ -20,6 +20,7 @@ export interface FieldWithHandleProps {
   rows?: number;
   autoResizeMaxRows?: number;
   onChange?: (val: string) => void;
+  onBlur?: (val: string) => void;
   onLabelChange?: (val: string) => void;
   handleOffset?: number;
   disableHandle?: boolean;
@@ -52,6 +53,7 @@ function fieldWithHandlePropsAreEqual(
     prev.autoResizeMaxRows === next.autoResizeMaxRows &&
     prev.comment === next.comment &&
     prev.onChange === next.onChange &&
+    prev.onBlur === next.onBlur &&
     prev.onLabelChange === next.onLabelChange &&
     prev.handleOffset === next.handleOffset &&
     prev.disableHandle === next.disableHandle &&
@@ -79,6 +81,7 @@ export const FieldWithHandle = React.memo(function FieldWithHandleComponent({
   autoResizeMaxRows,
   comment,
   onChange,
+  onBlur,
   onLabelChange,
   handleOffset = 0,
   disableHandle = false,
@@ -151,6 +154,7 @@ export const FieldWithHandle = React.memo(function FieldWithHandleComponent({
         className={className}
         labelClassName={labelClassName}
         onChange={onChange}
+        onBlur={onBlur}
         onLabelChange={onLabelChange}
         allowEmpty00={allowEmpty00}
         allowEmptyBlank={allowEmptyBlank}

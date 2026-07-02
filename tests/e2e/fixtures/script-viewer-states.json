@@ -266,6 +266,32 @@
         },
         "groupInstances": {}
       }
+    },
+    {
+      "id": "node_viewer_manual",
+      "type": "scriptViewer",
+      "position": {
+        "x": 460,
+        "y": 1600
+      },
+      "data": {
+        "functionName": "script_viewer",
+        "title": "Script Viewer",
+        "numInputs": 1,
+        "value": "",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "SCRIPT HEX:",
+              "rows": 1
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {}
+      }
     }
   ],
   "edges": [

@@ -39,6 +39,7 @@ import { useClipboardLite } from "@/hooks/nodes/useClipboardLite";
 import { useDismissNodeMenuOnCanvasPointerDown } from "@/hooks/nodes/useDismissNodeMenuOnCanvasPointerDown";
 import { useCanonicalGraph } from "@/contexts/canonical-graph";
 import { FieldWithHandle } from "./calculation/fields/FieldWithHandle";
+import { EditableLabel } from "./calculation/fields/EditableLabel";
 import { parseScriptDisassembly } from "@/lib/scriptDisassembly";
 import NodeCodeDialog from "@/components/dialog/NodeCodeDialog";
 import {
@@ -122,9 +123,47 @@ export default function ScriptViewerNode({
     connectedInputsEqual
   );
 
-  const hasValue = connected.value !== undefined;
-  const hex = connected.value ?? "";
+  // Manual entry (rawBit convention): a connection overrides, but with no
+  // edge the user can type or paste hex directly into the field.
+  const typedValue = typeof data.value === "string" ? data.value : "";
+  const hasValue = connected.hasEdge
+    ? connected.value !== undefined
+    : typedValue !== "";
+  const hex = connected.hasEdge ? connected.value ?? "" : typedValue;
   const disasm = useMemo(() => parseScriptDisassembly(hex), [hex]);
+
+  const handleValueChange = useCallback(
+    (value: string) => {
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === id ? { ...n, data: { ...n.data, value } } : n
+        )
+      );
+    },
+    [id, setNodes]
+  );
+
+  const lastSnapshottedValueRef = useRef(typedValue);
+  const handleValueBlur = useCallback(
+    (value: string) => {
+      if (lastSnapshottedValueRef.current === value) return;
+      lastSnapshottedValueRef.current = value;
+      scheduleSnapshot("Update Script Viewer input");
+    },
+    [scheduleSnapshot]
+  );
+
+  const handleTitleUpdate = useCallback(
+    (title: string) =>
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === id
+            ? { ...n, data: { ...n.data, title: title || "Script Viewer" } }
+            : n
+        )
+      ),
+    [id, setNodes]
+  );
 
   /* ---- comment (parity with sibling nodes) ---- */
   const currentComment = typeof data.comment === "string" ? data.comment : "";
@@ -276,7 +315,12 @@ export default function ScriptViewerNode({
       {/* --- Title bar --- */}
       <div className="calc-node-header flex w-full flex-row items-center gap-2 border-b border-border p-2 text-xl">
         <div className="min-w-0 flex-1 break-words leading-tight">
-          {data.title || "Script Viewer"}
+          <EditableLabel
+            value={data.title || "Script Viewer"}
+            onCommit={handleTitleUpdate}
+            className="node-title text-xl"
+            maxLength={100}
+          />
         </div>
         <div className="flex shrink-0 items-center space-x-1">
           <DropdownMenu
@@ -328,18 +372,21 @@ export default function ScriptViewerNode({
       </div>
 
       {/* --- Body --- */}
-      <CardContent className="flex flex-grow flex-col gap-2 p-2 text-xs">
-        {/* Input: hex + left target handle on the outer perimeter */}
+      {/* p-4 matches CalculationNodeView so handleOffset -16 centers the
+          handle on the node border, like every other node. */}
+      <CardContent className="flex flex-grow flex-col gap-2 p-4 text-xs">
+        {/* Input: connection overrides; editable when unconnected */}
         <FieldWithHandle
           handleId="input-0"
           label="SCRIPT HEX:"
           value={hex}
           connected={connected.hasEdge}
-          readOnly
           rows={1}
           autoResizeMaxRows={3}
           handleOffset={-16}
-          placeholder="Connect a script-hex output"
+          placeholder="Paste script hex or connect a node"
+          onChange={handleValueChange}
+          onBlur={handleValueBlur}
         />
 
         {/* Disassembly header */}
@@ -355,11 +402,11 @@ export default function ScriptViewerNode({
         {/* nodrag + select-text so the disassembly can be selected/copied
             without the node being dragged (xyflow sets user-select:none). */}
         <div className="field-surface nodrag nowheel max-h-[380px] select-text overflow-auto rounded-md border p-2 font-mono text-xs leading-relaxed">
-          {!connected.hasEdge ? (
+          {!connected.hasEdge && !typedValue ? (
             <div className="italic text-muted-foreground">
-              Connect a node that outputs a script (hex).
+              Connect a node that outputs a script (hex), or paste hex above.
             </div>
-          ) : connected.error ? (
+          ) : connected.hasEdge && connected.error ? (
             <>
               <div className="mb-1 font-medium text-destructive">
                 ⚠ Upstream node has an error — showing last successful result.
@@ -372,7 +419,7 @@ export default function ScriptViewerNode({
                 </div>
               )}
             </>
-          ) : !hasValue ? (
+          ) : connected.hasEdge && !hasValue ? (
             <div className="italic text-muted-foreground">
               Connected — waiting for a script value…
             </div>

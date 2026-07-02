@@ -36,5 +36,19 @@ test.describe('Script Viewer UI states', () => {
     await expect(
       uperr.getByText(/Upstream node has an error/)
     ).toBeVisible();
+
+    // Unconnected viewer → manual paste works (connection would override).
+    const manual = await ensureNodeVisible(page, 'node_viewer_manual');
+    await expect(manual.getByText(/paste hex above/)).toBeVisible();
+    const field = manual.locator('textarea').first();
+    await field.click();
+    await field.fill('51ac');
+    await field.evaluate((el) =>
+      el.dispatchEvent(new Event('blur', { bubbles: true }))
+    );
+    await expect(manual.getByText('OP_1', { exact: true })).toBeVisible();
+    await expect(
+      manual.getByText('OP_CHECKSIG', { exact: true })
+    ).toBeVisible();
   });
 });

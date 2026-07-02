@@ -151,6 +151,7 @@ export const allSidebarNodes: NodeTemplate[] = [
       functionName: "script_viewer",
       title: "Script Viewer",
       numInputs: 1,
+      value: "",
       inputStructure: {
         ungrouped: [{ index: 0, label: "SCRIPT HEX:", rows: 1 }],
         groups: [],
