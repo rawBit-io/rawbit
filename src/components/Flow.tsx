@@ -22,6 +22,7 @@ import CalculationNode from "@/components/nodes/CalculationNode";
 import ShadcnGroupNode from "@/components/nodes/GroupNode";
 import TextInfoNode from "@/components/nodes/TextInfoNode";
 import OpCodeNode from "@/components/nodes/OpCodeNode";
+import ScriptViewerNode from "@/components/nodes/ScriptViewerNode";
 import { GroupBundlePortNode } from "@/components/nodes/GroupBundlePortNode";
 
 import { TopBar, type PasteMode } from "@/components/layout/TopBar";
@@ -120,6 +121,7 @@ const COLORABLE_NODE_TYPES = new Set([
   "shadcnTextInfo",
   "opCodeNode",
   "trezorAction",
+  "scriptViewer",
 ]);
 const INFO_NODE_TYPE = "shadcnTextInfo";
 
@@ -146,6 +148,7 @@ const nodeTypes = {
   shadcnGroup: ShadcnGroupNode,
   shadcnTextInfo: TextInfoNode,
   opCodeNode: OpCodeNode,
+  scriptViewer: ScriptViewerNode,
   [GROUP_BUNDLE_PORT_NODE_TYPE]: GroupBundlePortNode,
 };
 

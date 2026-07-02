@@ -1,0 +1,186 @@
+/*  src/lib/scriptDisassembly.ts
+    ---------------------------------------------------------------
+    Pure, framework-free Bitcoin Script disassembler used by the
+    read-only Script Viewer node. Turns a hex script into a list of
+    indented lines (IF/ELSE/ENDIF nesting) with opcode names and
+    friendly data-push placeholders.
+
+    Kept React-free so it can be unit-tested directly and reused.
+    --------------------------------------------------------------- */
+
+import { OP_CODES, type OpCodeCategories } from "@/lib/opcodes";
+
+export type DisasmKind = "opcode" | "push" | "unknown";
+
+export interface DisasmLine {
+  /** Nesting depth (drives indentation). */
+  depth: number;
+  /** Rendered token, e.g. "OP_IF", "OP_SHA256", "<32-byte hash>". */
+  text: string;
+  kind: DisasmKind;
+  /** Raw data hex for push lines (for copy / tooltip). */
+  hex?: string;
+}
+
+export interface DisasmResult {
+  ok: boolean;
+  error?: string;
+  lines: DisasmLine[];
+  /** Byte length of the parsed script (0 when empty/invalid). */
+  byteLength: number;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Opcode name lookup (built once from the shared OP_CODES catalogue) */
+/* ------------------------------------------------------------------ */
+const OPCODE_NAME_BY_BYTE: Map<number, string> = (() => {
+  const map = new Map<number, string>();
+  (Object.keys(OP_CODES) as OpCodeCategories[]).forEach((category) => {
+    OP_CODES[category].forEach((item) => {
+      if (item.hex.length !== 2) return; // skip multi-byte template entries
+      const value = Number.parseInt(item.hex, 16);
+      if (Number.isNaN(value)) return;
+      map.set(value, item.name);
+    });
+  });
+  // Canonical short names — the catalogue carries aliased labels
+  // ("OP_0 / OP_FALSE", "OP_1 / OP_TRUE") that read badly in a disassembly.
+  map.set(0x00, "OP_0");
+  map.set(0x4f, "OP_1NEGATE");
+  for (let v = 0x51; v <= 0x60; v += 1) map.set(v, `OP_${v - 0x50}`);
+  return map;
+})();
+
+/* ------------------------------------------------------------------ */
+/*  Helpers                                                            */
+/* ------------------------------------------------------------------ */
+const cleanHex = (hex = "") => hex.replace(/\s+/g, "").toLowerCase();
+
+const toBytes = (hex: string) =>
+  Array.from({ length: hex.length / 2 }, (_, i) => hex.slice(i * 2, i * 2 + 2));
+
+/** Rendered text for a data push — the actual pushed bytes. */
+function pushLabel(n: number, dataHex: string): string {
+  return n === 0 ? "(empty)" : dataHex;
+}
+
+const OP_IF = 0x63;
+const OP_NOTIF = 0x64;
+const OP_ELSE = 0x67;
+const OP_ENDIF = 0x68;
+const OP_PUSHDATA1 = 0x4c;
+const OP_PUSHDATA2 = 0x4d;
+const OP_PUSHDATA4 = 0x4e;
+
+/**
+ * Parse a hex-encoded Bitcoin script into indented disassembly lines.
+ * Never throws — invalid input returns `{ ok:false, error }` and any
+ * lines decoded up to the failure point (best-effort).
+ */
+export function parseScriptDisassembly(hexRaw = ""): DisasmResult {
+  const hex = cleanHex(hexRaw);
+  if (!hex) return { ok: true, lines: [], byteLength: 0 };
+  if (/[^0-9a-f]/.test(hex)) {
+    return { ok: false, error: "Not valid hex.", lines: [], byteLength: 0 };
+  }
+  if (hex.length % 2 !== 0) {
+    return {
+      ok: false,
+      error: "Odd-length hex (incomplete byte).",
+      lines: [],
+      byteLength: 0,
+    };
+  }
+
+  const bytes = toBytes(hex);
+  const byteLength = bytes.length;
+  const lines: DisasmLine[] = [];
+  let i = 0;
+  let depth = 0;
+
+  const pushLine = (data: string, at: number) => {
+    lines.push({ depth: at, text: pushLabel(data.length / 2, data), kind: "push", hex: data });
+  };
+
+  while (i < byteLength) {
+    const b = Number.parseInt(bytes[i], 16);
+
+    // Direct data push (1..75 bytes)
+    if (b >= 0x01 && b <= 0x4b) {
+      const dataStart = i + 1;
+      if (dataStart + b > byteLength) {
+        return {
+          ok: false,
+          error: `Truncated push: opcode 0x${bytes[i]} needs ${b} bytes but only ${byteLength - dataStart} remain.`,
+          lines,
+          byteLength,
+        };
+      }
+      pushLine(bytes.slice(dataStart, dataStart + b).join(""), depth);
+      i = dataStart + b;
+      continue;
+    }
+
+    // OP_PUSHDATA1/2/4 — length is little-endian
+    if (b === OP_PUSHDATA1 || b === OP_PUSHDATA2 || b === OP_PUSHDATA4) {
+      const widthBytes = b === OP_PUSHDATA1 ? 1 : b === OP_PUSHDATA2 ? 2 : 4;
+      if (i + 1 + widthBytes > byteLength) {
+        return {
+          ok: false,
+          error: `Truncated ${OPCODE_NAME_BY_BYTE.get(b)} length prefix.`,
+          lines,
+          byteLength,
+        };
+      }
+      let n = 0;
+      for (let k = 0; k < widthBytes; k += 1) {
+        n += Number.parseInt(bytes[i + 1 + k], 16) * 2 ** (8 * k);
+      }
+      const dataStart = i + 1 + widthBytes;
+      if (dataStart + n > byteLength) {
+        return {
+          ok: false,
+          error: `Truncated push: ${OPCODE_NAME_BY_BYTE.get(b)} needs ${n} bytes but only ${byteLength - dataStart} remain.`,
+          lines,
+          byteLength,
+        };
+      }
+      pushLine(bytes.slice(dataStart, dataStart + n).join(""), depth);
+      i = dataStart + n;
+      continue;
+    }
+
+    // Control flow (drives indentation)
+    if (b === OP_IF || b === OP_NOTIF) {
+      lines.push({ depth, text: OPCODE_NAME_BY_BYTE.get(b) as string, kind: "opcode" });
+      depth += 1;
+      i += 1;
+      continue;
+    }
+    if (b === OP_ELSE) {
+      lines.push({ depth: Math.max(0, depth - 1), text: "OP_ELSE", kind: "opcode" });
+      i += 1;
+      continue;
+    }
+    if (b === OP_ENDIF) {
+      depth = Math.max(0, depth - 1);
+      lines.push({ depth, text: "OP_ENDIF", kind: "opcode" });
+      i += 1;
+      continue;
+    }
+
+    // Any other known opcode
+    const name = OPCODE_NAME_BY_BYTE.get(b);
+    if (name) {
+      lines.push({ depth, text: name, kind: "opcode" });
+      i += 1;
+      continue;
+    }
+
+    // Unknown / undefined byte — surface gracefully, don't abort the whole script
+    lines.push({ depth, text: `UNKNOWN_0x${bytes[i]}`, kind: "unknown" });
+    i += 1;
+  }
+
+  return { ok: true, lines, byteLength };
+}

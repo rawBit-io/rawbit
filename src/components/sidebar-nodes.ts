@@ -140,6 +140,25 @@ export const allSidebarNodes: NodeTemplate[] = [
     },
   },
   {
+    type: "scriptViewer",
+    functionName: "script_viewer",
+    label: "Script Viewer",
+    category: "Encoding & Script Data",
+    subcategory: "Script Opcodes",
+    description:
+      "Read-only: connect a script hex and see it disassembled into indented, readable opcodes.",
+    nodeData: {
+      title: "Script Viewer",
+      numInputs: 1,
+      inputStructure: {
+        ungrouped: [{ index: 0, label: "SCRIPT HEX:", rows: 1 }],
+        groups: [],
+        afterGroups: [],
+      },
+      groupInstances: {},
+    },
+  },
+  {
     functionName: "uint32_to_little_endian_4_bytes",
     label: "Uint32 → LE-4",
     category: "Encoding & Script Data",

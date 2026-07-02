@@ -49,6 +49,7 @@ const DEFAULT_ALLOWED_NODE_TYPES = new Set<string>([
   "shadcnTextInfo",
   "opCodeNode",
   "trezorAction",
+  "scriptViewer",
 ]);
 
 const HANDLE_PLACEHOLDER = "__DEFAULT_HANDLE__";

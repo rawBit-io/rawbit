@@ -4,6 +4,7 @@ export const NON_CALCULABLE_NODE_TYPES = new Set([
   "shadcnGroup",
   "shadcnTextInfo",
   "trezorAction",
+  "scriptViewer",
 ]);
 
 export const isCalculableNode = (node: Pick<FlowNode, "type">) =>

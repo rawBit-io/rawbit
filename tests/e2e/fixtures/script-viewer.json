@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "name": "playwright-script-viewer",
+  "nodes": [
+    {
+      "id": "node_input",
+      "type": "calculation",
+      "position": { "x": 0, "y": 0 },
+      "data": {
+        "functionName": "identity",
+        "title": "redeemScript (hex)",
+        "numInputs": 0,
+        "showField": true,
+        "value": "63a820073715db04e4cc83e479172ae563910c4b03066566bb9fd59d37ccc583738b548821028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac6704a721316ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
+        "inputs": { "val": "63a820073715db04e4cc83e479172ae563910c4b03066566bb9fd59d37ccc583738b548821028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac6704a721316ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68" },
+        "result": "63a820073715db04e4cc83e479172ae563910c4b03066566bb9fd59d37ccc583738b548821028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac6704a721316ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
+        "dirty": true,
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "INPUT VALUE:", "rows": 1 }]
+        },
+        "groupInstances": {}
+      }
+    },
+    {
+      "id": "node_viewer",
+      "type": "scriptViewer",
+      "position": { "x": 460, "y": -40 },
+      "data": {
+        "functionName": "script_viewer",
+        "title": "Script Viewer",
+        "numInputs": 1,
+        "inputStructure": {
+          "ungrouped": [{ "index": 0, "label": "SCRIPT HEX:", "rows": 1 }],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {}
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_input_viewer",
+      "source": "node_input",
+      "target": "node_viewer",
+      "sourceHandle": "",
+      "targetHandle": "input-0"
+    }
+  ]
+}

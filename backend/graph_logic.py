@@ -36,7 +36,8 @@ from calc_functions.calc_func import (
     hash160_hex,
     varint_encoded_byte_length,
     script_verification,
-  
+    script_viewer,
+
     encode_script_push_data,
     bip110_picture_p2sh_scripts,
     op_code_select,
@@ -124,6 +125,7 @@ CALC_FUNCTIONS = {
     "hash160_hex": hash160_hex,
     "varint_encoded_byte_length": varint_encoded_byte_length,
     "script_verification": script_verification,
+    "script_viewer": script_viewer,
     "sha256_hex": sha256_hex,
  
     "encode_script_push_data": encode_script_push_data,
@@ -753,7 +755,7 @@ def bulk_calculate_logic(nodes, edges):
 
                 node, data = node_map[nid], node_map[nid]["data"]
 
-                if node.get("type") in {"shadcnGroup", "shadcnTextInfo"}:
+                if node.get("type") in {"shadcnGroup", "shadcnTextInfo", "scriptViewer"}:
                     data["dirty"] = False
                     data.pop("error", None)
                     data.pop("extendedError", None)

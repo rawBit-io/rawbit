@@ -42,7 +42,7 @@ _ECIES_SALT_LEN = 16
 _ECIES_TAG_LEN = 32
 from bitcointx.core import CTransaction, CTxOut, b2x
 from bitcointx.core.script import CScript
-from .opcodes import opcode_sequence_to_hex
+from .opcodes import opcode_sequence_to_hex, OPCODE_TO_HEX
 from bitcointx.core.scripteval import (
     VerifyScriptWithTrace 
 )
@@ -2857,6 +2857,93 @@ def varint_encoded_byte_length(val: str) -> str:
     if length <= 0xffffffff:
         return "fe" + struct.pack("<I", length).hex()
     return "ff" + struct.pack("<Q", length).hex()
+
+
+def _script_opcode_name_by_byte() -> dict:
+    """
+    byte -> opcode name, derived from the shared OPCODE_TO_HEX catalogue.
+    First (clean) name wins over aliases, then small ints are pinned to their
+    canonical short names (OP_0, OP_1NEGATE, OP_1 .. OP_16).
+    """
+    name_by_byte: dict = {}
+    for name, hexval in OPCODE_TO_HEX.items():
+        if len(hexval) != 2:
+            continue  # skip multi-byte template entries (e.g. P2PKH_PREFIX)
+        name_by_byte.setdefault(int(hexval, 16), name)
+    name_by_byte[0x00] = "OP_0"
+    name_by_byte[0x4F] = "OP_1NEGATE"
+    for b in range(0x51, 0x61):
+        name_by_byte[b] = f"OP_{b - 0x50}"
+    return name_by_byte
+
+
+def script_viewer(val: str) -> str:
+    """
+    Disassemble a hex-encoded Bitcoin script into an indented, human-readable
+    listing: one opcode / data push per line, with IF/ELSE/ENDIF nesting and
+    the real pushed bytes shown verbatim.
+
+    Reference implementation shown in the Script Viewer node's "Show Code"
+    dialog. The node renders the disassembly directly in the UI and produces
+    no output value, so this is never executed as part of a flow.
+    """
+    hex_str = (val or "").strip().lower().replace(" ", "")
+    if not hex_str:
+        return ""
+    if re.fullmatch(r"[0-9a-f]*", hex_str) is None:
+        raise ValueError("Not valid hex.")
+    if len(hex_str) % 2 != 0:
+        raise ValueError("Odd-length hex (incomplete byte).")
+
+    data = bytes.fromhex(hex_str)
+    name_by_byte = _script_opcode_name_by_byte()
+
+    lines: List = []  # (depth, text)
+    i = 0
+    depth = 0
+    n = len(data)
+
+    while i < n:
+        op = data[i]
+
+        # Direct data push (1..75 bytes)
+        if 0x01 <= op <= 0x4B:
+            start = i + 1
+            if start + op > n:
+                raise ValueError(f"Truncated push: opcode 0x{op:02x} needs {op} bytes.")
+            chunk = data[start:start + op].hex()
+            lines.append((depth, chunk if chunk else "(empty)"))
+            i = start + op
+            continue
+
+        # OP_PUSHDATA1/2/4 (little-endian length prefix)
+        if op in (0x4C, 0x4D, 0x4E):
+            width = {0x4C: 1, 0x4D: 2, 0x4E: 4}[op]
+            if i + 1 + width > n:
+                raise ValueError("Truncated OP_PUSHDATA length prefix.")
+            length = int.from_bytes(data[i + 1:i + 1 + width], "little")
+            start = i + 1 + width
+            if start + length > n:
+                raise ValueError(f"Truncated push: OP_PUSHDATA needs {length} bytes.")
+            chunk = data[start:start + length].hex()
+            lines.append((depth, chunk if chunk else "(empty)"))
+            i = start + length
+            continue
+
+        # Control flow drives indentation
+        if op in (0x63, 0x64):  # OP_IF / OP_NOTIF
+            lines.append((depth, name_by_byte.get(op, f"UNKNOWN_0x{op:02x}")))
+            depth += 1
+        elif op == 0x67:  # OP_ELSE (dedent the keyword to line up with its IF)
+            lines.append((max(0, depth - 1), "OP_ELSE"))
+        elif op == 0x68:  # OP_ENDIF
+            depth = max(0, depth - 1)
+            lines.append((depth, "OP_ENDIF"))
+        else:
+            lines.append((depth, name_by_byte.get(op, f"UNKNOWN_0x{op:02x}")))
+        i += 1
+
+    return "\n".join("    " * d + text for d, text in lines)
 
 
 def _build_taproot_prevouts(extra_vals: Sequence[Any], expected_inputs: int) -> List[CTxOut]:

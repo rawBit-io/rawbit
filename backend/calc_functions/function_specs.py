@@ -275,6 +275,13 @@ FUNCTION_SPECS = {
         }
     },
 
+    "script_viewer": {
+        "paramExtraction": "single_val",
+        "params": {
+            "val": {"type": "string", "required": False}
+        }
+    },
+
     "script_verification": {
         "paramExtraction": "multi_val",  
         "params": {
