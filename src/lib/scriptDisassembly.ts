@@ -15,11 +15,15 @@ export type DisasmKind = "opcode" | "push" | "unknown";
 export interface DisasmLine {
   /** Nesting depth (drives indentation). */
   depth: number;
-  /** Rendered token, e.g. "OP_IF", "OP_SHA256", "<32-byte hash>". */
+  /** Rendered token: opcode name, or the real pushed bytes for pushes. */
   text: string;
   kind: DisasmKind;
   /** Raw data hex for push lines (for copy / tooltip). */
   hex?: string;
+  /** Push form, e.g. "PUSH(4)" or "OP_PUSHDATA1(4)" (push lines only). */
+  pushOp?: string;
+  /** True when the push uses a longer form than MINIMALDATA allows. */
+  nonMinimal?: boolean;
 }
 
 export interface DisasmResult {
@@ -71,6 +75,33 @@ const PUSHDATA_NAMES: Record<number, string> = {
   0x4e: "OP_PUSHDATA4",
 };
 
+/**
+ * Bitcoin's consensus limit on script size (MAX_SCRIPT_SIZE, 10,000 bytes).
+ * Anything larger is invalid by definition — and rejecting it also keeps a
+ * hostile multi-MB input from janking the tab. Mirrored by the Python
+ * reference implementation shown in "Show Code".
+ */
+const MAX_SCRIPT_HEX_CHARS = 20_000;
+
+/**
+ * MINIMALDATA / CheckMinimalPush (Bitcoin Core): is this push encoded in the
+ * shortest possible form? `op` is the push opcode byte, `dataHex` the pushed
+ * bytes.
+ */
+function pushIsMinimal(op: number, dataHex: string): boolean {
+  const dataLen = dataHex.length / 2;
+  if (dataLen === 0) return false; // empty push must be OP_0
+  if (dataLen === 1) {
+    const value = Number.parseInt(dataHex, 16);
+    if (value >= 1 && value <= 16) return false; // must be OP_1..OP_16
+    if (value === 0x81) return false; // must be OP_1NEGATE
+  }
+  if (dataLen <= 75) return op >= 0x01 && op <= 0x4b; // direct push
+  if (dataLen <= 255) return op === 0x4c; // OP_PUSHDATA1
+  if (dataLen <= 65535) return op === 0x4d; // OP_PUSHDATA2
+  return op === 0x4e;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
@@ -100,6 +131,14 @@ const OP_PUSHDATA4 = 0x4e;
 export function parseScriptDisassembly(hexRaw = ""): DisasmResult {
   const hex = cleanHex(hexRaw);
   if (!hex) return { ok: true, lines: [], byteLength: 0 };
+  if (hex.length > MAX_SCRIPT_HEX_CHARS) {
+    return {
+      ok: false,
+      error: `Script too large (max ${MAX_SCRIPT_HEX_CHARS / 2} bytes, Bitcoin's script-size limit).`,
+      lines: [],
+      byteLength: 0,
+    };
+  }
   if (/[^0-9a-f]/.test(hex)) {
     return { ok: false, error: "Not valid hex.", lines: [], byteLength: 0 };
   }
@@ -119,8 +158,21 @@ export function parseScriptDisassembly(hexRaw = ""): DisasmResult {
   let depth = 0;
   let clampedControlFlow = false;
 
-  const pushLine = (data: string, at: number) => {
-    lines.push({ depth: at, text: pushLabel(data.length / 2, data), kind: "push", hex: data });
+  const pushLine = (data: string, at: number, op: number) => {
+    const dataLen = data.length / 2;
+    const pushOp =
+      op >= 0x01 && op <= 0x4b
+        ? `PUSH(${dataLen})`
+        : `${PUSHDATA_NAMES[op]}(${dataLen})`;
+    const line: DisasmLine = {
+      depth: at,
+      text: pushLabel(dataLen, data),
+      kind: "push",
+      hex: data,
+      pushOp,
+    };
+    if (!pushIsMinimal(op, data)) line.nonMinimal = true;
+    lines.push(line);
   };
 
   while (i < byteLength) {
@@ -137,7 +189,7 @@ export function parseScriptDisassembly(hexRaw = ""): DisasmResult {
           byteLength,
         };
       }
-      pushLine(bytes.slice(dataStart, dataStart + b).join(""), depth);
+      pushLine(bytes.slice(dataStart, dataStart + b).join(""), depth, b);
       i = dataStart + b;
       continue;
     }
@@ -166,7 +218,7 @@ export function parseScriptDisassembly(hexRaw = ""): DisasmResult {
           byteLength,
         };
       }
-      pushLine(bytes.slice(dataStart, dataStart + n).join(""), depth);
+      pushLine(bytes.slice(dataStart, dataStart + n).join(""), depth, b);
       i = dataStart + n;
       continue;
     }

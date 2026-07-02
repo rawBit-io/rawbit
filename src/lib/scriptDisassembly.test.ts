@@ -71,11 +71,18 @@ describe("parseScriptDisassembly", () => {
     expect(seq(r)).toEqual([["OP_ENDIF", 0]]);
   });
 
-  it("decodes OP_PUSHDATA1 and shows the real bytes", () => {
+  it("decodes OP_PUSHDATA1, shows the real bytes, and marks it non-minimal", () => {
     const r = parseScriptDisassembly("4c04deadbeef");
     expect(r.ok).toBe(true);
     expect(r.lines).toEqual([
-      { depth: 0, text: "deadbeef", kind: "push", hex: "deadbeef" },
+      {
+        depth: 0,
+        text: "deadbeef",
+        kind: "push",
+        hex: "deadbeef",
+        pushOp: "OP_PUSHDATA1(4)",
+        nonMinimal: true, // 4 bytes fits a direct push
+      },
     ]);
   });
 
@@ -90,7 +97,14 @@ describe("parseScriptDisassembly", () => {
     const r = parseScriptDisassembly("4d0200dead");
     expect(r.ok).toBe(true);
     expect(r.lines).toEqual([
-      { depth: 0, text: "dead", kind: "push", hex: "dead" },
+      {
+        depth: 0,
+        text: "dead",
+        kind: "push",
+        hex: "dead",
+        pushOp: "OP_PUSHDATA2(2)",
+        nonMinimal: true,
+      },
     ]);
   });
 
@@ -145,7 +159,14 @@ describe("parseScriptDisassembly", () => {
     const r = parseScriptDisassembly("4e04000000deadbeef");
     expect(r.ok).toBe(true);
     expect(r.lines).toEqual([
-      { depth: 0, text: "deadbeef", kind: "push", hex: "deadbeef" },
+      {
+        depth: 0,
+        text: "deadbeef",
+        kind: "push",
+        hex: "deadbeef",
+        pushOp: "OP_PUSHDATA4(4)",
+        nonMinimal: true,
+      },
     ]);
   });
 
@@ -212,6 +233,60 @@ describe("parseScriptDisassembly", () => {
     expect(r.lines).toEqual([
       { depth: 0, text: "UNKNOWN_0xbb", kind: "unknown" },
     ]);
+  });
+
+  it("rejects scripts over Bitcoin's 10,000-byte MAX_SCRIPT_SIZE", () => {
+    const r = parseScriptDisassembly("00".repeat(10_001));
+    expect(r.ok).toBe(false);
+    expect(r.error).toBe(
+      "Script too large (max 10000 bytes, Bitcoin's script-size limit)."
+    );
+    // exactly at the limit is fine
+    expect(parseScriptDisassembly("00".repeat(10_000)).ok).toBe(true);
+  });
+
+  it("labels minimal direct pushes with their form and no marker", () => {
+    const r = parseScriptDisassembly("04deadbeef");
+    expect(r.lines).toEqual([
+      {
+        depth: 0,
+        text: "deadbeef",
+        kind: "push",
+        hex: "deadbeef",
+        pushOp: "PUSH(4)",
+      },
+    ]);
+  });
+
+  it("marks a direct 1-byte push of a small int as non-minimal (should be OP_N)", () => {
+    // 0x01 0x05 pushes the value 5 — MINIMALDATA requires OP_5
+    const r = parseScriptDisassembly("0105");
+    expect(r.lines[0].pushOp).toBe("PUSH(1)");
+    expect(r.lines[0].nonMinimal).toBe(true);
+    // 0x81 must be OP_1NEGATE
+    expect(parseScriptDisassembly("0181").lines[0].nonMinimal).toBe(true);
+    // an ordinary 1-byte value is minimal as a direct push
+    expect(parseScriptDisassembly("01ff").lines[0].nonMinimal).toBeUndefined();
+  });
+
+  it("treats correctly-sized PUSHDATA forms as minimal", () => {
+    // 76 bytes cannot use a direct push — PUSHDATA1 is the minimal form
+    const r = parseScriptDisassembly("4c4c" + "ab".repeat(76));
+    expect(r.lines[0].pushOp).toBe("OP_PUSHDATA1(76)");
+    expect(r.lines[0].nonMinimal).toBeUndefined();
+    // 256 bytes needs PUSHDATA2
+    const r2 = parseScriptDisassembly("4d0001" + "cd".repeat(256));
+    expect(r2.lines[0].pushOp).toBe("OP_PUSHDATA2(256)");
+    expect(r2.lines[0].nonMinimal).toBeUndefined();
+  });
+
+  it("marks zero-length PUSHDATA as non-minimal (should be OP_0)", () => {
+    const r = parseScriptDisassembly("4c00");
+    expect(r.lines[0]).toMatchObject({
+      text: "(empty)",
+      pushOp: "OP_PUSHDATA1(0)",
+      nonMinimal: true,
+    });
   });
 
   it("matches the shared byte->name parity fixture (locks TS/Python drift)", () => {

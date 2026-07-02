@@ -31,6 +31,12 @@ test.describe('Script Viewer node', () => {
       )
     ).toBeVisible();
 
+    // The push FORM is visible (minimal-push pedagogy)…
+    await expect(viewer.getByText('PUSH(4)', { exact: true })).toBeVisible();
+    await expect(viewer.getByText('PUSH(32)', { exact: true })).toBeVisible();
+    // …and these minimal pushes carry no non-minimal marker.
+    await expect(viewer.getByText(/non-minimal/)).toHaveCount(0);
+
     // No copy button anywhere in the viewer.
     await expect(viewer.getByTitle(/copy/i)).toHaveCount(0);
 

@@ -9,7 +9,7 @@
     display / sink node.
     --------------------------------------------------------------- */
 
-import React, {
+import {
   useCallback,
   useEffect,
   useMemo,
@@ -237,6 +237,9 @@ export default function ScriptViewerNode({
         style={{ paddingLeft: line.depth * 16 }}
         className="whitespace-pre-wrap break-all"
       >
+        {line.pushOp && (
+          <span className="text-muted-foreground">{line.pushOp} </span>
+        )}
         <span
           title={line.hex ? `0x${line.hex}` : undefined}
           className={cn(
@@ -247,6 +250,15 @@ export default function ScriptViewerNode({
         >
           {line.text}
         </span>
+        {line.nonMinimal && (
+          <span
+            className="font-medium text-amber-600 dark:text-amber-500"
+            title="MINIMALDATA: this push uses a longer encoding than required"
+          >
+            {" "}
+            · non-minimal
+          </span>
+        )}
       </div>
     ));
 

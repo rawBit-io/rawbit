@@ -2881,11 +2881,36 @@ def _script_opcode_name_by_byte() -> dict:
     return name_by_byte
 
 
-# 10,000 bytes is far above any real script (P2SH redeemScripts cap at 520
-# bytes) but keeps hostile inputs from building huge response strings.
+# Bitcoin's consensus limit on script size (MAX_SCRIPT_SIZE, 10,000 bytes).
+# Anything larger is invalid by definition — and rejecting it also keeps
+# hostile inputs from building huge response strings.
 _SCRIPT_VIEWER_MAX_HEX_CHARS = 20_000
 
 _PUSHDATA_NAMES = {0x4C: "OP_PUSHDATA1", 0x4D: "OP_PUSHDATA2", 0x4E: "OP_PUSHDATA4"}
+
+
+def _push_is_minimal(op: int, data_hex: str) -> bool:
+    """
+    MINIMALDATA / CheckMinimalPush (Bitcoin Core): is this push encoded in the
+    shortest possible form? `op` is the push opcode byte, `data_hex` the
+    pushed bytes.
+    """
+    data_len = len(data_hex) // 2
+    if data_len == 0:
+        return False  # empty push must be OP_0
+    if data_len == 1:
+        value = int(data_hex, 16)
+        if 1 <= value <= 16:
+            return False  # must be OP_1..OP_16
+        if value == 0x81:
+            return False  # must be OP_1NEGATE
+    if data_len <= 75:
+        return 0x01 <= op <= 0x4B  # direct push
+    if data_len <= 255:
+        return op == 0x4C  # OP_PUSHDATA1
+    if data_len <= 65535:
+        return op == 0x4D  # OP_PUSHDATA2
+    return op == 0x4E
 
 
 def script_viewer(val) -> str:
@@ -2905,7 +2930,8 @@ def script_viewer(val) -> str:
         return ""
     if len(hex_str) > _SCRIPT_VIEWER_MAX_HEX_CHARS:
         raise ValueError(
-            f"Script too large (max {_SCRIPT_VIEWER_MAX_HEX_CHARS // 2} bytes)."
+            f"Script too large (max {_SCRIPT_VIEWER_MAX_HEX_CHARS // 2} bytes, "
+            "Bitcoin's script-size limit)."
         )
     if any(c not in "0123456789abcdef" for c in hex_str):
         raise ValueError("Not valid hex.")
@@ -2933,7 +2959,10 @@ def script_viewer(val) -> str:
                     f"but only {n - start} remain."
                 )
             chunk = data[start:start + op].hex()
-            lines.append((depth, chunk if chunk else "(empty)"))
+            text_line = f"PUSH({op}) {chunk if chunk else '(empty)'}"
+            if not _push_is_minimal(op, chunk):
+                text_line += " · non-minimal"
+            lines.append((depth, text_line))
             i = start + op
             continue
 
@@ -2950,7 +2979,10 @@ def script_viewer(val) -> str:
                     f"but only {n - start} remain."
                 )
             chunk = data[start:start + length].hex()
-            lines.append((depth, chunk if chunk else "(empty)"))
+            text_line = f"{_PUSHDATA_NAMES[op]}({length}) {chunk if chunk else '(empty)'}"
+            if not _push_is_minimal(op, chunk):
+                text_line += " · non-minimal"
+            lines.append((depth, text_line))
             i = start + length
             continue
 

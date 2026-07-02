@@ -46,25 +46,38 @@ def test_htlc_redeemscript_disassembly():
     assert script_viewer(hexs) == (
         "OP_IF\n"
         "    OP_SHA256\n"
-        f"    {h32}\n"
+        f"    PUSH(32) {h32}\n"
         "    OP_EQUALVERIFY\n"
-        f"    {pk}\n"
+        f"    PUSH(33) {pk}\n"
         "    OP_CHECKSIG\n"
         "OP_ELSE\n"
-        "    a721316a\n"
+        "    PUSH(4) a721316a\n"
         "    OP_CHECKLOCKTIMEVERIFY\n"
         "    OP_DROP\n"
-        f"    {pk}\n"
+        f"    PUSH(33) {pk}\n"
         "    OP_CHECKSIG\n"
         "OP_ENDIF"
     )
 
 
 def test_pushdata_variants_and_zero_length():
-    assert script_viewer("4c04deadbeef") == "deadbeef"
-    assert script_viewer("4d0200dead") == "dead"
-    assert script_viewer("4e04000000deadbeef") == "deadbeef"
-    assert script_viewer("4c00") == "(empty)"
+    # Wrong-size PUSHDATA forms carry the MINIMALDATA marker.
+    assert script_viewer("4c04deadbeef") == "OP_PUSHDATA1(4) deadbeef · non-minimal"
+    assert script_viewer("4d0200dead") == "OP_PUSHDATA2(2) dead · non-minimal"
+    assert script_viewer("4e04000000deadbeef") == "OP_PUSHDATA4(4) deadbeef · non-minimal"
+    assert script_viewer("4c00") == "OP_PUSHDATA1(0) (empty) · non-minimal"
+
+
+def test_minimal_push_rules():
+    # Minimal direct push: no marker.
+    assert script_viewer("04deadbeef") == "PUSH(4) deadbeef"
+    # 1-byte small ints / 0x81 must use OP_N / OP_1NEGATE.
+    assert script_viewer("0105") == "PUSH(1) 05 · non-minimal"
+    assert script_viewer("0181") == "PUSH(1) 81 · non-minimal"
+    assert script_viewer("01ff") == "PUSH(1) ff"
+    # Correctly-sized PUSHDATA forms are minimal.
+    assert script_viewer("4c4c" + "ab" * 76) == "OP_PUSHDATA1(76) " + "ab" * 76
+    assert script_viewer("4d0001" + "cd" * 256) == "OP_PUSHDATA2(256) " + "cd" * 256
 
 
 def test_small_ints_and_disabled_named():
