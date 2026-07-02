@@ -997,12 +997,14 @@ body[data-large-drag="true"] .rf-node {
 }
 
 [data-skin="shadcn"] .react-flow__node-calculation > * > :first-child,
-[data-skin="shadcn"] .react-flow__node-opCodeNode > * > :first-child {
+[data-skin="shadcn"] .react-flow__node-opCodeNode > * > :first-child,
+[data-skin="shadcn"] .react-flow__node-scriptViewer > * > :first-child {
   background: hsl(var(--muted) / 0.36);
 }
 
 .dark[data-skin="shadcn"] .react-flow__node-calculation > * > :first-child,
-.dark[data-skin="shadcn"] .react-flow__node-opCodeNode > * > :first-child {
+.dark[data-skin="shadcn"] .react-flow__node-opCodeNode > * > :first-child,
+.dark[data-skin="shadcn"] .react-flow__node-scriptViewer > * > :first-child {
   background: hsl(var(--muted) / 0.36);
 }
 
@@ -1125,14 +1127,16 @@ body[data-large-drag="true"] .rf-node {
 }
 
 [data-skin="paper"] .react-flow__node-calculation > * > :first-child,
-[data-skin="paper"] .react-flow__node-opCodeNode > * > :first-child {
+[data-skin="paper"] .react-flow__node-opCodeNode > * > :first-child,
+[data-skin="paper"] .react-flow__node-scriptViewer > * > :first-child {
   border-bottom-color: hsl(var(--border));
   background: hsl(39 43% 87% / 0.5);
   color: hsl(var(--primary));
 }
 
 .dark[data-skin="paper"] .react-flow__node-calculation > * > :first-child,
-.dark[data-skin="paper"] .react-flow__node-opCodeNode > * > :first-child {
+.dark[data-skin="paper"] .react-flow__node-opCodeNode > * > :first-child,
+.dark[data-skin="paper"] .react-flow__node-scriptViewer > * > :first-child {
   border-bottom-color: hsl(var(--border));
   background: hsl(29 20% 26% / 0.84);
   color: hsl(var(--primary));
@@ -1299,12 +1303,14 @@ body[data-large-drag="true"] .rf-node {
 }
 
 [data-skin="midnight"] .react-flow__node-calculation > * > :first-child,
-[data-skin="midnight"] .react-flow__node-opCodeNode > * > :first-child {
+[data-skin="midnight"] .react-flow__node-opCodeNode > * > :first-child,
+[data-skin="midnight"] .react-flow__node-scriptViewer > * > :first-child {
   background: hsl(var(--secondary) / 0.24);
 }
 
 .dark[data-skin="midnight"] .react-flow__node-calculation > * > :first-child,
-.dark[data-skin="midnight"] .react-flow__node-opCodeNode > * > :first-child {
+.dark[data-skin="midnight"] .react-flow__node-opCodeNode > * > :first-child,
+.dark[data-skin="midnight"] .react-flow__node-scriptViewer > * > :first-child {
   background: hsl(var(--secondary) / 0.3);
 }
 

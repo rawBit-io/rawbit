@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { parseScriptDisassembly } from "./scriptDisassembly";
+import {
+  parseScriptDisassembly,
+  OPCODE_NAME_BY_BYTE,
+} from "./scriptDisassembly";
+import opcodeNameByByte from "./__fixtures__/opcodeNameByByte.json";
 
 const seq = (r: ReturnType<typeof parseScriptDisassembly>) =>
   r.lines.map((l) => [l.text, l.depth] as const);
@@ -121,5 +125,100 @@ describe("parseScriptDisassembly", () => {
     const r = parseScriptDisassembly("");
     expect(r.ok).toBe(true);
     expect(r.lines).toEqual([]);
+  });
+
+  it("flags a truncated OP_PUSHDATA length prefix (no 'undefined' in message)", () => {
+    const r = parseScriptDisassembly("4c"); // PUSHDATA1 with no length byte
+    expect(r.ok).toBe(false);
+    expect(r.error).toBe("Truncated OP_PUSHDATA1 length prefix.");
+    expect(r.error).not.toMatch(/undefined/);
+  });
+
+  it("flags truncated OP_PUSHDATA data (no 'undefined' in message)", () => {
+    const r = parseScriptDisassembly("4d0400dead"); // wants 4 bytes, 2 present
+    expect(r.ok).toBe(false);
+    expect(r.error).toContain("OP_PUSHDATA2");
+    expect(r.error).not.toMatch(/undefined/);
+  });
+
+  it("decodes OP_PUSHDATA4 with little-endian length", () => {
+    const r = parseScriptDisassembly("4e04000000deadbeef");
+    expect(r.ok).toBe(true);
+    expect(r.lines).toEqual([
+      { depth: 0, text: "deadbeef", kind: "push", hex: "deadbeef" },
+    ]);
+  });
+
+  it("renders zero-length pushes as (empty)", () => {
+    expect(parseScriptDisassembly("4c00").lines[0].text).toBe("(empty)");
+    expect(parseScriptDisassembly("4d0000").lines[0].text).toBe("(empty)");
+  });
+
+  it("normalizes whitespace and uppercase", () => {
+    const r = parseScriptDisassembly(" 63\n A8\t68 ");
+    expect(r.ok).toBe(true);
+    expect(r.lines.map((l) => l.text)).toEqual(["OP_IF", "OP_SHA256", "OP_ENDIF"]);
+  });
+
+  it("handles consensus-legal consecutive OP_ELSE", () => {
+    // OP_IF OP_1 OP_ELSE OP_2 OP_ELSE OP_3 OP_ENDIF
+    const r = parseScriptDisassembly("635167526753" + "68");
+    expect(r.ok).toBe(true);
+    expect(seq(r)).toEqual([
+      ["OP_IF", 0],
+      ["OP_1", 1],
+      ["OP_ELSE", 0],
+      ["OP_2", 1],
+      ["OP_ELSE", 0],
+      ["OP_3", 1],
+      ["OP_ENDIF", 0],
+    ]);
+  });
+
+  it("keeps best-effort partial lines on a truncation error", () => {
+    // OP_SHA256, then a direct push that is truncated
+    const r = parseScriptDisassembly("a80401");
+    expect(r.ok).toBe(false);
+    expect(r.lines.map((l) => l.text)).toEqual(["OP_SHA256"]);
+    expect(r.byteLength).toBe(3);
+  });
+
+  it("warns on unbalanced OP_IF (missing OP_ENDIF)", () => {
+    const r = parseScriptDisassembly("6351");
+    expect(r.ok).toBe(true);
+    expect(r.warning).toMatch(/missing OP_ENDIF/);
+  });
+
+  it("warns on OP_ENDIF without a matching OP_IF", () => {
+    const r = parseScriptDisassembly("68");
+    expect(r.ok).toBe(true);
+    expect(r.warning).toMatch(/without a matching OP_IF/);
+  });
+
+  it("names disabled/reserved opcodes instead of UNKNOWN", () => {
+    const names = parseScriptDisassembly("7e95628450").lines.map((l) => l.text);
+    expect(names).toEqual([
+      "OP_CAT",
+      "OP_MUL",
+      "OP_VER",
+      "OP_AND",
+      "OP_RESERVED",
+    ]);
+  });
+
+  it("still marks genuinely unassigned bytes as UNKNOWN", () => {
+    // 0xbb is unassigned (below OP_SUCCESS range, above CHECKSIGADD)
+    const r = parseScriptDisassembly("bb");
+    expect(r.lines).toEqual([
+      { depth: 0, text: "UNKNOWN_0xbb", kind: "unknown" },
+    ]);
+  });
+
+  it("matches the shared byte->name parity fixture (locks TS/Python drift)", () => {
+    const tsMap: Record<string, string> = {};
+    for (const [byte, name] of OPCODE_NAME_BY_BYTE) {
+      tsMap[byte.toString(16).padStart(2, "0")] = name;
+    }
+    expect(tsMap).toEqual(opcodeNameByByte);
   });
 });

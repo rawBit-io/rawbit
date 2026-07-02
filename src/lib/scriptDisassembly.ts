@@ -26,30 +26,50 @@ export interface DisasmResult {
   ok: boolean;
   error?: string;
   lines: DisasmLine[];
-  /** Byte length of the parsed script (0 when empty/invalid). */
+  /**
+   * Bytes seen by the parser: the full script length once the hex itself is
+   * well-formed (including truncated-push failures); 0 only for empty,
+   * non-hex, or odd-length input.
+   */
   byteLength: number;
+  /** Non-fatal structural issue, e.g. unbalanced OP_IF/OP_ENDIF. */
+  warning?: string;
 }
 
 /* ------------------------------------------------------------------ */
 /*  Opcode name lookup (built once from the shared OP_CODES catalogue) */
 /* ------------------------------------------------------------------ */
-const OPCODE_NAME_BY_BYTE: Map<number, string> = (() => {
+
+// Only canonical opcode names enter the map — this excludes script-template
+// aliases like "P2SH_SUFFIX" (0x87) and "OP_RETURN_PREFIX" (0x6a) as well as
+// slash-aliases like "OP_0 / OP_FALSE", so map contents no longer depend on
+// catalogue iteration order.
+const CANONICAL_OP_NAME = /^OP_[A-Z0-9]+$/;
+
+export const OPCODE_NAME_BY_BYTE: Map<number, string> = (() => {
   const map = new Map<number, string>();
   (Object.keys(OP_CODES) as OpCodeCategories[]).forEach((category) => {
     OP_CODES[category].forEach((item) => {
       if (item.hex.length !== 2) return; // skip multi-byte template entries
+      if (!CANONICAL_OP_NAME.test(item.name)) return;
       const value = Number.parseInt(item.hex, 16);
       if (Number.isNaN(value)) return;
       map.set(value, item.name);
     });
   });
-  // Canonical short names — the catalogue carries aliased labels
-  // ("OP_0 / OP_FALSE", "OP_1 / OP_TRUE") that read badly in a disassembly.
+  // Canonical short names for the small-int bytes.
   map.set(0x00, "OP_0");
   map.set(0x4f, "OP_1NEGATE");
   for (let v = 0x51; v <= 0x60; v += 1) map.set(v, `OP_${v - 0x50}`);
   return map;
 })();
+
+/** PUSHDATA opcodes are handled structurally, not via the catalogue. */
+const PUSHDATA_NAMES: Record<number, string> = {
+  0x4c: "OP_PUSHDATA1",
+  0x4d: "OP_PUSHDATA2",
+  0x4e: "OP_PUSHDATA4",
+};
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -97,6 +117,7 @@ export function parseScriptDisassembly(hexRaw = ""): DisasmResult {
   const lines: DisasmLine[] = [];
   let i = 0;
   let depth = 0;
+  let clampedControlFlow = false;
 
   const pushLine = (data: string, at: number) => {
     lines.push({ depth: at, text: pushLabel(data.length / 2, data), kind: "push", hex: data });
@@ -127,7 +148,7 @@ export function parseScriptDisassembly(hexRaw = ""): DisasmResult {
       if (i + 1 + widthBytes > byteLength) {
         return {
           ok: false,
-          error: `Truncated ${OPCODE_NAME_BY_BYTE.get(b)} length prefix.`,
+          error: `Truncated ${PUSHDATA_NAMES[b]} length prefix.`,
           lines,
           byteLength,
         };
@@ -140,7 +161,7 @@ export function parseScriptDisassembly(hexRaw = ""): DisasmResult {
       if (dataStart + n > byteLength) {
         return {
           ok: false,
-          error: `Truncated push: ${OPCODE_NAME_BY_BYTE.get(b)} needs ${n} bytes but only ${byteLength - dataStart} remain.`,
+          error: `Truncated push: ${PUSHDATA_NAMES[b]} needs ${n} bytes but only ${byteLength - dataStart} remain.`,
           lines,
           byteLength,
         };
@@ -158,11 +179,13 @@ export function parseScriptDisassembly(hexRaw = ""): DisasmResult {
       continue;
     }
     if (b === OP_ELSE) {
+      if (depth === 0) clampedControlFlow = true;
       lines.push({ depth: Math.max(0, depth - 1), text: "OP_ELSE", kind: "opcode" });
       i += 1;
       continue;
     }
     if (b === OP_ENDIF) {
+      if (depth === 0) clampedControlFlow = true;
       depth = Math.max(0, depth - 1);
       lines.push({ depth, text: "OP_ENDIF", kind: "opcode" });
       i += 1;
@@ -182,5 +205,14 @@ export function parseScriptDisassembly(hexRaw = ""): DisasmResult {
     i += 1;
   }
 
-  return { ok: true, lines, byteLength };
+  let warning: string | undefined;
+  if (clampedControlFlow) {
+    warning = "unbalanced OP_IF/OP_ENDIF — OP_ELSE/OP_ENDIF without a matching OP_IF";
+  } else if (depth > 0) {
+    warning = "unbalanced OP_IF/OP_ENDIF — missing OP_ENDIF";
+  }
+
+  return warning
+    ? { ok: true, lines, byteLength, warning }
+    : { ok: true, lines, byteLength };
 }

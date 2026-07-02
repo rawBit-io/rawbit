@@ -2862,13 +2862,17 @@ def varint_encoded_byte_length(val: str) -> str:
 def _script_opcode_name_by_byte() -> dict:
     """
     byte -> opcode name, derived from the shared OPCODE_TO_HEX catalogue.
-    First (clean) name wins over aliases, then small ints are pinned to their
-    canonical short names (OP_0, OP_1NEGATE, OP_1 .. OP_16).
+    Only canonical OP_* names enter the map (template aliases like
+    "P2SH_SUFFIX" or "OP_RETURN_PREFIX" are skipped), then small ints are
+    pinned to their canonical short names (OP_0, OP_1NEGATE, OP_1 .. OP_16).
     """
     name_by_byte: dict = {}
     for name, hexval in OPCODE_TO_HEX.items():
         if len(hexval) != 2:
             continue  # skip multi-byte template entries (e.g. P2PKH_PREFIX)
+        # skip aliases ("OP_0 / OP_FALSE") and non-OP template names
+        if not name.startswith("OP_") or " " in name or "/" in name:
+            continue
         name_by_byte.setdefault(int(hexval, 16), name)
     name_by_byte[0x00] = "OP_0"
     name_by_byte[0x4F] = "OP_1NEGATE"
@@ -2877,20 +2881,33 @@ def _script_opcode_name_by_byte() -> dict:
     return name_by_byte
 
 
-def script_viewer(val: str) -> str:
+# 10,000 bytes is far above any real script (P2SH redeemScripts cap at 520
+# bytes) but keeps hostile inputs from building huge response strings.
+_SCRIPT_VIEWER_MAX_HEX_CHARS = 20_000
+
+_PUSHDATA_NAMES = {0x4C: "OP_PUSHDATA1", 0x4D: "OP_PUSHDATA2", 0x4E: "OP_PUSHDATA4"}
+
+
+def script_viewer(val) -> str:
     """
     Disassemble a hex-encoded Bitcoin script into an indented, human-readable
     listing: one opcode / data push per line, with IF/ELSE/ENDIF nesting and
-    the real pushed bytes shown verbatim.
+    the real pushed bytes shown verbatim. Structurally unbalanced IF/ENDIF is
+    reported as a trailing "# warning: ..." line.
 
     Reference implementation shown in the Script Viewer node's "Show Code"
     dialog. The node renders the disassembly directly in the UI and produces
     no output value, so this is never executed as part of a flow.
     """
-    hex_str = (val or "").strip().lower().replace(" ", "")
+    # Strip all whitespace (spaces/tabs/newlines) so multi-line pasted hex works.
+    hex_str = "".join(str(val if val is not None else "").split()).lower()
     if not hex_str:
         return ""
-    if re.fullmatch(r"[0-9a-f]*", hex_str) is None:
+    if len(hex_str) > _SCRIPT_VIEWER_MAX_HEX_CHARS:
+        raise ValueError(
+            f"Script too large (max {_SCRIPT_VIEWER_MAX_HEX_CHARS // 2} bytes)."
+        )
+    if any(c not in "0123456789abcdef" for c in hex_str):
         raise ValueError("Not valid hex.")
     if len(hex_str) % 2 != 0:
         raise ValueError("Odd-length hex (incomplete byte).")
@@ -2901,6 +2918,7 @@ def script_viewer(val: str) -> str:
     lines: List = []  # (depth, text)
     i = 0
     depth = 0
+    clamped_control_flow = False
     n = len(data)
 
     while i < n:
@@ -2910,21 +2928,27 @@ def script_viewer(val: str) -> str:
         if 0x01 <= op <= 0x4B:
             start = i + 1
             if start + op > n:
-                raise ValueError(f"Truncated push: opcode 0x{op:02x} needs {op} bytes.")
+                raise ValueError(
+                    f"Truncated push: opcode 0x{op:02x} needs {op} bytes "
+                    f"but only {n - start} remain."
+                )
             chunk = data[start:start + op].hex()
             lines.append((depth, chunk if chunk else "(empty)"))
             i = start + op
             continue
 
         # OP_PUSHDATA1/2/4 (little-endian length prefix)
-        if op in (0x4C, 0x4D, 0x4E):
+        if op in _PUSHDATA_NAMES:
             width = {0x4C: 1, 0x4D: 2, 0x4E: 4}[op]
             if i + 1 + width > n:
-                raise ValueError("Truncated OP_PUSHDATA length prefix.")
+                raise ValueError(f"Truncated {_PUSHDATA_NAMES[op]} length prefix.")
             length = int.from_bytes(data[i + 1:i + 1 + width], "little")
             start = i + 1 + width
             if start + length > n:
-                raise ValueError(f"Truncated push: OP_PUSHDATA needs {length} bytes.")
+                raise ValueError(
+                    f"Truncated push: {_PUSHDATA_NAMES[op]} needs {length} bytes "
+                    f"but only {n - start} remain."
+                )
             chunk = data[start:start + length].hex()
             lines.append((depth, chunk if chunk else "(empty)"))
             i = start + length
@@ -2935,15 +2959,24 @@ def script_viewer(val: str) -> str:
             lines.append((depth, name_by_byte.get(op, f"UNKNOWN_0x{op:02x}")))
             depth += 1
         elif op == 0x67:  # OP_ELSE (dedent the keyword to line up with its IF)
+            if depth == 0:
+                clamped_control_flow = True
             lines.append((max(0, depth - 1), "OP_ELSE"))
         elif op == 0x68:  # OP_ENDIF
+            if depth == 0:
+                clamped_control_flow = True
             depth = max(0, depth - 1)
             lines.append((depth, "OP_ENDIF"))
         else:
             lines.append((depth, name_by_byte.get(op, f"UNKNOWN_0x{op:02x}")))
         i += 1
 
-    return "\n".join("    " * d + text for d, text in lines)
+    text = "\n".join("    " * d + line_text for d, line_text in lines)
+    if clamped_control_flow:
+        text += "\n# warning: unbalanced OP_IF/OP_ENDIF — OP_ELSE/OP_ENDIF without a matching OP_IF"
+    elif depth > 0:
+        text += "\n# warning: unbalanced OP_IF/OP_ENDIF — missing OP_ENDIF"
+    return text
 
 
 def _build_taproot_prevouts(extra_vals: Sequence[Any], expected_inputs: int) -> List[CTxOut]:

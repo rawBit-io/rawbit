@@ -343,6 +343,29 @@ export const OP_CODES = {
       description: "Fails if input relative locktime does not satisfy top value",
     },
   ],
+  disabledReserved: [
+    { name: "OP_RESERVED", hex: "50", description: "Reserved — invalid if executed" },
+    { name: "OP_VER", hex: "62", description: "Reserved — invalid if executed" },
+    { name: "OP_VERIF", hex: "65", description: "Reserved — invalid even if unexecuted" },
+    { name: "OP_VERNOTIF", hex: "66", description: "Reserved — invalid even if unexecuted" },
+    { name: "OP_CAT", hex: "7e", description: "Concatenate two items (disabled 2010)" },
+    { name: "OP_SUBSTR", hex: "7f", description: "Substring of an item (disabled 2010)" },
+    { name: "OP_LEFT", hex: "80", description: "Left part of an item (disabled 2010)" },
+    { name: "OP_RIGHT", hex: "81", description: "Right part of an item (disabled 2010)" },
+    { name: "OP_INVERT", hex: "83", description: "Bitwise NOT (disabled 2010)" },
+    { name: "OP_AND", hex: "84", description: "Bitwise AND (disabled 2010)" },
+    { name: "OP_OR", hex: "85", description: "Bitwise OR (disabled 2010)" },
+    { name: "OP_XOR", hex: "86", description: "Bitwise XOR (disabled 2010)" },
+    { name: "OP_RESERVED1", hex: "89", description: "Reserved — invalid if executed" },
+    { name: "OP_RESERVED2", hex: "8a", description: "Reserved — invalid if executed" },
+    { name: "OP_2MUL", hex: "8d", description: "Multiply by 2 (disabled 2010)" },
+    { name: "OP_2DIV", hex: "8e", description: "Divide by 2 (disabled 2010)" },
+    { name: "OP_MUL", hex: "95", description: "Multiply (disabled 2010)" },
+    { name: "OP_DIV", hex: "96", description: "Divide (disabled 2010)" },
+    { name: "OP_MOD", hex: "97", description: "Modulo (disabled 2010)" },
+    { name: "OP_LSHIFT", hex: "98", description: "Left shift (disabled 2010)" },
+    { name: "OP_RSHIFT", hex: "99", description: "Right shift (disabled 2010)" },
+  ],
   reserved: [
     // Note: OP_SUCCESSx opcodes are intentionally omitted; in Tapscript they
     // immediately succeed and are reserved for future upgrades.
@@ -373,6 +396,7 @@ export const categoryNames: Record<OpCodeCategories, string> = {
   tapscript: "Tapscript (BIP342)",
   timelock: "Timelock",
   reserved: "Reserved",
+  disabledReserved: "Disabled & Reserved",
 };
 
 /* Helper: locate an OpItem by name */

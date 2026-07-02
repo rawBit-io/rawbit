@@ -148,6 +148,7 @@ export const allSidebarNodes: NodeTemplate[] = [
     description:
       "Read-only: connect a script hex and see it disassembled into indented, readable opcodes.",
     nodeData: {
+      functionName: "script_viewer",
       title: "Script Viewer",
       numInputs: 1,
       inputStructure: {

@@ -9,7 +9,13 @@
     display / sink node.
     --------------------------------------------------------------- */
 
-import React, { useCallback, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   NodeProps,
   useReactFlow,
@@ -18,10 +24,18 @@ import {
 } from "@xyflow/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, FileCode, Trash2 } from "lucide-react";
+import {
+  MoreHorizontal,
+  FileCode,
+  Copy,
+  Check,
+  MessageSquare,
+  Trash2,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { FlowNode } from "@/types";
 import { useSnapshotSchedulerContext } from "@/hooks/useSnapshotSchedulerContext";
+import { useClipboardLite } from "@/hooks/nodes/useClipboardLite";
 import { useDismissNodeMenuOnCanvasPointerDown } from "@/hooks/nodes/useDismissNodeMenuOnCanvasPointerDown";
 import { useCanonicalGraph } from "@/contexts/canonical-graph";
 import { FieldWithHandle } from "./calculation/fields/FieldWithHandle";
@@ -36,10 +50,19 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
-type ConnectedInput = { value: string | undefined; error: boolean };
+/** Cap DOM lines for pathologically large inputs (e.g. a whole raw tx). */
+const MAX_RENDER_LINES = 2000;
+
+type ConnectedInput = {
+  /** True when an edge is wired into input-0, regardless of value. */
+  hasEdge: boolean;
+  /** Resolved upstream hex, or undefined if the source has no value yet. */
+  value: string | undefined;
+  error: boolean;
+};
 
 const connectedInputsEqual = (a: ConnectedInput, b: ConnectedInput) =>
-  a.value === b.value && a.error === b.error;
+  a.hasEdge === b.hasEdge && a.value === b.value && a.error === b.error;
 
 export default function ScriptViewerNode({
   id,
@@ -66,9 +89,9 @@ export default function ScriptViewerNode({
           (e) =>
             e.target === id && (e.targetHandle ?? "").startsWith("input-")
         );
-        if (!edge) return { value: undefined, error: false };
+        if (!edge) return { hasEdge: false, value: undefined, error: false };
         const source = nodes.find((n) => n.id === edge.source);
-        if (!source) return { value: undefined, error: false };
+        if (!source) return { hasEdge: true, value: undefined, error: false };
 
         const sourceHandle = edge.sourceHandle ?? "";
         const outputValues = source.data?.outputValues;
@@ -84,6 +107,7 @@ export default function ScriptViewerNode({
           : source.data?.result;
 
         return {
+          hasEdge: true,
           value:
             typeof raw === "string"
               ? raw
@@ -98,12 +122,93 @@ export default function ScriptViewerNode({
     connectedInputsEqual
   );
 
-  const isConnected = connected.value !== undefined;
+  const hasValue = connected.value !== undefined;
   const hex = connected.value ?? "";
   const disasm = useMemo(() => parseScriptDisassembly(hex), [hex]);
 
+  /* ---- comment (parity with sibling nodes) ---- */
+  const currentComment = typeof data.comment === "string" ? data.comment : "";
+  const [commentDraft, setCommentDraft] = useState(currentComment);
+  const [isCommentEditing, setIsCommentEditing] = useState(false);
+  const commentEditStartRef = useRef(currentComment);
+  useEffect(() => {
+    if (!isCommentEditing) setCommentDraft(currentComment);
+  }, [currentComment, isCommentEditing]);
+
+  const clip = useClipboardLite({
+    result: hex,
+    rawTitle: data.title || "Script Viewer",
+    id,
+  });
+
+  const toggleComment = useCallback(() => {
+    setNodes((nds) =>
+      nds.map((n) =>
+        n.id === id
+          ? { ...n, data: { ...n.data, showComment: !n.data.showComment } }
+          : n
+      )
+    );
+  }, [id, setNodes]);
+
+  const handleCommentFocus = useCallback((value: string) => {
+    setIsCommentEditing(true);
+    commentEditStartRef.current = value;
+  }, []);
+
+  const commitCommentOnBlur = useCallback(
+    (value: string) => {
+      const normalizedStart = commentEditStartRef.current.trim();
+      const normalizedNext = value.trim();
+      setIsCommentEditing(false);
+      setCommentDraft(normalizedNext);
+      commentEditStartRef.current = normalizedNext;
+      if (normalizedStart === normalizedNext) return;
+      setNodes((nds) =>
+        nds.map((n) => {
+          if (n.id !== id) return n;
+          const nextData = { ...n.data };
+          if (normalizedNext) nextData.comment = normalizedNext;
+          else delete nextData.comment;
+          return { ...n, data: nextData };
+        })
+      );
+      scheduleSnapshot("Update Node Comment");
+    },
+    [id, scheduleSnapshot, setNodes]
+  );
+
+  // Flush an in-progress comment edit if the node unmounts (off-viewport cull).
+  const commentFlushRef = useRef({
+    isCommentEditing,
+    commentDraft,
+    commitCommentOnBlur,
+  });
+  commentFlushRef.current = {
+    isCommentEditing,
+    commentDraft,
+    commitCommentOnBlur,
+  };
+  useEffect(
+    () => () => {
+      const pending = commentFlushRef.current;
+      if (pending.isCommentEditing)
+        pending.commitCommentOnBlur(pending.commentDraft);
+    },
+    []
+  );
+
   const deleteNode = useCallback(() => {
-    setEdges((eds) => eds.filter((e) => e.source !== id && e.target !== id));
+    setEdges((eds) => {
+      if (!eds.length) return eds;
+      let removed = false;
+      const filtered = eds.filter((e) => {
+        const drop = e.source === id || e.target === id;
+        if (drop) removed = true;
+        return !drop;
+      });
+      return removed ? filtered : eds;
+    });
     setNodes((nds) => nds.filter((n) => n.id !== id));
     scheduleSnapshot("Node(s) removed", {
       refresh: true,
@@ -121,6 +226,29 @@ export default function ScriptViewerNode({
   const selectedStyles = selected
     ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
     : "";
+
+  const shownLines = disasm.lines.slice(0, MAX_RENDER_LINES);
+  const hiddenCount = disasm.lines.length - shownLines.length;
+
+  const renderLines = () =>
+    shownLines.map((line, idx) => (
+      <div
+        key={idx}
+        style={{ paddingLeft: line.depth * 16 }}
+        className="whitespace-pre-wrap break-all"
+      >
+        <span
+          title={line.hex ? `0x${line.hex}` : undefined}
+          className={cn(
+            line.kind === "push" && "italic text-primary/70",
+            line.kind === "unknown" && "font-medium text-destructive",
+            line.kind === "opcode" && "text-primary"
+          )}
+        >
+          {line.text}
+        </span>
+      </div>
+    ));
 
   return (
     <Card
@@ -162,6 +290,18 @@ export default function ScriptViewerNode({
                 <DropdownMenuItem onSelect={() => setShowCode(true)}>
                   <FileCode className="mr-1 h-4 w-4" /> Show Code
                 </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => clip.copyId()}>
+                  {clip.idCopied ? (
+                    <Check className="mr-1 h-4 w-4" />
+                  ) : (
+                    <Copy className="mr-1 h-4 w-4" />
+                  )}
+                  Copy ID
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={toggleComment}>
+                  <MessageSquare className="mr-1 h-4 w-4" />
+                  {data.showComment ? "Hide Comment" : "Show Comment"}
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onSelect={() => deleteNode()}
@@ -182,7 +322,7 @@ export default function ScriptViewerNode({
           handleId="input-0"
           label="SCRIPT HEX:"
           value={hex}
-          connected={isConnected}
+          connected={connected.hasEdge}
           readOnly
           rows={1}
           autoResizeMaxRows={3}
@@ -190,7 +330,7 @@ export default function ScriptViewerNode({
           placeholder="Connect a script-hex output"
         />
 
-        {/* Disassembly */}
+        {/* Disassembly header */}
         <div className="font-medium text-primary">
           {">"} Disassembly
           {disasm.ok && disasm.byteLength > 0 && (
@@ -200,13 +340,35 @@ export default function ScriptViewerNode({
           )}
         </div>
 
-        <div className="field-surface nowheel max-h-[380px] overflow-auto rounded-md border p-2 font-mono text-xs leading-relaxed">
-          {!isConnected ? (
+        {/* nodrag + select-text so the disassembly can be selected/copied
+            without the node being dragged (xyflow sets user-select:none). */}
+        <div className="field-surface nodrag nowheel max-h-[380px] select-text overflow-auto rounded-md border p-2 font-mono text-xs leading-relaxed">
+          {!connected.hasEdge ? (
             <div className="italic text-muted-foreground">
               Connect a node that outputs a script (hex).
             </div>
+          ) : connected.error ? (
+            <>
+              <div className="mb-1 font-medium text-destructive">
+                ⚠ Upstream node has an error — showing last successful result.
+              </div>
+              {hasValue && disasm.ok ? (
+                renderLines()
+              ) : (
+                <div className="italic text-muted-foreground">
+                  No script to show.
+                </div>
+              )}
+            </>
+          ) : !hasValue ? (
+            <div className="italic text-muted-foreground">
+              Connected — waiting for a script value…
+            </div>
           ) : !disasm.ok ? (
             <>
+              {disasm.lines.length > 0 && (
+                <div className="mb-1">{renderLines()}</div>
+              )}
               <div className="font-medium text-destructive">
                 ⚠ {disasm.error}
               </div>
@@ -219,25 +381,38 @@ export default function ScriptViewerNode({
           ) : disasm.lines.length === 0 ? (
             <div className="italic text-muted-foreground">Empty script.</div>
           ) : (
-            disasm.lines.map((line, idx) => (
-              <div
-                key={idx}
-                style={{ paddingLeft: line.depth * 16 }}
-                className="whitespace-pre-wrap break-all"
-              >
-                <span
-                  className={cn(
-                    line.kind === "push" && "italic text-primary/70",
-                    line.kind === "unknown" && "font-medium text-destructive",
-                    line.kind === "opcode" && "text-primary"
-                  )}
-                >
-                  {line.text}
-                </span>
-              </div>
-            ))
+            <>
+              {renderLines()}
+              {hiddenCount > 0 && (
+                <div className="mt-1 italic text-muted-foreground">
+                  … {hiddenCount} more line{hiddenCount === 1 ? "" : "s"} (truncated)
+                </div>
+              )}
+              {disasm.warning && (
+                <div className="mt-1 font-medium text-amber-600 dark:text-amber-500">
+                  ⚠ {disasm.warning}
+                </div>
+              )}
+            </>
           )}
         </div>
+
+        {/* Comment (parity with sibling nodes) */}
+        {data.showComment && (
+          <div className="mt-1 border-t border-border pt-2">
+            <div className="mb-1 text-xs font-medium">Node Comment:</div>
+            <textarea
+              className="nodrag w-full resize-none rounded-md border border-input bg-background p-2 font-mono text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              rows={3}
+              placeholder="Enter your notes here…"
+              value={commentDraft}
+              onChange={(e) => setCommentDraft(e.target.value)}
+              onFocus={(e) => handleCommentFocus(e.target.value)}
+              onBlur={(e) => commitCommentOnBlur(e.target.value)}
+              style={{ maxHeight: "120px", overflowY: "auto" }}
+            />
+          </div>
+        )}
       </CardContent>
 
       <NodeCodeDialog

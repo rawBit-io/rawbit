@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { addEdge, type Connection, type Edge } from "@xyflow/react";
 import type { FlowNode } from "@/types";
 import { buildPorts } from "@/lib/nodes/ports";
+import { isCalculableNode } from "@/lib/flow/nonCalculableNodes";
 import {
   getDirectionAvailability,
   type ConnectMode,
@@ -268,7 +269,8 @@ export function useConnectDialog({
 
       setNodes((previous) =>
         previous.map((node) =>
-          edgesToAdd.some((edge) => edge.target === node.id)
+          edgesToAdd.some((edge) => edge.target === node.id) &&
+          isCalculableNode(node)
             ? { ...node, data: { ...node.data, dirty: true } }
             : node
         )

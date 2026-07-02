@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { Edge } from "@xyflow/react";
 import { log } from "@/lib/logConfig";
+import { isCalculableNode } from "@/lib/flow/nonCalculableNodes";
 import type { CalcStatus, CalcError, FlowNode } from "@/types";
 import type {
   PushStateOptions,
@@ -397,7 +398,12 @@ export function useSnapshotScheduler({
     }
 
     const state = getSnapshotState?.() ?? storeApi.getState();
-    const hasDirty = state.nodes.some((node) => node.data?.dirty);
+    // Only calculable nodes gate the after-calc snapshot: a non-calculable
+    // node (e.g. Script Viewer) never runs through the calc loop, so a
+    // lingering dirty flag on it must not block snapshots for the whole tab.
+    const hasDirty = state.nodes.some(
+      (node) => node.data?.dirty && isCalculableNode(node)
+    );
     if (hasDirty) {
       log(
         "snapshots",

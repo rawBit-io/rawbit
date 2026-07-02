@@ -11,6 +11,7 @@ import type {
 import { reconnectEdge } from "@xyflow/react";
 import type { FlowNode } from "@/types";
 import { isSafariBrowser } from "@/lib/device";
+import { isCalculableNode } from "@/lib/flow/nonCalculableNodes";
 
 const LARGE_DRAG_THRESHOLD = 30;
 const DRAG_FPS_BANDS = [
@@ -809,7 +810,7 @@ export function useFlowInteractions({
       if (dirtyNodeIds.size > 0) {
         setNodes((nodes) =>
           nodes.map((node) =>
-            dirtyNodeIds.has(node.id)
+            dirtyNodeIds.has(node.id) && isCalculableNode(node)
               ? { ...node, data: { ...node.data, dirty: true } }
               : node
           )
@@ -843,7 +844,9 @@ export function useFlowInteractions({
       if (!loadingUndoRef.current && connection.source && connection.target) {
         setNodes((nodes) =>
           nodes.map((node) =>
-            node.id === connection.source || node.id === connection.target
+            (node.id === connection.source ||
+              node.id === connection.target) &&
+            isCalculableNode(node)
               ? { ...node, data: { ...node.data, dirty: true } }
               : node
           )
@@ -865,7 +868,7 @@ export function useFlowInteractions({
               oldEdge.target,
               newConnection.source,
               newConnection.target,
-            ].includes(node.id)
+            ].includes(node.id) && isCalculableNode(node)
               ? { ...node, data: { ...node.data, dirty: true } }
               : node
           )

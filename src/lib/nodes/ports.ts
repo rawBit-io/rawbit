@@ -115,6 +115,13 @@ export function buildPorts(n: FlowNode): NodePorts {
     }
   }
 
+  // The read-only Script Viewer always exposes exactly one input handle,
+  // independent of its data shape, so the renderer, validator, edge-prune and
+  // Connect dialog can never disagree about whether input-0 exists.
+  if (n.type === "scriptViewer" && !handleLabels.has("input-0")) {
+    registerHandle(0, "SCRIPT HEX:");
+  }
+
   if (handleLabels.size === 0) {
     const hasInputs = Boolean(
       (typeof data.inputs?.val === "string" && data.inputs.val) ||

@@ -125,22 +125,25 @@ def _bip39_wordlist_bundle() -> str:
     return "\n".join(parts).strip()
 
 
-def _opcode_sequence_bundle() -> str:
+def _opcode_sequence_bundle(include_seq_helpers: bool = True) -> str:
     """
-    Build a readable source block for the Opcode Sequence node.
+    Build a readable source block for opcode-catalogue-based nodes.
 
-    Runtime keeps the opcode catalogue in calc_functions/opcodes.py. The node
-    function itself is intentionally tiny, but Show Code should still expose the
-    actual conversion rule students need to understand.
+    Runtime keeps the opcode catalogue in calc_functions/opcodes.py. Always
+    inline OPCODE_TO_HEX; only include the sequence-conversion helpers
+    (_ordered_values / opcode_sequence_to_hex) when the node actually uses them
+    (the Opcode Sequence node), so unrelated nodes like Script Viewer aren't
+    padded with conversion code they never call.
     """
     parts = [
         "# Bitcoin Script opcode/template names accepted by this node.",
         "OPCODE_TO_HEX = " + pformat(opcode_ops.OPCODE_TO_HEX, width=88, sort_dicts=False),
     ]
-    for name in _OPCODE_SEQUENCE_HELPERS:
-        src = _get_source(getattr(opcode_ops, name, None))
-        if src:
-            parts.append(src)
+    if include_seq_helpers:
+        for name in _OPCODE_SEQUENCE_HELPERS:
+            src = _get_source(getattr(opcode_ops, name, None))
+            if src:
+                parts.append(src)
     return "\n\n".join(parts).strip()
 
 
@@ -256,9 +259,17 @@ def expand_function_source(_func_obj: SourceObject, func_source: str) -> str:
         or "_bip39_mnemonic_to_entropy" in helper_name_set
         or any("_BIP39_ENGLISH_" in src for _, src in helper_entries)
     )
+    # Any function that references the opcode catalogue — directly or through a
+    # collected helper (e.g. script_viewer's _script_opcode_name_by_byte) —
+    # needs OPCODE_TO_HEX inlined so the displayed reference source is
+    # self-contained.
+    references_opcode_catalogue = "OPCODE_TO_HEX" in source or any(
+        "OPCODE_TO_HEX" in src for _, src in helper_entries
+    )
     uses_opcode_sequence = (
         getattr(_func_obj, "__name__", "") == "op_code_select"
         or "opcode_sequence_to_hex" in source
+        or references_opcode_catalogue
     )
 
     # Keep existing Base58/Bech32 bundle behavior (includes constants),
@@ -300,9 +311,18 @@ def expand_function_source(_func_obj: SourceObject, func_source: str) -> str:
             blocks.append("# --- BIP39 English wordlist ---\n" + bip39_words)
 
     if uses_opcode_sequence:
-        opcode_sequence = _opcode_sequence_bundle()
+        include_seq_helpers = (
+            getattr(_func_obj, "__name__", "") == "op_code_select"
+            or "opcode_sequence_to_hex" in source
+        )
+        opcode_sequence = _opcode_sequence_bundle(include_seq_helpers)
         if opcode_sequence:
-            blocks.append("# --- Opcode sequence conversion ---\n" + opcode_sequence)
+            label = (
+                "# --- Opcode sequence conversion ---\n"
+                if include_seq_helpers
+                else "# --- Opcode catalogue ---\n"
+            )
+            blocks.append(label + opcode_sequence)
 
     if generic_helpers:
         blocks.append("# --- Local helper functions ---\n" + "\n\n".join(generic_helpers))

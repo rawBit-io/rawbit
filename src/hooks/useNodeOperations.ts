@@ -45,6 +45,7 @@ import {
   removeScriptSteps,
 } from "@/lib/share/scriptStepsCache";
 import { isFlowFileCandidate, isRecord } from "@/lib/flow/guards";
+import { isCalculableNode } from "@/lib/flow/nonCalculableNodes";
 import {
   sanitizeGroupBundleRenderEdgesForState,
   sanitizeGroupBundleVisualElementsForState,
@@ -454,10 +455,12 @@ export function useNodeOperations() {
         },
       ]);
 
-      // mark target node dirty so backend recalculates
+      // mark target node dirty so backend recalculates (calculable targets only)
       setNodes((nds) =>
         nds.map((n) =>
-          n.id === c.target ? { ...n, data: { ...n.data, dirty: true } } : n,
+          n.id === c.target && isCalculableNode(n)
+            ? { ...n, data: { ...n.data, dirty: true } }
+            : n,
         ),
       );
     },

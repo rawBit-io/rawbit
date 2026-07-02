@@ -106,6 +106,28 @@ OPCODE_TO_HEX = {
     "OP_NOP8": "b7",
     "OP_NOP9": "b8",
     "OP_NOP10": "b9",
+    # Disabled (2010) and reserved opcodes — kept so disassembly can name them.
+    "OP_RESERVED": "50",
+    "OP_VER": "62",
+    "OP_VERIF": "65",
+    "OP_VERNOTIF": "66",
+    "OP_CAT": "7e",
+    "OP_SUBSTR": "7f",
+    "OP_LEFT": "80",
+    "OP_RIGHT": "81",
+    "OP_INVERT": "83",
+    "OP_AND": "84",
+    "OP_OR": "85",
+    "OP_XOR": "86",
+    "OP_RESERVED1": "89",
+    "OP_RESERVED2": "8a",
+    "OP_2MUL": "8d",
+    "OP_2DIV": "8e",
+    "OP_MUL": "95",
+    "OP_DIV": "96",
+    "OP_MOD": "97",
+    "OP_LSHIFT": "98",
+    "OP_RSHIFT": "99",
 }
 
 
