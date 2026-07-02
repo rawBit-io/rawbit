@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import NodeCodeDialog from "@/components/dialog/NodeCodeDialog";
+import { EditableLabel } from "./calculation/fields/EditableLabel";
 
 import { OP_CODES, OpItem, findOpItemByName } from "@/lib/opcodes";
 import {
@@ -213,6 +214,18 @@ export default function OpCodeNode({
     );
   }, [id, setNodes]);
 
+  const handleTitleUpdate = useCallback(
+    (title: string) =>
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === id
+            ? { ...n, data: { ...n.data, title: title || "Opcode Sequence" } }
+            : n
+        )
+      ),
+    [id, setNodes]
+  );
+
   const handleCommentFocus = useCallback((value: string) => {
     setIsCommentEditing(true);
     commentEditStartRef.current = value;
@@ -323,7 +336,12 @@ export default function OpCodeNode({
 
       <div className="calc-node-header flex w-full flex-row items-center gap-2 border-b border-border p-2 text-xl">
         <div className="min-w-0 flex-1 break-words leading-tight">
-          {data.title || "Opcode Sequence"}
+          <EditableLabel
+            value={data.title || "Opcode Sequence"}
+            onCommit={handleTitleUpdate}
+            className="node-title text-xl"
+            maxLength={100}
+          />
         </div>
         <div className="flex shrink-0 items-center space-x-1">
           <DropdownMenu
