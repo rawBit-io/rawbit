@@ -2881,14 +2881,6 @@ def _script_opcode_name_by_byte() -> dict:
     return name_by_byte
 
 
-# Bitcoin's consensus limit on script size (MAX_SCRIPT_SIZE, 10,000 bytes).
-# Anything larger is invalid by definition — and rejecting it also keeps
-# hostile inputs from building huge response strings.
-_SCRIPT_VIEWER_MAX_HEX_CHARS = 20_000
-
-_PUSHDATA_NAMES = {0x4C: "OP_PUSHDATA1", 0x4D: "OP_PUSHDATA2", 0x4E: "OP_PUSHDATA4"}
-
-
 def _push_is_minimal(op: int, data_hex: str) -> bool:
     """
     MINIMALDATA / CheckMinimalPush (Bitcoin Core): is this push encoded in the
@@ -2924,13 +2916,20 @@ def script_viewer(val) -> str:
     dialog. The node renders the disassembly directly in the UI and produces
     no output value, so this is never executed as part of a flow.
     """
+    # Bitcoin's consensus limit on script size (MAX_SCRIPT_SIZE = 10,000 bytes).
+    # Anything larger is invalid by definition — and rejecting it also keeps
+    # hostile inputs from building huge response strings. Kept local so the
+    # "Show Code" view is fully self-contained and runnable as displayed.
+    max_hex_chars = 20_000
+    pushdata_names = {0x4C: "OP_PUSHDATA1", 0x4D: "OP_PUSHDATA2", 0x4E: "OP_PUSHDATA4"}
+
     # Strip all whitespace (spaces/tabs/newlines) so multi-line pasted hex works.
     hex_str = "".join(str(val if val is not None else "").split()).lower()
     if not hex_str:
         return ""
-    if len(hex_str) > _SCRIPT_VIEWER_MAX_HEX_CHARS:
+    if len(hex_str) > max_hex_chars:
         raise ValueError(
-            f"Script too large (max {_SCRIPT_VIEWER_MAX_HEX_CHARS // 2} bytes, "
+            f"Script too large (max {max_hex_chars // 2} bytes, "
             "Bitcoin's script-size limit)."
         )
     if any(c not in "0123456789abcdef" for c in hex_str):
@@ -2967,19 +2966,19 @@ def script_viewer(val) -> str:
             continue
 
         # OP_PUSHDATA1/2/4 (little-endian length prefix)
-        if op in _PUSHDATA_NAMES:
+        if op in pushdata_names:
             width = {0x4C: 1, 0x4D: 2, 0x4E: 4}[op]
             if i + 1 + width > n:
-                raise ValueError(f"Truncated {_PUSHDATA_NAMES[op]} length prefix.")
+                raise ValueError(f"Truncated {pushdata_names[op]} length prefix.")
             length = int.from_bytes(data[i + 1:i + 1 + width], "little")
             start = i + 1 + width
             if start + length > n:
                 raise ValueError(
-                    f"Truncated push: {_PUSHDATA_NAMES[op]} needs {length} bytes "
+                    f"Truncated push: {pushdata_names[op]} needs {length} bytes "
                     f"but only {n - start} remain."
                 )
             chunk = data[start:start + length].hex()
-            text_line = f"{_PUSHDATA_NAMES[op]}({length}) {chunk if chunk else '(empty)'}"
+            text_line = f"{pushdata_names[op]}({length}) {chunk if chunk else '(empty)'}"
             if not _push_is_minimal(op, chunk):
                 text_line += " · non-minimal"
             lines.append((depth, text_line))

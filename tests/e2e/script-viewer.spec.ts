@@ -37,8 +37,12 @@ test.describe('Script Viewer node', () => {
     // …and these minimal pushes carry no non-minimal marker.
     await expect(viewer.getByText(/non-minimal/)).toHaveCount(0);
 
-    // No copy button anywhere in the viewer.
-    await expect(viewer.getByTitle(/copy/i)).toHaveCount(0);
+    // Result is labelled like other nodes, with a copy button.
+    await expect(viewer.getByText(/Calculation Result:/)).toBeVisible();
+    const copyBtn = viewer.getByTitle(/copy result/i);
+    await expect(copyBtn).toBeVisible();
+    await copyBtn.click();
+    await expect(viewer.getByTitle(/copied/i)).toBeVisible();
 
     // Exactly one handle (the left input); no output handle.
     await expect(viewer.locator('.react-flow__handle')).toHaveCount(1);

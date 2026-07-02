@@ -8,8 +8,11 @@ import pytest
 from calc_functions.calc_func import (
     script_viewer,
     _script_opcode_name_by_byte,
-    _SCRIPT_VIEWER_MAX_HEX_CHARS,
 )
+
+# MAX_SCRIPT_SIZE = 10,000 bytes = 20,000 hex chars (kept local to
+# script_viewer so Show Code stays self-contained; asserted by value here).
+_MAX_SCRIPT_BYTES = 10_000
 
 _FIXTURE = (
     Path(__file__).resolve().parents[2]
@@ -115,10 +118,11 @@ def test_error_paths(bad, needle):
 
 
 def test_size_cap():
-    too_big = "00" * (_SCRIPT_VIEWER_MAX_HEX_CHARS // 2 + 1)
-    with pytest.raises(ValueError) as exc:
-        script_viewer(too_big)
-    assert "too large" in str(exc.value)
+    with pytest.raises(ValueError, match="too large"):
+        script_viewer("00" * (_MAX_SCRIPT_BYTES + 1))
+    # exactly at the limit is accepted (all OP_0)
+    at_limit = script_viewer("00" * _MAX_SCRIPT_BYTES)
+    assert at_limit.count("OP_0") == _MAX_SCRIPT_BYTES
 
 
 def test_non_string_and_empty_inputs_do_not_crash():

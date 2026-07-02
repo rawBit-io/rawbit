@@ -124,33 +124,49 @@ export default function ScriptViewerNode({
   );
 
   // Manual entry (rawBit convention): a connection overrides, but with no
-  // edge the user can type or paste hex directly into the field.
-  const typedValue = typeof data.value === "string" ? data.value : "";
+  // edge the user can type or paste hex directly into the field. While the
+  // user is typing we keep the draft in local state and parse from it live —
+  // committing to node data only on blur — so we don't rebuild the whole node
+  // array on every keystroke, yet the disassembly still updates as they type.
+  const storedValue = typeof data.value === "string" ? data.value : "";
+  const [inputDraft, setInputDraft] = useState<string | null>(null);
+  const typedValue = inputDraft ?? storedValue;
   const hasValue = connected.hasEdge
     ? connected.value !== undefined
     : typedValue !== "";
   const hex = connected.hasEdge ? connected.value ?? "" : typedValue;
   const disasm = useMemo(() => parseScriptDisassembly(hex), [hex]);
 
-  const handleValueChange = useCallback(
-    (value: string) => {
-      setNodes((nds) =>
-        nds.map((n) =>
-          n.id === id ? { ...n, data: { ...n.data, value } } : n
-        )
-      );
-    },
-    [id, setNodes]
-  );
+  // The node's "output": the full disassembly as indented text (matches the
+  // Python reference format). Copyable via the standard node copy button.
+  const disassemblyText = useMemo(() => {
+    if (!disasm.ok) return "";
+    const body = disasm.lines
+      .map(
+        (l) =>
+          "    ".repeat(l.depth) +
+          (l.pushOp ? `${l.pushOp} ` : "") +
+          l.text +
+          (l.nonMinimal ? " · non-minimal" : "")
+      )
+      .join("\n");
+    return disasm.warning ? `${body}\n# warning: ${disasm.warning}` : body;
+  }, [disasm]);
 
-  const lastSnapshottedValueRef = useRef(typedValue);
+  const handleValueChange = useCallback((value: string) => {
+    setInputDraft(value);
+  }, []);
+
   const handleValueBlur = useCallback(
     (value: string) => {
-      if (lastSnapshottedValueRef.current === value) return;
-      lastSnapshottedValueRef.current = value;
+      setInputDraft(null);
+      if (value === storedValue) return;
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, value } } : n))
+      );
       scheduleSnapshot("Update Script Viewer input");
     },
-    [scheduleSnapshot]
+    [id, storedValue, scheduleSnapshot, setNodes]
   );
 
   const handleTitleUpdate = useCallback(
@@ -175,7 +191,7 @@ export default function ScriptViewerNode({
   }, [currentComment, isCommentEditing]);
 
   const clip = useClipboardLite({
-    result: hex,
+    result: disassemblyText,
     rawTitle: data.title || "Script Viewer",
     id,
   });
@@ -266,40 +282,62 @@ export default function ScriptViewerNode({
     ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
     : "";
 
-  const shownLines = disasm.lines.slice(0, MAX_RENDER_LINES);
-  const hiddenCount = disasm.lines.length - shownLines.length;
+  const hiddenCount = Math.max(0, disasm.lines.length - MAX_RENDER_LINES);
 
-  const renderLines = () =>
-    shownLines.map((line, idx) => (
-      <div
-        key={idx}
-        style={{ paddingLeft: line.depth * 16 }}
-        className="whitespace-pre-wrap break-all"
-      >
-        {line.pushOp && (
-          <span className="text-muted-foreground">{line.pushOp} </span>
-        )}
-        <span
-          title={line.hex ? `0x${line.hex}` : undefined}
-          className={cn(
-            line.kind === "push" && "italic text-primary/70",
-            line.kind === "unknown" && "font-medium text-destructive",
-            line.kind === "opcode" && "text-primary"
-          )}
+  // Memoized so the (up to MAX_RENDER_LINES) line nodes are rebuilt only when
+  // the disassembly changes — not on every selection / highlight re-render.
+  const renderedLines = useMemo(
+    () =>
+      disasm.lines.slice(0, MAX_RENDER_LINES).map((line, idx) => (
+        <div
+          key={idx}
+          style={{ paddingLeft: line.depth * 16 }}
+          className="whitespace-pre-wrap break-all"
         >
-          {line.text}
-        </span>
-        {line.nonMinimal && (
+          {line.pushOp && (
+            <span className="text-muted-foreground">{line.pushOp} </span>
+          )}
           <span
-            className="font-medium text-amber-600 dark:text-amber-500"
-            title="MINIMALDATA: this push uses a longer encoding than required"
+            title={line.hex ? `0x${line.hex}` : undefined}
+            className={cn(
+              line.kind === "push" && "italic text-primary/70",
+              line.kind === "unknown" && "font-medium text-destructive",
+              line.kind === "opcode" && "text-primary"
+            )}
           >
-            {" "}
-            · non-minimal
+            {line.text}
           </span>
-        )}
-      </div>
-    ));
+          {line.nonMinimal && (
+            <span
+              className="font-medium text-amber-600 dark:text-amber-500"
+              title="MINIMALDATA: this push uses a longer encoding than required"
+            >
+              {" "}
+              · non-minimal
+            </span>
+          )}
+        </div>
+      )),
+    [disasm]
+  );
+
+  // Full disassembly body: lines + truncation notice + unbalanced-IF warning.
+  // Shared so every branch that shows the disassembly also shows its warning.
+  const disassemblyBody = (
+    <>
+      {renderedLines}
+      {hiddenCount > 0 && (
+        <div className="mt-1 italic text-muted-foreground">
+          … {hiddenCount} more line{hiddenCount === 1 ? "" : "s"} (truncated)
+        </div>
+      )}
+      {disasm.warning && (
+        <div className="mt-1 font-medium text-amber-600 dark:text-amber-500">
+          ⚠ {disasm.warning}
+        </div>
+      )}
+    </>
+  );
 
   return (
     <Card
@@ -389,14 +427,31 @@ export default function ScriptViewerNode({
           onBlur={handleValueBlur}
         />
 
-        {/* Disassembly header */}
-        <div className="font-medium text-primary">
-          {">"} Disassembly
-          {disasm.ok && disasm.byteLength > 0 && (
-            <span className="ml-1 text-muted-foreground">
-              ({disasm.lines.length} ops · {disasm.byteLength} bytes)
-            </span>
-          )}
+        {/* Calculation Result header + copy button (parity with sibling nodes) */}
+        <div className="flex items-center justify-between gap-2">
+          <span className="min-w-0 truncate font-medium text-primary">
+            {">"} Calculation Result:
+            {disasm.ok && disasm.byteLength > 0 && (
+              <span className="ml-1 text-muted-foreground">
+                ({disasm.lines.length} ops · {disasm.byteLength} bytes)
+              </span>
+            )}
+          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-5 w-5 shrink-0 p-0"
+            onPointerDownCapture={(e) => e.stopPropagation()}
+            onClick={() => clip.copyResult()}
+            disabled={!disassemblyText}
+            title={clip.resultCopied ? "Copied!" : "Copy result"}
+          >
+            {clip.resultCopied ? (
+              <Check className="h-4 w-4" />
+            ) : (
+              <Copy className="h-4 w-4" />
+            )}
+          </Button>
         </div>
 
         {/* nodrag + select-text so the disassembly can be selected/copied
@@ -412,7 +467,7 @@ export default function ScriptViewerNode({
                 ⚠ Upstream node has an error — showing last successful result.
               </div>
               {hasValue && disasm.ok ? (
-                renderLines()
+                disassemblyBody
               ) : (
                 <div className="italic text-muted-foreground">
                   No script to show.
@@ -426,7 +481,7 @@ export default function ScriptViewerNode({
           ) : !disasm.ok ? (
             <>
               {disasm.lines.length > 0 && (
-                <div className="mb-1">{renderLines()}</div>
+                <div className="mb-1">{renderedLines}</div>
               )}
               <div className="font-medium text-destructive">
                 ⚠ {disasm.error}
@@ -440,19 +495,7 @@ export default function ScriptViewerNode({
           ) : disasm.lines.length === 0 ? (
             <div className="italic text-muted-foreground">Empty script.</div>
           ) : (
-            <>
-              {renderLines()}
-              {hiddenCount > 0 && (
-                <div className="mt-1 italic text-muted-foreground">
-                  … {hiddenCount} more line{hiddenCount === 1 ? "" : "s"} (truncated)
-                </div>
-              )}
-              {disasm.warning && (
-                <div className="mt-1 font-medium text-amber-600 dark:text-amber-500">
-                  ⚠ {disasm.warning}
-                </div>
-              )}
-            </>
+            disassemblyBody
           )}
         </div>
 
