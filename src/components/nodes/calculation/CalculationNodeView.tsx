@@ -8,7 +8,12 @@ import React, {
   useState,
 } from "react";
 
-import { Handle, Position } from "@xyflow/react";
+import {
+  Handle,
+  Position,
+  useNodeId,
+  useUpdateNodeInternals,
+} from "@xyflow/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -462,6 +467,8 @@ export function CalculationNodeView({
   comment,
   script,
 }: CalculationNodeViewProps) {
+  const nodeId = useNodeId();
+  const updateNodeInternals = useUpdateNodeInternals();
   const [showCode, setShowCode] = useState(false);
   const [nodeMenuOpen, setNodeMenuOpen] = useState(false);
   const [showSteps, setShowSteps] = useState(false);
@@ -534,6 +541,22 @@ export function CalculationNodeView({
   const [txOutputHandleTops, setTxOutputHandleTops] = useState<
     Record<string, number>
   >({});
+
+  // Source handles whose vertical position is computed after layout (dynamic
+  // TX-extract outputs and anchored ports) move AFTER React Flow last measured
+  // them, so edges would anchor at the stale position. Re-measure whenever a
+  // computed top changes so edges start at the visible handle centre. Only
+  // nodes that actually use computed tops trigger this.
+  useEffect(() => {
+    if (!nodeId) return;
+    if (
+      Object.keys(txOutputHandleTops).length === 0 &&
+      Object.keys(anchoredHandleTops).length === 0
+    ) {
+      return;
+    }
+    updateNodeInternals(nodeId);
+  }, [nodeId, updateNodeInternals, txOutputHandleTops, anchoredHandleTops]);
   const pathRowRef = useRef<HTMLDivElement | null>(null);
   const pathTriggerRef =
     useRef<React.ElementRef<typeof SelectTrigger> | null>(null);

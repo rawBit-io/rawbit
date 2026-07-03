@@ -24,6 +24,10 @@ vi.mock("@xyflow/react", async () => {
     Handle: (props: Record<string, unknown>) => (
       <div data-testid="rf-handle" {...props} />
     ),
+    // The view calls these to re-measure handle positions; outside a
+    // ReactFlowProvider the real hooks throw, so stub them.
+    useNodeId: () => "test-node",
+    useUpdateNodeInternals: () => () => {},
   };
 });
 
