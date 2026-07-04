@@ -31,6 +31,10 @@ import { GroupBundleSegmentEdge } from "@/components/edges/GroupBundleSegmentEdg
 import { CanonicalGraphContext } from "@/contexts/canonical-graph";
 import { dispatchDismissNodeMenusEvent } from "@/lib/flow/nodeMenuEvents";
 import {
+  absolutePositionOf,
+  buildGroupMaps,
+} from "@/lib/flow/groupNesting";
+import {
   buildGroupBundledElements,
   getGroupBundleSegmentEdgeIds,
   GROUP_BUNDLE_EDGE_TYPE,
@@ -134,11 +138,14 @@ const buildGroupPortOffsetChange = ({
   change,
   portNode,
   groupNode,
+  groupAbsoluteY,
   force = false,
 }: {
   change: NodeChange<FlowNode>;
   portNode: FlowNode;
   groupNode: FlowNode;
+  /** absolute canvas Y of the group — differs from position.y when nested */
+  groupAbsoluteY?: number;
   force?: boolean;
 }): NodeChange<FlowNode> | null => {
   if (change.type !== "position") return null;
@@ -148,7 +155,7 @@ const buildGroupPortOffsetChange = ({
   const nextPosition = change.positionAbsolute ?? change.position;
   if (!nextPosition) return null;
 
-  const groupY = nodeAbsoluteY(groupNode);
+  const groupY = groupAbsoluteY ?? nodeAbsoluteY(groupNode);
   const groupH = nodeHeight(groupNode);
   if (groupH <= 0) return null;
 
@@ -498,6 +505,9 @@ export function FlowCanvas({
           change,
           portNode,
           groupNode,
+          groupAbsoluteY: groupNode.parentId
+            ? absolutePositionOf(groupNode.id, buildGroupMaps(nodes)).y
+            : undefined,
           force: forceFinalDragChange,
         });
         if (offsetChange) {

@@ -683,3 +683,100 @@ describe("buildGroupBundledElements dangling-handle guard", () => {
     ).toBe(true);
   });
 });
+
+describe("buildGroupBundledElements with nested groups", () => {
+  // outer(0,0 600x400) ⊃ inner(40,60 300x200) ⊃ x ; y directly in outer
+  // other(900,0 300x200) ⊃ z ; free = plain top-level node
+  const nestedScene = (): FlowNode[] => [
+    buildFlowNode({
+      id: "outer",
+      type: "shadcnGroup",
+      position: { x: 0, y: 0 },
+      data: { title: "Outer", width: 600, height: 400 },
+    }),
+    buildFlowNode({
+      id: "inner",
+      type: "shadcnGroup",
+      parentId: "outer",
+      position: { x: 40, y: 60 },
+      data: { title: "Inner", width: 300, height: 200 },
+    }),
+    buildFlowNode({ id: "x", parentId: "inner", position: { x: 10, y: 10 } }),
+    buildFlowNode({ id: "y", parentId: "outer", position: { x: 400, y: 300 } }),
+    buildFlowNode({
+      id: "other",
+      type: "shadcnGroup",
+      position: { x: 900, y: 0 },
+      data: { title: "Other", width: 300, height: 200 },
+    }),
+    buildFlowNode({ id: "z", parentId: "other", position: { x: 5, y: 5 } }),
+    buildFlowNode({ id: "free", position: { x: 700, y: 700 } }),
+  ];
+
+  it("bundles traffic from a nested child at the OUTERMOST group boundary", () => {
+    const edges = [buildEdge({ id: "deep", source: "x", target: "z" })];
+    const rendered = buildGroupBundledEdges({ nodes: nestedScene(), edges });
+
+    const bundle = rendered.find((edge) =>
+      edge.id.startsWith(GROUP_BUNDLE_EDGE_ID_PREFIX)
+    );
+    expect(bundle).toMatchObject({
+      id: "__group_bundle__:outer->other",
+      data: {
+        sourceGroupId: "outer",
+        targetGroupId: "other",
+        bundledEdgeIds: ["deep"],
+        // boundary anchors sit on the groups' ABSOLUTE frames
+        sourceBoundaryPoint: { x: 600, y: 200 },
+        targetBoundaryPoint: { x: 900, y: 100 },
+      },
+    });
+    expect(rendered.find((edge) => edge.id === "deep")).toBeUndefined();
+  });
+
+  it("bundles sibling sub-groups at their own boundaries inside the parent", () => {
+    const nodes = [
+      ...nestedScene(),
+      buildFlowNode({
+        id: "inner2",
+        type: "shadcnGroup",
+        parentId: "outer",
+        position: { x: 380, y: 60 },
+        data: { title: "Inner2", width: 150, height: 150 },
+      }),
+      buildFlowNode({ id: "w", parentId: "inner2", position: { x: 5, y: 5 } }),
+    ];
+    const edges = [buildEdge({ id: "sib", source: "x", target: "w" })];
+    const rendered = buildGroupBundledEdges({ nodes, edges });
+
+    const bundle = rendered.find((edge) =>
+      edge.id.startsWith(GROUP_BUNDLE_EDGE_ID_PREFIX)
+    );
+    expect(bundle).toMatchObject({
+      id: "__group_bundle__:inner->inner2",
+      data: {
+        sourceGroupId: "inner",
+        targetGroupId: "inner2",
+        // inner is at absolute (40,60) 300x200 → right edge x=340, centre y=160
+        sourceBoundaryPoint: { x: 340, y: 160 },
+        // inner2 at absolute (380,60) 150x150 → left edge x=380, centre y=135
+        targetBoundaryPoint: { x: 380, y: 135 },
+      },
+    });
+  });
+
+  it("keeps nested-child edges direct within their own group tree and to plain nodes", () => {
+    const edges = [
+      buildEdge({ id: "up", source: "x", target: "y" }),
+      buildEdge({ id: "out", source: "x", target: "free" }),
+    ];
+    const visual = buildGroupBundledElements({ nodes: nestedScene(), edges });
+
+    expect(visual.edges).toEqual(edges);
+    expect(
+      visual.nodes.some((node) =>
+        node.id.startsWith(GROUP_BUNDLE_PORT_NODE_ID_PREFIX)
+      )
+    ).toBe(false);
+  });
+});

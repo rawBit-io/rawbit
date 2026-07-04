@@ -2,6 +2,13 @@ import { Position, type Edge } from "@xyflow/react";
 
 import { normalizeHandle } from "@/lib/flow/edgeNormalization";
 import {
+  ancestorGroupChain,
+  buildGroupMaps,
+  resolveBundleEndpointGroups,
+  absolutePositionOf,
+  type GroupMaps,
+} from "@/lib/flow/groupNesting";
+import {
   renderedInputHandleIds,
   renderedOutputHandleIds,
 } from "@/lib/nodes/renderedHandles";
@@ -187,13 +194,18 @@ const hasPersistedGroupBundlePortOffset = (
   return false;
 };
 
-const groupRect = (node: FlowNode): GroupRect => {
+const groupRect = (node: FlowNode, maps: GroupMaps): GroupRect => {
   const data = node.data as NodeData | undefined;
+  // Nested groups store positions relative to their parent — accumulate the
+  // chain so bundle ports/anchors land on the visible boundary.
+  const abs = node.parentId
+    ? absolutePositionOf(node.id, maps)
+    : { x: node.position.x, y: node.position.y };
   return {
     id: node.id,
     label: groupLabel(node),
-    x: node.positionAbsolute?.x ?? node.position.x,
-    y: node.positionAbsolute?.y ?? node.position.y,
+    x: node.positionAbsolute?.x ?? abs.x,
+    y: node.positionAbsolute?.y ?? abs.y,
     width:
       asFiniteNumber(data?.width) ??
       asFiniteNumber(node.width) ??
@@ -719,50 +731,50 @@ export const buildGroupBundledElements = ({
       handleResolves(edge.target, edge.targetHandle, "input") &&
       handleResolves(edge.source, edge.sourceHandle, "output")
   );
+  const groupMaps = buildGroupMaps(sourceNodes);
   const groupRects = new Map<string, GroupRect>();
-  const nodeToGroup = new Map<string, string>();
 
   for (const node of sourceNodes) {
     if (node.type === "shadcnGroup") {
-      groupRects.set(node.id, groupRect(node));
-      nodeToGroup.set(node.id, node.id);
+      groupRects.set(node.id, groupRect(node, groupMaps));
     }
-  }
-
-  for (const node of sourceNodes) {
-    if (!node.parentId || !groupRects.has(node.parentId)) continue;
-    nodeToGroup.set(node.id, node.parentId);
   }
 
   if (groupRects.size < 1) return { nodes: sourceNodes, edges: validSourceEdges };
 
+  // A non-group node with any ancestor group. Edges between a group NODE and
+  // such a child stay direct (group nodes have no real handles; keep the
+  // anomaly visible as-is) — matching the flat-group behaviour.
+  const isGroupedChild = (nodeId: string): boolean => {
+    if (groupMaps.groupIds.has(nodeId)) return false;
+    const parentId = nodeById.get(nodeId)?.parentId;
+    return Boolean(parentId) && ancestorGroupChain(nodeId, groupMaps).length > 0;
+  };
+
   const bundlesByPair = new Map<string, BundleAccumulator>();
 
   for (const [edgeIndex, edge] of validSourceEdges.entries()) {
-    const sourceNode = nodeById.get(edge.source);
-    const targetNode = nodeById.get(edge.target);
     const sourceIsGroupNode = groupRects.has(edge.source);
     const targetIsGroupNode = groupRects.has(edge.target);
-    const sourceIsGroupedChild = Boolean(
-      sourceNode?.parentId && groupRects.has(sourceNode.parentId)
-    );
-    const targetIsGroupedChild = Boolean(
-      targetNode?.parentId && groupRects.has(targetNode.parentId)
-    );
     if (
-      (sourceIsGroupNode && targetIsGroupedChild) ||
-      (targetIsGroupNode && sourceIsGroupedChild)
+      (sourceIsGroupNode && isGroupedChild(edge.target)) ||
+      (targetIsGroupNode && isGroupedChild(edge.source))
     ) {
       continue;
     }
 
-    const sourceGroupId = nodeToGroup.get(edge.source);
-    const targetGroupId = nodeToGroup.get(edge.target);
-    if (!sourceGroupId && !targetGroupId) continue;
-    if (Boolean(sourceGroupId) !== Boolean(targetGroupId)) continue;
-    if (sourceGroupId && targetGroupId && sourceGroupId === targetGroupId) {
-      continue;
-    }
+    // Nested-aware endpoint resolution: each endpoint bundles at the
+    // OUTERMOST ancestor group that does not contain the other endpoint, so
+    // an outer group bundles all traffic of its nested groups while sibling
+    // sub-groups bundle between themselves inside their parent. Edges bundle
+    // only when both endpoints resolve (same group / group↔plain-node edges
+    // stay direct, as before).
+    const { sourceGroupId, targetGroupId } = resolveBundleEndpointGroups(
+      edge.source,
+      edge.target,
+      groupMaps
+    );
+    if (!sourceGroupId || !targetGroupId) continue;
 
     const sourceEndpoint: BundleEndpoint = sourceGroupId
       ? { kind: "group", groupId: sourceGroupId }

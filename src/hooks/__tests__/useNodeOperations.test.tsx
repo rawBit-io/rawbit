@@ -616,7 +616,7 @@ const createMockInstance = (
     expect(childB?.position).toEqual({ x: 140, y: 250 });
   });
 
-  it("lifts children of a nested group by the full ancestor offset when ungrouping", () => {
+  it("lifts children of an ungrouped nested group one level, keeping absolute position", () => {
     const { result } = renderHook(() => useNodeOperations(), { wrapper });
     const mockRf = createMockInstance(result);
 
@@ -658,12 +658,16 @@ const createMockInstance = (
 
     const child = result.current.nodes.find((n) => n.id === "child");
     expect(result.current.nodes.find((n) => n.id === "inner")).toBeUndefined();
-    expect(child?.parentId).toBeUndefined();
-    // outer (100,100) + inner (50,60) + child (10,20) — not just one level
-    expect(child?.position).toEqual({ x: 160, y: 180 });
+    // Nested groups: children lift ONE level into the surviving ancestor,
+    // keeping their absolute canvas position.
+    expect(child?.parentId).toBe("outer");
+    expect(child?.extent).toBe("parent");
+    // absolute outer (100,100) + inner (50,60) + child (10,20) = (160,180)
+    // → relative to outer: (60,80)
+    expect(child?.position).toEqual({ x: 60, y: 80 });
   });
 
-  it("lifts a partially ungrouped child of a nested group to its absolute position", () => {
+  it("re-parents a partially ungrouped nested child to its grandparent, keeping absolute position", () => {
     const { result } = renderHook(() => useNodeOperations(), { wrapper });
     const mockRf = createMockInstance(result);
 
@@ -704,8 +708,11 @@ const createMockInstance = (
     });
 
     const child = result.current.nodes.find((n) => n.id === "child");
-    expect(child?.parentId).toBeUndefined();
-    expect(child?.position).toEqual({ x: 160, y: 180 });
+    // Partial ungroup leaves ONE nesting level: child re-parents to the
+    // grandparent group at the same absolute canvas position.
+    expect(child?.parentId).toBe("outer");
+    expect(child?.extent).toBe("parent");
+    expect(child?.position).toEqual({ x: 60, y: 80 });
   });
 
   it("does not re-queue persisted top-level nodes for group adoption on init", () => {

@@ -57,6 +57,14 @@ import {
   getFlowTemplateViewport,
   placeFlowDataAtPosition,
 } from "@/lib/flow/placeFlowTemplate";
+import {
+  absolutePositionOf,
+  buildGroupMaps,
+  isDescendantOf,
+  nestingDepthOf,
+  orderNodesParentsFirst,
+} from "@/lib/flow/groupNesting";
+import { fitGroupAndAncestorsInNodes } from "@/lib/flow/groupSizing";
 
 /* ------------------------------------------------------------------ */
 /*  Types & tiny utils                                                */
@@ -65,7 +73,6 @@ type RF = ReactFlowInstance<FlowNode, Edge> & {
   updateNodeInternals?: (id: string) => void;
 };
 const randomId = () => Math.random().toString(36).slice(2, 9);
-const GROUP_PADDING = 32;
 
 type PaletteDragData = {
   type?: string;
@@ -136,9 +143,10 @@ function scheduleNodeInternalsUpdate(rf: RF, ids: string[]) {
 
 /* ------------------------------------------------------------------ */
 /**
- * Enlarges a "shadcnGroup" so all children fit, **without moving the group**.
- * If a child is left / above the current origin we *shift all children* by the
- * same delta.  That keeps their relative geometry intact.
+ * Enlarges a "shadcnGroup" so all children fit, then cascades the fit up
+ * the parent chain — a growing inner group may overflow its outer group.
+ * Uses the shared origin-compensating fit (children keep their absolute
+ * canvas position; the frame grows top-left, NB-05).
  */
 /* ------------------------------------------------------------------ */
 function fitGroupToChildren(
@@ -148,76 +156,7 @@ function fitGroupToChildren(
 ) {
   if (!rf) return;
 
-  setNodes((nodes) => {
-    const group = nodes.find(
-      (n) => n.id === groupId && n.type === "shadcnGroup",
-    );
-    if (!group) return nodes;
-
-    const children = nodes.filter((n) => n.parentId === groupId);
-    if (!children.length) return nodes;
-
-    // --- 1 · bounding box of children ----------------------------
-    let minX = Infinity,
-      minY = Infinity,
-      maxX = -Infinity,
-      maxY = -Infinity;
-
-    children.forEach((child) => {
-      const w = getNodeDimension(child, "width", 250);
-      const h = getNodeDimension(child, "height", 150);
-      minX = Math.min(minX, child.position.x);
-      minY = Math.min(minY, child.position.y);
-      maxX = Math.max(maxX, child.position.x + w);
-      maxY = Math.max(maxY, child.position.y + h);
-    });
-
-    // --- 2 · how much must we grow / shift? ----------------------
-    const shiftX = Math.max(0, GROUP_PADDING - minX);
-    const shiftY = Math.max(0, GROUP_PADDING - minY);
-
-    const newWidth = Math.max(
-      getNodeDimension(group, "width", 300),
-      maxX + shiftX + GROUP_PADDING,
-    );
-    const newHeight = Math.max(
-      getNodeDimension(group, "height", 200),
-      maxY + shiftY + GROUP_PADDING,
-    );
-
-    if (
-      shiftX === 0 &&
-      shiftY === 0 &&
-      newWidth === getNodeDimension(group, "width", 300) &&
-      newHeight === getNodeDimension(group, "height", 200)
-    ) {
-      return nodes; // nothing to do
-    }
-
-    // --- 3 · apply ------------------------------------------------
-    return nodes.map((n) => {
-      if (n.id === groupId) {
-        return {
-          ...n,
-          width: newWidth,
-          height: newHeight,
-          measured: {
-            ...n.measured,
-            width: newWidth,
-            height: newHeight,
-          },
-          data: { ...n.data, width: newWidth, height: newHeight },
-        };
-      }
-      if (n.parentId === groupId) {
-        return {
-          ...n,
-          position: { x: n.position.x + shiftX, y: n.position.y + shiftY },
-        };
-      }
-      return n;
-    });
-  });
+  setNodes((nodes) => fitGroupAndAncestorsInNodes(nodes, groupId));
 
   scheduleNodeInternalsUpdate(rf, [groupId]);
 }
@@ -288,9 +227,11 @@ export function useNodeOperations() {
 
       const all = getNodes();
       const child = all.find((n) => n.id === nodeId);
-      if (!child || child.type === "shadcnGroup") return;
+      if (!child) return;
 
       if (child.parentId) return;
+
+      const maps = buildGroupMaps(all);
 
       // Exclude any selected groups from being valid targets
       const selectedGroupIds = new Set(
@@ -308,11 +249,14 @@ export function useNodeOperations() {
         height: getNodeDimension(child, "height", 40),
       };
 
+      // Groups can adopt groups (nesting): the dragged node itself and its
+      // own descendants are never valid targets (would create a cycle).
       const groups = (rf.getIntersectingNodes(bbox) as FlowNode[]).filter(
         (g) =>
           g.type === "shadcnGroup" &&
           g.id !== child.id &&
-          !selectedGroupIds.has(g.id),
+          !selectedGroupIds.has(g.id) &&
+          !isDescendantOf(g.id, child.id, maps),
       );
 
       if (!groups.length) return;
@@ -322,51 +266,53 @@ export function useNodeOperations() {
         y: bbox.y + bbox.height / 2,
       };
 
-      const best = groups.reduce<{ node: FlowNode; dist: number } | null>(
-        (winner, candidate) => {
-          const width = getNodeDimension(candidate, "width", 300);
-          const height = getNodeDimension(candidate, "height", 200);
-          const candidateAbs = candidate.positionAbsolute ?? candidate.position;
-          const cx = candidateAbs.x + width / 2;
-          const cy = candidateAbs.y + height / 2;
-          const dist = Math.hypot(childCenter.x - cx, childCenter.y - cy);
-          if (!winner || dist < winner.dist) {
-            return { node: candidate, dist };
-          }
-          return winner;
-        },
-        null,
-      );
+      // Prefer the INNERMOST candidate (deepest nesting), then the nearest
+      // centre among equals.
+      const best = groups.reduce<
+        { node: FlowNode; dist: number; depth: number } | null
+      >((winner, candidate) => {
+        const width = getNodeDimension(candidate, "width", 300);
+        const height = getNodeDimension(candidate, "height", 200);
+        const candidateAbs =
+          candidate.positionAbsolute ?? absolutePositionOf(candidate.id, maps);
+        const cx = candidateAbs.x + width / 2;
+        const cy = candidateAbs.y + height / 2;
+        const dist = Math.hypot(childCenter.x - cx, childCenter.y - cy);
+        const depth = nestingDepthOf(candidate.id, maps);
+        if (
+          !winner ||
+          depth > winner.depth ||
+          (depth === winner.depth && dist < winner.dist)
+        ) {
+          return { node: candidate, dist, depth };
+        }
+        return winner;
+      }, null);
 
       const group = best?.node;
       if (!group) return;
       if (child.parentId === group.id) return; // already in this group
 
       // ---- ABSOLUTE → RELATIVE TRANSFORM (prevents "jumping") ----
-      let absX = childAbs.x;
-      let absY = childAbs.y;
-      if (child.parentId) {
-        const oldParent = all.find((p) => p.id === child.parentId);
-        if (oldParent) {
-          const oldParentAbs = oldParent.positionAbsolute ?? oldParent.position;
-          absX = oldParentAbs.x + child.position.x;
-          absY = oldParentAbs.y + child.position.y;
-        }
-      }
-      const groupAbs = group.positionAbsolute ?? group.position;
+      const absX = childAbs.x;
+      const absY = childAbs.y;
+      const groupAbs =
+        group.positionAbsolute ?? absolutePositionOf(group.id, maps);
       const relX = absX - groupAbs.x;
       const relY = absY - groupAbs.y;
 
       setNodes((nds) =>
-        nds.map((n) =>
-          n.id === nodeId && n.type !== "shadcnGroup"
-            ? {
-                ...n,
-                parentId: group.id,
-                extent: "parent" as const,
-                position: { x: relX, y: relY },
-              }
-            : n,
+        orderNodesParentsFirst(
+          nds.map((n) =>
+            n.id === nodeId
+              ? {
+                  ...n,
+                  parentId: group.id,
+                  extent: "parent" as const,
+                  position: { x: relX, y: relY },
+                }
+              : n,
+          ),
         ),
       );
 
@@ -521,7 +467,9 @@ export function useNodeOperations() {
           remapGroupBundleOffsets: true,
         });
 
-        const sanitizedSub = stripLegacyFlowMapNodeData(ingestScriptSteps(sub));
+        const sanitizedSub = orderNodesParentsFirst(
+          stripLegacyFlowMapNodeData(ingestScriptSteps(sub)),
+        );
 
         // ③ append to canvas
         setNodes((nds) => [...stripGroupBundlePortNodes(nds), ...sanitizedSub]);
@@ -588,13 +536,14 @@ export function useNodeOperations() {
         if (n.parentId) parentsNeedingResize.add(n.parentId);
       });
 
-      const adoptable = selected.filter(
-        (n) => n.type !== "shadcnGroup" && !n.parentId,
-      );
+      // Groups are adoptable too (nesting) — top-level items only; membership
+      // stays locked until an explicit ungroup.
+      const adoptable = selected.filter((n) => !n.parentId);
       const selectedGroupIds = new Set(
         selected.filter((n) => n.type === "shadcnGroup").map((n) => n.id),
       );
       const adoptedNodeIds = new Set<string>();
+      const maps = buildGroupMaps(allNodes);
 
       if (adoptable.length) {
         const pointer = rf.screenToFlowPosition({
@@ -602,28 +551,43 @@ export function useNodeOperations() {
           y: evt.clientY,
         });
 
-        const pointerGroup = allNodes.find((node) => {
+        // Candidates: groups under the pointer that are not being dragged and
+        // not inside a dragged group (adopting into your own descendant would
+        // create a parent cycle). Prefer the INNERMOST (deepest) candidate.
+        const pointerGroup = allNodes.reduce<{
+          node: FlowNode;
+          depth: number;
+        } | null>((winner, node) => {
           if (node.type !== "shadcnGroup" || selectedGroupIds.has(node.id)) {
-            return false;
+            return winner;
+          }
+          for (const draggedGroupId of selectedGroupIds) {
+            if (isDescendantOf(node.id, draggedGroupId, maps)) return winner;
           }
           const width = getNodeDimension(node, "width", 300);
           const height = getNodeDimension(node, "height", 200);
-          const nodeAbs = node.positionAbsolute ?? node.position;
-          return (
+          const nodeAbs =
+            node.positionAbsolute ?? absolutePositionOf(node.id, maps);
+          const contains =
             pointer.x >= nodeAbs.x &&
             pointer.x <= nodeAbs.x + width &&
             pointer.y >= nodeAbs.y &&
-            pointer.y <= nodeAbs.y + height
-          );
-        });
+            pointer.y <= nodeAbs.y + height;
+          if (!contains) return winner;
+          const depth = nestingDepthOf(node.id, maps);
+          if (!winner || depth > winner.depth) return { node, depth };
+          return winner;
+        }, null)?.node;
 
         if (pointerGroup) {
           const groupId = pointerGroup.id;
           const groupAbs =
-            pointerGroup.positionAbsolute ?? pointerGroup.position;
+            pointerGroup.positionAbsolute ??
+            absolutePositionOf(groupId, maps);
 
           const relativePositions = new Map<string, { x: number; y: number }>();
           adoptable.forEach((node) => {
+            if (node.id === groupId) return;
             const nodeAbs = node.positionAbsolute ?? node.position;
             relativePositions.set(node.id, {
               x: nodeAbs.x - groupAbs.x,
@@ -637,16 +601,18 @@ export function useNodeOperations() {
               adoptedNodeIds.add(nodeId);
             });
             setNodes((nodesState) =>
-              nodesState.map((node) => {
-                const rel = relativePositions.get(node.id);
-                if (!rel) return node;
-                return {
-                  ...node,
-                  parentId: groupId,
-                  extent: "parent" as const,
-                  position: rel,
-                };
-              }),
+              orderNodesParentsFirst(
+                nodesState.map((node) => {
+                  const rel = relativePositions.get(node.id);
+                  if (!rel) return node;
+                  return {
+                    ...node,
+                    parentId: groupId,
+                    extent: "parent" as const,
+                    position: rel,
+                  };
+                }),
+              ),
             );
           }
         }
@@ -673,70 +639,136 @@ export function useNodeOperations() {
   /* ─────────────────────────────────────────────────────────────── */
   /* 4.  Group / ungroup helpers                                     */
   /* ─────────────────────────────────────────────────────────────── */
+  /**
+   * Selection "representatives" for grouping: selected nodes minus any whose
+   * ancestor is also selected (those travel with the ancestor). Groupable
+   * only when every representative shares the SAME parent — all top-level,
+   * or all direct children of one group (→ the new group nests inside it).
+   */
+  const getGroupableSelection = useCallback((all: FlowNode[]) => {
+    const maps = buildGroupMaps(all);
+    const selectedIds = new Set(
+      all.filter((n) => n.selected).map((n) => n.id),
+    );
+    if (!selectedIds.size) return null;
+
+    const representatives = all.filter((n) => {
+      if (!selectedIds.has(n.id)) return false;
+      let parentId = n.parentId;
+      const seen = new Set<string>([n.id]);
+      while (parentId && !seen.has(parentId)) {
+        if (selectedIds.has(parentId)) return false;
+        seen.add(parentId);
+        parentId = maps.byId.get(parentId)?.parentId;
+      }
+      return true;
+    });
+    if (!representatives.length) return null;
+
+    const sharedParentId = representatives[0].parentId;
+    if (!representatives.every((n) => n.parentId === sharedParentId)) {
+      return null;
+    }
+
+    return { representatives, sharedParentId, maps };
+  }, []);
+
   const groupSelectedNodes = useCallback(() => {
     if (!rf) return false;
 
-    const all = rf.getNodes() as FlowNode[];
-    const sel = all.filter(
-      (n) => n.selected && !n.parentId && n.type !== "shadcnGroup",
-    );
-    if (sel.length < 1) return false;
+    const all = stripGroupBundlePortNodes(rf.getNodes() as FlowNode[]);
+    const groupable = getGroupableSelection(all);
+    if (!groupable) return false;
 
-    const bounds = rf.getNodesBounds(sel);
+    const { representatives, sharedParentId, maps } = groupable;
     const margin = 60;
     const groupId = `group_${randomId()}`;
 
     log(
       "nodeOperations",
-      `Creating group ${groupId} for ${sel.length} selected nodes`,
+      `Creating group ${groupId} for ${representatives.length} selected nodes`,
+      sharedParentId ? { nestedIn: sharedParentId } : undefined,
     );
+
+    // Absolute bounding box of the representatives (positions of nested
+    // members are relative to their parent).
+    let minX = Infinity,
+      minY = Infinity,
+      maxX = -Infinity,
+      maxY = -Infinity;
+    const memberAbs = new Map<string, { x: number; y: number }>();
+    representatives.forEach((n) => {
+      const abs = absolutePositionOf(n.id, maps);
+      memberAbs.set(n.id, abs);
+      minX = Math.min(minX, abs.x);
+      minY = Math.min(minY, abs.y);
+      maxX = Math.max(maxX, abs.x + getNodeDimension(n, "width", 250));
+      maxY = Math.max(maxY, abs.y + getNodeDimension(n, "height", 150));
+    });
+
+    const groupAbs = { x: minX - margin, y: minY - margin };
+    const groupWidth = maxX - minX + margin * 2;
+    const groupHeight = maxY - minY + margin * 2;
+    const parentAbs = sharedParentId
+      ? absolutePositionOf(sharedParentId, maps)
+      : { x: 0, y: 0 };
 
     const groupNode: FlowNode = {
       id: groupId,
       type: "shadcnGroup",
-      position: { x: bounds.x - margin, y: bounds.y - margin },
-      width: bounds.width + margin * 2,
-      height: bounds.height + margin * 2,
+      position: {
+        x: groupAbs.x - parentAbs.x,
+        y: groupAbs.y - parentAbs.y,
+      },
+      ...(sharedParentId
+        ? { parentId: sharedParentId, extent: "parent" as const }
+        : {}),
+      width: groupWidth,
+      height: groupHeight,
       measured: {
-        width: bounds.width + margin * 2,
-        height: bounds.height + margin * 2,
+        width: groupWidth,
+        height: groupHeight,
       },
       dragHandle: "[data-drag-handle]",
       data: {
         isGroup: true,
-        width: bounds.width + margin * 2,
-        height: bounds.height + margin * 2,
+        width: groupWidth,
+        height: groupHeight,
         title: "Group Node",
         fontSize: 44,
       },
       selected: false,
     };
 
-    setNodes((nds) => [
-      groupNode,
-      ...nds.map((n) => {
-        if (sel.some((s) => s.id === n.id)) {
-          return {
-            ...n,
-            parentId: groupId,
-            extent: "parent" as const,
-            position: {
-              x: n.position.x - (bounds.x - margin),
-              y: n.position.y - (bounds.y - margin),
-            },
-            selected: false,
-          };
-        }
-        return { ...n, selected: false };
-      }),
-    ]);
+    const memberIds = new Set(representatives.map((n) => n.id));
+    setNodes((nds) =>
+      orderNodesParentsFirst([
+        ...nds.map((n) => {
+          if (memberIds.has(n.id)) {
+            const abs = memberAbs.get(n.id)!;
+            return {
+              ...n,
+              parentId: groupId,
+              extent: "parent" as const,
+              position: {
+                x: abs.x - groupAbs.x,
+                y: abs.y - groupAbs.y,
+              },
+              selected: false,
+            };
+          }
+          return { ...n, selected: false };
+        }),
+        groupNode,
+      ]),
+    );
 
     // The group is already correctly sized from initial creation,
     // but we'll ensure it fits in case any nodes have non-standard sizes
     requestAnimationFrame(() => fitGroupToChildren(groupId, rf, setNodes));
 
     return true;
-  }, [rf, setNodes]);
+  }, [rf, setNodes, getGroupableSelection]);
 
   /* ─────────────────────────────────────────────────────────────── */
   /*     ** UPDATED:  supports whole-group and partial ungroup **    */
@@ -744,8 +776,9 @@ export function useNodeOperations() {
   const ungroupSelectedNodes = useCallback(() => {
     if (!rf) return false;
 
-    const all = rf.getNodes() as FlowNode[];
+    const all = stripGroupBundlePortNodes(rf.getNodes() as FlowNode[]);
     const selected = all.filter((n) => n.selected);
+    const maps = buildGroupMaps(all);
 
     const ungroupGroups = (groups: FlowNode[]) => {
       const gidSet = new Set(groups.map((g) => g.id));
@@ -753,6 +786,19 @@ export function useNodeOperations() {
       log("nodeOperations", `Ungrouping ${groups.length} groups`, {
         groupIds: Array.from(gidSet),
       });
+
+      // Children lift to the nearest ancestor that is NOT being removed
+      // (one level up for a nested group; top level when none survives).
+      const survivingParentOf = (nodeId: string): string | undefined => {
+        const seen = new Set<string>([nodeId]);
+        let parentId = maps.byId.get(nodeId)?.parentId;
+        while (parentId && !seen.has(parentId)) {
+          if (!gidSet.has(parentId)) return parentId;
+          seen.add(parentId);
+          parentId = maps.byId.get(parentId)?.parentId;
+        }
+        return undefined;
+      };
 
       setNodes((nds) =>
         nds.flatMap((n) => {
@@ -762,13 +808,20 @@ export function useNodeOperations() {
           /* lift every child of any selected group */
           if (n.parentId && gidSet.has(n.parentId)) {
             const absPos = getAbsoluteNodePosition(n, all);
+            const nextParentId = survivingParentOf(n.id);
+            const nextParentAbs = nextParentId
+              ? absolutePositionOf(nextParentId, maps)
+              : { x: 0, y: 0 };
 
             return [
               {
                 ...n,
-                parentId: undefined,
-                extent: undefined,
-                position: absPos,
+                parentId: nextParentId,
+                extent: nextParentId ? ("parent" as const) : undefined,
+                position: {
+                  x: absPos.x - nextParentAbs.x,
+                  y: absPos.y - nextParentAbs.y,
+                },
                 selected: true,
               },
             ];
@@ -807,12 +860,21 @@ export function useNodeOperations() {
           if (!n.selected || !n.parentId) return n;
 
           const absPos = getAbsoluteNodePosition(n, all);
+          // Leave ONE nesting level: re-parent to the grandparent group
+          // (top level when the parent was top-level, as before).
+          const nextParentId = maps.byId.get(n.parentId)?.parentId;
+          const nextParentAbs = nextParentId
+            ? absolutePositionOf(nextParentId, maps)
+            : { x: 0, y: 0 };
 
           return {
             ...n,
-            parentId: undefined,
-            extent: undefined,
-            position: absPos,
+            parentId: nextParentId,
+            extent: nextParentId ? ("parent" as const) : undefined,
+            position: {
+              x: absPos.x - nextParentAbs.x,
+              y: absPos.y - nextParentAbs.y,
+            },
             selected: true,
           };
         }),
@@ -916,11 +978,9 @@ export function useNodeOperations() {
     /* group / ungroup button enable logic (UPDATED) */
     canGroupSelectedNodes: () =>
       rf
-        ? rf
-            .getNodes()
-            .filter(
-              (n) => n.selected && !n.parentId && n.type !== "shadcnGroup",
-            ).length >= 1
+        ? getGroupableSelection(
+            stripGroupBundlePortNodes(rf.getNodes() as FlowNode[]),
+          ) !== null
         : false,
     canUngroupSelectedNodes: () =>
       rf

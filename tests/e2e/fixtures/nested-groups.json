@@ -1,0 +1,170 @@
+{
+ "schemaVersion": 1,
+ "name": "nested probe",
+ "nodes": [
+  {
+   "id": "grp_outer",
+   "type": "shadcnGroup",
+   "position": {
+    "x": 0,
+    "y": 0
+   },
+   "width": 900,
+   "height": 650,
+   "dragHandle": "[data-drag-handle]",
+   "data": {
+    "isGroup": true,
+    "width": 900,
+    "height": 650,
+    "title": "Outer",
+    "fontSize": 44
+   }
+  },
+  {
+   "id": "grp_inner",
+   "type": "shadcnGroup",
+   "position": {
+    "x": 60,
+    "y": 120
+   },
+   "width": 500,
+   "height": 320,
+   "dragHandle": "[data-drag-handle]",
+   "data": {
+    "isGroup": true,
+    "width": 500,
+    "height": 320,
+    "title": "Inner",
+    "fontSize": 44
+   },
+   "parentId": "grp_outer",
+   "extent": "parent"
+  },
+  {
+   "id": "node_x",
+   "type": "calculation",
+   "position": {
+    "x": 60,
+    "y": 80
+   },
+   "data": {
+    "functionName": "double_sha256_hex",
+    "title": "X",
+    "numInputs": 1,
+    "showField": false,
+    "inputs": {
+     "val": ""
+    },
+    "result": "",
+    "dirty": true,
+    "inputStructure": {
+     "ungrouped": [
+      {
+       "index": 0,
+       "label": "Input Hex:",
+       "rows": 2
+      }
+     ]
+    },
+    "groupInstances": {}
+   },
+   "parentId": "grp_inner",
+   "extent": "parent"
+  },
+  {
+   "id": "node_y",
+   "type": "calculation",
+   "position": {
+    "x": 80,
+    "y": 470
+   },
+   "data": {
+    "functionName": "identity",
+    "title": "Y",
+    "numInputs": 0,
+    "showField": true,
+    "value": "68656c6c6f",
+    "inputs": {
+     "val": "68656c6c6f"
+    },
+    "result": "",
+    "dirty": true,
+    "inputStructure": {
+     "ungrouped": [
+      {
+       "index": 0,
+       "label": "INPUT VALUE:",
+       "rows": 1
+      }
+     ]
+    },
+    "groupInstances": {}
+   },
+   "parentId": "grp_outer",
+   "extent": "parent"
+  },
+  {
+   "id": "grp_other",
+   "type": "shadcnGroup",
+   "position": {
+    "x": 1300,
+    "y": 0
+   },
+   "width": 520,
+   "height": 400,
+   "dragHandle": "[data-drag-handle]",
+   "data": {
+    "isGroup": true,
+    "width": 520,
+    "height": 400,
+    "title": "Other",
+    "fontSize": 44
+   }
+  },
+  {
+   "id": "node_z",
+   "type": "calculation",
+   "position": {
+    "x": 80,
+    "y": 120
+   },
+   "data": {
+    "functionName": "double_sha256_hex",
+    "title": "Z",
+    "numInputs": 1,
+    "showField": false,
+    "inputs": {
+     "val": ""
+    },
+    "result": "",
+    "dirty": true,
+    "inputStructure": {
+     "ungrouped": [
+      {
+       "index": 0,
+       "label": "Input Hex:",
+       "rows": 2
+      }
+     ]
+    },
+    "groupInstances": {}
+   },
+   "parentId": "grp_other",
+   "extent": "parent"
+  }
+ ],
+ "edges": [
+  {
+   "id": "e_up",
+   "source": "node_y",
+   "target": "node_x",
+   "targetHandle": "input-0"
+  },
+  {
+   "id": "e_deep",
+   "source": "node_x",
+   "target": "node_z",
+   "targetHandle": "input-0"
+  }
+ ]
+}

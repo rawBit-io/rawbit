@@ -81,6 +81,7 @@ import {
 } from "@/lib/flow/legacyCompatibility";
 import { getExpandedExportNodeSelection } from "@/lib/flow/exportSelection";
 import { buildCodeSourceUrl } from "@/lib/codeSourceCache";
+import { orderNodesParentsFirst } from "@/lib/flow/groupNesting";
 
 // Strip ephemeral UI fields from saved JSON
 const omitUIState = omitEphemeralOrLegacyNodeData;
@@ -580,8 +581,10 @@ export function useFileOperations(
               importedNodeIds.has(e.source) && importedNodeIds.has(e.target)
           );
 
-          // ③ add nodes (preserve shape; ensure groups keep a dragHandle)
-          const addNodes = sanitizedMergedNodes.map((n) => {
+          // ③ add nodes (preserve shape; ensure groups keep a dragHandle).
+          //    Parents must precede children for React Flow — matters for
+          //    nested groups in hand-edited files.
+          const addNodes = orderNodesParentsFirst(sanitizedMergedNodes).map((n) => {
             const dragHandle =
               n.type === "shadcnGroup"
                 ? n.dragHandle ?? "[data-drag-handle]"

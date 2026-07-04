@@ -104,6 +104,7 @@ import {
 } from "@/lib/flow/groupEdgeBundling";
 import { edgesHaveSameIdentity } from "@/lib/flow/edgeNormalization";
 import { pruneDanglingEdges } from "@/lib/flow/pruneDanglingEdges";
+import { orderNodesParentsFirst } from "@/lib/flow/groupNesting";
 import { log } from "@/lib/logConfig";
 import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
 import {
@@ -672,21 +673,23 @@ function FlowContent() {
     const edgesFromFlow = Array.isArray(clonedData.edges)
       ? clonedData.edges
       : [];
-    const normalizedNodes = stripLegacyFlowMapNodeData(
-      nodesFromFlow.map((node) => {
-        const base: FlowNode & { dragHandle?: string } = {
-          ...node,
-          data: node.data ? { ...node.data } : node.data,
-          position: node.position
-            ? { x: node.position.x, y: node.position.y }
-            : node.position,
-          selected: false,
-        };
-        if (base.type === "shadcnGroup" && !base.dragHandle) {
-          base.dragHandle = "[data-drag-handle]";
-        }
-        return base;
-      })
+    const normalizedNodes = orderNodesParentsFirst(
+      stripLegacyFlowMapNodeData(
+        nodesFromFlow.map((node) => {
+          const base: FlowNode & { dragHandle?: string } = {
+            ...node,
+            data: node.data ? { ...node.data } : node.data,
+            position: node.position
+              ? { x: node.position.x, y: node.position.y }
+              : node.position,
+            selected: false,
+          };
+          if (base.type === "shadcnGroup" && !base.dragHandle) {
+            base.dragHandle = "[data-drag-handle]";
+          }
+          return base;
+        })
+      )
     );
     const normalizedEdges = edgesFromFlow.map((edge) => ({ ...edge })) as Edge[];
 
@@ -1592,22 +1595,26 @@ function FlowContent() {
 
       restoreScriptSteps([]);
 
-      const normalizedNodes = stripLegacyFlowMapNodeData(
-        ingestScriptSteps(
-          nodesFromFlow.map((node) => {
-            const base: FlowNode & { dragHandle?: string } = {
-              ...node,
-              data: node.data ? { ...node.data } : node.data,
-              position: node.position
-                ? { x: node.position.x, y: node.position.y }
-                : node.position,
-              selected: false,
-            };
-            if (base.type === "shadcnGroup" && !base.dragHandle) {
-              base.dragHandle = "[data-drag-handle]";
-            }
-            return base;
-          })
+      // React Flow requires every parent before its children in the nodes
+      // array — enforce it for hand-edited files with nested groups.
+      const normalizedNodes = orderNodesParentsFirst(
+        stripLegacyFlowMapNodeData(
+          ingestScriptSteps(
+            nodesFromFlow.map((node) => {
+              const base: FlowNode & { dragHandle?: string } = {
+                ...node,
+                data: node.data ? { ...node.data } : node.data,
+                position: node.position
+                  ? { x: node.position.x, y: node.position.y }
+                  : node.position,
+                selected: false,
+              };
+              if (base.type === "shadcnGroup" && !base.dragHandle) {
+                base.dragHandle = "[data-drag-handle]";
+              }
+              return base;
+            })
+          )
         )
       );
 

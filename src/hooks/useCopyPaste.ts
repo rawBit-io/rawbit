@@ -22,6 +22,13 @@ import {
   sanitizeGroupBundleRenderEdgesForState,
   stripGroupBundlePortNodes,
 } from "@/lib/flow/groupEdgeBundling";
+import {
+  buildGroupMaps,
+  nestingDepthOf,
+  orderNodesParentsFirst,
+  resolveBundleEndpointGroups,
+} from "@/lib/flow/groupNesting";
+import { fitGroupAndAncestorsInNodes } from "@/lib/flow/groupSizing";
 
 /* ----------------------------------------------------------------
    LOCAL types
@@ -55,8 +62,6 @@ type UseCopyPasteOptions = {
   getClipboardNodes?: () => FlowNode[];
   getClipboardEdges?: () => Edge[];
 };
-
-const GROUP_PADDING = 32;
 
 const cloneScriptSteps = (
   steps: ScriptExecutionResult | undefined
@@ -123,13 +128,14 @@ const findGroupAtPoint = (
   nodes: FlowNode[]
 ): { node: FlowNode; abs: XYPosition } | null => {
   const lookup = new Map(nodes.map((node) => [node.id, node]));
+  const maps = buildGroupMaps(nodes);
   const candidates = nodes
     .filter((node) => node.type === "shadcnGroup")
     .map((node) => {
       const abs = node.positionAbsolute ?? getAbsoluteNodePosition(node, lookup);
       const width = getNodeDimension(node, "width", 300);
       const height = getNodeDimension(node, "height", 200);
-      return { node, abs, width, height };
+      return { node, abs, width, height, depth: nestingDepthOf(node.id, maps) };
     })
     .filter(({ abs, width, height }) => {
       return (
@@ -142,7 +148,12 @@ const findGroupAtPoint = (
 
   if (!candidates.length) return null;
 
+  // Prefer the INNERMOST group under the point (deepest nesting), falling
+  // back to the smallest area for unrelated overlapping groups.
   const best = candidates.reduce((winner, candidate) => {
+    if (candidate.depth !== winner.depth) {
+      return candidate.depth > winner.depth ? candidate : winner;
+    }
     const bestArea = winner.width * winner.height;
     const candidateArea = candidate.width * candidate.height;
     return candidateArea < bestArea ? candidate : winner;
@@ -151,105 +162,14 @@ const findGroupAtPoint = (
   return { node: best.node, abs: best.abs };
 };
 
-export const fitGroupToChildrenInNodes = (
-  nodes: FlowNode[],
-  groupId: string
-): FlowNode[] => {
-  const group = nodes.find(
-    (node) => node.id === groupId && node.type === "shadcnGroup"
-  );
-  if (!group) return nodes;
-
-  const children = nodes.filter((node) => node.parentId === groupId);
-  if (!children.length) return nodes;
-
-  let minX = Infinity;
-  let minY = Infinity;
-  let maxX = -Infinity;
-  let maxY = -Infinity;
-
-  children.forEach((child) => {
-    const width = getNodeDimension(child, "width", 250);
-    const height = getNodeDimension(child, "height", 150);
-    minX = Math.min(minX, child.position.x);
-    minY = Math.min(minY, child.position.y);
-    maxX = Math.max(maxX, child.position.x + width);
-    maxY = Math.max(maxY, child.position.y + height);
-  });
-
-  const shiftX = Math.max(0, GROUP_PADDING - minX);
-  const shiftY = Math.max(0, GROUP_PADDING - minY);
-  const currentWidth = getNodeDimension(group, "width", 300);
-  const currentHeight = getNodeDimension(group, "height", 200);
-  const nextWidth = Math.max(currentWidth, maxX + shiftX + GROUP_PADDING);
-  const nextHeight = Math.max(currentHeight, maxY + shiftY + GROUP_PADDING);
-
-  if (
-    shiftX === 0 &&
-    shiftY === 0 &&
-    nextWidth === currentWidth &&
-    nextHeight === currentHeight
-  ) {
-    return nodes;
-  }
-
-  return nodes.map((node) => {
-    if (node.id === groupId) {
-      return {
-        ...node,
-        // Compensate the group origin for the child shift so EXISTING children
-        // keep their absolute screen position — the frame just grows on the
-        // top-left side to make room for the pasted node, instead of jolting
-        // every untouched child down-right (NB-05). Origin is relative to the
-        // group's own parent, so this is safe for nested groups too.
-        ...(shiftX !== 0 || shiftY !== 0
-          ? {
-              position: {
-                x: node.position.x - shiftX,
-                y: node.position.y - shiftY,
-              },
-            }
-          : {}),
-        width: nextWidth,
-        height: nextHeight,
-        measured: {
-          ...node.measured,
-          width: nextWidth,
-          height: nextHeight,
-        },
-        data: { ...node.data, width: nextWidth, height: nextHeight },
-      };
-    }
-
-    if (node.parentId === groupId) {
-      return {
-        ...node,
-        position: {
-          x: node.position.x + shiftX,
-          y: node.position.y + shiftY,
-        },
-      };
-    }
-
-    return node;
-  });
-};
+// Pure fit lives in lib (shared with useNodeOperations); re-exported to keep
+// the existing import surface for tests/consumers.
+export { fitGroupToChildrenInNodes } from "@/lib/flow/groupSizing";
 
 type GroupEndpointNodeInfo = {
   id: string;
   type?: string;
   parentId?: string;
-};
-
-const nodeGroupEndpoint = (
-  nodeId: string,
-  nodeLookup: Map<string, GroupEndpointNodeInfo>
-): string | undefined => {
-  const node = nodeLookup.get(nodeId);
-  if (!node) return undefined;
-  if (node.type === "shadcnGroup") return node.id;
-  const parent = node.parentId ? nodeLookup.get(node.parentId) : undefined;
-  return parent?.type === "shadcnGroup" ? parent.id : undefined;
 };
 
 const buildCopiedGroupBundleIdMap = (
@@ -260,13 +180,21 @@ const buildCopiedGroupBundleIdMap = (
 ): Map<string, string> => {
   const bundleIdMap = new Map<string, string>();
 
+  // Bundle ids must be derived with the SAME nested-aware endpoint rule the
+  // renderer uses, or remapped port offsets would key to bundles that never
+  // form. Copied entries shadow same-id external entries.
+  const combined = new Map<string, GroupEndpointNodeInfo>(externalLookup);
+  copiedLookup.forEach((info, id) =>
+    combined.set(id, { id: info.id, type: info.type, parentId: info.parentId })
+  );
+  const groupMaps = buildGroupMaps(Array.from(combined.values()));
+
   copiedEdges.forEach((edge) => {
-    const sourceGroupId =
-      nodeGroupEndpoint(edge.source, copiedLookup) ??
-      nodeGroupEndpoint(edge.source, externalLookup);
-    const targetGroupId =
-      nodeGroupEndpoint(edge.target, copiedLookup) ??
-      nodeGroupEndpoint(edge.target, externalLookup);
+    const { sourceGroupId, targetGroupId } = resolveBundleEndpointGroups(
+      edge.source,
+      edge.target,
+      groupMaps
+    );
     if (!sourceGroupId || !targetGroupId || sourceGroupId === targetGroupId) {
       return;
     }
@@ -561,8 +489,10 @@ export function useCopyPaste({
       //    The utility will remap ids/parentId and edges in one pass.
       const rawNodes: FlowNode[] = copied.map((c) => {
         const parentIncluded = !!(c.parentId && copiedLookup.has(c.parentId));
-        const adoptIntoPasteTarget =
-          !!pasteTargetGroup && !parentIncluded && c.type !== "shadcnGroup";
+        // Groups adopt too — pasting a group inside another group nests it.
+        // No cycle risk: pasted nodes get fresh ids, so the (pre-existing)
+        // paste target can never be a descendant of a pasted group.
+        const adoptIntoPasteTarget = !!pasteTargetGroup && !parentIncluded;
         const absolutePosition = {
           x: base.x + (c.absX - minX),
           y: base.y + (c.absY - minY),
@@ -649,11 +579,9 @@ export function useCopyPaste({
         setScriptSteps(mappedId, cloneScriptSteps(info.scriptSteps));
       });
 
-      // 3) Ensure groups come first (so children can adopt immediately)
-      const ordered = [
-        ...remappedNewNodes.filter((n) => n.type === "shadcnGroup"),
-        ...remappedNewNodes.filter((n) => n.type !== "shadcnGroup"),
-      ];
+      // 3) React Flow requires every parent BEFORE its children — with nested
+      //    groups "groups first" is not enough, order the whole chain.
+      const ordered = orderNodesParentsFirst(remappedNewNodes);
 
       // 4) Deselect existing, then append
       setNodes((existing) => {
@@ -662,7 +590,7 @@ export function useCopyPaste({
           ...ordered,
         ];
         return pasteTargetGroup
-          ? fitGroupToChildrenInNodes(combined, pasteTargetGroup.node.id)
+          ? fitGroupAndAncestorsInNodes(combined, pasteTargetGroup.node.id)
           : combined;
       });
       setEdges((existing) => [...existing, ...filteredEdges]);

@@ -51,7 +51,7 @@ export const allSidebarNodes: NodeTemplate[] = [
     label: "Group Node",
     category: "Canvas & Inputs",
     subcategory: "General",
-    description: "Container to group multiple nodes (no nesting).",
+    description: "Container to group multiple nodes; groups can nest inside groups.",
     type: "shadcnGroup",
     nodeData: {
       isGroup: true,
