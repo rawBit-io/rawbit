@@ -260,6 +260,110 @@ describe("graph traversal helpers", () => {
     expect(affectedEdges).toHaveLength(4);
   });
 
+  it("uses radio virtual edges for affected subgraph traversal", async () => {
+    const { buildRadioVirtualEdges, getAffectedSubgraph } =
+      await loadGraphUtils();
+
+    const nodes = [
+      createNode("source"),
+      createNode("send", {
+        dirty: false,
+        functionName: "radio_send",
+        title: "Radio Send #7",
+        radioChannel: "1",
+      }),
+      createNode("recv", {
+        dirty: false,
+        functionName: "radio_receive",
+        title: "Radio Receive #7",
+        radioChannel: "1",
+      }),
+      createNode("sink", { dirty: false }),
+    ];
+    nodes[0].data.dirty = true;
+    const edges = [createEdge("source", "send"), createEdge("recv", "sink")];
+
+    const virtualEdges = buildRadioVirtualEdges(nodes);
+    expect(virtualEdges).toHaveLength(1);
+    expect(virtualEdges[0]).toMatchObject({
+      source: "send",
+      target: "recv",
+      targetHandle: "input-0",
+      data: { virtualRadio: true, channel: "7" },
+    });
+
+    const { affectedNodes, affectedEdges } = getAffectedSubgraph(nodes, edges);
+
+    expect(affectedNodes.map((node) => node.id)).toEqual(
+      expect.arrayContaining(["source", "send", "recv", "sink"])
+    );
+    expect(affectedEdges.map((edge) => `${edge.source}->${edge.target}`)).toEqual(
+      expect.arrayContaining(["source->send", "send->recv", "recv->sink"])
+    );
+    expect(affectedEdges.some((edge) => edge.data?.virtualRadio)).toBe(true);
+  });
+
+  it("does not create radio virtual edges for duplicate senders", async () => {
+    const { buildRadioVirtualEdges } = await loadGraphUtils();
+    const nodes = [
+      createNode("send-a", {
+        functionName: "radio_send",
+        title: "Radio Send #1",
+      }),
+      createNode("send-b", {
+        functionName: "radio_send",
+        title: "Radio Send #1",
+      }),
+      createNode("recv", {
+        functionName: "radio_receive",
+        title: "Radio Receive #1",
+      }),
+    ];
+
+    expect(buildRadioVirtualEdges(nodes)).toEqual([]);
+  });
+
+  it("normalizes radio channels to two numeric digits", async () => {
+    const { buildRadioVirtualEdges, radioChannelFromData } =
+      await loadGraphUtils();
+
+    expect(
+      radioChannelFromData({
+        functionName: "radio_send",
+        title: "Radio Send #123",
+      } as CalculationNodeData)
+    ).toBe("12");
+    expect(
+      radioChannelFromData({
+        functionName: "radio_send",
+        title: "Radio Send 98",
+      } as CalculationNodeData)
+    ).toBe("98");
+    expect(
+      radioChannelFromData({
+        functionName: "radio_send",
+        radioChannel: "abc",
+      } as CalculationNodeData)
+    ).toBe("1");
+
+    const nodes = [
+      createNode("send", {
+        functionName: "radio_send",
+        title: "Radio Send #123",
+      }),
+      createNode("recv", {
+        functionName: "radio_receive",
+        radioChannel: "12",
+      }),
+    ];
+
+    expect(buildRadioVirtualEdges(nodes)[0]).toMatchObject({
+      source: "send",
+      target: "recv",
+      data: { channel: "12" },
+    });
+  });
+
   it("detects cycles and returns true without mutating input nodes", async () => {
     const { checkForCyclesAndMarkErrors } = await loadGraphUtils();
     const nodes = [createNode("x"), createNode("y")];

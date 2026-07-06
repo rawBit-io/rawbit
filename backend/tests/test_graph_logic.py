@@ -141,6 +141,176 @@ def test_bulk_calculate_logic_opcode_node_uses_backend_opcode_names():
     }
 
 
+def test_radio_receive_uses_matching_sender_without_visible_edge():
+    nodes = [
+        {
+            "id": "source",
+            "data": {
+                "functionName": "identity",
+                "value": "payload",
+                "dirty": True,
+            },
+        },
+        {
+            "id": "send",
+            "data": {
+                "functionName": "radio_send",
+                "title": "Radio Send #7",
+                "radioChannel": "1",
+                "paramExtraction": "multi_val",
+                "inputStructure": {"ungrouped": [{"index": 0}]},
+                "inputs": {"vals": {}},
+                "dirty": True,
+            },
+        },
+        {
+            "id": "recv",
+            "data": {
+                "functionName": "radio_receive",
+                "title": "Radio Receive #7",
+                "radioChannel": "1",
+                "dirty": True,
+            },
+        },
+        {
+            "id": "sink",
+            "data": {"functionName": "identity", "dirty": True},
+        },
+    ]
+    edges = [
+        {"source": "source", "target": "send", "targetHandle": "input-0"},
+        {"source": "recv", "target": "sink", "targetHandle": "input-0"},
+    ]
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic(
+        copy.deepcopy(nodes),
+        copy.deepcopy(edges),
+    )
+
+    updated = {node["id"]: node for node in updated_nodes}
+    assert errors == []
+    assert updated["send"]["data"]["result"] == "payload"
+    assert updated["recv"]["data"]["result"] == "payload"
+    assert updated["sink"]["data"]["result"] == "payload"
+
+
+def test_radio_channels_are_limited_to_two_numeric_digits():
+    nodes = [
+        {
+            "id": "send",
+            "data": {
+                "functionName": "radio_send",
+                "title": "Radio Send 123",
+                "paramExtraction": "multi_val",
+                "inputStructure": {"ungrouped": [{"index": 0}]},
+                "inputs": {"vals": {"0": "payload"}},
+                "dirty": True,
+            },
+        },
+        {
+            "id": "recv",
+            "data": {
+                "functionName": "radio_receive",
+                "radioChannel": "12",
+                "dirty": True,
+            },
+        },
+    ]
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic(
+        copy.deepcopy(nodes),
+        [],
+    )
+
+    updated = {node["id"]: node for node in updated_nodes}
+    assert errors == []
+    assert updated["recv"]["data"]["result"] == "payload"
+
+
+def test_radio_receive_reports_missing_sender():
+    nodes = [
+        {
+            "id": "recv",
+            "data": {
+                "functionName": "radio_receive",
+                "title": "Radio Receive #3",
+                "dirty": True,
+            },
+        },
+    ]
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic(
+        copy.deepcopy(nodes),
+        [],
+    )
+
+    updated = {node["id"]: node for node in updated_nodes}
+    assert errors == [
+        {
+            "nodeId": "recv",
+            "error": "Radio Receive #3 has no matching Radio Send",
+        }
+    ]
+    assert updated["recv"]["data"]["error"] is True
+    assert (
+        updated["recv"]["data"]["extendedError"]
+        == "Radio Receive #3 has no matching Radio Send"
+    )
+
+
+def test_radio_receive_reports_duplicate_senders():
+    nodes = [
+        {
+            "id": "send_a",
+            "data": {
+                "functionName": "radio_send",
+                "title": "Radio Send #2",
+                "paramExtraction": "multi_val",
+                "inputStructure": {"ungrouped": [{"index": 0}]},
+                "inputs": {"vals": {"0": "a"}},
+                "dirty": True,
+            },
+        },
+        {
+            "id": "send_b",
+            "data": {
+                "functionName": "radio_send",
+                "title": "Radio Send #2",
+                "paramExtraction": "multi_val",
+                "inputStructure": {"ungrouped": [{"index": 0}]},
+                "inputs": {"vals": {"0": "b"}},
+                "dirty": True,
+            },
+        },
+        {
+            "id": "recv",
+            "data": {
+                "functionName": "radio_receive",
+                "title": "Radio Receive #2",
+                "dirty": True,
+            },
+        },
+    ]
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic(
+        copy.deepcopy(nodes),
+        [],
+    )
+
+    updated = {node["id"]: node for node in updated_nodes}
+    assert errors == [
+        {
+            "nodeId": "recv",
+            "error": "Radio Receive #2 has multiple matching Radio Sends",
+        }
+    ]
+    assert updated["recv"]["data"]["error"] is True
+    assert (
+        updated["recv"]["data"]["extendedError"]
+        == "Radio Receive #2 has multiple matching Radio Sends"
+    )
+
+
 def test_bulk_calculate_logic_migrates_legacy_opcode_names():
     node = {
         "id": "op",

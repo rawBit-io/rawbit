@@ -26,7 +26,7 @@ const allowedFunctionNames = new Set<string>();
 const allowedNodeTaxonomy = new Map<string, Set<string>>([
   [
     "Canvas & Inputs",
-    new Set(["General"]),
+    new Set(["General", "Wireless Links"]),
   ],
   [
     "Encoding & Script Data",

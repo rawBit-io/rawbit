@@ -9,6 +9,8 @@ from collections import deque
 
 from calc_functions.calc_func import (
     identity,
+    radio_send,
+    radio_receive,
     concat_all,
     random_256,
     entropy_to_bip39_mnemonic,
@@ -101,6 +103,8 @@ SENTINEL_NULL    = "__NULL__"
 CALC_FUNCTIONS = {
    
     "identity": identity,
+    "radio_send": radio_send,
+    "radio_receive": radio_receive,
     "concat_all": concat_all,
     "random_256": random_256,
     "entropy_to_bip39_mnemonic": entropy_to_bip39_mnemonic,
@@ -311,6 +315,93 @@ def _sanitize_edges(node_map, edges):
             _mark_invalid_edge(node_map[tgt], message, errors, block_execution=True)
 
     return valid, errors
+
+
+_RADIO_VIRTUAL_EDGE_PREFIX = "__radio__"
+_RADIO_CHANNEL_RE = re.compile(r"#\s*(\d+)|\b(\d+)\b")
+
+
+def _is_radio_virtual_edge(edge):
+    data = edge.get("data")
+    if isinstance(data, dict) and data.get("virtualRadio"):
+        return True
+    return str(edge.get("id", "")).startswith(_RADIO_VIRTUAL_EDGE_PREFIX)
+
+
+def _normalize_radio_channel(value):
+    text = str(value if value is not None else "").strip()
+    text = re.sub(r"^#\s*", "", text)
+    digits = re.sub(r"\D", "", text)[:2]
+    return digits or "1"
+
+
+def _radio_channel(data):
+    title = str(data.get("title") or "")
+    title_match = _RADIO_CHANNEL_RE.search(title)
+    if title_match:
+        return _normalize_radio_channel(title_match.group(1) or title_match.group(2))
+
+    raw = data.get("radioChannel")
+    if raw is None:
+        raw = data.get("channel")
+    return _normalize_radio_channel(raw)
+
+
+def _radio_link_label(channel):
+    return f"#{channel}"
+
+
+def _apply_radio_virtual_edges(node_map, edges):
+    """Create calculation-only dependencies for Radio Send/Receive pairs."""
+    visible_edges = [edge for edge in edges if not _is_radio_virtual_edge(edge)]
+    senders_by_channel = {}
+    receivers = []
+    errors = []
+
+    for node in node_map.values():
+        data = node.get("data") or {}
+        fn_name = data.get("functionName")
+        if fn_name == "radio_send":
+            senders_by_channel.setdefault(_radio_channel(data), []).append(node)
+        elif fn_name == "radio_receive":
+            receivers.append(node)
+
+    virtual_edges = []
+    for receiver in receivers:
+        channel = _radio_channel(receiver.get("data") or {})
+        senders = senders_by_channel.get(channel, [])
+        label = _radio_link_label(channel)
+
+        if not senders:
+            _mark_invalid_edge(
+                receiver,
+                f"Radio Receive {label} has no matching Radio Send",
+                errors,
+                block_execution=True,
+            )
+            continue
+
+        if len(senders) > 1:
+            _mark_invalid_edge(
+                receiver,
+                f"Radio Receive {label} has multiple matching Radio Sends",
+                errors,
+                block_execution=True,
+            )
+            continue
+
+        sender = senders[0]
+        virtual_edges.append(
+            {
+                "id": f"{_RADIO_VIRTUAL_EDGE_PREFIX}{sender['id']}__{receiver['id']}__{channel}",
+                "source": sender["id"],
+                "target": receiver["id"],
+                "targetHandle": "input-0",
+                "data": {"virtualRadio": True, "channel": channel},
+            }
+        )
+
+    return visible_edges + virtual_edges, errors
 
 
 def topological_sort(nodes, edges):
@@ -744,12 +835,15 @@ def bulk_calculate_logic(nodes, edges):
     node_map = {n["id"]: n for n in nodes}
 
     edges, preflight_errors = _sanitize_edges(node_map, edges)
+    edges, radio_errors = _apply_radio_virtual_edges(node_map, edges)
 
     order = topological_sort(nodes, edges)
     _mark_cycle_errors(nodes, order, errors)
 
     if preflight_errors:
         errors.extend(preflight_errors)
+    if radio_errors:
+        errors.extend(radio_errors)
 
     # VS Code greys this because it's *nested* and only referenced
     # inside builder functions via closure; it IS used at runtime.

@@ -176,6 +176,91 @@ const createMockInstance = (
     expect(result.current.edges[0]?.data).not.toHaveProperty("selectedEdgeIds");
   });
 
+  it("increments dropped radio send nodes and lets dropped receive nodes reuse the latest sender channel", () => {
+    const { result } = renderHook(() => useNodeOperations(), { wrapper });
+    const mockRf = createMockInstance(result);
+
+    act(() => {
+      result.current.onInit(mockRf);
+    });
+
+    act(() => {
+      result.current.setNodes(() => [
+        buildFlowNode({
+          id: "radio-send-7",
+          type: "radioNode",
+          position: { x: 0, y: 0 },
+          data: {
+            functionName: "radio_send",
+            title: "Radio Send 7",
+            radioChannel: "7",
+          },
+        }),
+        buildFlowNode({
+          id: "radio-recv-3",
+          type: "radioNode",
+          position: { x: 100, y: 0 },
+          data: {
+            functionName: "radio_receive",
+            title: "Radio Receive #3",
+            radioChannel: "3",
+          },
+        }),
+      ]);
+    });
+
+    const makeDropEvent = (functionName: "radio_send" | "radio_receive") =>
+      ({
+      preventDefault: vi.fn(),
+      dataTransfer: {
+        getData: (type: string) =>
+          type === "application/reactflow"
+            ? JSON.stringify({
+                type: "radioNode",
+                functionName,
+                nodeData: {
+                  functionName,
+                  title:
+                    functionName === "radio_send"
+                      ? "Radio Send 1"
+                      : "Radio Receive 1",
+                  radioChannel: "1",
+                  outputPorts: [{ label: "1", handleId: "", showLabel: false }],
+                },
+              })
+            : "",
+      },
+      clientX: 50,
+      clientY: 60,
+    }) as unknown as React.DragEvent<HTMLDivElement>;
+
+    act(() => {
+      mockRf.getNodes = () => result.current.nodes;
+      result.current.onDrop(makeDropEvent("radio_send"));
+    });
+
+    const droppedSend = result.current.nodes.find(
+      (node) => node.selected && node.data?.functionName === "radio_send",
+    );
+
+    expect(droppedSend?.data.radioChannel).toBe("8");
+    expect(droppedSend?.data.title).toBe("Radio Send 8");
+    expect(droppedSend?.data.outputPorts?.[0]?.label).toBe("8");
+
+    act(() => {
+      mockRf.getNodes = () => result.current.nodes;
+      result.current.onDrop(makeDropEvent("radio_receive"));
+    });
+
+    const droppedReceive = result.current.nodes.find(
+      (node) => node.selected && node.data?.functionName === "radio_receive",
+    );
+
+    expect(droppedReceive?.data.radioChannel).toBe("8");
+    expect(droppedReceive?.data.title).toBe("Radio Receive 8");
+    expect(droppedReceive?.data.outputPorts?.[0]?.label).toBe("8");
+  });
+
   it("remaps group bundle offset keys when a re-dropped template renames colliding ids", () => {
     // Regression for the RB-59 follow-up: template drops also go through
     // importWithFreshIds and must remap data.groupBundlePortOffsets keys.

@@ -113,6 +113,8 @@ export interface CalculationNodeData extends Record<string, unknown> {
   forceRegenerate?: boolean;
   showField?: boolean;
   paramExtraction?: "single_val" | "multi_val";
+  radioChannel?: string;
+  channel?: string;
   isGroup?: boolean;
   groupFlash?: boolean;
   borderColor?: string;

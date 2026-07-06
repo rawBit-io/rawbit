@@ -18,6 +18,8 @@ import { measureFlowBytes, formatBytes } from "@/lib/flow/schema";
 
 const DEFAULT_LOCAL_API = "http://localhost:5007";
 const DEFAULT_CALCULATION_REQUEST_TIMEOUT_MS = 15_000;
+const RADIO_VIRTUAL_EDGE_PREFIX = "__radio__";
+const RADIO_CHANNEL_RE = /#\s*(\d+)|\b(\d+)\b/;
 const LOCAL_HOSTS = new Set([
   "localhost",
   "127.0.0.1",
@@ -73,6 +75,66 @@ function resolveApiBase(): ResolvedApi {
 type BackendLimits = {
   maxPayloadBytes?: number;
 };
+
+export function normalizeRadioChannel(value: unknown) {
+  const digits = String(value ?? "")
+    .trim()
+    .replace(/^#\s*/, "")
+    .replace(/\D/g, "")
+    .slice(0, 2);
+  return digits || "1";
+}
+
+export function radioChannelFromData(data: CalculationNodeData | undefined) {
+  const title =
+    typeof data?.title === "string" ? data.title : "";
+  const titleMatch = RADIO_CHANNEL_RE.exec(title);
+  if (titleMatch) return normalizeRadioChannel(titleMatch[1] ?? titleMatch[2]);
+
+  const raw =
+    typeof data?.radioChannel === "string"
+      ? data.radioChannel
+      : typeof data?.channel === "string"
+        ? data.channel
+        : "1";
+  return normalizeRadioChannel(raw);
+}
+
+export function buildRadioVirtualEdges(
+  nodes: Node<CalculationNodeData>[],
+): Edge[] {
+  const sendersByChannel = new Map<string, Node<CalculationNodeData>[]>();
+  const receivers: Node<CalculationNodeData>[] = [];
+
+  nodes.forEach((node) => {
+    const fnName = node.data?.functionName;
+    if (fnName === "radio_send") {
+      const channel = radioChannelFromData(node.data);
+      const senders = sendersByChannel.get(channel) ?? [];
+      senders.push(node);
+      sendersByChannel.set(channel, senders);
+    } else if (fnName === "radio_receive") {
+      receivers.push(node);
+    }
+  });
+
+  return receivers.flatMap((receiver) => {
+    const channel = radioChannelFromData(receiver.data);
+    const senders = sendersByChannel.get(channel) ?? [];
+    if (senders.length !== 1) return [];
+
+    const sender = senders[0];
+    return [
+      {
+        id: `${RADIO_VIRTUAL_EDGE_PREFIX}${sender.id}__${receiver.id}__${channel}`,
+        source: sender.id,
+        target: receiver.id,
+        targetHandle: "input-0",
+        data: { virtualRadio: true, channel },
+      },
+    ];
+  });
+}
 
 function loadCalculationRequestTimeoutMs(): number {
   const raw = import.meta.env.VITE_CALCULATION_REQUEST_TIMEOUT_MS;
@@ -363,10 +425,11 @@ export function getAffectedSubgraph(
   if (!dirtyNodes.length) return { affectedNodes: [], affectedEdges: [] };
 
   /* ---- one-time adjacency maps ------------------------------------------------ */
-  const signature = edgesSignature(fullEdges);
+  const calculationEdges = [...fullEdges, ...buildRadioVirtualEdges(fullNodes)];
+  const signature = edgesSignature(calculationEdges);
   if (signature !== cachedAdjSignature) {
-    cachedForwardAdj = buildAdjacencyForward(fullEdges);
-    cachedReverseAdj = buildAdjacencyReverse(fullEdges);
+    cachedForwardAdj = buildAdjacencyForward(calculationEdges);
+    cachedReverseAdj = buildAdjacencyReverse(calculationEdges);
     cachedAdjSignature = signature;
   }
   const forward = cachedForwardAdj;
@@ -398,7 +461,7 @@ export function getAffectedSubgraph(
 
     for (const node of concatNodes) {
       // make sure *every* of its inputs is part of the seed set
-      fullEdges
+      calculationEdges
         .filter((e) => e.target === node.id)
         .forEach((e) => {
           if (!affected.has(e.source)) {
@@ -413,7 +476,7 @@ export function getAffectedSubgraph(
 
   /* ---- slice the original graph objects back out ------------------------------ */
   const affectedNodes = fullNodes.filter((n) => affected.has(n.id));
-  const affectedEdges = fullEdges.filter(
+  const affectedEdges = calculationEdges.filter(
     (e) => affected.has(e.source) && affected.has(e.target),
   );
 

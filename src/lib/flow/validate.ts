@@ -48,6 +48,7 @@ const DEFAULT_ALLOWED_NODE_TYPES = new Set<string>([
   "shadcnGroup",
   "shadcnTextInfo",
   "opCodeNode",
+  "radioNode",
   "trezorAction",
   "scriptViewer",
 ]);
@@ -259,7 +260,11 @@ export function validateFlowData(
     if (
       allowedFunctionNames &&
       isPlainObject(node.data) &&
-      (node.type === "calculation" || node.type === "opCodeNode")
+      (
+        node.type === "calculation" ||
+        node.type === "opCodeNode" ||
+        node.type === "radioNode"
+      )
     ) {
       const functionName = node.data.functionName;
       if (typeof functionName !== "string" || functionName.trim() === "") {

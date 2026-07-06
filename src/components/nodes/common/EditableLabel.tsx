@@ -9,8 +9,11 @@ interface EditableLabelProps {
   editSignal?: number;
   maxLength?: number;
   className?: string;
+  readOnlyStyle?: React.CSSProperties;
+  editingClassName?: string;
   fontSize?: number;
   fallback?: string;
+  sanitizeInput?: (value: string) => string;
 }
 
 /**
@@ -25,8 +28,11 @@ export function EditableLabel({
   editSignal,
   maxLength = 100,
   className = "",
+  readOnlyStyle,
+  editingClassName = "",
   fontSize = 16,
   fallback = "Group Node",
+  sanitizeInput = (nextValue) => nextValue,
 }: EditableLabelProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
@@ -69,7 +75,12 @@ export function EditableLabel({
           "text-left truncate w-full p-0 bg-transparent focus:outline-none",
           className
         )}
-        style={{ ...labelStyle, userSelect: "text", whiteSpace: "pre" }}
+        style={{
+          ...labelStyle,
+          userSelect: "text",
+          whiteSpace: "pre",
+          ...readOnlyStyle,
+        }}
         onDoubleClick={(event) => {
           event.stopPropagation();
           startEditing();
@@ -86,15 +97,17 @@ export function EditableLabel({
       className={cn(
         "w-full bg-transparent rounded-sm px-1 py-0.5 border border-input",
         "focus:outline-none focus:ring-2 focus:ring-primary",
-        className
+        className,
+        editingClassName
       )}
       style={labelStyle}
       autoFocus
       value={tempValue}
       maxLength={maxLength}
       onChange={(event) => {
-        setTempValue(event.target.value);
-        onDraftChange?.(event.target.value);
+        const nextValue = sanitizeInput(event.target.value);
+        setTempValue(nextValue);
+        onDraftChange?.(nextValue);
       }}
       onKeyDown={(event) => {
         if (event.key === "Enter") {

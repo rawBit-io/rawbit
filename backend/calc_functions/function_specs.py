@@ -7,6 +7,20 @@ FUNCTION_SPECS = {
         }
     },
 
+    "radio_send": {
+        "paramExtraction": "multi_val",
+        "params": {
+            "vals": {"type": "any", "required": True}
+        }
+    },
+
+    "radio_receive": {
+        "paramExtraction": "single_val",
+        "params": {
+            "val": {"type": "any", "required": True}
+        }
+    },
+
     # Multi val => "concat_all"
     "concat_all": {
         "paramExtraction": "multi_val",

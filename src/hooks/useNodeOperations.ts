@@ -57,6 +57,7 @@ import {
   getFlowTemplateViewport,
   placeFlowDataAtPosition,
 } from "@/lib/flow/placeFlowTemplate";
+import { normalizeRadioChannel, radioChannelFromData } from "@/lib/graphUtils";
 
 /* ------------------------------------------------------------------ */
 /*  Types & tiny utils                                                */
@@ -66,6 +67,7 @@ type RF = ReactFlowInstance<FlowNode, Edge> & {
 };
 const randomId = () => Math.random().toString(36).slice(2, 9);
 const GROUP_PADDING = 32;
+const MAX_RADIO_CHANNEL = 99;
 
 type PaletteDragData = {
   type?: string;
@@ -88,6 +90,61 @@ function getLocalDropPoint(event: React.DragEvent) {
 
 function finiteNumber(value: unknown): number | undefined {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function nextRadioChannel(nodes: FlowNode[]) {
+  const highest = nodes.reduce((max, node) => {
+    const fnName = node.data?.functionName;
+    if (fnName !== "radio_send" && fnName !== "radio_receive") return max;
+    const channel = Number.parseInt(radioChannelFromData(node.data), 10);
+    return Number.isFinite(channel) ? Math.max(max, channel) : max;
+  }, 0);
+  return normalizeRadioChannel(String(Math.min(highest + 1, MAX_RADIO_CHANNEL)));
+}
+
+function latestRadioSendChannel(nodes: FlowNode[]) {
+  for (let index = nodes.length - 1; index >= 0; index -= 1) {
+    const node = nodes[index];
+    if (node?.data?.functionName === "radio_send") {
+      return radioChannelFromData(node.data);
+    }
+  }
+  return "1";
+}
+
+function radioTitle(functionName: unknown, channel: string) {
+  return functionName === "radio_send"
+    ? `Radio Send ${channel}`
+    : `Radio Receive ${channel}`;
+}
+
+function withAutoRadioChannel(
+  dragData: PaletteDragData,
+  currentNodes: FlowNode[],
+): PaletteDragData {
+  const fnName = dragData.nodeData?.functionName ?? dragData.functionName;
+  if (fnName !== "radio_send" && fnName !== "radio_receive") return dragData;
+
+  const channel =
+    fnName === "radio_send"
+      ? nextRadioChannel(currentNodes)
+      : latestRadioSendChannel(currentNodes);
+  const nodeData: NonNullable<PaletteDragData["nodeData"]> = {
+    ...(dragData.nodeData ?? {}),
+    title: radioTitle(fnName, channel),
+    radioChannel: channel,
+  };
+
+  if (Array.isArray(dragData.nodeData?.outputPorts)) {
+    nodeData.outputPorts = dragData.nodeData.outputPorts.map((port) =>
+      isRecord(port) ? { ...port, label: channel } : port,
+    );
+  }
+
+  return {
+    ...dragData,
+    nodeData,
+  };
 }
 
 function getNodeDimension(
@@ -564,7 +621,11 @@ export function useNodeOperations() {
 
       // Single palette node
       if (typeof data.type === "string") {
-        createNode(data.type, data, pos);
+        createNode(
+          data.type,
+          withAutoRadioChannel(data, rf.getNodes() as FlowNode[]),
+          pos,
+        );
       }
     },
     [rf, createNode, setNodes, setEdges],

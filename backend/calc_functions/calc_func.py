@@ -1956,6 +1956,18 @@ def identity(val: Any) -> Any:
     return val
 
 
+def radio_send(vals: list) -> str:
+    """Publish the first value for a wireless canvas link."""
+    if not vals:
+        return ""
+    return "" if vals[0] is None else str(vals[0])
+
+
+def radio_receive(val: Any) -> Any:
+    """Return the value received from a matching wireless canvas link."""
+    return val
+
+
 def concat_all(vals: list) -> str:
     """Concatenate all given values into a single string."""
     return "".join(str(v) for v in vals)

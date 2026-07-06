@@ -23,6 +23,7 @@ import ShadcnGroupNode from "@/components/nodes/GroupNode";
 import TextInfoNode from "@/components/nodes/TextInfoNode";
 import OpCodeNode from "@/components/nodes/OpCodeNode";
 import ScriptViewerNode from "@/components/nodes/ScriptViewerNode";
+import RadioNode from "@/components/nodes/RadioNode";
 import { GroupBundlePortNode } from "@/components/nodes/GroupBundlePortNode";
 
 import { TopBar, type PasteMode } from "@/components/layout/TopBar";
@@ -147,6 +148,7 @@ const nodeTypes = {
   trezorAction: CalculationNode,
   shadcnGroup: ShadcnGroupNode,
   shadcnTextInfo: TextInfoNode,
+  radioNode: RadioNode,
   opCodeNode: OpCodeNode,
   scriptViewer: ScriptViewerNode,
   [GROUP_BUNDLE_PORT_NODE_TYPE]: GroupBundlePortNode,

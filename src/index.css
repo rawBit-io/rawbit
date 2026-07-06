@@ -1542,3 +1542,14 @@ body[data-large-drag="true"] .rf-node {
     stroke-dashoffset: -22;
   }
 }
+
+/* Radio link nodes are intentionally not card-shaped calc nodes. */
+[data-skin] .react-flow__node-radioNode > * {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+[data-skin] .react-flow__node-radioNode.selected:not(.is-highlighted) > *::before {
+  content: none !important;
+}
