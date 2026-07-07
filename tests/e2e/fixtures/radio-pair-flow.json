@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "name": "playwright-radio-pair",
+  "nodes": [
+    {
+      "id": "radio_send",
+      "type": "radioNode",
+      "position": { "x": 0, "y": 0 },
+      "data": {
+        "functionName": "radio_send",
+        "title": "Radio Send 2",
+        "paramExtraction": "multi_val",
+        "numInputs": 1,
+        "inputs": { "vals": { "0": "" } },
+        "result": "",
+        "radioChannel": "2",
+        "outputPorts": [
+          { "label": "2", "handleId": "", "showHandle": false, "showLabel": false }
+        ],
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "VALUE:",
+              "placeholder": "Value to transmit",
+              "rows": 1
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "groupInstanceKeys": {},
+        "width": 132,
+        "height": 64
+      }
+    },
+    {
+      "id": "radio_recv",
+      "type": "radioNode",
+      "position": { "x": 420, "y": 0 },
+      "data": {
+        "functionName": "radio_receive",
+        "title": "Radio Receive 2",
+        "numInputs": 0,
+        "result": "",
+        "radioChannel": "2",
+        "outputPorts": [{ "label": "2", "handleId": "", "showLabel": false }],
+        "groupInstances": {},
+        "width": 132,
+        "height": 64
+      }
+    }
+  ],
+  "edges": []
+}

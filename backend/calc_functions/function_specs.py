@@ -14,10 +14,12 @@ FUNCTION_SPECS = {
         }
     },
 
+    # val is not required: a Radio Send with nothing wired in legitimately
+    # transmits "", and the receiver must relay it instead of erroring.
     "radio_receive": {
         "paramExtraction": "single_val",
         "params": {
-            "val": {"type": "any", "required": True}
+            "val": {"type": "any", "required": False}
         }
     },
 

@@ -28,6 +28,7 @@ import {
   GroupBundleEdgeSelectionProvider,
 } from "@/components/edges/GroupBundleEdge";
 import { GroupBundleSegmentEdge } from "@/components/edges/GroupBundleSegmentEdge";
+import RadioLinkOverlay from "@/components/edges/RadioLinkOverlay";
 import { CanonicalGraphContext } from "@/contexts/canonical-graph";
 import { dispatchDismissNodeMenusEvent } from "@/lib/flow/nodeMenuEvents";
 import {
@@ -720,6 +721,7 @@ export function FlowCanvas({
           disableKeyboardA11y
         >
           <Background />
+          <RadioLinkOverlay />
           {showMiniMap && (
             <MiniMap
               position="bottom-right"

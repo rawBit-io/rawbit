@@ -425,4 +425,39 @@ describe("mergePartialResultsIntoFullGraph", () => {
     expect(merged[0].data.result).toBeUndefined();
     expect(getScriptSteps("sv")).toBeNull();
   });
+
+  it("clears a stale radio receiver error when the backend returns it clean", async () => {
+    const { mergePartialResultsIntoFullGraph } = await loadGraphUtils();
+
+    // The receiver errored in a previous round (e.g. channel mismatch); after
+    // the channel is restored the backend recalculates it without error and
+    // without an extendedError key — the merge must not resurrect either.
+    const full = [
+      createNode("recv", {
+        functionName: "radio_receive",
+        radioChannel: "2",
+        error: true,
+        extendedError: "Radio Receive #2 has no matching Radio Send",
+        dirty: true,
+      }),
+    ];
+    const fresh = [
+      {
+        ...full[0],
+        data: {
+          functionName: "radio_receive",
+          radioChannel: "2",
+          result: "payload",
+          dirty: false,
+        },
+      },
+    ] as Node<CalculationNodeData>[];
+
+    const merged = mergePartialResultsIntoFullGraph(full, fresh, []);
+
+    expect(merged[0].data.error).toBe(false);
+    expect(merged[0].data.extendedError).toBeUndefined();
+    expect(merged[0].data.result).toBe("payload");
+    expect(merged[0].data.dirty).toBe(false);
+  });
 });

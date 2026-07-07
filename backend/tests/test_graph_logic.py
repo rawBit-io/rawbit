@@ -261,6 +261,143 @@ def test_radio_channels_canonicalize_leading_zeros_and_prefer_field():
     assert updated["recv"]["data"]["result"] == "payload"
 
 
+def _radio_send_node(node_id, channel, value=""):
+    return {
+        "id": node_id,
+        "type": "radioNode",
+        "data": {
+            "functionName": "radio_send",
+            "title": f"Radio Send {channel}",
+            "radioChannel": channel,
+            "paramExtraction": "multi_val",
+            "numInputs": 1,
+            "inputs": {"vals": {"0": value}},
+            "inputStructure": {"ungrouped": [{"index": 0}]},
+            "result": "",
+            "dirty": True,
+        },
+    }
+
+
+def _radio_receive_node(node_id, channel):
+    return {
+        "id": node_id,
+        "type": "radioNode",
+        "data": {
+            "functionName": "radio_receive",
+            "title": f"Radio Receive {channel}",
+            "radioChannel": channel,
+            "numInputs": 0,
+            "result": "",
+            "dirty": True,
+        },
+    }
+
+
+def _set_radio_channel(node, channel):
+    prefix = (
+        "Radio Send"
+        if node["data"]["functionName"] == "radio_send"
+        else "Radio Receive"
+    )
+    node["data"]["title"] = f"{prefix} {channel}"
+    node["data"]["radioChannel"] = channel
+
+
+def _mark_radio_dirty(nodes):
+    """Mirror the client's commitChannel: every radio node goes dirty."""
+    for node in nodes:
+        if node["data"].get("functionName") in ("radio_send", "radio_receive"):
+            node["data"]["dirty"] = True
+
+
+def _recalc(nodes, edges):
+    """One client recalc round-trip: calculate and feed the output back in."""
+    updated, errors = graph_logic.bulk_calculate_logic(
+        [copy.deepcopy(n) for n in nodes],
+        copy.deepcopy(edges),
+    )
+    return list(updated), errors
+
+
+def test_radio_bare_pair_transmits_empty_value_without_error():
+    # A freshly dropped pair has nothing wired into the sender: it transmits
+    # "" and the receiver must relay it, not fail input validation.
+    nodes = [_radio_send_node("send", "2"), _radio_receive_node("recv", "2")]
+
+    updated, errors = _recalc(nodes, [])
+
+    by_id = {node["id"]: node for node in updated}
+    assert errors == []
+    assert by_id["recv"]["data"]["result"] == ""
+    assert not by_id["recv"]["data"].get("error")
+    assert "extendedError" not in by_id["recv"]["data"]
+
+
+def test_radio_receiver_recovers_when_sender_channel_is_restored():
+    # The user-visible sequence: pair on 2 → sender to 21 (receiver orphaned,
+    # errors) → sender back to 2 (receiver must be clean again). State is
+    # carried between rounds exactly like the client does.
+    nodes = [_radio_send_node("send", "2"), _radio_receive_node("recv", "2")]
+    nodes, errors = _recalc(nodes, [])
+    assert errors == []
+
+    send = next(n for n in nodes if n["id"] == "send")
+    _set_radio_channel(send, "21")
+    _mark_radio_dirty(nodes)
+    nodes, errors = _recalc(nodes, [])
+    assert errors == [
+        {"nodeId": "recv", "error": "Radio Receive #2 has no matching Radio Send"}
+    ]
+
+    send = next(n for n in nodes if n["id"] == "send")
+    _set_radio_channel(send, "2")
+    _mark_radio_dirty(nodes)
+    nodes, errors = _recalc(nodes, [])
+
+    recv = next(n for n in nodes if n["id"] == "recv")
+    assert errors == []
+    assert not recv["data"].get("error")
+    assert "extendedError" not in recv["data"]
+
+
+def test_radio_pair_recovers_across_channel_changes_with_payload():
+    # Same recovery sequence with a real value flowing, mutating the RECEIVER
+    # side this time; the restored link must deliver the payload again.
+    nodes = [
+        {
+            "id": "source",
+            "data": {"functionName": "identity", "value": "payload", "dirty": True},
+        },
+        _radio_send_node("send", "2"),
+        _radio_receive_node("recv", "2"),
+    ]
+    edges = [{"source": "source", "target": "send", "targetHandle": "input-0"}]
+
+    nodes, errors = _recalc(nodes, edges)
+    assert errors == []
+    assert next(n for n in nodes if n["id"] == "recv")["data"]["result"] == "payload"
+
+    recv = next(n for n in nodes if n["id"] == "recv")
+    _set_radio_channel(recv, "3")
+    _mark_radio_dirty(nodes)
+    nodes, errors = _recalc(nodes, edges)
+    assert errors == [
+        {"nodeId": "recv", "error": "Radio Receive #3 has no matching Radio Send"}
+    ]
+
+    recv = next(n for n in nodes if n["id"] == "recv")
+    _set_radio_channel(recv, "2")
+    _mark_radio_dirty(nodes)
+    nodes, errors = _recalc(nodes, edges)
+
+    recv = next(n for n in nodes if n["id"] == "recv")
+    assert errors == []
+    assert recv["data"]["result"] == "payload"
+    assert not recv["data"].get("error")
+    assert "extendedError" not in recv["data"]
+
+
 def test_radio_receive_reports_missing_sender():
     nodes = [
         {
