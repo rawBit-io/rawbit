@@ -30,8 +30,8 @@
       "id": "node_1tk0jii",
       "type": "shadcnGroup",
       "position": {
-        "x": 1862.8781434171879,
-        "y": -5337.096447833699
+        "x": 9540.37719300164,
+        "y": -5825.849702979659
       },
       "data": {
         "isGroup": true,
@@ -2879,76 +2879,6 @@
       "extent": "parent"
     },
     {
-      "id": "node_Vm22xbjf",
-      "type": "shadcnGroup",
-      "position": {
-        "x": 11397.849123400996,
-        "y": 10059.037826177135
-      },
-      "data": {
-        "isGroup": true,
-        "width": 806.7321825017443,
-        "height": 539.8445978486743,
-        "title": "Alice gives pubkey to Bob",
-        "fontSize": 40,
-        "dirty": false,
-        "groupBundlePortOffsets": {
-          "sourceByBundle": {
-            "node_Vm22xbjf->node_fijI5xtX": -71.16
-          }
-        }
-      },
-      "width": 806.7321825017443,
-      "height": 539.8445978486743,
-      "dragHandle": "[data-drag-handle]"
-    },
-    {
-      "id": "node_RprVr5ZP",
-      "type": "calculation",
-      "position": {
-        "x": 474.6055325071902,
-        "y": 145.06599978213853
-      },
-      "data": {
-        "functionName": "public_key_from_private_key",
-        "title": "PrivKey → PubKey",
-        "hasRegenerate": false,
-        "numInputs": 1,
-        "showField": false,
-        "dirty": false,
-        "groupInstances": {},
-        "result": "029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0a",
-        "inputs": {
-          "val": "49b690f4920eeb9562049bca3f9829aa56b10ca18bc036f343f41f5d0c13b80b"
-        },
-        "error": false
-      },
-      "parentId": "node_Vm22xbjf",
-      "extent": "parent"
-    },
-    {
-      "id": "node_ZGiZplsc",
-      "type": "calculation",
-      "position": {
-        "x": 60,
-        "y": 133.8445978486743
-      },
-      "data": {
-        "functionName": "random_256",
-        "title": "Random 32 Bytes",
-        "hasRegenerate": true,
-        "dirty": false,
-        "numInputs": 0,
-        "groupInstances": {},
-        "result": "49b690f4920eeb9562049bca3f9829aa56b10ca18bc036f343f41f5d0c13b80b",
-        "showComment": true,
-        "comment": "⚠️ Don't reuse private keys",
-        "error": false
-      },
-      "parentId": "node_Vm22xbjf",
-      "extent": "parent"
-    },
-    {
       "id": "node_XwNvFsW1",
       "type": "shadcnGroup",
       "position": {
@@ -2957,8 +2887,8 @@
       },
       "data": {
         "isGroup": true,
-        "width": 1576,
-        "height": 2090,
+        "width": 1904,
+        "height": 2211,
         "title": "Final TX1 and Verify Script",
         "dirty": false,
         "groupBundlePortOffsets": {
@@ -2971,8 +2901,8 @@
         "borderColor": "#7a4ea3",
         "fontSize": 44
       },
-      "width": 1576,
-      "height": 2090,
+      "width": 1904,
+      "height": 2211,
       "dragHandle": "[data-drag-handle]"
     },
     {
@@ -4625,12 +4555,12 @@
           ]
         },
         "baseHeight": 80,
-        "title": "redeemScript (2-of-3 multisig + recovery path)",
+        "title": "redeemScript Bob",
         "borderColor": "#22c55e",
         "showComment": true,
         "comment": "OP_IF\n    OP_SHA256 <secret_hash> OP_EQUALVERIFY\n    <receiver_pubkey> OP_CHECKSIG\nOP_ELSE\n    <refund_locktime> OP_CHECKLOCKTIMEVERIFY OP_DROP\n    <sender_pubkey> OP_CHECKSIG\nOP_ENDIF",
         "totalInputs": 16,
-        "unwiredCount": 1,
+        "unwiredCount": 0,
         "error": false,
         "customFieldLabels": {
           "0": "OP code",
@@ -4971,52 +4901,6 @@
       "extent": "parent"
     },
     {
-      "id": "node_TMAkv8zj",
-      "type": "calculation",
-      "position": {
-        "x": 1139.772541406811,
-        "y": 2703.740642241555
-      },
-      "data": {
-        "functionName": "public_key_from_private_key",
-        "title": "PrivKey → PubKey",
-        "hasRegenerate": false,
-        "numInputs": 1,
-        "showField": false,
-        "dirty": false,
-        "groupInstances": {},
-        "result": "039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029d",
-        "inputs": {
-          "val": "915bb89dcd985167064685776baacaf2bcb102f5024ef8a0eada5b6eeaf4e4dd"
-        },
-        "error": false
-      },
-      "parentId": "node_fijI5xtX",
-      "extent": "parent"
-    },
-    {
-      "id": "node_5PW0Asw2",
-      "type": "calculation",
-      "position": {
-        "x": 759.2361742650219,
-        "y": 2697.4431973243627
-      },
-      "data": {
-        "functionName": "random_256",
-        "title": "Random 32 Bytes",
-        "hasRegenerate": true,
-        "dirty": false,
-        "numInputs": 0,
-        "groupInstances": {},
-        "result": "915bb89dcd985167064685776baacaf2bcb102f5024ef8a0eada5b6eeaf4e4dd",
-        "showComment": false,
-        "comment": "",
-        "error": false
-      },
-      "parentId": "node_fijI5xtX",
-      "extent": "parent"
-    },
-    {
       "id": "node_q6Z7eMLB",
       "type": "calculation",
       "position": {
@@ -5210,8 +5094,8 @@
       "id": "node_7AKM66Tu",
       "type": "calculation",
       "position": {
-        "x": 1782.8397455594968,
-        "y": 807.6435976535395
+        "x": 1773.92024765291,
+        "y": 745.2071123074375
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -5235,8 +5119,7 @@
           ]
         },
         "groupInstances": {},
-        "error": true,
-        "extendedError": "Missing required input 'val'"
+        "error": false
       },
       "parentId": "node_fijI5xtX",
       "extent": "parent"
@@ -5245,8 +5128,8 @@
       "id": "node_MxTNzJMZ",
       "type": "calculation",
       "position": {
-        "x": 1452.4517947337836,
-        "y": 1167.2545800135285
+        "x": 1573.5455783147045,
+        "y": 1064.951211126201
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -5355,41 +5238,6 @@
         },
         "numInputs": 2,
         "groupInstanceKeys": {},
-        "error": false
-      },
-      "parentId": "node_fijI5xtX",
-      "extent": "parent"
-    },
-    {
-      "id": "node_84gK2XIV",
-      "type": "calculation",
-      "position": {
-        "x": 333.0143879931293,
-        "y": 2063.7368327279637
-      },
-      "data": {
-        "functionName": "identity",
-        "title": "Unlock date",
-        "showField": true,
-        "numInputs": 0,
-        "value": "2026-07-04T10:12:55Z",
-        "dirty": false,
-        "version": 0,
-        "inputs": {
-          "val": "2026-07-04T10:12:55Z"
-        },
-        "result": "2026-07-04T10:12:55Z",
-        "inputStructure": {
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "INPUT VALUE:",
-              "rows": 1
-            }
-          ]
-        },
-        "groupInstances": {},
-        "showComment": false,
         "error": false
       },
       "parentId": "node_fijI5xtX",
@@ -5531,8 +5379,8 @@
       "id": "node_ct0lFyNT",
       "type": "shadcnGroup",
       "position": {
-        "x": 44505.80775255815,
-        "y": 18277.823496946716
+        "x": 3899.533187597756,
+        "y": 17689.326764121204
       },
       "data": {
         "isGroup": true,
@@ -5544,7 +5392,8 @@
           "targetByBundle": {
             "node_6Y4Hfu0T->node_ct0lFyNT": -41.89,
             "node_tSecm4k5->node_ct0lFyNT": 242.19,
-            "node_GfPG5Tr3->node_ct0lFyNT": -424.35
+            "node_GfPG5Tr3->node_ct0lFyNT": -424.35,
+            "group_hegqa99->node_ct0lFyNT": 204.55
           }
         },
         "borderColor": "#7a4ea3",
@@ -6152,8 +6001,8 @@
       "id": "node_GfPG5Tr3",
       "type": "shadcnGroup",
       "position": {
-        "x": 40950.02555415511,
-        "y": 15621.323187443293
+        "x": 343.7509891947175,
+        "y": 15032.826454617782
       },
       "data": {
         "isGroup": true,
@@ -6184,7 +6033,7 @@
       "id": "node_Uldy8o2K",
       "type": "calculation",
       "position": {
-        "x": 677.6780641781734,
+        "x": 687.4258311515675,
         "y": 334.5026141813305
       },
       "data": {
@@ -6245,7 +6094,7 @@
       "id": "node_Jv2iJisU",
       "type": "calculation",
       "position": {
-        "x": 1759.4966449139101,
+        "x": 1769.2444118873043,
         "y": 302.5770244969335
       },
       "data": {
@@ -6297,7 +6146,7 @@
         "baseHeight": 80,
         "title": "scriptSig (push sig & pubkey)",
         "totalInputs": 7,
-        "unwiredCount": 2,
+        "unwiredCount": 0,
         "error": false,
         "customFieldLabels": {
           "0": "SIG_LEN:",
@@ -6313,8 +6162,8 @@
       "id": "node_pe3M0K0G",
       "type": "calculation",
       "position": {
-        "x": 173.96933320211974,
-        "y": 450.5101180550173
+        "x": 203.82490086805876,
+        "y": 432.5967774554538
       },
       "data": {
         "functionName": "sign_as_bitcoin_core_low_r",
@@ -6355,7 +6204,7 @@
       "id": "node_8MaMbY7H",
       "type": "calculation",
       "position": {
-        "x": 2256.696255979219,
+        "x": 2266.444022952613,
         "y": 669.6670217092778
       },
       "data": {
@@ -6378,7 +6227,7 @@
       "id": "node_2E7KMJGm",
       "type": "calculation",
       "position": {
-        "x": 1244.411861614215,
+        "x": 1254.1596285876092,
         "y": 239.04983978948076
       },
       "data": {
@@ -6412,8 +6261,8 @@
       "id": "node_ZQxwlfBU",
       "type": "calculation",
       "position": {
-        "x": 1123.7836950053315,
-        "y": 1245.8145437790172
+        "x": 1169.869325768989,
+        "y": 1180.114452239026
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -6437,8 +6286,7 @@
           ]
         },
         "groupInstances": {},
-        "error": true,
-        "extendedError": "Missing required input 'val'"
+        "error": false
       },
       "parentId": "node_GfPG5Tr3",
       "extent": "parent"
@@ -6447,8 +6295,8 @@
       "id": "node_4HggpJ4f",
       "type": "calculation",
       "position": {
-        "x": 1307.4144091013804,
-        "y": 604.5547127302507
+        "x": 1314.8711402788151,
+        "y": 577.0622831787368
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -6472,8 +6320,7 @@
           ]
         },
         "groupInstances": {},
-        "error": true,
-        "extendedError": "Missing required input 'val'"
+        "error": false
       },
       "parentId": "node_GfPG5Tr3",
       "extent": "parent"
@@ -6482,7 +6329,7 @@
       "id": "node_mk6vgzu",
       "type": "opCodeNode",
       "position": {
-        "x": 1224.0918510273186,
+        "x": 1233.8396180007128,
         "y": 837.5649429285004
       },
       "data": {
@@ -6521,8 +6368,8 @@
       "id": "node_6Y4Hfu0T",
       "type": "shadcnGroup",
       "position": {
-        "x": 35379.33790943983,
-        "y": 16876.385844733584
+        "x": -5226.936655520558,
+        "y": 16287.889111908073
       },
       "data": {
         "isGroup": true,
@@ -6539,7 +6386,7 @@
           "targetByBundle": {
             "node_tSecm4k5->node_6Y4Hfu0T": 947.97,
             "node_XwNvFsW1->node_6Y4Hfu0T": -109.12,
-            "group_hegqa99->node_6Y4Hfu0T": 206.37
+            "group_hegqa99->node_6Y4Hfu0T": 266.66
           }
         },
         "dirty": false,
@@ -6897,7 +6744,7 @@
         },
         "baseHeight": 120,
         "totalInputs": 12,
-        "unwiredCount": 1,
+        "unwiredCount": 0,
         "title": "Preimage Body",
         "error": false,
         "showComment": false
@@ -6979,8 +6826,8 @@
       "id": "node_vrUyes1R",
       "type": "calculation",
       "position": {
-        "x": 1731.3757706995748,
-        "y": 1112.1940593924191
+        "x": 1289.4275837162804,
+        "y": 1001.7070126465951
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -6993,8 +6840,7 @@
           "val": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd8821029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0aac6704a7dc486ab17521039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029dac68"
         },
         "result": "73",
-        "error": true,
-        "extendedError": "Missing required input 'val'"
+        "error": false
       },
       "parentId": "node_6Y4Hfu0T",
       "extent": "parent"
@@ -7036,8 +6882,8 @@
       "id": "node_25FZD1zW",
       "type": "calculation",
       "position": {
-        "x": 1675.0523294915292,
-        "y": 927.8041365138015
+        "x": 1646.4994971864285,
+        "y": 852.0770595307113
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -7344,8 +7190,8 @@
       "id": "node_PMUWnC4A",
       "type": "shadcnGroup",
       "position": {
-        "x": 19459.88848431718,
-        "y": 19188.881516071942
+        "x": 29974.36344413301,
+        "y": 16874.127700291592
       },
       "data": {
         "isGroup": true,
@@ -7384,11 +7230,11 @@
             "10": "01",
             "1000": "259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674",
             "1010": "01000000",
-            "1020": "6b",
-            "1030": "473044022072ceffb247df6edd3eadab6ae4228ca7fc3f9ba0eb1a84ff50e7390018d00dd1022079e78f05056ce2ddc5341eacd16ea76fcf21376cb363c6df1c6b028a35f1970c01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b821",
+            "1020": "df",
+            "1030": "473044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b84c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
             "1040": "fdffffff",
             "2000": "01",
-            "3000": "502e040000000000",
+            "3000": "2805050000000000",
             "3010": "17",
             "3020": "a91499ea333b22c8eb5685aa79ab59c472f69844ffb387",
             "4000": "00000000"
@@ -7396,7 +7242,7 @@
         },
         "dirty": false,
         "version": 0,
-        "result": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674010000006b473044022072ceffb247df6edd3eadab6ae4228ca7fc3f9ba0eb1a84ff50e7390018d00dd1022079e78f05056ce2ddc5341eacd16ea76fcf21376cb363c6df1c6b028a35f1970c01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b821fdffffff01502e04000000000017a91499ea333b22c8eb5685aa79ab59c472f69844ffb38700000000",
+        "result": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef64067401000000df473044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b84c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff01280505000000000017a91499ea333b22c8eb5685aa79ab59c472f69844ffb38700000000",
         "inputStructure": {
           "afterGroups": [
             {
@@ -7535,9 +7381,9 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674010000006b473044022072ceffb247df6edd3eadab6ae4228ca7fc3f9ba0eb1a84ff50e7390018d00dd1022079e78f05056ce2ddc5341eacd16ea76fcf21376cb363c6df1c6b028a35f1970c01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b821fdffffff01502e04000000000017a91499ea333b22c8eb5685aa79ab59c472f69844ffb38700000000"
+          "val": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef64067401000000df473044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b84c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff01280505000000000017a91499ea333b22c8eb5685aa79ab59c472f69844ffb38700000000"
         },
-        "result": "49fa3829d4abd388847406965b0fb206637a93e3d3e22a89dbaac4aef476fc52",
+        "result": "c93eb62c68ddf97980511bea05ee59200cd518e98b68bb063e20f2c4765c98e4",
         "inputStructure": {
           "ungrouped": [
             {
@@ -7568,9 +7414,9 @@
         "showField": false,
         "dirty": false,
         "groupInstances": {},
-        "result": "52fc76f4aec4aadb892ae2d3e3937a6306b20f5b9606748488d3abd42938fa49",
+        "result": "e4985c76c4f2203e06bb688be918d50c2059ee05ea1b518079f9dd682cb63ec9",
         "inputs": {
-          "val": "49fa3829d4abd388847406965b0fb206637a93e3d3e22a89dbaac4aef476fc52"
+          "val": "c93eb62c68ddf97980511bea05ee59200cd518e98b68bb063e20f2c4765c98e4"
         },
         "showComment": true,
         "comment": "TXID as displayed by bitcoin clients",
@@ -7593,9 +7439,9 @@
         "numInputs": 6,
         "inputs": {
           "vals": {
-            "0": "473044022072ceffb247df6edd3eadab6ae4228ca7fc3f9ba0eb1a84ff50e7390018d00dd1022079e78f05056ce2ddc5341eacd16ea76fcf21376cb363c6df1c6b028a35f1970c01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b821",
+            "0": "473044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b84c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
             "1": "",
-            "2": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674010000006b473044022072ceffb247df6edd3eadab6ae4228ca7fc3f9ba0eb1a84ff50e7390018d00dd1022079e78f05056ce2ddc5341eacd16ea76fcf21376cb363c6df1c6b028a35f1970c01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b821fdffffff01502e04000000000017a91499ea333b22c8eb5685aa79ab59c472f69844ffb38700000000",
+            "2": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef64067401000000df473044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b84c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff01280505000000000017a91499ea333b22c8eb5685aa79ab59c472f69844ffb38700000000",
             "3": "0",
             "5": "__EMPTY__"
           }
@@ -7689,7 +7535,7 @@
               "opcode_name": "PUSH 71 bytes",
               "stack_before": [],
               "stack_after": [
-                "3044022072ceffb247df6edd3eadab6ae4228ca7fc3f9ba0eb1a84ff50e7390018d00dd1022079e78f05056ce2ddc5341eacd16ea76fcf21376cb363c6df1c6b028a35f1970c01"
+                "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01"
               ],
               "phase": "scriptSig"
             },
@@ -7698,16 +7544,31 @@
               "opcode": 33,
               "opcode_name": "PUSH 33 bytes",
               "stack_before": [
-                "3044022072ceffb247df6edd3eadab6ae4228ca7fc3f9ba0eb1a84ff50e7390018d00dd1022079e78f05056ce2ddc5341eacd16ea76fcf21376cb363c6df1c6b028a35f1970c01"
+                "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01"
               ],
               "stack_after": [
-                "3044022072ceffb247df6edd3eadab6ae4228ca7fc3f9ba0eb1a84ff50e7390018d00dd1022079e78f05056ce2ddc5341eacd16ea76fcf21376cb363c6df1c6b028a35f1970c01",
+                "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01",
                 "0399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8"
+              ],
+              "phase": "scriptSig"
+            },
+            {
+              "pc": 106,
+              "opcode": 76,
+              "opcode_name": "OP_PUSHDATA1",
+              "stack_before": [
+                "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01",
+                "0399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8"
+              ],
+              "stack_after": [
+                "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01",
+                "0399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8",
+                "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68"
               ],
               "phase": "scriptSig"
             }
           ],
-          "scriptSig": "473044022072ceffb247df6edd3eadab6ae4228ca7fc3f9ba0eb1a84ff50e7390018d00dd1022079e78f05056ce2ddc5341eacd16ea76fcf21376cb363c6df1c6b028a35f1970c01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b821",
+          "scriptSig": "473044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b84c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
           "scriptPubKey": "",
           "excludedFlags": [],
           "activeFlags": [
@@ -7730,7 +7591,7 @@
           ],
           "usesWitness": false,
           "witnessRulesEnabled": true,
-          "error": "EvalScript: CScriptTruncatedPushDataError('PUSHDATA(33): truncated data')"
+          "error": "scriptPubKey left 3 items on stack (cleanstack requires exactly 1)"
         }
       },
       "parentId": "node_PMUWnC4A",
@@ -7740,8 +7601,8 @@
       "id": "node_TWzQMnUr",
       "type": "shadcnGroup",
       "position": {
-        "x": 16276.463776781977,
-        "y": 16855.682886354498
+        "x": 26790.938736597807,
+        "y": 14540.929070574148
       },
       "data": {
         "isGroup": true,
@@ -7778,13 +7639,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "3044022072ceffb247df6edd3eadab6ae4228ca7fc3f9ba0eb1a84ff50e7390018d00dd1022079e78f05056ce2ddc5341eacd16ea76fcf21376cb363c6df1c6b028a35f1970c",
+            "0": "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b",
             "100": "01"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "3044022072ceffb247df6edd3eadab6ae4228ca7fc3f9ba0eb1a84ff50e7390018d00dd1022079e78f05056ce2ddc5341eacd16ea76fcf21376cb363c6df1c6b028a35f1970c01",
+        "result": "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -7840,15 +7701,16 @@
         "inputs": {
           "vals": {
             "0": "47",
-            "100": "3044022072ceffb247df6edd3eadab6ae4228ca7fc3f9ba0eb1a84ff50e7390018d00dd1022079e78f05056ce2ddc5341eacd16ea76fcf21376cb363c6df1c6b028a35f1970c01",
+            "100": "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01",
             "200": "21",
             "300": "0399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8",
-            "400": "21"
+            "400": "4c73",
+            "500": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "473044022072ceffb247df6edd3eadab6ae4228ca7fc3f9ba0eb1a84ff50e7390018d00dd1022079e78f05056ce2ddc5341eacd16ea76fcf21376cb363c6df1c6b028a35f1970c01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b821",
+        "result": "473044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b84c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -7880,7 +7742,7 @@
         "baseHeight": 80,
         "title": "scriptSig (push sig & pubkey)",
         "totalInputs": 6,
-        "unwiredCount": 3,
+        "unwiredCount": 2,
         "error": false,
         "customFieldLabels": {
           "0": "SIG_LEN:",
@@ -7896,8 +7758,8 @@
       "id": "node_ZEoIzNo3",
       "type": "calculation",
       "position": {
-        "x": 145.9354287033384,
-        "y": 371.3226821769058
+        "x": 242.2699514978849,
+        "y": 346.4085814541795
       },
       "data": {
         "functionName": "sign_as_bitcoin_core_low_r",
@@ -7907,8 +7769,8 @@
         "dirty": false,
         "inputs": {
           "vals": {
-            "0": "b714922c4d87a095bc85769b3001c392c94a2ad8fc135765eadf4315ff71e0be",
-            "1": "f5a81999246317287950c8a4c1590c35336aaff0b5f530ea91393c8098904405"
+            "0": "0f39548e30fd576e479fbf9dbac93406c3024883e65fef039bdfe4ff0973283c",
+            "1": "2d5dba1bb4b77f2a2b3f5337c50ffe50ec5e30dfc20f547c5d0c6ae6c9624664"
           }
         },
         "inputStructure": {
@@ -7926,9 +7788,9 @@
           ]
         },
         "groupInstances": {},
-        "result": "3044022072ceffb247df6edd3eadab6ae4228ca7fc3f9ba0eb1a84ff50e7390018d00dd1022079e78f05056ce2ddc5341eacd16ea76fcf21376cb363c6df1c6b028a35f1970c",
+        "result": "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b",
         "totalInputs": 2,
-        "unwiredCount": 1,
+        "unwiredCount": 0,
         "error": false
       },
       "parentId": "node_TWzQMnUr",
@@ -7949,9 +7811,9 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": "473044022072ceffb247df6edd3eadab6ae4228ca7fc3f9ba0eb1a84ff50e7390018d00dd1022079e78f05056ce2ddc5341eacd16ea76fcf21376cb363c6df1c6b028a35f1970c01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b821"
+          "val": "473044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b84c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68"
         },
-        "result": "6b",
+        "result": "df",
         "error": false
       },
       "parentId": "node_TWzQMnUr",
@@ -7972,7 +7834,7 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "3044022072ceffb247df6edd3eadab6ae4228ca7fc3f9ba0eb1a84ff50e7390018d00dd1022079e78f05056ce2ddc5341eacd16ea76fcf21376cb363c6df1c6b028a35f1970c01"
+          "val": "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01"
         },
         "result": "47",
         "inputStructure": {
@@ -7995,8 +7857,8 @@
       "id": "node_qfT7DYEk",
       "type": "calculation",
       "position": {
-        "x": 1323.4878661684124,
-        "y": 596.7745118356943
+        "x": 1379.0930457864997,
+        "y": 669.9378615852711
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -8006,9 +7868,9 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "0399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8"
+          "val": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68"
         },
-        "result": "21",
+        "result": "4c73",
         "inputStructure": {
           "ungrouped": [
             {
@@ -8020,8 +7882,7 @@
           ]
         },
         "groupInstances": {},
-        "error": true,
-        "extendedError": "Missing required input 'val'"
+        "error": false
       },
       "parentId": "node_TWzQMnUr",
       "extent": "parent"
@@ -8030,8 +7891,8 @@
       "id": "node_ecyVK7iO",
       "type": "shadcnGroup",
       "position": {
-        "x": 10720.388432318814,
-        "y": 17093.754105460026
+        "x": 21234.863392134645,
+        "y": 14779.000289679676
       },
       "data": {
         "isGroup": true,
@@ -8166,41 +8027,6 @@
       "extent": "parent"
     },
     {
-      "id": "node_Wq3Mpekb",
-      "type": "calculation",
-      "position": {
-        "x": 1243.6648029176795,
-        "y": 2009.9568722470722
-      },
-      "data": {
-        "functionName": "identity",
-        "showField": true,
-        "numInputs": 0,
-        "value": "274000",
-        "dirty": false,
-        "version": 0,
-        "inputs": {
-          "val": "274000"
-        },
-        "result": "274000",
-        "inputStructure": {
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "INPUT VALUE:",
-              "rows": 1
-            }
-          ]
-        },
-        "groupInstances": {},
-        "title": "Output Amount (satoshis)",
-        "showComment": false,
-        "error": false
-      },
-      "parentId": "node_ecyVK7iO",
-      "extent": "parent"
-    },
-    {
       "id": "node_s55qoXh0",
       "type": "calculation",
       "position": {
@@ -8249,13 +8075,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674010000000063a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff01502e0400000000001976a91490840011524d2061b109e913cccedba56da0679f88ac00000000",
+            "0": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674010000007363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff0128050500000000001976a914c49aeda1779794b36312daf8cf54b60d268f467388ac00000000",
             "100": "01000000"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674010000000063a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff01502e0400000000001976a91490840011524d2061b109e913cccedba56da0679f88ac0000000001000000",
+        "result": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674010000007363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff0128050500000000001976a914c49aeda1779794b36312daf8cf54b60d268f467388ac0000000001000000",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -8314,19 +8140,19 @@
             "10": "01",
             "1000": "259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674",
             "1010": "01000000",
-            "1020": "00",
+            "1020": "73",
             "1030": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
             "1040": "fdffffff",
             "2000": "01",
-            "3000": "502e040000000000",
+            "3000": "2805050000000000",
             "3010": "19",
-            "3020": "76a91490840011524d2061b109e913cccedba56da0679f88ac",
+            "3020": "76a914c49aeda1779794b36312daf8cf54b60d268f467388ac",
             "4000": "00000000"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674010000000063a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff01502e0400000000001976a91490840011524d2061b109e913cccedba56da0679f88ac00000000",
+        "result": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674010000007363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff0128050500000000001976a914c49aeda1779794b36312daf8cf54b60d268f467388ac00000000",
         "inputStructure": {
           "afterGroups": [
             {
@@ -8441,7 +8267,7 @@
         },
         "baseHeight": 120,
         "totalInputs": 12,
-        "unwiredCount": 1,
+        "unwiredCount": 0,
         "title": "Preimage Body",
         "error": false,
         "showComment": false
@@ -8511,9 +8337,9 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": 274000
+          "val": 329000
         },
-        "result": "502e040000000000",
+        "result": "2805050000000000",
         "error": false
       },
       "parentId": "node_ecyVK7iO",
@@ -8557,9 +8383,9 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674010000000063a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff01502e0400000000001976a91490840011524d2061b109e913cccedba56da0679f88ac0000000001000000"
+          "val": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674010000007363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff0128050500000000001976a914c49aeda1779794b36312daf8cf54b60d268f467388ac0000000001000000"
         },
-        "result": "f5a81999246317287950c8a4c1590c35336aaff0b5f530ea91393c8098904405",
+        "result": "2d5dba1bb4b77f2a2b3f5337c50ffe50ec5e30dfc20f547c5d0c6ae6c9624664",
         "inputStructure": {
           "ungrouped": [
             {
@@ -8579,8 +8405,8 @@
       "id": "node_njy7mRdF",
       "type": "calculation",
       "position": {
-        "x": 1675.0523294915292,
-        "y": 927.804136513802
+        "x": 1716.416109780639,
+        "y": 663.0270361994317
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -8887,8 +8713,8 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": 30963.369339461893,
-        "y": 20170.481542877675
+        "x": -8187.475321370062,
+        "y": 19566.498823704886
       },
       "data": {
         "isGroup": true,
@@ -9203,8 +9029,8 @@
       "id": "node_NurTBuW6",
       "type": "shadcnGroup",
       "position": {
-        "x": 7029.471546321565,
-        "y": 20995.121887697944
+        "x": 17543.946506137396,
+        "y": 18680.368071917594
       },
       "data": {
         "isGroup": true,
@@ -9328,13 +9154,13 @@
           "vals": {
             "0": "76a9",
             "100": "14",
-            "200": "90840011524d2061b109e913cccedba56da0679f",
+            "200": "c49aeda1779794b36312daf8cf54b60d268f4673",
             "300": "88ac"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "76a91490840011524d2061b109e913cccedba56da0679f88ac",
+        "result": "76a914c49aeda1779794b36312daf8cf54b60d268f467388ac",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -9395,7 +9221,7 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": "76a91490840011524d2061b109e913cccedba56da0679f88ac"
+          "val": "76a914c49aeda1779794b36312daf8cf54b60d268f467388ac"
         },
         "result": "19",
         "error": false
@@ -9418,7 +9244,7 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "90840011524d2061b109e913cccedba56da0679f"
+          "val": "c49aeda1779794b36312daf8cf54b60d268f4673"
         },
         "result": "14",
         "inputStructure": {
@@ -9452,9 +9278,9 @@
         "showField": false,
         "dirty": false,
         "groupInstances": {},
-        "result": "029be7ab08a9cf84c4480e941c922580fe3d8de4af1d25c656597110bdc428ba21",
+        "result": "0309938cc734caf207a07109af8306b8a71c6905289dbd0aa51710e98b00ca1d30",
         "inputs": {
-          "val": "a666de52b5417d7a84882bfa6e1a3c70beadc18b6b093635340863f38c706c97"
+          "val": "9248d9b2cdaa280c39b49d1c69a54cf340dc507773921890bb29e7cee3da60cc"
         },
         "error": false
       },
@@ -9476,9 +9302,9 @@
         "numInputs": 1,
         "dirty": false,
         "inputs": {
-          "val": "029be7ab08a9cf84c4480e941c922580fe3d8de4af1d25c656597110bdc428ba21"
+          "val": "0309938cc734caf207a07109af8306b8a71c6905289dbd0aa51710e98b00ca1d30"
         },
-        "result": "90840011524d2061b109e913cccedba56da0679f",
+        "result": "c49aeda1779794b36312daf8cf54b60d268f4673",
         "inputStructure": {
           "ungrouped": [
             {
@@ -9508,7 +9334,7 @@
         "dirty": false,
         "numInputs": 0,
         "groupInstances": {},
-        "result": "a666de52b5417d7a84882bfa6e1a3c70beadc18b6b093635340863f38c706c97",
+        "result": "9248d9b2cdaa280c39b49d1c69a54cf340dc507773921890bb29e7cee3da60cc",
         "showComment": false,
         "error": false
       },
@@ -9617,27 +9443,27 @@
       "id": "node_l1drJMFI",
       "type": "shadcnGroup",
       "position": {
-        "x": -138.46426440468895,
-        "y": -4188.732122118254
+        "x": 7539.034785179763,
+        "y": -4677.485377264214
       },
       "data": {
         "isGroup": true,
-        "width": 806.7321825017443,
-        "height": 539.8445978486743,
+        "width": 807,
+        "height": 614.4853772642136,
         "title": "Bob private info ",
         "fontSize": 44,
         "dirty": false
       },
-      "width": 806.7321825017443,
-      "height": 539.8445978486743,
+      "width": 807,
+      "height": 614.4853772642136,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "node_3YxdRhZe",
       "type": "calculation",
       "position": {
-        "x": 60,
-        "y": 133.8445978486743
+        "x": 32,
+        "y": 76.92356188091526
       },
       "data": {
         "functionName": "random_256",
@@ -10269,7 +10095,7 @@
       "id": "node_RD39fU0y",
       "type": "calculation",
       "position": {
-        "x": 433.0539309058222,
+        "x": 441.004058885459,
         "y": 141.82937348206224
       },
       "data": {
@@ -10291,27 +10117,27 @@
       "id": "node_sx1b2eLL",
       "type": "shadcnGroup",
       "position": {
-        "x": -153.01846039049542,
-        "y": -3312.2848949570653
+        "x": 7524.480589193956,
+        "y": -3801.038150103025
       },
       "data": {
         "isGroup": true,
-        "width": 925.4464453728806,
-        "height": 970.786151643309,
+        "width": 932.5194108060441,
+        "height": 971,
         "title": "Alice private info ",
         "fontSize": 44,
         "dirty": false
       },
-      "width": 925.4464453728806,
-      "height": 970.786151643309,
+      "width": 932.5194108060441,
+      "height": 971,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "node_YPd5fRFA",
       "type": "calculation",
       "position": {
-        "x": 86.8055814655163,
-        "y": 99.5630062019286
+        "x": 32,
+        "y": 85.06281518965125
       },
       "data": {
         "functionName": "random_256",
@@ -10433,7 +10259,7 @@
       "id": "node_97L16iBC",
       "type": "calculation",
       "position": {
-        "x": 520.589965236325,
+        "x": 522.8788858816506,
         "y": 106.24573279336619
       },
       "data": {
@@ -10455,7 +10281,7 @@
       "id": "node_lwSVX0Ga",
       "type": "calculation",
       "position": {
-        "x": 288.77760576535,
+        "x": 291.0665264106756,
         "y": 546.2667895426016
       },
       "data": {
@@ -10603,8 +10429,8 @@
       "id": "node_hknafn2",
       "type": "calculation",
       "position": {
-        "x": 11385,
-        "y": 18990
+        "x": 21899.47495981583,
+        "y": 16675.24618421965
       },
       "data": {
         "functionName": "math_operation",
@@ -10613,10 +10439,12 @@
         "numInputs": 3,
         "inputs": {
           "vals": {
-            "1": "-"
+            "0": "330000",
+            "1": "-",
+            "2": "1000"
           }
         },
-        "result": "",
+        "result": "329000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -10641,10 +10469,9 @@
         },
         "groupInstances": {},
         "totalInputs": 2,
-        "unwiredCount": 2,
+        "unwiredCount": 0,
         "dirty": false,
-        "error": true,
-        "extendedError": "empty number"
+        "error": false
       }
     },
     {
@@ -10704,8 +10531,8 @@
       "id": "node_s3xej6u",
       "type": "radioNode",
       "position": {
-        "x": 35610,
-        "y": 18795
+        "x": -4996.274564960391,
+        "y": 18206.50326717449
       },
       "data": {
         "functionName": "radio_receive",
@@ -10842,8 +10669,8 @@
       "id": "node_qx4nrak",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -182.18110790974404,
-        "y": -5308.04343602534
+        "x": 7495.317941674708,
+        "y": -5796.7966911713
       },
       "data": {
         "content": "# Step 1\n- Data exchange",
@@ -10860,8 +10687,8 @@
       "id": "node_qaN1cbJ3",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -5202.284222311718,
-        "y": -712.5755641038695
+        "x": -5209.404828177738,
+        "y": -548.8016291854109
       },
       "data": {
         "content": "# Step 2\n- Alice creates tx and sends it to network",
@@ -10878,11 +10705,11 @@
       "id": "node_GhE3iYVc",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 17958.16772856089,
-        "y": 1912.5620252554138
+        "x": 19197.62379380697,
+        "y": 2032.381397078709
       },
       "data": {
-        "content": "# Step 3\n- Bobs check for tx on chain, verifies locking script and amount (he rebuild locking script from scratch and compares to that on-chain)\n- if everything is right, Bob locks his coins",
+        "content": "# Step 3\n- Bobs check for tx on chain, verifies locking script and amount (he rebuilds locking script from scratch and compares to that on-chain)\n- if everything is right, Bob locks his coins",
         "fontSize": 52,
         "width": 1851,
         "height": 532,
@@ -10958,6 +10785,995 @@
         "error": false
       },
       "parentId": "node_kht0iiVH",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_kwxg0nb",
+      "type": "radioNode",
+      "position": {
+        "x": 1209.3456615243776,
+        "y": 2545.689689702991
+      },
+      "data": {
+        "functionName": "radio_receive",
+        "title": "Radio Receive 8",
+        "numInputs": 0,
+        "result": "039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029d",
+        "radioChannel": "8",
+        "outputPorts": [
+          {
+            "label": "8",
+            "handleId": "",
+            "showLabel": false
+          }
+        ],
+        "groupInstances": {},
+        "baseHeight": 90,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "inputs": {
+          "val": "039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029d"
+        },
+        "error": false
+      },
+      "parentId": "node_fijI5xtX",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_L1hd8kbZ",
+      "type": "radioNode",
+      "position": {
+        "x": 396.29162246372107,
+        "y": 2134.2869483124705
+      },
+      "data": {
+        "functionName": "radio_receive",
+        "title": "Radio Receive 4",
+        "numInputs": 0,
+        "result": "2026-07-04T10:12:55Z",
+        "radioChannel": "4",
+        "outputPorts": [
+          {
+            "label": "4",
+            "handleId": "",
+            "showLabel": false
+          }
+        ],
+        "groupInstances": {},
+        "baseHeight": 90,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "inputs": {
+          "val": "2026-07-04T10:12:55Z"
+        },
+        "error": false
+      },
+      "parentId": "node_fijI5xtX",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_wu1fzdl",
+      "type": "radioNode",
+      "position": {
+        "x": 1559.2462273139045,
+        "y": 911.2244757844664
+      },
+      "data": {
+        "functionName": "radio_receive",
+        "title": "Radio Receive 9",
+        "numInputs": 0,
+        "result": "9995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd",
+        "radioChannel": "9",
+        "outputPorts": [
+          {
+            "label": "9",
+            "handleId": "",
+            "showLabel": false
+          }
+        ],
+        "groupInstances": {},
+        "baseHeight": 90,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "inputs": {
+          "val": "9995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd"
+        },
+        "error": false
+      },
+      "parentId": "node_fijI5xtX",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_T9dORroO",
+      "type": "radioNode",
+      "position": {
+        "x": 1131.816331576636,
+        "y": 1214.8491670347312
+      },
+      "data": {
+        "functionName": "radio_receive",
+        "title": "Radio Receive 5",
+        "numInputs": 0,
+        "result": "029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0a",
+        "radioChannel": "5",
+        "outputPorts": [
+          {
+            "label": "5",
+            "handleId": "",
+            "showLabel": false
+          }
+        ],
+        "groupInstances": {},
+        "baseHeight": 90,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "inputs": {
+          "val": "029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0a"
+        },
+        "error": false
+      },
+      "parentId": "node_fijI5xtX",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_BCa6VvhE",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -4599.6830407149855,
+        "y": -1074.357548213015
+      },
+      "data": {
+        "content": "# Alice ",
+        "fontSize": 100,
+        "width": 430,
+        "height": 275,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 430,
+      "height": 275
+    },
+    {
+      "id": "node_P5hlr0Ar",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 18450,
+        "y": -1200
+      },
+      "data": {
+        "content": "# Bob",
+        "fontSize": 100,
+        "width": 430,
+        "height": 275,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 430,
+      "height": 275
+    },
+    {
+      "id": "node_pj9tLCEl",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -5209.2186485144,
+        "y": 15244.817504893119
+      },
+      "data": {
+        "content": "# Step 4\n- Alice verifies that Bob's tx is onchain, rebuilds redeemScript (for simplicty we just take Bob's redeemScript in this flow, but Alice has all data to rebuild it), compares to locked tx. If everything is correct, she builds tx which spends Bob's coins. ",
+        "fontSize": 52,
+        "width": 1851,
+        "height": 532,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 1851,
+      "height": 532
+    },
+    {
+      "id": "node_d63g7mi",
+      "type": "radioNode",
+      "position": {
+        "x": 3488.063700771949,
+        "y": 2043.8813002873012
+      },
+      "data": {
+        "functionName": "radio_send",
+        "title": "Radio Send 10",
+        "paramExtraction": "multi_val",
+        "numInputs": 1,
+        "inputs": {
+          "vals": {
+            "0": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd8821029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0aac6704a7dc486ab17521039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029dac68"
+          }
+        },
+        "result": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd8821029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0aac6704a7dc486ab17521039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029dac68",
+        "radioChannel": "10",
+        "outputPorts": [
+          {
+            "label": "10",
+            "handleId": "",
+            "showHandle": false,
+            "showLabel": false
+          }
+        ],
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "VALUE:",
+              "placeholder": "Value to transmit",
+              "rows": 1,
+              "autoResizeMaxRows": 3
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "groupInstanceKeys": {},
+        "baseHeight": 110,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_fijI5xtX",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_c67rh1y",
+      "type": "radioNode",
+      "position": {
+        "x": 1058.6035359614025,
+        "y": 1207.8036750411266
+      },
+      "data": {
+        "functionName": "radio_receive",
+        "title": "Radio Receive 10",
+        "numInputs": 0,
+        "result": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd8821029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0aac6704a7dc486ab17521039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029dac68",
+        "radioChannel": "10",
+        "outputPorts": [
+          {
+            "label": "10",
+            "handleId": "",
+            "showLabel": false
+          }
+        ],
+        "groupInstances": {},
+        "baseHeight": 90,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "inputs": {
+          "val": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd8821029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0aac6704a7dc486ab17521039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029dac68"
+        },
+        "error": false
+      },
+      "parentId": "node_6Y4Hfu0T",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_sdd4mi4",
+      "type": "radioNode",
+      "position": {
+        "x": 1325.726844974808,
+        "y": 1148.4614067990851
+      },
+      "data": {
+        "functionName": "radio_send",
+        "title": "Radio Send 11",
+        "paramExtraction": "multi_val",
+        "numInputs": 1,
+        "inputs": {
+          "vals": {
+            "0": "0200000001bc815ea2e77b40eb616d49a0b90e4563a4bec78f3dae0699f7f5d36206263def010000006a473044022058c90839a02de0be27c3a7afbfad8da22c827d75e4890db5e4010deeaad3ddbb02202af9a30cea380e0a7a10002e83bfae9a325ca2235f92ba317576dc358786632701210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8fdffffff01502e04000000000017a91499ea333b22c8eb5685aa79ab59c472f69844ffb38700000000"
+          }
+        },
+        "result": "0200000001bc815ea2e77b40eb616d49a0b90e4563a4bec78f3dae0699f7f5d36206263def010000006a473044022058c90839a02de0be27c3a7afbfad8da22c827d75e4890db5e4010deeaad3ddbb02202af9a30cea380e0a7a10002e83bfae9a325ca2235f92ba317576dc358786632701210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8fdffffff01502e04000000000017a91499ea333b22c8eb5685aa79ab59c472f69844ffb38700000000",
+        "radioChannel": "11",
+        "outputPorts": [
+          {
+            "label": "11",
+            "handleId": "",
+            "showHandle": false,
+            "showLabel": false
+          }
+        ],
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "VALUE:",
+              "placeholder": "Value to transmit",
+              "rows": 1,
+              "autoResizeMaxRows": 3
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "groupInstanceKeys": {},
+        "baseHeight": 110,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_XwNvFsW1",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_hnzwe40",
+      "type": "radioNode",
+      "position": {
+        "x": 291.9366555205579,
+        "y": 482.11088809192734
+      },
+      "data": {
+        "functionName": "radio_receive",
+        "title": "Radio Receive 11",
+        "numInputs": 0,
+        "result": "0200000001bc815ea2e77b40eb616d49a0b90e4563a4bec78f3dae0699f7f5d36206263def010000006a473044022058c90839a02de0be27c3a7afbfad8da22c827d75e4890db5e4010deeaad3ddbb02202af9a30cea380e0a7a10002e83bfae9a325ca2235f92ba317576dc358786632701210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8fdffffff01502e04000000000017a91499ea333b22c8eb5685aa79ab59c472f69844ffb38700000000",
+        "radioChannel": "11",
+        "outputPorts": [
+          {
+            "label": "11",
+            "handleId": "",
+            "showLabel": false
+          }
+        ],
+        "groupInstances": {},
+        "baseHeight": 90,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "inputs": {
+          "val": "0200000001bc815ea2e77b40eb616d49a0b90e4563a4bec78f3dae0699f7f5d36206263def010000006a473044022058c90839a02de0be27c3a7afbfad8da22c827d75e4890db5e4010deeaad3ddbb02202af9a30cea380e0a7a10002e83bfae9a325ca2235f92ba317576dc358786632701210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8fdffffff01502e04000000000017a91499ea333b22c8eb5685aa79ab59c472f69844ffb38700000000"
+        },
+        "error": false
+      },
+      "parentId": "node_6Y4Hfu0T",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_tfub6we",
+      "type": "radioNode",
+      "position": {
+        "x": 337.80833145136967,
+        "y": 351.03815010302515
+      },
+      "data": {
+        "functionName": "radio_send",
+        "title": "Radio Send 12",
+        "paramExtraction": "multi_val",
+        "numInputs": 1,
+        "inputs": {
+          "vals": {
+            "0": "49b690f4920eeb9562049bca3f9829aa56b10ca18bc036f343f41f5d0c13b80b"
+          }
+        },
+        "result": "49b690f4920eeb9562049bca3f9829aa56b10ca18bc036f343f41f5d0c13b80b",
+        "radioChannel": "12",
+        "outputPorts": [
+          {
+            "label": "12",
+            "handleId": "",
+            "showHandle": false,
+            "showLabel": false
+          }
+        ],
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "VALUE:",
+              "placeholder": "Value to transmit",
+              "rows": 1,
+              "autoResizeMaxRows": 3
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "groupInstanceKeys": {},
+        "baseHeight": 110,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_sx1b2eLL",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_ltkzz6f",
+      "type": "radioNode",
+      "position": {
+        "x": 32,
+        "y": 472.7167707789413
+      },
+      "data": {
+        "functionName": "radio_receive",
+        "title": "Radio Receive 12",
+        "numInputs": 0,
+        "result": "49b690f4920eeb9562049bca3f9829aa56b10ca18bc036f343f41f5d0c13b80b",
+        "radioChannel": "12",
+        "outputPorts": [
+          {
+            "label": "12",
+            "handleId": "",
+            "showLabel": false
+          }
+        ],
+        "groupInstances": {},
+        "baseHeight": 90,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "inputs": {
+          "val": "49b690f4920eeb9562049bca3f9829aa56b10ca18bc036f343f41f5d0c13b80b"
+        },
+        "error": false
+      },
+      "parentId": "node_GfPG5Tr3",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_610k1s5",
+      "type": "radioNode",
+      "position": {
+        "x": 1138.957975009323,
+        "y": 747.5611919963558
+      },
+      "data": {
+        "functionName": "radio_receive",
+        "title": "Radio Receive 13",
+        "numInputs": 0,
+        "result": "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb",
+        "radioChannel": "13",
+        "outputPorts": [
+          {
+            "label": "13",
+            "handleId": "",
+            "showLabel": false
+          }
+        ],
+        "groupInstances": {},
+        "baseHeight": 90,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "inputs": {
+          "val": "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb"
+        },
+        "error": false
+      },
+      "parentId": "node_GfPG5Tr3",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_u2abz16",
+      "type": "radioNode",
+      "position": {
+        "x": 824.3101320884675,
+        "y": 1318.0329467919946
+      },
+      "data": {
+        "functionName": "radio_receive",
+        "title": "Radio Receive 10",
+        "numInputs": 0,
+        "result": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd8821029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0aac6704a7dc486ab17521039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029dac68",
+        "radioChannel": "10",
+        "outputPorts": [
+          {
+            "label": "10",
+            "handleId": "",
+            "showLabel": false
+          }
+        ],
+        "groupInstances": {},
+        "baseHeight": 90,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "inputs": {
+          "val": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd8821029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0aac6704a7dc486ab17521039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029dac68"
+        },
+        "error": false
+      },
+      "parentId": "node_GfPG5Tr3",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_ge8i6xy",
+      "type": "radioNode",
+      "position": {
+        "x": 650.5194108060441,
+        "y": 771.0381501030251
+      },
+      "data": {
+        "functionName": "radio_send",
+        "title": "Radio Send 13",
+        "paramExtraction": "multi_val",
+        "numInputs": 1,
+        "inputs": {
+          "vals": {
+            "0": "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb"
+          }
+        },
+        "result": "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb",
+        "radioChannel": "13",
+        "outputPorts": [
+          {
+            "label": "13",
+            "handleId": "",
+            "showHandle": false,
+            "showLabel": false
+          }
+        ],
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "VALUE:",
+              "placeholder": "Value to transmit",
+              "rows": 1,
+              "autoResizeMaxRows": 3
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "groupInstanceKeys": {},
+        "baseHeight": 110,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_sx1b2eLL",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_E0iAlkW0",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 21305.191945819857,
+        "y": 14005.668380542724
+      },
+      "data": {
+        "content": "# Step 5\n- After Bob see Alice has taken his coins, he can take Alice coins, becasue she has revealed the secret as she took his (he should do it in earlier as Alice locktime, otherwise she can claim them back). Bob recreates Alice redeemScript (in this flow for simplictiy we use Alice redeem Script)",
+        "fontSize": 52,
+        "width": 1851,
+        "height": 532,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 1851,
+      "height": 532
+    },
+    {
+      "id": "node_m064zc2",
+      "type": "radioNode",
+      "position": {
+        "x": 844.3152676153768,
+        "y": 1076.730371613282
+      },
+      "data": {
+        "functionName": "radio_send",
+        "title": "Radio Send 14",
+        "paramExtraction": "multi_val",
+        "numInputs": 1,
+        "inputs": {
+          "vals": {
+            "0": "0200000001f295c9597398dcbf15b921fa6d805664e7dfc4d0c20e8b9f5cbad49f5499ea7c010000006a4730440220411f48841cb175b9a371d27ea5a48f3821e765c6a23cfdce112af0f69f470fc3022065d4740f1ebcfb3787a6b94a96f735b88a33582bd50043b40c658c935fc757d401210223c7c462b2707770025eee6a65fd5f10b4c991fc6a2ba75e010a0491f5a30e61fdffffff01100905000000000017a914be103c6c8048f7e40035b427fe521db9bef1ed378700000000"
+          }
+        },
+        "result": "0200000001f295c9597398dcbf15b921fa6d805664e7dfc4d0c20e8b9f5cbad49f5499ea7c010000006a4730440220411f48841cb175b9a371d27ea5a48f3821e765c6a23cfdce112af0f69f470fc3022065d4740f1ebcfb3787a6b94a96f735b88a33582bd50043b40c658c935fc757d401210223c7c462b2707770025eee6a65fd5f10b4c991fc6a2ba75e010a0491f5a30e61fdffffff01100905000000000017a914be103c6c8048f7e40035b427fe521db9bef1ed378700000000",
+        "radioChannel": "14",
+        "outputPorts": [
+          {
+            "label": "14",
+            "handleId": "",
+            "showHandle": false,
+            "showLabel": false
+          }
+        ],
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "VALUE:",
+              "placeholder": "Value to transmit",
+              "rows": 1,
+              "autoResizeMaxRows": 3
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "groupInstanceKeys": {},
+        "baseHeight": 110,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_ROZuZDm2",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_jwpxa08",
+      "type": "radioNode",
+      "position": {
+        "x": 200.13660786535547,
+        "y": 415.9997103203241
+      },
+      "data": {
+        "functionName": "radio_receive",
+        "title": "Radio Receive 14",
+        "numInputs": 0,
+        "result": "0200000001f295c9597398dcbf15b921fa6d805664e7dfc4d0c20e8b9f5cbad49f5499ea7c010000006a4730440220411f48841cb175b9a371d27ea5a48f3821e765c6a23cfdce112af0f69f470fc3022065d4740f1ebcfb3787a6b94a96f735b88a33582bd50043b40c658c935fc757d401210223c7c462b2707770025eee6a65fd5f10b4c991fc6a2ba75e010a0491f5a30e61fdffffff01100905000000000017a914be103c6c8048f7e40035b427fe521db9bef1ed378700000000",
+        "radioChannel": "14",
+        "outputPorts": [
+          {
+            "label": "14",
+            "handleId": "",
+            "showLabel": false
+          }
+        ],
+        "groupInstances": {},
+        "baseHeight": 90,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "inputs": {
+          "val": "0200000001f295c9597398dcbf15b921fa6d805664e7dfc4d0c20e8b9f5cbad49f5499ea7c010000006a4730440220411f48841cb175b9a371d27ea5a48f3821e765c6a23cfdce112af0f69f470fc3022065d4740f1ebcfb3787a6b94a96f735b88a33582bd50043b40c658c935fc757d401210223c7c462b2707770025eee6a65fd5f10b4c991fc6a2ba75e010a0491f5a30e61fdffffff01100905000000000017a914be103c6c8048f7e40035b427fe521db9bef1ed378700000000"
+        },
+        "error": false
+      },
+      "parentId": "node_ecyVK7iO",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_ygLYQADG",
+      "type": "calculation",
+      "position": {
+        "x": 1912.3510676399783,
+        "y": 816.5522398928624
+      },
+      "data": {
+        "functionName": "varint_encoded_byte_length",
+        "title": "Data → VarInt Length",
+        "numInputs": 1,
+        "showField": false,
+        "dirty": false,
+        "groupInstances": {},
+        "inputs": {
+          "val": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68"
+        },
+        "result": "73",
+        "error": false
+      },
+      "parentId": "node_ecyVK7iO",
+      "extent": "parent"
+    },
+    {
+      "id": "node_y2nwu40",
+      "type": "radioNode",
+      "position": {
+        "x": 1716.8971085001976,
+        "y": 1036.8590109395864
+      },
+      "data": {
+        "functionName": "radio_receive",
+        "title": "Radio Receive 15",
+        "numInputs": 0,
+        "result": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
+        "radioChannel": "15",
+        "outputPorts": [
+          {
+            "label": "15",
+            "handleId": "",
+            "showLabel": false
+          }
+        ],
+        "groupInstances": {},
+        "baseHeight": 90,
+        "width": 132,
+        "height": 64,
+        "inputs": {
+          "val": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68"
+        },
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_ecyVK7iO",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_tuajgyl",
+      "type": "radioNode",
+      "position": {
+        "x": 3664.7201729820263,
+        "y": 1952.8691170345955
+      },
+      "data": {
+        "functionName": "radio_send",
+        "title": "Radio Send 15",
+        "paramExtraction": "multi_val",
+        "numInputs": 1,
+        "inputs": {
+          "vals": {
+            "0": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68"
+          }
+        },
+        "result": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
+        "radioChannel": "15",
+        "outputPorts": [
+          {
+            "label": "15",
+            "handleId": "",
+            "showHandle": false,
+            "showLabel": false
+          }
+        ],
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "VALUE:",
+              "placeholder": "Value to transmit",
+              "rows": 1,
+              "autoResizeMaxRows": 3
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "groupInstanceKeys": {},
+        "baseHeight": 110,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_kht0iiVH",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_p9zw6c9",
+      "type": "calculation",
+      "position": {
+        "x": 140.13660786535547,
+        "y": 2185.999710320324
+      },
+      "data": {
+        "functionName": "identity",
+        "title": "tx fees",
+        "showField": true,
+        "numInputs": 0,
+        "value": "1000",
+        "version": 0,
+        "inputs": {
+          "val": "1000"
+        },
+        "result": "1000",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT VALUE:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_ecyVK7iO",
+      "extent": "parent"
+    },
+    {
+      "id": "node_xupvbpo",
+      "type": "radioNode",
+      "position": {
+        "x": 455.1366078653555,
+        "y": 1960.999710320324
+      },
+      "data": {
+        "functionName": "radio_receive",
+        "title": "Radio Receive 1",
+        "numInputs": 0,
+        "result": "330000",
+        "radioChannel": "1",
+        "outputPorts": [
+          {
+            "label": "1",
+            "handleId": "",
+            "showLabel": false
+          }
+        ],
+        "groupInstances": {},
+        "baseHeight": 90,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "inputs": {
+          "val": "330000"
+        },
+        "error": false
+      },
+      "parentId": "node_ecyVK7iO",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_gh2uol7",
+      "type": "radioNode",
+      "position": {
+        "x": 26790,
+        "y": 14910
+      },
+      "data": {
+        "functionName": "radio_receive",
+        "title": "Radio Receive 16",
+        "numInputs": 0,
+        "result": "0f39548e30fd576e479fbf9dbac93406c3024883e65fef039bdfe4ff0973283c",
+        "radioChannel": "16",
+        "outputPorts": [
+          {
+            "label": "16",
+            "handleId": "",
+            "showLabel": false
+          }
+        ],
+        "groupInstances": {},
+        "baseHeight": 90,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "inputs": {
+          "val": "0f39548e30fd576e479fbf9dbac93406c3024883e65fef039bdfe4ff0973283c"
+        },
+        "error": false
+      },
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_8psnt8v",
+      "type": "radioNode",
+      "position": {
+        "x": 415.62939390634347,
+        "y": 524.636351512906
+      },
+      "data": {
+        "functionName": "radio_send",
+        "title": "Radio Send 16",
+        "paramExtraction": "multi_val",
+        "numInputs": 1,
+        "inputs": {
+          "vals": {
+            "0": "0f39548e30fd576e479fbf9dbac93406c3024883e65fef039bdfe4ff0973283c"
+          }
+        },
+        "result": "0f39548e30fd576e479fbf9dbac93406c3024883e65fef039bdfe4ff0973283c",
+        "radioChannel": "16",
+        "outputPorts": [
+          {
+            "label": "16",
+            "handleId": "",
+            "showHandle": false,
+            "showLabel": false
+          }
+        ],
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "VALUE:",
+              "placeholder": "Value to transmit",
+              "rows": 1,
+              "autoResizeMaxRows": 3
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "groupInstanceKeys": {},
+        "baseHeight": 110,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_l1drJMFI",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_9zttw3j",
+      "type": "radioNode",
+      "position": {
+        "x": 1139.0612634021927,
+        "y": 894.0709294258522
+      },
+      "data": {
+        "functionName": "radio_receive",
+        "title": "Radio Receive 15",
+        "numInputs": 0,
+        "result": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
+        "radioChannel": "15",
+        "outputPorts": [
+          {
+            "label": "15",
+            "handleId": "",
+            "showLabel": false
+          }
+        ],
+        "groupInstances": {},
+        "baseHeight": 90,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "inputs": {
+          "val": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68"
+        },
+        "error": false
+      },
+      "parentId": "node_TWzQMnUr",
       "extent": "parent",
       "width": 132,
       "height": 64
@@ -11886,20 +12702,6 @@
       "selected": false
     },
     {
-      "source": "node_5PW0Asw2",
-      "target": "node_TMAkv8zj",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "edge_LAqrMAl9"
-    },
-    {
-      "id": "edge_DA08LP0e",
-      "source": "node_TMAkv8zj",
-      "target": "node_q6Z7eMLB",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
       "id": "edge_0SqCVkIF",
       "source": "node_ZVh7jR5a",
       "target": "node_VDTIIiQP",
@@ -11942,13 +12744,6 @@
       "selected": false
     },
     {
-      "id": "edge_KggYbvyl",
-      "source": "node_84gK2XIV",
-      "target": "node_e1w3vvHY",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
       "id": "edge_Em8HKuEy",
       "source": "node_e1w3vvHY",
       "target": "node_coLgfhBo",
@@ -11975,13 +12770,6 @@
       "targetHandle": "input-1400",
       "selected": false,
       "id": "edge_rtChWCGR"
-    },
-    {
-      "source": "node_TMAkv8zj",
-      "target": "node_0JagA7eE",
-      "targetHandle": "input-1300",
-      "selected": false,
-      "id": "edge_FLBo1pLP"
     },
     {
       "source": "node_q6Z7eMLB",
@@ -12071,27 +12859,6 @@
       "targetHandle": "input-0",
       "selected": false,
       "id": "edge_prP8W7uv"
-    },
-    {
-      "source": "node_ZGiZplsc",
-      "target": "node_RprVr5ZP",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "edge_JMQXHj00"
-    },
-    {
-      "source": "node_RprVr5ZP",
-      "target": "node_0JagA7eE",
-      "targetHandle": "input-600",
-      "selected": false,
-      "id": "edge_ghymIv3T"
-    },
-    {
-      "source": "node_RprVr5ZP",
-      "target": "node_MxTNzJMZ",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "edge_YnnVEkI5"
     },
     {
       "id": "edge_wyv4nkk",
@@ -12511,13 +13278,6 @@
       "id": "edge_c7En4arQ"
     },
     {
-      "source": "node_Wq3Mpekb",
-      "target": "node_Z0wcMDPk",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "edge_nfiKpm65"
-    },
-    {
       "source": "node_UCG8x90T",
       "target": "node_pZriVBKW",
       "targetHandle": "input-0",
@@ -12807,23 +13567,9 @@
       "selected": false
     },
     {
-      "id": "edge_hcmavo0",
-      "source": "node_frp4jesm",
-      "target": "node_AlGR46BY",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
       "id": "edge_p3nve44",
       "source": "node_0JagA7eE",
       "target": "node_7igmjz4",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "id": "edge_i0mpinh",
-      "source": "node_ZGiZplsc",
-      "target": "node_pe3M0K0G",
       "targetHandle": "input-0",
       "selected": false
     },
@@ -12944,20 +13690,6 @@
       "source": "node_4pXG9TGI",
       "target": "node_wfC1WBjD",
       "targetHandle": "input-3020",
-      "selected": false
-    },
-    {
-      "id": "edge_vtkpm1l",
-      "source": "node_PdEoqN7d",
-      "target": "node_fX4yRPdy",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "id": "edge_fy25uqz",
-      "source": "node_4dZ3cKFi",
-      "target": "node_wfC1WBjD",
-      "targetHandle": "input-1030",
       "selected": false
     },
     {
@@ -13162,6 +13894,230 @@
       "target": "node_4dZ3cKFi",
       "targetHandle": "input-1300",
       "selected": false
+    },
+    {
+      "id": "edge_fel77ga",
+      "source": "node_L1hd8kbZ",
+      "target": "node_e1w3vvHY",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_fhh75sm",
+      "source": "node_kwxg0nb",
+      "target": "node_q6Z7eMLB",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_mrgx49t",
+      "source": "node_kwxg0nb",
+      "target": "node_0JagA7eE",
+      "targetHandle": "input-1300",
+      "selected": false
+    },
+    {
+      "id": "edge_fdahzf5",
+      "source": "node_wu1fzdl",
+      "target": "node_7AKM66Tu",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_ehy08vi",
+      "source": "node_wu1fzdl",
+      "target": "node_0JagA7eE",
+      "targetHandle": "input-300",
+      "selected": false
+    },
+    {
+      "id": "edge_3c0nnw6",
+      "source": "node_T9dORroO",
+      "target": "node_MxTNzJMZ",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_kqzd4c2",
+      "source": "node_T9dORroO",
+      "target": "node_0JagA7eE",
+      "targetHandle": "input-600",
+      "selected": false
+    },
+    {
+      "id": "edge_3r79r5b",
+      "source": "node_0JagA7eE",
+      "target": "node_d63g7mi",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_8d1i8qa",
+      "source": "node_c67rh1y",
+      "target": "node_vrUyes1R",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_lusdmf2",
+      "source": "node_c67rh1y",
+      "target": "node_U33SZaps",
+      "targetHandle": "input-1030",
+      "selected": false
+    },
+    {
+      "id": "edge_yxx1qyh",
+      "source": "node_frp4jesm",
+      "target": "node_sdd4mi4",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_ct0hpng",
+      "source": "node_hnzwe40",
+      "target": "node_AlGR46BY",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_79pfhp2",
+      "source": "node_YPd5fRFA",
+      "target": "node_tfub6we",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_ongd9en",
+      "source": "node_ltkzz6f",
+      "target": "node_pe3M0K0G",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_62jidxi",
+      "source": "node_610k1s5",
+      "target": "node_4HggpJ4f",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_5da4jyx",
+      "source": "node_610k1s5",
+      "target": "node_Jv2iJisU",
+      "targetHandle": "input-300",
+      "selected": false
+    },
+    {
+      "id": "edge_ihs8fi5",
+      "source": "node_u2abz16",
+      "target": "node_ZQxwlfBU",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_2wc98j6",
+      "source": "node_u2abz16",
+      "target": "node_Jv2iJisU",
+      "targetHandle": "input-600",
+      "selected": false
+    },
+    {
+      "id": "edge_ul9bxa1",
+      "source": "node_lwSVX0Ga",
+      "target": "node_ge8i6xy",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_218fzu7",
+      "source": "node_PdEoqN7d",
+      "target": "node_m064zc2",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_9ri8h2g",
+      "source": "node_jwpxa08",
+      "target": "node_fX4yRPdy",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_ahbcn2g",
+      "source": "node_ygLYQADG",
+      "target": "node_wfC1WBjD",
+      "targetHandle": "input-1020",
+      "selected": false
+    },
+    {
+      "id": "edge_estt63c",
+      "source": "node_4dZ3cKFi",
+      "target": "node_tuajgyl",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_zk6y84t",
+      "source": "node_y2nwu40",
+      "target": "node_ygLYQADG",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_rwh7fou",
+      "source": "node_y2nwu40",
+      "target": "node_wfC1WBjD",
+      "targetHandle": "input-1030",
+      "selected": false
+    },
+    {
+      "id": "edge_7tdbjfo",
+      "source": "node_p9zw6c9",
+      "target": "node_hknafn2",
+      "targetHandle": "input-2",
+      "selected": false
+    },
+    {
+      "id": "edge_jc5clc8",
+      "source": "node_xupvbpo",
+      "target": "node_hknafn2",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_2v6x4nd",
+      "source": "node_hknafn2",
+      "target": "node_Z0wcMDPk",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_3btzxqq",
+      "source": "node_gh2uol7",
+      "target": "node_ZEoIzNo3",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_ulfr5qn",
+      "source": "node_3YxdRhZe",
+      "target": "node_8psnt8v",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_3oyx85k",
+      "source": "node_9zttw3j",
+      "target": "node_qfT7DYEk",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_evcmsxh",
+      "source": "node_9zttw3j",
+      "target": "node_MXOReDtG",
+      "targetHandle": "input-500",
+      "selected": false
     }
   ],
   "virtualEdges": [
@@ -13231,6 +14187,146 @@
       "channel": "7",
       "source": "node_0lVMRw2V",
       "target": "node_dfwvon6",
+      "targetHandle": "input-0",
+      "sourceFunction": "radio_send",
+      "targetFunction": "radio_receive"
+    },
+    {
+      "id": "__radio__node_fJGaDB1E__node_kwxg0nb__8",
+      "kind": "radio",
+      "channel": "8",
+      "source": "node_fJGaDB1E",
+      "target": "node_kwxg0nb",
+      "targetHandle": "input-0",
+      "sourceFunction": "radio_send",
+      "targetFunction": "radio_receive"
+    },
+    {
+      "id": "__radio__node_4ul0nj4P__node_L1hd8kbZ__4",
+      "kind": "radio",
+      "channel": "4",
+      "source": "node_4ul0nj4P",
+      "target": "node_L1hd8kbZ",
+      "targetHandle": "input-0",
+      "sourceFunction": "radio_send",
+      "targetFunction": "radio_receive"
+    },
+    {
+      "id": "__radio__node_23ZQDdzE__node_wu1fzdl__9",
+      "kind": "radio",
+      "channel": "9",
+      "source": "node_23ZQDdzE",
+      "target": "node_wu1fzdl",
+      "targetHandle": "input-0",
+      "sourceFunction": "radio_send",
+      "targetFunction": "radio_receive"
+    },
+    {
+      "id": "__radio__node_KNa9GTCt__node_T9dORroO__5",
+      "kind": "radio",
+      "channel": "5",
+      "source": "node_KNa9GTCt",
+      "target": "node_T9dORroO",
+      "targetHandle": "input-0",
+      "sourceFunction": "radio_send",
+      "targetFunction": "radio_receive"
+    },
+    {
+      "id": "__radio__node_d63g7mi__node_c67rh1y__10",
+      "kind": "radio",
+      "channel": "10",
+      "source": "node_d63g7mi",
+      "target": "node_c67rh1y",
+      "targetHandle": "input-0",
+      "sourceFunction": "radio_send",
+      "targetFunction": "radio_receive"
+    },
+    {
+      "id": "__radio__node_sdd4mi4__node_hnzwe40__11",
+      "kind": "radio",
+      "channel": "11",
+      "source": "node_sdd4mi4",
+      "target": "node_hnzwe40",
+      "targetHandle": "input-0",
+      "sourceFunction": "radio_send",
+      "targetFunction": "radio_receive"
+    },
+    {
+      "id": "__radio__node_tfub6we__node_ltkzz6f__12",
+      "kind": "radio",
+      "channel": "12",
+      "source": "node_tfub6we",
+      "target": "node_ltkzz6f",
+      "targetHandle": "input-0",
+      "sourceFunction": "radio_send",
+      "targetFunction": "radio_receive"
+    },
+    {
+      "id": "__radio__node_ge8i6xy__node_610k1s5__13",
+      "kind": "radio",
+      "channel": "13",
+      "source": "node_ge8i6xy",
+      "target": "node_610k1s5",
+      "targetHandle": "input-0",
+      "sourceFunction": "radio_send",
+      "targetFunction": "radio_receive"
+    },
+    {
+      "id": "__radio__node_d63g7mi__node_u2abz16__10",
+      "kind": "radio",
+      "channel": "10",
+      "source": "node_d63g7mi",
+      "target": "node_u2abz16",
+      "targetHandle": "input-0",
+      "sourceFunction": "radio_send",
+      "targetFunction": "radio_receive"
+    },
+    {
+      "id": "__radio__node_m064zc2__node_jwpxa08__14",
+      "kind": "radio",
+      "channel": "14",
+      "source": "node_m064zc2",
+      "target": "node_jwpxa08",
+      "targetHandle": "input-0",
+      "sourceFunction": "radio_send",
+      "targetFunction": "radio_receive"
+    },
+    {
+      "id": "__radio__node_tuajgyl__node_y2nwu40__15",
+      "kind": "radio",
+      "channel": "15",
+      "source": "node_tuajgyl",
+      "target": "node_y2nwu40",
+      "targetHandle": "input-0",
+      "sourceFunction": "radio_send",
+      "targetFunction": "radio_receive"
+    },
+    {
+      "id": "__radio__node_hRUX7Zzs__node_xupvbpo__1",
+      "kind": "radio",
+      "channel": "1",
+      "source": "node_hRUX7Zzs",
+      "target": "node_xupvbpo",
+      "targetHandle": "input-0",
+      "sourceFunction": "radio_send",
+      "targetFunction": "radio_receive"
+    },
+    {
+      "id": "__radio__node_8psnt8v__node_gh2uol7__16",
+      "kind": "radio",
+      "channel": "16",
+      "source": "node_8psnt8v",
+      "target": "node_gh2uol7",
+      "targetHandle": "input-0",
+      "sourceFunction": "radio_send",
+      "targetFunction": "radio_receive"
+    },
+    {
+      "id": "__radio__node_tuajgyl__node_9zttw3j__15",
+      "kind": "radio",
+      "channel": "15",
+      "source": "node_tuajgyl",
+      "target": "node_9zttw3j",
       "targetHandle": "input-0",
       "sourceFunction": "radio_send",
       "targetFunction": "radio_receive"

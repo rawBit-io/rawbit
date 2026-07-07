@@ -321,6 +321,180 @@ const createMockInstance = (
     expect(droppedSend?.data.outputPorts?.[0]?.label).toBe("3");
   });
 
+  it.each([
+    [
+      "calculation",
+      {
+        type: "calculation",
+        functionName: "identity",
+        nodeData: { functionName: "identity", title: "Input" },
+      },
+    ],
+    [
+      "radioNode",
+      {
+        type: "radioNode",
+        functionName: "radio_send",
+        nodeData: {
+          functionName: "radio_send",
+          title: "Radio Send 1",
+          radioChannel: "1",
+          outputPorts: [{ label: "1", handleId: "", showLabel: false }],
+        },
+      },
+    ],
+    [
+      "shadcnTextInfo",
+      {
+        type: "shadcnTextInfo",
+        functionName: "shadcn_text_info",
+        nodeData: {
+          title: "Text Info Node",
+          content: "Double-click to edit",
+          width: 300,
+          height: 200,
+        },
+      },
+    ],
+    [
+      "opCodeNode",
+      {
+        type: "opCodeNode",
+        functionName: "op_code_select",
+        nodeData: { title: "Opcode Sequence", result: "" },
+      },
+    ],
+    [
+      "scriptViewer",
+      {
+        type: "scriptViewer",
+        functionName: "script_viewer",
+        nodeData: {
+          functionName: "script_viewer",
+          title: "Script Viewer",
+          numInputs: 1,
+        },
+      },
+    ],
+    [
+      "trezorAction",
+      {
+        type: "trezorAction",
+        functionName: "trezor_get_address",
+        nodeData: {
+          functionName: "trezor_get_address",
+          title: "Trezor Get Address",
+          hardwareAction: "trezor_get_address",
+        },
+      },
+    ],
+  ])("parents a dropped %s palette node into the group under the pointer", (_, payload) => {
+    const { result } = renderHook(() => useNodeOperations(), { wrapper });
+    const mockRf = createMockInstance(result);
+
+    act(() => {
+      result.current.onInit(mockRf);
+    });
+
+    act(() => {
+      result.current.setNodes(() => [
+        buildFlowNode({
+          id: "group-1",
+          type: "shadcnGroup",
+          position: { x: 100, y: 100 },
+          data: {
+            isGroup: true,
+            width: 320,
+            height: 220,
+            title: "Group Node",
+          },
+        }),
+      ]);
+    });
+
+    const event = {
+      preventDefault: vi.fn(),
+      dataTransfer: {
+        getData: (type: string) =>
+          type === "application/reactflow" ? JSON.stringify(payload) : "",
+      },
+      clientX: 150,
+      clientY: 160,
+    } as unknown as React.DragEvent<HTMLDivElement>;
+
+    act(() => {
+      mockRf.getNodes = () => result.current.nodes;
+      result.current.onDrop(event);
+    });
+
+    const dropped = result.current.nodes.find(
+      (node) => node.selected && node.id !== "group-1",
+    );
+
+    expect(dropped?.parentId).toBe("group-1");
+    expect(dropped?.extent).toBe("parent");
+    expect(dropped?.position).toEqual({ x: 50, y: 60 });
+  });
+
+  it("does not parent a dropped group node into another group", () => {
+    const { result } = renderHook(() => useNodeOperations(), { wrapper });
+    const mockRf = createMockInstance(result);
+
+    act(() => {
+      result.current.onInit(mockRf);
+    });
+
+    act(() => {
+      result.current.setNodes(() => [
+        buildFlowNode({
+          id: "group-1",
+          type: "shadcnGroup",
+          position: { x: 100, y: 100 },
+          data: {
+            isGroup: true,
+            width: 320,
+            height: 220,
+            title: "Existing Group",
+          },
+        }),
+      ]);
+    });
+
+    const event = {
+      preventDefault: vi.fn(),
+      dataTransfer: {
+        getData: (type: string) =>
+          type === "application/reactflow"
+            ? JSON.stringify({
+                type: "shadcnGroup",
+                functionName: "shadcn_group_node",
+                nodeData: {
+                  isGroup: true,
+                  width: 380,
+                  height: 220,
+                  title: "Group Node",
+                },
+              })
+            : "",
+      },
+      clientX: 150,
+      clientY: 160,
+    } as unknown as React.DragEvent<HTMLDivElement>;
+
+    act(() => {
+      mockRf.getNodes = () => result.current.nodes;
+      result.current.onDrop(event);
+    });
+
+    const droppedGroup = result.current.nodes.find(
+      (node) => node.selected && node.type === "shadcnGroup",
+    );
+
+    expect(droppedGroup?.id).not.toBe("group-1");
+    expect(droppedGroup?.parentId).toBeUndefined();
+    expect(droppedGroup?.position).toEqual({ x: 150, y: 160 });
+  });
+
   it("remaps group bundle offset keys when a re-dropped template renames colliding ids", () => {
     // Regression for the RB-59 follow-up: template drops also go through
     // importWithFreshIds and must remap data.groupBundlePortOffsets keys.

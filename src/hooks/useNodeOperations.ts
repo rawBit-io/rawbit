@@ -82,6 +82,11 @@ type PaletteDragData = {
   };
 };
 
+type DropParentTarget = {
+  id: string;
+  position: { x: number; y: number };
+};
+
 function getLocalDropPoint(event: React.DragEvent) {
   const target = event.currentTarget as unknown as {
     getBoundingClientRect?: () => { left: number; top: number };
@@ -196,6 +201,50 @@ function getAbsoluteNodePosition(node: FlowNode, all: FlowNode[]) {
     parentId = parent.parentId;
   }
   return { x, y };
+}
+
+function findDropParentTarget(
+  nodes: FlowNode[],
+  childType: string,
+  point: { x: number; y: number },
+): DropParentTarget | null {
+  if (childType === "shadcnGroup") return null;
+
+  const candidates = nodes
+    .filter((node) => node.type === "shadcnGroup")
+    .map((node) => {
+      const position = getAbsoluteNodePosition(node, nodes);
+      const width = getNodeDimension(node, "width", 300);
+      const height = getNodeDimension(node, "height", 200);
+      const contains =
+        point.x >= position.x &&
+        point.x <= position.x + width &&
+        point.y >= position.y &&
+        point.y <= position.y + height;
+
+      if (!contains) return null;
+
+      return {
+        id: node.id,
+        position,
+        dist: Math.hypot(
+          point.x - (position.x + width / 2),
+          point.y - (position.y + height / 2),
+        ),
+      };
+    })
+    .filter(
+      (
+        candidate,
+      ): candidate is DropParentTarget & {
+        dist: number;
+      } => candidate !== null,
+    );
+
+  if (!candidates.length) return null;
+  candidates.sort((a, b) => a.dist - b.dist);
+  const best = candidates[0];
+  return { id: best.id, position: best.position };
 }
 
 function scheduleNodeInternalsUpdate(rf: RF, ids: string[]) {
@@ -463,6 +512,7 @@ export function useNodeOperations() {
       type: string,
       dragData: PaletteDragData,
       pos: { x: number; y: number },
+      parentTarget?: DropParentTarget | null,
     ) => {
       const newId = `node_${randomId()}`;
       const nodeDefaults = {
@@ -471,13 +521,22 @@ export function useNodeOperations() {
       delete (nodeDefaults as { flowData?: unknown }).flowData;
       const initialWidth = finiteNumber(nodeDefaults.width);
       const initialHeight = finiteNumber(nodeDefaults.height);
+      const relativePosition = parentTarget
+        ? {
+            x: pos.x - parentTarget.position.x,
+            y: pos.y - parentTarget.position.y,
+          }
+        : pos;
 
       const newNode: FlowNode = {
         id: newId,
         type,
-        position: pos,
+        position: relativePosition,
         data: nodeDefaults as CalculationNodeData,
         selected: true,
+        ...(parentTarget
+          ? { parentId: parentTarget.id, extent: "parent" as const }
+          : {}),
         ...(initialWidth !== undefined ? { width: initialWidth } : {}),
         ...(initialHeight !== undefined ? { height: initialHeight } : {}),
         ...(initialWidth !== undefined || initialHeight !== undefined
@@ -502,7 +561,7 @@ export function useNodeOperations() {
           : [...deselect, sanitizedNode];
       });
 
-      pendingIds.current.add(newId);
+      if (!parentTarget) pendingIds.current.add(newId);
       return sanitizedNode;
     },
     [setNodes],
@@ -639,11 +698,30 @@ export function useNodeOperations() {
 
       // Single palette node
       if (typeof data.type === "string") {
-        createNode(
+        const currentNodes = stripGroupBundlePortNodes(
+          rf.getNodes() as FlowNode[],
+        );
+        const parentTarget = findDropParentTarget(
+          currentNodes,
           data.type,
-          withAutoRadioChannel(data, rf.getNodes() as FlowNode[]),
           pos,
         );
+        const droppedNode = createNode(
+          data.type,
+          withAutoRadioChannel(data, currentNodes),
+          pos,
+          parentTarget,
+        );
+
+        if (parentTarget) {
+          requestAnimationFrame(() => {
+            rf.updateNodeInternals?.(droppedNode.id);
+            rf.updateNodeInternals?.(parentTarget.id);
+            requestAnimationFrame(() =>
+              fitGroupToChildren(parentTarget.id, rf, setNodes),
+            );
+          });
+        }
       }
     },
     [rf, createNode, setNodes, setEdges],
