@@ -31,6 +31,12 @@ export const TX_PARSE_FIELD_OPTIONS = [
   "vin.txid",
   "vin.vout",
   "vin.scriptSig",
+  "vin.scriptSig_count",
+  "vin.scriptSig.item0",
+  "vin.scriptSig.item1",
+  "vin.scriptSig.item2",
+  "vin.scriptSig.item3",
+  "vin.scriptSig.last",
   "vin.sequence",
   "vin.witness",
   "vin.witness_count",
@@ -61,8 +67,9 @@ export const TX_FIELD_EXTRACT_MAX_OUTPUTS = 12;
 /**
  * Sentinel dropdown value for the TX Parser's "advanced" row: selecting it
  * reveals a free-text field so power users can type any field the backend
- * accepts (e.g. a deep witness item `vin.witness.item7`) without needing a
- * dedicated dropdown entry. Not a real field name.
+ * accepts (e.g. a deep stack item `vin.scriptSig.item7` or
+ * `vin.witness.item7`) without needing a dedicated dropdown entry. Not a real
+ * field name.
  */
 export const TX_EXTRACT_CUSTOM_FIELD = "__custom__";
 
@@ -124,6 +131,10 @@ export function nextTxFieldExtractField(
     functionName === "parse_tx_field"
       ? [
           ...DEFAULT_TX_PARSE_FIELDS,
+          "vin.scriptSig_count",
+          "vin.scriptSig.item0",
+          "vin.scriptSig.item1",
+          "vin.scriptSig.last",
           "vin.witness_count",
           "vin.witness.item0",
           "vin.witness.last",

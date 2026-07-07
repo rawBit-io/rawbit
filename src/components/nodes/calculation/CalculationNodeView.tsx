@@ -1879,7 +1879,7 @@ export function CalculationNodeView({
                               <input
                                 type="text"
                                 value={customValue}
-                                placeholder="e.g. vin.witness.item7"
+                                placeholder="e.g. vin.scriptSig.item1"
                                 className="field-surface nodrag h-7 w-full rounded border border-input px-2 font-mono text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                                 onPointerDownCapture={(event) =>
                                   event.stopPropagation()

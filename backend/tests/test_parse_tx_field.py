@@ -112,6 +112,88 @@ def test_legacy_derived_fields():
     assert int(parse_tx_field([tx_hex, "vsize"])) == size
 
 
+def test_legacy_scriptsig_item_fields():
+    tx_hex = next(
+        tx
+        for tx in _LEGACY
+        if parse_tx_field([tx, "vin.scriptSig", "0"])
+    )
+    count = int(parse_tx_field([tx_hex, "vin.scriptSig_count", "0"]))
+    assert count >= 1
+
+    script_sig = parse_tx_field([tx_hex, "vin.scriptSig", "0"])
+    items = [
+        parse_tx_field([tx_hex, f"vin.scriptSig.item{j}", "0"])
+        for j in range(count)
+    ]
+
+    assert parse_tx_field([tx_hex, "vin.scriptSig.last", "0"]) == items[-1]
+    for item in items:
+        if item:
+            assert item in script_sig
+
+
+def test_scriptsig_item_fields_parse_small_push_opcodes():
+    # scriptSig bytes: OP_0 OP_1 PUSH(1) aa OP_1NEGATE
+    tx_hex = (
+        "02000000"
+        "01"
+        + "aa" * 32
+        + "00000000"
+        + "05"
+        + "005101aa4f"
+        + "ffffffff"
+        + "01"
+        + "e803000000000000"
+        + "01"
+        + "51"
+        + "00000000"
+    )
+
+    assert parse_tx_field([tx_hex, "vin.scriptSig", "0"]) == "005101aa4f"
+    assert parse_tx_field([tx_hex, "vin.scriptSig_count", "0"]) == "4"
+    assert parse_tx_field([tx_hex, "vin.scriptSig.item0", "0"]) == ""
+    assert parse_tx_field([tx_hex, "vin.scriptSig.item1", "0"]) == "01"
+    assert parse_tx_field([tx_hex, "vin.scriptSig.item2", "0"]) == "aa"
+    assert parse_tx_field([tx_hex, "vin.scriptSig.item3", "0"]) == "81"
+    assert parse_tx_field([tx_hex, "vin.scriptSig.last", "0"]) == "81"
+
+
+def test_scriptsig_item_index_out_of_range():
+    tx_hex = next(
+        tx
+        for tx in _LEGACY
+        if parse_tx_field([tx, "vin.scriptSig", "0"])
+    )
+    with pytest.raises(IndexError, match="scriptSig item index"):
+        parse_tx_field([tx_hex, "vin.scriptSig.item99", "0"])
+
+
+def test_unknown_scriptsig_subfield_rejected():
+    with pytest.raises(ValueError, match="Unknown vin sub-field"):
+        parse_tx_field([_LEGACY[0], "vin.scriptSig.itemX", "0"])
+
+
+def test_scriptsig_item_fields_reject_non_push_opcodes():
+    tx_hex = (
+        "02000000"
+        "01"
+        + "aa" * 32
+        + "00000000"
+        + "01"
+        + "76"
+        + "ffffffff"
+        + "01"
+        + "e803000000000000"
+        + "01"
+        + "51"
+        + "00000000"
+    )
+
+    with pytest.raises(ValueError, match="only push operations"):
+        parse_tx_field([tx_hex, "vin.scriptSig.item0", "0"])
+
+
 def test_segwit_witness_fields():
     tx_hex = _SEGWIT[0]
     assert parse_tx_field([tx_hex, "marker_flag"]) == "0001"

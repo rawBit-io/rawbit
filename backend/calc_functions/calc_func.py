@@ -4303,17 +4303,69 @@ def _tx_op_return_data(script: bytes) -> str:
     return b"".join(chunks).hex()
 
 
+def _script_sig_stack_items(script_hex: str) -> list[str]:
+    """Return the stack items pushed by a legacy scriptSig."""
+    script = bytes.fromhex(script_hex)
+    offset = 0
+    items: list[str] = []
+
+    while offset < len(script):
+        opcode_offset = offset
+        opcode = script[offset]
+        offset += 1
+
+        if opcode == 0x00:  # OP_0 pushes an empty item.
+            items.append("")
+            continue
+
+        if 0x01 <= opcode <= 0x4B:
+            size = opcode
+        elif opcode == 0x4C:  # OP_PUSHDATA1
+            if offset + 1 > len(script):
+                raise ValueError("Malformed scriptSig PUSHDATA1 length")
+            size = script[offset]
+            offset += 1
+        elif opcode == 0x4D:  # OP_PUSHDATA2
+            if offset + 2 > len(script):
+                raise ValueError("Malformed scriptSig PUSHDATA2 length")
+            size = int.from_bytes(script[offset:offset + 2], "little")
+            offset += 2
+        elif opcode == 0x4E:  # OP_PUSHDATA4
+            if offset + 4 > len(script):
+                raise ValueError("Malformed scriptSig PUSHDATA4 length")
+            size = int.from_bytes(script[offset:offset + 4], "little")
+            offset += 4
+        elif opcode == 0x4F:  # OP_1NEGATE
+            items.append("81")
+            continue
+        elif 0x51 <= opcode <= 0x60:  # OP_1 .. OP_16
+            items.append(f"{opcode - 0x50:02x}")
+            continue
+        else:
+            raise ValueError(
+                "scriptSig item extraction supports only push operations; "
+                f"found opcode 0x{opcode:02x} at byte {opcode_offset}."
+            )
+
+        end = offset + size
+        if end > len(script):
+            raise ValueError("Malformed scriptSig push: length exceeds script size")
+        items.append(script[offset:end].hex())
+        offset = end
+
+    return items
+
+
 def parse_tx_field(vals: list) -> str:
     """
     Extract a field from a raw Bitcoin transaction of ANY type — legacy,
     SegWit, or Taproot-spending — using rawBit's own byte-by-byte parser
     (see _parse_tx_structure) instead of an external library.
 
-    Witness stack items are addressed positionally in the field name itself:
-    `vin.witness.item0`, `vin.witness.item1`, … (any itemN works) and
-    `vin.witness.last` (witnessScript in P2WSH, control block in Taproot
-    script-path spends). The stack's meaning is defined by the script being
-    spent, so positional names are the only honest general addressing.
+    scriptSig and witness stack items are addressed positionally in the field
+    name itself: `vin.scriptSig.item0`, `vin.witness.item0`, … (any itemN works)
+    and `.last`. The stack's meaning is defined by the script being spent, so
+    positional names are the only honest general addressing.
 
     Parameters
     ----------
@@ -4380,6 +4432,22 @@ def parse_tx_field(vals: list) -> str:
             return str(txin["vout"])
         if sub == "scriptSig":
             return txin["script_sig"]
+        if sub == "scriptSig_count":
+            return str(len(_script_sig_stack_items(txin["script_sig"])))
+        if sub == "scriptSig.last":
+            items = _script_sig_stack_items(txin["script_sig"])
+            if not items:
+                raise IndexError(
+                    f"vin index {index} has an empty scriptSig stack"
+                )
+            return items[-1]
+        if sub.startswith("scriptSig.item"):
+            suffix = sub[len("scriptSig.item"):]
+            if suffix.isdigit():
+                items = _script_sig_stack_items(txin["script_sig"])
+                assert_idx(items, int(suffix), "scriptSig item")
+                return items[int(suffix)]
+            raise ValueError(f"Unknown vin sub-field '{sub}'")
         if sub == "sequence":
             return str(txin["sequence"])
         if sub in ("witness", "witness_count") or sub.startswith("witness."):

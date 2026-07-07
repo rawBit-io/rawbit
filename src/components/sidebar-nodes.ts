@@ -2910,8 +2910,9 @@ export const allSidebarNodes: NodeTemplate[] = [
           },
 
           /* 1 ─ vin/vout index used by per-input/per-output fields.
-             Witness stack items are addressed in the field name itself
-             (vin.witness.item0 … / vin.witness.last). */
+             scriptSig and witness stack items are addressed in the field
+             name itself (vin.scriptSig.item0 … / vin.scriptSig.last,
+             vin.witness.item0 … / vin.witness.last). */
           {
             index: 1,
             label: "VIN/VOUT Index:",
