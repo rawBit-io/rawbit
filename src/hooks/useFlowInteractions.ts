@@ -98,6 +98,22 @@ const edgeConnectionChanged = (previous: Edge, next: Edge): boolean =>
   (previous.sourceHandle ?? null) !== (next.sourceHandle ?? null) ||
   (previous.targetHandle ?? null) !== (next.targetHandle ?? null);
 
+const targetHandleOccupiedByAnotherEdge = (
+  oldEdge: Edge,
+  connection: Connection,
+  edges: Edge[]
+): boolean => {
+  if (!connection.target) return false;
+  const nextTargetHandle = connection.targetHandle ?? null;
+
+  return edges.some(
+    (edge) =>
+      edge.id !== oldEdge.id &&
+      edge.target === connection.target &&
+      (edge.targetHandle ?? null) === nextTargetHandle
+  );
+};
+
 const dirtyNodeIdsFromEdgeChanges = (
   changes: EdgeChange[],
   edges: Edge[]
@@ -859,6 +875,17 @@ export function useFlowInteractions({
 
   const onReconnectWithUndo = useCallback(
     (oldEdge: Edge, newConnection: Connection) => {
+      const currentEdges = getEdges();
+      if (
+        targetHandleOccupiedByAnotherEdge(
+          oldEdge,
+          newConnection,
+          currentEdges
+        )
+      ) {
+        return;
+      }
+
       setEdges((edges) => reconnectEdge(oldEdge, newConnection, edges));
       if (!loadingUndoRef.current) {
         setNodes((nodes) =>
@@ -877,6 +904,7 @@ export function useFlowInteractions({
       }
     },
     [
+      getEdges,
       loadingUndoRef,
       markPendingAfterDirtyChange,
       setEdges,

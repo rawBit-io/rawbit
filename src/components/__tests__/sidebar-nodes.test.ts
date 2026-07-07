@@ -47,6 +47,13 @@ describe("sidebar node templates", () => {
     expect(field?.unconnectable).toBe(true);
   });
 
+  it("does not prefill radio nodes with palette color", () => {
+    expect(templateByTitle("Radio Send 1").nodeData?.borderColor).toBeUndefined();
+    expect(
+      templateByTitle("Radio Receive 1").nodeData?.borderColor,
+    ).toBeUndefined();
+  });
+
   it("seeds P2WPKH Witness defaults in inputs.vals instead of dead field values", () => {
     const template = templateByTitle("P2WPKH Witness");
     expect(template.nodeData?.inputs?.vals).toEqual({ 0: "02", 30: "21" });

@@ -83,7 +83,6 @@ export const allSidebarNodes: NodeTemplate[] = [
       baseHeight: 110,
       width: 132,
       height: 64,
-      borderColor: "#008c95",
     },
   },
   {
@@ -105,7 +104,6 @@ export const allSidebarNodes: NodeTemplate[] = [
       baseHeight: 90,
       width: 132,
       height: 64,
-      borderColor: "#008c95",
     },
   },
   {

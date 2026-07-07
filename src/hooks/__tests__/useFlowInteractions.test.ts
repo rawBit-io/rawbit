@@ -167,6 +167,98 @@ describe("useFlowInteractions", () => {
     expect(deps.markPendingAfterDirtyChange).toHaveBeenCalledTimes(1);
   });
 
+  it("blocks reconnecting an edge onto an already occupied input handle", () => {
+    const deps = baseDeps();
+    let nodesState: FlowNode[] = [
+      {
+        id: "source-a",
+        type: "calculation",
+        position: { x: 0, y: 0 },
+        data: { dirty: false },
+      } as FlowNode,
+      {
+        id: "source-b",
+        type: "calculation",
+        position: { x: 0, y: 120 },
+        data: { dirty: false },
+      } as FlowNode,
+      {
+        id: "target",
+        type: "calculation",
+        position: { x: 200, y: 0 },
+        data: { dirty: false },
+      } as FlowNode,
+    ];
+    let edgesState: Edge[] = [
+      {
+        id: "edge-a",
+        source: "source-a",
+        target: "target",
+        targetHandle: "input-0",
+      } as Edge,
+      {
+        id: "edge-b",
+        source: "source-b",
+        target: "target",
+        targetHandle: "input-1",
+      } as Edge,
+    ];
+
+    const getNodes = () => nodesState;
+    const getEdges = () => edgesState;
+    const setNodes = (updater: (nodes: FlowNode[]) => FlowNode[]) => {
+      nodesState = updater(nodesState);
+    };
+    const setEdges = (updater: (edges: Edge[]) => Edge[]) => {
+      edgesState = updater(edgesState);
+    };
+
+    const { result } = renderHook(() =>
+      useFlowInteractions({
+        ...deps,
+        rawOnNodesChange: deps.rawOnNodesChange,
+        rawOnEdgesChange: deps.rawOnEdgesChange,
+        onConnect: deps.onConnect,
+        onDrop: deps.onDrop,
+        onNodeDragStop: deps.onNodeDragStop,
+        getNodes,
+        getEdges,
+        setNodes,
+        setEdges,
+        getTopLeftPosition: deps.getTopLeftPosition,
+        pasteNodes: deps.pasteNodes,
+        isSidebarOpen: false,
+        setTabTooltip: deps.setTabTooltip,
+        renameTab: deps.renameTab,
+        activeTabId: "tab-1",
+        groupSelectedNodes: deps.groupSelectedNodes,
+        ungroupSelectedNodes: deps.ungroupSelectedNodes,
+        clearHighlights: deps.clearHighlights,
+        setIsSearchHighlight: deps.setIsSearchHighlight,
+        incRev: deps.incRev,
+        pushCleanState: deps.pushCleanState,
+        updatePaletteEligibility: deps.updatePaletteEligibility,
+        skipNextNodeRemovalRef: deps.skipNextNodeRemovalRef,
+        releaseNodeRemovalSnapshotSkip: deps.releaseNodeRemovalSnapshotSkip,
+      })
+    );
+
+    const beforeEdges = edgesState.map((edge) => ({ ...edge }));
+
+    act(() => {
+      result.current.onReconnectWithUndo(edgesState[0], {
+        source: "source-a",
+        sourceHandle: null,
+        target: "target",
+        targetHandle: "input-1",
+      });
+    });
+
+    expect(edgesState).toEqual(beforeEdges);
+    expect(nodesState.some((node) => node.data?.dirty)).toBe(false);
+    expect(deps.markPendingAfterDirtyChange).not.toHaveBeenCalled();
+  });
+
   it("records undo snapshot after node drag", () => {
     vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue(
       "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15"
