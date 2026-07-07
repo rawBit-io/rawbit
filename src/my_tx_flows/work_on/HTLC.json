@@ -7062,8 +7062,7 @@
         "groupInstances": {},
         "dirty": false,
         "error": false,
-        "showComment": true,
-        "comment": "Funding tx output index to spend"
+        "showComment": false
       },
       "parentId": "node_6Y4Hfu0T",
       "extent": "parent"
@@ -7190,8 +7189,8 @@
       "id": "node_PMUWnC4A",
       "type": "shadcnGroup",
       "position": {
-        "x": 29974.36344413301,
-        "y": 16874.127700291592
+        "x": 30337.011258048973,
+        "y": 16635.91786173895
       },
       "data": {
         "isGroup": true,
@@ -7203,7 +7202,8 @@
           "targetByBundle": {
             "node_ecyVK7iO->node_PMUWnC4A": -41.89,
             "node_yjTEN8Ma->node_PMUWnC4A": 242.19,
-            "node_TWzQMnUr->node_PMUWnC4A": -424.35
+            "node_TWzQMnUr->node_PMUWnC4A": -424.35,
+            "node_NurTBuW6->node_PMUWnC4A": 185.52
           }
         },
         "borderColor": "#7a4ea3",
@@ -7229,20 +7229,20 @@
             "0": "02000000",
             "10": "01",
             "1000": "259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674",
-            "1010": "01000000",
+            "1010": "00000000",
             "1020": "df",
-            "1030": "473044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b84c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
+            "1030": "4730440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a0120e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb514c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
             "1040": "fdffffff",
             "2000": "01",
             "3000": "2805050000000000",
-            "3010": "17",
-            "3020": "a91499ea333b22c8eb5685aa79ab59c472f69844ffb387",
+            "3010": "19",
+            "3020": "76a914c49aeda1779794b36312daf8cf54b60d268f467388ac",
             "4000": "00000000"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef64067401000000df473044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b84c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff01280505000000000017a91499ea333b22c8eb5685aa79ab59c472f69844ffb38700000000",
+        "result": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef64067400000000df4730440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a0120e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb514c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff0128050500000000001976a914c49aeda1779794b36312daf8cf54b60d268f467388ac00000000",
         "inputStructure": {
           "afterGroups": [
             {
@@ -7357,7 +7357,7 @@
         },
         "baseHeight": 120,
         "totalInputs": 12,
-        "unwiredCount": 2,
+        "unwiredCount": 0,
         "showComment": true,
         "comment": "bitcoin-cli -testnet4 sendrawtransaction <hex>",
         "title": "Final Raw Transaction",
@@ -7381,9 +7381,9 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef64067401000000df473044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b84c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff01280505000000000017a91499ea333b22c8eb5685aa79ab59c472f69844ffb38700000000"
+          "val": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef64067400000000df4730440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a0120e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb514c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff0128050500000000001976a914c49aeda1779794b36312daf8cf54b60d268f467388ac00000000"
         },
-        "result": "c93eb62c68ddf97980511bea05ee59200cd518e98b68bb063e20f2c4765c98e4",
+        "result": "ea94d229304da5178f9323a58a9e045efc7d91d0945a5a550ba9e7df6b64cfd3",
         "inputStructure": {
           "ungrouped": [
             {
@@ -7414,9 +7414,9 @@
         "showField": false,
         "dirty": false,
         "groupInstances": {},
-        "result": "e4985c76c4f2203e06bb688be918d50c2059ee05ea1b518079f9dd682cb63ec9",
+        "result": "d3cf646bdfe7a90b555a5a94d0917dfc5e049e8aa523938f17a54d3029d294ea",
         "inputs": {
-          "val": "c93eb62c68ddf97980511bea05ee59200cd518e98b68bb063e20f2c4765c98e4"
+          "val": "ea94d229304da5178f9323a58a9e045efc7d91d0945a5a550ba9e7df6b64cfd3"
         },
         "showComment": true,
         "comment": "TXID as displayed by bitcoin clients",
@@ -7439,9 +7439,9 @@
         "numInputs": 6,
         "inputs": {
           "vals": {
-            "0": "473044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b84c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
-            "1": "",
-            "2": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef64067401000000df473044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b84c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff01280505000000000017a91499ea333b22c8eb5685aa79ab59c472f69844ffb38700000000",
+            "0": "4730440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a0120e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb514c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
+            "1": "a914be103c6c8048f7e40035b427fe521db9bef1ed3787",
+            "2": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef64067400000000df4730440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a0120e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb514c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff0128050500000000001976a914c49aeda1779794b36312daf8cf54b60d268f467388ac00000000",
             "3": "0",
             "5": "__EMPTY__"
           }
@@ -7525,9 +7525,9 @@
         "unwiredCount": 0,
         "dirty": false,
         "showComment": false,
-        "result": "false",
+        "result": "true",
         "scriptDebugSteps": {
-          "isValid": false,
+          "isValid": true,
           "steps": [
             {
               "pc": 0,
@@ -7535,20 +7535,35 @@
               "opcode_name": "PUSH 71 bytes",
               "stack_before": [],
               "stack_after": [
-                "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01"
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01"
               ],
               "phase": "scriptSig"
             },
             {
               "pc": 72,
-              "opcode": 33,
-              "opcode_name": "PUSH 33 bytes",
+              "opcode": 32,
+              "opcode_name": "PUSH 32 bytes",
               "stack_before": [
-                "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01"
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01"
               ],
               "stack_after": [
-                "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01",
-                "0399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8"
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb"
+              ],
+              "phase": "scriptSig"
+            },
+            {
+              "pc": 105,
+              "opcode": 81,
+              "opcode_name": "OP_1",
+              "stack_before": [
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb"
+              ],
+              "stack_after": [
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb",
+                "01"
               ],
               "phase": "scriptSig"
             },
@@ -7557,19 +7572,215 @@
               "opcode": 76,
               "opcode_name": "OP_PUSHDATA1",
               "stack_before": [
-                "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01",
-                "0399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8"
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb",
+                "01"
               ],
               "stack_after": [
-                "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01",
-                "0399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8",
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb",
+                "01",
                 "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68"
               ],
               "phase": "scriptSig"
+            },
+            {
+              "pc": 0,
+              "opcode": 169,
+              "opcode_name": "OP_HASH160",
+              "stack_before": [
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb",
+                "01",
+                "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68"
+              ],
+              "stack_after": [
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb",
+                "01",
+                "be103c6c8048f7e40035b427fe521db9bef1ed37"
+              ],
+              "phase": "scriptPubKey"
+            },
+            {
+              "pc": 1,
+              "opcode": 20,
+              "opcode_name": "PUSH 20 bytes",
+              "stack_before": [
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb",
+                "01",
+                "be103c6c8048f7e40035b427fe521db9bef1ed37"
+              ],
+              "stack_after": [
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb",
+                "01",
+                "be103c6c8048f7e40035b427fe521db9bef1ed37",
+                "be103c6c8048f7e40035b427fe521db9bef1ed37"
+              ],
+              "phase": "scriptPubKey"
+            },
+            {
+              "pc": 22,
+              "opcode": 135,
+              "opcode_name": "OP_EQUAL",
+              "stack_before": [
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb",
+                "01",
+                "be103c6c8048f7e40035b427fe521db9bef1ed37",
+                "be103c6c8048f7e40035b427fe521db9bef1ed37"
+              ],
+              "stack_after": [
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb",
+                "01",
+                "01"
+              ],
+              "phase": "scriptPubKey"
+            },
+            {
+              "pc": 0,
+              "opcode": 99,
+              "opcode_name": "OP_IF",
+              "stack_before": [
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb",
+                "01"
+              ],
+              "stack_after": [
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb"
+              ],
+              "phase": "redeemScript"
+            },
+            {
+              "pc": 1,
+              "opcode": 168,
+              "opcode_name": "OP_SHA256",
+              "stack_before": [
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb"
+              ],
+              "stack_after": [
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "9995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd"
+              ],
+              "phase": "redeemScript"
+            },
+            {
+              "pc": 2,
+              "opcode": 32,
+              "opcode_name": "PUSH 32 bytes",
+              "stack_before": [
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "9995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd"
+              ],
+              "stack_after": [
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "9995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd",
+                "9995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd"
+              ],
+              "phase": "redeemScript"
+            },
+            {
+              "pc": 35,
+              "opcode": 136,
+              "opcode_name": "OP_EQUALVERIFY",
+              "stack_before": [
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "9995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd",
+                "9995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd"
+              ],
+              "stack_after": [
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01"
+              ],
+              "phase": "redeemScript"
+            },
+            {
+              "pc": 36,
+              "opcode": 33,
+              "opcode_name": "PUSH 33 bytes",
+              "stack_before": [
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01"
+              ],
+              "stack_after": [
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "0339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950"
+              ],
+              "phase": "redeemScript"
+            },
+            {
+              "pc": 70,
+              "opcode": 172,
+              "opcode_name": "OP_CHECKSIG",
+              "stack_before": [
+                "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+                "0339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950"
+              ],
+              "stack_after": ["01"],
+              "phase": "redeemScript"
+            },
+            {
+              "pc": 71,
+              "opcode": 103,
+              "opcode_name": "OP_ELSE",
+              "stack_before": ["01"],
+              "stack_after": ["01"],
+              "phase": "redeemScript"
+            },
+            {
+              "pc": 72,
+              "opcode": 4,
+              "opcode_name": "PUSH 4 bytes",
+              "stack_before": ["01"],
+              "stack_after": ["01"],
+              "phase": "redeemScript"
+            },
+            {
+              "pc": 77,
+              "opcode": 177,
+              "opcode_name": "OP_CHECKLOCKTIMEVERIFY",
+              "stack_before": ["01"],
+              "stack_after": ["01"],
+              "phase": "redeemScript"
+            },
+            {
+              "pc": 78,
+              "opcode": 117,
+              "opcode_name": "OP_DROP",
+              "stack_before": ["01"],
+              "stack_after": ["01"],
+              "phase": "redeemScript"
+            },
+            {
+              "pc": 79,
+              "opcode": 33,
+              "opcode_name": "PUSH 33 bytes",
+              "stack_before": ["01"],
+              "stack_after": ["01"],
+              "phase": "redeemScript"
+            },
+            {
+              "pc": 113,
+              "opcode": 172,
+              "opcode_name": "OP_CHECKSIG",
+              "stack_before": ["01"],
+              "stack_after": ["01"],
+              "phase": "redeemScript"
+            },
+            {
+              "pc": 114,
+              "opcode": 104,
+              "opcode_name": "OP_ENDIF",
+              "stack_before": ["01"],
+              "stack_after": ["01"],
+              "phase": "redeemScript"
             }
           ],
-          "scriptSig": "473044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b84c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
-          "scriptPubKey": "",
+          "scriptSig": "4730440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a0120e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb514c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
+          "scriptPubKey": "a914be103c6c8048f7e40035b427fe521db9bef1ed3787",
           "excludedFlags": [],
           "activeFlags": [
             "CHECKLOCKTIMEVERIFY",
@@ -7590,8 +7801,7 @@
             "WITNESS_PUBKEYTYPE"
           ],
           "usesWitness": false,
-          "witnessRulesEnabled": true,
-          "error": "scriptPubKey left 3 items on stack (cleanstack requires exactly 1)"
+          "witnessRulesEnabled": true
         }
       },
       "parentId": "node_PMUWnC4A",
@@ -7601,13 +7811,13 @@
       "id": "node_TWzQMnUr",
       "type": "shadcnGroup",
       "position": {
-        "x": 26790.938736597807,
-        "y": 14540.929070574148
+        "x": 26653.84434770549,
+        "y": 13394.986487297378
       },
       "data": {
         "isGroup": true,
-        "width": 2770,
-        "height": 1168,
+        "width": 2954,
+        "height": 1660,
         "title": "Signature and scriptSig",
         "groupBundlePortOffsets": {
           "target": -559.24,
@@ -7622,16 +7832,16 @@
         "borderColor": "#d6a500",
         "fontSize": 44
       },
-      "width": 2770,
-      "height": 1168,
+      "width": 2954,
+      "height": 1660,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "node_ZG3lrpId",
       "type": "calculation",
       "position": {
-        "x": 769.7430048340393,
-        "y": 358.19910126077593
+        "x": 1004.665166071296,
+        "y": 221.53859407840355
       },
       "data": {
         "functionName": "concat_all",
@@ -7639,13 +7849,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b",
+            "0": "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a",
             "100": "01"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01",
+        "result": "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -7691,8 +7901,8 @@
       "id": "node_MXOReDtG",
       "type": "calculation",
       "position": {
-        "x": 1798.0670719730115,
-        "y": 127.64153441667622
+        "x": 2003.7557384003667,
+        "y": 466.6415344166762
       },
       "data": {
         "functionName": "concat_all",
@@ -7701,16 +7911,17 @@
         "inputs": {
           "vals": {
             "0": "47",
-            "100": "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01",
-            "200": "21",
-            "300": "0399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8",
-            "400": "4c73",
-            "500": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68"
+            "100": "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
+            "200": "20",
+            "300": "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb",
+            "400": "51",
+            "500": "4c73",
+            "600": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "473044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b84c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
+        "result": "4730440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a0120e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb514c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -7734,15 +7945,15 @@
           "ungrouped": []
         },
         "groupInstances": {
-          "INPUTS[]": 6
+          "INPUTS[]": 7
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200, 300, 400, 500]
+          "INPUTS[]": [0, 100, 200, 300, 400, 500, 600]
         },
         "baseHeight": 80,
         "title": "scriptSig (push sig & pubkey)",
-        "totalInputs": 6,
-        "unwiredCount": 2,
+        "totalInputs": 7,
+        "unwiredCount": 0,
         "error": false,
         "customFieldLabels": {
           "0": "SIG_LEN:",
@@ -7758,8 +7969,8 @@
       "id": "node_ZEoIzNo3",
       "type": "calculation",
       "position": {
-        "x": 242.2699514978849,
-        "y": 346.4085814541795
+        "x": 403.2380499406463,
+        "y": 240.02620930005287
       },
       "data": {
         "functionName": "sign_as_bitcoin_core_low_r",
@@ -7770,7 +7981,7 @@
         "inputs": {
           "vals": {
             "0": "0f39548e30fd576e479fbf9dbac93406c3024883e65fef039bdfe4ff0973283c",
-            "1": "2d5dba1bb4b77f2a2b3f5337c50ffe50ec5e30dfc20f547c5d0c6ae6c9624664"
+            "1": "b46185e49803760f3e86b39ce26bab69c7c2c2b38298289af675885b0fcb8827"
           }
         },
         "inputStructure": {
@@ -7788,7 +7999,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b",
+        "result": "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a",
         "totalInputs": 2,
         "unwiredCount": 0,
         "error": false
@@ -7800,8 +8011,8 @@
       "id": "node_tGQ0Fgpc",
       "type": "calculation",
       "position": {
-        "x": 2362.696255979219,
-        "y": 310.66702170927783
+        "x": 2568.3849224065743,
+        "y": 649.6670217092778
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -7811,7 +8022,7 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": "473044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b84c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68"
+          "val": "4730440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a0120e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb514c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68"
         },
         "result": "df",
         "error": false
@@ -7823,8 +8034,8 @@
       "id": "node_Kldpjpvs",
       "type": "calculation",
       "position": {
-        "x": 1343.77838571366,
-        "y": 199.09589791778308
+        "x": 1517.9965543268736,
+        "y": 185.4640169568229
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -7834,7 +8045,7 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "3044022020ca2928b36f18e5d8397440a1f91a005dfa2ea5c8d925d051bb56813daa2a63022005de43d3df27beda67354f56a00844b45681e13dc372c2bb06a0806a2d3dc10b01"
+          "val": "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01"
         },
         "result": "47",
         "inputStructure": {
@@ -7857,8 +8068,8 @@
       "id": "node_qfT7DYEk",
       "type": "calculation",
       "position": {
-        "x": 1379.0930457864997,
-        "y": 669.9378615852711
+        "x": 1581.3126665857199,
+        "y": 1351.7832011574992
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -8075,13 +8286,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674010000007363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff0128050500000000001976a914c49aeda1779794b36312daf8cf54b60d268f467388ac00000000",
+            "0": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674000000007363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff0128050500000000001976a914c49aeda1779794b36312daf8cf54b60d268f467388ac00000000",
             "100": "01000000"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674010000007363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff0128050500000000001976a914c49aeda1779794b36312daf8cf54b60d268f467388ac0000000001000000",
+        "result": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674000000007363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff0128050500000000001976a914c49aeda1779794b36312daf8cf54b60d268f467388ac0000000001000000",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -8139,7 +8350,7 @@
             "0": "02000000",
             "10": "01",
             "1000": "259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674",
-            "1010": "01000000",
+            "1010": "00000000",
             "1020": "73",
             "1030": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
             "1040": "fdffffff",
@@ -8152,7 +8363,7 @@
         },
         "dirty": false,
         "version": 0,
-        "result": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674010000007363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff0128050500000000001976a914c49aeda1779794b36312daf8cf54b60d268f467388ac00000000",
+        "result": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674000000007363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff0128050500000000001976a914c49aeda1779794b36312daf8cf54b60d268f467388ac00000000",
         "inputStructure": {
           "afterGroups": [
             {
@@ -8360,9 +8571,9 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": ""
+          "val": "a914be103c6c8048f7e40035b427fe521db9bef1ed3787"
         },
-        "result": "00",
+        "result": "17",
         "error": false
       },
       "parentId": "node_ecyVK7iO",
@@ -8383,9 +8594,9 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674010000007363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff0128050500000000001976a914c49aeda1779794b36312daf8cf54b60d268f467388ac0000000001000000"
+          "val": "0200000001259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674000000007363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68fdffffff0128050500000000001976a914c49aeda1779794b36312daf8cf54b60d268f467388ac0000000001000000"
         },
-        "result": "2d5dba1bb4b77f2a2b3f5337c50ffe50ec5e30dfc20f547c5d0c6ae6c9624664",
+        "result": "b46185e49803760f3e86b39ce26bab69c7c2c2b38298289af675885b0fcb8827",
         "inputStructure": {
           "ungrouped": [
             {
@@ -8417,9 +8628,9 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": 1
+          "val": 0
         },
-        "result": "01000000",
+        "result": "00000000",
         "error": false
       },
       "parentId": "node_ecyVK7iO",
@@ -8559,20 +8770,20 @@
       "id": "node_2GpqusJb",
       "type": "calculation",
       "position": {
-        "x": 234.74191353084097,
-        "y": 1087.4639918302955
+        "x": 199.96166563439692,
+        "y": 1003.3182307905099
       },
       "data": {
         "functionName": "identity",
         "title": "VOUT",
         "showField": true,
         "numInputs": 0,
-        "value": "1",
+        "value": "0",
         "version": 0,
         "inputs": {
-          "val": "1"
+          "val": "0"
         },
-        "result": "1",
+        "result": "0",
         "inputStructure": {
           "ungrouped": [
             {
@@ -8585,8 +8796,7 @@
         "groupInstances": {},
         "dirty": false,
         "error": false,
-        "showComment": true,
-        "comment": "Funding tx output index to spend"
+        "showComment": false
       },
       "parentId": "node_ecyVK7iO",
       "extent": "parent"
@@ -8659,11 +8869,11 @@
         "title": "TX Parser",
         "paramExtraction": "multi_val",
         "numInputs": 2,
-        "result": "txid: 259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674\nvout.scriptPubKey: <error: vout index 1 out of range (have 1)>",
+        "result": "txid: 259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674\nvout.scriptPubKey: a914be103c6c8048f7e40035b427fe521db9bef1ed3787",
         "inputs": {
           "vals": {
             "0": "0200000001f295c9597398dcbf15b921fa6d805664e7dfc4d0c20e8b9f5cbad49f5499ea7c010000006a4730440220411f48841cb175b9a371d27ea5a48f3821e765c6a23cfdce112af0f69f470fc3022065d4740f1ebcfb3787a6b94a96f735b88a33582bd50043b40c658c935fc757d401210223c7c462b2707770025eee6a65fd5f10b4c991fc6a2ba75e010a0491f5a30e61fdffffff01100905000000000017a914be103c6c8048f7e40035b427fe521db9bef1ed378700000000",
-            "1": "1"
+            "1": "0"
           }
         },
         "txFieldExtractMode": "dynamic",
@@ -8701,7 +8911,7 @@
         "unwiredCount": 0,
         "outputValues": {
           "output-0": "259e0d86be894fe2c2a606c0f4c218f4ac9d5550f9b4c4991097f868ef640674",
-          "output-1": ""
+          "output-1": "a914be103c6c8048f7e40035b427fe521db9bef1ed3787"
         },
         "dirty": false,
         "error": false
@@ -9029,8 +9239,8 @@
       "id": "node_NurTBuW6",
       "type": "shadcnGroup",
       "position": {
-        "x": 17543.946506137396,
-        "y": 18680.368071917594
+        "x": 17549.3214759166,
+        "y": 18644.631718694523
       },
       "data": {
         "isGroup": true,
@@ -9039,7 +9249,13 @@
         "title": "Locking Script",
         "dirty": false,
         "borderColor": "#a83a32",
-        "fontSize": 44
+        "fontSize": 44,
+        "groupBundlePortOffsets": {
+          "sourceByBundle": {
+            "node_NurTBuW6->node_ecyVK7iO": -104.7,
+            "node_NurTBuW6->node_PMUWnC4A": 71.78
+          }
+        }
       },
       "width": 2478,
       "height": 1092,
@@ -9449,13 +9665,13 @@
       "data": {
         "isGroup": true,
         "width": 807,
-        "height": 614.4853772642136,
+        "height": 706.636351512906,
         "title": "Bob private info ",
         "fontSize": 44,
         "dirty": false
       },
       "width": 807,
-      "height": 614.4853772642136,
+      "height": 706.636351512906,
       "dragHandle": "[data-drag-handle]"
     },
     {
@@ -11661,8 +11877,8 @@
       "id": "node_gh2uol7",
       "type": "radioNode",
       "position": {
-        "x": 26790,
-        "y": 14910
+        "x": 131.2238539449172,
+        "y": 313.7483908026352
       },
       "data": {
         "functionName": "radio_receive",
@@ -11687,6 +11903,8 @@
         },
         "error": false
       },
+      "parentId": "node_TWzQMnUr",
+      "extent": "parent",
       "width": 132,
       "height": 64
     },
@@ -11747,8 +11965,8 @@
       "id": "node_9zttw3j",
       "type": "radioNode",
       "position": {
-        "x": 1139.0612634021927,
-        "y": 894.0709294258522
+        "x": 1207.437833111897,
+        "y": 1419.1509096511418
       },
       "data": {
         "functionName": "radio_receive",
@@ -11777,6 +11995,260 @@
       "extent": "parent",
       "width": 132,
       "height": 64
+    },
+    {
+      "id": "node_j4fg7rt",
+      "type": "calculation",
+      "position": {
+        "x": 725.1576917005295,
+        "y": 739.8547728935337
+      },
+      "data": {
+        "functionName": "parse_tx_field",
+        "title": "TX Parser",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "result": "vin.scriptSig.item1: e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb",
+        "inputs": {
+          "vals": {
+            "0": "02000000015310deae456fe23199d1ca344df6ce65cc8348a6dd0890c4ab793b9080ee348500000000df47304402202657d1057c25c234a0356825c1a05c2e4d0e046f648830b5b0f74d4ece33bdbc022066fc757b98e569be4a13fc677a4bcf8d9ba608593d6ffada229878983de5dfa30120e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb514c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd8821029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0aac6704a7dc486ab17521039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029dac68fdffffff01682a0400000000001976a91456b7aa7b14e586c80cdf46999edbd05c151c025988ac00000000",
+            "1": "0"
+          }
+        },
+        "txFieldExtractMode": "dynamic",
+        "txExtractFields": ["vin.scriptSig.item1"],
+        "outputPorts": [
+          {
+            "label": "vin.scriptSig.item1",
+            "handleId": "output-0",
+            "showLabel": false
+          }
+        ],
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Raw TX (hex):",
+              "rows": 3,
+              "placeholder": "<transaction hex>"
+            },
+            {
+              "index": 1,
+              "label": "VIN/VOUT Index:",
+              "rows": 1,
+              "placeholder": "0"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "totalInputs": 2,
+        "unwiredCount": 0,
+        "dirty": false,
+        "outputValues": {
+          "output-0": "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb"
+        },
+        "error": false,
+        "showComment": true,
+        "comment": "extract Alice secret from her spend tx"
+      },
+      "parentId": "node_TWzQMnUr",
+      "extent": "parent"
+    },
+    {
+      "id": "node_p8fpv5l",
+      "type": "radioNode",
+      "position": {
+        "x": 1035.4668124022442,
+        "y": 1135.6732358787958
+      },
+      "data": {
+        "functionName": "radio_send",
+        "title": "Radio Send 17",
+        "paramExtraction": "multi_val",
+        "numInputs": 1,
+        "inputs": {
+          "vals": {
+            "0": "02000000015310deae456fe23199d1ca344df6ce65cc8348a6dd0890c4ab793b9080ee348500000000df47304402202657d1057c25c234a0356825c1a05c2e4d0e046f648830b5b0f74d4ece33bdbc022066fc757b98e569be4a13fc677a4bcf8d9ba608593d6ffada229878983de5dfa30120e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb514c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd8821029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0aac6704a7dc486ab17521039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029dac68fdffffff01682a0400000000001976a91456b7aa7b14e586c80cdf46999edbd05c151c025988ac00000000"
+          }
+        },
+        "result": "02000000015310deae456fe23199d1ca344df6ce65cc8348a6dd0890c4ab793b9080ee348500000000df47304402202657d1057c25c234a0356825c1a05c2e4d0e046f648830b5b0f74d4ece33bdbc022066fc757b98e569be4a13fc677a4bcf8d9ba608593d6ffada229878983de5dfa30120e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb514c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd8821029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0aac6704a7dc486ab17521039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029dac68fdffffff01682a0400000000001976a91456b7aa7b14e586c80cdf46999edbd05c151c025988ac00000000",
+        "radioChannel": "17",
+        "outputPorts": [
+          {
+            "label": "17",
+            "handleId": "",
+            "showHandle": false,
+            "showLabel": false
+          }
+        ],
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "VALUE:",
+              "placeholder": "Value to transmit",
+              "rows": 1,
+              "autoResizeMaxRows": 3
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "groupInstanceKeys": {},
+        "baseHeight": 110,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_ct0lFyNT",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_4gtkip9",
+      "type": "radioNode",
+      "position": {
+        "x": 289.82472753208276,
+        "y": 911.1281929052766
+      },
+      "data": {
+        "functionName": "radio_receive",
+        "title": "Radio Receive 17",
+        "numInputs": 0,
+        "result": "02000000015310deae456fe23199d1ca344df6ce65cc8348a6dd0890c4ab793b9080ee348500000000df47304402202657d1057c25c234a0356825c1a05c2e4d0e046f648830b5b0f74d4ece33bdbc022066fc757b98e569be4a13fc677a4bcf8d9ba608593d6ffada229878983de5dfa30120e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb514c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd8821029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0aac6704a7dc486ab17521039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029dac68fdffffff01682a0400000000001976a91456b7aa7b14e586c80cdf46999edbd05c151c025988ac00000000",
+        "radioChannel": "17",
+        "outputPorts": [
+          {
+            "label": "17",
+            "handleId": "",
+            "showLabel": false
+          }
+        ],
+        "groupInstances": {},
+        "baseHeight": 90,
+        "width": 132,
+        "height": 64,
+        "dirty": false,
+        "inputs": {
+          "val": "02000000015310deae456fe23199d1ca344df6ce65cc8348a6dd0890c4ab793b9080ee348500000000df47304402202657d1057c25c234a0356825c1a05c2e4d0e046f648830b5b0f74d4ece33bdbc022066fc757b98e569be4a13fc677a4bcf8d9ba608593d6ffada229878983de5dfa30120e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb514c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd8821029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0aac6704a7dc486ab17521039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029dac68fdffffff01682a0400000000001976a91456b7aa7b14e586c80cdf46999edbd05c151c025988ac00000000"
+        },
+        "error": false
+      },
+      "parentId": "node_TWzQMnUr",
+      "extent": "parent",
+      "width": 132,
+      "height": 64
+    },
+    {
+      "id": "node_sjbj66u",
+      "type": "calculation",
+      "position": {
+        "x": 304.32601449512003,
+        "y": 1115.042503251696
+      },
+      "data": {
+        "functionName": "identity",
+        "title": "v_out",
+        "showField": true,
+        "numInputs": 0,
+        "value": "0",
+        "version": 0,
+        "inputs": {
+          "val": "0"
+        },
+        "result": "0",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT VALUE:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_TWzQMnUr",
+      "extent": "parent"
+    },
+    {
+      "id": "node_MHnpBjuj",
+      "type": "calculation",
+      "position": {
+        "x": 1483.8044716209988,
+        "y": 718.4354668019405
+      },
+      "data": {
+        "functionName": "encode_script_push_data",
+        "title": "Data → Push Opcode",
+        "showField": false,
+        "numInputs": 1,
+        "dirty": false,
+        "version": 0,
+        "inputs": {
+          "val": "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb"
+        },
+        "result": "20",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Hex Data:",
+              "placeholder": "Enter hex data to calculate push opcode",
+              "rows": 2
+            }
+          ]
+        },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "node_TWzQMnUr",
+      "extent": "parent"
+    },
+    {
+      "id": "node_0VkKbLFh",
+      "type": "opCodeNode",
+      "position": {
+        "x": 1462.461349591642,
+        "y": 1049.947982640635
+      },
+      "data": {
+        "title": "Opcode Sequence",
+        "result": "51",
+        "functionName": "op_code_select",
+        "paramExtraction": "multi_val",
+        "inputs": {
+          "vals": {
+            "0": "OP_1"
+          }
+        },
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ],
+          "groups": [],
+          "betweenGroups": {},
+          "afterGroups": []
+        },
+        "numInputs": 1,
+        "groupInstances": {},
+        "groupInstanceKeys": {},
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_TWzQMnUr",
+      "extent": "parent"
     }
   ],
   "edges": [
@@ -13574,13 +14046,6 @@
       "selected": false
     },
     {
-      "source": "node_qfT7DYEk",
-      "target": "node_MXOReDtG",
-      "targetHandle": "input-400",
-      "selected": false,
-      "id": "xy-edge__node_qfT7DYEk-node_MXOReDtGinput-400"
-    },
-    {
       "source": "node_ZQxwlfBU",
       "target": "node_Jv2iJisU",
       "targetHandle": "input-500",
@@ -14113,10 +14578,80 @@
       "selected": false
     },
     {
-      "id": "edge_evcmsxh",
+      "id": "edge_0afsde1",
+      "source": "node_rrSd0xO3",
+      "target": "node_JL84h0z4",
+      "targetHandle": "input-3010"
+    },
+    {
+      "id": "edge_vmohzka",
+      "source": "node_4pXG9TGI",
+      "target": "node_JL84h0z4",
+      "targetHandle": "input-3020"
+    },
+    {
+      "id": "edge_yzota93",
+      "source": "node_SelzrNT6",
+      "target": "node_p8fpv5l",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_m655iwf",
+      "source": "node_4gtkip9",
+      "target": "node_j4fg7rt",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_7gtgqvl",
+      "source": "node_sjbj66u",
+      "target": "node_j4fg7rt",
+      "targetHandle": "input-1",
+      "selected": false
+    },
+    {
+      "id": "edge_7lvqwf5",
+      "source": "node_j4fg7rt",
+      "target": "node_MHnpBjuj",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_2l550ea",
+      "source": "node_j4fg7rt",
+      "target": "node_MXOReDtG",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-300",
+      "selected": false
+    },
+    {
+      "id": "edge_56wbfpj",
+      "source": "node_MHnpBjuj",
+      "target": "node_MXOReDtG",
+      "targetHandle": "input-200",
+      "selected": false
+    },
+    {
       "source": "node_9zttw3j",
       "target": "node_MXOReDtG",
+      "targetHandle": "input-600",
+      "selected": false,
+      "id": "xy-edge__node_9zttw3j-node_MXOReDtGinput-600"
+    },
+    {
+      "source": "node_qfT7DYEk",
+      "target": "node_MXOReDtG",
       "targetHandle": "input-500",
+      "selected": false,
+      "id": "xy-edge__node_qfT7DYEk-node_MXOReDtGinput-500"
+    },
+    {
+      "id": "edge_kvl67e4",
+      "source": "node_0VkKbLFh",
+      "target": "node_MXOReDtG",
+      "targetHandle": "input-400",
       "selected": false
     }
   ],
@@ -14327,6 +14862,16 @@
       "channel": "15",
       "source": "node_tuajgyl",
       "target": "node_9zttw3j",
+      "targetHandle": "input-0",
+      "sourceFunction": "radio_send",
+      "targetFunction": "radio_receive"
+    },
+    {
+      "id": "__radio__node_p8fpv5l__node_4gtkip9__17",
+      "kind": "radio",
+      "channel": "17",
+      "source": "node_p8fpv5l",
+      "target": "node_4gtkip9",
       "targetHandle": "input-0",
       "sourceFunction": "radio_send",
       "targetFunction": "radio_receive"
