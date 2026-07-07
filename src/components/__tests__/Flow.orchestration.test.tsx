@@ -10,6 +10,7 @@ import Flow from "@/components/Flow";
 import type { NodePorts } from "@/components/dialog/ConnectDialog";
 import { buildGroupBundledElements } from "@/lib/flow/groupEdgeBundling";
 import { useSharedFlowLoader } from "@/hooks/useSharedFlowLoader";
+import { useFlowHotkeys } from "@/hooks/useFlowHotkeys";
 import { buildEdge, buildFlowNode } from "@/test-utils/types";
 
 type FileImportCallbacks = {
@@ -58,6 +59,12 @@ const saveConfirmationHookCalls: {
   saveFn: () => void | Promise<void>;
   promptSave: ReturnType<typeof vi.fn>;
 }[] = [];
+const copyPasteMocks = {
+  copyNodes: vi.fn(),
+  pasteNodes: vi.fn(),
+  handleMouseMove: vi.fn(),
+  getTopLeftPosition: vi.fn(() => ({ x: 0, y: 0 })),
+};
 
 const mockNodesState: { current: FlowNode[] } = {
   current: [],
@@ -199,10 +206,10 @@ vi.mock("@/hooks/useNodeOperations", () => ({
 
 vi.mock("@/hooks/useCopyPaste", () => ({
   useCopyPaste: () => ({
-    copyNodes: vi.fn(),
-    pasteNodes: vi.fn(),
-    handleMouseMove: vi.fn(),
-    getTopLeftPosition: vi.fn(() => ({ x: 0, y: 0 })),
+    copyNodes: copyPasteMocks.copyNodes,
+    pasteNodes: copyPasteMocks.pasteNodes,
+    handleMouseMove: copyPasteMocks.handleMouseMove,
+    getTopLeftPosition: copyPasteMocks.getTopLeftPosition,
     hasCopiedNodes: false,
   }),
 }));
@@ -406,6 +413,7 @@ vi.mock("@/my_tx_flows/customFlows", () => ({
 
 const rfSetNodesMock = vi.fn();
 const rfSetEdgesMock = vi.fn();
+const deleteElementsMock = vi.fn();
 const updateNodeInternalsMock = vi.fn();
 
 vi.mock("@xyflow/react", () => ({
@@ -421,6 +429,7 @@ vi.mock("@xyflow/react", () => ({
     getEdges: () => reactFlowEdgesState.current ?? mockEdgesState.current,
     setNodes: rfSetNodesMock,
     setEdges: rfSetEdgesMock,
+    deleteElements: deleteElementsMock,
   }),
   useStore: <T,>(selector: (state: typeof store) => T) => selector(store),
   useStoreApi: () => ({
@@ -459,8 +468,13 @@ beforeEach(() => {
   connectDialogState.handleApply.mockClear();
   saveLlmExportMock.mockClear();
   saveSimplifiedFlowMock.mockClear();
+  copyPasteMocks.copyNodes.mockClear();
+  copyPasteMocks.pasteNodes.mockClear();
+  copyPasteMocks.handleMouseMove.mockClear();
+  copyPasteMocks.getTopLeftPosition.mockClear();
   rfSetNodesMock.mockClear();
   rfSetEdgesMock.mockClear();
+  deleteElementsMock.mockClear();
   updateNodeInternalsMock.mockClear();
   addTabMock.mockClear();
   selectTabMock.mockClear();
@@ -474,7 +488,43 @@ afterEach(() => {
   cleanup();
 });
 
-// Tests will be added below
+describe("Flow cut clipboard wiring", () => {
+  it("copies selected nodes before deleting them through React Flow", () => {
+    const selectedNode = {
+      id: "selected",
+      type: "calculation",
+      position: { x: 0, y: 0 },
+      selected: true,
+      data: {},
+    } as FlowNode;
+    const otherNode = {
+      id: "other",
+      type: "calculation",
+      position: { x: 100, y: 0 },
+      selected: false,
+      data: {},
+    } as FlowNode;
+    mockNodesState.current = [selectedNode, otherNode];
+    store.nodes = [selectedNode, otherNode];
+
+    renderFlow();
+
+    const hotkeyArgs = vi.mocked(useFlowHotkeys).mock.calls.at(-1)?.[0] as
+      | {
+          cutNodesRef: React.MutableRefObject<(() => void) | null>;
+        }
+      | undefined;
+
+    act(() => {
+      hotkeyArgs?.cutNodesRef.current?.();
+    });
+
+    expect(copyPasteMocks.copyNodes).toHaveBeenCalledTimes(1);
+    expect(deleteElementsMock).toHaveBeenCalledWith({
+      nodes: [selectedNode],
+    });
+  });
+});
 
 describe("Flow welcome dialog suppression on shared links", () => {
   afterEach(() => {

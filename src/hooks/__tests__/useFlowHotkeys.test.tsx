@@ -13,6 +13,7 @@ describe("useFlowHotkeys", () => {
     const canUngroupSelectedRef = { current: () => true };
 
     const copyNodes = vi.fn();
+    const cutNodes = vi.fn();
     const pasteNodes = vi.fn();
     const undo = vi.fn();
     const redo = vi.fn();
@@ -25,6 +26,7 @@ describe("useFlowHotkeys", () => {
         hasSelectionRef,
         hasCopiedNodesRef,
         copyNodesRef: { current: copyNodes },
+        cutNodesRef: { current: cutNodes },
         pasteNodesRef: { current: pasteNodes },
         canUndoRef,
         canRedoRef,
@@ -46,6 +48,7 @@ describe("useFlowHotkeys", () => {
       canGroupSelectedRef,
       canUngroupSelectedRef,
       copyNodes,
+      cutNodes,
       pasteNodes,
       undo,
       redo,
@@ -76,6 +79,15 @@ describe("useFlowHotkeys", () => {
 
     expect(copyNodes).toHaveBeenCalledTimes(1);
     expect(pasteNodes).toHaveBeenCalledWith(false);
+  });
+
+  it("invokes cut action", () => {
+    const { copyNodes, cutNodes } = setup();
+
+    fireKey("x");
+
+    expect(cutNodes).toHaveBeenCalledTimes(1);
+    expect(copyNodes).not.toHaveBeenCalled();
   });
 
   it("honours meta-key shortcuts on macOS", () => {
@@ -137,15 +149,18 @@ describe("useFlowHotkeys", () => {
   });
 
   it("falls back to copy/paste events if keydown is suppressed", () => {
-    const { copyNodes, pasteNodes } = setup();
+    const { copyNodes, cutNodes, pasteNodes } = setup();
 
     const copyEvent = new Event("copy") as ClipboardEvent;
+    const cutEvent = new Event("cut") as ClipboardEvent;
     const pasteEvent = new Event("paste") as ClipboardEvent;
 
     document.dispatchEvent(copyEvent);
+    document.dispatchEvent(cutEvent);
     document.dispatchEvent(pasteEvent);
 
     expect(copyNodes).toHaveBeenCalledTimes(1);
+    expect(cutNodes).toHaveBeenCalledTimes(1);
     expect(pasteNodes).toHaveBeenCalledWith(false);
   });
 });

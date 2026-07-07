@@ -902,6 +902,7 @@ function FlowContent() {
     getEdges,
     setNodes: rfSetNodes,
     setEdges: rfSetEdges,
+    deleteElements,
     screenToFlowPosition,
   } = useReactFlow<FlowNode>();
   const storeApi = useStoreApi<FlowNode>();
@@ -949,6 +950,34 @@ function FlowContent() {
   useEffect(() => {
     copyNodesRef.current = copyNodes;
   }, [copyNodes]);
+
+  const cutNodes = useCallback(() => {
+    const storeNodes = stripGroupBundlePortNodes(
+      storeApi.getState().nodes as FlowNode[]
+    );
+    const selectedNodeIds = new Set<string>();
+    nodesRef.current.forEach((node) => {
+      if (node.selected) selectedNodeIds.add(node.id);
+    });
+    storeNodes.forEach((node) => {
+      if (node.selected) selectedNodeIds.add(node.id);
+    });
+
+    if (!selectedNodeIds.size) return;
+
+    const nodesToDelete = nodesRef.current.filter((node) =>
+      selectedNodeIds.has(node.id)
+    );
+    if (!nodesToDelete.length) return;
+
+    copyNodes();
+    void deleteElements({ nodes: nodesToDelete });
+  }, [copyNodes, deleteElements, storeApi]);
+
+  const cutNodesRef = useRef(cutNodes);
+  useEffect(() => {
+    cutNodesRef.current = cutNodes;
+  }, [cutNodes]);
 
   const pasteNodesRef = useRef<((withOffset?: boolean) => void) | null>(null);
 
@@ -3144,6 +3173,7 @@ function FlowContent() {
     hasSelectionRef,
     hasCopiedNodesRef,
     copyNodesRef,
+    cutNodesRef,
     pasteNodesRef,
     canUndoRef,
     canRedoRef,

@@ -16,6 +16,7 @@ import {
   Search,
   Share,
   Share2,
+  Scissors,
   Square,
   SquareMousePointer,
   SquareSplitVertical,
@@ -97,6 +98,16 @@ export const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
           "Copied content can be pasted inside the current tab or another tab",
         ],
         icon: Copy,
+      },
+      {
+        title: "Cut",
+        body: "Copy selected nodes, then remove them from the canvas",
+        moreInfo: [
+          "Use Ctrl/Cmd+X to cut the current node selection",
+          "Cut uses the same copied payload as Copy, including groups and internal connections",
+          "Undo restores the removed nodes; Paste places a fresh copy",
+        ],
+        icon: Scissors,
       },
       {
         title: "Paste",

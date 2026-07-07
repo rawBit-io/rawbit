@@ -5,6 +5,7 @@ interface UseFlowHotkeysArgs {
   hasSelectionRef: React.MutableRefObject<boolean>;
   hasCopiedNodesRef: React.MutableRefObject<boolean>;
   copyNodesRef: React.MutableRefObject<(() => void) | null>;
+  cutNodesRef: React.MutableRefObject<(() => void) | null>;
   pasteNodesRef: React.MutableRefObject<((withOffset?: boolean) => void) | null>;
   canUndoRef: React.MutableRefObject<boolean>;
   canRedoRef: React.MutableRefObject<boolean>;
@@ -21,6 +22,7 @@ export function useFlowHotkeys({
   hasSelectionRef,
   hasCopiedNodesRef,
   copyNodesRef,
+  cutNodesRef,
   pasteNodesRef,
   canUndoRef,
   canRedoRef,
@@ -52,6 +54,9 @@ export function useFlowHotkeys({
       if (key === "c" && hasSelectionRef.current) {
         evt.preventDefault();
         copyNodesRef.current?.();
+      } else if (key === "x" && hasSelectionRef.current) {
+        evt.preventDefault();
+        cutNodesRef.current?.();
       } else if (key === "v" && hasCopiedNodesRef.current) {
         evt.preventDefault();
         pasteNodesRef.current?.(false);
@@ -83,6 +88,13 @@ export function useFlowHotkeys({
       copyNodesRef.current?.();
     };
 
+    const onCut = (evt: ClipboardEvent) => {
+      if (shouldSkipHotkeys()) return;
+      if (!hasSelectionRef.current) return;
+      evt.preventDefault();
+      cutNodesRef.current?.();
+    };
+
     const onPaste = (evt: ClipboardEvent) => {
       if (shouldSkipHotkeys()) return;
       if (!hasCopiedNodesRef.current) return;
@@ -91,11 +103,13 @@ export function useFlowHotkeys({
     };
 
     document.addEventListener("copy", onCopy);
+    document.addEventListener("cut", onCut);
     document.addEventListener("paste", onPaste);
 
     return () => {
       window.removeEventListener("keydown", onKey);
       document.removeEventListener("copy", onCopy);
+      document.removeEventListener("cut", onCut);
       document.removeEventListener("paste", onPaste);
     };
   }, [
@@ -103,6 +117,7 @@ export function useFlowHotkeys({
     hasSelectionRef,
     hasCopiedNodesRef,
     copyNodesRef,
+    cutNodesRef,
     pasteNodesRef,
     canUndoRef,
     canRedoRef,
