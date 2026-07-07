@@ -84,8 +84,11 @@ vi.mock("@xyflow/react", () => {
       screenToFlowPosition: ({ x, y }: { x: number; y: number }) => ({ x, y }),
     }),
     useStore: (
-      selector: (state: { nodeLookup: Map<string, unknown> }) => unknown
-    ) => selector({ nodeLookup: new Map() }),
+      selector: (state: {
+        nodes: FlowNode[];
+        nodeLookup: Map<string, unknown>;
+      }) => unknown
+    ) => selector({ nodes: [], nodeLookup: new Map() }),
     Position: {
       Left: "left",
       Right: "right",

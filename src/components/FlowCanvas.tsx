@@ -29,6 +29,7 @@ import {
 } from "@/components/edges/GroupBundleEdge";
 import { GroupBundleSegmentEdge } from "@/components/edges/GroupBundleSegmentEdge";
 import RadioLinkOverlay from "@/components/edges/RadioLinkOverlay";
+import { ensureParentsBeforeChildren } from "@/lib/flow/nodeOrdering";
 import { CanonicalGraphContext } from "@/contexts/canonical-graph";
 import { dispatchDismissNodeMenusEvent } from "@/lib/flow/nodeMenuEvents";
 import {
@@ -264,7 +265,15 @@ export function FlowCanvas({
     [bundleSelectedEdgeIds]
   );
   const visualElements = useMemo(() => {
-    const baseElements = buildGroupBundledElements({ nodes, edges });
+    // React Flow requires parents before children; a violating order makes
+    // viewport culling unmount grouped nodes that are fully in view (they
+    // only come back when zoomed out to the canvas origin). Enforce it here,
+    // at the single point where nodes enter React Flow, instead of trusting
+    // every producer (paste, undo, group ops, imported saves).
+    const baseElements = buildGroupBundledElements({
+      nodes: ensureParentsBeforeChildren(nodes),
+      edges,
+    });
     if (bundleSelectedEdgeIdSet.size === 0) return baseElements;
 
     return {
