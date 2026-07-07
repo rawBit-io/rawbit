@@ -14,6 +14,7 @@ interface EditableLabelProps {
   fontSize?: number;
   fallback?: string;
   sanitizeInput?: (value: string) => string;
+  ariaLabel?: string;
 }
 
 /**
@@ -33,6 +34,7 @@ export function EditableLabel({
   fontSize = 16,
   fallback = "Group Node",
   sanitizeInput = (nextValue) => nextValue,
+  ariaLabel,
 }: EditableLabelProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
@@ -86,6 +88,7 @@ export function EditableLabel({
           startEditing();
         }}
         title="Double-click to rename"
+        aria-label={ariaLabel}
       >
         {value || fallback}
       </button>
@@ -102,6 +105,7 @@ export function EditableLabel({
       )}
       style={labelStyle}
       autoFocus
+      aria-label={ariaLabel}
       value={tempValue}
       maxLength={maxLength}
       onChange={(event) => {

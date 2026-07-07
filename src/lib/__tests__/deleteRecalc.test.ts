@@ -12,6 +12,17 @@ const calcNode = (id: string): FlowNode =>
     data: { functionName: "identity" },
   }) as FlowNode;
 
+const radioNode = (
+  id: string,
+  functionName: "radio_send" | "radio_receive",
+): FlowNode =>
+  ({
+    id,
+    type: "radioNode",
+    position: { x: 0, y: 0 },
+    data: { functionName, radioChannel: "1" },
+  }) as FlowNode;
+
 const groupNode = (id: string): FlowNode =>
   ({ id, type: "shadcnGroup", position: { x: 0, y: 0 }, data: {} }) as FlowNode;
 
@@ -67,5 +78,19 @@ describe("survivingCalculableConsumersOnDelete", () => {
       [calcNode("isolated")]
     );
     expect(result.size).toBe(0);
+  });
+
+  it("dirties surviving radio nodes when a radio node is deleted without visible edges", () => {
+    const result = survivingCalculableConsumersOnDelete(
+      [radioNode("send", "radio_send")],
+      [],
+      [
+        radioNode("send", "radio_send"),
+        radioNode("recv", "radio_receive"),
+        calcNode("plain"),
+      ]
+    );
+
+    expect([...result]).toEqual(["recv"]);
   });
 });

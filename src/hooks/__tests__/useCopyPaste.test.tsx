@@ -107,6 +107,71 @@ describe("useCopyPaste", () => {
     expect(getScriptSteps(secondPaste.id)).toEqual(originalSteps);
   });
 
+  it("remaps pasted radio pairs to a fresh channel and dirties radio nodes", () => {
+    const send = buildFlowNode({
+      id: "radio-send-1",
+      type: "radioNode",
+      position: { x: 0, y: 0 },
+      data: {
+        functionName: "radio_send",
+        title: "Radio Send 1",
+        radioChannel: "1",
+        outputPorts: [
+          { label: "1", handleId: "", showHandle: false, showLabel: false },
+        ],
+      },
+      selected: true,
+    });
+    const receive = buildFlowNode({
+      id: "radio-receive-1",
+      type: "radioNode",
+      position: { x: 140, y: 0 },
+      data: {
+        functionName: "radio_receive",
+        title: "Radio Receive 1",
+        radioChannel: "1",
+        outputPorts: [{ label: "1", handleId: "", showLabel: false }],
+      },
+      selected: true,
+    });
+    state.nodes = [send, receive];
+
+    const { result } = renderHook(() => useCopyPaste());
+
+    act(() => {
+      result.current.copyNodes();
+    });
+
+    act(() => {
+      result.current.pasteNodes({ x: 300, y: 0 });
+    });
+
+    const pastedSend = state.nodes.find(
+      (node) =>
+        node.id !== send.id && node.data?.functionName === "radio_send",
+    );
+    const pastedReceive = state.nodes.find(
+      (node) =>
+        node.id !== receive.id &&
+        node.data?.functionName === "radio_receive",
+    );
+
+    expect(state.nodes.find((node) => node.id === send.id)?.data.dirty).toBe(
+      true,
+    );
+    expect(
+      state.nodes.find((node) => node.id === receive.id)?.data.dirty,
+    ).toBe(true);
+    expect(pastedSend?.data.radioChannel).toBe("2");
+    expect(pastedSend?.data.title).toBe("Radio Send 2");
+    expect(pastedSend?.data.outputPorts?.[0]?.label).toBe("2");
+    expect(pastedSend?.data.dirty).toBe(true);
+    expect(pastedReceive?.data.radioChannel).toBe("2");
+    expect(pastedReceive?.data.title).toBe("Radio Receive 2");
+    expect(pastedReceive?.data.outputPorts?.[0]?.label).toBe("2");
+    expect(pastedReceive?.data.dirty).toBe(true);
+  });
+
   it("copies canonical edges between selected groups from rendered bundle edges", () => {
     const canonicalNodes: FlowNode[] = [
       buildFlowNode({

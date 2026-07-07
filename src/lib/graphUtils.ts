@@ -81,23 +81,49 @@ export function normalizeRadioChannel(value: unknown) {
     .trim()
     .replace(/^#\s*/, "")
     .replace(/\D/g, "")
+    .replace(/^0+(?=\d)/, "")
     .slice(0, 2);
   return digits || "1";
 }
 
+export function isRadioFunctionName(
+  functionName: unknown,
+): functionName is "radio_send" | "radio_receive" {
+  return functionName === "radio_send" || functionName === "radio_receive";
+}
+
+export function radioTitleForFunction(functionName: unknown, channel: string) {
+  return functionName === "radio_send"
+    ? `Radio Send ${channel}`
+    : `Radio Receive ${channel}`;
+}
+
+export function updateRadioOutputPortLabels<T extends CalculationNodeData>(
+  data: T,
+  channel: string,
+): T {
+  if (!Array.isArray(data.outputPorts)) return data;
+  return {
+    ...data,
+    outputPorts: data.outputPorts.map((port) =>
+      port && typeof port === "object" ? { ...port, label: channel } : port,
+    ),
+  };
+}
+
 export function radioChannelFromData(data: CalculationNodeData | undefined) {
-  const title =
-    typeof data?.title === "string" ? data.title : "";
+  if (data?.radioChannel != null) {
+    return normalizeRadioChannel(data.radioChannel);
+  }
+  if (data?.channel != null) {
+    return normalizeRadioChannel(data.channel);
+  }
+
+  const title = typeof data?.title === "string" ? data.title : "";
   const titleMatch = RADIO_CHANNEL_RE.exec(title);
   if (titleMatch) return normalizeRadioChannel(titleMatch[1] ?? titleMatch[2]);
 
-  const raw =
-    typeof data?.radioChannel === "string"
-      ? data.radioChannel
-      : typeof data?.channel === "string"
-        ? data.channel
-        : "1";
-  return normalizeRadioChannel(raw);
+  return "1";
 }
 
 export function buildRadioVirtualEdges(

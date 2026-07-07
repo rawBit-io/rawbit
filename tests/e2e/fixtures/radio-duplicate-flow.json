@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "name": "playwright-radio-duplicate",
+  "nodes": [
+    {
+      "id": "radio_send_a",
+      "type": "radioNode",
+      "position": { "x": 0, "y": 0 },
+      "data": {
+        "functionName": "radio_send",
+        "title": "Radio Send 1",
+        "paramExtraction": "multi_val",
+        "numInputs": 1,
+        "inputs": { "vals": { "0": "" } },
+        "result": "",
+        "radioChannel": "1",
+        "outputPorts": [
+          { "label": "1", "handleId": "", "showHandle": false, "showLabel": false }
+        ],
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "VALUE:",
+              "placeholder": "Value to transmit",
+              "rows": 1
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "groupInstanceKeys": {},
+        "baseHeight": 110,
+        "width": 132,
+        "height": 64
+      }
+    },
+    {
+      "id": "radio_send_b",
+      "type": "radioNode",
+      "position": { "x": 180, "y": 0 },
+      "data": {
+        "functionName": "radio_send",
+        "title": "Radio Send 1",
+        "paramExtraction": "multi_val",
+        "numInputs": 1,
+        "inputs": { "vals": { "0": "" } },
+        "result": "",
+        "radioChannel": "1",
+        "outputPorts": [
+          { "label": "1", "handleId": "", "showHandle": false, "showLabel": false }
+        ],
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "VALUE:",
+              "placeholder": "Value to transmit",
+              "rows": 1
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "groupInstanceKeys": {},
+        "baseHeight": 110,
+        "width": 132,
+        "height": 64
+      }
+    },
+    {
+      "id": "radio_receive",
+      "type": "radioNode",
+      "position": { "x": 360, "y": 0 },
+      "data": {
+        "functionName": "radio_receive",
+        "title": "Radio Receive 1",
+        "numInputs": 0,
+        "result": "",
+        "radioChannel": "1",
+        "outputPorts": [{ "label": "1", "handleId": "", "showLabel": false }],
+        "groupInstances": {},
+        "baseHeight": 90,
+        "width": 132,
+        "height": 64
+      }
+    }
+  ],
+  "edges": []
+}

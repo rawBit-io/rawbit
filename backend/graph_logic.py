@@ -331,20 +331,24 @@ def _is_radio_virtual_edge(edge):
 def _normalize_radio_channel(value):
     text = str(value if value is not None else "").strip()
     text = re.sub(r"^#\s*", "", text)
-    digits = re.sub(r"\D", "", text)[:2]
+    digits = re.sub(r"\D", "", text)
+    digits = re.sub(r"^0+(?=\d)", "", digits)[:2]
     return digits or "1"
 
 
 def _radio_channel(data):
+    raw = data.get("radioChannel")
+    if raw is None:
+        raw = data.get("channel")
+    if raw is not None:
+        return _normalize_radio_channel(raw)
+
     title = str(data.get("title") or "")
     title_match = _RADIO_CHANNEL_RE.search(title)
     if title_match:
         return _normalize_radio_channel(title_match.group(1) or title_match.group(2))
 
-    raw = data.get("radioChannel")
-    if raw is None:
-        raw = data.get("channel")
-    return _normalize_radio_channel(raw)
+    return "1"
 
 
 def _radio_link_label(channel):

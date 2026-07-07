@@ -57,7 +57,12 @@ import {
   getFlowTemplateViewport,
   placeFlowDataAtPosition,
 } from "@/lib/flow/placeFlowTemplate";
-import { normalizeRadioChannel, radioChannelFromData } from "@/lib/graphUtils";
+import {
+  isRadioFunctionName,
+  normalizeRadioChannel,
+  radioChannelFromData,
+  radioTitleForFunction,
+} from "@/lib/graphUtils";
 
 /* ------------------------------------------------------------------ */
 /*  Types & tiny utils                                                */
@@ -102,6 +107,24 @@ function nextRadioChannel(nodes: FlowNode[]) {
   return normalizeRadioChannel(String(Math.min(highest + 1, MAX_RADIO_CHANNEL)));
 }
 
+function unmatchedRadioReceiveChannel(nodes: FlowNode[]) {
+  const senderChannels = new Set<string>();
+  nodes.forEach((node) => {
+    if (node.data?.functionName === "radio_send") {
+      senderChannels.add(radioChannelFromData(node.data));
+    }
+  });
+
+  for (let index = nodes.length - 1; index >= 0; index -= 1) {
+    const node = nodes[index];
+    if (node?.data?.functionName !== "radio_receive") continue;
+    const channel = radioChannelFromData(node.data);
+    if (!senderChannels.has(channel)) return channel;
+  }
+
+  return undefined;
+}
+
 function latestRadioSendChannel(nodes: FlowNode[]) {
   for (let index = nodes.length - 1; index >= 0; index -= 1) {
     const node = nodes[index];
@@ -112,26 +135,21 @@ function latestRadioSendChannel(nodes: FlowNode[]) {
   return "1";
 }
 
-function radioTitle(functionName: unknown, channel: string) {
-  return functionName === "radio_send"
-    ? `Radio Send ${channel}`
-    : `Radio Receive ${channel}`;
-}
-
 function withAutoRadioChannel(
   dragData: PaletteDragData,
   currentNodes: FlowNode[],
 ): PaletteDragData {
   const fnName = dragData.nodeData?.functionName ?? dragData.functionName;
-  if (fnName !== "radio_send" && fnName !== "radio_receive") return dragData;
+  if (!isRadioFunctionName(fnName)) return dragData;
 
   const channel =
     fnName === "radio_send"
-      ? nextRadioChannel(currentNodes)
+      ? (unmatchedRadioReceiveChannel(currentNodes) ??
+        nextRadioChannel(currentNodes))
       : latestRadioSendChannel(currentNodes);
   const nodeData: NonNullable<PaletteDragData["nodeData"]> = {
     ...(dragData.nodeData ?? {}),
-    title: radioTitle(fnName, channel),
+    title: radioTitleForFunction(fnName, channel),
     radioChannel: channel,
   };
 

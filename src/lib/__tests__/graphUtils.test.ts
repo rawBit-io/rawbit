@@ -270,13 +270,13 @@ describe("graph traversal helpers", () => {
         dirty: false,
         functionName: "radio_send",
         title: "Radio Send #7",
-        radioChannel: "1",
+        radioChannel: "7",
       }),
       createNode("recv", {
         dirty: false,
         functionName: "radio_receive",
         title: "Radio Receive #7",
-        radioChannel: "1",
+        radioChannel: "7",
       }),
       createNode("sink", { dirty: false }),
     ];
@@ -345,12 +345,26 @@ describe("graph traversal helpers", () => {
         radioChannel: "abc",
       } as CalculationNodeData)
     ).toBe("1");
+    expect(
+      radioChannelFromData({
+        functionName: "radio_send",
+        title: "Radio Send #7",
+        radioChannel: "01",
+      } as CalculationNodeData)
+    ).toBe("1");
+    expect(
+      radioChannelFromData({
+        functionName: "radio_send",
+        title: "Radio Send #9",
+        radioChannel: 1,
+      } as unknown as CalculationNodeData)
+    ).toBe("1");
 
     const nodes = [
       createNode("send", {
         functionName: "radio_send",
-        title: "Radio Send #123",
-      }),
+        radioChannel: 12,
+      } as unknown as Partial<CalculationNodeData>),
       createNode("recv", {
         functionName: "radio_receive",
         radioChannel: "12",

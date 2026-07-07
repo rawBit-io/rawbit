@@ -15,7 +15,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useSnapshotSchedulerContext } from "@/hooks/useSnapshotSchedulerContext";
-import { normalizeRadioChannel, radioChannelFromData } from "@/lib/graphUtils";
+import {
+  isRadioFunctionName,
+  normalizeRadioChannel,
+  radioChannelFromData,
+  radioTitleForFunction,
+  updateRadioOutputPortLabels,
+} from "@/lib/graphUtils";
 import { cn } from "@/lib/utils";
 import type { FlowNode, NodeData } from "@/types";
 import { EditableLabel } from "./common/EditableLabel";
@@ -36,6 +42,29 @@ type RadioLinkStatus = {
   message?: string;
 };
 
+const senderCountCache: {
+  nodes: FlowNode[] | null;
+  counts: Map<string, number>;
+} = {
+  nodes: null,
+  counts: new Map(),
+};
+
+function radioSenderCounts(nodes: FlowNode[]) {
+  if (senderCountCache.nodes === nodes) return senderCountCache.counts;
+
+  const counts = new Map<string, number>();
+  for (const node of nodes) {
+    if (node.data?.functionName !== "radio_send") continue;
+    const senderChannel = radioChannelFromData(node.data);
+    counts.set(senderChannel, (counts.get(senderChannel) ?? 0) + 1);
+  }
+
+  senderCountCache.nodes = nodes;
+  senderCountCache.counts = counts;
+  return counts;
+}
+
 function radioLinkStatusEqual(a: RadioLinkStatus, b: RadioLinkStatus) {
   return a.error === b.error && a.message === b.message;
 }
@@ -45,23 +74,25 @@ function getRadioLinkStatus(
   channel: string,
   nodes: FlowNode[],
 ): RadioLinkStatus {
+  const matchingSenders = radioSenderCounts(nodes).get(channel) ?? 0;
+
   if (isSend) {
+    if (matchingSenders > 1) {
+      return {
+        error: true,
+        message: `Radio Send ${channel} duplicates another Radio Send`,
+      };
+    }
     return { error: false };
   }
 
-  const senders = nodes.filter(
-    (node) =>
-      node.data?.functionName === "radio_send" &&
-      radioChannelFromData(node.data) === channel,
-  );
-
-  if (senders.length === 0) {
+  if (matchingSenders === 0) {
     return {
       error: true,
       message: `Radio Receive ${channel} has no matching Radio Send`,
     };
   }
-  if (senders.length > 1) {
+  if (matchingSenders > 1) {
     return {
       error: true,
       message: `Radio Receive ${channel} has multiple matching Radio Sends`,
@@ -86,21 +117,43 @@ export default function RadioNode({ id, data, selected }: NodeProps<FlowNode>) {
     ),
     radioLinkStatusEqual,
   );
-  const hasError = localRadioStatus.error;
-  const errorTitle = localRadioStatus.message ?? "Radio link error";
+  const backendErrorMessage = nodeData.error
+    ? String(nodeData.extendedError ?? "Radio node error")
+    : undefined;
+  const errorTitle =
+    [localRadioStatus.message, backendErrorMessage].filter(Boolean).join("\n\n") ||
+    "Radio link error";
+  const hasError = localRadioStatus.error || Boolean(backendErrorMessage);
   const circleLeft = isSend ? 16 : 60;
   const handleClass = "!h-3 !w-3 !border-2 !border-primary !bg-background";
+  const paletteColor =
+    typeof nodeData.borderColor === "string" && nodeData.borderColor.trim()
+      ? nodeData.borderColor.trim()
+      : undefined;
 
   const commitChannel = useCallback(
     (value: string) => {
       const nextChannel = normalizeChannel(value);
-      const nextTitle = `${titlePrefix} ${nextChannel}`;
+      const nextTitle = radioTitleForFunction(
+        nodeData.functionName,
+        nextChannel,
+      );
+      const outputPortLabelsAreCurrent =
+        !Array.isArray(nodeData.outputPorts) ||
+        nodeData.outputPorts.every((port) => port.label === nextChannel);
+      if (
+        nextChannel === channel &&
+        nodeData.title === nextTitle &&
+        nodeData.radioChannel === nextChannel &&
+        outputPortLabelsAreCurrent
+      ) {
+        return;
+      }
 
       setNodes((nodes) =>
         nodes.map((node) => {
           const fnName = node.data?.functionName;
-          const isRadioNode =
-            fnName === "radio_send" || fnName === "radio_receive";
+          const isRadioNode = isRadioFunctionName(fnName);
 
           if (node.id !== id) {
             return isRadioNode
@@ -110,18 +163,30 @@ export default function RadioNode({ id, data, selected }: NodeProps<FlowNode>) {
 
           return {
             ...node,
-            data: {
-              ...node.data,
-              title: nextTitle,
-              radioChannel: nextChannel,
-              dirty: true,
-            },
+            data: updateRadioOutputPortLabels(
+              {
+                ...node.data,
+                title: nextTitle,
+                radioChannel: nextChannel,
+                dirty: true,
+              },
+              nextChannel,
+            ),
           };
         })
       );
       scheduleSnapshot("Change Radio Channel");
     },
-    [id, scheduleSnapshot, setNodes, titlePrefix]
+    [
+      channel,
+      id,
+      nodeData.functionName,
+      nodeData.outputPorts,
+      nodeData.radioChannel,
+      nodeData.title,
+      scheduleSnapshot,
+      setNodes,
+    ]
   );
 
   return (
@@ -173,16 +238,25 @@ export default function RadioNode({ id, data, selected }: NodeProps<FlowNode>) {
         )}
         style={{ left: circleLeft }}
       >
+        {paletteColor && (
+          <div
+            className="radio-node-fill pointer-events-none absolute inset-0 z-0 rounded-full"
+            data-testid="radio-node-fill"
+            style={{ backgroundColor: paletteColor }}
+          />
+        )}
         {hasError && (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div
-                  className="absolute z-20 cursor-pointer"
+                <button
+                  type="button"
+                  className="absolute z-20 cursor-pointer bg-transparent p-0"
                   style={{ left: 40, top: -22 }}
+                  aria-label={errorTitle}
                 >
                   <AlertTriangle className="node-error-icon h-5 w-5" />
-                </div>
+                </button>
               </TooltipTrigger>
               <TooltipContent className="max-w-md">
                 <div className="max-h-[200px] overflow-y-auto whitespace-pre-wrap">
@@ -202,6 +276,7 @@ export default function RadioNode({ id, data, selected }: NodeProps<FlowNode>) {
           maxLength={2}
           fallback="1"
           sanitizeInput={sanitizeChannelDraft}
+          ariaLabel={`${titlePrefix} channel ${channel}`}
         />
       </div>
     </div>

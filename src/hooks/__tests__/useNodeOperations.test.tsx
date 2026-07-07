@@ -176,7 +176,7 @@ const createMockInstance = (
     expect(result.current.edges[0]?.data).not.toHaveProperty("selectedEdgeIds");
   });
 
-  it("increments dropped radio send nodes and lets dropped receive nodes reuse the latest sender channel", () => {
+  it("increments dropped radio sends when every receive is already matched", () => {
     const { result } = renderHook(() => useNodeOperations(), { wrapper });
     const mockRf = createMockInstance(result);
 
@@ -197,13 +197,13 @@ const createMockInstance = (
           },
         }),
         buildFlowNode({
-          id: "radio-recv-3",
+          id: "radio-recv-7",
           type: "radioNode",
           position: { x: 100, y: 0 },
           data: {
             functionName: "radio_receive",
-            title: "Radio Receive #3",
-            radioChannel: "3",
+            title: "Radio Receive #7",
+            radioChannel: "7",
           },
         }),
       ]);
@@ -259,6 +259,66 @@ const createMockInstance = (
     expect(droppedReceive?.data.radioChannel).toBe("8");
     expect(droppedReceive?.data.title).toBe("Radio Receive 8");
     expect(droppedReceive?.data.outputPorts?.[0]?.label).toBe("8");
+  });
+
+  it("uses a waiting radio receive channel when dropping the matching send", () => {
+    const { result } = renderHook(() => useNodeOperations(), { wrapper });
+    const mockRf = createMockInstance(result);
+
+    act(() => {
+      result.current.onInit(mockRf);
+    });
+
+    act(() => {
+      result.current.setNodes(() => [
+        buildFlowNode({
+          id: "radio-recv-3",
+          type: "radioNode",
+          position: { x: 100, y: 0 },
+          data: {
+            functionName: "radio_receive",
+            title: "Radio Receive #3",
+            radioChannel: "3",
+          },
+        }),
+      ]);
+    });
+
+    const event = {
+      preventDefault: vi.fn(),
+      dataTransfer: {
+        getData: (type: string) =>
+          type === "application/reactflow"
+            ? JSON.stringify({
+                type: "radioNode",
+                functionName: "radio_send",
+                nodeData: {
+                  functionName: "radio_send",
+                  title: "Radio Send 1",
+                  radioChannel: "1",
+                  outputPorts: [
+                    { label: "1", handleId: "", showLabel: false },
+                  ],
+                },
+              })
+            : "",
+      },
+      clientX: 50,
+      clientY: 60,
+    } as unknown as React.DragEvent<HTMLDivElement>;
+
+    act(() => {
+      mockRf.getNodes = () => result.current.nodes;
+      result.current.onDrop(event);
+    });
+
+    const droppedSend = result.current.nodes.find(
+      (node) => node.selected && node.data?.functionName === "radio_send",
+    );
+
+    expect(droppedSend?.data.radioChannel).toBe("3");
+    expect(droppedSend?.data.title).toBe("Radio Send 3");
+    expect(droppedSend?.data.outputPorts?.[0]?.label).toBe("3");
   });
 
   it("remaps group bundle offset keys when a re-dropped template renames colliding ids", () => {

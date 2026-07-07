@@ -1553,3 +1553,11 @@ body[data-large-drag="true"] .rf-node {
 [data-skin] .react-flow__node-radioNode.selected:not(.is-highlighted) > *::before {
   content: none !important;
 }
+
+.radio-node-fill {
+  opacity: min(calc(var(--group-light-fill-opacity, 0.07) * 2.2), 0.32);
+}
+
+.dark .radio-node-fill {
+  opacity: min(calc(var(--group-dark-fill-opacity, 0.07) * 2.2), 0.32);
+}

@@ -156,7 +156,7 @@ def test_radio_receive_uses_matching_sender_without_visible_edge():
             "data": {
                 "functionName": "radio_send",
                 "title": "Radio Send #7",
-                "radioChannel": "1",
+                "radioChannel": "7",
                 "paramExtraction": "multi_val",
                 "inputStructure": {"ungrouped": [{"index": 0}]},
                 "inputs": {"vals": {}},
@@ -168,7 +168,7 @@ def test_radio_receive_uses_matching_sender_without_visible_edge():
             "data": {
                 "functionName": "radio_receive",
                 "title": "Radio Receive #7",
-                "radioChannel": "1",
+                "radioChannel": "7",
                 "dirty": True,
             },
         },
@@ -212,6 +212,40 @@ def test_radio_channels_are_limited_to_two_numeric_digits():
             "data": {
                 "functionName": "radio_receive",
                 "radioChannel": "12",
+                "dirty": True,
+            },
+        },
+    ]
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic(
+        copy.deepcopy(nodes),
+        [],
+    )
+
+    updated = {node["id"]: node for node in updated_nodes}
+    assert errors == []
+    assert updated["recv"]["data"]["result"] == "payload"
+
+
+def test_radio_channels_canonicalize_leading_zeros_and_prefer_field():
+    nodes = [
+        {
+            "id": "send",
+            "data": {
+                "functionName": "radio_send",
+                "title": "Radio Send 9",
+                "radioChannel": "01",
+                "paramExtraction": "multi_val",
+                "inputStructure": {"ungrouped": [{"index": 0}]},
+                "inputs": {"vals": {"0": "payload"}},
+                "dirty": True,
+            },
+        },
+        {
+            "id": "recv",
+            "data": {
+                "functionName": "radio_receive",
+                "radioChannel": "1",
                 "dirty": True,
             },
         },
@@ -1276,6 +1310,48 @@ def test_bulk_calculate_logic_marks_cycles():
     for nid in ("a", "b"):
         data = updated[nid]["data"]
         assert "_cycle" not in data  # sentinel must not leak to clients
+        assert data["error"] is True
+        assert data["extendedError"] == "Cycle detected in graph"
+        assert data["dirty"] is False
+
+
+def test_bulk_calculate_logic_marks_cycle_through_radio_virtual_edge():
+    nodes = [
+        {
+            "id": "send",
+            "data": {
+                "functionName": "radio_send",
+                "radioChannel": "1",
+                "paramExtraction": "multi_val",
+                "inputStructure": {"ungrouped": [{"index": 0}]},
+                "inputs": {"vals": {}},
+                "dirty": True,
+            },
+        },
+        {
+            "id": "recv",
+            "data": {
+                "functionName": "radio_receive",
+                "radioChannel": "1",
+                "dirty": True,
+            },
+        },
+    ]
+    edges = [
+        {"source": "recv", "target": "send", "targetHandle": "input-0"},
+    ]
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic(
+        copy.deepcopy(nodes),
+        edges,
+    )
+    updated = {node["id"]: node for node in updated_nodes}
+
+    assert sorted(err["nodeId"] for err in errors) == ["recv", "send"]
+    assert all(err["error"] == "Cycle detected in graph" for err in errors)
+    for nid in ("send", "recv"):
+        data = updated[nid]["data"]
+        assert "_cycle" not in data
         assert data["error"] is True
         assert data["extendedError"] == "Cycle detected in graph"
         assert data["dirty"] is False

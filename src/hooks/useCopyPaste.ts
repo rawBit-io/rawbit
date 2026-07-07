@@ -22,6 +22,13 @@ import {
   sanitizeGroupBundleRenderEdgesForState,
   stripGroupBundlePortNodes,
 } from "@/lib/flow/groupEdgeBundling";
+import {
+  isRadioFunctionName,
+  normalizeRadioChannel,
+  radioChannelFromData,
+  radioTitleForFunction,
+  updateRadioOutputPortLabels,
+} from "@/lib/graphUtils";
 
 /* ----------------------------------------------------------------
    LOCAL types
@@ -57,6 +64,7 @@ type UseCopyPasteOptions = {
 };
 
 const GROUP_PADDING = 32;
+const MAX_RADIO_CHANNEL = 99;
 
 const cloneScriptSteps = (
   steps: ScriptExecutionResult | undefined
@@ -78,6 +86,82 @@ const getRenderedSelectedNodeIds = (): Set<string> => {
     });
 
   return selectedIds;
+};
+
+const isRadioNode = (node: Pick<FlowNode, "data">) =>
+  isRadioFunctionName(node.data?.functionName);
+
+const nextPasteRadioChannel = (
+  existingNodes: FlowNode[],
+  reservedChannels: Set<string>,
+) => {
+  const highest = existingNodes.reduce((max, node) => {
+    if (!isRadioNode(node)) return max;
+    const channel = Number.parseInt(radioChannelFromData(node.data), 10);
+    return Number.isFinite(channel) ? Math.max(max, channel) : max;
+  }, 0);
+
+  for (let next = highest + 1; next <= MAX_RADIO_CHANNEL; next += 1) {
+    const channel = normalizeRadioChannel(String(next));
+    if (!reservedChannels.has(channel)) return channel;
+  }
+
+  for (let next = 1; next <= MAX_RADIO_CHANNEL; next += 1) {
+    const channel = normalizeRadioChannel(String(next));
+    if (!reservedChannels.has(channel)) return channel;
+  }
+
+  return normalizeRadioChannel(String(MAX_RADIO_CHANNEL));
+};
+
+const normalizePastedRadioNodes = (
+  nodes: FlowNode[],
+  existingNodes: FlowNode[],
+): FlowNode[] => {
+  const pastedSendChannels = new Set<string>();
+  nodes.forEach((node) => {
+    if (node.data?.functionName === "radio_send") {
+      pastedSendChannels.add(radioChannelFromData(node.data));
+    }
+  });
+
+  if (!pastedSendChannels.size) {
+    return nodes.map((node) =>
+      isRadioNode(node)
+        ? { ...node, data: { ...node.data, dirty: true } }
+        : node,
+    );
+  }
+
+  const reservedChannels = new Set(
+    existingNodes.filter(isRadioNode).map((node) => radioChannelFromData(node.data)),
+  );
+  const channelMap = new Map<string, string>();
+  pastedSendChannels.forEach((originalChannel) => {
+    const nextChannel = nextPasteRadioChannel(existingNodes, reservedChannels);
+    reservedChannels.add(nextChannel);
+    channelMap.set(originalChannel, nextChannel);
+  });
+
+  return nodes.map((node) => {
+    if (!isRadioNode(node)) return node;
+
+    const originalChannel = radioChannelFromData(node.data);
+    const nextChannel = channelMap.get(originalChannel) ?? originalChannel;
+    const nextData = updateRadioOutputPortLabels(
+      {
+        ...node.data,
+        title: radioTitleForFunction(node.data?.functionName, nextChannel),
+        radioChannel: nextChannel,
+        dirty: true,
+        error: undefined,
+        extendedError: undefined,
+      },
+      nextChannel,
+    );
+
+    return { ...node, data: nextData };
+  });
 };
 
 const asFiniteNumber = (value: unknown): number | undefined => {
@@ -618,13 +702,17 @@ export function useCopyPaste({
         dedupeEdges: true,
         renameMode: "collision",
       });
-      const remappedNewNodes = remapGroupBundlePortOffsetsInNodes(
-        newNodes,
-        copiedLookup,
-        edgesToImport,
-        idMap,
-        currentNodeLookup
+      const remappedNewNodes = normalizePastedRadioNodes(
+        remapGroupBundlePortOffsetsInNodes(
+          newNodes,
+          copiedLookup,
+          edgesToImport,
+          idMap,
+          currentNodeLookup,
+        ),
+        currentNodes,
       );
+      const pastedHasRadioNode = remappedNewNodes.some(isRadioNode);
 
       // Defensive: keep internal pasted edges, plus incoming edges only when the
       // user explicitly chooses that paste mode and the source still exists.
@@ -658,7 +746,14 @@ export function useCopyPaste({
       // 4) Deselect existing, then append
       setNodes((existing) => {
         const combined = [
-          ...existing.map((n) => ({ ...n, selected: false })),
+          ...existing.map((n) => ({
+            ...n,
+            selected: false,
+            data:
+              pastedHasRadioNode && isRadioNode(n)
+                ? { ...n.data, dirty: true }
+                : n.data,
+          })),
           ...ordered,
         ];
         return pasteTargetGroup

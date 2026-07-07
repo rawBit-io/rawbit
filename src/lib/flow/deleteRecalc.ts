@@ -2,6 +2,7 @@ import type { Edge } from "@xyflow/react";
 
 import type { FlowNode } from "@/types";
 import { isCalculableNode } from "@/lib/flow/nonCalculableNodes";
+import { isRadioFunctionName } from "@/lib/graphUtils";
 
 /**
  * Given the nodes and edges removed by a delete, return the ids of the
@@ -15,11 +16,16 @@ import { isCalculableNode } from "@/lib/flow/nonCalculableNodes";
  * change handlers run.
  */
 export function survivingCalculableConsumersOnDelete(
-  deletedNodes: Pick<FlowNode, "id">[],
+  deletedNodes: Pick<FlowNode, "id" | "data">[],
   deletedEdges: Pick<Edge, "source" | "target">[],
   currentNodes: FlowNode[]
 ): Set<string> {
   const deletedNodeIds = new Set(deletedNodes.map((node) => node.id));
+  const deletedRadioNodeIds = new Set(
+    deletedNodes
+      .filter((node) => isRadioFunctionName(node.data?.functionName))
+      .map((node) => node.id),
+  );
   const calculableById = new Map(
     currentNodes.map((node) => [node.id, isCalculableNode(node)])
   );
@@ -33,6 +39,13 @@ export function survivingCalculableConsumersOnDelete(
   for (const edge of deletedEdges) {
     consider(edge.source);
     consider(edge.target);
+  }
+
+  if (deletedRadioNodeIds.size) {
+    for (const node of currentNodes) {
+      if (deletedNodeIds.has(node.id)) continue;
+      if (isRadioFunctionName(node.data?.functionName)) dirtyIds.add(node.id);
+    }
   }
 
   return dirtyIds;

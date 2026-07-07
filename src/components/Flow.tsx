@@ -61,6 +61,7 @@ import { UndoRedoProvider } from "@/contexts/UndoRedoContext";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
 
 import { cn } from "@/lib/utils";
+import { isRadioFunctionName } from "@/lib/graphUtils";
 import type {
   CalcError,
   CalcStatus,
@@ -121,6 +122,7 @@ const COLORABLE_NODE_TYPES = new Set([
   "shadcnGroup",
   "shadcnTextInfo",
   "opCodeNode",
+  "radioNode",
   "trezorAction",
   "scriptViewer",
 ]);
@@ -3058,7 +3060,10 @@ function FlowContent() {
   const handleElementsDelete = useCallback(
     ({ nodes: deletedNodes, edges: deletedEdges }: { nodes: FlowNode[]; edges: Edge[] }) => {
       if (loadingUndoRef.current || isPastingRef.current) return;
-      if (!deletedEdges.length) return;
+      const deletedHasRadioNode = deletedNodes.some((node) =>
+        isRadioFunctionName(node.data?.functionName)
+      );
+      if (!deletedEdges.length && !deletedHasRadioNode) return;
       const dirtyIds = survivingCalculableConsumersOnDelete(
         deletedNodes,
         deletedEdges,
