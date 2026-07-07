@@ -859,6 +859,131 @@ describe("useFileOperations", () => {
     }
   });
 
+  it("exports radio links as virtual edges without adding visible edges", async () => {
+    const sourceNodes: FlowNode[] = [
+      buildFlowNode({
+        id: "source",
+        data: { functionName: "identity", title: "Source", result: "abc" },
+      }),
+      buildFlowNode({
+        id: "send",
+        type: "radioNode",
+        data: {
+          functionName: "radio_send",
+          title: "Radio Send 4",
+          radioChannel: "4",
+          result: "abc",
+        },
+      }),
+      buildFlowNode({
+        id: "recv",
+        type: "radioNode",
+        data: {
+          functionName: "radio_receive",
+          title: "Radio Receive 4",
+          radioChannel: "4",
+          result: "abc",
+        },
+      }),
+      buildFlowNode({
+        id: "sink",
+        data: { functionName: "identity", title: "Sink" },
+      }),
+    ];
+    const sourceEdges: Edge[] = [
+      buildEdge({ id: "edge-source-send", source: "source", target: "send" }),
+      buildEdge({ id: "edge-recv-sink", source: "recv", target: "sink" }),
+    ];
+    const { blobs, restore } = setupDownloadCapture();
+
+    try {
+      const { result } = renderUseFileOperations({
+        initialNodes: sourceNodes,
+        initialEdges: sourceEdges,
+      });
+
+      act(() => {
+        result.current.saveFlow();
+      });
+      act(() => {
+        result.current.saveSimplifiedFlow();
+      });
+      await act(async () => {
+        await result.current.saveLlmExport();
+      });
+
+      type ExportPayload = {
+        nodes: Array<{
+          id: string;
+          functionName?: string;
+          radioChannel?: string;
+          data?: { radioChannel?: string };
+        }>;
+        edges: Array<{ source: string; target: string }>;
+        virtualEdges: Array<{
+          kind: string;
+          channel: string;
+          source: string;
+          target: string;
+          targetHandle: string;
+          sourceFunction: string;
+          targetFunction: string;
+        }>;
+        virtualEdgeIssues?: unknown[];
+        llmContext?: { whatIsExported?: string[] };
+      };
+
+      const [full, simplified, llm] = await Promise.all(
+        blobs.map(
+          async (blob) =>
+            JSON.parse(await readDownloadedBlobText(blob)) as ExportPayload
+        )
+      );
+      const expectedVirtualEdge = {
+        kind: "radio",
+        channel: "4",
+        source: "send",
+        target: "recv",
+        targetHandle: "input-0",
+        sourceFunction: "radio_send",
+        targetFunction: "radio_receive",
+      };
+
+      for (const payload of [full, simplified, llm]) {
+        expect(payload.virtualEdges).toEqual([
+          expect.objectContaining(expectedVirtualEdge),
+        ]);
+        expect(payload.virtualEdgeIssues).toBeUndefined();
+        expect(payload.edges).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ source: "source", target: "send" }),
+            expect.objectContaining({ source: "recv", target: "sink" }),
+          ])
+        );
+        expect(payload.edges).not.toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ source: "send", target: "recv" }),
+          ])
+        );
+      }
+
+      expect(full.nodes.find((node) => node.id === "send")?.data?.radioChannel).toBe(
+        "4"
+      );
+      expect(simplified.nodes.find((node) => node.id === "send")?.radioChannel).toBe(
+        "4"
+      );
+      expect(llm.nodes.find((node) => node.id === "recv")?.radioChannel).toBe(
+        "4"
+      );
+      expect(llm.llmContext?.whatIsExported).toEqual(
+        expect.arrayContaining([expect.stringContaining("Virtual edge data:")])
+      );
+    } finally {
+      restore();
+    }
+  });
+
   describe("export filenames", () => {
     const setupDownloadSpies = () => {
       const anchors: Array<HTMLAnchorElement> = [];

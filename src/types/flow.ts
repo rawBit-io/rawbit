@@ -181,6 +181,24 @@ export type FlowGraph<
   edges: TEdge[];
 };
 
+export interface VirtualEdge {
+  id: string;
+  kind: "radio";
+  channel: string;
+  source: string;
+  target: string;
+  targetHandle?: string;
+  sourceFunction: "radio_send";
+  targetFunction: "radio_receive";
+}
+
+export interface VirtualEdgeIssue {
+  kind: "radio";
+  channel: string;
+  nodeId?: string;
+  message: string;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Flow & persistent-storage                                         */
 /* ------------------------------------------------------------------ */
@@ -193,6 +211,8 @@ export interface FlowData<
   edges: TEdge[];
   name?: string;
   schemaVersion?: number;
+  virtualEdges?: VirtualEdge[];
+  virtualEdgeIssues?: VirtualEdgeIssue[];
 }
 
 /* ------------------------------------------------------------------ */

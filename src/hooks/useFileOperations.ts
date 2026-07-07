@@ -50,6 +50,8 @@ import type {
   GroupDefinition,
   InputStructure,
   ScriptExecutionResult,
+  VirtualEdge,
+  VirtualEdgeIssue,
 } from "@/types";
 import type { Edge, NodeChange, EdgeChange } from "@xyflow/react";
 import { log } from "@/lib/logConfig";
@@ -81,6 +83,11 @@ import {
 } from "@/lib/flow/legacyCompatibility";
 import { getExpandedExportNodeSelection } from "@/lib/flow/exportSelection";
 import { buildCodeSourceUrl } from "@/lib/codeSourceCache";
+import {
+  buildRadioVirtualEdgeMetadata,
+  isRadioFunctionName,
+  radioChannelFromData,
+} from "@/lib/graphUtils";
 
 // Strip ephemeral UI fields from saved JSON
 const omitUIState = omitEphemeralOrLegacyNodeData;
@@ -104,6 +111,7 @@ interface SimplifiedNodePayload {
   id: string;
   title?: string;
   functionName?: string;
+  radioChannel?: string;
   inputs?: SimplifiedInputs;
   result?: unknown;
   tutorial?: string;
@@ -147,6 +155,8 @@ interface LlmExportPayload {
   exportedAt: string;
   nodes: SimplifiedNodePayload[];
   edges: SimplifiedEdgePayload[];
+  virtualEdges: VirtualEdge[];
+  virtualEdgeIssues?: VirtualEdgeIssue[];
   runtimeSemantics: ExportRuntimeSemantics;
   functionSources: Record<string, string>;
   functionSourceErrors?: Record<string, string>;
@@ -157,6 +167,8 @@ interface SimplifiedExportPayload {
   schemaVersion: number;
   nodes: SimplifiedNodePayload[];
   edges: SimplifiedEdgePayload[];
+  virtualEdges: VirtualEdge[];
+  virtualEdgeIssues?: VirtualEdgeIssue[];
   runtimeSemantics: ExportRuntimeSemantics;
 }
 
@@ -360,7 +372,7 @@ export function useFileOperations(
     [edges, importOptions, nodes]
   );
 
-  /* ─────────────────────  SAVE FULL FLOW (unchanged)  ─────────────────── */
+  /* ───────────────────────────  SAVE FULL FLOW  ───────────────────────── */
   const saveFlow = useCallback(() => {
     const currentGraph = getCurrentGraph();
     const canonicalGraph = sanitizeGroupBundleVisualElementsForState({
@@ -383,6 +395,8 @@ export function useFileOperations(
       nodesWithSteps,
       nodeScopedEdges
     ).edges;
+    const { virtualEdges, virtualEdgeIssues } =
+      buildRadioVirtualEdgeMetadata(nodesWithSteps);
 
     const payload: FullExportPayload = {
       name: getExportName(),
@@ -400,6 +414,8 @@ export function useFileOperations(
         dragHandle: n.dragHandle,
       })),
       edges: canonicalEdges.map((e) => ({ ...e })),
+      virtualEdges,
+      ...(virtualEdgeIssues.length > 0 ? { virtualEdgeIssues } : {}),
     };
 
     const json = JSON.stringify(payload, omitUIState, 2);
@@ -848,6 +864,10 @@ export function useFileOperations(
         functionName,
       };
 
+      if (isRadioFunctionName(rawFunctionName)) {
+        nodePayload.radioChannel = radioChannelFromData(data);
+      }
+
       if (labelledInputs) nodePayload.inputs = labelledInputs;
 
       if (Object.prototype.hasOwnProperty.call(data, "result")) {
@@ -912,11 +932,15 @@ export function useFileOperations(
       }
       return edgePayload;
     });
+    const { virtualEdges, virtualEdgeIssues } =
+      buildRadioVirtualEdgeMetadata(nodesWithSteps);
 
     return {
       selectedCount,
       nodes: simplifiedNodes,
       edges: simplifiedEdges,
+      virtualEdges,
+      virtualEdgeIssues,
       functionNames: backendFunctionNames,
     };
   }, [getCurrentGraph]);
@@ -929,6 +953,10 @@ export function useFileOperations(
       schemaVersion: FLOW_SCHEMA_VERSION,
       nodes: snapshot.nodes,
       edges: snapshot.edges,
+      virtualEdges: snapshot.virtualEdges,
+      ...(snapshot.virtualEdgeIssues.length > 0
+        ? { virtualEdgeIssues: snapshot.virtualEdgeIssues }
+        : {}),
       runtimeSemantics: EXPORT_RUNTIME_SEMANTICS,
     };
 
@@ -992,6 +1020,7 @@ export function useFileOperations(
           `Scope: ${selectionScope}.`,
           "Node data: id, title, functionName, labeled inputs, result, tutorial/comment text, group relation, error state, and script debug steps when present.",
           "Edge data: source/target links between exported nodes, plus handle metadata where relevant.",
+          "Virtual edge data: wireless/radio links are listed in virtualEdges and should be treated as calculation dependencies even though they are not visible canvas edges; virtualEdgeIssues lists missing or ambiguous virtual links.",
           "Runtime semantics: sentinel overwrite behavior (__FORCE00__, __EMPTY__, __NULL__) and type-coercion rules used by rawBit runtime.",
           "Backend source code: unique Python function implementations for exported node function names (deduplicated).",
         ],
@@ -1001,6 +1030,10 @@ export function useFileOperations(
       exportedAt: new Date().toISOString(),
       nodes: snapshot.nodes,
       edges: snapshot.edges,
+      virtualEdges: snapshot.virtualEdges,
+      ...(snapshot.virtualEdgeIssues.length > 0
+        ? { virtualEdgeIssues: snapshot.virtualEdgeIssues }
+        : {}),
       runtimeSemantics: EXPORT_RUNTIME_SEMANTICS,
       functionSources,
     };

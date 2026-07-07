@@ -216,6 +216,45 @@ describe("buildSharePayload", () => {
       }),
     ]);
   });
+
+  it("adds radio virtual edge metadata to shared payloads", async () => {
+    const { buildSharePayload } = await import("../share/buildSharePayload");
+
+    const nodes: FlowNode[] = [
+      {
+        id: "send",
+        type: "radioNode",
+        position: { x: 0, y: 0 },
+        data: {
+          functionName: "radio_send",
+          title: "Radio Send 8",
+          radioChannel: "8",
+        },
+      },
+      {
+        id: "recv",
+        type: "radioNode",
+        position: { x: 100, y: 0 },
+        data: {
+          functionName: "radio_receive",
+          title: "Radio Receive 8",
+          radioChannel: "8",
+        },
+      },
+    ];
+
+    const payload = buildSharePayload(nodes, []);
+
+    expect(payload.virtualEdges).toEqual([
+      expect.objectContaining({
+        kind: "radio",
+        channel: "8",
+        source: "send",
+        target: "recv",
+      }),
+    ]);
+    expect(payload.virtualEdgeIssues).toBeUndefined();
+  });
 });
 
 describe("loadShared", () => {

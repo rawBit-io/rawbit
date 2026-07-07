@@ -10,6 +10,7 @@ import { FLOW_SCHEMA_VERSION } from "@/lib/flow/schema";
 import { hydrateNodesWithScriptSteps } from "@/lib/share/scriptStepsCache";
 import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
 import { normalizeAndDedupeEdgeConnections } from "@/lib/flow/edgeNormalization";
+import { buildRadioVirtualEdgeMetadata } from "@/lib/graphUtils";
 
 export function buildSharePayload(
   nodes: FlowNode[],
@@ -51,11 +52,15 @@ export function buildSharePayload(
     .map((edge) => ({
       ...edge,
     }));
+  const { virtualEdges, virtualEdgeIssues } =
+    buildRadioVirtualEdgeMetadata(nodesWithSteps);
 
   return {
     name: "shared",
     schemaVersion: FLOW_SCHEMA_VERSION,
     nodes: cleanedNodes,
     edges: cleanedEdges,
+    virtualEdges,
+    ...(virtualEdgeIssues.length > 0 ? { virtualEdgeIssues } : {}),
   };
 }

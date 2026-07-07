@@ -12,7 +12,13 @@
 
 import { Node, Edge } from "@xyflow/react";
 import { log } from "@/lib/logConfig";
-import type { CalculationNodeData, RecalcResponse } from "@/types";
+import type {
+  CalculationNodeData,
+  FlowNode,
+  RecalcResponse,
+  VirtualEdge,
+  VirtualEdgeIssue,
+} from "@/types";
 import { setScriptSteps } from "@/lib/share/scriptStepsCache";
 import { measureFlowBytes, formatBytes } from "@/lib/flow/schema";
 
@@ -160,6 +166,70 @@ export function buildRadioVirtualEdges(
       },
     ];
   });
+}
+
+export function buildRadioVirtualEdgeMetadata(nodes: FlowNode[]): {
+  virtualEdges: VirtualEdge[];
+  virtualEdgeIssues: VirtualEdgeIssue[];
+} {
+  const sendersByChannel = new Map<string, FlowNode[]>();
+  const receivers: FlowNode[] = [];
+
+  nodes.forEach((node) => {
+    const data = node.data;
+    const fnName = data?.functionName;
+    if (fnName === "radio_send") {
+      const channel = radioChannelFromData(data);
+      const senders = sendersByChannel.get(channel) ?? [];
+      senders.push(node);
+      sendersByChannel.set(channel, senders);
+    } else if (fnName === "radio_receive") {
+      receivers.push(node);
+    }
+  });
+
+  const virtualEdges: VirtualEdge[] = [];
+  const virtualEdgeIssues: VirtualEdgeIssue[] = [];
+
+  receivers.forEach((receiver) => {
+    const channel = radioChannelFromData(receiver.data);
+    const senders = sendersByChannel.get(channel) ?? [];
+    const label = `#${channel}`;
+
+    if (senders.length === 0) {
+      virtualEdgeIssues.push({
+        kind: "radio",
+        channel,
+        nodeId: receiver.id,
+        message: `Radio Receive ${label} has no matching Radio Send`,
+      });
+      return;
+    }
+
+    if (senders.length > 1) {
+      virtualEdgeIssues.push({
+        kind: "radio",
+        channel,
+        nodeId: receiver.id,
+        message: `Radio Receive ${label} has multiple matching Radio Sends`,
+      });
+      return;
+    }
+
+    const sender = senders[0];
+    virtualEdges.push({
+      id: `${RADIO_VIRTUAL_EDGE_PREFIX}${sender.id}__${receiver.id}__${channel}`,
+      kind: "radio",
+      channel,
+      source: sender.id,
+      target: receiver.id,
+      targetHandle: "input-0",
+      sourceFunction: "radio_send",
+      targetFunction: "radio_receive",
+    });
+  });
+
+  return { virtualEdges, virtualEdgeIssues };
 }
 
 function loadCalculationRequestTimeoutMs(): number {

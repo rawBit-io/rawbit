@@ -323,6 +323,65 @@ describe("graph traversal helpers", () => {
     expect(buildRadioVirtualEdges(nodes)).toEqual([]);
   });
 
+  it("builds radio virtual edge export metadata", async () => {
+    const { buildRadioVirtualEdgeMetadata } = await loadGraphUtils();
+    const nodes = [
+      createNode("send", {
+        functionName: "radio_send",
+        radioChannel: "4",
+      }),
+      createNode("recv", {
+        functionName: "radio_receive",
+        radioChannel: "4",
+      }),
+      createNode("unmatched-recv", {
+        functionName: "radio_receive",
+        radioChannel: "5",
+      }),
+      createNode("duplicate-send-a", {
+        functionName: "radio_send",
+        radioChannel: "6",
+      }),
+      createNode("duplicate-send-b", {
+        functionName: "radio_send",
+        radioChannel: "6",
+      }),
+      createNode("duplicate-recv", {
+        functionName: "radio_receive",
+        radioChannel: "6",
+      }),
+    ];
+
+    const metadata = buildRadioVirtualEdgeMetadata(nodes);
+
+    expect(metadata.virtualEdges).toEqual([
+      {
+        id: "__radio__send__recv__4",
+        kind: "radio",
+        channel: "4",
+        source: "send",
+        target: "recv",
+        targetHandle: "input-0",
+        sourceFunction: "radio_send",
+        targetFunction: "radio_receive",
+      },
+    ]);
+    expect(metadata.virtualEdgeIssues).toEqual([
+      {
+        kind: "radio",
+        channel: "5",
+        nodeId: "unmatched-recv",
+        message: "Radio Receive #5 has no matching Radio Send",
+      },
+      {
+        kind: "radio",
+        channel: "6",
+        nodeId: "duplicate-recv",
+        message: "Radio Receive #6 has multiple matching Radio Sends",
+      },
+    ]);
+  });
+
   it("normalizes radio channels to two numeric digits", async () => {
     const { buildRadioVirtualEdges, radioChannelFromData } =
       await loadGraphUtils();

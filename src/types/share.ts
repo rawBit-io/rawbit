@@ -1,4 +1,5 @@
 import type { XYPosition } from "@xyflow/react";
+import type { VirtualEdge, VirtualEdgeIssue } from "./flow";
 
 export type SharedNodeData = Record<string, unknown>;
 
@@ -38,4 +39,6 @@ export interface SharePayload<
   schemaVersion: number;
   nodes: SharedNodes<TNode>;
   edges: SharedEdges<TEdge>;
+  virtualEdges?: VirtualEdge[];
+  virtualEdgeIssues?: VirtualEdgeIssue[];
 }
