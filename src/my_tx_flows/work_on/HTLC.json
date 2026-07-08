@@ -1,5 +1,5 @@
 {
-  "name": "Flow 7 (3) (1)",
+  "name": "Cross-Chain Atomic Swap (HTLC Coinswap)",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -38,7 +38,7 @@
         "groupFlash": false,
         "width": 2045,
         "height": 3135,
-        "title": "Setup",
+        "title": "Setup — shared swap parameters",
         "fontSize": 44,
         "groupBundlePortOffsets": {
           "targetByBundle": {
@@ -63,7 +63,7 @@
         "isGroup": true,
         "width": 2020.7795753556834,
         "height": 1118,
-        "title": "balance TX Alice (testnet4)",
+        "title": "Alice funding UTXO (testnet4)",
         "groupBundlePortOffsets": {
           "source": 409.13,
           "sourceByBundle": {
@@ -152,7 +152,7 @@
         "groupInstances": {},
         "result": "465610738c315eed88356d5097b8c4e32808f40d949738ef107315b918f44708",
         "showComment": true,
-        "comment": "⚠️ Don't reuse private keyss",
+        "comment": "⚠️ Don't reuse private keys",
         "error": false
       },
       "parentId": "group_zi8x2qm",
@@ -243,7 +243,7 @@
         "isGroup": true,
         "width": 1654,
         "height": 1078.5047750912713,
-        "title": "balance TX Bob (testnet3)",
+        "title": "Bob funding UTXO (testnet3)",
         "groupBundlePortOffsets": {
           "source": 409.13,
           "sourceByBundle": {
@@ -407,7 +407,7 @@
         "dirty": false,
         "error": false,
         "showComment": true,
-        "comment": "copied from Bitcoin client or a block explorer (testnet4)"
+        "comment": "copied from Bitcoin client or a block explorer (testnet3)"
       },
       "parentId": "node_2GDh1Me7",
       "extent": "parent"
@@ -423,7 +423,7 @@
         "isGroup": true,
         "width": 1576,
         "height": 2090,
-        "title": "Final TX1 and Verify Script",
+        "title": "Final TX1 and Verify Script (testnet4)",
         "dirty": false,
         "groupBundlePortOffsets": {
           "targetByBundle": {
@@ -893,7 +893,7 @@
         "isGroup": true,
         "width": 2770,
         "height": 1168,
-        "title": "Signature and scriptSig",
+        "title": "TX1 Signature and scriptSig",
         "groupBundlePortOffsets": {
           "target": -559.24,
           "sourceByBundle": {
@@ -1182,7 +1182,7 @@
         "isGroup": true,
         "width": 4981,
         "height": 2702,
-        "title": "TX1 Preimage — P2PKH → P2SH",
+        "title": "TX1 Preimage — Alice locks (P2PKH → HTLC)",
         "groupBundlePortOffsets": {
           "source": 1199.26,
           "target": 1028.2,
@@ -2003,7 +2003,7 @@
         "isGroup": true,
         "width": 5066.576745355703,
         "height": 3540,
-        "title": "Locking Script Alice (P2SH)",
+        "title": "Alice HTLC — redeemScript + P2SH (testnet4)",
         "dirty": false,
         "borderColor": "#a83a32",
         "fontSize": 32,
@@ -2889,7 +2889,7 @@
         "isGroup": true,
         "width": 1904,
         "height": 2211,
-        "title": "Final TX1 and Verify Script",
+        "title": "Final TX2 and Verify Script (testnet3)",
         "dirty": false,
         "groupBundlePortOffsets": {
           "targetByBundle": {
@@ -3051,7 +3051,7 @@
         "totalInputs": 12,
         "unwiredCount": 0,
         "showComment": true,
-        "comment": "bitcoin-cli -testnet4 sendrawtransaction <hex>",
+        "comment": "bitcoin-cli -testnet3 sendrawtransaction <hex>",
         "title": "Final Raw Transaction",
         "error": false
       },
@@ -3359,7 +3359,7 @@
         "isGroup": true,
         "width": 2770,
         "height": 1168,
-        "title": "Signature and scriptSig",
+        "title": "TX2 Signature and scriptSig",
         "groupBundlePortOffsets": {
           "target": -559.24,
           "sourceByBundle": {
@@ -3647,7 +3647,7 @@
         "isGroup": true,
         "width": 4981,
         "height": 2702,
-        "title": "TX1 Preimage — P2PKH → P2SH",
+        "title": "TX2 Preimage — Bob locks (P2PKH → HTLC)",
         "groupBundlePortOffsets": {
           "source": 1199.26,
           "target": 1028.2,
@@ -4468,7 +4468,7 @@
         "isGroup": true,
         "width": 4918,
         "height": 3540,
-        "title": "Locking Script Bobe (P2SH)",
+        "title": "Bob HTLC — redeemScript + P2SH (testnet3)",
         "dirty": false,
         "borderColor": "#a83a32",
         "fontSize": 32,
@@ -5386,7 +5386,7 @@
         "isGroup": true,
         "width": 1576,
         "height": 2120.5517943564555,
-        "title": "Final TX1 and Verify Script",
+        "title": "Final TX3 and Verify Script (testnet3)",
         "dirty": false,
         "groupBundlePortOffsets": {
           "targetByBundle": {
@@ -5549,7 +5549,7 @@
         "totalInputs": 12,
         "unwiredCount": 0,
         "showComment": true,
-        "comment": "bitcoin-cli -testnet4 sendrawtransaction <hex>",
+        "comment": "bitcoin-cli -testnet3 sendrawtransaction <hex>",
         "title": "Final Raw Transaction",
         "error": false
       },
@@ -6008,7 +6008,7 @@
         "isGroup": true,
         "width": 2673,
         "height": 1589,
-        "title": "Signature and scriptSig",
+        "title": "TX3 Signature and scriptSig (reveals S)",
         "groupBundlePortOffsets": {
           "target": -559.24,
           "sourceByBundle": {
@@ -6144,7 +6144,7 @@
           "INPUTS[]": [0, 100, 200, 300, 400, 500, 600]
         },
         "baseHeight": 80,
-        "title": "scriptSig (push sig & pubkey)",
+        "title": "scriptSig (sig, secret, redeemScript)",
         "totalInputs": 7,
         "unwiredCount": 0,
         "error": false,
@@ -6375,7 +6375,7 @@
         "isGroup": true,
         "width": 4981,
         "height": 2702,
-        "title": "TX1 Preimage — P2PKH → P2SH",
+        "title": "TX3 Preimage — Alice claims Bob's HTLC",
         "groupBundlePortOffsets": {
           "source": 1199.26,
           "target": 1028.2,
@@ -7196,7 +7196,7 @@
         "isGroup": true,
         "width": 1576,
         "height": 2090,
-        "title": "Final TX1 and Verify Script",
+        "title": "Final TX4 and Verify Script (testnet4)",
         "dirty": false,
         "groupBundlePortOffsets": {
           "targetByBundle": {
@@ -7817,8 +7817,8 @@
       "data": {
         "isGroup": true,
         "width": 2954,
-        "height": 1660,
-        "title": "Signature and scriptSig",
+        "height": 1686.0135127026224,
+        "title": "TX4 Signature and scriptSig (extracted S)",
         "groupBundlePortOffsets": {
           "target": -559.24,
           "sourceByBundle": {
@@ -7833,7 +7833,7 @@
         "fontSize": 44
       },
       "width": 2954,
-      "height": 1660,
+      "height": 1686.0135127026224,
       "dragHandle": "[data-drag-handle]"
     },
     {
@@ -7951,7 +7951,7 @@
           "INPUTS[]": [0, 100, 200, 300, 400, 500, 600]
         },
         "baseHeight": 80,
-        "title": "scriptSig (push sig & pubkey)",
+        "title": "scriptSig (sig, secret, redeemScript)",
         "totalInputs": 7,
         "unwiredCount": 0,
         "error": false,
@@ -8109,7 +8109,7 @@
         "isGroup": true,
         "width": 4981,
         "height": 2702,
-        "title": "TX1 Preimage — P2PKH → P2SH",
+        "title": "TX4 Preimage — Bob claims Alice's HTLC",
         "groupBundlePortOffsets": {
           "source": 1199.26,
           "target": 1028.2,
@@ -8557,29 +8557,6 @@
       "extent": "parent"
     },
     {
-      "id": "node_7B4THK3X",
-      "type": "calculation",
-      "position": {
-        "x": 1692.265846325652,
-        "y": 1129.448437792677
-      },
-      "data": {
-        "functionName": "varint_encoded_byte_length",
-        "title": "Data → VarInt Length",
-        "numInputs": 1,
-        "showField": false,
-        "dirty": false,
-        "groupInstances": {},
-        "inputs": {
-          "val": "a914be103c6c8048f7e40035b427fe521db9bef1ed3787"
-        },
-        "result": "17",
-        "error": false
-      },
-      "parentId": "node_ecyVK7iO",
-      "extent": "parent"
-    },
-    {
       "id": "node_pZriVBKW",
       "type": "calculation",
       "position": {
@@ -8930,7 +8907,7 @@
         "isGroup": true,
         "width": 2478,
         "height": 1092,
-        "title": "Locking Script",
+        "title": "Alice payout — P2PKH (testnet3)",
         "dirty": false,
         "borderColor": "#a83a32",
         "fontSize": 44
@@ -9246,7 +9223,7 @@
         "isGroup": true,
         "width": 2478,
         "height": 1092,
-        "title": "Locking Script",
+        "title": "Bob payout — P2PKH (testnet4)",
         "dirty": false,
         "borderColor": "#a83a32",
         "fontSize": 44,
@@ -9588,41 +9565,6 @@
       "extent": "parent"
     },
     {
-      "id": "node_in7vzn2",
-      "type": "calculation",
-      "position": {
-        "x": 1477.73997515058,
-        "y": 409.9290013307236
-      },
-      "data": {
-        "functionName": "identity",
-        "title": "Input",
-        "showField": true,
-        "numInputs": 0,
-        "value": "fsa",
-        "version": 0,
-        "inputs": {
-          "val": "fsa"
-        },
-        "result": "fsa",
-        "inputStructure": {
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "INPUT VALUE:",
-              "rows": 1,
-              "unconnectable": true
-            }
-          ]
-        },
-        "groupInstances": {},
-        "dirty": false,
-        "error": false
-      },
-      "parentId": "node_MK258d3e",
-      "extent": "parent"
-    },
-    {
       "id": "node_5j7jynd",
       "type": "radioNode",
       "position": {
@@ -9664,14 +9606,14 @@
       },
       "data": {
         "isGroup": true,
-        "width": 807,
-        "height": 706.636351512906,
-        "title": "Bob private info ",
+        "width": 977,
+        "height": 712,
+        "title": "Bob private info (never shared)",
         "fontSize": 44,
         "dirty": false
       },
-      "width": 807,
-      "height": 706.636351512906,
+      "width": 977,
+      "height": 712,
       "dragHandle": "[data-drag-handle]"
     },
     {
@@ -10311,8 +10253,8 @@
       "id": "node_RD39fU0y",
       "type": "calculation",
       "position": {
-        "x": 441.004058885459,
-        "y": 141.82937348206224
+        "x": 548.1313460837291,
+        "y": 227.53120324067913
       },
       "data": {
         "functionName": "random_256",
@@ -10338,14 +10280,14 @@
       },
       "data": {
         "isGroup": true,
-        "width": 932.5194108060441,
-        "height": 971,
-        "title": "Alice private info ",
+        "width": 1032,
+        "height": 972,
+        "title": "Alice private info (never shared)",
         "fontSize": 44,
         "dirty": false
       },
-      "width": 932.5194108060441,
-      "height": 971,
+      "width": 1032,
+      "height": 972,
       "dragHandle": "[data-drag-handle]"
     },
     {
@@ -10475,8 +10417,8 @@
       "id": "node_97L16iBC",
       "type": "calculation",
       "position": {
-        "x": 522.8788858816506,
-        "y": 106.24573279336619
+        "x": 514.0867322105842,
+        "y": 81.33463072534505
       },
       "data": {
         "functionName": "random_256",
@@ -10572,21 +10514,22 @@
       "id": "node_u5d6hln",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 126.56101985751047,
-        "y": 701.1885097937497
+        "x": 135.41070351556664,
+        "y": 707.0882988991207
       },
       "data": {
         "content": "## Alice",
-        "fontSize": 28,
-        "width": 295,
-        "height": 137,
+        "fontSize": 36,
+        "width": 200,
+        "height": 146,
         "title": "Text Info Node",
-        "dirty": false
+        "dirty": false,
+        "textAlign": "center"
       },
       "parentId": "node_1tk0jii",
       "extent": "parent",
-      "width": 295,
-      "height": 137
+      "width": 200,
+      "height": 146
     },
     {
       "id": "node_357J805o",
@@ -10597,16 +10540,17 @@
       },
       "data": {
         "content": "## Bob",
-        "fontSize": 28,
-        "width": 295,
-        "height": 137,
+        "fontSize": 36,
+        "width": 200,
+        "height": 143,
         "title": "Text Info Node",
-        "dirty": false
+        "dirty": false,
+        "textAlign": "center"
       },
       "parentId": "node_1tk0jii",
       "extent": "parent",
-      "width": 295,
-      "height": 137
+      "width": 200,
+      "height": 143
     },
     {
       "id": "node_9gs0hzr",
@@ -11149,37 +11093,19 @@
       "id": "node_BCa6VvhE",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -4599.6830407149855,
-        "y": -1074.357548213015
+        "x": 127.0836438327978,
+        "y": -1421.630202587954
       },
       "data": {
         "content": "# Alice ",
-        "fontSize": 100,
-        "width": 430,
-        "height": 275,
+        "fontSize": 140,
+        "width": 499,
+        "height": 295,
         "title": "Text Info Node",
         "dirty": false
       },
-      "width": 430,
-      "height": 275
-    },
-    {
-      "id": "node_P5hlr0Ar",
-      "type": "shadcnTextInfo",
-      "position": {
-        "x": 18450,
-        "y": -1200
-      },
-      "data": {
-        "content": "# Bob",
-        "fontSize": 100,
-        "width": 430,
-        "height": 275,
-        "title": "Text Info Node",
-        "dirty": false
-      },
-      "width": 430,
-      "height": 275
+      "width": 499,
+      "height": 295
     },
     {
       "id": "node_pj9tLCEl",
@@ -11379,8 +11305,8 @@
       "id": "node_tfub6we",
       "type": "radioNode",
       "position": {
-        "x": 337.80833145136967,
-        "y": 351.03815010302515
+        "x": 353.92727984832436,
+        "y": 339.3152785416037
       },
       "data": {
         "functionName": "radio_send",
@@ -11696,8 +11622,8 @@
       "id": "node_ygLYQADG",
       "type": "calculation",
       "position": {
-        "x": 1912.3510676399783,
-        "y": 816.5522398928624
+        "x": 1703.2582059158121,
+        "y": 908.0303668971846
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -11719,8 +11645,8 @@
       "id": "node_y2nwu40",
       "type": "radioNode",
       "position": {
-        "x": 1716.8971085001976,
-        "y": 1036.8590109395864
+        "x": 1507.8042467760315,
+        "y": 1128.3371379439086
       },
       "data": {
         "functionName": "radio_receive",
@@ -11912,8 +11838,8 @@
       "id": "node_8psnt8v",
       "type": "radioNode",
       "position": {
-        "x": 415.62939390634347,
-        "y": 524.636351512906
+        "x": 375.45666120699116,
+        "y": 396.08360687498134
       },
       "data": {
         "functionName": "radio_send",
@@ -12249,6 +12175,24 @@
       },
       "parentId": "node_TWzQMnUr",
       "extent": "parent"
+    },
+    {
+      "id": "node_1sPi2N8u",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 22062.930168032355,
+        "y": -1385.1222743257117
+      },
+      "data": {
+        "content": "# Bob",
+        "fontSize": 140,
+        "width": 499,
+        "height": 295,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 499,
+      "height": 295
     }
   ],
   "edges": [
@@ -13961,14 +13905,6 @@
       "id": "edge_4ZwTFTFS"
     },
     {
-      "source": "node_fX4yRPdy",
-      "target": "node_7B4THK3X",
-      "sourceHandle": "output-1",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "edge_nwAKcB2d"
-    },
-    {
       "source": "node_Dj53D8z4",
       "target": "node_7bQgp6gF",
       "targetHandle": "input-0",
@@ -14581,13 +14517,15 @@
       "id": "edge_0afsde1",
       "source": "node_rrSd0xO3",
       "target": "node_JL84h0z4",
-      "targetHandle": "input-3010"
+      "targetHandle": "input-3010",
+      "selected": false
     },
     {
       "id": "edge_vmohzka",
       "source": "node_4pXG9TGI",
       "target": "node_JL84h0z4",
-      "targetHandle": "input-3020"
+      "targetHandle": "input-3020",
+      "selected": false
     },
     {
       "id": "edge_yzota93",

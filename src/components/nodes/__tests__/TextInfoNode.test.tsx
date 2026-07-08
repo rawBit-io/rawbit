@@ -566,6 +566,78 @@ describe("TextInfoNode", () => {
     );
   });
 
+  it("toggles text alignment from the portaled menu", async () => {
+    const clipboardMock = {
+      prettyResult: "",
+      copyResult: vi.fn(),
+      copyError: vi.fn(),
+      copyId: vi.fn(),
+      resultCopied: false,
+      errorCopied: false,
+      idCopied: false,
+    };
+    clipboardHook.mockReturnValue(clipboardMock);
+
+    const user = userEvent.setup();
+
+    const view = renderWithProviders(
+      <TextInfoNode
+        id="text-1"
+        data={nodesState[0].data}
+        selected={true}
+        type="text"
+        dragging={false}
+        zIndex={0}
+        width={nodesState[0].width}
+        height={nodesState[0].height}
+        isConnectable={true}
+        positionAbsoluteX={0}
+        positionAbsoluteY={0}
+      />,
+      { snapshotScheduler: scheduler }
+    );
+
+    const menuButton = screen.getByRole("button", { name: /text node menu/i });
+    const preview = view.container.querySelector(
+      ".text-info-markdown"
+    ) as HTMLElement;
+    expect(preview).toHaveStyle({ textAlign: "left" });
+
+    await user.click(menuButton);
+    await user.click(screen.getByRole("menuitem", { name: /align center/i }));
+
+    expect(nodesState[0].data.textAlign).toBe("center");
+    await waitFor(() =>
+      expect(scheduler.scheduleSnapshot).toHaveBeenCalledWith("Text Align")
+    );
+
+    view.rerender(
+      <TextInfoNode
+        id="text-1"
+        data={nodesState[0].data}
+        selected={true}
+        type="text"
+        dragging={false}
+        zIndex={0}
+        width={nodesState[0].width}
+        height={nodesState[0].height}
+        isConnectable={true}
+        positionAbsoluteX={0}
+        positionAbsoluteY={0}
+      />
+    );
+
+    const centeredPreview = view.container.querySelector(
+      ".text-info-markdown"
+    ) as HTMLElement;
+    expect(centeredPreview).toHaveStyle({ textAlign: "center" });
+
+    await user.click(screen.getByRole("button", { name: /text node menu/i }));
+    await user.click(screen.getByRole("menuitem", { name: /align left/i }));
+
+    expect(nodesState[0].data.textAlign).toBeUndefined();
+  });
+
   it("copies the node id and deletes via the portaled menu", async () => {
     const clipboardMock = {
       prettyResult: "",

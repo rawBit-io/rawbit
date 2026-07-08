@@ -22,7 +22,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Minus, Plus, MoreHorizontal, Copy, Trash2, Check } from "lucide-react";
+import {
+  AlignCenter,
+  AlignLeft,
+  Minus,
+  Plus,
+  MoreHorizontal,
+  Copy,
+  Trash2,
+  Check,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mdToHtml } from "@/lib/markdown";
 import { useClipboardLite } from "@/hooks/nodes/useClipboardLite";
@@ -224,6 +233,7 @@ export default function TextInfoNode({
   const content = isPlaceholderContent ? DEFAULT_TEXT : rawContent;
   const fontSize = normalizeFontSize(data.fontSize);
   const lineHeight = Math.round(fontSize * 1.5); // Use the same calculation as the second file
+  const textAlign = data.textAlign === "center" ? "center" : "left";
   const paletteColor =
     typeof data.borderColor === "string" && data.borderColor.trim()
       ? data.borderColor.trim()
@@ -383,6 +393,19 @@ export default function TextInfoNode({
     },
     [normalizeFontSize, updateNode, scheduleSnapshot]
   );
+
+  const toggleTextAlign = useCallback(() => {
+    const nextAlign = textAlign === "center" ? "left" : "center";
+    updateNode((d) => {
+      if (nextAlign === "left") {
+        delete d.textAlign;
+      } else {
+        d.textAlign = nextAlign;
+      }
+    });
+    scheduleSnapshot("Text Align");
+    setShowMenu(false);
+  }, [scheduleSnapshot, textAlign, updateNode]);
 
   /* ───────── editing lifecycle ───────────────────────────── */
   const startEdit = useCallback(() => {
@@ -676,6 +699,20 @@ export default function TextInfoNode({
                     onPointerDown={(event) => event.stopPropagation()}
                     onWheelCapture={(event) => event.stopPropagation()}
                   >
+                    <DropdownMenuItem onSelect={toggleTextAlign}>
+                      <span className="flex items-center gap-2">
+                        {textAlign === "center" ? (
+                          <>
+                            <AlignLeft className="h-4 w-4" /> Align Left
+                          </>
+                        ) : (
+                          <>
+                            <AlignCenter className="h-4 w-4" /> Align Center
+                          </>
+                        )}
+                      </span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem onSelect={handleCopyId}>
                       <span className="flex items-center gap-2">
                         {idCopied ? (
@@ -723,6 +760,7 @@ export default function TextInfoNode({
             style={{
               fontSize: `${fontSize}px`,
               lineHeight: `${lineHeight}px`,
+              textAlign,
               overflowY: "auto",
               overscrollBehavior: "contain",
               fontFamily: "inherit",
@@ -739,6 +777,7 @@ export default function TextInfoNode({
             style={{
               fontSize: `${fontSize}px`,
               lineHeight: `${lineHeight}px`,
+              textAlign,
               overflowY: "auto",
               overscrollBehavior: "contain",
               fontFamily: "inherit",

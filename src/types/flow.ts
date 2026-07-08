@@ -131,6 +131,7 @@ export interface CalculationNodeData extends Record<string, unknown> {
   /** TextInfoNode */
   content?: string;
   fontSize?: number;
+  textAlign?: "left" | "center";
   textInfoFill?: "none";
 
   totalInputs?: number; // how many input handles the node *should* render
