@@ -30,14 +30,14 @@
       "id": "node_1tk0jii",
       "type": "shadcnGroup",
       "position": {
-        "x": 9540.37719300164,
-        "y": -5843.430401092572
+        "x": -5103.542959692084,
+        "y": -5567.566589616006
       },
       "data": {
         "isGroup": true,
         "groupFlash": false,
-        "width": 2045,
-        "height": 3135,
+        "width": 2035,
+        "height": 2592,
         "title": "Setup — shared swap parameters",
         "fontSize": 44,
         "groupBundlePortOffsets": {
@@ -48,8 +48,8 @@
         },
         "dirty": false
       },
-      "width": 2045,
-      "height": 3135,
+      "width": 2035,
+      "height": 2592,
       "dragHandle": "[data-drag-handle]"
     },
     {
@@ -1996,13 +1996,13 @@
       "id": "node_kht0iiVH",
       "type": "shadcnGroup",
       "position": {
-        "x": -7159.720172982026,
+        "x": -6793.720172982026,
         "y": 5667.130882965404
       },
       "data": {
         "isGroup": true,
-        "width": 5066.576745355703,
-        "height": 3540,
+        "width": 4701,
+        "height": 3466,
         "title": "Alice HTLC — redeemScript + P2SH (testnet4)",
         "dirty": false,
         "borderColor": "#a83a32",
@@ -2018,15 +2018,15 @@
           }
         }
       },
-      "width": 5066.576745355703,
-      "height": 3540,
+      "width": 4701,
+      "height": 3466,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "node_4dZ3cKFi",
       "type": "calculation",
       "position": {
-        "x": 2803.6732731503307,
+        "x": 2437.6732731503307,
         "y": 523.7719616963604
       },
       "data": {
@@ -2098,19 +2098,19 @@
         "customFieldLabels": {
           "0": "OP code",
           "100": "OP code",
-          "200": "",
-          "300": "",
-          "400": "",
-          "500": "",
-          "600": "",
-          "700": "pubkey",
+          "200": "Secret hash len:",
+          "300": "Secret hash",
+          "400": "OP code:",
+          "500": "public key len:",
+          "600": "public key:",
+          "700": "OP code:",
           "800": "OP code",
-          "900": "OP code",
-          "1000": "delay len",
-          "1100": "delay",
-          "1200": "OP code",
-          "1300": "pubkey len",
-          "1400": "pubkey",
+          "900": "time delay len:",
+          "1000": "time delay:",
+          "1100": "OP code:",
+          "1200": "public key len:",
+          "1300": "public key:",
+          "1400": "OP code:",
           "1500": "OP code",
           "1600": "OP code"
         }
@@ -2122,8 +2122,8 @@
       "id": "node_H66jIoAy",
       "type": "calculation",
       "position": {
-        "x": 4764.576745355703,
-        "y": 1039.473283287287
+        "x": 4309.681519532289,
+        "y": 1064.5462956990195
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -2145,7 +2145,7 @@
       "id": "node_2EIKuWvc",
       "type": "calculation",
       "position": {
-        "x": 4094.836965082329,
+        "x": 3728.836965082329,
         "y": 964.6661607614315
       },
       "data": {
@@ -2212,7 +2212,7 @@
       "id": "node_60aUXw0G",
       "type": "opCodeNode",
       "position": {
-        "x": 3676.2652031713287,
+        "x": 3310.2652031713287,
         "y": 757.4225276952393
       },
       "data": {
@@ -2252,7 +2252,7 @@
       "id": "node_Bi1uPTkI",
       "type": "calculation",
       "position": {
-        "x": 3711.0350618157454,
+        "x": 3345.0350618157454,
         "y": 1043.6969630110289
       },
       "data": {
@@ -2286,7 +2286,7 @@
       "id": "node_GOwsAdNt",
       "type": "calculation",
       "position": {
-        "x": 3365.2690288771287,
+        "x": 2999.2690288771287,
         "y": 1165.6742503458427
       },
       "data": {
@@ -2319,7 +2319,7 @@
       "id": "node_XReTXNge",
       "type": "opCodeNode",
       "position": {
-        "x": 3619.758284903922,
+        "x": 3253.758284903922,
         "y": 1575.4138196312542
       },
       "data": {
@@ -2359,8 +2359,8 @@
       "id": "node_awSuFiUN",
       "type": "opCodeNode",
       "position": {
-        "x": 1598.6280997510391,
-        "y": 180.98803245003091
+        "x": 127.9270216419618,
+        "y": 66.64676166750542
       },
       "data": {
         "functionName": "op_code_select",
@@ -2398,8 +2398,8 @@
       "id": "node_8f3hMjz6",
       "type": "opCodeNode",
       "position": {
-        "x": 658.8117244539544,
-        "y": 1751.2009960052565
+        "x": 123.7304846296147,
+        "y": 1685.5005119225498
       },
       "data": {
         "functionName": "op_code_select",
@@ -2437,8 +2437,8 @@
       "id": "node_L2HSJ1O6",
       "type": "calculation",
       "position": {
-        "x": 1794.7012862916554,
-        "y": 2523.475291243487
+        "x": 1585.7994396308031,
+        "y": 2460.636029907828
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -2471,8 +2471,8 @@
       "id": "node_w2iOoFGP",
       "type": "opCodeNode",
       "position": {
-        "x": 1826.2835992681016,
-        "y": 2910.4498769790953
+        "x": 1617.381752607249,
+        "y": 2847.610615643436
       },
       "data": {
         "functionName": "op_code_select",
@@ -2510,8 +2510,8 @@
       "id": "node_BGFe0FHK",
       "type": "opCodeNode",
       "position": {
-        "x": 1819.2313952094125,
-        "y": 3198.3111040390995
+        "x": 1610.3295485485605,
+        "y": 3135.4718427034404
       },
       "data": {
         "functionName": "op_code_select",
@@ -2549,8 +2549,8 @@
       "id": "node_ur37rTNb",
       "type": "opCodeNode",
       "position": {
-        "x": 689.9647333380356,
-        "y": 516.4708764768247
+        "x": 861.6055120345845,
+        "y": 439.325501405925
       },
       "data": {
         "functionName": "op_code_select",
@@ -2588,8 +2588,8 @@
       "id": "node_2OxOYY66",
       "type": "opCodeNode",
       "position": {
-        "x": 687.6010826599027,
-        "y": 1013.708795990131
+        "x": 1029.6547942329544,
+        "y": 938.6416861711768
       },
       "data": {
         "functionName": "op_code_select",
@@ -2627,8 +2627,8 @@
       "id": "node_iXLjBm9x",
       "type": "calculation",
       "position": {
-        "x": 2071.9023997994727,
-        "y": 781.9410703530793
+        "x": 1863.0005531386205,
+        "y": 719.1018090174202
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -2661,8 +2661,8 @@
       "id": "node_SXFrZPp3",
       "type": "calculation",
       "position": {
-        "x": 1919.5938300683847,
-        "y": 1126.6129178334304
+        "x": 1710.6919834075325,
+        "y": 1063.7736564977713
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -2695,8 +2695,8 @@
       "id": "node_lNEzQQYV",
       "type": "opCodeNode",
       "position": {
-        "x": 1289.7978810165623,
-        "y": 1373.5246943506181
+        "x": 1026.518107721361,
+        "y": 1311.9801455538718
       },
       "data": {
         "functionName": "op_code_select",
@@ -2734,8 +2734,8 @@
       "id": "node_USOli4HH",
       "type": "opCodeNode",
       "position": {
-        "x": 1632.1687474963182,
-        "y": 2227.244971690465
+        "x": 1423.266900835466,
+        "y": 2164.4057103548057
       },
       "data": {
         "functionName": "op_code_select",
@@ -2780,8 +2780,8 @@
       "id": "node_1POPqL3b",
       "type": "calculation",
       "position": {
-        "x": 965.5818050585103,
-        "y": 2048.889402312483
+        "x": 756.6799583976581,
+        "y": 1986.050140976824
       },
       "data": {
         "functionName": "date_to_unix_timestamp",
@@ -2814,8 +2814,8 @@
       "id": "node_vB21lenX",
       "type": "calculation",
       "position": {
-        "x": 1290.4856733407814,
-        "y": 2020.4070963173253
+        "x": 1081.5838266799292,
+        "y": 1957.5678349816662
       },
       "data": {
         "functionName": "int_to_script_bytes",
@@ -2848,8 +2848,8 @@
       "id": "node_FZrUsIAM",
       "type": "calculation",
       "position": {
-        "x": 1733.5559343068676,
-        "y": 1954.2526869739759
+        "x": 1524.654087646015,
+        "y": 1891.4134256383168
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -4461,13 +4461,13 @@
       "id": "node_fijI5xtX",
       "type": "shadcnGroup",
       "position": {
-        "x": 13673.868249658542,
-        "y": 6060.399847779601
+        "x": 13897.868249658542,
+        "y": 6247.399847779601
       },
       "data": {
         "isGroup": true,
-        "width": 4918,
-        "height": 3540,
+        "width": 4669,
+        "height": 3320,
         "title": "Bob HTLC — redeemScript + P2SH (testnet3)",
         "dirty": false,
         "borderColor": "#a83a32",
@@ -4485,112 +4485,16 @@
           }
         }
       },
-      "width": 4918,
-      "height": 3540,
+      "width": 4669,
+      "height": 3320,
       "dragHandle": "[data-drag-handle]"
-    },
-    {
-      "id": "node_0JagA7eE",
-      "type": "calculation",
-      "position": {
-        "x": 2503.6136267783577,
-        "y": 523.7719616963604
-      },
-      "data": {
-        "functionName": "concat_all",
-        "paramExtraction": "multi_val",
-        "numInputs": 2,
-        "inputs": {
-          "vals": {
-            "0": "63",
-            "100": "a8",
-            "200": "20",
-            "300": "9995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd",
-            "400": "88",
-            "500": "21",
-            "600": "029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0a",
-            "700": "ac",
-            "800": "67",
-            "900": "04",
-            "1000": "a7dc486a",
-            "1100": "b175",
-            "1200": "21",
-            "1300": "039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029d",
-            "1400": "ac",
-            "1500": "68"
-          }
-        },
-        "dirty": false,
-        "version": 0,
-        "result": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd8821029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0aac6704a7dc486ab17521039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029dac68",
-        "inputStructure": {
-          "afterGroups": [],
-          "groups": [
-            {
-              "baseIndex": 0,
-              "expandable": true,
-              "fieldCountToAdd": 1,
-              "fields": [
-                {
-                  "index": 0,
-                  "label": "Value:",
-                  "placeholder": "<multi‑line input>",
-                  "rows": 3
-                }
-              ],
-              "maxInstances": 25,
-              "minInstances": 1,
-              "title": "INPUTS[]"
-            }
-          ],
-          "ungrouped": []
-        },
-        "groupInstances": {
-          "INPUTS[]": 16
-        },
-        "groupInstanceKeys": {
-          "INPUTS[]": [
-            0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200,
-            1300, 1400, 1500
-          ]
-        },
-        "baseHeight": 80,
-        "title": "redeemScript Bob",
-        "borderColor": "#22c55e",
-        "showComment": true,
-        "comment": "OP_IF\n    OP_SHA256 <secret_hash> OP_EQUALVERIFY\n    <receiver_pubkey> OP_CHECKSIG\nOP_ELSE\n    <refund_locktime> OP_CHECKLOCKTIMEVERIFY OP_DROP\n    <sender_pubkey> OP_CHECKSIG\nOP_ENDIF",
-        "totalInputs": 16,
-        "unwiredCount": 0,
-        "error": false,
-        "customFieldLabels": {
-          "0": "OP code",
-          "100": "OP code",
-          "200": "",
-          "300": "",
-          "400": "",
-          "500": "",
-          "600": "",
-          "700": "pubkey",
-          "800": "OP code",
-          "900": "OP code",
-          "1000": "delay len",
-          "1100": "delay",
-          "1200": "OP code",
-          "1300": "pubkey len",
-          "1400": "pubkey",
-          "1500": "OP code",
-          "1600": "OP code"
-        }
-      },
-      "parentId": "node_fijI5xtX",
-      "extent": "parent"
     },
     {
       "id": "node_PH7u4XS7",
       "type": "calculation",
       "position": {
-        "x": 4464.51709898373,
-        "y": 1039.473283287287
+        "x": 4240.51709898373,
+        "y": 852.4732832872869
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -4612,8 +4516,8 @@
       "id": "node_ZVh7jR5a",
       "type": "calculation",
       "position": {
-        "x": 3794.7773187103558,
-        "y": 964.6661607614315
+        "x": 3570.7773187103558,
+        "y": 777.6661607614315
       },
       "data": {
         "functionName": "concat_all",
@@ -4679,8 +4583,8 @@
       "id": "node_xGVpSsEP",
       "type": "opCodeNode",
       "position": {
-        "x": 3376.2055567993557,
-        "y": 757.4225276952393
+        "x": 3152.2055567993557,
+        "y": 570.4225276952393
       },
       "data": {
         "functionName": "op_code_select",
@@ -4719,8 +4623,8 @@
       "id": "node_9uhvIFz3",
       "type": "calculation",
       "position": {
-        "x": 3410.9754154437724,
-        "y": 1043.6969630110289
+        "x": 3186.9754154437724,
+        "y": 856.6969630110289
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -4753,8 +4657,8 @@
       "id": "node_4HEefrYH",
       "type": "calculation",
       "position": {
-        "x": 3065.2093825051556,
-        "y": 1165.6742503458427
+        "x": 2841.2093825051556,
+        "y": 978.6742503458427
       },
       "data": {
         "functionName": "hash160_hex",
@@ -4786,8 +4690,8 @@
       "id": "node_CnSAcvyD",
       "type": "opCodeNode",
       "position": {
-        "x": 3319.6986385319487,
-        "y": 1575.4138196312542
+        "x": 3095.6986385319487,
+        "y": 1388.4138196312542
       },
       "data": {
         "functionName": "op_code_select",
@@ -4826,8 +4730,8 @@
       "id": "node_O9xBHqsq",
       "type": "opCodeNode",
       "position": {
-        "x": 1298.5684533790663,
-        "y": 180.98803245003091
+        "x": 148.2647723428654,
+        "y": 130.97660499763788
       },
       "data": {
         "functionName": "op_code_select",
@@ -4865,8 +4769,8 @@
       "id": "node_op0w0dXg",
       "type": "opCodeNode",
       "position": {
-        "x": 358.7520780819814,
-        "y": 1751.2009960052565
+        "x": 139.1009216549228,
+        "y": 1540.282356354087
       },
       "data": {
         "functionName": "op_code_select",
@@ -4904,8 +4808,8 @@
       "id": "node_q6Z7eMLB",
       "type": "calculation",
       "position": {
-        "x": 1508.6278007470673,
-        "y": 2551.447612898255
+        "x": 1562.5537666204891,
+        "y": 2318.1266185860186
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -4938,8 +4842,8 @@
       "id": "node_1AHrZfOv",
       "type": "opCodeNode",
       "position": {
-        "x": 1526.2239528961281,
-        "y": 2910.4498769790953
+        "x": 1580.14991876955,
+        "y": 2677.1288826668588
       },
       "data": {
         "functionName": "op_code_select",
@@ -4977,8 +4881,8 @@
       "id": "node_42PtgXIp",
       "type": "opCodeNode",
       "position": {
-        "x": 1519.1717488374397,
-        "y": 3198.3111040390995
+        "x": 1573.0977147108606,
+        "y": 2964.990109726863
       },
       "data": {
         "functionName": "op_code_select",
@@ -5016,8 +4920,8 @@
       "id": "node_u7AfK1rB",
       "type": "opCodeNode",
       "position": {
-        "x": 389.9050869660623,
-        "y": 516.4708764768247
+        "x": 661.6732542812115,
+        "y": 512.1223065403019
       },
       "data": {
         "functionName": "op_code_select",
@@ -5055,8 +4959,8 @@
       "id": "node_SRaCrIHA",
       "type": "opCodeNode",
       "position": {
-        "x": 387.5414362879301,
-        "y": 1013.708795990131
+        "x": 670.1817125354319,
+        "y": 881.0693406518794
       },
       "data": {
         "functionName": "op_code_select",
@@ -5094,8 +4998,8 @@
       "id": "node_7AKM66Tu",
       "type": "calculation",
       "position": {
-        "x": 1773.92024765291,
-        "y": 745.2071123074375
+        "x": 1532.5248733611497,
+        "y": 753.9050730897334
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -5128,8 +5032,8 @@
       "id": "node_MxTNzJMZ",
       "type": "calculation",
       "position": {
-        "x": 1573.5455783147045,
-        "y": 1064.951211126201
+        "x": 1336.4990475958857,
+        "y": 973.6257697308793
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -5162,8 +5066,8 @@
       "id": "node_beNdbGz5",
       "type": "opCodeNode",
       "position": {
-        "x": 989.7382346445893,
-        "y": 1373.5246943506181
+        "x": 752.6917039257696,
+        "y": 1282.1992529552963
       },
       "data": {
         "functionName": "op_code_select",
@@ -5201,8 +5105,8 @@
       "id": "node_yM2bJLgh",
       "type": "opCodeNode",
       "position": {
-        "x": 1332.1091011243452,
-        "y": 2227.244971690465
+        "x": 1386.0350669977652,
+        "y": 1993.9239773782283
       },
       "data": {
         "functionName": "op_code_select",
@@ -5247,8 +5151,8 @@
       "id": "node_e1w3vvHY",
       "type": "calculation",
       "position": {
-        "x": 665.5221586865373,
-        "y": 2048.889402312483
+        "x": 719.4481245599582,
+        "y": 1815.5684080002466
       },
       "data": {
         "functionName": "date_to_unix_timestamp",
@@ -5281,8 +5185,8 @@
       "id": "node_coLgfhBo",
       "type": "calculation",
       "position": {
-        "x": 990.4260269688084,
-        "y": 2020.4070963173253
+        "x": 1044.3519928422302,
+        "y": 1787.0861020050888
       },
       "data": {
         "functionName": "int_to_script_bytes",
@@ -5315,8 +5219,8 @@
       "id": "node_mdWK1JLd",
       "type": "calculation",
       "position": {
-        "x": 1433.496287934894,
-        "y": 1954.2526869739759
+        "x": 1473.4304040373954,
+        "y": 1542.2319341429966
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -5349,8 +5253,8 @@
       "id": "node_7igmjz4",
       "type": "scriptViewer",
       "position": {
-        "x": 3216.1317503414575,
-        "y": 2189.6001522203987
+        "x": 2992.1317503414575,
+        "y": 2002.6001522203987
       },
       "data": {
         "functionName": "script_viewer",
@@ -6152,7 +6056,10 @@
           "0": "SIG_LEN:",
           "100": "SIG:",
           "200": "secret_LEN:",
-          "300": "PUBKEY:"
+          "300": "secret: ",
+          "400": "OP code:",
+          "500": "redeem Script len:",
+          "600": "redeem Script:"
         }
       },
       "parentId": "node_GfPG5Tr3",
@@ -7959,8 +7866,11 @@
         "customFieldLabels": {
           "0": "SIG_LEN:",
           "100": "SIG:",
-          "200": "PUBKEY_LEN:",
-          "300": "PUBKEY:"
+          "200": "secret len:",
+          "300": "secret:",
+          "400": "OP code:",
+          "500": "redeem Script len:",
+          "600": "redeem Script:"
         }
       },
       "parentId": "node_TWzQMnUr",
@@ -9540,7 +9450,7 @@
       "id": "node_j6dgh09",
       "type": "scriptViewer",
       "position": {
-        "x": 3679.7798193539993,
+        "x": 3313.7798193539993,
         "y": 2237.8691170345955
       },
       "data": {
@@ -9603,8 +9513,8 @@
       "id": "node_l1drJMFI",
       "type": "shadcnGroup",
       "position": {
-        "x": 7539.034785179763,
-        "y": -4677.485377264214
+        "x": -7104.88536751396,
+        "y": -4944.621565787648
       },
       "data": {
         "isGroup": true,
@@ -9645,7 +9555,7 @@
       "type": "calculation",
       "position": {
         "x": 184.82615711242943,
-        "y": 2622.4605216575737
+        "y": 2079.4605216575737
       },
       "data": {
         "functionName": "sha256_hex",
@@ -9677,7 +9587,7 @@
       "type": "calculation",
       "position": {
         "x": 122.68029491660582,
-        "y": 938.5843798150809
+        "y": 395.58437981508087
       },
       "data": {
         "functionName": "identity",
@@ -9712,7 +9622,7 @@
       "type": "radioNode",
       "position": {
         "x": 525.8327213232969,
-        "y": 969.4654415009272
+        "y": 426.4654415009272
       },
       "data": {
         "functionName": "radio_send",
@@ -9765,7 +9675,7 @@
       "type": "calculation",
       "position": {
         "x": 1208.503519701666,
-        "y": 969.0939708869319
+        "y": 426.09397088693186
       },
       "data": {
         "functionName": "identity",
@@ -9800,7 +9710,7 @@
       "type": "radioNode",
       "position": {
         "x": 1617.4316628904435,
-        "y": 997.0871741817332
+        "y": 454.0871741817332
       },
       "data": {
         "functionName": "radio_send",
@@ -9853,7 +9763,7 @@
       "type": "radioNode",
       "position": {
         "x": 587.3762539783747,
-        "y": 2718.4306858818945
+        "y": 2175.4306858818945
       },
       "data": {
         "functionName": "radio_send",
@@ -9906,7 +9816,7 @@
       "type": "calculation",
       "position": {
         "x": 129.65002740194632,
-        "y": 1352.5966047119118
+        "y": 809.5966047119118
       },
       "data": {
         "functionName": "identity",
@@ -9941,7 +9851,7 @@
       "type": "radioNode",
       "position": {
         "x": 532.504508004401,
-        "y": 1347.7649547744413
+        "y": 804.7649547744413
       },
       "data": {
         "functionName": "radio_send",
@@ -9994,7 +9904,7 @@
       "type": "calculation",
       "position": {
         "x": 1235.9297160269398,
-        "y": 1304.9442341520407
+        "y": 761.9442341520407
       },
       "data": {
         "functionName": "identity",
@@ -10029,7 +9939,7 @@
       "type": "radioNode",
       "position": {
         "x": 1569.4507821160914,
-        "y": 1365.306062502651
+        "y": 822.306062502651
       },
       "data": {
         "functionName": "radio_send",
@@ -10082,7 +9992,7 @@
       "type": "calculation",
       "position": {
         "x": 1279.487285805677,
-        "y": 1660.8434470397733
+        "y": 1117.8434470397733
       },
       "data": {
         "functionName": "public_key_from_private_key",
@@ -10102,31 +10012,11 @@
       "extent": "parent"
     },
     {
-      "id": "node_cxlqPvSe",
-      "type": "shadcnTextInfo",
-      "position": {
-        "x": 111.51379433416605,
-        "y": 146.20420848845515
-      },
-      "data": {
-        "content": "## Setup: what the parties exchange\n\nAll public data, agreed before any coins move:\n\n- **Amounts** — and which chain each side locks on\n- **Time delays** — initiator's refund unlocks ~24 h *after* the responder's (she holds the secret and moves first)\n- **Claim pubkeys** — each goes into the hashlock branch of the *other's* contract, so a stolen `S` alone can never sweep the coins\n- **Refund pubkeys** — shared so each side can rebuild the counterparty's full redeemScript and audit the on-chain P2SH hash\n- **`H = SHA256(S)`** — from the initiator only\n\n\n",
-        "fontSize": 32,
-        "width": 1901,
-        "height": 499,
-        "title": "Text Info Node",
-        "dirty": false
-      },
-      "parentId": "node_1tk0jii",
-      "extent": "parent",
-      "width": 1901,
-      "height": 499
-    },
-    {
       "id": "node_tkU5SumG",
       "type": "radioNode",
       "position": {
         "x": 1631.3854615927157,
-        "y": 1746.8571130241821
+        "y": 1203.8571130241821
       },
       "data": {
         "functionName": "radio_send",
@@ -10179,7 +10069,7 @@
       "type": "calculation",
       "position": {
         "x": 1284.5778206871692,
-        "y": 1973.057528247291
+        "y": 1430.057528247291
       },
       "data": {
         "functionName": "public_key_from_private_key",
@@ -10203,7 +10093,7 @@
       "type": "radioNode",
       "position": {
         "x": 1650.858558133521,
-        "y": 2026.6205651253972
+        "y": 1483.6205651253972
       },
       "data": {
         "functionName": "radio_send",
@@ -10277,8 +10167,8 @@
       "id": "node_sx1b2eLL",
       "type": "shadcnGroup",
       "position": {
-        "x": 7524.480589193956,
-        "y": -3801.038150103025
+        "x": -7119.439563499767,
+        "y": -4068.1743386264598
       },
       "data": {
         "isGroup": true,
@@ -10319,7 +10209,7 @@
       "type": "calculation",
       "position": {
         "x": 168.50916650959152,
-        "y": 1810.454558650205
+        "y": 1267.454558650205
       },
       "data": {
         "functionName": "public_key_from_private_key",
@@ -10343,7 +10233,7 @@
       "type": "radioNode",
       "position": {
         "x": 541.0977185890442,
-        "y": 1896.5245511400485
+        "y": 1353.5245511400485
       },
       "data": {
         "functionName": "radio_send",
@@ -10396,7 +10286,7 @@
       "type": "calculation",
       "position": {
         "x": 176.87723981797717,
-        "y": 2110.790095214784
+        "y": 1567.7900952147838
       },
       "data": {
         "functionName": "public_key_from_private_key",
@@ -10454,7 +10344,7 @@
         "result": "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb",
         "error": false,
         "showComment": true,
-        "comment": "⚠️ NOT a key. Same entropy source, opposite lifecycle — this value gets PUBLISHED on-chain when Alice claims."
+        "comment": "⚠️ NOT a key. Same entropy source, opposite lifecycle - this value gets PUBLISHED on-chain when Alice claims."
       },
       "parentId": "node_sx1b2eLL",
       "extent": "parent"
@@ -10464,7 +10354,7 @@
       "type": "radioNode",
       "position": {
         "x": 529.6858503766198,
-        "y": 2170.7068467064473
+        "y": 1627.7068467064473
       },
       "data": {
         "functionName": "radio_send",
@@ -10516,43 +10406,43 @@
       "id": "node_u5d6hln",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 135.41070351556664,
-        "y": 707.0882988991207
+        "x": 34.373882832751406,
+        "y": 116.05440054171686
       },
       "data": {
-        "content": "## Alice",
+        "content": "## Alice\n*initiator · holds secret `S` · locks on testnet4*",
         "fontSize": 36,
-        "width": 200,
-        "height": 146,
+        "width": 742,
+        "height": 226,
         "title": "Text Info Node",
         "dirty": false,
         "textAlign": "center"
       },
       "parentId": "node_1tk0jii",
       "extent": "parent",
-      "width": 200,
-      "height": 146
+      "width": 742,
+      "height": 226
     },
     {
       "id": "node_357J805o",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1193.7784892471063,
-        "y": 710.5379897112593
+        "x": 1143.931884352287,
+        "y": 113.78115794672522
       },
       "data": {
-        "content": "## Bob",
+        "content": "## Bob\n*responder · locks on testnet3*",
         "fontSize": 36,
-        "width": 200,
-        "height": 143,
+        "width": 603,
+        "height": 205,
         "title": "Text Info Node",
         "dirty": false,
         "textAlign": "center"
       },
       "parentId": "node_1tk0jii",
       "extent": "parent",
-      "width": 200,
-      "height": 143
+      "width": 603,
+      "height": 205
     },
     {
       "id": "node_9gs0hzr",
@@ -10763,8 +10653,8 @@
       "id": "node_7bfc5jt",
       "type": "radioNode",
       "position": {
-        "x": 1666.7847358250683,
-        "y": 1299.0508896994734
+        "x": 1457.882889164216,
+        "y": 1236.2116283638143
       },
       "data": {
         "functionName": "radio_receive",
@@ -10798,8 +10688,8 @@
       "id": "node_xvj0ws8",
       "type": "radioNode",
       "position": {
-        "x": 1678.3017105292465,
-        "y": 939.18031367819
+        "x": 1469.3998638683943,
+        "y": 876.3410523425309
       },
       "data": {
         "functionName": "radio_receive",
@@ -10833,62 +10723,62 @@
       "id": "node_qx4nrak",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 7587.779403960825,
-        "y": -6343.370514460646
+        "x": -7113.195129224723,
+        "y": -5565.141435335604
       },
       "data": {
-        "content": "# Step 1\n- Data exchange",
-        "fontSize": 52,
-        "width": 591,
-        "height": 294,
+        "content": "# Step 1 - Negotiate\n\n- Alice and Bob agree on the terms: amounts, deadlines, and which keys each contract will pay to.\n- Alice creates a random secret `S` and shares only its hash `H = SHA256(S)` - whoever can present `S` gets paid, and only she has it.\n- Nothing has moved yet. Everything exchanged here is public.",
+        "fontSize": 36,
+        "width": 1700,
+        "height": 429,
         "title": "Text Info Node",
         "dirty": false
       },
-      "width": 591,
-      "height": 294
+      "width": 1700,
+      "height": 429
     },
     {
       "id": "node_qaN1cbJ3",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -5209.404828177738,
-        "y": -548.8016291854109
+        "x": -5252.218985776867,
+        "y": -797.511962922149
       },
       "data": {
-        "content": "# Step 2\n- Alice creates tx and sends it to network",
-        "fontSize": 52,
-        "width": 1093,
-        "height": 333,
+        "content": "# Step 2 - Alice locks her coins\n\n- Alice doesn't pay Bob - she pays a **contract**: *Bob may take these coins by presenting `S` - or Alice takes them back after her deadline.*\n- She broadcasts it on testnet4 and waits for confirmation.\n- Going first is safe: nobody can touch the coins without the secret, and if the swap dies, the deadline returns them to her.",
+        "fontSize": 36,
+        "width": 1858,
+        "height": 511,
         "title": "Text Info Node",
         "dirty": false
       },
-      "width": 1093,
-      "height": 333
+      "width": 1858,
+      "height": 511
     },
     {
       "id": "node_GhE3iYVc",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 19197.62379380697,
-        "y": 2032.381397078709
+        "x": 19224.832566929024,
+        "y": 1892.9364348281804
       },
       "data": {
-        "content": "# Step 3\n- Bobs check for tx on chain, verifies locking script and amount (he rebuilds locking script from scratch and compares to that on-chain)\n- if everything is right, Bob locks his coins",
+        "content": "# Step 3 - Bob verifies, then locks\n\n- Bob doesn't take Alice's word - he checks the chain: is the contract really there, with the agreed amount and terms, paying *his* key against `S`?\n- Satisfied, he locks his coins on testnet3 into the mirror contract: *Alice may take these with `S` - or Bob takes them back after his (earlier) deadline.*\n- Both sides are now locked. Only the secret can move anything.",
         "fontSize": 52,
-        "width": 1851,
-        "height": 532,
+        "width": 1976,
+        "height": 681,
         "title": "Text Info Node",
         "dirty": false
       },
-      "width": 1851,
-      "height": 532
+      "width": 1976,
+      "height": 681
     },
     {
       "id": "node_o28tqha",
       "type": "radioNode",
       "position": {
-        "x": 711.6302263426214,
-        "y": 2123.644306494816
+        "x": 502.7283796817692,
+        "y": 2060.805045159157
       },
       "data": {
         "functionName": "radio_receive",
@@ -10922,8 +10812,8 @@
       "id": "node_dfwvon6",
       "type": "radioNode",
       "position": {
-        "x": 1405.146642050634,
-        "y": 2754.2609149678483
+        "x": 1196.2447953897818,
+        "y": 2691.421653632189
       },
       "data": {
         "functionName": "radio_receive",
@@ -10957,8 +10847,8 @@
       "id": "node_kwxg0nb",
       "type": "radioNode",
       "position": {
-        "x": 1209.3456615243776,
-        "y": 2545.689689702991
+        "x": 1263.2716273977985,
+        "y": 2312.3686953907545
       },
       "data": {
         "functionName": "radio_receive",
@@ -10992,8 +10882,8 @@
       "id": "node_L1hd8kbZ",
       "type": "radioNode",
       "position": {
-        "x": 396.29162246372107,
-        "y": 2134.2869483124705
+        "x": 450.21758833714193,
+        "y": 1900.965954000234
       },
       "data": {
         "functionName": "radio_receive",
@@ -11027,8 +10917,8 @@
       "id": "node_wu1fzdl",
       "type": "radioNode",
       "position": {
-        "x": 1559.2462273139045,
-        "y": 911.2244757844664
+        "x": 1322.1996965950857,
+        "y": 819.8990343891446
       },
       "data": {
         "functionName": "radio_receive",
@@ -11062,8 +10952,8 @@
       "id": "node_T9dORroO",
       "type": "radioNode",
       "position": {
-        "x": 1131.816331576636,
-        "y": 1214.8491670347312
+        "x": 894.7698008578172,
+        "y": 1123.5237256394093
       },
       "data": {
         "functionName": "radio_receive",
@@ -11115,26 +11005,26 @@
       "id": "node_pj9tLCEl",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -5209.2186485144,
-        "y": 15244.817504893119
+        "x": -5242.83067833022,
+        "y": 15471.253824407713
       },
       "data": {
-        "content": "# Step 4\n- Alice verifies that Bob's tx is onchain, rebuilds redeemScript (for simplicty we just take Bob's redeemScript in this flow, but Alice has all data to rebuild it), compares to locked tx. If everything is correct, she builds tx which spends Bob's coins. ",
-        "fontSize": 52,
-        "width": 1851,
-        "height": 532,
+        "content": "# Step 4 - Alice claims - and reveals\n\n- Alice verifies Bob's contract the same way, then takes his coins by presenting `S` with her signature.\n- There is no quiet way to claim: the secret must be written into the transaction itself. **The moment it confirms, `S` is public.**\n- She must act before Bob's deadline - after it, he can simply reclaim his coins.",
+        "fontSize": 40,
+        "width": 1679,
+        "height": 644,
         "title": "Text Info Node",
         "dirty": false
       },
-      "width": 1851,
-      "height": 532
+      "width": 1679,
+      "height": 644
     },
     {
       "id": "node_d63g7mi",
       "type": "radioNode",
       "position": {
-        "x": 3488.063700771949,
-        "y": 2043.8813002873012
+        "x": 3264.063700771949,
+        "y": 1856.8813002873012
       },
       "data": {
         "functionName": "radio_send",
@@ -11520,19 +11410,19 @@
       "id": "node_E0iAlkW0",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 21305.191945819857,
-        "y": 14005.668380542724
+        "x": 21216.89342145649,
+        "y": 13814.35491108876
       },
       "data": {
-        "content": "# Step 5\n- After Bob see Alice has taken his coins, he can take Alice coins, becasue she has revealed the secret as she took his (he should do it in earlier as Alice locktime, otherwise she can claim them back). Bob recreates Alice redeemScript (in this flow for simplictiy we use Alice redeem Script)",
+        "content": "# Step 5 - Bob reads the secret and claims\n\n- Nobody tells Bob anything: he reads `S` straight out of Alice's transaction - the chain itself is the messenger.\n- With `S` he opens Alice's contract on testnet4 the same way, before *her* deadline; her later deadline is exactly what guarantees him time.\n- Swap complete, no trust used. Alice could not take his coins without handing him the key to hers - that is the atomicity.",
         "fontSize": 52,
-        "width": 1851,
-        "height": 532,
+        "width": 1932,
+        "height": 756,
         "title": "Text Info Node",
         "dirty": false
       },
-      "width": 1851,
-      "height": 532
+      "width": 1932,
+      "height": 756
     },
     {
       "id": "node_m064zc2",
@@ -11684,7 +11574,7 @@
       "id": "node_tuajgyl",
       "type": "radioNode",
       "position": {
-        "x": 3664.7201729820263,
+        "x": 3298.7201729820263,
         "y": 1952.8691170345955
       },
       "data": {
@@ -11979,7 +11869,7 @@
         },
         "error": false,
         "showComment": true,
-        "comment": "Extracts S from vin[0].scriptSig of Alice's broadcast claim TX — this is how Bob learns the secret"
+        "comment": "Extracts S from vin[0].scriptSig of Alice's broadcast claim TX - this is how Bob learns the secret"
       },
       "parentId": "node_TWzQMnUr",
       "extent": "parent"
@@ -12104,7 +11994,7 @@
         "dirty": false,
         "error": false,
         "showComment": true,
-        "comment": "Input index of Alice's claim TX — its scriptSig carries S"
+        "comment": "Input index of Alice's claim TX - its scriptSig carries S"
       },
       "parentId": "node_TWzQMnUr",
       "extent": "parent"
@@ -12199,6 +12089,206 @@
       },
       "width": 499,
       "height": 295
+    },
+    {
+      "id": "node_dTQYcZsK",
+      "type": "calculation",
+      "position": {
+        "x": 2365.259897703163,
+        "y": 609.2985235392716
+      },
+      "data": {
+        "functionName": "concat_all",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": {
+          "vals": {
+            "0": "63",
+            "100": "a8",
+            "200": "20",
+            "300": "9995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd",
+            "400": "88",
+            "500": "21",
+            "600": "029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0a",
+            "700": "ac",
+            "800": "67",
+            "900": "04",
+            "1000": "a7dc486a",
+            "1100": "b175",
+            "1200": "21",
+            "1300": "039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029d",
+            "1400": "ac",
+            "1500": "68"
+          }
+        },
+        "dirty": false,
+        "version": 0,
+        "result": "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd8821029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0aac6704a7dc486ab17521039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029dac68",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [
+                {
+                  "index": 0,
+                  "label": "Value:",
+                  "placeholder": "<multi‑line input>",
+                  "rows": 3
+                }
+              ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": {
+          "INPUTS[]": 16
+        },
+        "groupInstanceKeys": {
+          "INPUTS[]": [
+            0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200,
+            1300, 1400, 1500
+          ]
+        },
+        "baseHeight": 80,
+        "title": "redeemScript Bob",
+        "borderColor": "#22c55e",
+        "showComment": true,
+        "comment": "OP_IF\n    OP_SHA256 <secret_hash> OP_EQUALVERIFY\n    <receiver_pubkey> OP_CHECKSIG\nOP_ELSE\n    <refund_locktime> OP_CHECKLOCKTIMEVERIFY OP_DROP\n    <sender_pubkey> OP_CHECKSIG\nOP_ENDIF",
+        "totalInputs": 16,
+        "unwiredCount": 0,
+        "error": false,
+        "customFieldLabels": {
+          "0": "OP code",
+          "100": "OP code",
+          "200": "Secret hash len:",
+          "300": "Secret hash",
+          "400": "OP code:",
+          "500": "public key len:",
+          "600": "public key:",
+          "700": "OP code:",
+          "800": "OP code",
+          "900": "time delay len:",
+          "1000": "time delay:",
+          "1100": "OP code:",
+          "1200": "public key len:",
+          "1300": "public key:",
+          "1400": "OP code:",
+          "1500": "OP code",
+          "1600": "OP code"
+        }
+      },
+      "parentId": "node_fijI5xtX",
+      "extent": "parent"
+    },
+    {
+      "id": "node_cxlqPvSe",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -5089.554026370848,
+        "y": -6454.416908528064
+      },
+      "data": {
+        "content": "## Setup: what the parties exchange\n\nAll public data, agreed before any coins move:\n\n- **Amounts** - and which chain each side locks on\n- **Time delays** - initiator's refund unlocks ~24 h *after* the responder's (she holds the secret and moves first)\n- **Claim pubkeys** - each goes into the hashlock branch of the *other's* contract, so a stolen `S` alone can never sweep the coins\n- **Refund pubkeys** - shared so each side can rebuild the counterparty's full redeemScript and audit the on-chain P2SH hash\n- **`H = SHA256(S)`** - from the initiator only\n\nThe numbered radio nodes carry these values across the canvas without visible edges - select one to highlight its link.\n\n\n",
+        "fontSize": 36,
+        "width": 1979,
+        "height": 777,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 1979,
+      "height": 777
+    },
+    {
+      "id": "node_600u00z",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -10666.367518646868,
+        "y": -6984.730042655382
+      },
+      "data": {
+        "content": "# Overview - Cross-Chain Atomic Swap (HTLC Coinswap)\n\nAlice has coins on **testnet4**, Bob on **testnet3**. No transaction can touch two chains at once - someone must send first, and could be robbed. The fix: make both payments conditional on the **same secret**, so either both complete or neither does.\n\nEach side locks coins into a **Hash Time-Locked Contract**:\n\n```\nOP_IF\n    OP_SHA256 <H> OP_EQUALVERIFY\n    <claim_pubkey> OP_CHECKSIG\nOP_ELSE\n    <locktime> OP_CHECKLOCKTIMEVERIFY OP_DROP\n    <refund_pubkey> OP_CHECKSIG\nOP_ENDIF\n```\n\n- **Hashlock** - the counterparty claims by publishing `S` with `SHA256(S) = H`: claiming *forces disclosure*\n- **Timelock** - unclaimed coins return to their funder after the deadline: nothing can be lost forever\n\nBoth contracts carry the **same `H`**: Alice can't take Bob's coins without writing `S` onto the chain - and the moment she does, Bob can open her contract with the same secret. Four transactions: **TX1/TX2** lock (Alice first, Bob after auditing her), **TX3** Alice claims and reveals `S`, **TX4** Bob claims with the extracted `S`. The same primitive powers Lightning and submarine swaps.\n\nAll four were broadcast on the testnets - TXIDs on the Final-TX nodes. Follow **Steps 1–5** across the canvas. New to P2SH or CLTV? Flows 1–4 first.",
+        "fontSize": 50,
+        "width": 2197,
+        "height": 2090,
+        "title": "Text Info Node"
+      },
+      "width": 2197,
+      "height": 2090
+    },
+    {
+      "id": "node_0cevgdi",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 301.57007436798654,
+        "y": 14148.37069088954
+      },
+      "data": {
+        "content": "## The secret reveal - the atomicity\n\nOne move balances everything: **Alice cannot take Bob's coins without handing him the key to hers.** Her claim must contain `S` in cleartext - the script checks `SHA256(S) == H` - so the moment TX3 confirms, `S` is public.\n\nBob's **TX Parser** does what a real swap daemon does: it reads `S` straight out of her broadcast transaction. Publication *is* the handoff.\n\nThe asymmetric deadlines make this safe: Alice must reveal *before Bob's* locktime, and Bob then has a guaranteed 24 h - before *Alice's* - to claim. She can never take his coins *and* reclaim her own.",
+        "fontSize": 40,
+        "width": 1549,
+        "height": 719,
+        "title": "Text Info Node"
+      },
+      "width": 1549,
+      "height": 719
+    },
+    {
+      "id": "node_t36fwi8",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -6783.752884786003,
+        "y": 5148.845197938089
+      },
+      "data": {
+        "content": "```\nOP_IF\n    OP_SHA256 <H> OP_EQUALVERIFY\n    <claim_pubkey> OP_CHECKSIG\nOP_ELSE\n    <locktime> OP_CHECKLOCKTIMEVERIFY OP_DROP\n    <refund_pubkey> OP_CHECKSIG\nOP_ENDIF\n```",
+        "fontSize": 28,
+        "width": 829,
+        "height": 458,
+        "title": "Text Info Node"
+      },
+      "width": 829,
+      "height": 458
+    },
+    {
+      "id": "node_o70Eaxtb",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 13894.089253955493,
+        "y": 5722.027112630737
+      },
+      "data": {
+        "content": "```\nOP_IF\n    OP_SHA256 <H> OP_EQUALVERIFY\n    <claim_pubkey> OP_CHECKSIG\nOP_ELSE\n    <locktime> OP_CHECKLOCKTIMEVERIFY OP_DROP\n    <refund_pubkey> OP_CHECKSIG\nOP_ENDIF\n```",
+        "fontSize": 28,
+        "width": 829,
+        "height": 458,
+        "title": "Text Info Node"
+      },
+      "width": 829,
+      "height": 458
+    },
+    {
+      "id": "node_8fqcgm4",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -8790,
+        "y": -4350
+      },
+      "data": {
+        "content": "## Try it yourself\n- **Do the audit for real**: rebuild Bob's redeemScript from the ch 1–9 Setup data alone, match his on-chain `HASH160`, then swap your rebuild into TX3 in place of ch 10\n*These exercises rebuild the transactions - regenerate the vaults and pick fresh future deadlines first if you want to broadcast your version.*\n\n- Build **Alice's refund TX** through the ELSE door: `<sig by refund key> OP_0 <redeemScript>`, `nLockTime` = her unlock time - or Bob's refund, if she never claims. And if Bob oversleeps her deadline: she refunds too and keeps *both* sides\n- Use a **phrase as the secret** - the whole swap rebuilds, Bob still learns it from her claim TX, and your message is immortalized in a scriptSig. Then add an **OP_SIZE** guard: the contract never checked the length\n",
+        "fontSize": 28,
+        "width": 1200,
+        "height": 637,
+        "title": "Text Info Node",
+        "borderColor": "#2d5fb3"
+      },
+      "width": 1200,
+      "height": 637
     }
   ],
   "edges": [
@@ -13110,20 +13200,6 @@
       "id": "edge_4AWy27Cm"
     },
     {
-      "id": "edge_fcKkj87E",
-      "source": "node_0JagA7eE",
-      "target": "node_4HEefrYH",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "id": "edge_KGtf7Dlb",
-      "source": "node_O9xBHqsq",
-      "target": "node_0JagA7eE",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
       "id": "edge_0SqCVkIF",
       "source": "node_ZVh7jR5a",
       "target": "node_VDTIIiQP",
@@ -13135,34 +13211,6 @@
       "source": "node_ZVh7jR5a",
       "target": "node_frp4jesm",
       "targetHandle": "input-3020",
-      "selected": false
-    },
-    {
-      "id": "edge_oqJvP1Oi",
-      "source": "node_u7AfK1rB",
-      "target": "node_0JagA7eE",
-      "targetHandle": "input-100",
-      "selected": false
-    },
-    {
-      "id": "edge_k5LO213U",
-      "source": "node_7AKM66Tu",
-      "target": "node_0JagA7eE",
-      "targetHandle": "input-200",
-      "selected": false
-    },
-    {
-      "id": "edge_u9PYiOJ6",
-      "source": "node_SRaCrIHA",
-      "target": "node_0JagA7eE",
-      "targetHandle": "input-400",
-      "selected": false
-    },
-    {
-      "id": "edge_3EWp5k4k",
-      "source": "node_MxTNzJMZ",
-      "target": "node_0JagA7eE",
-      "targetHandle": "input-500",
       "selected": false
     },
     {
@@ -13178,62 +13226,6 @@
       "target": "node_mdWK1JLd",
       "targetHandle": "input-0",
       "selected": false
-    },
-    {
-      "source": "node_42PtgXIp",
-      "target": "node_0JagA7eE",
-      "targetHandle": "input-1500",
-      "selected": false,
-      "id": "edge_Zh963AM5"
-    },
-    {
-      "source": "node_1AHrZfOv",
-      "target": "node_0JagA7eE",
-      "targetHandle": "input-1400",
-      "selected": false,
-      "id": "edge_rtChWCGR"
-    },
-    {
-      "source": "node_q6Z7eMLB",
-      "target": "node_0JagA7eE",
-      "targetHandle": "input-1200",
-      "selected": false,
-      "id": "edge_z9ZyW28E"
-    },
-    {
-      "source": "node_yM2bJLgh",
-      "target": "node_0JagA7eE",
-      "targetHandle": "input-1100",
-      "selected": false,
-      "id": "edge_noLsInIb"
-    },
-    {
-      "source": "node_coLgfhBo",
-      "target": "node_0JagA7eE",
-      "targetHandle": "input-1000",
-      "selected": false,
-      "id": "edge_u5EvLNL5"
-    },
-    {
-      "source": "node_mdWK1JLd",
-      "target": "node_0JagA7eE",
-      "targetHandle": "input-900",
-      "selected": false,
-      "id": "edge_4i03Fm5u"
-    },
-    {
-      "source": "node_op0w0dXg",
-      "target": "node_0JagA7eE",
-      "targetHandle": "input-800",
-      "selected": false,
-      "id": "edge_50bA11pE"
-    },
-    {
-      "source": "node_beNdbGz5",
-      "target": "node_0JagA7eE",
-      "targetHandle": "input-700",
-      "selected": false,
-      "id": "edge_UnOQZPRc"
     },
     {
       "source": "node_YJ6Fagtr",
@@ -13981,13 +13973,6 @@
       "selected": false
     },
     {
-      "id": "edge_p3nve44",
-      "source": "node_0JagA7eE",
-      "target": "node_7igmjz4",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
       "source": "node_ZQxwlfBU",
       "target": "node_Jv2iJisU",
       "targetHandle": "input-500",
@@ -14317,13 +14302,6 @@
       "selected": false
     },
     {
-      "id": "edge_mrgx49t",
-      "source": "node_kwxg0nb",
-      "target": "node_0JagA7eE",
-      "targetHandle": "input-1300",
-      "selected": false
-    },
-    {
       "id": "edge_fdahzf5",
       "source": "node_wu1fzdl",
       "target": "node_7AKM66Tu",
@@ -14331,30 +14309,9 @@
       "selected": false
     },
     {
-      "id": "edge_ehy08vi",
-      "source": "node_wu1fzdl",
-      "target": "node_0JagA7eE",
-      "targetHandle": "input-300",
-      "selected": false
-    },
-    {
       "id": "edge_3c0nnw6",
       "source": "node_T9dORroO",
       "target": "node_MxTNzJMZ",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "id": "edge_kqzd4c2",
-      "source": "node_T9dORroO",
-      "target": "node_0JagA7eE",
-      "targetHandle": "input-600",
-      "selected": false
-    },
-    {
-      "id": "edge_3r79r5b",
-      "source": "node_0JagA7eE",
-      "target": "node_d63g7mi",
       "targetHandle": "input-0",
       "selected": false
     },
@@ -14597,6 +14554,139 @@
       "target": "node_MXOReDtG",
       "targetHandle": "input-400",
       "selected": false
+    },
+    {
+      "id": "enode_O9xBHqsq-node_dTQYcZsK-input-0",
+      "source": "node_O9xBHqsq",
+      "target": "node_dTQYcZsK",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "enode_u7AfK1rB-node_dTQYcZsK-input-100",
+      "source": "node_u7AfK1rB",
+      "target": "node_dTQYcZsK",
+      "targetHandle": "input-100",
+      "selected": false
+    },
+    {
+      "id": "enode_7AKM66Tu-node_dTQYcZsK-input-200",
+      "source": "node_7AKM66Tu",
+      "target": "node_dTQYcZsK",
+      "targetHandle": "input-200",
+      "selected": false
+    },
+    {
+      "id": "enode_wu1fzdl-node_dTQYcZsK-input-300",
+      "source": "node_wu1fzdl",
+      "target": "node_dTQYcZsK",
+      "targetHandle": "input-300",
+      "selected": false
+    },
+    {
+      "id": "enode_SRaCrIHA-node_dTQYcZsK-input-400",
+      "source": "node_SRaCrIHA",
+      "target": "node_dTQYcZsK",
+      "targetHandle": "input-400",
+      "selected": false
+    },
+    {
+      "id": "enode_MxTNzJMZ-node_dTQYcZsK-input-500",
+      "source": "node_MxTNzJMZ",
+      "target": "node_dTQYcZsK",
+      "targetHandle": "input-500",
+      "selected": false
+    },
+    {
+      "id": "enode_T9dORroO-node_dTQYcZsK-input-600",
+      "source": "node_T9dORroO",
+      "target": "node_dTQYcZsK",
+      "targetHandle": "input-600",
+      "selected": false
+    },
+    {
+      "id": "enode_beNdbGz5-node_dTQYcZsK-input-700",
+      "source": "node_beNdbGz5",
+      "target": "node_dTQYcZsK",
+      "targetHandle": "input-700",
+      "selected": false
+    },
+    {
+      "id": "enode_op0w0dXg-node_dTQYcZsK-input-800",
+      "source": "node_op0w0dXg",
+      "target": "node_dTQYcZsK",
+      "targetHandle": "input-800",
+      "selected": false
+    },
+    {
+      "id": "enode_mdWK1JLd-node_dTQYcZsK-input-900",
+      "source": "node_mdWK1JLd",
+      "target": "node_dTQYcZsK",
+      "targetHandle": "input-900",
+      "selected": false
+    },
+    {
+      "id": "enode_coLgfhBo-node_dTQYcZsK-input-1000",
+      "source": "node_coLgfhBo",
+      "target": "node_dTQYcZsK",
+      "targetHandle": "input-1000",
+      "selected": false
+    },
+    {
+      "id": "enode_yM2bJLgh-node_dTQYcZsK-input-1100",
+      "source": "node_yM2bJLgh",
+      "target": "node_dTQYcZsK",
+      "targetHandle": "input-1100",
+      "selected": false
+    },
+    {
+      "id": "enode_q6Z7eMLB-node_dTQYcZsK-input-1200",
+      "source": "node_q6Z7eMLB",
+      "target": "node_dTQYcZsK",
+      "targetHandle": "input-1200",
+      "selected": false
+    },
+    {
+      "id": "enode_kwxg0nb-node_dTQYcZsK-input-1300",
+      "source": "node_kwxg0nb",
+      "target": "node_dTQYcZsK",
+      "targetHandle": "input-1300",
+      "selected": false
+    },
+    {
+      "id": "enode_1AHrZfOv-node_dTQYcZsK-input-1400",
+      "source": "node_1AHrZfOv",
+      "target": "node_dTQYcZsK",
+      "targetHandle": "input-1400",
+      "selected": false
+    },
+    {
+      "id": "enode_42PtgXIp-node_dTQYcZsK-input-1500",
+      "source": "node_42PtgXIp",
+      "target": "node_dTQYcZsK",
+      "targetHandle": "input-1500",
+      "selected": false
+    },
+    {
+      "source": "node_dTQYcZsK",
+      "target": "node_d63g7mi",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "xy-edge__node_dTQYcZsK-node_d63g7miinput-0"
+    },
+    {
+      "source": "node_dTQYcZsK",
+      "target": "node_7igmjz4",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "xy-edge__node_dTQYcZsK-node_7igmjz4input-0"
+    },
+    {
+      "source": "node_dTQYcZsK",
+      "target": "node_4HEefrYH",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "xy-edge__node_dTQYcZsK-node_4HEefrYHinput-0"
     }
   ],
   "virtualEdges": [
