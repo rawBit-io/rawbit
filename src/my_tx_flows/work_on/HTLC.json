@@ -31,7 +31,7 @@
       "type": "shadcnGroup",
       "position": {
         "x": 9540.37719300164,
-        "y": -5825.849702979659
+        "y": -5843.430401092572
       },
       "data": {
         "isGroup": true,
@@ -7062,7 +7062,8 @@
         "groupInstances": {},
         "dirty": false,
         "error": false,
-        "showComment": false
+        "showComment": true,
+        "comment": "HTLC output index in Bob's lock TX"
       },
       "parentId": "node_6Y4Hfu0T",
       "extent": "parent"
@@ -8773,7 +8774,8 @@
         "groupInstances": {},
         "dirty": false,
         "error": false,
-        "showComment": false
+        "showComment": true,
+        "comment": "HTLC output index in Alice's lock TX"
       },
       "parentId": "node_ecyVK7iO",
       "extent": "parent"
@@ -9647,7 +9649,7 @@
       },
       "data": {
         "functionName": "sha256_hex",
-        "title": "Data → SHA-256 (Alice secret hash)",
+        "title": "Data → SHA-256 (H = SHA256(S))",
         "numInputs": 1,
         "version": 0,
         "inputs": {
@@ -9679,7 +9681,7 @@
       },
       "data": {
         "functionName": "identity",
-        "title": "Alice amount",
+        "title": "Alice lock amount",
         "showField": true,
         "numInputs": 0,
         "value": "330000",
@@ -9767,7 +9769,7 @@
       },
       "data": {
         "functionName": "identity",
-        "title": "Bob amount",
+        "title": "Bob lock amount",
         "showField": true,
         "numInputs": 0,
         "value": "274000",
@@ -9908,7 +9910,7 @@
       },
       "data": {
         "functionName": "identity",
-        "title": "Alice time delay",
+        "title": " Alice refund unlock time (later)",
         "showField": true,
         "numInputs": 0,
         "value": "2026-07-05T10:12:55Z",
@@ -9996,7 +9998,7 @@
       },
       "data": {
         "functionName": "identity",
-        "title": "Bob time delay",
+        "title": "Bob refund unlock time (earlier)",
         "showField": true,
         "numInputs": 0,
         "value": "2026-07-04T10:12:55Z",
@@ -10631,7 +10633,9 @@
         "totalInputs": 2,
         "unwiredCount": 0,
         "dirty": false,
-        "error": false
+        "error": false,
+        "showComment": true,
+        "comment": "Alice's coins minus tx fee"
       }
     },
     {
@@ -10829,8 +10833,8 @@
       "id": "node_qx4nrak",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 7495.317941674708,
-        "y": -5796.7966911713
+        "x": 7587.779403960825,
+        "y": -6343.370514460646
       },
       "data": {
         "content": "# Step 1\n- Data exchange",
@@ -11738,7 +11742,7 @@
       },
       "data": {
         "functionName": "identity",
-        "title": "tx fees",
+        "title": "tx fee",
         "showField": true,
         "numInputs": 0,
         "value": "1000",
@@ -11975,7 +11979,7 @@
         },
         "error": false,
         "showComment": true,
-        "comment": "extract Alice secret from her spend tx"
+        "comment": "Extracts S from vin[0].scriptSig of Alice's broadcast claim TX — this is how Bob learns the secret"
       },
       "parentId": "node_TWzQMnUr",
       "extent": "parent"
@@ -12098,7 +12102,9 @@
         },
         "groupInstances": {},
         "dirty": false,
-        "error": false
+        "error": false,
+        "showComment": true,
+        "comment": "Input index of Alice's claim TX — its scriptSig carries S"
       },
       "parentId": "node_TWzQMnUr",
       "extent": "parent"

@@ -595,6 +595,7 @@ export function CalculationNodeView({
     isDynamicTxExtractFunction(data.functionName) &&
     data.txFieldExtractMode === "dynamic";
   const isConcatAll = data.functionName === "concat_all";
+  const isMathOperationNode = data.functionName === "math_operation";
   const isInputNode = data.functionName === "identity" && showField;
   const txExtractFields = useMemo(
     () => normalizeTxFieldExtractFields(data.txExtractFields, data.functionName),
@@ -1690,6 +1691,8 @@ export function CalculationNodeView({
                 ? "mb-2 gap-3"
                 : isConcatAll
                   ? "mb-2 gap-4"
+                  : isMathOperationNode
+                    ? "mb-2 gap-3"
                   : "mb-6 gap-6"
             )}
           >
@@ -1951,11 +1954,15 @@ export function CalculationNodeView({
               "calc-node-result",
               isSimpleResultOnly
                 ? "calc-node-result-simple mt-0 pt-0"
+                : isMathOperationNode
+                  ? "pt-0"
                 : "pt-2",
               isTxTemplateNode
                 ? "mt-5"
               : isConcatAll
                 ? "mt-1"
+                : isMathOperationNode
+                  ? "mt-1"
                 : !isSimpleResultOnly && "mt-auto"
             )}
           >
@@ -1970,7 +1977,12 @@ export function CalculationNodeView({
                 />
               </div>
             ) : null}
-            <div className="calc-node-result-label mb-2 text-sm text-primary">
+            <div
+              className={cn(
+                "calc-node-result-label text-sm text-primary",
+                isMathOperationNode ? "mb-1" : "mb-2"
+              )}
+            >
               {">"} {isPictureP2shScripts ? "Info:" : "Calculation Result:"}
             </div>
             {isMusig2NonceGen ? (

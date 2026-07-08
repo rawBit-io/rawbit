@@ -408,6 +408,68 @@ describe("CalculationNodeView", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("keeps Math Operation vertical while tightening result spacing", () => {
+    const clip = createClip({ prettyResult: "12" });
+    const mut = createMut();
+
+    renderWithProviders(
+      <CalculationNodeView
+        selected={false}
+        data={{
+          functionName: "math_operation",
+          title: "Math Operation",
+          paramExtraction: "multi_val",
+          inputs: { vals: ["7", "+", "5"] },
+          inputStructure: {
+            ungrouped: [
+              { index: 0, label: "Left value:", rows: 1 },
+              {
+                index: 1,
+                label: "Operator:",
+                unconnectable: true,
+                options: ["+", "-", "*", "/"],
+              },
+              { index: 2, label: "Right value:", rows: 1 },
+            ],
+          },
+        } as NodeData}
+        rawTitle="Math Operation"
+        derived={{
+          ...derived,
+          isMultiVal: true,
+          connectionStatus: { connected: 2, total: 2, shouldShow: true },
+        }}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        singleValue={undefined}
+        result="12"
+        error={false}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: false,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    expect(screen.getByText(/Left value:/)).toBeInTheDocument();
+    expect(screen.getByText("Operator:")).toBeInTheDocument();
+    expect(screen.getByText(/Right value:/)).toBeInTheDocument();
+    expect(screen.getByDisplayValue("7")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("5")).toBeInTheDocument();
+
+    const resultLabel = screen.getByText("> Calculation Result:");
+    expect(resultLabel).toHaveClass("mb-1");
+    expect(resultLabel).not.toHaveClass("mb-2");
+    expect(resultLabel.closest(".calc-node-result")).toHaveClass("mt-1", "pt-0");
+  });
+
   it("keeps Verify Script focused while hiding flags and Taproot controls by default", async () => {
     const clip = createClip({ prettyResult: "true" });
     const mut = createMut();
