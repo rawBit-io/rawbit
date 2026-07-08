@@ -105,7 +105,8 @@ function getRadioLinkStatus(
 export default function RadioNode({ id, data, selected }: NodeProps<FlowNode>) {
   const nodeData = data as NodeData;
   const { setNodes } = useReactFlow<FlowNode>();
-  const { scheduleSnapshot } = useSnapshotSchedulerContext();
+  const { markPendingAfterDirtyChange, scheduleSnapshot } =
+    useSnapshotSchedulerContext();
   const isSend = nodeData.functionName === "radio_send";
   const channel = radioChannelFromData(nodeData);
   const titlePrefix = isSend ? "Radio Send" : "Radio Receive";
@@ -175,7 +176,10 @@ export default function RadioNode({ id, data, selected }: NodeProps<FlowNode>) {
           };
         })
       );
-      scheduleSnapshot("Change Radio Channel");
+      markPendingAfterDirtyChange();
+      scheduleSnapshot("Change Radio Channel", {
+        coalesceFollowingCalc: true,
+      });
     },
     [
       channel,
@@ -184,6 +188,7 @@ export default function RadioNode({ id, data, selected }: NodeProps<FlowNode>) {
       nodeData.outputPorts,
       nodeData.radioChannel,
       nodeData.title,
+      markPendingAfterDirtyChange,
       scheduleSnapshot,
       setNodes,
     ]

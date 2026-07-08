@@ -8,6 +8,7 @@ import { buildFlowNode, buildNodeProps } from "@/test-utils/types";
 const reactFlowMock = vi.hoisted(() => ({
   nodes: [] as FlowNode[],
   setNodes: vi.fn(),
+  markPendingAfterDirtyChange: vi.fn(),
   scheduleSnapshot: vi.fn(),
 }));
 
@@ -28,6 +29,7 @@ vi.mock("@xyflow/react", () => ({
 
 vi.mock("@/hooks/useSnapshotSchedulerContext", () => ({
   useSnapshotSchedulerContext: () => ({
+    markPendingAfterDirtyChange: reactFlowMock.markPendingAfterDirtyChange,
     scheduleSnapshot: reactFlowMock.scheduleSnapshot,
   }),
 }));
@@ -68,6 +70,7 @@ describe("RadioNode", () => {
   beforeEach(() => {
     reactFlowMock.nodes = [];
     reactFlowMock.setNodes.mockReset();
+    reactFlowMock.markPendingAfterDirtyChange.mockReset();
     reactFlowMock.scheduleSnapshot.mockReset();
   });
 
@@ -113,6 +116,7 @@ describe("RadioNode", () => {
     fireEvent.blur(screen.getByRole("textbox", { name: "Radio Send channel 1" }));
 
     expect(reactFlowMock.setNodes).not.toHaveBeenCalled();
+    expect(reactFlowMock.markPendingAfterDirtyChange).not.toHaveBeenCalled();
     expect(reactFlowMock.scheduleSnapshot).not.toHaveBeenCalled();
   });
 
@@ -145,8 +149,10 @@ describe("RadioNode", () => {
     expect(nextReceive?.data.outputPorts?.[0]?.label).toBe("4");
     expect(nextReceive?.data.dirty).toBe(true);
     expect(nextOther?.data.dirty).toBe(true);
+    expect(reactFlowMock.markPendingAfterDirtyChange).toHaveBeenCalledTimes(1);
     expect(reactFlowMock.scheduleSnapshot).toHaveBeenCalledWith(
       "Change Radio Channel",
+      { coalesceFollowingCalc: true },
     );
   });
 });
