@@ -113,7 +113,6 @@ import {
   stripEphemeralNodeUiState,
 } from "@/lib/flow/ephemeralState";
 import {
-  FLOW_TEMPLATE_DROP_ZOOM,
   getFlowTemplateAnchorPosition,
   getFlowTemplateViewport,
   placeFlowDataAtPosition,
@@ -256,6 +255,7 @@ const INTRO_FLOW_DROP_FLOW_POSITION = { x: 0, y: 0 };
 const INTRO_FLOW_DROP_POINT = { x: 112, y: 88 };
 const INTRO_FLOW_DROP_ZOOM = 0.27;
 const SHARED_IMPORT_DROP_POINT = { x: 112, y: 88 };
+const SHARED_IMPORT_DROP_ZOOM = 0.3;
 const MOBILE_INTRO_OVERVIEW_POINT = { x: 16, y: 150 };
 const MOBILE_INTRO_OVERVIEW_ZOOM = 0.2;
 const INTRO_FLOW_SOURCE_MOVE_MS = 350;
@@ -1978,7 +1978,7 @@ function FlowContent() {
         getFlowTemplateViewport(
           SHARED_IMPORT_DROP_POINT,
           anchorPosition,
-          FLOW_TEMPLATE_DROP_ZOOM
+          SHARED_IMPORT_DROP_ZOOM
         )
       );
     },

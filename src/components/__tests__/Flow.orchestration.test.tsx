@@ -622,7 +622,7 @@ describe("Flow shared import fitting", () => {
     vi.useRealTimers();
   });
 
-  it("places shared-flow imports at the same top-left zoom as sidebar drops", () => {
+  it("places shared-flow imports at the configured top-left zoom", () => {
     const useSharedFlowLoaderMock = vi.mocked(useSharedFlowLoader);
     const importedNodes = [
       {
@@ -659,9 +659,9 @@ describe("Flow shared import fitting", () => {
     expect(
       setViewportMock.mock.calls.every(
         ([viewport, options]) =>
-          (viewport as Viewport).x === 107 &&
-          (viewport as Viewport).y === 78 &&
-          (viewport as Viewport).zoom === 0.5 &&
+          (viewport as Viewport).x === 109 &&
+          (viewport as Viewport).y === 82 &&
+          (viewport as Viewport).zoom === 0.3 &&
           (options as { duration?: number } | undefined)?.duration === 0
       )
     ).toBe(true);
