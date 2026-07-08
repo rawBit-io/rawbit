@@ -113,6 +113,8 @@ import {
   stripEphemeralNodeUiState,
 } from "@/lib/flow/ephemeralState";
 import {
+  FLOW_TEMPLATE_DROP_ZOOM,
+  getFlowTemplateAnchorPosition,
   getFlowTemplateViewport,
   placeFlowDataAtPosition,
 } from "@/lib/flow/placeFlowTemplate";
@@ -253,6 +255,7 @@ const MOBILE_EXAMPLE_FLOW_SECTIONS = new Set([TOP_LEVEL_FLOW_SECTION, "legacy"])
 const INTRO_FLOW_DROP_FLOW_POSITION = { x: 0, y: 0 };
 const INTRO_FLOW_DROP_POINT = { x: 112, y: 88 };
 const INTRO_FLOW_DROP_ZOOM = 0.27;
+const SHARED_IMPORT_DROP_POINT = { x: 112, y: 88 };
 const MOBILE_INTRO_OVERVIEW_POINT = { x: 16, y: 150 };
 const MOBILE_INTRO_OVERVIEW_ZOOM = 0.2;
 const INTRO_FLOW_SOURCE_MOVE_MS = 350;
@@ -266,7 +269,6 @@ const INTRO_SOURCE_CARD_SIZE = { width: 196, height: 96 };
 const INTRO_VIDEO_TITLE = "rawBit demo";
 const INTRO_VIDEO_EMBED_URL =
   "https://www.youtube-nocookie.com/embed/6WNHYGgG9oo?rel=0";
-const SHARED_IMPORT_FIT_MIN_ZOOM = 0.2;
 
 function graphIdsMatch(
   currentNodes: FlowNode[],
@@ -1964,15 +1966,24 @@ function FlowContent() {
     requestAnimationFrame(() => requestAnimationFrame(runFit));
   }, []);
 
-  const fitSharedImportedFlow = useCallback(() => {
-    // Shared-flow loading can race tab creation and React Flow/WebKit edge
-    // culling. Keep fitting briefly, but avoid subpixel zoom levels where
-    // Safari can decide all edge paths are outside the visible set.
-    scheduleExampleFlowFit({
-      minZoom: SHARED_IMPORT_FIT_MIN_ZOOM,
-      settle: true,
-    });
-  }, [scheduleExampleFlowFit]);
+  const fitSharedImportedFlow = useCallback(
+    (importedNodes: FlowNode[]) => {
+      const anchorPosition = getFlowTemplateAnchorPosition(importedNodes);
+      if (!anchorPosition) {
+        scheduleExampleFlowFit();
+        return;
+      }
+
+      scheduleExampleFlowViewport(
+        getFlowTemplateViewport(
+          SHARED_IMPORT_DROP_POINT,
+          anchorPosition,
+          FLOW_TEMPLATE_DROP_ZOOM
+        )
+      );
+    },
+    [scheduleExampleFlowFit, scheduleExampleFlowViewport]
+  );
 
   const replaceSharedGraph = useCallback(
     ({

@@ -100,7 +100,7 @@ interface UseSharedFlowLoaderOptions {
   enabled?: boolean;
   getNodes: () => FlowNode[];
   getEdges: () => Edge[];
-  fitView?: () => void;
+  fitView?: (nodes: FlowNode[]) => void;
   replaceGraph?: (graph: {
     nodes: FlowNode[];
     edges: Edge[];
@@ -446,7 +446,7 @@ export function useSharedFlowLoader({
         setAlternateShareJsonLink();
 
         if (options.fitView) {
-          options.fitView();
+          options.fitView(nextNodes);
         } else {
           const instance = options.flowInstanceRef.current;
           if (instance) {

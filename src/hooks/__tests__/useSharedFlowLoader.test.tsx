@@ -131,6 +131,7 @@ describe("useSharedFlowLoader", () => {
       }) => void;
       ensureShareImportTab?: () => string | null | Promise<string | null>;
       activeTabId?: string;
+      fitView?: (nodes: FlowNode[]) => void;
     } = {}
   ) =>
     renderHook(() =>
@@ -140,6 +141,7 @@ describe("useSharedFlowLoader", () => {
         onNodesChange: onNodesChangeMock,
         onEdgesChange: onEdgesChangeMock,
         replaceGraph: overrides.replaceGraph,
+        fitView: overrides.fitView,
         scheduleSnapshot,
         setTabTooltip,
         renameTab,
@@ -179,6 +181,19 @@ describe("useSharedFlowLoader", () => {
     });
     expect(setInfoDialog).not.toHaveBeenCalled();
     expect(window.location.search).toBe("");
+  });
+
+  it("passes imported nodes to the shared import viewport callback", async () => {
+    const fitView = vi.fn();
+
+    renderLoader({ fitView });
+
+    await waitFor(() => expect(fitView).toHaveBeenCalled());
+
+    expect(fitView).toHaveBeenCalledWith(
+      expect.arrayContaining([expect.objectContaining({ id: "shared" })])
+    );
+    expect(fitViewSpy).not.toHaveBeenCalled();
   });
 
   it("removes only shared-link params from the URL after successful import", async () => {

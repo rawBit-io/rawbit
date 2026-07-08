@@ -622,42 +622,47 @@ describe("Flow shared import fitting", () => {
     vi.useRealTimers();
   });
 
-  it("keeps retrying shared-flow fit above Safari edge-culling zoom", () => {
+  it("places shared-flow imports at the same top-left zoom as sidebar drops", () => {
     const useSharedFlowLoaderMock = vi.mocked(useSharedFlowLoader);
-    mockNodesState.current = [
+    const importedNodes = [
       {
         id: "node-a",
         type: "calculation",
-        position: { x: 0, y: 0 },
+        position: { x: 10, y: 20 },
         data: { functionName: "identity" },
       } as FlowNode,
-    ];
-    mockEdgesState.current = [
-      { id: "edge-a", source: "node-a", target: "node-b" } as Edge,
     ];
 
     renderFlow();
 
     const sharedLoaderOptions = useSharedFlowLoaderMock.mock.calls.at(-1)?.[0] as
-      | { fitView?: () => void }
+      | { fitView?: (nodes: FlowNode[]) => void }
       | undefined;
     expect(sharedLoaderOptions?.fitView).toBeDefined();
 
     const fitViewMock = reactFlowInstanceMock.fitView as unknown as ReturnType<
       typeof vi.fn
     >;
+    const setViewportMock = reactFlowInstanceMock.setViewport as unknown as ReturnType<
+      typeof vi.fn
+    >;
     fitViewMock.mockClear();
+    setViewportMock.mockClear();
 
     act(() => {
-      sharedLoaderOptions?.fitView?.();
+      sharedLoaderOptions?.fitView?.(importedNodes);
       vi.runOnlyPendingTimers();
     });
 
-    expect(fitViewMock.mock.calls.length).toBeGreaterThan(1);
+    expect(fitViewMock).not.toHaveBeenCalled();
+    expect(setViewportMock).toHaveBeenCalled();
     expect(
-      fitViewMock.mock.calls.every(
-        ([options]) =>
-          (options as { minZoom?: number } | undefined)?.minZoom === 0.2
+      setViewportMock.mock.calls.every(
+        ([viewport, options]) =>
+          (viewport as Viewport).x === 107 &&
+          (viewport as Viewport).y === 78 &&
+          (viewport as Viewport).zoom === 0.5 &&
+          (options as { duration?: number } | undefined)?.duration === 0
       )
     ).toBe(true);
   });

@@ -8,6 +8,25 @@ import {
 
 export const FLOW_TEMPLATE_DROP_ZOOM = 0.5;
 
+export function getFlowTemplateAnchorPosition(
+  nodes: FlowNode[],
+): { x: number; y: number } | null {
+  if (!nodes.length) return null;
+
+  const EPS = 4;
+  const topLevelNodes = nodes.filter((node) => !node.parentId);
+  const nodesToConsider = topLevelNodes.length > 0 ? topLevelNodes : nodes;
+
+  const minY = Math.min(...nodesToConsider.map((node) => node.position.y));
+  const anchor = nodesToConsider
+    .filter((node) => Math.abs(node.position.y - minY) < EPS)
+    .reduce((left, node) =>
+      node.position.x < left.position.x ? node : left
+    );
+
+  return { x: anchor.position.x, y: anchor.position.y };
+}
+
 export function placeFlowDataAtPosition(
   flowData: FlowData,
   dropX: number,
@@ -21,20 +40,15 @@ export function placeFlowDataAtPosition(
     return { nodes: [], edges: [], anchorPosition: null };
   }
 
-  const EPS = 4;
   const topLevelNodes = flowData.nodes.filter((node) => !node.parentId);
   const hasTopLevel = topLevelNodes.length > 0;
-  const nodesToConsider = hasTopLevel ? topLevelNodes : flowData.nodes;
+  const anchorPosition = getFlowTemplateAnchorPosition(flowData.nodes);
+  if (!anchorPosition) {
+    return { nodes: [], edges: [], anchorPosition: null };
+  }
 
-  const minY = Math.min(...nodesToConsider.map((node) => node.position.y));
-  const anchor = nodesToConsider
-    .filter((node) => Math.abs(node.position.y - minY) < EPS)
-    .reduce((left, node) =>
-      node.position.x < left.position.x ? node : left
-    );
-
-  const dx = dropX - anchor.position.x;
-  const dy = dropY - anchor.position.y;
+  const dx = dropX - anchorPosition.x;
+  const dy = dropY - anchorPosition.y;
 
   const translated = flowData.nodes.map((old) => {
     const position =
