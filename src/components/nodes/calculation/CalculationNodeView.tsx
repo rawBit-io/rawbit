@@ -99,7 +99,11 @@ const SCRIPT_VERIFY_TAPROOT_PREVOUT_GROUPS = new Set([
   "Taproot Prevouts (vin order)",
   "Taproot prevouts",
 ]);
-const HIDDEN_GROUP_HEADER_TITLES = new Set(["PREVOUTS[]", "SEQUENCES[]"]);
+const HIDDEN_GROUP_HEADER_TITLES = new Set([
+  "PREVOUTS[]",
+  "SEQUENCES[]",
+  "OUTPUTS[]",
+]);
 const TX_TEMPLATE_INPUT_GROUP_TITLE = "INPUTS[]";
 const TX_TEMPLATE_OUTPUT_GROUP_TITLE = "OUTPUTS[]";
 const TX_TEMPLATE_WITNESS_GROUP_TITLE = "WITNESSES[]";

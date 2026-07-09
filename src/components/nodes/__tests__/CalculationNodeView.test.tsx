@@ -817,7 +817,7 @@ describe("CalculationNodeView", () => {
     expect(screen.queryByTitle("Copy result to clipboard")).not.toBeInTheDocument();
   });
 
-  it("hides redundant prevouts and sequences builder group headers", () => {
+  it("hides redundant prevouts, sequences, and outputs builder group headers", () => {
     const mut = createMut();
     const clip = createClip();
 
@@ -827,8 +827,12 @@ describe("CalculationNodeView", () => {
         NonNullable<NodeData["inputStructure"]>["groups"]
       >[number]["fields"]
     ) => {
-      const title =
-        groupTitle === "PREVOUTS[]" ? "PREVOUTS Builder" : "SEQUENCE Builder";
+      const titleByGroup: Record<string, string> = {
+        "PREVOUTS[]": "PREVOUTS Builder",
+        "SEQUENCES[]": "SEQUENCE Builder",
+        "OUTPUTS[]": "OUTPUTS Builder",
+      };
+      const title = titleByGroup[groupTitle] ?? "Builder";
       return renderWithProviders(
         <CalculationNodeView
           selected={false}
@@ -885,7 +889,7 @@ describe("CalculationNodeView", () => {
       );
     };
 
-    const { unmount } = renderBuilder("PREVOUTS[]", [
+    let rendered = renderBuilder("PREVOUTS[]", [
       { index: 0, label: "TXID[32]:", rows: 2 },
       { index: 10, label: "VOUT[4]:", rows: 1 },
     ]);
@@ -894,13 +898,26 @@ describe("CalculationNodeView", () => {
     expect(screen.getByText("> TXID[32]:")).toBeInTheDocument();
     expect(screen.getByText("> VOUT[4]:")).toBeInTheDocument();
 
-    unmount();
+    rendered.unmount();
 
-    renderBuilder("SEQUENCES[]", [
+    rendered = renderBuilder("SEQUENCES[]", [
       { index: 0, label: "SEQUENCE[4]:", rows: 1 },
     ]);
 
     expect(screen.queryByText("> SEQUENCES[]")).not.toBeInTheDocument();
     expect(screen.getByText("> SEQUENCE[4]:")).toBeInTheDocument();
+
+    rendered.unmount();
+
+    renderBuilder("OUTPUTS[]", [
+      { index: 0, label: "AMOUNT[8]:", rows: 1 },
+      { index: 10, label: "SCRIPTLEN:", rows: 1 },
+      { index: 20, label: "SCRIPTPUBKEY:", rows: 2 },
+    ]);
+
+    expect(screen.queryByText("> OUTPUTS[]")).not.toBeInTheDocument();
+    expect(screen.getByText("> AMOUNT[8]:")).toBeInTheDocument();
+    expect(screen.getByText("> SCRIPTLEN:")).toBeInTheDocument();
+    expect(screen.getByText("> SCRIPTPUBKEY:")).toBeInTheDocument();
   });
 });
