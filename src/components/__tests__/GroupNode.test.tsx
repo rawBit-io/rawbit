@@ -591,9 +591,13 @@ describe("GroupNode interactions", () => {
       ...overrides,
     });
 
-    handlers.onPointerDownCapture?.(makeEvent());
-    handlers.onPointerMoveCapture?.(makeEvent({ clientX: 140, clientY: 180 }));
-    handlers.onPointerUpCapture?.(makeEvent({ pointerId: 1 }));
+    act(() => {
+      handlers.onPointerDownCapture?.(makeEvent());
+      handlers.onPointerMoveCapture?.(
+        makeEvent({ clientX: 140, clientY: 180 })
+      );
+      handlers.onPointerUpCapture?.(makeEvent({ pointerId: 1 }));
+    });
 
     expect(reactFlowInstance.setViewport).toHaveBeenCalledWith({
       x: 40,
@@ -603,8 +607,27 @@ describe("GroupNode interactions", () => {
     expect(body.releasePointerCapture).toHaveBeenCalledWith(1);
   });
 
-  it("clears selected edges when clicking inside the group body", () => {
-    const groupNode = createNode();
+  it("selects the group and clears selected children and edges when clicking inside the group body", () => {
+    const groupNode = createNode(
+      { borderColor: "#60a5fa" },
+      { selected: false }
+    );
+    const selectedChild = buildFlowNode({
+      id: "child-selected",
+      type: "calculation",
+      position: { x: 50, y: 60 },
+      parentId: groupNode.id,
+      selected: true,
+      data: {},
+    });
+    const untouchedChild = buildFlowNode({
+      id: "child-untouched",
+      type: "calculation",
+      position: { x: 150, y: 160 },
+      parentId: groupNode.id,
+      selected: false,
+      data: {},
+    });
     const selectedEdge = buildEdge({
       id: "edge-selected",
       source: "node-a",
@@ -618,8 +641,13 @@ describe("GroupNode interactions", () => {
       selected: false,
     });
 
-    setupNodes([groupNode], [selectedEdge, untouchedEdge]);
-    render(<ShadcnGroupNode {...buildNodeProps(groupNode)} />);
+    setupNodes(
+      [groupNode, selectedChild, untouchedChild],
+      [selectedEdge, untouchedEdge]
+    );
+    const { rerender } = render(
+      <ShadcnGroupNode {...buildNodeProps(groupNode)} />
+    );
 
     const body = screen.getByTestId("group-body") as HTMLElement & {
       setPointerCapture: (pointerId: number) => void;
@@ -650,18 +678,50 @@ describe("GroupNode interactions", () => {
       ...overrides,
     });
 
-    handlers.onPointerDownCapture?.(makeEvent());
+    act(() => {
+      handlers.onPointerDownCapture?.(makeEvent());
+    });
 
+    expect(nodes.find((node) => node.id === groupNode.id)?.selected).toBe(
+      true
+    );
+    expect(nodes.find((node) => node.id === selectedChild.id)?.selected).toBe(
+      false
+    );
+    expect(nodes.find((node) => node.id === untouchedChild.id)?.selected).toBe(
+      false
+    );
     expect(edges.find((edge) => edge.id === "edge-selected")?.selected).toBe(
       false
     );
     expect(edges.find((edge) => edge.id === "edge-untouched")?.selected).toBe(
       false
     );
+
+    act(() => {
+      rerender(
+        <ShadcnGroupNode
+          {...buildNodeProps(nodes.find((node) => node.id === groupNode.id)!)}
+        />
+      );
+    });
+
+    expect(screen.getByTestId("group-fill")).toHaveAttribute(
+      "data-hide-body-selection-fill",
+      "true"
+    );
   });
 
   it("does not steal pointer selection from child nodes inside a group", () => {
     const groupNode = createNode({}, { selected: false });
+    const selectedChild = buildFlowNode({
+      id: "child-selected",
+      type: "calculation",
+      position: { x: 50, y: 60 },
+      parentId: groupNode.id,
+      selected: true,
+      data: {},
+    });
     const selectedEdge = buildEdge({
       id: "edge-selected",
       source: "node-a",
@@ -669,7 +729,7 @@ describe("GroupNode interactions", () => {
       selected: true,
     });
 
-    setupNodes([groupNode], [selectedEdge]);
+    setupNodes([groupNode, selectedChild], [selectedEdge]);
     render(
       <div className="react-flow__node react-flow__node-shadcnGroup">
         <ShadcnGroupNode {...buildNodeProps(groupNode)} />
@@ -699,6 +759,9 @@ describe("GroupNode interactions", () => {
 
     expect(stopPropagation).not.toHaveBeenCalled();
     expect(preventDefault).not.toHaveBeenCalled();
+    expect(nodes.find((node) => node.id === selectedChild.id)?.selected).toBe(
+      true
+    );
     expect(edges.find((edge) => edge.id === "edge-selected")?.selected).toBe(
       true
     );
@@ -741,7 +804,9 @@ describe("GroupNode interactions", () => {
       ...overrides,
     });
 
-    handlers.onPointerDownCapture?.(makeEvent());
+    act(() => {
+      handlers.onPointerDownCapture?.(makeEvent());
+    });
 
     expect(blurSpy).toHaveBeenCalledTimes(1);
 

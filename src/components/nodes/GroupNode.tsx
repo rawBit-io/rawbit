@@ -80,6 +80,10 @@ const isNestedFlowNodeTarget = (
   return Boolean(targetNode && currentNode && targetNode !== currentNode);
 };
 
+const isGroupBodyTarget = (target: EventTarget | null): boolean =>
+  target instanceof HTMLElement &&
+  Boolean(target.closest("[data-group-body='true']"));
+
 const normalizeFontSize = (value: unknown) => {
   const numeric = Number(value);
   if (!Number.isFinite(numeric) || numeric <= 0) return DEFAULT_FONT_SIZE;
@@ -105,6 +109,7 @@ export default function ShadcnGroupNode({
   const [showMenu, setShowMenu] = useState(false);
   const [showTitleControls, setShowTitleControls] = useState(false);
   const [titlePressActive, setTitlePressActive] = useState(false);
+  const [selectedFromBodyClick, setSelectedFromBodyClick] = useState(false);
   const [titleDraft, setTitleDraft] = useState<string | null>(null);
   const [titleEditSignal, setTitleEditSignal] = useState(0);
   const menuAnchorRef = useRef<HTMLButtonElement | null>(null);
@@ -176,6 +181,7 @@ export default function ShadcnGroupNode({
     setShowMenu(false);
     setShowTitleControls(false);
     setTitlePressActive(false);
+    setSelectedFromBodyClick(false);
     titlePressRef.current = null;
     lastTitleClickRef.current = null;
   }, [selected]);
@@ -258,9 +264,10 @@ export default function ShadcnGroupNode({
   }, [rf]);
 
   const selectGroupNode = useCallback(
-    (options?: { preserveExisting?: boolean }) => {
+    (options?: { preserveExisting?: boolean; source?: "body" | "chrome" }) => {
       clearSelectedEdges();
       const preserveExisting = options?.preserveExisting === true;
+      setSelectedFromBodyClick(options?.source === "body");
 
       rf.setNodes((currentNodes) => {
         let changed = false;
@@ -546,9 +553,9 @@ export default function ShadcnGroupNode({
       setShowMenu(false);
       setShowTitleControls(false);
       blurActiveEditableElement();
-      clearSelectedEdges();
 
       if (isSelectionModeActive()) {
+        clearSelectedEdges();
         // Let the pane create a marquee selection
         e.stopPropagation();
         const pane = document.querySelector(".react-flow__pane");
@@ -569,6 +576,10 @@ export default function ShadcnGroupNode({
         return;
       }
 
+      selectGroupNode({
+        preserveExisting: isAdditiveSelectionEvent(e),
+        source: "body",
+      });
       e.stopPropagation();
       e.preventDefault();
       bodyPanRef.current = {
@@ -578,7 +589,7 @@ export default function ShadcnGroupNode({
       };
       (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
     },
-    [blurActiveEditableElement, clearSelectedEdges, rf]
+    [blurActiveEditableElement, clearSelectedEdges, rf, selectGroupNode]
   );
 
   const handleBodyPointerMove = useCallback(
@@ -709,6 +720,7 @@ export default function ShadcnGroupNode({
   const borderStyle = data.borderColor
     ? { borderColor: data.borderColor }
     : undefined;
+  const hideGroupFillForBodySelection = selected && selectedFromBodyClick;
 
   return (
     <Card
@@ -722,6 +734,7 @@ export default function ShadcnGroupNode({
       onPointerDownCapture={(event) => {
         if (event.button !== 0) return;
         if (isInteractionTargetEditable(event.target)) return;
+        if (isGroupBodyTarget(event.target)) return;
         if (isNestedFlowNodeTarget(event.target, event.currentTarget)) return;
         selectGroupNode({
           preserveExisting: isAdditiveSelectionEvent(event),
@@ -895,6 +908,7 @@ export default function ShadcnGroupNode({
       {/* Body content background fill (transparent) */}
       <CardContent
         data-testid="group-body"
+        data-group-body="true"
         className="absolute inset-0 p-2 overflow-visible nodrag"
         onPointerDownCapture={handleBodyPointerDown}
         onPointerMoveCapture={handleBodyPointerMove}
@@ -910,6 +924,9 @@ export default function ShadcnGroupNode({
           <div
             className="group-fill absolute inset-0 pointer-events-none rounded-lg z-0"
             data-testid="group-fill"
+            data-hide-body-selection-fill={
+              hideGroupFillForBodySelection ? "true" : undefined
+            }
             style={{ backgroundColor: data.borderColor }}
           />
         )}

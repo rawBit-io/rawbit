@@ -1397,6 +1397,26 @@ body[data-large-drag="true"] .rf-node {
   z-index: 2;
 }
 
+[data-skin] .react-flow__node-shadcnGroup.selected:not(.is-highlighted) > *::before {
+  content: none !important;
+  box-shadow: none !important;
+}
+
+.react-flow__node-shadcnGroup [data-hide-body-selection-fill="true"] {
+  opacity: 0 !important;
+}
+
+/* React Flow's post-marquee NodesSelection overlay draws an off-brand blue
+   box over the selected nodes (visually "the group turns blue") and swallows
+   the click meant to deselect them. Selected nodes already carry their own
+   selection styling, multi-drag works by grabbing any selected node, and
+   keyboard-a11y is disabled app-wide — the overlay adds nothing here, so
+   remove it. (.react-flow__selection, the during-drag rubber band, stays.) */
+.react-flow__nodesselection {
+  display: none !important;
+  pointer-events: none !important;
+}
+
 /* Tone down non-shadcn hover/focus accent intensity across UI controls. */
 [data-skin="paper"] .hover\:bg-accent:hover,
 [data-skin="paper"] .focus\:bg-accent:focus,
