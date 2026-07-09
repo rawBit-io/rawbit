@@ -12,6 +12,7 @@ import bareMultisig from "@/my_tx_flows/p3_Bare_MultiSig.json";
 import p2shTimelocks from "@/my_tx_flows/p4_P2SH_and_Timelocks.json";
 import p2shRecoveryOpReturn from "@/my_tx_flows/p5_P2SH_and_OP_Return.json";
 import atomicSwapHtlc from "@/my_tx_flows/p8_Atomic Swap (HTLC Coinswap).json";
+import segwit from "@/my_tx_flows/p9_SegWit.json";
 import txMalleability from "@/my_tx_flows/misc/p6_TX_Malleability.json";
 import bip110 from "@/my_tx_flows/misc/p7_BIP110.json";
 import intro_p2pkh_p2pk from "@/my_tx_flows/old/p1_Intro_P2PKH_and_P2PK.json";
@@ -108,6 +109,15 @@ export const customFlows: CustomFlowTemplate[] = [
     tags: ["legacy", "p2sh", "htlc", "atomic-swap", "coinswap", "timelock"],
   },
   {
+    id: "flow-09-segwit",
+    label: "SegWit",
+    data: segwit as unknown as FlowData,
+    section: "segwit",
+    flowNo: 9,
+    level: "intermediate",
+    tags: ["segwit", "p2wpkh", "bip143", "witness", "transaction"],
+  },
+  {
     id: "flow-06-tx-malleability",
     label: "Transaction Malleability",
     data: txMalleability as unknown as FlowData,
@@ -184,7 +194,7 @@ export const customFlows: CustomFlowTemplate[] = [
     id: "flow-7",
     label: "TX malleability",
     data: TX_Malleability as unknown as FlowData,
-    section: "segwit",
+    section: "segwit-legacy",
     flowNo: 7,
     level: "intermediate",
     tags: ["malleability", "txid", "legacy"],
@@ -193,7 +203,7 @@ export const customFlows: CustomFlowTemplate[] = [
     id: "flow-8",
     label: "SegWit intro",
     data: SegWit_Intro as unknown as FlowData,
-    section: "segwit",
+    section: "segwit-legacy",
     flowNo: 8,
     level: "intermediate",
     tags: ["segwit", "p2wpkh", "bip143"],
@@ -202,7 +212,7 @@ export const customFlows: CustomFlowTemplate[] = [
     id: "flow-9",
     label: "SegWit P2WSH",
     data: SegWit_P2WSH as unknown as FlowData,
-    section: "segwit",
+    section: "segwit-legacy",
     flowNo: 9,
     level: "intermediate",
     tags: ["segwit", "p2wsh", "script"],
@@ -211,7 +221,7 @@ export const customFlows: CustomFlowTemplate[] = [
     id: "flow-10",
     label: "Wrapped Addresses",
     data: Wrapped_Addresses as unknown as FlowData,
-    section: "segwit",
+    section: "segwit-legacy",
     flowNo: 10,
     level: "intermediate",
     tags: ["segwit", "wrapped", "p2sh"],

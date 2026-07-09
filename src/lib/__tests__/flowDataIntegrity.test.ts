@@ -85,6 +85,7 @@ const allowedFlowSections = new Set([
   "scripts-timelocks-commitments",
   "channels",
   "segwit",
+  "segwit-legacy",
   "taproot-schnorr-musig",
   "wallet-signing-labs",
   "contributor-challenges",

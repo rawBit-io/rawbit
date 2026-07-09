@@ -139,12 +139,14 @@ const TOP_LEVEL_FLOW_SECTION = "top-level";
 const ALWAYS_VISIBLE_FLOW_SECTIONS = new Set([
   TOP_LEVEL_FLOW_SECTION,
   "legacy",
+  "segwit",
   "misc",
 ]);
 const SIDEBAR_REVEAL_ITEM_COUNT = 5;
 
 const flowSections = [
   { id: "legacy", label: "Legacy" },
+  { id: "segwit", label: "SegWit" },
   { id: "misc", label: "Misc" },
   { id: "legacy-foundations", label: "Legacy Foundations" },
   {
@@ -152,7 +154,7 @@ const flowSections = [
     label: "Scripts, Timelocks & Commitments",
   },
   { id: "channels", label: "Channels" },
-  { id: "segwit", label: "SegWit" },
+  { id: "segwit-legacy", label: "SegWit Legacy" },
   { id: "taproot-schnorr-musig", label: "Taproot, Schnorr & MuSig" },
   { id: "wallet-signing-labs", label: "Wallet & Signing Labs" },
   { id: "contributor-challenges", label: "Contributor / Challenge Flows" },

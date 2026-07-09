@@ -75,6 +75,18 @@ function createCustomFlows() {
       tags: ["legacy", "p2pk"],
     },
     {
+      id: "segwit-flow",
+      label: "SegWit",
+      data: {
+        nodes: [],
+        edges: [],
+      },
+      section: "segwit",
+      flowNo: 9,
+      level: "intermediate",
+      tags: ["segwit"],
+    },
+    {
       id: "intro-flow",
       label: "Intro",
       data: {
@@ -174,6 +186,7 @@ describe("Sidebar", () => {
 
     expect(screen.getByText("Intro")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Legacy$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^SegWit$/i })).toBeInTheDocument();
     expect(screen.getByText("P2PK vs P2PKH")).toBeInTheDocument();
     expect(screen.getByText(/Older flows hidden/i)).toBeInTheDocument();
     expect(
