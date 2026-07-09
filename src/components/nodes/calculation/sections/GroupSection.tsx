@@ -31,6 +31,7 @@ interface GroupSectionProps {
   titleClassName?: string;
   instanceClassName?: string;
   compactControls?: boolean;
+  hideHeader?: boolean;
 }
 
 export function GroupSection({
@@ -49,6 +50,7 @@ export function GroupSection({
   titleClassName,
   instanceClassName,
   compactControls = false,
+  hideHeader = false,
 }: GroupSectionProps) {
   const totalFields = instanceKeys.length * group.fields.length;
   const hasInstances = instanceKeys.length > 0;
@@ -90,41 +92,43 @@ export function GroupSection({
 
   return (
     <div className={cn("mb-6 space-y-3", className)}>
-      <div
-        className={cn(
-          "mb-3 flex items-center justify-between",
-          headerDivider && "border-b border-border pb-2",
-          headerClassName
-        )}
-      >
-        <EditableLabel
-          value={title}
-          onCommit={onTitleCommit}
-          className={titleClassName ?? (headerDivider ? "text-lg" : "text-sm")}
-        />
-        {group.expandable && (
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              className={buttonClassName}
-              onClick={onDecrement}
-              disabled={!canDecrement}
-            >
-              <Minus className={iconClassName} />
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className={buttonClassName}
-              onClick={onIncrement}
-              disabled={!canIncrement}
-            >
-              <Plus className={iconClassName} />
-            </Button>
-          </div>
-        )}
-      </div>
+      {!hideHeader && (
+        <div
+          className={cn(
+            "mb-3 flex items-center justify-between",
+            headerDivider && "border-b border-border pb-2",
+            headerClassName
+          )}
+        >
+          <EditableLabel
+            value={title}
+            onCommit={onTitleCommit}
+            className={titleClassName ?? (headerDivider ? "text-lg" : "text-sm")}
+          />
+          {group.expandable && (
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className={buttonClassName}
+                onClick={onDecrement}
+                disabled={!canDecrement}
+              >
+                <Minus className={iconClassName} />
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className={buttonClassName}
+                onClick={onIncrement}
+                disabled={!canIncrement}
+              >
+                <Plus className={iconClassName} />
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
 
       {hasInstances && (
         shouldVirtualize ? (

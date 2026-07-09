@@ -816,4 +816,91 @@ describe("CalculationNodeView", () => {
     );
     expect(screen.queryByTitle("Copy result to clipboard")).not.toBeInTheDocument();
   });
+
+  it("hides redundant prevouts and sequences builder group headers", () => {
+    const mut = createMut();
+    const clip = createClip();
+
+    const renderBuilder = (
+      groupTitle: string,
+      fields: NonNullable<
+        NonNullable<NodeData["inputStructure"]>["groups"]
+      >[number]["fields"]
+    ) => {
+      const title =
+        groupTitle === "PREVOUTS[]" ? "PREVOUTS Builder" : "SEQUENCE Builder";
+      return renderWithProviders(
+        <CalculationNodeView
+          selected={false}
+          data={{
+            functionName: "concat_all",
+            title,
+            paramExtraction: "multi_val",
+            inputs: { vals: [] },
+            inputStructure: {
+              ungrouped: [],
+              groups: [
+                {
+                  title: groupTitle,
+                  baseIndex: 0,
+                  expandable: true,
+                  fieldCountToAdd: fields.length,
+                  minInstances: 1,
+                  maxInstances: 20,
+                  fields,
+                },
+              ],
+            },
+            groupInstances: { [groupTitle]: 1 },
+            groupInstanceKeys: { [groupTitle]: [0] },
+          } as NodeData}
+          rawTitle={title}
+          derived={{
+            ...derived,
+            isMultiVal: true,
+            nodeWidth: 360,
+            minHeight: 200,
+            connectionStatus: {
+              connected: 0,
+              total: fields.length,
+              shouldShow: true,
+            },
+          }}
+          isInputConnected={() => false}
+          mut={mut}
+          group={{ handleGroupSize: vi.fn() }}
+          clip={clip}
+          result=""
+          error={false}
+          hasRegenerate={false}
+          showComment={false}
+          comment=""
+          script={{
+            isScriptVerification: false,
+            scriptResult: null,
+            scriptSigInputHex: "",
+            scriptPubKeyInputHex: "",
+          }}
+        />
+      );
+    };
+
+    const { unmount } = renderBuilder("PREVOUTS[]", [
+      { index: 0, label: "TXID[32]:", rows: 2 },
+      { index: 10, label: "VOUT[4]:", rows: 1 },
+    ]);
+
+    expect(screen.queryByText("> PREVOUTS[]")).not.toBeInTheDocument();
+    expect(screen.getByText("> TXID[32]:")).toBeInTheDocument();
+    expect(screen.getByText("> VOUT[4]:")).toBeInTheDocument();
+
+    unmount();
+
+    renderBuilder("SEQUENCES[]", [
+      { index: 0, label: "SEQUENCE[4]:", rows: 1 },
+    ]);
+
+    expect(screen.queryByText("> SEQUENCES[]")).not.toBeInTheDocument();
+    expect(screen.getByText("> SEQUENCE[4]:")).toBeInTheDocument();
+  });
 });

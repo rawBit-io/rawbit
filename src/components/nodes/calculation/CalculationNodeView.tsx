@@ -99,6 +99,7 @@ const SCRIPT_VERIFY_TAPROOT_PREVOUT_GROUPS = new Set([
   "Taproot Prevouts (vin order)",
   "Taproot prevouts",
 ]);
+const HIDDEN_GROUP_HEADER_TITLES = new Set(["PREVOUTS[]", "SEQUENCES[]"]);
 const TX_TEMPLATE_INPUT_GROUP_TITLE = "INPUTS[]";
 const TX_TEMPLATE_OUTPUT_GROUP_TITLE = "OUTPUTS[]";
 const TX_TEMPLATE_WITNESS_GROUP_TITLE = "WITNESSES[]";
@@ -1383,6 +1384,7 @@ export function CalculationNodeView({
   ) => {
     const keys = groupInstanceKeys(groupDef);
     const instanceCount = data.groupInstances?.[groupDef.title] ?? keys.length;
+    const hideHeader = HIDDEN_GROUP_HEADER_TITLES.has(groupDef.title);
     const canDecrement = instanceCount > (groupDef.minInstances ?? 1);
     const canIncrement = Boolean(
       groupDef.expandable &&
@@ -1438,6 +1440,7 @@ export function CalculationNodeView({
               : undefined
           }
           compactControls={isConcatPrimaryGroup(groupDef)}
+          hideHeader={hideHeader}
         />
 
         <FieldSection
