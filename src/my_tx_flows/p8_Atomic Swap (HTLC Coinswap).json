@@ -1,5 +1,5 @@
 {
-  "name": "Cross-Chain Atomic Swap (HTLC Coinswap)",
+  "name": "Atomic Swap (HTLC Coinswap)",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -30,8 +30,8 @@
       "id": "node_1tk0jii",
       "type": "shadcnGroup",
       "position": {
-        "x": -5103.542959692084,
-        "y": -5567.566589616006
+        "x": 5667.824558954784,
+        "y": 1642.1634530393758
       },
       "data": {
         "isGroup": true,
@@ -56,8 +56,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": -5218.034278692713,
-        "y": -92.61777522114977
+        "x": 5553.333239954155,
+        "y": 7117.112267434232
       },
       "data": {
         "isGroup": true,
@@ -236,8 +236,8 @@
       "id": "node_2GDh1Me7",
       "type": "shadcnGroup",
       "position": {
-        "x": 15147.539605117376,
-        "y": -737.4504845294384
+        "x": 25918.907123764242,
+        "y": 6472.279558125943
       },
       "data": {
         "isGroup": true,
@@ -416,8 +416,8 @@
       "id": "node_ROZuZDm2",
       "type": "shadcnGroup",
       "position": {
-        "x": 6895.684732384623,
-        "y": 3828.269628386718
+        "x": 17667.05225103149,
+        "y": 11037.9996710421
       },
       "data": {
         "isGroup": true,
@@ -886,8 +886,8 @@
       "id": "node_MK258d3e",
       "type": "shadcnGroup",
       "position": {
-        "x": 3712.26002484942,
-        "y": 1495.0709986692764
+        "x": 14483.627543496288,
+        "y": 8704.80104132466
       },
       "data": {
         "isGroup": true,
@@ -1175,8 +1175,8 @@
       "id": "node_nrvb8KUa",
       "type": "shadcnGroup",
       "position": {
-        "x": -1752.4276198658554,
-        "y": 2391.1336559595657
+        "x": 9018.939898781013,
+        "y": 9600.863698614947
       },
       "data": {
         "isGroup": true,
@@ -1996,8 +1996,8 @@
       "id": "node_kht0iiVH",
       "type": "shadcnGroup",
       "position": {
-        "x": -6793.720172982026,
-        "y": 5667.130882965404
+        "x": 3977.647345664842,
+        "y": 12876.860925620786
       },
       "data": {
         "isGroup": true,
@@ -2882,8 +2882,8 @@
       "id": "node_XwNvFsW1",
       "type": "shadcnGroup",
       "position": {
-        "x": 27729.273155025192,
-        "y": 4221.538593200915
+        "x": 38500.64067367206,
+        "y": 11431.268635856297
       },
       "data": {
         "isGroup": true,
@@ -3352,8 +3352,8 @@
       "id": "node_FSYFJedf",
       "type": "shadcnGroup",
       "position": {
-        "x": 24545.84844748999,
-        "y": 1888.3399634834732
+        "x": 35317.21596613686,
+        "y": 9098.070006138856
       },
       "data": {
         "isGroup": true,
@@ -3640,8 +3640,8 @@
       "id": "node_y9qTijbM",
       "type": "shadcnGroup",
       "position": {
-        "x": 19221.23039653609,
-        "y": 2670.596075842645
+        "x": 29992.59791518296,
+        "y": 9880.326118498027
       },
       "data": {
         "isGroup": true,
@@ -4461,8 +4461,8 @@
       "id": "node_fijI5xtX",
       "type": "shadcnGroup",
       "position": {
-        "x": 13897.868249658542,
-        "y": 6247.399847779601
+        "x": 24669.23576830541,
+        "y": 13457.129890434982
       },
       "data": {
         "isGroup": true,
@@ -5283,8 +5283,8 @@
       "id": "node_ct0lFyNT",
       "type": "shadcnGroup",
       "position": {
-        "x": 3899.533187597756,
-        "y": 17689.326764121204
+        "x": 14670.900706244624,
+        "y": 24899.056806776585
       },
       "data": {
         "isGroup": true,
@@ -5905,8 +5905,8 @@
       "id": "node_GfPG5Tr3",
       "type": "shadcnGroup",
       "position": {
-        "x": 343.7509891947175,
-        "y": 15032.826454617782
+        "x": 11115.118507841586,
+        "y": 22242.556497273163
       },
       "data": {
         "isGroup": true,
@@ -6275,8 +6275,8 @@
       "id": "node_6Y4Hfu0T",
       "type": "shadcnGroup",
       "position": {
-        "x": -5226.936655520558,
-        "y": 16287.889111908073
+        "x": 5544.43086312631,
+        "y": 23497.619154563454
       },
       "data": {
         "isGroup": true,
@@ -7097,8 +7097,8 @@
       "id": "node_PMUWnC4A",
       "type": "shadcnGroup",
       "position": {
-        "x": 30337.011258048973,
-        "y": 16635.91786173895
+        "x": 41108.37877669584,
+        "y": 23845.647904394333
       },
       "data": {
         "isGroup": true,
@@ -7719,8 +7719,8 @@
       "id": "node_TWzQMnUr",
       "type": "shadcnGroup",
       "position": {
-        "x": 26653.84434770549,
-        "y": 13394.986487297378
+        "x": 37425.21186635236,
+        "y": 20604.71652995276
       },
       "data": {
         "isGroup": true,
@@ -8013,8 +8013,8 @@
       "id": "node_ecyVK7iO",
       "type": "shadcnGroup",
       "position": {
-        "x": 21234.863392134645,
-        "y": 14779.000289679676
+        "x": 32006.230910781513,
+        "y": 21988.730332335057
       },
       "data": {
         "isGroup": true,
@@ -8812,8 +8812,8 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": -8187.475321370062,
-        "y": 19566.498823704886
+        "x": 2583.8921972768057,
+        "y": 26776.228866360267
       },
       "data": {
         "isGroup": true,
@@ -9128,8 +9128,8 @@
       "id": "node_NurTBuW6",
       "type": "shadcnGroup",
       "position": {
-        "x": 17549.3214759166,
-        "y": 18644.631718694523
+        "x": 28320.68899456347,
+        "y": 25854.361761349905
       },
       "data": {
         "isGroup": true,
@@ -9480,8 +9480,8 @@
       "id": "node_5j7jynd",
       "type": "radioNode",
       "position": {
-        "x": -480,
-        "y": 4440
+        "x": 1272.4276198658554,
+        "y": 2048.8663440404343
       },
       "data": {
         "functionName": "radio_receive",
@@ -9506,6 +9506,8 @@
         },
         "error": false
       },
+      "parentId": "node_nrvb8KUa",
+      "extent": "parent",
       "width": 132,
       "height": 64
     },
@@ -9513,8 +9515,8 @@
       "id": "node_l1drJMFI",
       "type": "shadcnGroup",
       "position": {
-        "x": -7104.88536751396,
-        "y": -4944.621565787648
+        "x": 3666.4821511329083,
+        "y": 2265.1084768677338
       },
       "data": {
         "isGroup": true,
@@ -10167,8 +10169,8 @@
       "id": "node_sx1b2eLL",
       "type": "shadcnGroup",
       "position": {
-        "x": -7119.439563499767,
-        "y": -4068.1743386264598
+        "x": 3651.927955147101,
+        "y": 3141.5557040289223
       },
       "data": {
         "isGroup": true,
@@ -10448,8 +10450,8 @@
       "id": "node_9gs0hzr",
       "type": "radioNode",
       "position": {
-        "x": 20595,
-        "y": 4710
+        "x": 1373.7696034639084,
+        "y": 2039.4039241573537
       },
       "data": {
         "functionName": "radio_receive",
@@ -10474,6 +10476,8 @@
         },
         "error": false
       },
+      "parentId": "node_y9qTijbM",
+      "extent": "parent",
       "width": 132,
       "height": 64
     },
@@ -10481,8 +10485,8 @@
       "id": "node_hknafn2",
       "type": "calculation",
       "position": {
-        "x": 21899.47495981583,
-        "y": 16675.24618421965
+        "x": 664.611567681186,
+        "y": 1896.245894539974
       },
       "data": {
         "functionName": "math_operation",
@@ -10526,7 +10530,9 @@
         "error": false,
         "showComment": true,
         "comment": "Alice's coins minus tx fee"
-      }
+      },
+      "parentId": "node_ecyVK7iO",
+      "extent": "parent"
     },
     {
       "id": "node_vV5oRc3c",
@@ -10585,8 +10591,8 @@
       "id": "node_s3xej6u",
       "type": "radioNode",
       "position": {
-        "x": -4996.274564960391,
-        "y": 18206.50326717449
+        "x": 230.6620905601667,
+        "y": 1918.6141552664158
       },
       "data": {
         "functionName": "radio_receive",
@@ -10611,6 +10617,8 @@
         },
         "error": false
       },
+      "parentId": "node_6Y4Hfu0T",
+      "extent": "parent",
       "width": 132,
       "height": 64
     },
@@ -10723,8 +10731,8 @@
       "id": "node_qx4nrak",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -7113.195129224723,
-        "y": -5565.141435335604
+        "x": 3658.172389422145,
+        "y": 1644.588607319778
       },
       "data": {
         "content": "# Step 1 - Negotiate\n\n- Alice and Bob agree on the terms: amounts, deadlines, and which keys each contract will pay to.\n- Alice creates a random secret `S` and shares only its hash `H = SHA256(S)` - whoever can present `S` gets paid, and only she has it.\n- Nothing has moved yet. Everything exchanged here is public.",
@@ -10741,8 +10749,8 @@
       "id": "node_qaN1cbJ3",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -5252.218985776867,
-        "y": -797.511962922149
+        "x": 5519.148532870001,
+        "y": 6412.218079733233
       },
       "data": {
         "content": "# Step 2 - Alice locks her coins\n\n- Alice doesn't pay Bob - she pays a **contract**: *Bob may take these coins by presenting `S` - or Alice takes them back after her deadline.*\n- She broadcasts it on testnet4 and waits for confirmation.\n- Going first is safe: nobody can touch the coins without the secret, and if the swap dies, the deadline returns them to her.",
@@ -10759,8 +10767,8 @@
       "id": "node_GhE3iYVc",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 19224.832566929024,
-        "y": 1892.9364348281804
+        "x": 29996.200085575892,
+        "y": 9102.666477483563
       },
       "data": {
         "content": "# Step 3 - Bob verifies, then locks\n\n- Bob doesn't take Alice's word - he checks the chain: is the contract really there, with the agreed amount and terms, paying *his* key against `S`?\n- Satisfied, he locks his coins on testnet3 into the mirror contract: *Alice may take these with `S` - or Bob takes them back after his (earlier) deadline.*\n- Both sides are now locked. Only the secret can move anything.",
@@ -10987,8 +10995,8 @@
       "id": "node_BCa6VvhE",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 127.0836438327978,
-        "y": -1421.630202587954
+        "x": 10898.451162479665,
+        "y": 5788.099840067428
       },
       "data": {
         "content": "# Alice ",
@@ -11005,8 +11013,8 @@
       "id": "node_pj9tLCEl",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -5242.83067833022,
-        "y": 15471.253824407713
+        "x": 5528.5368403166485,
+        "y": 22680.983867063096
       },
       "data": {
         "content": "# Step 4 - Alice claims - and reveals\n\n- Alice verifies Bob's contract the same way, then takes his coins by presenting `S` with her signature.\n- There is no quiet way to claim: the secret must be written into the transaction itself. **The moment it confirms, `S` is public.**\n- She must act before Bob's deadline - after it, he can simply reclaim his coins.",
@@ -11410,8 +11418,8 @@
       "id": "node_E0iAlkW0",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 21216.89342145649,
-        "y": 13814.35491108876
+        "x": 31988.26094010336,
+        "y": 21024.084953744143
       },
       "data": {
         "content": "# Step 5 - Bob reads the secret and claims\n\n- Nobody tells Bob anything: he reads `S` straight out of Alice's transaction - the chain itself is the messenger.\n- With `S` he opens Alice's contract on testnet4 the same way, before *her* deadline; her later deadline is exactly what guarantees him time.\n- Swap complete, no trust used. Alice could not take his coins without handing him the key to hers - that is the atomicity.",
@@ -12076,8 +12084,8 @@
       "id": "node_1sPi2N8u",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 22062.930168032355,
-        "y": -1385.1222743257117
+        "x": 32834.29768667922,
+        "y": 5824.60776832967
       },
       "data": {
         "content": "# Bob",
@@ -12190,8 +12198,8 @@
       "id": "node_cxlqPvSe",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -5089.554026370848,
-        "y": -6454.416908528064
+        "x": 5681.81349227602,
+        "y": 755.3131341273183
       },
       "data": {
         "content": "## Setup: what the parties exchange\n\nAll public data, agreed before any coins move:\n\n- **Amounts** - and which chain each side locks on\n- **Time delays** - initiator's refund unlocks ~24 h *after* the responder's (she holds the secret and moves first)\n- **Claim pubkeys** - each goes into the hashlock branch of the *other's* contract, so a stolen `S` alone can never sweep the coins\n- **Refund pubkeys** - shared so each side can rebuild the counterparty's full redeemScript and audit the on-chain P2SH hash\n- **`H = SHA256(S)`** - from the initiator only\n\nThe numbered radio nodes carry these values across the canvas without visible edges - select one to highlight its link.\n\n\n",
@@ -12205,28 +12213,11 @@
       "height": 777
     },
     {
-      "id": "node_600u00z",
-      "type": "shadcnTextInfo",
-      "position": {
-        "x": -10666.367518646868,
-        "y": -6984.730042655382
-      },
-      "data": {
-        "content": "# Overview - Cross-Chain Atomic Swap (HTLC Coinswap)\n\nAlice has coins on **testnet4**, Bob on **testnet3**. No transaction can touch two chains at once - someone must send first, and could be robbed. The fix: make both payments conditional on the **same secret**, so either both complete or neither does.\n\nEach side locks coins into a **Hash Time-Locked Contract**:\n\n```\nOP_IF\n    OP_SHA256 <H> OP_EQUALVERIFY\n    <claim_pubkey> OP_CHECKSIG\nOP_ELSE\n    <locktime> OP_CHECKLOCKTIMEVERIFY OP_DROP\n    <refund_pubkey> OP_CHECKSIG\nOP_ENDIF\n```\n\n- **Hashlock** - the counterparty claims by publishing `S` with `SHA256(S) = H`: claiming *forces disclosure*\n- **Timelock** - unclaimed coins return to their funder after the deadline: nothing can be lost forever\n\nBoth contracts carry the **same `H`**: Alice can't take Bob's coins without writing `S` onto the chain - and the moment she does, Bob can open her contract with the same secret. Four transactions: **TX1/TX2** lock (Alice first, Bob after auditing her), **TX3** Alice claims and reveals `S`, **TX4** Bob claims with the extracted `S`. The same primitive powers Lightning and submarine swaps.\n\nAll four were broadcast on the testnets - TXIDs on the Final-TX nodes. Follow **Steps 1–5** across the canvas. New to P2SH or CLTV? Flows 1–4 first.",
-        "fontSize": 50,
-        "width": 2197,
-        "height": 2090,
-        "title": "Text Info Node"
-      },
-      "width": 2197,
-      "height": 2090
-    },
-    {
       "id": "node_0cevgdi",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 301.57007436798654,
-        "y": 14148.37069088954
+        "x": 11072.937593014854,
+        "y": 21358.10073354492
       },
       "data": {
         "content": "## The secret reveal - the atomicity\n\nOne move balances everything: **Alice cannot take Bob's coins without handing him the key to hers.** Her claim must contain `S` in cleartext - the script checks `SHA256(S) == H` - so the moment TX3 confirms, `S` is public.\n\nBob's **TX Parser** does what a real swap daemon does: it reads `S` straight out of her broadcast transaction. Publication *is* the handoff.\n\nThe asymmetric deadlines make this safe: Alice must reveal *before Bob's* locktime, and Bob then has a guaranteed 24 h - before *Alice's* - to claim. She can never take his coins *and* reclaim her own.",
@@ -12242,8 +12233,8 @@
       "id": "node_t36fwi8",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -6783.752884786003,
-        "y": 5148.845197938089
+        "x": 3987.614633860865,
+        "y": 12358.57524059347
       },
       "data": {
         "content": "```\nOP_IF\n    OP_SHA256 <H> OP_EQUALVERIFY\n    <claim_pubkey> OP_CHECKSIG\nOP_ELSE\n    <locktime> OP_CHECKLOCKTIMEVERIFY OP_DROP\n    <refund_pubkey> OP_CHECKSIG\nOP_ENDIF\n```",
@@ -12259,8 +12250,8 @@
       "id": "node_o70Eaxtb",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 13894.089253955493,
-        "y": 5722.027112630737
+        "x": 24665.45677260236,
+        "y": 12931.757155286119
       },
       "data": {
         "content": "```\nOP_IF\n    OP_SHA256 <H> OP_EQUALVERIFY\n    <claim_pubkey> OP_CHECKSIG\nOP_ELSE\n    <locktime> OP_CHECKLOCKTIMEVERIFY OP_DROP\n    <refund_pubkey> OP_CHECKSIG\nOP_ENDIF\n```",
@@ -12276,8 +12267,8 @@
       "id": "node_8fqcgm4",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -8790,
-        "y": -4350
+        "x": 1981.3675186468681,
+        "y": 2859.730042655382
       },
       "data": {
         "content": "## Try it yourself\n- **Do the audit for real**: rebuild Bob's redeemScript from the ch 1–9 Setup data alone, match his on-chain `HASH160`, then swap your rebuild into TX3 in place of ch 10\n*These exercises rebuild the transactions - regenerate the vaults and pick fresh future deadlines first if you want to broadcast your version.*\n\n- Build **Alice's refund TX** through the ELSE door: `<sig by refund key> OP_0 <redeemScript>`, `nLockTime` = her unlock time - or Bob's refund, if she never claims. And if Bob oversleeps her deadline: she refunds too and keeps *both* sides\n- Use a **phrase as the secret** - the whole swap rebuilds, Bob still learns it from her claim TX, and your message is immortalized in a scriptSig. Then add an **OP_SIZE** guard: the contract never checked the length\n",
@@ -12289,6 +12280,23 @@
       },
       "width": 1200,
       "height": 637
+    },
+    {
+      "id": "node_sd6d6e9",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 984.7917933138601,
+        "y": 285
+      },
+      "data": {
+        "content": "# Overview - Cross-Chain Atomic Swap (HTLC Coinswap)\n\nAlice and Bob want to trade: her coins on **testnet4** for his on **testnet3**. No exchange, no escrow, no trust in each other. The trouble is that no transaction can touch two chains at once, so someone has to pay first, and whoever pays first can simply be robbed.\n\nThe way out is to stop paying each other and start paying *contracts*. Each side locks its coins into a **Hash Time-Locked Contract**, a small script with two doors:\n\n```\nOP_IF\n    OP_SHA256 <H> OP_EQUALVERIFY\n    <claim_pubkey> OP_CHECKSIG\nOP_ELSE\n    <locktime> OP_CHECKLOCKTIMEVERIFY OP_DROP\n    <refund_pubkey> OP_CHECKSIG\nOP_ENDIF\n```\n\nThrough the **IF path**, the counterparty takes the coins by presenting a secret `S` whose hash matches the `H` baked into the script, and there is no way to claim without disclosing `S`. Through the **ELSE path**, the funder takes their own coins back after a deadline, so nothing can stay locked forever.\n\nThe trick is that both contracts carry the **same `H`**, and only Alice knows `S`. Watch what that forces:\n\n1. **TX1:** Alice locks her coins on testnet4.\n2. **TX2:** Bob verifies her contract on-chain, then locks his own on testnet3.\n3. **TX3:** Alice claims Bob's coins. Her claim must contain `S`, so the secret becomes public.\n4. **TX4:** Bob reads `S` out of her transaction and uses it to claim her coins.\n\nAlice cannot take Bob's money without handing him the key to hers, and if she never claims, both sides reclaim their coins after the deadlines. Either the whole swap happens or none of it does: that is what makes it *atomic*. The same trick routes payments through Lightning and powers submarine swaps.\n\nEverything on this canvas was broadcast for real, TXIDs on the Final-TX nodes. Follow **Steps 1–5** to watch it happen byte by byte. New to P2SH or CLTV? Flows 1–4 first.",
+        "fontSize": 48,
+        "width": 2206,
+        "height": 2385,
+        "title": "Text Info Node"
+      },
+      "width": 2206,
+      "height": 2385
     }
   ],
   "edges": [
