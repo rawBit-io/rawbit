@@ -1,5 +1,5 @@
 {
-  "name": "Intro P2PKH",
+  "name": "SegWit",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -30,13 +30,13 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 15037.888939235341,
-        "y": 8618.036269929204
+        "x": 14621.407218784472,
+        "y": 7394.362310060898
       },
       "data": {
         "isGroup": true,
-        "width": 2466,
-        "height": 2291,
+        "width": 3109,
+        "height": 2335,
         "title": "Final TX and Verify Script",
         "dirty": false,
         "groupBundlePortOffsets": {
@@ -50,8 +50,8 @@
         "borderColor": "#7a4ea3",
         "fontSize": 44
       },
-      "width": 2466,
-      "height": 2291,
+      "width": 3109,
+      "height": 2335,
       "dragHandle": "[data-drag-handle]"
     },
     {
@@ -633,8 +633,8 @@
       "id": "node_jM1BkHeL",
       "type": "calculation",
       "position": {
-        "x": 2191.2651766756726,
-        "y": 366.2838418104893
+        "x": 2169.3855768209223,
+        "y": 369.0192654767252
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -1087,8 +1087,8 @@
       "id": "node_o6vul7a",
       "type": "calculation",
       "position": {
-        "x": 1941.5232550977998,
-        "y": 736.7468701823273
+        "x": 2144.9915628895105,
+        "y": 1147.5317660485853
       },
       "data": {
         "functionName": "script_verification",
@@ -1099,8 +1099,9 @@
           "vals": {
             "0": "__EMPTY__",
             "1": "0014ac5481e5be3e36c82a8db4340da410e1cffef479",
-            "2": "02000000012173219769606544e39c693cc50290d5cc949f643991969332e9e2c3756b3fe6010000006a473044022039cb7c4a6592084b40796c1f99022c1196125dbd7505f958a68a08ff8e0f092f02204f484def5e9e22e87370318fb80d959d1237284a23730d4a4aba8e24d83387c7012102c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdffdffffff01f818030000000000160014ad4bfff208d40f6c0040d909dcae4ac5cda9906200000000",
-            "3": "0"
+            "2": "020000000001012173219769606544e39c693cc50290d5cc949f643991969332e9e2c3756b3fe60100000000fdffffff01f818030000000000160014ad4bfff208d40f6c0040d909dcae4ac5cda990620247304402207732541827828e440c3a574a6312e9c3c3ee02c2e07061d3ea1e8f808b08be3e02200ccdebdc1ae8a54b079ebaa228a54a0f1e378f60c7763bb64a27367754a9ffc3012102c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf00000000",
+            "3": "0",
+            "5": "204653"
           }
         },
         "inputStructure": {
@@ -1177,13 +1178,152 @@
         },
         "groupInstances": {},
         "groupInstanceKeys": {},
-        "error": true,
+        "error": false,
         "totalInputs": 4,
         "unwiredCount": 0,
         "dirty": false,
         "showComment": false,
-        "extendedError": "Invalid transaction hex: Asked to read 233 bytes, but only got 90",
-        "scriptDebugSteps": null
+        "result": "true",
+        "scriptDebugSteps": {
+          "isValid": true,
+          "steps": [
+            {
+              "pc": 0,
+              "opcode": 0,
+              "opcode_name": "OP_0",
+              "stack_before": [],
+              "stack_after": [""],
+              "phase": "scriptPubKey"
+            },
+            {
+              "pc": 1,
+              "opcode": 20,
+              "opcode_name": "PUSH 20 bytes",
+              "stack_before": [""],
+              "stack_after": ["", "ac5481e5be3e36c82a8db4340da410e1cffef479"],
+              "phase": "scriptPubKey"
+            },
+            {
+              "pc": -1,
+              "opcode_name": "witness_script",
+              "phase": "witnessScript",
+              "step": "witness_script",
+              "script_hex": "76a914ac5481e5be3e36c82a8db4340da410e1cffef47988ac",
+              "stack_before": [
+                "304402207732541827828e440c3a574a6312e9c3c3ee02c2e07061d3ea1e8f808b08be3e02200ccdebdc1ae8a54b079ebaa228a54a0f1e378f60c7763bb64a27367754a9ffc301",
+                "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf"
+              ],
+              "stack_after": [
+                "304402207732541827828e440c3a574a6312e9c3c3ee02c2e07061d3ea1e8f808b08be3e02200ccdebdc1ae8a54b079ebaa228a54a0f1e378f60c7763bb64a27367754a9ffc301",
+                "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf"
+              ]
+            },
+            {
+              "pc": 0,
+              "opcode": 118,
+              "opcode_name": "OP_DUP",
+              "stack_before": [
+                "304402207732541827828e440c3a574a6312e9c3c3ee02c2e07061d3ea1e8f808b08be3e02200ccdebdc1ae8a54b079ebaa228a54a0f1e378f60c7763bb64a27367754a9ffc301",
+                "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf"
+              ],
+              "stack_after": [
+                "304402207732541827828e440c3a574a6312e9c3c3ee02c2e07061d3ea1e8f808b08be3e02200ccdebdc1ae8a54b079ebaa228a54a0f1e378f60c7763bb64a27367754a9ffc301",
+                "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf",
+                "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf"
+              ],
+              "phase": "witnessScript"
+            },
+            {
+              "pc": 1,
+              "opcode": 169,
+              "opcode_name": "OP_HASH160",
+              "stack_before": [
+                "304402207732541827828e440c3a574a6312e9c3c3ee02c2e07061d3ea1e8f808b08be3e02200ccdebdc1ae8a54b079ebaa228a54a0f1e378f60c7763bb64a27367754a9ffc301",
+                "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf",
+                "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf"
+              ],
+              "stack_after": [
+                "304402207732541827828e440c3a574a6312e9c3c3ee02c2e07061d3ea1e8f808b08be3e02200ccdebdc1ae8a54b079ebaa228a54a0f1e378f60c7763bb64a27367754a9ffc301",
+                "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf",
+                "ac5481e5be3e36c82a8db4340da410e1cffef479"
+              ],
+              "phase": "witnessScript"
+            },
+            {
+              "pc": 2,
+              "opcode": 20,
+              "opcode_name": "PUSH 20 bytes",
+              "stack_before": [
+                "304402207732541827828e440c3a574a6312e9c3c3ee02c2e07061d3ea1e8f808b08be3e02200ccdebdc1ae8a54b079ebaa228a54a0f1e378f60c7763bb64a27367754a9ffc301",
+                "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf",
+                "ac5481e5be3e36c82a8db4340da410e1cffef479"
+              ],
+              "stack_after": [
+                "304402207732541827828e440c3a574a6312e9c3c3ee02c2e07061d3ea1e8f808b08be3e02200ccdebdc1ae8a54b079ebaa228a54a0f1e378f60c7763bb64a27367754a9ffc301",
+                "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf",
+                "ac5481e5be3e36c82a8db4340da410e1cffef479",
+                "ac5481e5be3e36c82a8db4340da410e1cffef479"
+              ],
+              "phase": "witnessScript"
+            },
+            {
+              "pc": 23,
+              "opcode": 136,
+              "opcode_name": "OP_EQUALVERIFY",
+              "stack_before": [
+                "304402207732541827828e440c3a574a6312e9c3c3ee02c2e07061d3ea1e8f808b08be3e02200ccdebdc1ae8a54b079ebaa228a54a0f1e378f60c7763bb64a27367754a9ffc301",
+                "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf",
+                "ac5481e5be3e36c82a8db4340da410e1cffef479",
+                "ac5481e5be3e36c82a8db4340da410e1cffef479"
+              ],
+              "stack_after": [
+                "304402207732541827828e440c3a574a6312e9c3c3ee02c2e07061d3ea1e8f808b08be3e02200ccdebdc1ae8a54b079ebaa228a54a0f1e378f60c7763bb64a27367754a9ffc301",
+                "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf"
+              ],
+              "phase": "witnessScript"
+            },
+            {
+              "pc": 24,
+              "opcode": 172,
+              "opcode_name": "OP_CHECKSIG",
+              "stack_before": [
+                "304402207732541827828e440c3a574a6312e9c3c3ee02c2e07061d3ea1e8f808b08be3e02200ccdebdc1ae8a54b079ebaa228a54a0f1e378f60c7763bb64a27367754a9ffc301",
+                "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf"
+              ],
+              "stack_after": ["01"],
+              "phase": "witnessScript"
+            }
+          ],
+          "scriptSig": "",
+          "scriptPubKey": "0014ac5481e5be3e36c82a8db4340da410e1cffef479",
+          "excludedFlags": [],
+          "activeFlags": [
+            "CHECKLOCKTIMEVERIFY",
+            "CHECKSEQUENCEVERIFY",
+            "CLEANSTACK",
+            "DERSIG",
+            "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
+            "LOW_S",
+            "MINIMALDATA",
+            "MINIMALIF",
+            "NULLDUMMY",
+            "NULLFAIL",
+            "P2SH",
+            "STRICTENC",
+            "TAPROOT",
+            "WITNESS",
+            "WITNESS_PUBKEYTYPE"
+          ],
+          "usesWitness": true,
+          "witnessRulesEnabled": true,
+          "amountUsed": 204653,
+          "witnessStack": [
+            "304402207732541827828e440c3a574a6312e9c3c3ee02c2e07061d3ea1e8f808b08be3e02200ccdebdc1ae8a54b079ebaa228a54a0f1e378f60c7763bb64a27367754a9ffc301",
+            "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf"
+          ],
+          "witnessScript": "76a914ac5481e5be3e36c82a8db4340da410e1cffef47988ac"
+        }
       },
       "parentId": "group_ixnjwes",
       "extent": "parent"
@@ -1909,8 +2049,8 @@
       "id": "node_qofvb2b",
       "type": "calculation",
       "position": {
-        "x": 548.3925408786881,
-        "y": 468.05701155091083
+        "x": 481.5748409545704,
+        "y": 411.36320555468956
       },
       "data": {
         "functionName": "parse_tx_field",
@@ -2143,8 +2283,8 @@
       "id": "node_3n8jjlu",
       "type": "calculation",
       "position": {
-        "x": 1142.5614103038079,
-        "y": 377.19726431495565
+        "x": 1261.8309278746128,
+        "y": 318.78684190122294
       },
       "data": {
         "functionName": "concat_all",
@@ -2156,13 +2296,13 @@
             "0": "02000000",
             "10": "00",
             "20": "01",
-            "30": "02",
-            "1000": "e63f6b75c3e2e93293969139649f94ccd59002c53c699ce34465606997217321",
+            "30": "01",
+            "1000": "2173219769606544e39c693cc50290d5cc949f643991969332e9e2c3756b3fe6",
             "1010": "01000000",
             "1020": "__FORCE00__",
             "1030": "__EMPTY__",
             "1040": "fdffffff",
-            "2000": "02",
+            "2000": "01",
             "3000": "f818030000000000",
             "3010": "16",
             "3020": "0014ad4bfff208d40f6c0040d909dcae4ac5cda99062",
@@ -2171,7 +2311,7 @@
           }
         },
         "version": 0,
-        "result": "02000000000102e63f6b75c3e2e93293969139649f94ccd59002c53c699ce344656069972173210100000000fdffffff02f818030000000000160014ad4bfff208d40f6c0040d909dcae4ac5cda990620247304402207732541827828e440c3a574a6312e9c3c3ee02c2e07061d3ea1e8f808b08be3e02200ccdebdc1ae8a54b079ebaa228a54a0f1e378f60c7763bb64a27367754a9ffc3012102c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf00000000",
+        "result": "020000000001012173219769606544e39c693cc50290d5cc949f643991969332e9e2c3756b3fe60100000000fdffffff01f818030000000000160014ad4bfff208d40f6c0040d909dcae4ac5cda990620247304402207732541827828e440c3a574a6312e9c3c3ee02c2e07061d3ea1e8f808b08be3e02200ccdebdc1ae8a54b079ebaa228a54a0f1e378f60c7763bb64a27367754a9ffc3012102c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf00000000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -2345,8 +2485,8 @@
       "id": "node_pqn4fr9",
       "type": "calculation",
       "position": {
-        "x": 553.7039657724526,
-        "y": 80.44390007825314
+        "x": 581.1453685166744,
+        "y": 239.4028371252425
       },
       "data": {
         "functionName": "identity",
@@ -2380,8 +2520,8 @@
       "id": "node_jc4zfxc",
       "type": "calculation",
       "position": {
-        "x": 616.5349307813049,
-        "y": 269.03013962993646
+        "x": 587.5331757734857,
+        "y": 529.1164009826662
       },
       "data": {
         "functionName": "identity",
@@ -2415,20 +2555,20 @@
       "id": "node_dphkpdw",
       "type": "calculation",
       "position": {
-        "x": 154.1452042979763,
-        "y": 372.2664804865544
+        "x": 181.586607042198,
+        "y": 531.2254175335438
       },
       "data": {
         "functionName": "identity",
         "showField": true,
         "numInputs": 0,
-        "value": "2",
+        "value": "1",
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "2"
+          "val": "1"
         },
-        "result": "2",
+        "result": "1",
         "inputStructure": {
           "ungrouped": [
             {
@@ -2453,8 +2593,8 @@
       "id": "node_l1c9xbm",
       "type": "calculation",
       "position": {
-        "x": 596.6851286010224,
-        "y": 479.02476200995625
+        "x": 600.6085489485613,
+        "y": 781.4433916767157
       },
       "data": {
         "functionName": "encode_varint",
@@ -2463,33 +2603,11 @@
         "showField": false,
         "dirty": false,
         "groupInstances": {},
-        "result": "02",
+        "result": "01",
         "inputs": {
-          "val": 2
+          "val": 1
         },
         "borderColor": "#eab308",
-        "error": false
-      },
-      "parentId": "group_ixnjwes",
-      "extent": "parent"
-    },
-    {
-      "id": "node_9q8g5v3",
-      "type": "calculation",
-      "position": {
-        "x": 614.2161518217799,
-        "y": 704.6134729021705
-      },
-      "data": {
-        "functionName": "reverse_txid_bytes",
-        "title": "TXID → Reversed",
-        "numInputs": 1,
-        "groupInstances": {},
-        "result": "e63f6b75c3e2e93293969139649f94ccd59002c53c699ce34465606997217321",
-        "inputs": {
-          "val": "2173219769606544e39c693cc50290d5cc949f643991969332e9e2c3756b3fe6"
-        },
-        "dirty": false,
         "error": false
       },
       "parentId": "group_ixnjwes",
@@ -2499,20 +2617,20 @@
       "id": "node_LgIHRrjW",
       "type": "calculation",
       "position": {
-        "x": 126.83342264650855,
-        "y": 1300.494875929753
+        "x": 121.83342264650855,
+        "y": 1021.4948759297531
       },
       "data": {
         "functionName": "identity",
         "showField": true,
         "numInputs": 0,
-        "value": "2",
+        "value": "1",
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "2"
+          "val": "1"
         },
-        "result": "2",
+        "result": "1",
         "inputStructure": {
           "ungrouped": [
             {
@@ -2537,8 +2655,8 @@
       "id": "node_dfhKIBr9",
       "type": "calculation",
       "position": {
-        "x": 686.9331991126401,
-        "y": 1186.9395215600453
+        "x": 653.5469717114465,
+        "y": 1053.925833909041
       },
       "data": {
         "functionName": "encode_varint",
@@ -2547,9 +2665,9 @@
         "showField": false,
         "dirty": false,
         "groupInstances": {},
-        "result": "02",
+        "result": "01",
         "inputs": {
-          "val": 2
+          "val": 1
         },
         "borderColor": "#eab308",
         "error": false
@@ -2692,13 +2810,6 @@
       "source": "node_Lwo0cZDT",
       "target": "node_7bQgp6gF",
       "targetHandle": "input-200",
-      "selected": false
-    },
-    {
-      "id": "enode_gH7sxRGZ-node_o6vul7a-input-0",
-      "source": "node_gH7sxRGZ",
-      "target": "node_o6vul7a",
-      "targetHandle": "input-0",
       "selected": false
     },
     {
@@ -2861,14 +2972,6 @@
       "targetHandle": "input-1",
       "selected": false,
       "id": "xy-edge__node_ljj3f78-node_qofvb2binput-1"
-    },
-    {
-      "id": "edge_eqdmpps",
-      "source": "node_qofvb2b",
-      "target": "node_eaopfct",
-      "sourceHandle": "output-0",
-      "targetHandle": "input-0",
-      "selected": false
     },
     {
       "id": "edge_u92hwd7",
@@ -3048,21 +3151,6 @@
       "selected": false
     },
     {
-      "id": "edge_vy6oy1p",
-      "source": "node_9q8g5v3",
-      "target": "node_3n8jjlu",
-      "targetHandle": "input-1000",
-      "selected": false
-    },
-    {
-      "source": "node_qofvb2b",
-      "sourceHandle": "output-0",
-      "target": "node_9q8g5v3",
-      "targetHandle": "input-0",
-      "id": "xy-edge__node_qofvb2boutput-0-node_9q8g5v3input-0",
-      "selected": false
-    },
-    {
       "source": "node_lg43lg2",
       "target": "node_3n8jjlu",
       "targetHandle": "input-1010",
@@ -3106,10 +3194,28 @@
       "selected": false
     },
     {
-      "source": "node_IRajBmor",
+      "id": "edge_nxvat44",
+      "source": "node_qofvb2b",
       "target": "node_o6vul7a",
+      "sourceHandle": "output-1",
       "targetHandle": "input-5",
-      "id": "xy-edge__node_IRajBmor-node_o6vul7ainput-5"
+      "selected": false
+    },
+    {
+      "id": "edge_g45y8p3",
+      "source": "node_qofvb2b",
+      "target": "node_eaopfct",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_qc73v7a",
+      "source": "node_qofvb2b",
+      "target": "node_3n8jjlu",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-1000",
+      "selected": false
     }
   ],
   "virtualEdges": []
