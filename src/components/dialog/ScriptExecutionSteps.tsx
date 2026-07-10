@@ -27,7 +27,7 @@ import { OP_CODES, OpCodeCategories } from "@/lib/opcodes";
 
 /* ---------- helpers ------------------------------------------------ */
 
-const phaseTextFor = (phase: string) =>
+const phaseTextFor = (phase: string, phaseScriptLabel = "scriptCode") =>
   phase === "scriptSig"
     ? "Phase 1 (scriptSig)"
     : phase === "scriptPubKey"
@@ -36,7 +36,7 @@ const phaseTextFor = (phase: string) =>
         ? "Phase 3 (redeemScript)"
         : phase === "taproot"
           ? "Phase 4 (taproot)"
-          : "Phase 4 (witnessScript)";
+          : `Phase 4 (${phaseScriptLabel})`;
 
 function WitnessStackPane({
   items,
@@ -510,6 +510,10 @@ export default function ScriptExecutionSteps({
 
   const ssHex = scriptSigInputHex || scriptResult.scriptSig || "";
   const spkHex = scriptPubKeyInputHex || scriptResult.scriptPubKey || "";
+  const isTaprootTrace =
+    steps.some((traceStep) => traceStep.phase === "taproot") ||
+    /^5120[0-9a-f]{64}$/i.test(spkHex);
+  const phaseScriptLabel = isTaprootTrace ? "tapscript" : "scriptCode";
   const derivedRedeemHex = p2shRedeemScriptFromTrace(steps, spkHex);
   const redeemHex = scriptResult.redeemScript ?? derivedRedeemHex;
   const witnessHex = scriptResult.witnessScript ?? "";
@@ -535,7 +539,7 @@ export default function ScriptExecutionSteps({
   const showWitnessStack =
     (taprootPhase || !witnessHex) && witnessStackDisplay.length > 0;
 
-  const phaseText = phaseTextFor(phase);
+  const phaseText = phaseTextFor(phase, phaseScriptLabel);
   const failureSummary = verificationFailureSummary(steps, scriptResult.error);
 
   return (
@@ -628,7 +632,7 @@ export default function ScriptExecutionSteps({
                 phase === "witnessScript" || phase === "taproot" ? step.pc : -1
               }
               opcodeName={pretty}
-              label="witnessScript"
+              label={phaseScriptLabel}
               highlighted={phase === "witnessScript" || phase === "taproot"}
               isInScriptPubKey={false}
             />

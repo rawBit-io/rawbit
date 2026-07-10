@@ -92,7 +92,7 @@ describe("ScriptExecutionSteps", () => {
     expect(screen.getAllByText("bbcc").length).toBeGreaterThan(0);
   });
 
-  it("hides witnessStack when witnessScript is present (segwit/script-path)", () => {
+  it("labels the SegWit execution script as scriptCode and hides witnessStack", () => {
     render(
       <ScriptExecutionSteps
         open
@@ -115,7 +115,42 @@ describe("ScriptExecutionSteps", () => {
       />
     );
 
+    expect(
+      screen.getByText(/Phase 4 \(scriptCode\)/i)
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("scriptCode-script-pane")).toHaveTextContent(
+      "scriptCode:"
+    );
     expect(screen.queryByText(/witnessStack/i)).not.toBeInTheDocument();
+  });
+
+  it("labels a Taproot script-path execution as tapscript", () => {
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: true,
+          scriptPubKey: `5120${"11".repeat(32)}`,
+          witnessScript: "51",
+          steps: [
+            {
+              pc: 0,
+              opcode: 81,
+              opcode_name: "OP_1",
+              stack_before: [],
+              stack_after: ["01"],
+              phase: "witnessScript",
+            },
+          ],
+        }}
+      />
+    );
+
+    expect(screen.getByText(/Phase 4 \(tapscript\)/i)).toBeInTheDocument();
+    expect(screen.getByTestId("tapscript-script-pane")).toHaveTextContent(
+      "tapscript:"
+    );
   });
 
   it("explains direct push opcodes by byte count", () => {

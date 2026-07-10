@@ -110,7 +110,7 @@ export const customFlows: CustomFlowTemplate[] = [
   },
   {
     id: "flow-09-segwit",
-    label: "SegWit",
+    label: "SegWit intro",
     data: segwit as unknown as FlowData,
     section: "segwit",
     flowNo: 9,
