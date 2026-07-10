@@ -30,8 +30,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 14493.477853526727,
-        "y": 6108.291011919636
+        "x": 15466.043613752301,
+        "y": 5908.069613843654
       },
       "data": {
         "isGroup": true,
@@ -58,8 +58,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 10417.93743469723,
-        "y": 2345.7014026733955
+        "x": 11390.503194922805,
+        "y": 2145.4800045974134
       },
       "data": {
         "isGroup": true,
@@ -88,8 +88,8 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 4580.641116590692,
-        "y": 3288.1303657055983
+        "x": 5553.206876816266,
+        "y": 3087.908967629616
       },
       "data": {
         "isGroup": true,
@@ -121,8 +121,8 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": 1580.3079997584214,
-        "y": 6775.566978099756
+        "x": 2552.873759983995,
+        "y": 6575.345580023774
       },
       "data": {
         "isGroup": true,
@@ -148,8 +148,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 1933.2706229037294,
-        "y": 1574.358343506124
+        "x": 2905.836383129303,
+        "y": 1374.136945430142
       },
       "data": {
         "isGroup": true,
@@ -491,12 +491,7 @@
           "INPUTS[]": 4
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100,
-            200,
-            300
-          ]
+          "INPUTS[]": [0, 100, 200, 300]
         },
         "baseHeight": 80,
         "title": "scriptPubKey",
@@ -561,10 +556,7 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100
-          ]
+          "INPUTS[]": [0, 100]
         },
         "baseHeight": 80,
         "title": "Preimage",
@@ -625,10 +617,7 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100
-          ]
+          "INPUTS[]": [0, 100]
         },
         "baseHeight": 80,
         "title": "Signature + Flag",
@@ -691,12 +680,7 @@
           "INPUTS[]": 4
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100,
-            200,
-            300
-          ]
+          "INPUTS[]": [0, 100, 200, 300]
         },
         "baseHeight": 80,
         "title": "scriptSig (push sig & pubkey)",
@@ -852,12 +836,8 @@
           "OUTPUTS[]": 1
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            1000
-          ],
-          "OUTPUTS[]": [
-            3000
-          ]
+          "INPUTS[]": [1000],
+          "OUTPUTS[]": [3000]
         },
         "baseHeight": 120,
         "totalInputs": 12,
@@ -1008,12 +988,8 @@
           "OUTPUTS[]": 1
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            1000
-          ],
-          "OUTPUTS[]": [
-            3000
-          ]
+          "INPUTS[]": [1000],
+          "OUTPUTS[]": [3000]
         },
         "baseHeight": 120,
         "totalInputs": 12,
@@ -1949,9 +1925,7 @@
                 "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af01",
                 "03b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b"
               ],
-              "stack_after": [
-                "01"
-              ],
+              "stack_after": ["01"],
               "phase": "scriptPubKey"
             }
           ],
@@ -2075,10 +2049,7 @@
           }
         },
         "txFieldExtractMode": "dynamic",
-        "txExtractFields": [
-          "txid",
-          "vout.scriptPubKey"
-        ],
+        "txExtractFields": ["txid", "vout.scriptPubKey"],
         "outputPorts": [
           {
             "label": "txid",
@@ -2182,8 +2153,8 @@
       "id": "node_s7v0oqy0",
       "type": "shadcnGroup",
       "position": {
-        "x": 14112.229589877192,
-        "y": 3027.924207266909
+        "x": 15084.795350102766,
+        "y": 2827.702809190927
       },
       "data": {
         "isGroup": true,
@@ -2234,8 +2205,8 @@
       "id": "node_WxdVqQEh",
       "type": "shadcnGroup",
       "position": {
-        "x": 17205.37278549045,
-        "y": 3552.7118293502804
+        "x": 18177.938545716024,
+        "y": 3352.4904312742983
       },
       "data": {
         "isGroup": true,
@@ -2397,12 +2368,8 @@
           "OUTPUTS[]": 1
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            1000
-          ],
-          "OUTPUTS[]": [
-            3000
-          ]
+          "INPUTS[]": [1000],
+          "OUTPUTS[]": [3000]
         },
         "baseHeight": 120,
         "totalInputs": 12,
@@ -2582,18 +2549,14 @@
               "opcode": 0,
               "opcode_name": "OP_0",
               "stack_before": [],
-              "stack_after": [
-                ""
-              ],
+              "stack_after": [""],
               "phase": "scriptSig"
             },
             {
               "pc": 1,
               "opcode": 117,
               "opcode_name": "OP_DROP",
-              "stack_before": [
-                ""
-              ],
+              "stack_before": [""],
               "stack_after": [],
               "phase": "scriptSig"
             },
@@ -2692,9 +2655,7 @@
                 "3044022055c4dda9bdef9bcf8c0dec0613cf606e8d36f82f2ddfa837d79da25b9275efa90220303a21afce47d83a42ffe70e25da9c85dc749ee23ffaacb190d33c282d7641af01",
                 "03b3986f19324a8552501163fbb26fbb4635710423e1423672af890b025c655e7b"
               ],
-              "stack_after": [
-                "01"
-              ],
+              "stack_after": ["01"],
               "phase": "scriptPubKey"
             }
           ],
@@ -2774,10 +2735,7 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100
-          ]
+          "INPUTS[]": [0, 100]
         },
         "baseHeight": 80,
         "totalInputs": 2,
@@ -2837,47 +2795,11 @@
       "extent": "parent"
     },
     {
-      "id": "node_l6fmh1z",
-      "type": "shadcnTextInfo",
-      "position": {
-        "x": -732.5657602255737,
-        "y": 770.2213980759819
-      },
-      "data": {
-        "content": "# Transaction Malleability\n\nA transaction’s ID (`txid`) is the double-SHA256 of its **entire serialized body — including every `scriptSig`**. Because the signature lives inside the `scriptSig`, there are many ways to rewrite those bytes *without* invalidating the signature or the script. Anyone who sees the unconfirmed transaction can create and broadcast a modified version **without the private key**. The transaction remains valid and spends the same coins to the same outputs, but its `txid` changes.\n\nThis flow demonstrates one such edit: a third party prepends `OP_0 OP_DROP` to the `scriptSig`. Compare the two **Verify Script** nodes — both return `true`. Now compare the two **TXID → Reversed** nodes — they are different. Same spend, two valid transactions, two different IDs.\n\n**What malleability can do:** change the `txid` of an *unconfirmed* transaction. This breaks anything that relies on a stable `txid` before confirmation — chaining unconfirmed transactions, tracking payments by ID, and early payment-channel designs and Lightning-style protocols that need stable unconfirmed funding `txid`s.\n\n**What malleability cannot do:** steal funds, redirect outputs, or change amounts. With `SIGHASH_ALL`, the signature commits to all outputs. A no-key attacker can only reshape the *unlocking data*, never *where the money goes*. The two transactions are economically identical — at most one can confirm.\n\n**Why it was fixed:**  \nStandardness rules (strict DER, low-S, minimal push, NULLDUMMY, push-only, cleanstack) made most malleations non-standard, so honest nodes would not relay them. However, non-standard ≠ invalid — a miner could still include a malleated version.  \n\n**SegWit** is the real fix: it moves signatures into a separate **witness** that the `txid` does **not** commit to. Malleating the witness no longer changes the `txid`.",
-        "fontSize": 28,
-        "width": 1233,
-        "height": 1257,
-        "title": "Text Info Node",
-        "dirty": false
-      },
-      "width": 1233,
-      "height": 1257
-    },
-    {
-      "id": "node_5awnlwt",
-      "type": "shadcnTextInfo",
-      "position": {
-        "x": 591.7803948076393,
-        "y": 1237.0665150451523
-      },
-      "data": {
-        "content": "# Ways to Malleate a Transaction\n\nEvery vector below modifies the `scriptSig` (or signature bytes) in a way that changes the `txid` while keeping the transaction valid. None of them requires the private key. The attack shown in this flow is **#6**.\n\n| # | Vector                        | What a third party changes                              | Closed by                              |\n|---|-------------------------------|---------------------------------------------------------|----------------------------------------|\n| 1 | High-S signatures | Flip `s` to `n − s` (both are valid) | Bitcoin Core low-S relay policy (legacy txs); SegWit removes txid impact |\n| 2 | Non-canonical DER encoding    | Re-serialize the signature with extra bytes or padding  | strict DER (BIP 66)                    |\n| 3 | Non-minimal data pushes       | Use `OP_PUSHDATA1/2/4` instead of a direct push         | MINIMALDATA standardness               |\n| 4 | Non-minimal number/boolean    | Push `0x01` instead of `OP_1`, zero-pad numbers, etc.   | Minimal encoding rules                 |\n| 5 | CHECKMULTISIG dummy element   | Replace the required dummy value with anything          | NULLDUMMY (BIP 147)                    |\n| 6 | Non-push operations           | Inject `OP_0 OP_DROP`, `OP_NOP`, etc. into `scriptSig`  | Push-only / SIGPUSHONLY standardness   |\n| 7 | Dirty stack | Leave extra items on the stack | CLEANSTACK standardness for legacy/P2SH; consensus for SegWit |\n\n> **Important distinction:** For bare legacy inputs, most of these (#1, #3, #4, #6, #7) are only *standardness/relay* rules — a miner could still include the malleated form. BIP 66 (#2) and NULLDUMMY (#5) became consensus rules. CLEANSTACK is standardness for legacy/P2SH and consensus for SegWit. The definitive structural fix is **SegWit**, which removes the signature from the data hashed into the `txid`.",
-        "fontSize": 28,
-        "width": 1246,
-        "height": 1356,
-        "title": "Text Info Node",
-        "dirty": false
-      },
-      "width": 1246,
-      "height": 1356
-    },
-    {
       "id": "node_1gw7gvr",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1934.9724430804777,
-        "y": 3044.9703440583307
+        "x": 2907.5382033060514,
+        "y": 2844.7489459823487
       },
       "data": {
         "content": "# Try it yourself\n\n**With this flow:**\n- Compare the two **TXID → Reversed** nodes — they differ.\n- Confirm that both **Verify Script** nodes still return `true`.\n- Understand that the only difference is the `OP_0 OP_DROP` the third party inserted.\n\n**Experiment with other malleations:**\n- Replace `OP_0 OP_DROP` (`0075`) with `OP_NOP` (`61`) — still valid, new `txid`.\n- Use a non-minimal push for the pubkey (`4c21` instead of `21`).\n\n**What you cannot do:**\nChange the output amount or destination address. `SIGHASH_ALL` signs the outputs, so any attempt to modify them will make **Verify Script** fail.\n\n**Advanced:**\nTry flipping the signature from low-S to high-S (use external tools for this). ",
@@ -2895,8 +2817,8 @@
       "id": "node_0hvubic",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 14092.281231759207,
-        "y": 2289.7203028796303
+        "x": 15064.846991984781,
+        "y": 2089.498904803648
       },
       "data": {
         "content": "# Malleated scriptSig (Third Party)\n\nThis group shows how a third party can change the `scriptSig` **without** knowing any private keys.\n\nHere, `OP_0 OP_DROP` (`0075`) is simply prepended to the original `scriptSig`:\n\n- Original length: `6a` bytes  \n- Malleated length: `6c` bytes\n\nThe stack result stays exactly the same (`<signature> <pubkey>`), so both **Verify Script** nodes return `true`. However, because the `txid` commits to the entire serialized transaction (including the `scriptSig`), the transaction now has a **different txid**.\n\nThis is a classic example of transaction malleability — the spend is identical, but the identifier changes.",
@@ -2913,18 +2835,53 @@
       "id": "node_hmijz0h",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 17183.78306637947,
-        "y": 3247.6476247133014
+        "x": 18156.348826605044,
+        "y": 3047.4262266373194
       },
       "data": {
         "content": "## Consensus-valid (Verify Script passes), but non-standard.\nDefault nodes reject this because scriptSig is not push-only (OP_DROP is a non-push opcode).\nA miner could still include it.",
         "fontSize": 28,
         "width": 912,
         "height": 240,
-        "title": "Text Info Node"
+        "title": "Text Info Node",
+        "dirty": false
       },
       "width": 912,
       "height": 240
+    },
+    {
+      "id": "node_pnv76qg",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -4.417838704842438,
+        "y": 586.0450487992372
+      },
+      "data": {
+        "content": "# Transaction Malleability\n\n**A legacy-only problem.** Everything here applies to pre-SegWit transactions, where the txid is the double-SHA256 of the entire serialized body - scriptSig included. SegWit removed signatures from that hash in 2017; this flow shows exactly why it had to.\n\nThe weak point: signature and scriptSig bytes can be rewritten without becoming invalid. Anyone watching the mempool can take an unconfirmed transaction, reshape its unlocking data - no private key needed - and rebroadcast. Same coins, same outputs, still valid. Different txid.\n\nThat is what this canvas does. A third party prepends `OP_0 OP_DROP` to the scriptSig: both **Verify Script** nodes return `true`, while the two **TXID → Reversed** nodes disagree. One spend, two valid transactions, two ids - and at most one can confirm.\n\n**What the attacker gains:** never the money. With `SIGHASH_ALL` the signature commits to every output; only the unlocking data is soft. The damage is to *identity*. A pre-signed child transaction references its parent by txid - if the malleated twin confirms instead, the child is orphaned forever. That broke chained payments and early payment channels, and it is the direct reason Lightning had to wait for SegWit. \n\n**The fix came in two stages.** Standardness rules (strict DER, low-S, minimal pushes, push-only) made most malleations unrelayable - but non-standard is not invalid, and a miner can include what nodes refuse to pass along. The structural fix is **SegWit**: signatures move to a witness the txid never covers. ",
+        "fontSize": 34,
+        "width": 1281,
+        "height": 1456,
+        "title": "Text Info Node"
+      },
+      "width": 1281,
+      "height": 1456
+    },
+    {
+      "id": "node_szdyurc",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 1513.5291495436486,
+        "y": 1052.135446590293
+      },
+      "data": {
+        "content": "## Ways to malleate a legacy transaction\n\nEach vector rewrites signature or scriptSig bytes without the private key: the transaction stays valid, the txid changes. This flow demonstrates **#6**.\n\n| # | Vector | The edit | Closed by |\n|---|--------|----------|-----------|\n| 1 | High-S signature | flip `s` to `n − s`, equally valid | low-S relay policy |\n| 2 | Non-canonical DER | re-serialize the signature with padding | strict DER - BIP 66, consensus |\n| 3 | Non-minimal pushes | `OP_PUSHDATA1` where a direct push fits | MINIMALDATA standardness |\n| 4 | Non-minimal numbers | `0x01` instead of `OP_1`, zero-padding | minimal-encoding standardness |\n| 5 | CHECKMULTISIG dummy | replace the dummy element with anything | NULLDUMMY - BIP 147, consensus |\n| 6 | Non-push opcodes | inject `OP_0 OP_DROP`, `OP_NOP`, ... | push-only standardness |\n| 7 | Dirty stack | leave extra items behind | CLEANSTACK standardness |\n\nNote what \"closed by\" mostly means: *relay rules*, not consensus. A miner can still mine what nodes won't relay. Only #2 and #5 became consensus for legacy inputs (push-only is consensus for P2SH scriptSigs specifically). The only txid that cannot be edited at all is a SegWit one.",
+        "fontSize": 28,
+        "width": 1209,
+        "height": 1133,
+        "title": "Text Info Node"
+      },
+      "width": 1209,
+      "height": 1133
     }
   ],
   "edges": [
@@ -3555,5 +3512,6 @@
       "targetHandle": "input-0",
       "selected": false
     }
-  ]
+  ],
+  "virtualEdges": []
 }
