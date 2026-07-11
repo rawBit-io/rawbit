@@ -3063,7 +3063,11 @@ function FlowContent() {
     onDrop,
     onNodeDragStop,
     getNodes,
-    getEdges,
+    // Canonical edges, NOT useReactFlow().getEdges(): the rendered set
+    // replaces cross-group edges with synthetic bundle segments whose ids
+    // differ, which broke id-based checks (reconnect occupancy, dirty
+    // marking) for any bundled edge.
+    getEdges: getSavedEdges,
     setNodes,
     setEdges,
     scheduleSnapshot,
