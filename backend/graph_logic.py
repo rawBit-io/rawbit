@@ -83,6 +83,7 @@ from calc_functions.calc_func import (
     sha256_to_p2wsh_address,
     hex_byte_length,
     address_to_scriptpubkey,
+    scriptpubkey_to_scriptcode,
     bip67_sort_pubkeys,
     check_result,
 )
@@ -176,6 +177,7 @@ CALC_FUNCTIONS = {
     "sha256_to_p2wsh_address": sha256_to_p2wsh_address,
     "hex_byte_length": hex_byte_length,
     "address_to_scriptpubkey": address_to_scriptpubkey,
+    "scriptpubkey_to_scriptcode": scriptpubkey_to_scriptcode,
     "bip67_sort_pubkeys": bip67_sort_pubkeys,
     "check_result": check_result,
 }

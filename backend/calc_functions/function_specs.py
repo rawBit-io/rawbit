@@ -461,6 +461,12 @@ FUNCTION_SPECS = {
         "val": {"type": "string", "required": True}
     }
 },
+"scriptpubkey_to_scriptcode": {
+    "paramExtraction": "single_val",
+    "params": {
+        "val": {"type": "string", "required": True}
+    }
+},
 "bip67_sort_pubkeys": {
     "paramExtraction": "multi_val",
     "params": {

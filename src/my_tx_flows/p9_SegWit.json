@@ -30,8 +30,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 11938.136595880744,
-        "y": 5910.003966554775
+        "x": 12727.97590271573,
+        "y": 5842.578659873739
       },
       "data": {
         "isGroup": true,
@@ -58,8 +58,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 8375.577764432703,
-        "y": 778.394549192358
+        "x": 9143.609525236383,
+        "y": 877.4954215541233
       },
       "data": {
         "isGroup": true,
@@ -88,14 +88,14 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 1946.2744638271515,
-        "y": 2119.9194380752597
+        "x": 2405.596659379057,
+        "y": 2147.844639093105
       },
       "data": {
         "isGroup": true,
         "width": 6002,
         "height": 3498,
-        "title": "Preimage Body (BIP143)",
+        "title": "Preimage",
         "groupBundlePortOffsets": {
           "source": 1199.26,
           "target": 1028.2,
@@ -364,7 +364,11 @@
           "INPUTS[]": 3
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200]
+          "INPUTS[]": [
+            0,
+            100,
+            200
+          ]
         },
         "baseHeight": 80,
         "title": "scriptPubKey P2WPKH",
@@ -429,7 +433,10 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100]
+          "INPUTS[]": [
+            0,
+            100
+          ]
         },
         "baseHeight": 80,
         "title": "Preimage",
@@ -490,7 +497,10 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100]
+          "INPUTS[]": [
+            0,
+            100
+          ]
         },
         "baseHeight": 80,
         "title": "Signature + Flag",
@@ -554,7 +564,13 @@
           "INPUTS[]": 5
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200, 300, 400]
+          "INPUTS[]": [
+            0,
+            100,
+            200,
+            300,
+            400
+          ]
         },
         "baseHeight": 80,
         "title": "witness",
@@ -1019,8 +1035,8 @@
       "id": "node_o6vul7a",
       "type": "calculation",
       "position": {
-        "x": 2144.9915628895105,
-        "y": 1148.3726624638384
+        "x": 1933.0105194559,
+        "y": 1095.3774016054358
       },
       "data": {
         "functionName": "script_verification",
@@ -1124,15 +1140,22 @@
               "opcode": 0,
               "opcode_name": "OP_0",
               "stack_before": [],
-              "stack_after": [""],
+              "stack_after": [
+                ""
+              ],
               "phase": "scriptPubKey"
             },
             {
               "pc": 1,
               "opcode": 20,
               "opcode_name": "PUSH 20 bytes",
-              "stack_before": [""],
-              "stack_after": ["", "ac5481e5be3e36c82a8db4340da410e1cffef479"],
+              "stack_before": [
+                ""
+              ],
+              "stack_after": [
+                "",
+                "ac5481e5be3e36c82a8db4340da410e1cffef479"
+              ],
               "phase": "scriptPubKey"
             },
             {
@@ -1265,7 +1288,9 @@
                 "304402207732541827828e440c3a574a6312e9c3c3ee02c2e07061d3ea1e8f808b08be3e02200ccdebdc1ae8a54b079ebaa228a54a0f1e378f60c7763bb64a27367754a9ffc301",
                 "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf"
               ],
-              "stack_after": ["01"],
+              "stack_after": [
+                "01"
+              ],
               "phase": "witnessScript"
             }
           ],
@@ -1477,7 +1502,7 @@
       },
       "data": {
         "functionName": "concat_all",
-        "title": "Data to Sign (SegWit)",
+        "title": "Preimage Body (BIP143)",
         "paramExtraction": "multi_val",
         "numInputs": 10,
         "inputs": {
@@ -1636,7 +1661,9 @@
           "PREVOUTS[]": 1
         },
         "groupInstanceKeys": {
-          "PREVOUTS[]": [0]
+          "PREVOUTS[]": [
+            0
+          ]
         },
         "baseHeight": 100,
         "totalInputs": 2,
@@ -1750,7 +1777,9 @@
           "SEQUENCES[]": 1
         },
         "groupInstanceKeys": {
-          "SEQUENCES[]": [0]
+          "SEQUENCES[]": [
+            0
+          ]
         },
         "baseHeight": 80,
         "totalInputs": 1,
@@ -1819,137 +1848,6 @@
       "extent": "parent"
     },
     {
-      "id": "node_qq5gaih",
-      "type": "opCodeNode",
-      "position": {
-        "x": 1268.2691345999383,
-        "y": 1457.0854350981808
-      },
-      "data": {
-        "functionName": "op_code_select",
-        "inputs": {
-          "vals": {
-            "0": "OP_DUP",
-            "100": "OP_HASH160"
-          }
-        },
-        "dirty": false,
-        "version": 0,
-        "result": "76a9",
-        "groupInstances": {},
-        "paramExtraction": "multi_val",
-        "title": "Opcode Sequence",
-        "borderColor": "#14b8a6",
-        "inputStructure": {
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "Opcode:",
-              "rows": 1,
-              "unconnectable": true
-            },
-            {
-              "index": 100,
-              "label": "Opcode:",
-              "rows": 1,
-              "unconnectable": true
-            }
-          ],
-          "groups": [],
-          "betweenGroups": {},
-          "afterGroups": []
-        },
-        "numInputs": 2,
-        "groupInstanceKeys": {},
-        "error": false
-      },
-      "parentId": "group_7w6adu7",
-      "extent": "parent"
-    },
-    {
-      "id": "node_8qag38b",
-      "type": "opCodeNode",
-      "position": {
-        "x": 1273.7065584656202,
-        "y": 1864.5041293012246
-      },
-      "data": {
-        "functionName": "op_code_select",
-        "inputs": {
-          "vals": {
-            "0": "OP_EQUALVERIFY",
-            "100": "OP_CHECKSIG"
-          }
-        },
-        "dirty": false,
-        "version": 0,
-        "result": "88ac",
-        "groupInstances": {},
-        "paramExtraction": "multi_val",
-        "title": "Opcode Sequence",
-        "borderColor": "#14b8a6",
-        "inputStructure": {
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "Opcode:",
-              "rows": 1,
-              "unconnectable": true
-            },
-            {
-              "index": 100,
-              "label": "Opcode:",
-              "rows": 1,
-              "unconnectable": true
-            }
-          ],
-          "groups": [],
-          "betweenGroups": {},
-          "afterGroups": []
-        },
-        "numInputs": 2,
-        "groupInstanceKeys": {},
-        "error": false
-      },
-      "parentId": "group_7w6adu7",
-      "extent": "parent"
-    },
-    {
-      "id": "node_w80za1m",
-      "type": "calculation",
-      "position": {
-        "x": 1596.8095013474713,
-        "y": 1680.28419797294
-      },
-      "data": {
-        "functionName": "encode_script_push_data",
-        "title": "Data → Push Opcode",
-        "showField": false,
-        "numInputs": 1,
-        "dirty": false,
-        "version": 0,
-        "inputs": {
-          "val": "ac5481e5be3e36c82a8db4340da410e1cffef479"
-        },
-        "result": "14",
-        "inputStructure": {
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "Hex Data:",
-              "placeholder": "Enter hex data to calculate push opcode",
-              "rows": 2
-            }
-          ]
-        },
-        "groupInstances": {},
-        "borderColor": "#14b8a6",
-        "error": false
-      },
-      "parentId": "group_7w6adu7",
-      "extent": "parent"
-    },
-    {
       "id": "node_gjpfgeg",
       "type": "calculation",
       "position": {
@@ -1957,65 +1855,32 @@
         "y": 1481.8052991487157
       },
       "data": {
-        "functionName": "concat_all",
-        "title": "SCRIPTCODE Builder",
-        "paramExtraction": "multi_val",
-        "numInputs": 4,
+        "functionName": "scriptpubkey_to_scriptcode",
+        "title": "scriptPubKey → scriptCode (P2WPKH)",
+        "paramExtraction": "single_val",
+        "numInputs": 1,
         "inputs": {
-          "vals": {
-            "0": "76a9",
-            "10": "14",
-            "20": "ac5481e5be3e36c82a8db4340da410e1cffef479",
-            "30": "88ac"
-          }
+          "val": "0014ac5481e5be3e36c82a8db4340da410e1cffef479"
         },
         "dirty": false,
         "version": 0,
         "result": "76a914ac5481e5be3e36c82a8db4340da410e1cffef47988ac",
         "inputStructure": {
-          "afterGroups": [],
-          "groups": [],
-          "helpText": "P2WPKH: 76a9 | 14 | [20-byte-hash] | 88ac\nP2WSH: [empty] | [empty] | [witness-script] | [empty]",
           "ungrouped": [
             {
-              "allowEmptyBlank": true,
-              "comment": "OP_DUP OP_HASH160 for P2WPKH, leave empty for P2WSH",
               "index": 0,
-              "label": "PREFIX:",
-              "placeholder": "76a9 for P2WPKH, empty for P2WSH",
-              "rows": 1
-            },
-            {
-              "allowEmptyBlank": true,
-              "comment": "Push opcode: 14 for 20-byte hash, or appropriate for P2WSH script",
-              "index": 10,
-              "label": "PUSH_OPCODE:",
-              "placeholder": "14 for P2WPKH, varies for P2WSH",
-              "rows": 1
-            },
-            {
-              "comment": "P2WPKH: 20-byte pubkey hash | P2WSH: complete witness script",
-              "index": 20,
-              "label": "SCRIPT/HASH:",
-              "placeholder": "20-byte hash for P2WPKH, full script for P2WSH",
-              "rows": 3
-            },
-            {
-              "allowEmptyBlank": true,
-              "comment": "OP_EQUALVERIFY OP_CHECKSIG for P2WPKH, leave empty for P2WSH",
-              "index": 30,
-              "label": "SUFFIX:",
-              "placeholder": "88ac for P2WPKH, empty for P2WSH",
-              "rows": 1
+              "label": "scriptPubKey (P2WPKH):",
+              "rows": 2,
+              "placeholder": "0014<20-byte hash>"
             }
           ]
         },
         "groupInstances": {},
         "baseHeight": 120,
-        "totalInputs": 4,
+        "totalInputs": 1,
         "unwiredCount": 0,
         "borderColor": "#14b8a6",
-        "error": false
+        "error": ""
       },
       "parentId": "group_7w6adu7",
       "extent": "parent"
@@ -2040,7 +1905,11 @@
           }
         },
         "txFieldExtractMode": "dynamic",
-        "txExtractFields": ["txid", "vout.value", "vout.scriptPubKey"],
+        "txExtractFields": [
+          "txid",
+          "vout.value",
+          "vout.scriptPubKey"
+        ],
         "outputPorts": [
           {
             "label": "txid",
@@ -2174,7 +2043,9 @@
           "OUTPUTS[]": 1
         },
         "groupInstanceKeys": {
-          "OUTPUTS[]": [0]
+          "OUTPUTS[]": [
+            0
+          ]
         },
         "baseHeight": 100,
         "totalInputs": 3,
@@ -2443,9 +2314,15 @@
           "WITNESSES[]": 1
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [1000],
-          "OUTPUTS[]": [3000],
-          "WITNESSES[]": [5000]
+          "INPUTS[]": [
+            1000
+          ],
+          "OUTPUTS[]": [
+            3000
+          ],
+          "WITNESSES[]": [
+            5000
+          ]
         },
         "baseHeight": 150,
         "totalInputs": 15,
@@ -2690,8 +2567,8 @@
       "id": "node_3veklux",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 8366.629856026244,
-        "y": -177.29619750438826
+        "x": 9134.661616829924,
+        "y": -78.195325142623
       },
       "data": {
         "content": "## The witness - not a script\n\nA scriptSig is executable Script: push opcodes the interpreter runs. A witness is just a **list of stack items** - a count, then each item with a length prefix, no opcodes, no execution:\n\n```\n02                item count\n47 <sig + 0x01>   71-byte item\n21 <pubkey>       33-byte item\n```\n\nIt looks byte-identical to the old scriptSig apart from the leading count - for small items, push opcodes and length prefixes happen to coincide. They diverge past 75 bytes, where a scriptSig needs OP_PUSHDATA1 and a witness does not. And unlike a scriptSig, the witness has **no outer length prefix**.\n\nThe serialization changes shape:\n\n```\nversion | 0001 | inputs | outputs | witnesses | locktime\n          ↑ marker+flag            ↑ one per input\n```\n\nThe input's scriptSig slot is now literally `00` (empty), and the marker+flag `0001` tell an upgraded parser which grammar to use - how old nodes cope is the story of the **Old nodes never notice** note.",
@@ -2752,8 +2629,8 @@
       "id": "node_hjktizg",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 11933.354504732353,
-        "y": 4742.805859883547
+        "x": 12723.19381156734,
+        "y": 4675.380553202511
       },
       "data": {
         "content": "## Old nodes never notice\n\nOne transaction, two serializations:\n\n- **Full** (this canvas): marker `00`, flag `01`, witness included\n- **Stripped**: marker, flag and witness removed - an ordinary-looking legacy transaction\n\nEach peer is sent the version it can understand: upgraded nodes get the full bytes, old nodes get the stripped ones. Two questions follow, one per audience.\n\n**How does an upgraded node know which format it received?** The version field can't say - it is part of the transaction itself, identical in both serializations and hashed into the txid, so the signal must live in bytes the txid excludes. Right after the version, a legacy transaction has its input count - which is never `00`, because zero-input transactions are invalid. SegWit parks its marker on that impossible value: a parser that sees `00` there, followed by the flag 01, knows it is reading the new format, and can never mistake a legacy transaction for it.\n\n**Why does an old node accept the spend?** It validates the stripped version by its old rules: run the (empty) scriptSig, run the scriptPubKey. `0014<hash>` is just two pushes - no CHECKSIG, no comparison, nothing that could fail. The run ends with a non-zero item on top of the stack, and that is all the old rules require. To old eyes this output never demanded a signature in the first place, so a spend with an empty scriptSig is simply valid. The signature check happens in the witness - data those nodes were never sent, under a rule they never learned.\n\nThat is the soft fork: old nodes keep validating, following and relaying the same chain, trusting the one check they cannot see. Nothing got stranded - only miners had to upgrade to enforce the new rules.",
@@ -2770,8 +2647,8 @@
       "id": "node_9jk5x32",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 13333.366936793283,
-        "y": 5152.807485574602
+        "x": 14123.20624362827,
+        "y": 5085.382178893566
       },
       "data": {
         "content": "## Two hashes: txid and wtxid\n\nHash the full serialization: the **wtxid**. Strip marker, flag and witness and hash the rest: the **txid** - the id everything references, and the one old nodes compute from the bytes they hold.\n\nThe signature is no longer inside the txid. Change any witness byte: the wtxid moves, the txid does not. Third-party malleability is dead, and protocols that chain unconfirmed transactions - Lightning above all - become possible.\n\nThe wtxid has its own job: witnesses still need the protection of proof of work, so every block commits to all its wtxids in a second merkle tree, tucked into an output of the coinbase transaction. Only upgraded nodes check it - the header's merkle tree is built from txids, which is exactly why old nodes can still verify that a transaction is in a block using only the stripped bytes they hold.\n\nA legacy transaction has nothing to strip, so its two ids are simply equal.",
@@ -2792,7 +2669,7 @@
         "y": 5824.736065899238
       },
       "data": {
-        "content": "## P2WPKH and bech32\n\nThe output is two pushes: `OP_0` (witness version) and the 20-byte pubkey hash (the witness program). `0014...` executes as two pushes that enforce nothing - the **pattern** is what triggers segwit validation.\n\nThe program length is the type: 20 bytes = P2WPKH, 32 = P2WSH; higher versions are reserved lanes for future rules (Taproot is simply `OP_1` + 32 bytes).\n\nSame HASH160 as P2PKH, new address encoding: **bech32** (`tb1q...` testnet, `bc1q...` mainnet) - lowercase, safer to read aloud, and a checksum that catches typos better as Base58.",
+        "content": "## P2WPKH and bech32\n\nThe output is two pushes: `OP_0` (witness version) and the 20-byte pubkey hash (the witness program). `0014...` executes as two pushes that enforce nothing - the **pattern** is what triggers segwit validation.\n\nThe program length is the type: 20 bytes = P2WPKH, 32 = P2WSH; higher versions are reserved lanes for future rules (Taproot is simply `OP_1` + 32 bytes).\n\nSame HASH160 as P2PKH, new address encoding: **bech32** (`tb1q...` testnet, `bc1q...` mainnet) - lowercase, safer to read aloud, and a checksum that catches typos better than Base58.",
         "fontSize": 28,
         "width": 1519,
         "height": 467,
@@ -3057,46 +2934,11 @@
       "selected": false
     },
     {
-      "source": "node_qq5gaih",
-      "target": "node_gjpfgeg",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "edge_8jnzplc"
-    },
-    {
-      "source": "node_w80za1m",
-      "target": "node_gjpfgeg",
-      "targetHandle": "input-10",
-      "selected": false,
-      "id": "edge_a4gpvw3"
-    },
-    {
-      "source": "node_8qag38b",
-      "target": "node_gjpfgeg",
-      "targetHandle": "input-30",
-      "selected": false,
-      "id": "edge_zr1iwky"
-    },
-    {
       "source": "node_gjpfgeg",
       "target": "node_wc97n69",
       "targetHandle": "input-0",
       "selected": false,
       "id": "edge_5pttatm"
-    },
-    {
-      "id": "edge_kzjcduw",
-      "source": "node_MlkWePnK",
-      "target": "node_gjpfgeg",
-      "targetHandle": "input-20",
-      "selected": false
-    },
-    {
-      "id": "edge_7jg7cq5",
-      "source": "node_MlkWePnK",
-      "target": "node_w80za1m",
-      "targetHandle": "input-0",
-      "selected": false
     },
     {
       "id": "edge_lbdnkmn",
@@ -3389,7 +3231,16 @@
       "id": "edge_0plttsa",
       "source": "node_dNlLkKsv",
       "target": "node_99hd6df",
-      "targetHandle": "input-0"
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_spk2code",
+      "source": "node_qofvb2b",
+      "target": "node_gjpfgeg",
+      "sourceHandle": "output-2",
+      "targetHandle": "input-0",
+      "selected": false
     }
   ],
   "virtualEdges": []

@@ -1564,6 +1564,27 @@ def test_p2sh_p2wsh_scriptpubkey():
     assert calc.address_to_scriptpubkey(addr) == "a914" + rs_h160 + "87"
 
 
+def test_scriptpubkey_to_scriptcode_derives_p2wpkh_template():
+    program = "ac5481e5be3e36c82a8db4340da410e1cffef479"
+    expected = "76a914" + program + "88ac"
+    assert calc.scriptpubkey_to_scriptcode("0014" + program) == expected
+    # input hygiene: whitespace and case are normalized
+    assert calc.scriptpubkey_to_scriptcode(" 0014" + program.upper() + "\n") == expected
+
+
+def test_scriptpubkey_to_scriptcode_rejects_non_p2wpkh():
+    with pytest.raises(ValueError, match="witnessScript itself"):
+        calc.scriptpubkey_to_scriptcode("0020" + "ab" * 32)
+    with pytest.raises(ValueError, match="Taproot has no scriptCode"):
+        calc.scriptpubkey_to_scriptcode("5120" + "ab" * 32)
+    with pytest.raises(ValueError, match="Not a P2WPKH scriptPubKey"):
+        calc.scriptpubkey_to_scriptcode("76a914" + "11" * 20 + "88ac")
+    with pytest.raises(ValueError, match="Not a P2WPKH scriptPubKey"):
+        calc.scriptpubkey_to_scriptcode("0014" + "11" * 19)  # short program
+    with pytest.raises(ValueError, match="cannot be empty"):
+        calc.scriptpubkey_to_scriptcode("   ")
+
+
 def test_script_verification_unknown_flag_raises():
     tx_hex = build_sample_tx_hex()
     with pytest.raises(ValueError, match="Unknown flag: 'NOPE'"):

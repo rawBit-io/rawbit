@@ -301,14 +301,14 @@ export const allSidebarNodes: NodeTemplate[] = [
   },
   {
     functionName: "reverse_txid_bytes",
-    label: "TXID → Reversed",
+    label: "TXID/WTXID → Reversed",
     category: "Encoding & Script Data",
     subcategory: "Bytes, Integers & Pushdata",
-    description: "Reverses byte order of transaction IDs",
+    description: "Reverses byte order of a 32-byte TXID or WTXID",
     type: "calculation",
     nodeData: {
       functionName: "reverse_txid_bytes",
-      title: "TXID → Reversed",
+      title: "TXID/WTXID → Reversed",
       numInputs: 1,
 
       groupInstances: {},
@@ -474,8 +474,7 @@ export const allSidebarNodes: NodeTemplate[] = [
     label: "Hex → Text",
     category: "Encoding & Script Data",
     subcategory: "Bytes, Integers & Pushdata",
-    description:
-      "Decode hex-encoded UTF-8 text (e.g., '32303039' → '2009')",
+    description: "Decode hex-encoded UTF-8 text (e.g., '32303039' → '2009')",
     type: "calculation",
     nodeData: {
       functionName: "hex_to_text",
@@ -1154,10 +1153,10 @@ export const allSidebarNodes: NodeTemplate[] = [
       baseHeight: 140,
     },
   },
-  // DATA TO SIGN (SEGWIT) Node - Builds BIP143 signing data WITHOUT sighash
+  // PREIMAGE BODY (BIP143) Node - Builds BIP143 signing data WITHOUT sighash
   {
     functionName: "concat_all",
-    label: "Data to Sign (SegWit)",
+    label: "Preimage Body (BIP143)",
     category: "Transactions",
     subcategory: "Preimages",
     description:
@@ -1165,7 +1164,7 @@ export const allSidebarNodes: NodeTemplate[] = [
     type: "calculation",
     nodeData: {
       functionName: "concat_all",
-      title: "Data to Sign (SegWit)",
+      title: "Preimage Body (BIP143)",
       paramExtraction: "multi_val",
       numInputs: 10, // Reduced from 11 - no SIGHASH
       inputs: { vals: [] },
@@ -2956,7 +2955,8 @@ export const allSidebarNodes: NodeTemplate[] = [
             label: "Coin:",
             placeholder: "testnet",
             rows: 1,
-            comment: "Trezor Connect coin name/shortcut. Use testnet for this flow.",
+            comment:
+              "Trezor Connect coin name/shortcut. Use testnet for this flow.",
           },
           {
             index: 2,
@@ -2985,7 +2985,8 @@ export const allSidebarNodes: NodeTemplate[] = [
       groupInstances: {},
       result: "",
       hardwareStatus: "idle",
-      hardwareStatusText: "Press Get Address to ask Trezor to confirm the path.",
+      hardwareStatusText:
+        "Press Get Address to ask Trezor to confirm the path.",
       dirty: false,
     },
   },
@@ -3034,7 +3035,8 @@ export const allSidebarNodes: NodeTemplate[] = [
             label: "Locktime:",
             placeholder: "0",
             rows: 1,
-            comment: "Transaction locktime as a decimal uint32. Use 0 for no locktime.",
+            comment:
+              "Transaction locktime as a decimal uint32. Use 0 for no locktime.",
           },
         ],
         groups: [
@@ -3205,8 +3207,7 @@ export const allSidebarNodes: NodeTemplate[] = [
             label: "signTransaction Params JSON:",
             placeholder: "Trezor Sign Params output",
             rows: 8,
-            comment:
-              "This JSON is sent to Trezor Connect when you press Sign.",
+            comment: "This JSON is sent to Trezor Connect when you press Sign.",
           },
         ],
       },
@@ -3333,6 +3334,36 @@ export const allSidebarNodes: NodeTemplate[] = [
   },
 
   // Specialized nodes for Bitcoin transaction building
+
+  // scriptPubKey → scriptCode - BIP143 P2WPKH template derivation
+  {
+    functionName: "scriptpubkey_to_scriptcode",
+    label: "scriptPubKey → scriptCode (P2WPKH)",
+    category: "Transactions",
+    subcategory: "Builders",
+    description:
+      "Derives the BIP143 scriptCode (76a914…88ac) from a P2WPKH scriptPubKey — what the validator executes; never transmitted",
+    type: "calculation",
+    nodeData: {
+      functionName: "scriptpubkey_to_scriptcode",
+      title: "scriptPubKey → scriptCode (P2WPKH)",
+      paramExtraction: "single_val",
+      numInputs: 1,
+      groupInstances: {},
+      result: "",
+      inputs: { val: "" },
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "scriptPubKey (P2WPKH):",
+            rows: 2,
+            placeholder: "0014<20-byte hash>",
+          },
+        ],
+      },
+    },
+  },
 
   // PREVOUTS Node - Concatenates all inputs' outpoints (txid + vout)
   {

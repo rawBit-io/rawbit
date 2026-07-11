@@ -4673,6 +4673,45 @@ def hex_byte_length(val: str) -> int:
     """
     return len(_bytes_from_even_hex(val, name="input"))
 
+def scriptpubkey_to_scriptcode(val: str) -> str:
+    """
+    Derive the BIP143 scriptCode from a P2WPKH scriptPubKey.
+
+    A SegWit validator recognizes the version-0 witness-program pattern
+    0014{20-byte hash} in the output being spent and expands it to the
+    implied P2PKH template:
+
+        76a914 {hash} 88ac
+
+    That template — the scriptCode — is what actually executes and what the
+    BIP143 sighash commits to. It is never transmitted; both the signer and
+    the validator derive it from the spent output's scriptPubKey.
+
+    Only P2WPKH is derivable:
+      - P2WSH (0020{sha256}) commits to the witnessScript by hash, so its
+        scriptCode is the witnessScript itself, supplied by the spender.
+      - Taproot (5120{x-only key}) has no scriptCode at all (BIP341).
+    """
+    spk = re.sub(r"\s+", "", str(val)).lower()
+    if not spk:
+        raise ValueError("scriptPubKey cannot be empty")
+    if re.fullmatch(r"0014[0-9a-f]{40}", spk):
+        return "76a914" + spk[4:] + "88ac"
+    if re.fullmatch(r"0020[0-9a-f]{64}", spk):
+        raise ValueError(
+            "P2WSH has no derived scriptCode — the witnessScript itself is "
+            "the scriptCode (the scriptPubKey only commits to its SHA256)"
+        )
+    if re.fullmatch(r"5120[0-9a-f]{64}", spk):
+        raise ValueError(
+            "Taproot has no scriptCode — the BIP341 sighash commits to the "
+            "spent outputs and tapleaf instead"
+        )
+    raise ValueError(
+        "Not a P2WPKH scriptPubKey (expected 0014 + 20-byte hash)"
+    )
+
+
 def address_to_scriptpubkey(val: str) -> str:
     """
     Convert a Bitcoin address to its scriptPubKey (hex).

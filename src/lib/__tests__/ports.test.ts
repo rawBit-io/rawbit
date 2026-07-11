@@ -134,7 +134,7 @@ describe("buildPorts", () => {
       ["input-0", "input-10", "input-20", "input-30", "input-40"],
     ],
     [
-      "Data to Sign (SegWit)",
+      "Preimage Body (BIP143)",
       [
         "input-0",
         "input-10",
