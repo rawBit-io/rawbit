@@ -1617,6 +1617,104 @@ def test_script_verification_p2wsh_op_true_succeeds():
     assert any(step.get("phase") == "witnessScript" for step in result["steps"])
     assert result.get("amountUsed") == 1000
 
+    # validator rule steps: pattern match, item load, hash-check
+    validator_steps = [
+        s.get("step") for s in result["steps"] if s.get("kind") == "validator"
+    ]
+    assert validator_steps == [
+        "witness_program_match",
+        "witness_load",
+        "witness_script_check",
+    ]
+    check = next(
+        s for s in result["steps"] if s.get("step") == "witness_script_check"
+    )
+    wsh = script_pubkey_hex[4:]
+    assert check["sha256_hex"] == wsh
+    assert check["program_hex"] == wsh
+    # the hash-check pops the item; it becomes the executable witnessScript
+    assert check["stack_before"] == [bytes(witness_script).hex()]
+    assert check["stack_after"] == []
+    assert result["witnessScript"] == bytes(witness_script).hex()
+    assert "scriptCode" not in result
+
+
+def test_script_verification_native_p2wpkh_traces_validator_steps():
+    """Replay the official BIP143 'Native P2WPKH' example through the tracer.
+
+    SegWit v0 traces interleave engine opcodes with validator rule steps
+    (kind="validator"): the legacy scriptPubKey evaluation, the BIP141
+    pattern match, per-item witness deserialization, and the BIP143
+    scriptCode derivation — surfaced as `scriptCode`, not `witnessScript`.
+    """
+    unsigned_tx = (
+        "0100000002fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f"
+        "0000000000eeffffffef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57"
+        "b90ec68a0100000000ffffffff02202cb206000000001976a9148280b37df378db99f66f85"
+        "c95a783a76ac7a6d5988ac9093510d000000001976a9143bde42dbee7e4dbe6a21b2d50ce2"
+        "f0167faa815988ac11000000"
+    )
+    program = "1d0f172a0ecb48aee1be1f2687d2963ae33f71a1"
+    script_pubkey_hex = "0014" + program
+    sig = (
+        "304402203609e17b84f6a7d30c80bfa610b5b4542f32a8a0d5447a12fb1366d7f01cc44a"
+        "0220573a954c4518331561406f90300e8f3358f51928d43c212a8caed02de67eebee01"
+    )
+    pubkey = "025476c2e83188368da1ff3e292e7acafcdb3566bb0ad253f62fc70f07aeee6357"
+
+    tx = CMutableTransaction.deserialize(bytes.fromhex(unsigned_tx))
+    tx.wit.vtxinwit = (
+        CTxInWitness(CScriptWitness([])),
+        CTxInWitness(CScriptWitness([bytes.fromhex(sig), bytes.fromhex(pubkey)])),
+    )
+
+    result = json.loads(
+        calc.script_verification(
+            ["", script_pubkey_hex, b2x(tx.serialize()), 1, "", "600000000"]
+        )
+    )
+
+    assert result["isValid"] is True
+    assert result["scriptCode"] == "76a914" + program + "88ac"
+    assert "witnessScript" not in result
+    assert result["witnessStack"] == [sig, pubkey]
+
+    steps = result["steps"]
+    # engine opcodes: legacy scriptPubKey eval, then the scriptCode template
+    assert [
+        (s.get("phase"), s["opcode_name"])
+        for s in steps
+        if s.get("kind") != "validator"
+    ] == [
+        ("scriptPubKey", "OP_0"),
+        ("scriptPubKey", "PUSH 20 bytes"),
+        ("witnessScript", "OP_DUP"),
+        ("witnessScript", "OP_HASH160"),
+        ("witnessScript", "PUSH 20 bytes"),
+        ("witnessScript", "OP_EQUALVERIFY"),
+        ("witnessScript", "OP_CHECKSIG"),
+    ]
+    # validator rules, all in the "witness" phase
+    validator = [s for s in steps if s.get("kind") == "validator"]
+    assert [s.get("step") for s in validator] == [
+        "witness_program_match",
+        "witness_load",
+        "witness_load",
+        "scriptcode_derive",
+    ]
+    assert all(s.get("phase") == "witness" for s in validator)
+    match = validator[0]
+    assert match["program_hex"] == program
+    load_one, load_two = validator[1], validator[2]
+    assert (load_one["witness_index"], load_one["witness_total"]) == (0, 2)
+    assert load_one["stack_before"] == [] and load_one["stack_after"] == [sig]
+    assert load_two["stack_after"] == [sig, pubkey]
+    derive = validator[3]
+    assert derive["script_hex"] == result["scriptCode"]
+    assert derive["program_hex"] == program
+    # deriving the scriptCode does not touch the stack
+    assert derive["stack_before"] == derive["stack_after"] == [sig, pubkey]
+
 
 def test_script_verification_p2sh_wrapped_witness_reports_witness_use():
     witness_script = CScript([1])

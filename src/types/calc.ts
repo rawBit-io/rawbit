@@ -70,13 +70,38 @@ export interface CalcContext<
 
 export interface StepData {
   pc: number;
-  opcode: number;
+  /** Absent on validator steps — they are not instructions. */
+  opcode?: number;
   opcode_name: string;
   stack_before: string[];
   stack_after: string[];
   failed?: boolean;
   error?: string;
-  phase?: "scriptSig" | "scriptPubKey" | "redeemScript" | "witnessScript" | string;
+  phase?:
+    | "scriptSig"
+    | "scriptPubKey"
+    | "redeemScript"
+    | "witness"
+    | "witnessScript"
+    | string;
+  /**
+   * "opcode" (default when absent) = executed by the script engine;
+   * "validator" = consensus rule applied by the validation engine
+   * (BIP141 witness deserialization, BIP143 scriptCode derivation, …).
+   */
+  kind?: "opcode" | "validator";
+  /** Machine name of a validator step, e.g. "witness_load", "scriptcode_derive". */
+  step?: string;
+  /** Inner script surfaced by the tracer (scriptCode / witnessScript / redeemScript). */
+  script_hex?: string;
+  /** witness_load: zero-based index of the item being deserialized. */
+  witness_index?: number;
+  /** witness_load: total number of witness items. */
+  witness_total?: number;
+  /** Witness program bytes from the scriptPubKey (pattern-match / derive / check steps). */
+  program_hex?: string;
+  /** witness_script_check: SHA256 of the candidate witnessScript. */
+  sha256_hex?: string;
 }
 
 export interface ScriptExecutionResult {
@@ -84,6 +109,8 @@ export interface ScriptExecutionResult {
   scriptPubKey?: string;
   redeemScript?: string;
   witnessScript?: string;
+  /** P2WPKH: implied P2PKH template (BIP143 scriptCode) — derived, never transmitted. */
+  scriptCode?: string;
   /** Raw witness stack items as supplied (Taproot key-path, etc.) */
   witnessStack?: string[];
   isValid?: boolean;

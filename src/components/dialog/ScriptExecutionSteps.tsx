@@ -24,19 +24,143 @@ import {
   StepData,
 } from "@/types";
 import { OP_CODES, OpCodeCategories } from "@/lib/opcodes";
+import {
+  SENTINEL_EMPTY,
+  SENTINEL_FORCE00,
+  SENTINEL_NULL,
+} from "@/lib/nodes/constants";
 
 /* ---------- helpers ------------------------------------------------ */
 
-const phaseTextFor = (phase: string, phaseScriptLabel = "scriptCode") =>
-  phase === "scriptSig"
-    ? "Phase 1 (scriptSig)"
-    : phase === "scriptPubKey"
-      ? "Phase 2 (scriptPubKey)"
-      : phase === "redeemScript"
-        ? "Phase 3 (redeemScript)"
-        : phase === "taproot"
-          ? "Phase 4 (taproot)"
-          : `Phase 4 (${phaseScriptLabel})`;
+const phaseTextFor = (phase: string, execScriptLabel = "scriptCode") => {
+  switch (phase) {
+    case "scriptSig":
+      return "Phase 1 (scriptSig)";
+    case "scriptPubKey":
+      return "Phase 2 (scriptPubKey)";
+    case "redeemScript":
+      return "Phase 3 (redeemScript)";
+    case "witness":
+      return "Witness validation (BIP141)";
+    case "taproot":
+      return "Phase 4 (taproot)";
+    default:
+      return `Phase 4 (${execScriptLabel})`;
+  }
+};
+
+/** Node inputs may carry checkbox sentinels; map them to effective hex. */
+const effectiveScriptHex = (value = "") =>
+  value === SENTINEL_EMPTY || value === SENTINEL_NULL
+    ? ""
+    : value === SENTINEL_FORCE00
+      ? "00"
+      : value;
+
+/** Bitcoin VarInt (compact size) encoding as lowercase hex. */
+const varIntHex = (n: number): string => {
+  const le = (val: number, byteCount: number) =>
+    Array.from({ length: byteCount }, (_, i) =>
+      ((val >>> (8 * i)) & 0xff).toString(16).padStart(2, "0"),
+    ).join("");
+  if (n <= 0xfc) return le(n, 1);
+  if (n <= 0xffff) return `fd${le(n, 2)}`;
+  return `fe${le(n, 4)}`;
+};
+
+/**
+ * Validator steps are consensus rules applied by the validation engine,
+ * not opcodes. New traces mark them with kind="validator"; older cached
+ * traces only have pseudo-steps at pc -1.
+ */
+const isValidatorStep = (step: StepData) =>
+  step.kind === "validator" || step.pc < 0;
+
+interface ValidatorStepInfo {
+  bip: string;
+  title: string;
+  explain: string;
+}
+
+const validatorStepInfo = (step: StepData): ValidatorStepInfo => {
+  switch (step.step ?? step.opcode_name) {
+    case "witness_program_match":
+      return {
+        bip: "BIP141",
+        title: "scriptPubKey matches a v0 witness program",
+        explain:
+          "To a pre-SegWit node this input is already valid — executing the " +
+          "scriptPubKey left a truthy value on the stack. SegWit nodes " +
+          "recognize the version-0 pattern and continue with witness " +
+          "validation on a fresh stack.",
+      };
+    case "witness_load":
+      return {
+        bip: "BIP141",
+        title: `Load witness item ${(step.witness_index ?? 0) + 1}/${
+          step.witness_total ?? "?"
+        } onto the stack`,
+        explain:
+          "Deserialized from the witness by the validator — nothing " +
+          "executes. The length byte in front of the item is VarInt " +
+          "framing, not a push opcode.",
+      };
+    case "scriptcode_derive":
+      return {
+        bip: "BIP143",
+        title: "Derive scriptCode from the witness program",
+        explain:
+          "The scriptPubKey is a pattern, not a program. The validator " +
+          "expands its 20-byte hash into the implied P2PKH template — the " +
+          "scriptCode — which is what actually executes. This script was " +
+          "never transmitted.",
+      };
+    case "witness_script_check":
+      return {
+        bip: "BIP141",
+        title: "Hash-check the witnessScript",
+        explain:
+          "The validator pops the last witness item and requires " +
+          "SHA256(item) to equal the 32-byte program committed in the " +
+          "scriptPubKey. The item itself becomes the executable " +
+          "witnessScript.",
+      };
+    case "witness_script":
+      return {
+        bip: "BIP141",
+        title: "Load the witness stack",
+        explain:
+          "The witness items are deserialized directly onto the stack by " +
+          "the validator — the witness is data, not a script.",
+      };
+    case "taproot_witness":
+      return {
+        bip: "BIP341",
+        title: "Load the witness stack",
+        explain:
+          "The witness items are deserialized directly onto the stack by " +
+          "the validator.",
+      };
+    case "taproot_sighash":
+      return {
+        bip: "BIP341",
+        title: "Compute the Taproot sighash",
+        explain:
+          "The validator computes the tagged sighash that the Schnorr " +
+          "signature must commit to.",
+      };
+    case "taproot_schnorr_verify":
+      return {
+        bip: "BIP340",
+        title: "Verify the Schnorr signature",
+        explain:
+          "The validator checks the Schnorr signature against the output " +
+          "key and the tagged sighash.",
+      };
+    default:
+      return { bip: "", title: step.opcode_name, explain: "" };
+  }
+};
 
 function WitnessStackPane({
   items,
@@ -54,7 +178,7 @@ function WitnessStackPane({
       <div className="mb-1 font-semibold text-primary">
         witnessStack (top → first):
       </div>
-      <div className="field-surface h-28 overflow-auto rounded-md border p-2 break-words font-mono space-y-1">
+      <div className="field-surface max-h-28 overflow-auto rounded-md border p-2 break-words font-mono space-y-1">
         {items.map((it, i) => (
           <div
             key={`${it}-${i}`}
@@ -65,6 +189,48 @@ function WitnessStackPane({
           >
             {it}
           </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Serialized witness for SegWit v0 inputs: VarInt item count, then each
+ * item as VarInt length prefix + payload. Pure data — nothing executes —
+ * rendered in the same quiet style as the other panes, with the framing
+ * bytes dimmed so the stack items themselves stand out.
+ */
+function WitnessPane({ items }: { items: string[] }) {
+  if (!items.length) return null;
+
+  return (
+    <div className="mb-3 text-xs" data-testid="witness-pane">
+      <div className="mb-1 font-semibold text-primary">
+        witness{" "}
+        <span className="font-normal text-muted-foreground">
+          (VarInt-framed stack items — not a script)
+        </span>
+        :
+      </div>
+      <div className="field-surface max-h-28 overflow-auto rounded-md border p-2 break-words font-mono leading-relaxed">
+        <span
+          className="text-muted-foreground/55"
+          title={`item count (VarInt): ${items.length}`}
+        >
+          {varIntHex(items.length)}
+        </span>
+        {items.map((item, i) => (
+          <span key={`${item}-${i}`}>
+            {" "}
+            <span
+              className="text-muted-foreground/55"
+              title={`item ${i + 1} length (VarInt): ${item.length / 2} bytes — framing, not a push opcode`}
+            >
+              {varIntHex(item.length / 2)}
+            </span>
+            {item}
+          </span>
         ))}
       </div>
     </div>
@@ -223,7 +389,8 @@ const OPCODE_NAME_BY_BYTE = (() => {
   return map;
 })();
 
-const prettify = (code: number, name: string) => {
+const prettify = (code: number | undefined, name: string) => {
+  if (code === undefined) return name;
   if (!name.toLowerCase().includes("unknown opcode")) return name;
   if (code >= 1 && code <= 0x4b) return `PUSH ${code} bytes`;
   const known = OPCODE_NAME_BY_BYTE.get(code);
@@ -249,10 +416,10 @@ const verificationFailureSummary = (steps: StepData[], fallback?: string) => {
   if (failedStepIndex === -1) return "Verification failed";
 
   const failedStep = steps[failedStepIndex];
-  return `FAILED STEP ${failedStepIndex + 1}: ${prettify(
-    failedStep.opcode,
-    failedStep.opcode_name,
-  )}`;
+  const label = isValidatorStep(failedStep)
+    ? validatorStepInfo(failedStep).title
+    : prettify(failedStep.opcode, failedStep.opcode_name);
+  return `FAILED STEP ${failedStepIndex + 1}: ${label}`;
 };
 
 const hexToBytes = (hex = "") =>
@@ -349,6 +516,8 @@ function consumedFlags(
 
 type PaneProps = RenderHighlightedScriptProps & {
   highlighted?: boolean;
+  /** One-line origin note rendered next to the label. */
+  caption?: string;
 };
 
 function ScriptPane({
@@ -358,6 +527,7 @@ function ScriptPane({
   opcodeName,
   label,
   highlighted = true,
+  caption,
 }: PaneProps) {
   if (!scriptHex) return null;
 
@@ -369,8 +539,17 @@ function ScriptPane({
   );
   return (
     <div className="mb-3 text-xs" data-testid={`${label}-script-pane`}>
-      <div className="mb-1 font-semibold text-primary">{label}:</div>
-      <div className="field-surface h-20 overflow-auto rounded-md border p-2 break-words font-mono leading-relaxed">
+      <div className="mb-1 font-semibold text-primary">
+        {label}
+        {caption && (
+          <span className="font-normal text-muted-foreground">
+            {" "}
+            ({caption})
+          </span>
+        )}
+        :
+      </div>
+      <div className="field-surface max-h-24 overflow-auto rounded-md border p-2 break-words font-mono leading-relaxed">
         {bytes.map((b, i) => {
           if (!highlighted)
             return (
@@ -446,16 +625,37 @@ export default function ScriptExecutionSteps({
         "Taproot key-path spend: no witnessScript; pseudo-steps: taproot_witness → taproot_sighash → taproot_schnorr_verify.",
       );
     }
-    if (scriptResult.witnessStack?.length && !scriptResult.witnessScript) {
+    if (scriptResult.witnessStack?.length) {
       lines.push(`witnessStack: [${scriptResult.witnessStack.join(", ")}]`);
     }
+    if (scriptResult.scriptCode) {
+      lines.push(
+        `scriptCode (BIP143, derived — never transmitted): ${scriptResult.scriptCode}`,
+      );
+    }
     lines.push("");
-    (scriptResult.steps || []).forEach((s, i) => {
+    // Mirror the dialog: witness bookkeeping steps are not walked, so the
+    // copied numbering matches the on-screen "Step N/M" indicator.
+    const copySteps = ((scriptResult.steps ?? []) as StepData[]).filter(
+      (s) => s.phase !== "witness",
+    );
+    copySteps.forEach((s, i) => {
       const stackBefore = s.stack_before ?? [];
       const stackAfter = s.stack_after ?? [];
-      const prettyName = prettify(s.opcode, s.opcode_name);
+      const header = isValidatorStep(s)
+        ? (() => {
+            const info = validatorStepInfo(s);
+            return `Step #${i + 1}  RULE${info.bip ? `(${info.bip})` : ""}: ${info.title}`;
+          })()
+        : `Step #${i + 1}  PC=${s.pc}  opcode_name=${prettify(
+            s.opcode,
+            s.opcode_name,
+          )}`;
       lines.push(
-        `Step #${i + 1}  PC=${s.pc}  opcode_name=${prettyName}`,
+        header,
+        ...(isValidatorStep(s) && s.script_hex
+          ? [`script_hex: ${s.script_hex}`]
+          : []),
         `StackBefore: [${stackBefore.join(", ")}]`,
         `StackAfter: [${stackAfter.join(", ")}]`,
         ...(s.failed ? [`ERROR: ${s.error ?? "Unknown error"}`] : []),
@@ -473,8 +673,16 @@ export default function ScriptExecutionSteps({
     [],
   );
 
+  // The trace carries validator bookkeeping (phase "witness") for SegWit
+  // inputs; the modal walks opcode steps only, P2SH-style — the pane
+  // captions explain where derived data (scriptCode, witness items) comes
+  // from instead of dedicating steps to it.
+  const visibleSteps = ((scriptResult?.steps ?? []) as StepData[]).filter(
+    (traceStep) => traceStep.phase !== "witness",
+  );
+
   /* placeholder if no trace */
-  if (!open || !scriptResult || !scriptResult.steps?.length) {
+  if (!open || !scriptResult || !visibleSteps.length) {
     return (
       <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
@@ -501,30 +709,69 @@ export default function ScriptExecutionSteps({
   }
 
   /* ----- trace available ----- */
-  const steps = scriptResult.steps as StepData[];
+  const steps = visibleSteps;
   // A recalculation can shrink the trace while the dialog is open; the
   // reset effect only runs after render, so clamp idx for this render.
   const safeIdx = Math.min(idx, steps.length - 1);
   const step = steps[safeIdx];
   const phase = step.phase ?? "scriptSig";
 
-  const ssHex = scriptSigInputHex || scriptResult.scriptSig || "";
-  const spkHex = scriptPubKeyInputHex || scriptResult.scriptPubKey || "";
+  const ssHex =
+    effectiveScriptHex(scriptSigInputHex) || scriptResult.scriptSig || "";
+  const spkHex =
+    effectiveScriptHex(scriptPubKeyInputHex) || scriptResult.scriptPubKey || "";
   const isTaprootTrace =
     steps.some((traceStep) => traceStep.phase === "taproot") ||
     /^5120[0-9a-f]{64}$/i.test(spkHex);
-  const phaseScriptLabel = isTaprootTrace ? "tapscript" : "scriptCode";
   const derivedRedeemHex = p2shRedeemScriptFromTrace(steps, spkHex);
   const redeemHex = scriptResult.redeemScript ?? derivedRedeemHex;
-  const witnessHex = scriptResult.witnessScript ?? "";
+
+  // SegWit v0: the executed script is either the conjured BIP143 scriptCode
+  // (P2WPKH) or the transmitted witnessScript (P2WSH). Older cached traces
+  // stored the conjured template under `witnessScript`; detect that shape.
+  const rawWitnessScript = scriptResult.witnessScript ?? "";
+  const conjuredLegacyShape =
+    !scriptResult.scriptCode &&
+    /^76a914[0-9a-f]{40}88ac$/i.test(cleanHex(rawWitnessScript)) &&
+    /^0014[0-9a-f]{40}$/i.test(cleanHex(spkHex));
+  const scriptCodeHex = isTaprootTrace
+    ? ""
+    : (scriptResult.scriptCode ?? (conjuredLegacyShape ? rawWitnessScript : ""));
+  const execHex = isTaprootTrace
+    ? rawWitnessScript
+    : scriptCodeHex || rawWitnessScript;
+  const execLabel = isTaprootTrace
+    ? "tapscript"
+    : scriptCodeHex
+      ? "scriptCode"
+      : "witnessScript";
+  const execCaption = isTaprootTrace
+    ? undefined
+    : scriptCodeHex
+      ? "derived from scriptPubKey — BIP143, never transmitted"
+      : "last witness item, hash-checked against the program";
+
   const witnessStack =
     scriptResult.witnessStack ??
     steps.find((s) => s.phase === "taproot" && Array.isArray(s.stack_before))
       ?.stack_before ??
     [];
 
+  const witnessSpend =
+    scriptResult.usesWitness ??
+    (witnessStack.length > 0 ||
+      isTaprootTrace ||
+      ((scriptResult.steps ?? []) as StepData[]).some(
+        (s) => s.phase === "witness",
+      ));
+
+  const validatorCurrent = isValidatorStep(step);
+  const validatorInfo = validatorCurrent ? validatorStepInfo(step) : null;
+
   const pretty = prettify(step.opcode, step.opcode_name);
-  const explain = opcodeExplanation(pretty);
+  const explain = validatorCurrent
+    ? (validatorInfo?.explain ?? "")
+    : opcodeExplanation(pretty);
 
   const stepStackBefore = step.stack_before ?? [];
   const stepStackAfter = step.stack_after ?? [];
@@ -532,20 +779,48 @@ export default function ScriptExecutionSteps({
   const afterR = [...stepStackAfter].reverse();
   const consumed = consumedFlags(beforeR, afterR, step.opcode_name);
   const taprootPhase = phase === "taproot";
-  const isTaprootKeyPath = taprootPhase && !witnessHex;
+  const isTaprootKeyPath = taprootPhase && !rawWitnessScript;
   const witnessStackDisplay = taprootPhase
     ? beforeR
     : [...witnessStack].reverse();
+  // The legacy list stays for Taproot; SegWit v0 uses the serialized pane.
   const showWitnessStack =
-    (taprootPhase || !witnessHex) && witnessStackDisplay.length > 0;
+    isTaprootTrace &&
+    (taprootPhase || !rawWitnessScript) &&
+    witnessStackDisplay.length > 0;
+  const showWitnessPane = !isTaprootTrace && witnessStack.length > 0;
 
-  const phaseText = phaseTextFor(phase, phaseScriptLabel);
-  const failureSummary = verificationFailureSummary(steps, scriptResult.error);
+  // SegWit v0: two one-time notes around the phase switch. On the last
+  // old-rules step, explain the verdict old nodes stop at; on the first
+  // scriptCode/witnessScript step, explain the fresh-stack second run —
+  // the stack jump would otherwise be unexplained.
+  const firstExecIdx = steps.findIndex((s) => s.phase === "witnessScript");
+  const segwitV0Notes = !isTaprootTrace && !!execHex && firstExecIdx > -1;
+  const transitionNote =
+    segwitV0Notes && firstExecIdx > 0 && safeIdx === firstExecIdx - 1
+      ? "For old nodes the script ends here: the top of the stack is not " +
+        "zero, so the spend is valid under their rules."
+      : segwitV0Notes && safeIdx === firstExecIdx
+        ? scriptCodeHex
+          ? "A SegWit node starts a second run — the witness items become " +
+            "the new stack, and the executed script is the scriptCode, " +
+            "which carries the same 20-byte hash as the scriptPubKey."
+          : "A SegWit node starts a second run — the remaining witness " +
+            "items become the new stack, and the last item becomes the " +
+            "executed witnessScript after its SHA256 matches the 32-byte " +
+            "hash in the scriptPubKey."
+        : "";
+
+  const phaseText = phaseTextFor(phase, execLabel);
+  const failureSummary = verificationFailureSummary(
+    (scriptResult.steps ?? []) as StepData[],
+    scriptResult.error,
+  );
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
-        className="max-w-2xl border-border bg-card text-card-foreground shadow-xl shadow-foreground/10"
+        className="max-w-3xl border-border bg-card text-card-foreground shadow-xl shadow-foreground/10"
         onKeyDownCapture={stopKey}
       >
         <DialogHeader>
@@ -585,7 +860,10 @@ export default function ScriptExecutionSteps({
           </div>
         </div>
 
-        <div data-testid="script-step-scroll" className="h-[540px] overflow-y-auto px-1">
+        <div
+          data-testid="script-step-scroll"
+          className="h-[min(680px,65vh)] overflow-y-auto px-1"
+        >
           {isTaprootKeyPath && (
             <div className="mb-3 rounded-md border border-primary/20 bg-muted/40 p-3 text-xs text-muted-foreground">
               Taproot key-path spend: no witnessScript is executed. The
@@ -595,15 +873,30 @@ export default function ScriptExecutionSteps({
             </div>
           )}
           {/* panes */}
-          <ScriptPane
-            scriptHex={ssHex}
-            offset={0}
-            pc={phase === "scriptSig" ? step.pc : -1}
-            opcodeName={pretty}
-            label="scriptSig"
-            highlighted={phase === "scriptSig"}
-            isInScriptPubKey={false}
-          />
+          {!ssHex && witnessSpend ? (
+            <div className="mb-3 text-xs" data-testid="scriptSig-empty-pane">
+              <div className="mb-1 font-semibold text-primary">
+                scriptSig{" "}
+                <span className="font-normal text-muted-foreground">
+                  (unlocking data moved to the witness)
+                </span>
+                :
+              </div>
+              <div className="rounded-md border border-dashed border-border/70 bg-muted/20 p-2 text-muted-foreground">
+                empty
+              </div>
+            </div>
+          ) : (
+            <ScriptPane
+              scriptHex={ssHex}
+              offset={0}
+              pc={phase === "scriptSig" ? step.pc : -1}
+              opcodeName={pretty}
+              label="scriptSig"
+              highlighted={phase === "scriptSig"}
+              isInScriptPubKey={false}
+            />
+          )}
           <ScriptPane
             scriptHex={spkHex}
             offset={0}
@@ -624,15 +917,17 @@ export default function ScriptExecutionSteps({
               isInScriptPubKey={false}
             />
           )}
-          {witnessHex && (
+          {showWitnessPane && <WitnessPane items={witnessStack} />}
+          {execHex && (
             <ScriptPane
-              scriptHex={witnessHex}
+              scriptHex={execHex}
               offset={0}
               pc={
                 phase === "witnessScript" || phase === "taproot" ? step.pc : -1
               }
               opcodeName={pretty}
-              label={phaseScriptLabel}
+              label={execLabel}
+              caption={execCaption}
               highlighted={phase === "witnessScript" || phase === "taproot"}
               isInScriptPubKey={false}
             />
@@ -647,17 +942,47 @@ export default function ScriptExecutionSteps({
 
           {/* details */}
           <div className="space-y-3 rounded-md border border-border/70 bg-background/35 p-3 text-xs font-mono">
-            <div className="rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
+            {transitionNote && (
+              <div className="text-muted-foreground">
+                <em>{transitionNote}</em>
+              </div>
+            )}
+            <div
+              className={cn(
+                "rounded-md border px-3 py-2 text-sm text-muted-foreground",
+                validatorCurrent
+                  ? "script-execution-rule-surface"
+                  : "border-primary/20 bg-primary/5",
+              )}
+            >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <strong className="text-foreground">Opcode:</strong>{" "}
-                  <span className="font-semibold text-primary">{pretty}</span>
-                </div>
-                {step.failed && step.error && (
-                  <span className="script-execution-error text-[11px] font-semibold uppercase tracking-wide">
-                    Failed
+                  <strong className="text-foreground">
+                    {validatorCurrent ? "Rule:" : "Opcode:"}
+                  </strong>{" "}
+                  <span
+                    className={cn(
+                      "font-semibold",
+                      validatorCurrent
+                        ? "script-execution-rule"
+                        : "text-primary",
+                    )}
+                  >
+                    {validatorCurrent ? validatorInfo?.title : pretty}
                   </span>
-                )}
+                </div>
+                <span className="flex shrink-0 items-center gap-2">
+                  {validatorCurrent && validatorInfo?.bip && (
+                    <span className="script-execution-rule rounded-sm border border-current/40 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide">
+                      {validatorInfo.bip}
+                    </span>
+                  )}
+                  {step.failed && step.error && (
+                    <span className="script-execution-error text-[11px] font-semibold uppercase tracking-wide">
+                      Failed
+                    </span>
+                  )}
+                </span>
               </div>
               {step.failed && step.error && (
                 <div className="script-execution-error mt-1 text-xs font-medium">

@@ -1483,6 +1483,28 @@ body[data-large-drag="true"] .rf-node {
   text-shadow: 0 0 5px hsl(0 88% 56% / 0.26);
 }
 
+/* Validator-rule steps in the script execution modal (SegWit/Taproot):
+   consensus actions performed by the validation engine, not opcodes.
+   Amber accent keeps them visually distinct from the primary opcode chrome. */
+.script-execution-rule {
+  color: hsl(36 70% 34%);
+}
+
+.dark .script-execution-rule {
+  color: hsl(40 88% 64%);
+  text-shadow: 0 0 5px hsl(40 88% 56% / 0.2);
+}
+
+.script-execution-rule-surface {
+  border-color: hsl(38 70% 45% / 0.4);
+  background: hsl(38 70% 55% / 0.08);
+}
+
+.dark .script-execution-rule-surface {
+  border-color: hsl(40 80% 58% / 0.38);
+  background: hsl(40 80% 58% / 0.09);
+}
+
 .rawbit-intro-source-pulse {
   animation: rawbit-intro-source-pulse 1100ms ease-out forwards;
 }

@@ -3142,7 +3142,8 @@ def script_verification(vals: list) -> str:
           "scriptSig": "<hex>",
           "scriptPubKey": "<hex>",
           "redeemScript": "<hex>",      # P2SH spends only
-          "witnessScript": "<hex>",     # SegWit / Taproot script-path only
+          "witnessScript": "<hex>",     # P2WSH / Taproot script-path only
+          "scriptCode": "<hex>",        # P2WPKH only: implied P2PKH template (BIP143), never transmitted
           "excludedFlags": ["..."],     # Which flags were excluded
           "activeFlags": ["..."],       # Which flags remain active
           "usesWitness": <bool>,        # Whether this spend actually uses witness data/rules
@@ -3413,8 +3414,18 @@ def script_verification(vals: list) -> str:
     # harvest optional inner scripts (added by the tracer)
     for st in steps:
         ph = st.get("phase")
+        step_name = st.get("step")
         script_hex = st.get("script_hex")
-        if ph in ("redeemScript", "witnessScript", "taproot") and script_hex:
+        if not script_hex:
+            continue
+        if step_name == "scriptcode_derive":
+            # P2WPKH: implied P2PKH template conjured by the validator
+            # (BIP143 scriptCode) — deliberately NOT a witnessScript.
+            result.setdefault("scriptCode", script_hex)
+        elif step_name == "witness_script_check":
+            # P2WSH: last witness item, hash-checked against the program.
+            result.setdefault("witnessScript", script_hex)
+        elif ph in ("redeemScript", "witnessScript", "taproot"):
             key = "redeemScript" if ph == "redeemScript" else "witnessScript"
             if key not in result:
                 result[key] = script_hex

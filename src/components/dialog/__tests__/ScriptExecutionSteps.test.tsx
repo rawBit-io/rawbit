@@ -92,22 +92,33 @@ describe("ScriptExecutionSteps", () => {
     expect(screen.getAllByText("bbcc").length).toBeGreaterThan(0);
   });
 
-  it("labels the SegWit execution script as scriptCode and hides witnessStack", () => {
+  it("labels a legacy cached P2WPKH trace as scriptCode", () => {
+    const hash = "11".repeat(20);
     render(
       <ScriptExecutionSteps
         open
         onClose={vi.fn()}
         scriptResult={{
           isValid: true,
-          witnessScript: "76a91488ac",
+          scriptPubKey: `0014${hash}`,
+          witnessScript: `76a914${hash}88ac`,
           witnessStack: ["aa", "bb"],
           steps: [
             {
-              pc: 0,
-              opcode: 0,
-              opcode_name: "OP_0",
-              stack_before: [],
+              pc: -1,
+              opcode_name: "witness_script",
+              step: "witness_script",
+              script_hex: `76a914${hash}88ac`,
+              stack_before: ["aa", "bb"],
               stack_after: ["aa", "bb"],
+              phase: "witnessScript",
+            },
+            {
+              pc: 0,
+              opcode: 118,
+              opcode_name: "OP_DUP",
+              stack_before: ["aa", "bb"],
+              stack_after: ["aa", "bb", "bb"],
               phase: "witnessScript",
             },
           ],
@@ -115,13 +126,247 @@ describe("ScriptExecutionSteps", () => {
       />
     );
 
+    // the old pc:-1 pseudo-step renders as a validator rule
+    expect(screen.getByText("Rule:")).toBeInTheDocument();
+    expect(screen.getByText(/Load the witness stack/i)).toBeInTheDocument();
+    // old labeling contract is preserved for cached traces
+    expect(screen.getByText(/Phase 4 \(scriptCode\)/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/Phase 4 \(scriptCode\)/i)
-    ).toBeInTheDocument();
-    expect(screen.getByTestId("scriptCode-script-pane")).toHaveTextContent(
-      "scriptCode:"
-    );
+      screen.getByTestId("scriptCode-script-pane")
+    ).toHaveTextContent(/scriptCode/);
+    // the serialized witness pane replaces the old witnessStack list
+    expect(screen.getByTestId("witness-pane")).toBeInTheDocument();
     expect(screen.queryByText(/witnessStack/i)).not.toBeInTheDocument();
+  });
+
+  const nativeP2wpkhHash = "11".repeat(20);
+  const nativeP2wpkhResult = {
+    isValid: true,
+    scriptPubKey: `0014${nativeP2wpkhHash}`,
+    scriptCode: `76a914${nativeP2wpkhHash}88ac`,
+    usesWitness: true,
+    witnessStack: ["aa", "bb"],
+    steps: [
+      {
+        pc: 0,
+        opcode: 0,
+        opcode_name: "OP_0",
+        stack_before: [],
+        stack_after: [""],
+        phase: "scriptPubKey",
+      },
+      {
+        pc: 1,
+        opcode: 20,
+        opcode_name: "PUSH 20 bytes",
+        stack_before: [""],
+        stack_after: ["", nativeP2wpkhHash],
+        phase: "scriptPubKey",
+      },
+      {
+        pc: -1,
+        opcode_name: "witness_program_match",
+        kind: "validator" as const,
+        step: "witness_program_match",
+        program_hex: nativeP2wpkhHash,
+        stack_before: [],
+        stack_after: [],
+        phase: "witness",
+      },
+      {
+        pc: -1,
+        opcode_name: "witness item 1/2",
+        kind: "validator" as const,
+        step: "witness_load",
+        witness_index: 0,
+        witness_total: 2,
+        stack_before: [],
+        stack_after: ["aa"],
+        phase: "witness",
+      },
+      {
+        pc: -1,
+        opcode_name: "witness item 2/2",
+        kind: "validator" as const,
+        step: "witness_load",
+        witness_index: 1,
+        witness_total: 2,
+        stack_before: ["aa"],
+        stack_after: ["aa", "bb"],
+        phase: "witness",
+      },
+      {
+        pc: -1,
+        opcode_name: "scriptcode_derive",
+        kind: "validator" as const,
+        step: "scriptcode_derive",
+        script_hex: `76a914${nativeP2wpkhHash}88ac`,
+        program_hex: nativeP2wpkhHash,
+        stack_before: ["aa", "bb"],
+        stack_after: ["aa", "bb"],
+        phase: "witness",
+      },
+      {
+        pc: 0,
+        opcode: 118,
+        opcode_name: "OP_DUP",
+        stack_before: ["aa", "bb"],
+        stack_after: ["aa", "bb", "bb"],
+        phase: "witnessScript",
+      },
+    ],
+  };
+
+  it("walks a native P2WPKH trace as opcode steps only, P2SH-style", async () => {
+    const user = userEvent.setup();
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={nativeP2wpkhResult}
+      />
+    );
+
+    // validator bookkeeping steps (phase "witness") are not walked:
+    // 2 scriptPubKey opcodes + 1 scriptCode opcode remain
+    expect(screen.getByText(/Step 1\/3 — Phase 2 \(scriptPubKey\)/i)).toBeInTheDocument();
+
+    // the empty scriptSig field stays visible with a short origin note
+    expect(screen.getByTestId("scriptSig-empty-pane")).toHaveTextContent(
+      /unlocking data moved to the witness/i
+    );
+    // serialized witness pane, labeled as data
+    expect(screen.getByTestId("witness-pane")).toHaveTextContent(
+      /not a script/i
+    );
+    // scriptCode pane is always visible with a short derivation note
+    expect(screen.getByTestId("scriptCode-script-pane")).toHaveTextContent(
+      /never transmitted/i
+    );
+
+    // step 1: no note yet
+    expect(
+      screen.queryByText(/valid under their rules/i)
+    ).not.toBeInTheDocument();
+
+    const nextButton = screen.getByRole("button", { name: /Next/i });
+    await user.click(nextButton);
+
+    // step 2 (last old-rules step): the old-nodes verdict note
+    expect(
+      screen.getByText(/valid under their rules/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/witness items become the new stack/i)
+    ).not.toBeInTheDocument();
+
+    await user.click(nextButton);
+
+    // final step: plain opcode chrome inside the derived scriptCode, with
+    // the one-time second-run note explaining the fresh-stack jump
+    expect(screen.getByText("Opcode:")).toBeInTheDocument();
+    expect(screen.getByText("OP_DUP")).toBeInTheDocument();
+    expect(
+      screen.getByText(/witness items become the new stack/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/valid under their rules/i)
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/Step 3\/3 — Phase 4 \(scriptCode\)/i)
+    ).toBeInTheDocument();
+    expect(nextButton).toBeDisabled();
+
+    // no rule steps surface in the walk
+    expect(screen.queryByText("Rule:")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Witness validation/i)
+    ).not.toBeInTheDocument();
+  });
+
+  it("labels a P2WSH execution as witnessScript and skips the check steps", () => {
+    const program = "ab".repeat(32);
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: true,
+          scriptPubKey: `0020${program}`,
+          witnessScript: "51",
+          usesWitness: true,
+          witnessStack: ["51"],
+          steps: [
+            {
+              pc: -1,
+              opcode_name: "witness item 1/1",
+              kind: "validator",
+              step: "witness_load",
+              witness_index: 0,
+              witness_total: 1,
+              stack_before: [],
+              stack_after: ["51"],
+              phase: "witness",
+            },
+            {
+              pc: -1,
+              opcode_name: "witness_script_check",
+              kind: "validator",
+              step: "witness_script_check",
+              script_hex: "51",
+              sha256_hex: program,
+              program_hex: program,
+              stack_before: ["51"],
+              stack_after: [],
+              phase: "witness",
+            },
+            {
+              pc: 0,
+              opcode: 81,
+              opcode_name: "OP_1",
+              stack_before: [],
+              stack_after: ["01"],
+              phase: "witnessScript",
+            },
+          ],
+        }}
+      />
+    );
+
+    // only the opcode step is walked
+    expect(
+      screen.getByText(/Step 1\/1 — Phase 4 \(witnessScript\)/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId("witnessScript-script-pane")
+    ).toHaveTextContent(/last witness item/i);
+    expect(screen.queryByText("Rule:")).not.toBeInTheDocument();
+  });
+
+  it("exports the walked steps and the derived scriptCode via Copy All", async () => {
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={nativeP2wpkhResult}
+      />
+    );
+
+    const copyButton = screen.getByRole("button", { name: /Copy All/i });
+    await act(async () => {
+      fireEvent.click(copyButton);
+    });
+
+    const written = (navigator.clipboard.writeText as unknown as Mock).mock
+      .calls.at(-1)?.[0] as string;
+    // numbering matches the on-screen walk (witness bookkeeping excluded)
+    expect(written).toContain("Step #3");
+    expect(written).not.toContain("Step #4");
+    expect(written).not.toContain("RULE(");
+    expect(written).toContain(
+      `scriptCode (BIP143, derived — never transmitted): 76a914${nativeP2wpkhHash}88ac`
+    );
+    expect(written).toContain("witnessStack: [aa, bb]");
   });
 
   it("labels a Taproot script-path execution as tapscript", () => {

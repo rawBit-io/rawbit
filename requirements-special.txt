@@ -2,5 +2,6 @@
 --no-binary secp256k1
 secp256k1==0.14.0
 
-# Custom fork with tracing
-git+https://github.com/rawBit-io/python-bitcointx.git#egg=python-bitcointx
+# Custom fork with tracing (pinned to the verified commit; bump when the
+# fork moves — rawbit's backend tests are the acceptance gate)
+git+https://github.com/rawBit-io/python-bitcointx.git@435e481b6fbc76c0cd52e484685e4cf4283e1a61#egg=python-bitcointx

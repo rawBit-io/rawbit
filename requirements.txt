@@ -12,6 +12,7 @@ orjson==3.11.9
 gunicorn==23.0.0
 
 # Bitcoin/Crypto
+# python-bitcointx comes from our fork — see requirements-special.txt
 secp256k1==0.14.0
 base58==2.1.1
 ecdsa==0.19.2
