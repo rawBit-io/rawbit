@@ -1,5 +1,5 @@
 {
-  "name": "SegWit",
+  "name": "SegWit intro",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -30,8 +30,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 12727.97590271573,
-        "y": 5842.578659873739
+        "x": 15067.460405946007,
+        "y": 6422.550281014632
       },
       "data": {
         "isGroup": true,
@@ -58,8 +58,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 9143.609525236383,
-        "y": 877.4954215541233
+        "x": 11483.09402846666,
+        "y": 1457.4670426950165
       },
       "data": {
         "isGroup": true,
@@ -88,8 +88,8 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 2405.596659379057,
-        "y": 2147.844639093105
+        "x": 4745.081162609334,
+        "y": 2727.816260233998
       },
       "data": {
         "isGroup": true,
@@ -121,8 +121,8 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": -1204.9276919654126,
-        "y": 6366.090401738903
+        "x": 1134.5568112648639,
+        "y": 6946.062022879796
       },
       "data": {
         "isGroup": true,
@@ -147,8 +147,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": -750,
-        "y": 90
+        "x": 1589.4845032302765,
+        "y": 669.9716211408933
       },
       "data": {
         "isGroup": true,
@@ -2452,8 +2452,8 @@
       "id": "node_cv6f9xp",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -2204.4845032302765,
-        "y": -294.97162114089326
+        "x": 135,
+        "y": 285
       },
       "data": {
         "content": "# Overview - Segregated Witness\n\nLegacy transactions carried two design flaws for years.\n\n**Malleability.** The txid was computed over the whole transaction, signatures included - and a signature can be re-encoded without becoming invalid. Anyone could mutate a transaction in flight, changing its txid while it stayed valid. Chains of unconfirmed transactions broke, and protocols that must reference a transaction before it confirms (like Lightning) were impossible.\n\n**Quadratic hashing.** Every input's signature hashed a near-full copy of the transaction. Double the inputs: four times the hash work. A single 1 MB transaction in 2015 took ~25 seconds to validate.\n\nSegWit (2017) fixes both with one move: **the signature leaves the transaction body**. Witness data moves to a separate section that the txid no longer covers, and signatures switch to a new, constant-size preimage (BIP143). It shipped as a soft fork - old nodes see the new outputs as trivially spendable and accept the blocks - and witness bytes get a fee discount, which is why segwit spends are cheaper.\n\nThis flow spends a **P2WPKH** output into a new one, the segwit version of the P2PKH you know. Same kind of key, same HASH160, same testnet4 - but a new address format, a new preimage, a witness instead of a scriptSig, and a new serialization. Each group shows one of those changes.\n\n*Builds on Intro P2PKH - legacy construction is assumed.*",
@@ -2470,8 +2470,8 @@
       "id": "node_yqpv25x",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1158.6627033255863,
-        "y": 2659.076897613076
+        "x": 3498.147206555863,
+        "y": 3239.0485187539693
       },
       "data": {
         "content": "## The BIP143 preimage - what each field solves\n\nLegacy signing hashed a modified copy of the whole transaction, once per input: that is the quadratic bomb. BIP143 replaces it with ten fields:\n\n```\nversion       02000000\nhashPrevouts  SHA256d(all outpoints)        ← computed once\nhashSequence  SHA256d(all nSequence)        ← computed once\noutpoint      txid + vout of THIS input\nscriptCode    19 76a914 <pubKeyHash> 88ac\namount        spent value, LE-8\nnSequence     this input's\nhashOutputs   SHA256d(all outputs)          ← computed once\nlocktime      00000000\nsighash type  01000000\n```\n\n**The three hash fields** are the fix. Everything that grows with the transaction (inputs, outputs) enters as a 32-byte fingerprint instead of a full list, so this P2WPKH preimage stays 182 bytes no matter how large the transaction grows (only P2WSH's scriptCode varies in size) - and the fingerprints are identical for every input, so a validator computes them once and reuses them. O(n²) becomes O(n). On this canvas they are the three Builder → SHA-256d pairs.\n\n**outpoint** - the coin being authorized, stated raw. hashPrevouts pins which inputs ride together; this field pins which one *this* signature approves. Without it, two inputs locked to the same key would share an identical preimage, and one signature would unlock both.\n\n**scriptCode** - the contract the signature commits to, same role as in legacy signing. P2WPKH has a quirk: the on-chain script is `0014<hash>`, but the scriptCode is the *implied P2PKH template* `76a914 <hash> 88ac`, because the witness program contains no CHECKSIG itself - validation runs \"as if\" P2PKH. The SCRIPTCODE Builder assembles exactly that.\n\n**amount** - new in BIP143: the signature now commits to the value being spent. An offline or hardware signer no longer needs full previous transactions to know what it is signing, and a lying host can't spoof the fee.\n\nversion, nSequence, locktime, sighash type: same commitments as legacy, unchanged.",
@@ -2488,8 +2488,8 @@
       "id": "node_3veklux",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 9134.661616829924,
-        "y": -78.195325142623
+        "x": 11474.1461200602,
+        "y": 501.77629599827026
       },
       "data": {
         "content": "## The witness - not a script\n\nA scriptSig is executable Script: push opcodes the interpreter runs. A witness is just a **list of stack items** - a count, then each item with a length prefix, no opcodes, no execution:\n\n```\n02                item count\n47 <sig + 0x01>   71-byte item\n21 <pubkey>       33-byte item\n```\n\nIt looks byte-identical to the old scriptSig apart from the leading count - for small items, push opcodes and length prefixes happen to coincide. They diverge past 75 bytes, where a scriptSig needs OP_PUSHDATA1 and a witness does not. And unlike a scriptSig, the witness has **no outer length prefix**.\n\nThe serialization changes shape:\n\n```\nversion | 0001 | inputs | outputs | witnesses | locktime\n          ↑ marker+flag            ↑ one per input\n```\n\nThe input's scriptSig slot is now literally `00` (empty), and the marker+flag `0001` tell an upgraded parser which grammar to use - how old nodes cope is the story of the **Old nodes never notice** note.",
@@ -2550,11 +2550,11 @@
       "id": "node_hjktizg",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 12723.19381156734,
-        "y": 4675.380553202511
+        "x": 15062.678314797617,
+        "y": 5255.352174343404
       },
       "data": {
-        "content": "## Old nodes never notice\n\nOne transaction, two serializations:\n\n- **Full** (this canvas): marker `00`, flag `01`, witness included\n- **Stripped**: marker, flag and witness removed - an ordinary-looking legacy transaction\n\nEach peer is sent the version it can understand: upgraded nodes get the full bytes, old nodes get the stripped ones. Two questions follow, one per audience.\n\n**How does an upgraded node know which format it received?** The version field can't say - it is part of the transaction itself, identical in both serializations and hashed into the txid, so the signal must live in bytes the txid excludes. Right after the version, a legacy transaction has its input count - which is never `00`, because zero-input transactions are invalid. SegWit parks its marker on that impossible value: a parser that sees `00` there, followed by the flag 01, knows it is reading the new format, and can never mistake a legacy transaction for it.\n\n**Why does an old node accept the spend?** It validates the stripped version by its old rules: run the (empty) scriptSig, run the scriptPubKey. `0014<hash>` is just two pushes - no CHECKSIG, no comparison, nothing that could fail. The run ends with a non-zero item on top of the stack, and that is all the old rules require. To old eyes this output never demanded a signature in the first place, so a spend with an empty scriptSig is simply valid. The signature check happens in the witness - data those nodes were never sent, under a rule they never learned.\n\nThat is the soft fork: old nodes keep validating, following and relaying the same chain, trusting the one check they cannot see. Nothing got stranded - only miners had to upgrade to enforce the new rules.",
+        "content": "a## Old nodes never notice\n\nOne transaction, two serializations:\n\n- **Full** (this canvas): marker `00`, flag `01`, witness included\n- **Stripped**: marker, flag and witness removed - an ordinary-looking legacy transaction\n\nOld peers are always sent the stripped form. Upgraded peers get the full form - but only transactions that actually carry a witness use it, so even an upgraded node's stream mixes both formats, transaction by transaction. Two questions follow:\n\n**How does an upgraded node know which format it received?** The version field can't say - it is part of the transaction itself, identical in both serializations and hashed into the txid, so the signal must live in bytes the txid excludes. Right after the version, a legacy transaction has its input count - which is never `00`, because zero-input transactions are invalid. SegWit parks its marker on that impossible value: a parser that sees `00` there, followed by the flag 01, knows it is reading the new format, and can never mistake a legacy transaction for it.\n\n**Why does an old node accept the spend?** It validates the stripped version by its old rules: run the (empty) scriptSig, run the scriptPubKey. `0014<hash>` is just two pushes - no CHECKSIG, no comparison, nothing that could fail. The run ends with a non-zero item on top of the stack, and that is all the old rules require. To old eyes this output never demanded a signature in the first place, so a spend with an empty scriptSig is simply valid. The signature check happens in the witness - data those nodes were never sent, under a rule they never learned.\n\nThat is the soft fork: old nodes keep validating, following and relaying the same chain, trusting the one check they cannot see. Nothing got stranded - only miners had to upgrade to enforce the new rules.",
         "fontSize": 28,
         "width": 1334,
         "height": 1087,
@@ -2568,8 +2568,8 @@
       "id": "node_9jk5x32",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 14123.20624362827,
-        "y": 5085.382178893566
+        "x": 16462.69074685855,
+        "y": 5665.353800034459
       },
       "data": {
         "content": "## Two hashes: txid and wtxid\n\nHash the full serialization: the **wtxid**. Strip marker, flag and witness and hash the rest: the **txid** - the id everything references, and the one old nodes compute from the bytes they hold.\n\nThe signature is no longer inside the txid. Change any witness byte: the wtxid moves, the txid does not. Third-party malleability is dead, and protocols that chain unconfirmed transactions - Lightning above all - become possible.\n\nThe wtxid has its own job: witnesses still need the protection of proof of work, so every block commits to all its wtxids in a second merkle tree, tucked into an output of the coinbase transaction. Only upgraded nodes check it - the header's merkle tree is built from txids, which is exactly why old nodes can still verify that a transaction is in a block using only the stripped bytes they hold.\n\nA legacy transaction has nothing to strip, so its two ids are simply equal.",
@@ -2586,8 +2586,8 @@
       "id": "node_fmz4qac",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -1205.7581211072086,
-        "y": 5824.736065899238
+        "x": 1133.7263821230679,
+        "y": 6404.7076870401315
       },
       "data": {
         "content": "## P2WPKH and bech32\n\nThe output is two pushes: `OP_0` (witness version) and the 20-byte pubkey hash (the witness program). `0014...` executes as two pushes that enforce nothing - the **pattern** is what triggers segwit validation.\n\nThe program length is the type: 20 bytes = P2WPKH, 32 = P2WSH; higher versions are reserved lanes for future rules (Taproot is simply `OP_1` + 32 bytes).\n\nSame HASH160 as P2PKH, new address encoding: **bech32** (`tb1q...` testnet, `bc1q...` mainnet) - lowercase, safer to read aloud, and a checksum that catches typos better than Base58.",
@@ -2604,20 +2604,20 @@
       "id": "node_jfs6jjc",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -744.3279096098074,
-        "y": 1319.7151892623301
+        "x": 1595.156593620469,
+        "y": 1899.6868104032233
       },
       "data": {
-        "content": "## Try it yourself\n\n- Calculate the **fee**: spent amount minus output amount\n- Compute the **weight**: stripped size × 3 + full size, vsize = weight / 4 - how much of this transaction rides at a discount?\n- Compute **both ids**: copy the TX Template without marker, flag and witness, hash both versions with SHA-256d - txid and wtxid, live on canvas. Then flip a byte inside the witness: the wtxid moves, the txid does not\n- Play the **old node**: take the stripped spend - empty scriptSig against `0014<hash>` - and validate it under pre-SegWit rules: two pushes, a non-zero item on top, valid, no signature ever asked. Then hand the same pair to **Verify Script** (*exclude flags: WITNESS, CLEANSTACK*) without the witness and see which era's rules it enforces\n\n### Build your own variation\n*These rebuild the transaction - fund a fresh address first if you want to broadcast.*\n\n\n- Add a **second input** from another P2WPKH UTXO: the three midstate hashes are computed once and shared by both preimages - that sharing is the end of quadratic hashing\n",
+        "content": "## Try it yourself\n\n- Compute the **weight**: stripped size × 3 + full size, vsize = weight / 4 - how much of this transaction rides at a discount?\n- Compute **both ids**: copy the TX Template without marker, flag and witness, hash both versions with SHA-256d - txid and wtxid, live on canvas. Then flip a byte inside the witness: the wtxid moves, the txid does not\n- **Spend it without the signature**: duplicate **Verify Script**, feed it the **stripped serialization** from the ids exercise - all an old node ever receives - and in *Verify Script* exclude the flags `WITNESS, CLEANSTACK`. Step through and find the moment a signature is checked. What is this output to a node from 2016?\n\n### Build your own variation\n*These rebuild the transaction - fund a fresh address first if you want to broadcast.*\n\n\n- Add a **second input** from another P2WPKH UTXO: the three midstate hashes are computed once and shared by both preimages - that sharing is the end of quadratic hashing\n",
         "fontSize": 28,
-        "width": 1287,
-        "height": 851,
+        "width": 1266,
+        "height": 796,
         "title": "Text Info Node",
         "borderColor": "#2d5fb3",
         "dirty": false
       },
-      "width": 1287,
-      "height": 851
+      "width": 1266,
+      "height": 796
     },
     {
       "id": "node_99hd6df",
