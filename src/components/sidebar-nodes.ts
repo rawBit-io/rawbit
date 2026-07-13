@@ -3365,18 +3365,18 @@ export const allSidebarNodes: NodeTemplate[] = [
     },
   },
 
-  // PREVOUTS Node - Concatenates all inputs' outpoints (txid + vout)
+  // OUTPOINT Node - Concatenates all inputs' outpoints (txid + vout)
   {
     functionName: "concat_all",
-    label: "PREVOUTS Builder",
+    label: "OUTPOINT",
     category: "Transactions",
     subcategory: "Builders",
     description:
-      "Builds concatenated prevouts for transaction signing (all txid+vout pairs)",
+      "Concatenates one or more outpoints for transaction signing (txid+vout pairs)",
     type: "calculation",
     nodeData: {
       functionName: "concat_all",
-      title: "PREVOUTS Builder",
+      title: "OUTPOINT",
       paramExtraction: "multi_val",
       numInputs: 2, // Initial: 1 input (2 fields)
       inputs: { vals: [] },
