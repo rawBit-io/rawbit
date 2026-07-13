@@ -3419,52 +3419,6 @@ export const allSidebarNodes: NodeTemplate[] = [
     },
   },
 
-  // SEQUENCE Node - Concatenates all inputs' sequence values
-  {
-    functionName: "concat_all",
-    label: "SEQUENCE Builder",
-    category: "Transactions",
-    subcategory: "Builders",
-    description: "Builds concatenated sequence values for transaction signing",
-    type: "calculation",
-    nodeData: {
-      functionName: "concat_all",
-      title: "SEQUENCE Builder",
-      paramExtraction: "multi_val",
-      numInputs: 1, // Initial: 1 sequence
-      inputs: { vals: [] },
-
-      version: 0,
-      result: "",
-      inputStructure: {
-        ungrouped: [],
-        groups: [
-          {
-            title: "SEQUENCES[]",
-            baseIndex: 0,
-            expandable: true,
-            fieldCountToAdd: 1,
-            minInstances: 1,
-            maxInstances: 20,
-            fields: [
-              {
-                index: 0,
-                label: "SEQUENCE[4]:",
-                placeholder: "fdffffff",
-                rows: 1,
-                comment:
-                  "4-byte sequence (LE). Use fdffffff for RBF, ffffffff for final",
-              },
-            ],
-          },
-        ],
-        afterGroups: [],
-      },
-      groupInstances: { "SEQUENCES[]": 1 },
-      groupInstanceKeys: { "SEQUENCES[]": [0] },
-      baseHeight: 80,
-    },
-  },
   // SCRIPTS Node - Concatenates compact_size(scriptPubKey) + scriptPubKey per input
   {
     functionName: "concat_all",
