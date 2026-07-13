@@ -83,7 +83,7 @@
         "isGroup": true,
         "width": 2526,
         "height": 1192,
-        "title": "Signature and witness",
+        "title": "Signature and witness in1",
         "groupBundlePortOffsets": {
           "target": -559.24,
           "sourceByBundle": {
@@ -96,7 +96,7 @@
         },
         "dirty": false,
         "borderColor": "#d6a500",
-        "fontSize": 44
+        "fontSize": 40
       },
       "width": 2526,
       "height": 1192,
@@ -3482,7 +3482,7 @@
         "isGroup": true,
         "width": 2526,
         "height": 1192,
-        "title": "Signature and witness",
+        "title": "Signature and witness in2",
         "groupBundlePortOffsets": {
           "target": -559.24,
           "targetByBundle": {
@@ -4058,6 +4058,24 @@
       },
       "parentId": "group_ixnjwes",
       "extent": "parent"
+    },
+    {
+      "id": "node_a3r1k1h",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -1744.42637034373,
+        "y": -2450.372749909
+      },
+      "data": {
+        "content": "## What changes with multiple inputs?\n\nBitcoin authorizes **each input separately**. This transaction therefore carries two BIP143 preimages, two signatures and two witness stacks - never one signature for the whole transaction.\n\n**Shared - computed once, used by both preimages:**\n- `hashPrevouts` - every input's outpoint\n- `hashSequence` - every input's sequence\n- `hashOutputs` - every output\n\n**Per input - each preimage adds only its own:**\n- outpoint\n- scriptCode\n- spent amount\n- sequence\n\nThese four fields make each signing hash unique, even when both inputs use the same script type.\n\n**How this kills quadratic hashing.** Legacy signing hashed a near-full copy of the transaction *per input*: n inputs, each hashing O(n) bytes - O(n²), the cost doubles inputs and quadruples work. BIP143 splits the work: one pass over the transaction builds the three shared hashes, then each input hashes only its fixed ~180-byte preimage. Two inputs, three shared hashes; two hundred inputs, still three. Adding an input now adds constant work - O(n).\n\n**In the final transaction:**\n- `INPUT_COUNT` is `02`\n- both inputs appear before the outputs, each with an empty scriptSig (`00`)\n- one witness stack per input, **in input order** - position is the only thing pairing them\n\n**One coupling to remember:** change any input, sequence or output and a shared hash moves - so under `SIGHASH_ALL`, *both* signatures must be recreated. Every signer commits to the whole transaction, not just their own coin.",
+        "fontSize": 36,
+        "width": 1465,
+        "height": 1883,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 1465,
+      "height": 1883
     }
   ],
   "edges": [

@@ -13,6 +13,7 @@ import p2shTimelocks from "@/my_tx_flows/p4_P2SH_and_Timelocks.json";
 import p2shRecoveryOpReturn from "@/my_tx_flows/p5_P2SH_and_OP_Return.json";
 import atomicSwapHtlc from "@/my_tx_flows/p8_Atomic Swap (HTLC Coinswap).json";
 import segwit from "@/my_tx_flows/p9_SegWit.json";
+import segwitMultiInput from "@/my_tx_flows/p10_SegWit_2in_1out.json";
 import txMalleability from "@/my_tx_flows/misc/p6_TX_Malleability.json";
 import bip110 from "@/my_tx_flows/misc/p7_BIP110.json";
 import intro_p2pkh_p2pk from "@/my_tx_flows/old/p1_Intro_P2PKH_and_P2PK.json";
@@ -116,6 +117,15 @@ export const customFlows: CustomFlowTemplate[] = [
     flowNo: 9,
     level: "intermediate",
     tags: ["segwit", "p2wpkh", "bip143", "witness", "transaction"],
+  },
+  {
+    id: "flow-10-segwit-multi-input",
+    label: "SegWit Multi-Input Signing",
+    data: segwitMultiInput as unknown as FlowData,
+    section: "segwit",
+    flowNo: 10,
+    level: "intermediate",
+    tags: ["segwit", "p2wpkh", "bip143", "multi-input", "signing"],
   },
   {
     id: "flow-06-tx-malleability",
