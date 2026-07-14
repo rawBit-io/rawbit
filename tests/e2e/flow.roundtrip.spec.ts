@@ -20,7 +20,8 @@ type Scenario = {
   name: string;
   relativePath: string;
   nodeChanges: Record<string, string>;
-  txidNode: string;
+  /** A deterministic downstream result that must change and restore. */
+  anchorNode: string;
   scriptNode: string;
   /**
    * Committed-golden coverage (defaults to 'full': node results + script
@@ -51,7 +52,7 @@ const FLOW_SCENARIOS: Scenario[] = [
     nodeChanges: {
       node_input: 'deadbeef',
     },
-    txidNode: 'node_hash',
+    anchorNode: 'node_hash',
     scriptNode: 'node_hash',
   },
   {
@@ -62,7 +63,7 @@ const FLOW_SCENARIOS: Scenario[] = [
       node_8QSOHj19: '3', // Version (2 → 3)
       node_IRajBmor: '390000', // Output Amount in satoshis (391000 → 390000)
     },
-    txidNode: 'node_24bD1CIj', // TXID → Reversed
+    anchorNode: 'node_24bD1CIj', // TXID → Reversed
     scriptNode: 'node_o6vul7a', // Verify Script (P2PKH spend)
   },
   {
@@ -75,7 +76,7 @@ const FLOW_SCENARIOS: Scenario[] = [
       node_Ty4ApQbe: '782000', // Tx1 Output Amount in satoshis (783000 → 782000)
       node_lIMPrHQG: '780000', // Tx2 Output Amount in satoshis (781000 → 780000)
     },
-    txidNode: 'node_1oB0mQPo', // TXID → Reversed of the P2PK-spending tx2
+    anchorNode: 'node_1oB0mQPo', // TXID → Reversed of the P2PK-spending tx2
     scriptNode: 'node_NwoZ2skX', // Verify Script (P2PK spend, tx2)
   },
   {
@@ -88,7 +89,7 @@ const FLOW_SCENARIOS: Scenario[] = [
       node_IRajBmor: '14000', // Output Amount out1 in satoshis (15000 → 14000)
       node_2gk6qS6e: '16000', // Output Amount out2 in satoshis (15000 → 16000)
     },
-    txidNode: 'node_24bD1CIj', // TXID → Reversed
+    anchorNode: 'node_24bD1CIj', // TXID → Reversed
     scriptNode: 'node_4fCFUxcV', // Verify Script IN2 (second input's P2PKH spend)
   },
   {
@@ -101,8 +102,20 @@ const FLOW_SCENARIOS: Scenario[] = [
       node_Ty4ApQbe: '239000', // Tx1 Output Amount in satoshis (240000 → 239000)
       node_lIMPrHQG: '238000', // Tx2 Output Amount in satoshis (239000 → 238000)
     },
-    txidNode: 'node_1oB0mQPo', // TXID → Reversed of the multisig-spending tx2
+    anchorNode: 'node_1oB0mQPo', // TXID → Reversed of the multisig-spending tx2
     scriptNode: 'node_NwoZ2skX', // Verify Script (bare multisig spend, tx2)
+  },
+  {
+    // Tx1 creates the P2SH inheritance output and tx2 spends its owner path.
+    // Both amount tweaks must propagate through signing and final verification.
+    name: 'p4_P2SH_and_Timelocks',
+    relativePath: path.join('src', 'my_tx_flows', 'p4_P2SH_and_Timelocks.json'),
+    nodeChanges: {
+      node_Ty4ApQbe: '269000', // Tx1 P2SH output amount (270000 → 269000)
+      node_lIMPrHQG: '268000', // Tx2 output amount (269000 → 268000)
+    },
+    anchorNode: 'node_1oB0mQPo', // TXID → Reversed of the P2SH-spending tx2
+    scriptNode: 'node_3zppbme', // Verify Script (P2SH owner-path spend)
   },
   {
     // Always-visible lesson flow #04 (sidebar "P2SH Recovery with OP_RETURN").
@@ -116,8 +129,80 @@ const FLOW_SCENARIOS: Scenario[] = [
       node_IRajBmor: '243000', // Setup tx P2SH output amount (244000 → 243000)
       node_r8VAbdiM: '239000', // Recovery tx output amount (240000 → 239000)
     },
-    txidNode: 'node_eNCddbzM', // TXID → Reversed of the P2SH recovery spend
+    anchorNode: 'node_eNCddbzM', // TXID → Reversed of the P2SH recovery spend
     scriptNode: 'node_DL8WMoIO', // Verify Script (P2SH recovery spend)
+  },
+  {
+    // The original and intentionally malleated forms share the same editable
+    // transaction fields. Their txids change while both scripts remain valid.
+    name: 'p6_TX_Malleability',
+    relativePath: path.join('src', 'my_tx_flows', 'misc', 'p6_TX_Malleability.json'),
+    nodeChanges: {
+      node_8QSOHj19: '3', // Version (2 → 3)
+      node_IRajBmor: '390000', // Output amount (391000 → 390000)
+    },
+    anchorNode: 'node_hHllb8tO', // TXID → Reversed of the malleated transaction
+    scriptNode: 'node_nAES8iaN', // Verify Script (malleated transaction)
+  },
+  {
+    // Tx1 locks the encoded payload in P2SH and tx2 spends it. Tweaking both
+    // stages exercises the complete BIP110 lesson graph and script trace.
+    name: 'p7_BIP110',
+    relativePath: path.join('src', 'my_tx_flows', 'misc', 'p7_BIP110.json'),
+    nodeChanges: {
+      node_IRajBmor: '321000', // Tx1 P2SH output amount (322000 → 321000)
+      node_r8VAbdiM: '239000', // Tx2 output amount (240000 → 239000)
+    },
+    anchorNode: 'node_eNCddbzM', // TXID → Reversed of the BIP110 spend
+    scriptNode: 'node_DL8WMoIO', // Verify Script (BIP110 P2SH spend)
+  },
+  {
+    // Alice's lock amount feeds her HTLC funding transaction and the final
+    // owner-path spend, so the mutation must propagate across both stages.
+    name: 'p8_Atomic_Swap_HTLC',
+    relativePath: path.join(
+      'src',
+      'my_tx_flows',
+      'p8_Atomic Swap (HTLC Coinswap).json',
+    ),
+    nodeChanges: {
+      node_6WbInZF7: '329000', // Alice lock amount (330000 → 329000)
+    },
+    anchorNode: 'node_FyLqH8RG', // TXID → Reversed of Alice's final spend
+    scriptNode: 'node_7pH1nqrt', // Verify Script (Alice's final HTLC spend)
+  },
+  {
+    // Native P2WPKH has no final ID node in the lesson, so the fully
+    // serialized SegWit transaction is the deterministic roundtrip anchor.
+    name: 'p9_SegWit',
+    relativePath: path.join('src', 'my_tx_flows', 'p9_SegWit.json'),
+    nodeChanges: {
+      node_IRajBmor: '202000', // Output amount (203000 → 202000)
+    },
+    anchorNode: 'node_3n8jjlu', // Final TX Template
+    scriptNode: 'node_o6vul7a', // Verify Script (P2WPKH spend)
+  },
+  {
+    // One output mutation re-signs both SegWit inputs. The second verifier is
+    // the explicit anchor; the restore loop below compares both input traces.
+    name: 'p10_SegWit_multi_input',
+    relativePath: path.join('src', 'my_tx_flows', 'p10_SegWit_2in_1out.json'),
+    nodeChanges: {
+      node_IRajBmor: '16000', // Output amount (17000 → 16000)
+    },
+    anchorNode: 'node_3n8jjlu', // Final two-input TX Template
+    scriptNode: 'node_jalS5Ad8', // Verify Script (input 2)
+  },
+  {
+    // The final owner-path spend executes the P2WSH inheritance witnessScript.
+    // Its output tweak changes the BIP143 signature and typed script trace.
+    name: 'p11_SegWit_P2WSH',
+    relativePath: path.join('src', 'my_tx_flows', 'p11_SegWit_P2SH.json'),
+    nodeChanges: {
+      node_WeIYSBbO: '328000', // Final output amount (329000 → 328000)
+    },
+    anchorNode: 'node_uAANwY52', // Final P2WSH-spending TX Template
+    scriptNode: 'node_Duafb798', // Verify Script (P2WSH owner path)
   },
   {
     name: 'p1_Intro_P2PKH_and_P2PK',
@@ -126,7 +211,7 @@ const FLOW_SCENARIOS: Scenario[] = [
       node_8QSOHj19: '3',
       node_IRajBmor: '144900',
     },
-    txidNode: 'node_Jev5NWr0',
+    anchorNode: 'node_Jev5NWr0',
     scriptNode: 'node_xXU31KtR',
     // Drift: the committed scriptDebugSteps trace predates the current
     // backend trace format — it still has "amountUsed", names push opcodes
@@ -141,7 +226,7 @@ const FLOW_SCENARIOS: Scenario[] = [
     nodeChanges: {
       node_FZ9oWjOJ: '187000',
     },
-    txidNode: 'node_0d7XluIl',
+    anchorNode: 'node_0d7XluIl',
     scriptNode: 'node_KfX3PTyG',
     // Drift: same legacy trace format as p1_Intro_P2PKH_and_P2PK above
     // (committed trace carries "amountUsed", "unknown opcode" names, and no
@@ -209,7 +294,7 @@ test.describe('Flow roundtrip regression (E2E)', () => {
         (node) => node?.data?.functionName,
       ).length;
       const requiredNodeIds = [
-        scenario.txidNode,
+        scenario.anchorNode,
         scenario.scriptNode,
         ...Object.keys(scenario.nodeChanges),
       ];
@@ -219,7 +304,7 @@ test.describe('Flow roundtrip regression (E2E)', () => {
         if (nodes.length < committedCalcNodeCount) return false;
         const byId = toNodeMap(nodes);
         return requiredNodeIds.every((id) => byId[id] !== undefined) &&
-          String(byId[scenario.txidNode]?.data?.result ?? '') !== '';
+          String(byId[scenario.anchorNode]?.data?.result ?? '') !== '';
       };
 
       const baselineResult = await waitForSettledBulkResponse(
@@ -239,13 +324,15 @@ test.describe('Flow roundtrip regression (E2E)', () => {
       assertCommittedGolden(scenario, committedFlow, baseline);
 
       const baselineMap = toNodeMap(baseline?.nodes);
-      const originalTxid = String(baselineMap[scenario.txidNode]?.data?.result ?? '');
+      const originalAnchor = String(
+        baselineMap[scenario.anchorNode]?.data?.result ?? '',
+      );
       const originalScriptData = baselineMap[scenario.scriptNode]?.data ?? {};
       const originalScriptResult = String(originalScriptData.result ?? '');
       const originalScriptSteps = stringifySteps(originalScriptData.scriptDebugSteps);
 
       if (scenario.name === 'hash-roundtrip') {
-        expect(originalTxid).toBe(doubleSha256Hex('68656c6c6f'));
+        expect(originalAnchor).toBe(doubleSha256Hex('68656c6c6f'));
       }
 
       const originalInputs = new Map<string, string>();
@@ -253,9 +340,9 @@ test.describe('Flow roundtrip regression (E2E)', () => {
         originalInputs.set(nodeId, getInputValue(baselineMap[nodeId]?.data));
       }
 
-      await ensureNodeVisible(page, scenario.txidNode);
+      await ensureNodeVisible(page, scenario.anchorNode);
       const resultLocator = page
-        .locator(`[data-id="${scenario.txidNode}"] [data-testid="node-result"]`)
+        .locator(`[data-id="${scenario.anchorNode}"] [data-testid="node-result"]`)
         .first();
       await expect(resultLocator).toBeVisible({ timeout: 10_000 });
 
@@ -264,7 +351,7 @@ test.describe('Flow roundtrip regression (E2E)', () => {
           if (Array.isArray(data.errors) && data.errors.length > 0) return false;
           const byId = toNodeMap(data.nodes ?? []);
           if (getInputValue(byId[nodeId]?.data) !== expectedValue) return false;
-          return String(byId[scenario.txidNode]?.data?.result ?? '') !== '';
+          return String(byId[scenario.anchorNode]?.data?.result ?? '') !== '';
         };
 
       let latestResponse = baseline;
@@ -278,8 +365,10 @@ test.describe('Flow roundtrip regression (E2E)', () => {
       }
 
       const modifiedMap = toNodeMap(latestResponse?.nodes);
-      const modifiedTxid = String(modifiedMap[scenario.txidNode]?.data?.result ?? '');
-      expect(modifiedTxid).not.toBe(originalTxid);
+      const modifiedAnchor = String(
+        modifiedMap[scenario.anchorNode]?.data?.result ?? '',
+      );
+      expect(modifiedAnchor).not.toBe(originalAnchor);
 
       const modifiedScriptData = modifiedMap[scenario.scriptNode]?.data ?? {};
       const modifiedScriptResult = String(modifiedScriptData.result ?? '');
@@ -300,7 +389,9 @@ test.describe('Flow roundtrip regression (E2E)', () => {
       }
 
       const finalMap = toNodeMap(finalResponse?.nodes);
-      expect(String(finalMap[scenario.txidNode]?.data?.result ?? '')).toBe(originalTxid);
+      expect(String(finalMap[scenario.anchorNode]?.data?.result ?? '')).toBe(
+        originalAnchor,
+      );
 
       const finalScriptData = finalMap[scenario.scriptNode]?.data ?? {};
       expect(String(finalScriptData.result ?? '')).toBe(originalScriptResult);

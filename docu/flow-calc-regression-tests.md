@@ -11,10 +11,10 @@ returns to them exactly.
 | Tier | Where | What it catches | Run with |
 |---|---|---|---|
 | Backend golden corpus | `backend/tests/test_flow_goldens.py` | Any backend calc change that alters a published result or script trace; cross-flow cache/sentinel leakage; recalc non-idempotence | `.myenv/bin/python -m pytest backend/tests -q` (repo root) |
-| Backend roundtrip | `backend/tests/test_flow_roundtrip.py` | Tweak → assert results change → restore → recalc → equals committed goldens, per lesson (includes the four always-visible flows) | same |
+| Backend roundtrip | `backend/tests/test_flow_roundtrip.py` | Tweak → assert results change → restore → recalc → equals committed goldens, per lesson | same |
 | Frontend canonical snapshots | `src/lib/__tests__/calcGraphCanonical.test.ts`, `shareRoundtripIntegrity.test.ts`, `bulkCalculateContract.test.ts` | Changes to the import/normalization pipeline (what the backend *receives*), export→share→import mutation of calc-relevant data, and the exact `/bulk_calculate` request body shape | `npx vitest run src/lib/__tests__` |
 | Frontend calc-behavior payloads | `src/integration/__tests__/calcPayload.{core,behaviors,p1}.integration.test.tsx` (+ `calcPayloadHarness.tsx`) | What the frontend sends *after realistic interactions* on the intro flow: group add/remove/re-add hygiene, sentinel set/unset (incl. on connected inputs), dynamic tx-extract field add/remove with edge hygiene, disconnect/reconnect fallback, error rounds (calc error / 429 / network / timeout) leaving inputs uncorrupted, stale-response race, copy/paste aliasing, dirty-flag contract, response application, network selector / undo-redo / save-share roundtrips — all asserted on the captured `/bulk_calculate` request body | `npx vitest run src/integration/__tests__` |
-| E2E golden roundtrip | `tests/e2e/flow.roundtrip.spec.ts` | The whole chain through the real UI and real backend for the four visible flows: first full calculation must reproduce every committed result and the full script trace; then value tweak → recalc → changed → restore → recalc → equals committed (every `script_verification` trace compared, not just the anchor) | `npx playwright test tests/e2e/flow.roundtrip.spec.ts --project=chromium` (requires the backend: `.myenv/bin/python backend/routes.py`; the spec skips with a message if `/healthz` is unreachable). Chromium-only by design: the goldens pin backend results, which engines cannot influence, and per-engine runs contend for the backend's per-IP calculation budget. Waits use `waitForSettledBulkResponse` (no-errors + full node set + anchor results), never the first raw response. |
+| E2E golden roundtrip | `tests/e2e/flow.roundtrip.spec.ts` | The whole chain through the real UI and real backend for every current p0–p11 lesson: first full calculation must reproduce every committed result and the full script trace; then value tweak → recalc → changed → restore → recalc → equals committed (every `script_verification` trace compared, not just the anchor) | `npx playwright test tests/e2e/flow.roundtrip.spec.ts --project=chromium` (requires the backend: `.myenv/bin/python backend/routes.py`; the spec skips with a message if `/healthz` is unreachable). Chromium-only by design: the goldens pin backend results, which engines cannot influence, and per-engine runs contend for the backend's per-IP calculation budget. Waits use `waitForSettledBulkResponse` (no-errors + full node set + anchor results), never the first raw response. |
 
 Shared backend test helpers (lesson loading, literal backfill) live in
 `backend/tests/flow_test_utils.py`.
@@ -73,7 +73,7 @@ reproducing, the test demands removing it, so the lists can only shrink.
   format (`"unknown opcode"` instead of `"PUSH n bytes"`, missing
   `witnessRulesEnabled`/`MINIMALDATA`, removed `amountUsed`). Their *results* all still
   reproduce — only the stored traces are stale. Listed per flow in `STALE_STEPS_NODES`.
-- **The four visible lessons reproduce 100%** — results and complete traces.
+- **All twelve current p0–p11 lessons reproduce 100%** — results and complete traces.
 
 Running the `UPDATE_FLOW_GOLDENS` command above and reviewing the diff resolves both points
 when desired.
