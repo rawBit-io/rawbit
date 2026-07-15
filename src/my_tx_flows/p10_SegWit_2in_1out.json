@@ -30,8 +30,8 @@
       "id": "group_946a71f",
       "type": "shadcnGroup",
       "position": {
-        "x": 11640.931104438556,
-        "y": 2241.26232937435
+        "x": 11436.093125297446,
+        "y": 2472.572868012555
       },
       "data": {
         "isGroup": true,
@@ -39,7 +39,8 @@
         "height": 1460.7083461508842,
         "title": "Preimage_in1",
         "fontSize": 44,
-        "dirty": false
+        "dirty": false,
+        "borderColor": "#008c86"
       },
       "width": 2150.2068232071324,
       "height": 1460.7083461508842,
@@ -49,8 +50,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 20305.750199838207,
-        "y": 9001.054507432129
+        "x": 20100.912220697097,
+        "y": 9232.365046070334
       },
       "data": {
         "isGroup": true,
@@ -76,8 +77,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 14762.898293559962,
-        "y": 1652.161042624855
+        "x": 14558.060314418852,
+        "y": 1883.47158126306
       },
       "data": {
         "isGroup": true,
@@ -106,8 +107,8 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 6789.507532953064,
-        "y": 5313.189010142998
+        "x": 6584.669553811954,
+        "y": 5544.499548781203
       },
       "data": {
         "isGroup": true,
@@ -140,8 +141,8 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": 3096.0429598208602,
-        "y": 10754.803044157865
+        "x": 2891.2049806797504,
+        "y": 10986.11358279607
       },
       "data": {
         "isGroup": true,
@@ -166,8 +167,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 1824.9893629476578,
-        "y": 919.4319487450125
+        "x": 1620.1513838065478,
+        "y": 1150.7424873832174
       },
       "data": {
         "isGroup": true,
@@ -2520,8 +2521,8 @@
       "id": "node_OSWTyHQX",
       "type": "shadcnGroup",
       "position": {
-        "x": 2605.7065767766326,
-        "y": 2831.4844346106147
+        "x": 2400.8685976355227,
+        "y": 3062.7949732488196
       },
       "data": {
         "isGroup": true,
@@ -2699,8 +2700,8 @@
       "id": "node_x71c1FWw",
       "type": "shadcnGroup",
       "position": {
-        "x": 12542.002360555627,
-        "y": 4729.202205312906
+        "x": 12337.164381414517,
+        "y": 4960.512743951111
       },
       "data": {
         "isGroup": true,
@@ -2708,7 +2709,8 @@
         "height": 1460.7083461508842,
         "title": "Preimage_in2",
         "fontSize": 40,
-        "dirty": false
+        "dirty": false,
+        "borderColor": "#008c86"
       },
       "width": 2150.2068232071324,
       "height": 1460.7083461508842,
@@ -3098,8 +3100,8 @@
       "id": "node_yqpv25x",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 5497.527832040948,
-        "y": 6861.46894888822
+        "x": 5292.689852899838,
+        "y": 7092.779487526425
       },
       "data": {
         "content": "## The BIP143 preimage - what each field solves\n\nLegacy signing hashed a modified copy of the whole transaction, once per input: that is the quadratic bomb. BIP143 replaces it with ten fields:\n\n```\nversion       02000000\nhashPrevouts  SHA256d(all outpoints)        ← computed once\nhashSequence  SHA256d(all nSequence)        ← computed once\noutpoint      txid + vout of THIS input\nscriptCode    19 76a914 <pubKeyHash> 88ac\namount        spent value, LE-8\nnSequence     this input's\nhashOutputs   SHA256d(all outputs)          ← computed once\nlocktime      00000000\nsighash type  01000000\n```\n\n**The three hash fields** are the fix. Everything that grows with the transaction (inputs, outputs) enters as a 32-byte fingerprint instead of a full list, so this P2WPKH preimage stays 182 bytes no matter how large the transaction grows (only P2WSH's scriptCode varies in size) - and the fingerprints are identical for every input, so a validator computes them once and reuses them. O(n²) becomes O(n). On this canvas they are the three Builder → SHA-256d pairs.\n\n**outpoint** - the coin being authorized, stated raw. hashPrevouts pins which inputs ride together; this field pins which one *this* signature approves. Without it, two inputs locked to the same key would share an identical preimage, and one signature would unlock both.\n\n**scriptCode** - the contract the signature commits to, same role as in legacy signing. P2WPKH has a quirk: the on-chain script is `0014<hash>`, but the scriptCode is the *implied P2PKH template* `76a914 <hash> 88ac`, because the witness program contains no CHECKSIG itself - validation runs \"as if\" P2PKH. The SCRIPTCODE Builder assembles exactly that.\n\n**amount** - new in BIP143: the signature now commits to the value being spent. An offline or hardware signer no longer needs full previous transactions to know what it is signing, and a lying host can't spoof the fee.\n\nversion, nSequence, locktime, sighash type: same commitments as legacy, unchanged.",
@@ -3475,8 +3477,8 @@
       "id": "node_L8eQdyr1",
       "type": "shadcnGroup",
       "position": {
-        "x": 15113.129186232918,
-        "y": 3944.011020373039
+        "x": 14908.291207091808,
+        "y": 4175.321559011244
       },
       "data": {
         "isGroup": true,
@@ -4063,8 +4065,8 @@
       "id": "node_rn5gzxq",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 354.83797914111005,
-        "y": 323.6894613617951
+        "x": 150,
+        "y": 555
       },
       "data": {
         "content": "## What changes with multiple inputs?\n\n**Shared - computed once, used by both preimages:**\n- `hashPrevouts` - every input's outpoint\n- `hashSequence` - every input's sequence\n- `hashOutputs` - every output\n\n**Per input - each preimage adds only its own:** outpoint, scriptCode, spent amount, sequence. These four fields make each signing hash unique, even when both inputs use the same script type.\n\nThe sharing is the scaling story: everything transaction-wide is hashed once, so each further input costs only its own fixed ~180-byte preimage. Ten inputs or a hundred - still the same three shared hashes. That is BIP143's O(n) answer to the quadratic hashing of legacy signing (see the one-input flow).\n\n**In the final transaction:**\n- `INPUT_COUNT` is `02`\n- both inputs sit before the outputs, each with an empty scriptSig (`00`)\n- one witness stack per input, **in input order** - position is the only thing pairing them",
