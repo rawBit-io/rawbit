@@ -69,12 +69,15 @@ export interface CalcContext<
 /* ------------------------------------------------------------------ */
 
 export interface StepData {
-  pc: number;
+  /** Byte offset of the opcode; -1 on validator steps. Older cached traces
+   *  and schema-poor validator events may omit it entirely. */
+  pc?: number;
   /** Absent on validator steps — they are not instructions. */
   opcode?: number;
-  opcode_name: string;
-  stack_before: string[];
-  stack_after: string[];
+  /** May be absent on schema-poor validator events from older traces. */
+  opcode_name?: string;
+  stack_before?: string[];
+  stack_after?: string[];
   failed?: boolean;
   error?: string;
   phase?:

@@ -3,10 +3,12 @@
  * --------------------------------------------------------------- */
 
 import {
+  Component,
   useState,
   useEffect,
   useCallback,
   KeyboardEvent,
+  type ReactNode,
 } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -71,10 +73,14 @@ const varIntHex = (n: number): string => {
 /**
  * Validator steps are consensus rules applied by the validation engine,
  * not opcodes. New traces mark them with kind="validator"; older cached
- * traces only have pseudo-steps at pc -1.
+ * traces only have pseudo-steps at pc -1, and some older validator events
+ * carry neither pc nor kind — a step without any program counter or opcode
+ * cannot be an engine instruction, so it is classified as a rule too.
  */
 const isValidatorStep = (step: StepData) =>
-  step.kind === "validator" || step.pc < 0;
+  step.kind === "validator" ||
+  (step.pc ?? 0) < 0 ||
+  (step.pc === undefined && step.opcode === undefined);
 
 interface ValidatorStepInfo {
   bip: string;
@@ -133,6 +139,10 @@ const validatorStepInfo = (step: StepData): ValidatorStepInfo => {
           "The witness items are deserialized directly onto the stack by " +
           "the validator — the witness is data, not a script.",
       };
+    // Live traces carry step="witness_stack"/"sighash"/…; older cached
+    // traces and fixtures may only carry opcode_name="taproot_witness"/….
+    // Both spellings map to the same curated explanations.
+    case "witness_stack":
     case "taproot_witness":
       return {
         bip: "BIP341",
@@ -141,6 +151,7 @@ const validatorStepInfo = (step: StepData): ValidatorStepInfo => {
           "The witness items are deserialized directly onto the stack by " +
           "the validator.",
       };
+    case "sighash":
     case "taproot_sighash":
       return {
         bip: "BIP341",
@@ -149,6 +160,7 @@ const validatorStepInfo = (step: StepData): ValidatorStepInfo => {
           "The validator computes the tagged sighash that the Schnorr " +
           "signature must commit to.",
       };
+    case "schnorr_verify":
     case "taproot_schnorr_verify":
       return {
         bip: "BIP340",
@@ -157,8 +169,44 @@ const validatorStepInfo = (step: StepData): ValidatorStepInfo => {
           "The validator checks the Schnorr signature against the output " +
           "key and the tagged sighash.",
       };
+    case "control_block":
+    case "taproot_control_block":
+      return {
+        bip: "BIP341",
+        title: "Verify the control block commitment",
+        explain:
+          "The validator hashes the revealed script into a tapleaf, climbs " +
+          "the Merkle path from the control block, tweaks the internal key " +
+          "with the resulting root, and requires the tweaked key to match " +
+          "the 32-byte output key in the scriptPubKey.",
+      };
+    case "leaf_version":
+    case "taproot_leaf_version":
+      return {
+        bip: "BIP341",
+        title: "Check the tapleaf version",
+        explain:
+          "Only leaf version 0xc0 (tapscript) has defined execution rules. " +
+          "Other versions are reserved for future soft forks: the control " +
+          "block must still commit to the leaf, but the script is not " +
+          "executed and the spend is deemed valid — while standard policy " +
+          "discourages relaying such spends today.",
+      };
+    case "trace_truncated":
+      return {
+        bip: "",
+        title: "Trace truncated",
+        explain:
+          "The execution trace reached the recording limit, so the " +
+          "remaining steps were not captured. Execution itself ran to " +
+          "completion — the verdict above reflects the full run.",
+      };
     default:
-      return { bip: "", title: step.opcode_name, explain: "" };
+      return {
+        bip: "",
+        title: step.opcode_name ?? step.step ?? "unrecognized step",
+        explain: "",
+      };
   }
 };
 
@@ -389,7 +437,15 @@ const OPCODE_NAME_BY_BYTE = (() => {
   return map;
 })();
 
-const prettify = (code: number | undefined, name: string) => {
+const prettify = (code: number | undefined, name: string | undefined) => {
+  if (!name) {
+    if (code === undefined) return "unknown step";
+    if (code >= 1 && code <= 0x4b) return `PUSH ${code} bytes`;
+    return (
+      OPCODE_NAME_BY_BYTE.get(code) ??
+      `opcode 0x${code.toString(16).padStart(2, "0")}`
+    );
+  }
   if (code === undefined) return name;
   if (!name.toLowerCase().includes("unknown opcode")) return name;
   if (code >= 1 && code <= 0x4b) return `PUSH ${code} bytes`;
@@ -404,10 +460,12 @@ const pushLenInParens = (n: string) =>
       [])[1] ?? 0
   );
 
-const opcodeExplanation = (n: string) =>
-  n.startsWith("OP_PUSHDATA(") || /^PUSH\s+\d+\s*bytes?$/i.test(n)
-    ? OPCODES.OP_PUSHDATA
-    : OPCODES[n.split("(")[0].trim()] || "";
+const opcodeExplanation = (n: string | undefined) =>
+  !n
+    ? ""
+    : n.startsWith("OP_PUSHDATA(") || /^PUSH\s+\d+\s*bytes?$/i.test(n)
+      ? OPCODES.OP_PUSHDATA
+      : OPCODES[n.split("(")[0].trim()] || "";
 
 const verificationFailureSummary = (steps: StepData[], fallback?: string) => {
   if (!fallback) return null;
@@ -585,9 +643,69 @@ function ScriptPane({
   );
 }
 
+/* ---------- error boundary ----------------------------------------- */
+
+/**
+ * Traces come from the backend (and from older cached lessons), so their
+ * shape is ultimately not under this component's control. Without a
+ * boundary a single malformed step used to white-screen the whole app;
+ * this catches the render error and keeps a working dialog with a Close
+ * button instead.
+ */
+class TraceErrorBoundary extends Component<
+  { open: boolean; onClose: () => void; children: ReactNode },
+  { error: Error | null }
+> {
+  state = { error: null as Error | null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidUpdate(prevProps: { open: boolean }) {
+    // Clear a caught error when the dialog is reopened, so the next open
+    // retries a fresh render. Resetting on the closed→open edge (rather
+    // than remounting via a key) preserves Radix's open/close animation.
+    if (this.state.error && this.props.open && !prevProps.open) {
+      this.setState({ error: null });
+    }
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <Dialog open={this.props.open} onOpenChange={this.props.onClose}>
+          <DialogContent className="border-border bg-card text-card-foreground">
+            <DialogHeader>
+              <DialogTitle>Script Execution Steps</DialogTitle>
+              <DialogDescription>
+                The trace viewer could not render this trace.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="script-execution-error break-words text-xs font-mono">
+              {String(this.state.error)}
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                size="sm"
+                className="select-none"
+                onClick={this.props.onClose}
+              >
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 /* ---------- main component ---------------------------------------- */
 
-export default function ScriptExecutionSteps({
+function ScriptExecutionStepsInner({
   open,
   onClose,
   scriptResult,
@@ -647,7 +765,7 @@ export default function ScriptExecutionSteps({
             const info = validatorStepInfo(s);
             return `Step #${i + 1}  RULE${info.bip ? `(${info.bip})` : ""}: ${info.title}`;
           })()
-        : `Step #${i + 1}  PC=${s.pc}  opcode_name=${prettify(
+        : `Step #${i + 1}  PC=${s.pc ?? -1}  opcode_name=${prettify(
             s.opcode,
             s.opcode_name,
           )}`;
@@ -777,7 +895,7 @@ export default function ScriptExecutionSteps({
   const stepStackAfter = step.stack_after ?? [];
   const beforeR = [...stepStackBefore].reverse();
   const afterR = [...stepStackAfter].reverse();
-  const consumed = consumedFlags(beforeR, afterR, step.opcode_name);
+  const consumed = consumedFlags(beforeR, afterR, step.opcode_name ?? "");
   const taprootPhase = phase === "taproot";
   const isTaprootKeyPath = taprootPhase && !rawWitnessScript;
   const witnessStackDisplay = taprootPhase
@@ -812,10 +930,11 @@ export default function ScriptExecutionSteps({
         : "";
 
   const phaseText = phaseTextFor(phase, execLabel);
-  const failureSummary = verificationFailureSummary(
-    (scriptResult.steps ?? []) as StepData[],
-    scriptResult.error,
-  );
+  // Scan the same filtered list the walker numbers, so "FAILED STEP N"
+  // always points at a step the user can actually navigate to. A failure
+  // inside the filtered witness bookkeeping falls back to the generic
+  // summary instead of an off-by-k index.
+  const failureSummary = verificationFailureSummary(steps, scriptResult.error);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -890,7 +1009,7 @@ export default function ScriptExecutionSteps({
             <ScriptPane
               scriptHex={ssHex}
               offset={0}
-              pc={phase === "scriptSig" ? step.pc : -1}
+              pc={phase === "scriptSig" ? (step.pc ?? -1) : -1}
               opcodeName={pretty}
               label="scriptSig"
               highlighted={phase === "scriptSig"}
@@ -900,7 +1019,7 @@ export default function ScriptExecutionSteps({
           <ScriptPane
             scriptHex={spkHex}
             offset={0}
-            pc={phase === "scriptPubKey" ? step.pc : -1}
+            pc={phase === "scriptPubKey" ? (step.pc ?? -1) : -1}
             opcodeName={pretty}
             label="scriptPubKey"
             highlighted={phase === "scriptPubKey"}
@@ -910,7 +1029,7 @@ export default function ScriptExecutionSteps({
             <ScriptPane
               scriptHex={redeemHex}
               offset={0}
-              pc={phase === "redeemScript" ? step.pc : -1}
+              pc={phase === "redeemScript" ? (step.pc ?? -1) : -1}
               opcodeName={pretty}
               label="redeemScript"
               highlighted={phase === "redeemScript"}
@@ -923,7 +1042,9 @@ export default function ScriptExecutionSteps({
               scriptHex={execHex}
               offset={0}
               pc={
-                phase === "witnessScript" || phase === "taproot" ? step.pc : -1
+                phase === "witnessScript" || phase === "taproot"
+                  ? (step.pc ?? -1)
+                  : -1
               }
               opcodeName={pretty}
               label={execLabel}
@@ -984,7 +1105,9 @@ export default function ScriptExecutionSteps({
                   )}
                 </span>
               </div>
-              {step.failed && step.error && (
+              {/* informational steps (e.g. trace_truncated) carry error
+                  text without failed:true — show the detail either way */}
+              {step.error && (
                 <div className="script-execution-error mt-1 text-xs font-medium">
                   {step.error}
                 </div>
@@ -1034,5 +1157,13 @@ export default function ScriptExecutionSteps({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+export default function ScriptExecutionSteps(props: ScriptExecutionStepsProps) {
+  return (
+    <TraceErrorBoundary open={props.open} onClose={props.onClose}>
+      <ScriptExecutionStepsInner {...props} />
+    </TraceErrorBoundary>
   );
 }

@@ -764,4 +764,194 @@ describe("ScriptExecutionSteps", () => {
 
     expect(screen.getByText(/No script trace available/i)).toBeInTheDocument();
   });
+
+  it("curates live taproot validator steps that carry a machine step name", () => {
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: true,
+          scriptPubKey: `5120${"11".repeat(32)}`,
+          steps: [
+            {
+              pc: -1,
+              kind: "validator",
+              step: "witness_stack",
+              opcode_name: "taproot_witness",
+              stack_before: ["aa"],
+              stack_after: ["aa"],
+              phase: "taproot",
+            },
+            {
+              pc: -1,
+              kind: "validator",
+              step: "schnorr_verify",
+              opcode_name: "taproot_schnorr_verify",
+              stack_before: ["aa"],
+              stack_after: ["01"],
+              phase: "taproot",
+            },
+          ],
+        }}
+      />
+    );
+
+    // step 1 dispatches on step="witness_stack" -> curated BIP341 rule,
+    // not the bare opcode_name fallback. (The key-path banner also mentions
+    // loading the witness stack, so the phrase appears more than once.)
+    expect(screen.getByText("Rule:")).toBeInTheDocument();
+    expect(
+      screen.getAllByText(/Load the witness stack/i).length
+    ).toBeGreaterThan(0);
+    expect(screen.getByText("BIP341")).toBeInTheDocument();
+    expect(screen.queryByText("taproot_witness")).not.toBeInTheDocument();
+  });
+
+  it("renders a schema-poor validator step (no pc/kind/stacks) without crashing", () => {
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: false,
+          error: "taproot leaf version not supported",
+          steps: [
+            {
+              // the pre-fix leaf_version event shape: no pc, no kind, no stacks
+              step: "leaf_version",
+              phase: "taproot",
+            } as unknown as (typeof baseSteps)[number],
+          ],
+        }}
+      />
+    );
+
+    // classified as a rule (no pc and no opcode) and curated, not crashed
+    expect(screen.getByText("Rule:")).toBeInTheDocument();
+    expect(screen.getByText(/Check the tapleaf version/i)).toBeInTheDocument();
+  });
+
+  it("renders a trace_truncated marker as an informational rule with its detail", () => {
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: true,
+          steps: [
+            {
+              pc: 0,
+              opcode: 81,
+              opcode_name: "OP_1",
+              stack_before: [],
+              stack_after: ["01"],
+              phase: "scriptPubKey",
+            },
+            {
+              pc: -1,
+              kind: "validator",
+              step: "trace_truncated",
+              opcode_name: "trace_truncated",
+              stack_before: [],
+              stack_after: [],
+              error: "trace truncated: max_trace_steps=20000 reached after 20000 recorded steps",
+              phase: "scriptPubKey",
+            },
+          ],
+        }}
+      />
+    );
+
+    const nextButton = screen.getByRole("button", { name: /Next/i });
+    fireEvent.click(nextButton);
+    // the phrase appears in both the rule title and the error detail
+    expect(screen.getAllByText(/Trace truncated/i).length).toBeGreaterThan(0);
+    expect(
+      screen.getByText(/max_trace_steps=20000 reached/i)
+    ).toBeInTheDocument();
+  });
+
+  it("falls back to a generic summary when the failing step is filtered out", () => {
+    // a witness-phase failure is not in the walked list, so the summary
+    // must not point at an index the user cannot navigate to
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: false,
+          error: "witness program mismatch",
+          scriptPubKey: `0014${"11".repeat(20)}`,
+          steps: [
+            {
+              pc: 0,
+              opcode: 0,
+              opcode_name: "OP_0",
+              stack_before: [],
+              stack_after: [""],
+              phase: "scriptPubKey",
+            },
+            {
+              pc: -1,
+              kind: "validator",
+              step: "witness_program_match",
+              opcode_name: "witness_program_match",
+              stack_before: [],
+              stack_after: [],
+              failed: true,
+              error: "witness program mismatch",
+              phase: "witness",
+            },
+          ],
+        }}
+      />
+    );
+
+    expect(screen.getByText("Verification failed")).toBeInTheDocument();
+    expect(screen.queryByText(/FAILED STEP/i)).not.toBeInTheDocument();
+  });
+
+  it("catches a render error and keeps a closable dialog (no white screen)", () => {
+    // Force a throw deep in render by handing the pane a hostile hex value.
+    // getter throws when the component reads scriptPubKey during render.
+    const hostile = {
+      isValid: true,
+      steps: [
+        {
+          pc: 0,
+          opcode: 81,
+          opcode_name: "OP_1",
+          stack_before: [],
+          stack_after: ["01"],
+          phase: "scriptPubKey",
+        },
+      ],
+    };
+    Object.defineProperty(hostile, "scriptPubKey", {
+      get() {
+        throw new Error("boom in render");
+      },
+      enumerable: true,
+    });
+
+    // suppress React's expected error logging for this intentional throw
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={hostile as unknown as typeof scriptResult}
+      />
+    );
+
+    expect(
+      screen.getByText(/could not render this trace/i)
+    ).toBeInTheDocument();
+    // a Close control is available (Radix also renders a built-in one)
+    expect(
+      screen.getAllByRole("button", { name: /Close/i }).length
+    ).toBeGreaterThan(0);
+    spy.mockRestore();
+  });
 });
