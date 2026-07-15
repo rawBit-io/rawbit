@@ -18,6 +18,7 @@ import {
   NodeProps,
   NodeResizer,
   useReactFlow,
+  useStore,
   ResizeParams,
   Viewport,
 } from "@xyflow/react";
@@ -97,8 +98,20 @@ export default function ShadcnGroupNode({
   id,
   data,
   selected,
+  draggable,
 }: NodeProps<FlowNode>) {
   const rf = useReactFlow<FlowNode>();
+  const hasMultipleSelectedGroups = useStore((state) => {
+    let selectedGroupCount = 0;
+    for (const node of state.nodes) {
+      if (node.type !== "shadcnGroup" || node.selected !== true) continue;
+      selectedGroupCount += 1;
+      if (selectedGroupCount > 1) return true;
+    }
+    return false;
+  });
+  const canDragSelectedGroupsFromBody =
+    selected && draggable !== false && hasMultipleSelectedGroups;
   // Snapshots go through the scheduler (pushCleanState) — raw pushState
   // moves the history pointer without skipLoadRef, which Flow's load
   // effect misreads as undo navigation and reloads stale state.
@@ -558,6 +571,7 @@ export default function ShadcnGroupNode({
         clearSelectedEdges();
         // Let the pane create a marquee selection
         e.stopPropagation();
+        e.preventDefault();
         const pane = document.querySelector(".react-flow__pane");
         if (pane) {
           pane.dispatchEvent(
@@ -576,6 +590,14 @@ export default function ShadcnGroupNode({
         return;
       }
 
+      // A selected group normally uses its empty body to pan the canvas. Once
+      // multiple groups are selected, let React Flow receive the pointer event
+      // instead so dragging this body's dedicated handle moves the selection.
+      if (canDragSelectedGroupsFromBody) {
+        clearSelectedEdges();
+        return;
+      }
+
       selectGroupNode({
         preserveExisting: isAdditiveSelectionEvent(e),
         source: "body",
@@ -589,7 +611,13 @@ export default function ShadcnGroupNode({
       };
       (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
     },
-    [blurActiveEditableElement, clearSelectedEdges, rf, selectGroupNode]
+    [
+      blurActiveEditableElement,
+      canDragSelectedGroupsFromBody,
+      clearSelectedEdges,
+      rf,
+      selectGroupNode,
+    ]
   );
 
   const handleBodyPointerMove = useCallback(
@@ -909,7 +937,10 @@ export default function ShadcnGroupNode({
       <CardContent
         data-testid="group-body"
         data-group-body="true"
-        className="absolute inset-0 p-2 overflow-visible nodrag"
+        className={cn(
+          "absolute inset-0 p-2 overflow-visible",
+          !canDragSelectedGroupsFromBody && "nodrag"
+        )}
         onPointerDownCapture={handleBodyPointerDown}
         onPointerMoveCapture={handleBodyPointerMove}
         onPointerUpCapture={resetBodyPan}
@@ -919,7 +950,17 @@ export default function ShadcnGroupNode({
           if (e.button === 0) e.stopPropagation();
         }}
       >
-        <div className="relative z-10 h-full w-full" data-testid="group-body-content" />
+        <div
+          className={cn(
+            "absolute inset-0 z-[5]",
+            canDragSelectedGroupsFromBody &&
+              "cursor-grab active:cursor-grabbing"
+          )}
+          data-drag-handle={
+            canDragSelectedGroupsFromBody ? "true" : undefined
+          }
+          data-testid="group-body-content"
+        />
         {data.borderColor && (
           <div
             className="group-fill absolute inset-0 pointer-events-none rounded-lg z-0"

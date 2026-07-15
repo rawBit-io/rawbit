@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "name": "playwright-two-groups",
+  "nodes": [
+    {
+      "id": "group_first",
+      "type": "shadcnGroup",
+      "position": { "x": 0, "y": 0 },
+      "width": 400,
+      "height": 300,
+      "dragHandle": "[data-drag-handle]",
+      "data": {
+        "isGroup": true,
+        "title": "First Group",
+        "fontSize": 28,
+        "width": 400,
+        "height": 300,
+        "dirty": false
+      }
+    },
+    {
+      "id": "group_second",
+      "type": "shadcnGroup",
+      "position": { "x": 520, "y": 0 },
+      "width": 400,
+      "height": 300,
+      "dragHandle": "[data-drag-handle]",
+      "data": {
+        "isGroup": true,
+        "title": "Second Group",
+        "fontSize": 28,
+        "width": 400,
+        "height": 300,
+        "dirty": false
+      }
+    }
+  ],
+  "edges": []
+}

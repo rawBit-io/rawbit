@@ -56,6 +56,9 @@ vi.mock("@xyflow/react", () => ({
     return <div data-testid="resizer" />;
   },
   useReactFlow: () => reactFlowInstance,
+  useStore: (
+    selector: (state: { nodes: FlowNode[] }) => unknown
+  ) => selector({ nodes }),
 }));
 
 vi.mock("@/hooks/nodes/useGroupInstances", () => ({
@@ -173,6 +176,8 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  delete document.body.dataset.flowSelectionMode;
+  vi.unstubAllGlobals();
   vi.runOnlyPendingTimers();
   vi.useRealTimers();
 });
@@ -607,6 +612,135 @@ describe("GroupNode interactions", () => {
     expect(body.releasePointerCapture).toHaveBeenCalledWith(1);
   });
 
+  it("lets React Flow drag a multi-group selection from either selected group body", () => {
+    const firstGroup = createNode(
+      { title: "First Group" },
+      { id: "group-1", selected: true }
+    );
+    const secondGroup = createNode(
+      { title: "Second Group" },
+      { id: "group-2", selected: true }
+    );
+    const selectedEdge = buildEdge({
+      id: "edge-selected",
+      source: "node-a",
+      target: "node-b",
+      selected: true,
+    });
+    setupNodes([firstGroup, secondGroup], [selectedEdge]);
+
+    render(<ShadcnGroupNode {...buildNodeProps(firstGroup)} />);
+
+    const body = screen.getByTestId("group-body") as HTMLElement & {
+      setPointerCapture: (pointerId: number) => void;
+    };
+    body.setPointerCapture = vi.fn();
+    const bodyContent = screen.getByTestId("group-body-content");
+    const handlers = getReactHandlers(body);
+    const preventDefault = vi.fn();
+    const stopPropagation = vi.fn();
+
+    expect(body).not.toHaveClass("nodrag");
+    expect(bodyContent).toHaveAttribute("data-drag-handle", "true");
+
+    act(() => {
+      handlers.onPointerDownCapture?.({
+        button: 0,
+        pointerId: 7,
+        clientX: 40,
+        clientY: 50,
+        pointerType: "mouse",
+        buttons: 1,
+        preventDefault,
+        stopPropagation,
+        target: bodyContent,
+        currentTarget: body,
+      });
+    });
+
+    expect(preventDefault).not.toHaveBeenCalled();
+    expect(stopPropagation).not.toHaveBeenCalled();
+    expect(body.setPointerCapture).not.toHaveBeenCalled();
+    expect(reactFlowInstance.setViewport).not.toHaveBeenCalled();
+    expect(nodes.filter((node) => node.selected)).toHaveLength(2);
+    expect(edges.find((edge) => edge.id === selectedEdge.id)?.selected).toBe(
+      false
+    );
+  });
+
+  it("keeps multi-group body dragging disabled while selection mode creates a marquee", () => {
+    const firstGroup = createNode(
+      { title: "First Group" },
+      { id: "group-1", selected: true }
+    );
+    const secondGroup = createNode(
+      { title: "Second Group" },
+      { id: "group-2", selected: true }
+    );
+    setupNodes([firstGroup, secondGroup]);
+    document.body.dataset.flowSelectionMode = "true";
+    vi.stubGlobal("PointerEvent", MouseEvent);
+    const pane = document.createElement("div");
+    pane.className = "react-flow__pane";
+    document.body.appendChild(pane);
+    const paneDispatch = vi.spyOn(pane, "dispatchEvent");
+
+    render(<ShadcnGroupNode {...buildNodeProps(firstGroup)} />);
+
+    const body = screen.getByTestId("group-body") as HTMLElement;
+    const bodyContent = screen.getByTestId("group-body-content");
+    const handlers = getReactHandlers(body);
+    const preventDefault = vi.fn();
+    const stopPropagation = vi.fn();
+
+    act(() => {
+      handlers.onPointerDownCapture?.({
+        button: 0,
+        pointerId: 8,
+        clientX: 70,
+        clientY: 80,
+        pointerType: "mouse",
+        buttons: 1,
+        preventDefault,
+        stopPropagation,
+        target: bodyContent,
+        currentTarget: body,
+      });
+    });
+
+    expect(stopPropagation).toHaveBeenCalledTimes(1);
+    expect(preventDefault).toHaveBeenCalledTimes(1);
+    expect(paneDispatch).toHaveBeenCalledTimes(1);
+    expect(reactFlowInstance.setViewport).not.toHaveBeenCalled();
+
+    paneDispatch.mockRestore();
+    pane.remove();
+  });
+
+  it("does not expose a multi-group body drag handle when nodes are read-only", () => {
+    const firstGroup = createNode(
+      { title: "First Group" },
+      { id: "group-1", selected: true }
+    );
+    const secondGroup = createNode(
+      { title: "Second Group" },
+      { id: "group-2", selected: true }
+    );
+    setupNodes([firstGroup, secondGroup]);
+
+    render(
+      <ShadcnGroupNode
+        {...buildNodeProps(firstGroup)}
+        draggable={false}
+      />
+    );
+
+    expect(screen.getByTestId("group-body")).toHaveClass("nodrag");
+    expect(screen.getByTestId("group-body-content")).not.toHaveAttribute(
+      "data-drag-handle"
+    );
+  });
+
   it("selects the group and clears selected children and edges when clicking inside the group body", () => {
     const groupNode = createNode(
       { borderColor: "#60a5fa" },
@@ -876,7 +1010,7 @@ describe("GroupNode interactions", () => {
     expect(fill.style.opacity).toBe("");
 
     const bodyContent = screen.getByTestId("group-body-content");
-    expect(bodyContent.className).toContain("z-10");
+    expect(bodyContent.className).toContain("z-[5]");
     expect(fill.className).toContain("group-fill");
     expect(fill.className).toContain("pointer-events-none");
   });
