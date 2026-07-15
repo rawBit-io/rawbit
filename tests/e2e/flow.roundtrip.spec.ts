@@ -205,6 +205,21 @@ const FLOW_SCENARIOS: Scenario[] = [
     scriptNode: 'node_Duafb798', // Verify Script (P2WSH owner path)
   },
   {
+    // Changing the final native output re-signs the nested P2SH-P2WPKH input.
+    // Restoring it must reproduce the complete wrapped-SegWit validation trace.
+    name: 'p12_Wrapped_SegWit_P2SH_P2WPKH',
+    relativePath: path.join(
+      'src',
+      'my_tx_flows',
+      'p12_SegWit_wrapped_tx_P2WPKH_in_P2SH.json',
+    ),
+    nodeChanges: {
+      node_xHhk9cwK: '279000', // Final output amount (280000 → 279000)
+    },
+    anchorNode: 'node_QTnmHvk3', // Final wrapped-SegWit-spending TX Template
+    scriptNode: 'node_wmDtkjI0', // Verify Script (P2SH-P2WPKH spend)
+  },
+  {
     name: 'p1_Intro_P2PKH_and_P2PK',
     relativePath: path.join('src', 'my_tx_flows', 'old', 'p1_Intro_P2PKH_and_P2PK.json'),
     nodeChanges: {

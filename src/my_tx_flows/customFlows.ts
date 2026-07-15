@@ -15,6 +15,7 @@ import atomicSwapHtlc from "@/my_tx_flows/p8_Atomic Swap (HTLC Coinswap).json";
 import segwit from "@/my_tx_flows/p9_SegWit.json";
 import segwitMultiInput from "@/my_tx_flows/p10_SegWit_2in_1out.json";
 import p2wshInheritance from "@/my_tx_flows/p11_SegWit_P2SH.json";
+import wrappedSegwitP2wpkh from "@/my_tx_flows/p12_SegWit_wrapped_tx_P2WPKH_in_P2SH.json";
 import txMalleability from "@/my_tx_flows/misc/p6_TX_Malleability.json";
 import bip110 from "@/my_tx_flows/misc/p7_BIP110.json";
 import intro_p2pkh_p2pk from "@/my_tx_flows/old/p1_Intro_P2PKH_and_P2PK.json";
@@ -136,6 +137,24 @@ export const customFlows: CustomFlowTemplate[] = [
     flowNo: 11,
     level: "intermediate",
     tags: ["segwit", "p2wsh", "witnessscript", "inheritance", "cltv"],
+  },
+  {
+    id: "flow-12-wrapped-segwit-p2sh-p2wpkh",
+    label: "Wrapped P2WPKH",
+    data: wrappedSegwitP2wpkh as unknown as FlowData,
+    section: "segwit",
+    flowNo: 12,
+    level: "intermediate",
+    tags: [
+      "segwit",
+      "wrapped",
+      "p2sh",
+      "p2wpkh",
+      "p2sh-p2wpkh",
+      "bip141",
+      "bip143",
+      "witness",
+    ],
   },
   {
     id: "flow-06-tx-malleability",

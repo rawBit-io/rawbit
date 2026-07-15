@@ -1,5 +1,5 @@
 {
-  "name": "Flow 8",
+  "name": "Wrapped P2WPKH",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -30,8 +30,8 @@
       "id": "node_dCH5swsK",
       "type": "shadcnGroup",
       "position": {
-        "x": 15155.418416716948,
-        "y": 4728.932668413512
+        "x": 15265.581051966352,
+        "y": 5903.849558487664
       },
       "data": {
         "isGroup": true,
@@ -57,8 +57,8 @@
       "id": "node_gPgeNNFb",
       "type": "shadcnGroup",
       "position": {
-        "x": 11530.968955657125,
-        "y": 1064.154491110928
+        "x": 11641.131590906529,
+        "y": 2239.071381185079
       },
       "data": {
         "isGroup": true,
@@ -87,8 +87,8 @@
       "id": "node_ih6Sn9Nd",
       "type": "shadcnGroup",
       "position": {
-        "x": 5783.333116832271,
-        "y": 1908.7720221994743
+        "x": 5893.495752081675,
+        "y": 3083.6889122736256
       },
       "data": {
         "isGroup": true,
@@ -119,8 +119,8 @@
       "id": "node_aOVJrT5V",
       "type": "shadcnGroup",
       "position": {
-        "x": 855,
-        "y": 6538.208634593632
+        "x": 965.1626352494037,
+        "y": 7713.125524667784
       },
       "data": {
         "isGroup": true,
@@ -147,8 +147,8 @@
       "id": "node_C12mBiNv",
       "type": "shadcnGroup",
       "position": {
-        "x": 3135.962623145308,
-        "y": 195
+        "x": 3246.1252583947116,
+        "y": 1369.9168900741515
       },
       "data": {
         "isGroup": true,
@@ -174,8 +174,8 @@
       "id": "node_jepfPgPh",
       "type": "shadcnGroup",
       "position": {
-        "x": 31337.2832968457,
-        "y": 15033.14449557219
+        "x": 31447.445932095103,
+        "y": 16208.061385646342
       },
       "data": {
         "isGroup": true,
@@ -200,8 +200,8 @@
       "id": "node_jvrlHE5B",
       "type": "shadcnGroup",
       "position": {
-        "x": 27752.91691936636,
-        "y": 10068.061257252575
+        "x": 27863.07955461576,
+        "y": 11242.978147326727
       },
       "data": {
         "isGroup": true,
@@ -229,8 +229,8 @@
       "id": "node_DXceIz00",
       "type": "shadcnGroup",
       "position": {
-        "x": 20774.12568836131,
-        "y": 11537.31434165272
+        "x": 20884.28832361071,
+        "y": 12712.231231726872
       },
       "data": {
         "isGroup": true,
@@ -262,8 +262,8 @@
       "id": "node_4APbT63o",
       "type": "shadcnGroup",
       "position": {
-        "x": 16752.87020106778,
-        "y": 16418.538883732246
+        "x": 16863.032836317183,
+        "y": 17593.455773806396
       },
       "data": {
         "isGroup": true,
@@ -4686,8 +4686,8 @@
       "id": "node_haoj4fm",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 114.8373647505963,
-        "y": -664.9168900741516
+        "x": 225,
+        "y": 509.9999999999999
       },
       "data": {
         "content": "# Wrapped SegWit — Motivation\n\nWhen SegWit was introduced, many wallets and exchanges could not send to native `bc1…` addresses. They already supported P2SH addresses, so recipients could place a P2WPKH witness program inside P2SH and present a familiar Base58 address (`3…` on mainnet or `2…` on testnet).\n\nThis construction was deliberately defined by BIP141. It reuses BIP16 P2SH as the outer compatibility layer and gives an inner witness-program redeemScript new SegWit validation rules. BIP49 later standardized how HD wallets derive these addresses.\n\nWhen the output is spent:\n\n- Signature and public-key data receive the witness discount\n- The signature is excluded from the TXID calculation\n- The spend costs less than an equivalent legacy P2PKH spend\n\nThe wrapper adds a 23-byte scriptSig, so wrapped P2WPKH is still slightly more expensive than native P2WPKH.\n\nThis flow starts with a legacy P2PKH input, creates a wrapped P2WPKH output (TX1), and spends it to native P2WPKH (TX2).",
@@ -4704,8 +4704,8 @@
       "id": "node_3r1ih93",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1843.353064980805,
-        "y": 186.34437986870466
+        "x": 1953.5157002302085,
+        "y": 1361.2612699428562
       },
       "data": {
         "content": "# What Is New — Two Validation Layers\n\nThe inner P2WPKH witness program is:\n\n`OP_0 PUSH20 <HASH160(pubkey)>`\n\nFor wrapping, this becomes the P2SH redeemScript. Its HASH160 is committed in the outer locking script:\n\n`OP_HASH160 <HASH160(redeemScript)> OP_EQUAL`\n\nThe scriptSig's return does not reopen txid malleability - consensus cages it: it must be *exactly* one push of the witness program, nothing more (any deviation fails as `WITNESS_MALLEATED_P2SH`). Unlike a normal P2SH scriptSig, which carries free runtime arguments a third party can rewrite, every byte here is pre-committed by the P2SH hash - there is nothing left to vary.\n\nThere is no explicit “wrapped” flag. Before it is spent, the output looks like ordinary P2SH. The spending transaction reveals the witness program through scriptSig:\n\n`16 0014<pubKeyHash>`\n\nThe scriptSig is essential: it provides the redeemScript preimage required by the outer P2SH hash check. With an empty scriptSig, `OP_HASH160` has no stack item and immediately fails.\n\nAfter the P2SH hash matches:\n\n- A legacy node executes `OP_0 PUSH20 <pubKeyHash>` and sees a truthy final item\n- A SegWit-aware node recognizes the BIP141 witness-program pattern\n- The witness supplies `[signature, public key]`\n- BIP143 derives `76a914<pubKeyHash>88ac` as the scriptCode\n\nA wrapped spend therefore uses both scriptSig and witness—but the signature and public key belong only in the witness.",
@@ -4722,20 +4722,20 @@
       "id": "node_9ztmdnu",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 3201.7404008663343,
-        "y": 1473.7696629109348
+        "x": 3311.903036115738,
+        "y": 2648.6865529850866
       },
       "data": {
-        "content": "# Try It Yourself — Investigate the Wrapper\n\n## Calculate the fee saving\n\nCompare this wrapped spend with the P2PKH spend from the Intro flow.\n\nFor each transaction, calculate:\n\n`weight = base size × 3 + total size`\n\n`vsize = ceil(weight ÷ 4)`\n\nThen calculate the fee at `10` `sat/vB`.\n\nWhy can the wrapped transaction contain more serialized bytes but still cost less? For a fair input comparison, also account for the fact that the Intro transaction creates a P2PKH output while this flow creates a smaller P2WPKH output.",
+        "content": "# Try It Yourself — Investigate the Wrapper\n\n- **Calculate the fee saving.** Compare this wrapped spend with the P2PKH spend from the Intro flow. For each transaction:\n  `weight = base size × 3 + total size`\n  `vsize = ceil(weight ÷ 4)`\n  Then calculate the fee at `10 sat/vB`. Why can the wrapped transaction contain more serialized bytes but still cost less? For a fair input comparison, also account for the fact that the Intro transaction creates a P2PKH output while this flow creates a smaller P2WPKH output.\n- **Wrap the other form**: use the P2WSH inheritance contract's `0020<sha256>` as the redeemScript - P2SH-P2WSH, the second nested type. The caged scriptSig becomes `22 0020...`, the witness carries `[sig, selector, witnessScript]` exactly as in the P2WSH flow, and the scriptCode is the witnessScript itself. Note what *didn't* change: the contract never touches the scriptSig, so P2SH's 520-byte redeemScript limit caps only the 34-byte program - the witnessScript keeps its full room",
         "fontSize": 28,
-        "width": 859,
-        "height": 697,
+        "width": 1431,
+        "height": 728,
         "title": "Text Info Node",
         "borderColor": "#2d5fb3",
         "dirty": false
       },
-      "width": 859,
-      "height": 697
+      "width": 1431,
+      "height": 728
     },
     {
       "id": "node_lerh5tc",
