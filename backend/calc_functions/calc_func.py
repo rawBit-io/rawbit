@@ -3298,7 +3298,11 @@ def script_verification(vals: list) -> str:
     if "WITNESS" in excluded_names:
         dependent_flags = [
             "WITNESS_PUBKEYTYPE",
-            "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM"
+            "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
+            # Core requires CLEANSTACK => WITNESS (and P2SH); the library
+            # enforces this, so CLEANSTACK cannot stay active once witness
+            # rules are turned off
+            "CLEANSTACK"
         ]
         for dep_flag in dependent_flags:
             if dep_flag in FLAG_BY_NAME:

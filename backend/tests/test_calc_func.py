@@ -1595,6 +1595,7 @@ def test_script_verification_excluding_witness_clears_dependents():
     tx_hex = build_sample_tx_hex()
     result = json.loads(calc.script_verification(["", "51", tx_hex, 0, "WITNESS"]))
     assert set(result["excludedFlags"]) == {
+        "CLEANSTACK",
         "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
         "WITNESS",
         "WITNESS_PUBKEYTYPE",
@@ -1602,6 +1603,9 @@ def test_script_verification_excluding_witness_clears_dependents():
     assert "WITNESS_PUBKEYTYPE" not in result["activeFlags"]
     assert result["witnessRulesEnabled"] is False
     assert result["usesWitness"] is False
+    # excluding WITNESS must still execute the script under pre-SegWit
+    # rules, not fail on the CLEANSTACK => WITNESS flag dependency
+    assert result["isValid"] is True
 
 
 def test_script_verification_legacy_false_spend_does_not_report_witness():
