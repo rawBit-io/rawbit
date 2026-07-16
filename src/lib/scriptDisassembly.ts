@@ -105,7 +105,16 @@ function pushIsMinimal(op: number, dataHex: string): boolean {
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
-const cleanHex = (hex = "") => hex.replace(/\s+/g, "").toLowerCase();
+// Explicit whitespace class, kept byte-for-byte identical with the Python
+// reference (calc_func.script_viewer): JS \s and Python str.split() disagree
+// on U+0085/U+001C-1F/U+FEFF, which made pasted hex (e.g. with a BOM)
+// disassemble here but fail the backend parity check.
+const HEX_WHITESPACE_RE =
+  // eslint-disable-next-line no-control-regex -- deliberate parity class
+  /[ \t\r\n\v\f\x1c-\x1f\x85\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+/g;
+
+const cleanHex = (hex = "") =>
+  hex.replace(HEX_WHITESPACE_RE, "").toLowerCase();
 
 const toBytes = (hex: string) =>
   Array.from({ length: hex.length / 2 }, (_, i) => hex.slice(i * 2, i * 2 + 2));

@@ -22,6 +22,7 @@ export function createSnapshotScheduler(
     clearPendingAfterCalc: noop,
     lockNodeRemovalSnapshotSkip: noop,
     releaseNodeRemovalSnapshotSkip: noop,
+    discardTabSnapshots: noop,
   };
 
   return { ...base, ...overrides };

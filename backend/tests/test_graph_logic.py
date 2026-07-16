@@ -1316,6 +1316,38 @@ def test_bulk_calculate_logic_picture_p2sh_dynamic_outputs():
     )
 
 
+def test_bip110_error_path_ships_no_phantom_output_handle():
+    # DA-13: on an error path the node must not ship outputPorts:[] — the
+    # client renders an empty list as the default "out" handle, growing a
+    # phantom source handle. It must carry the showHandle:False sentinel.
+    node = {
+        "id": "picture",
+        "type": "calculation",
+        "data": {
+            "functionName": "bip110_picture_p2sh_scripts",
+            "paramExtraction": "multi_val",
+            "inputStructure": {
+                "ungrouped": [
+                    {"index": 0, "label": "Picture hex:"},
+                    {"index": 1, "label": "Compressed pubkey:"},
+                ]
+            },
+            # Odd-length / invalid picture hex forces the calc to raise.
+            "inputs": {"vals": {"0": "xyz", "1": "02" + "11" * 32}},
+            "dirty": True,
+        },
+    }
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic([node], [])
+    data = list(updated_nodes)[0]["data"]
+
+    assert data["error"] is True
+    assert data["outputPorts"] == [
+        {"label": "scripts", "handleId": "", "showHandle": False}
+    ]
+    assert data["outputPorts"] != []
+
+
 def _dynamic_extract_node(fields, vals):
     return {
         "id": "extract",
@@ -1355,6 +1387,11 @@ def test_dynamic_tx_field_extract_failing_field_keeps_sibling_outputs():
     assert data["outputValues"]["output-1"] == ""
     assert "txid:" in data["result"]
     assert "op_return.data: <error:" in data["result"]
+    # DA-06: the per-field error is exposed structurally so the UI can render
+    # it (instead of a silent "--"); the succeeding sibling has no entry.
+    assert "output-1" in data["outputErrors"]
+    assert data["outputErrors"]["output-1"]
+    assert "output-0" not in data["outputErrors"]
 
 
 def test_dynamic_tx_field_extract_clears_stale_outputs_on_bad_input():

@@ -541,6 +541,28 @@ export function CalculationNodeView({
   const [txCustomFieldDrafts, setTxCustomFieldDrafts] = useState<
     Record<string, string>
   >({});
+  // Same unmount hazard as comments: off-viewport culling destroys the
+  // drafts before blur commits them. Flush pending custom-field edits with
+  // the exact blur semantics (trimmed, non-empty, changed).
+  const txCustomFlushRef = useRef<{
+    drafts: Record<string, string>;
+    fields: string[];
+    setField: (index: number, value: string) => void;
+  }>({ drafts: {}, fields: [], setField: () => {} });
+  useEffect(
+    () => () => {
+      const pending = txCustomFlushRef.current;
+      for (const [handleId, draft] of Object.entries(pending.drafts)) {
+        const index = Number(handleId.replace("output-", ""));
+        if (!Number.isInteger(index)) continue;
+        const next = draft.trim();
+        if (next && next !== pending.fields[index]) {
+          pending.setField(index, next);
+        }
+      }
+    },
+    []
+  );
   const cardRef = useRef<HTMLDivElement | null>(null);
   const txOutputRowRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [txOutputHandleTops, setTxOutputHandleTops] = useState<
@@ -606,9 +628,18 @@ export function CalculationNodeView({
     () => normalizeTxFieldExtractFields(data.txExtractFields, data.functionName),
     [data.txExtractFields, data.functionName]
   );
+  txCustomFlushRef.current = {
+    drafts: txCustomFieldDrafts,
+    fields: txExtractFields,
+    setField: mut.setTxFieldExtractField,
+  };
   const txExtractOutputValues =
     data.outputValues && typeof data.outputValues === "object"
       ? (data.outputValues as Record<string, unknown>)
+      : {};
+  const txExtractOutputErrors =
+    data.outputErrors && typeof data.outputErrors === "object"
+      ? (data.outputErrors as Record<string, unknown>)
       : {};
   const outputPorts = useMemo(
     () =>
@@ -1810,12 +1841,19 @@ export function CalculationNodeView({
               {txExtractFields.map((field, index) => {
                 const handleId = `output-${index}`;
                 const value = txExtractOutputValues[handleId];
-                const display =
-                  value === undefined || value === null || value === ""
+                const fieldError = txExtractOutputErrors[handleId];
+                const hasFieldError =
+                  typeof fieldError === "string" && fieldError.length > 0;
+                const display = hasFieldError
+                  ? String(fieldError)
+                  : value === undefined || value === null || value === ""
                     ? "--"
                     : String(value);
                 const canCopy =
-                  value !== undefined && value !== null && value !== "";
+                  !hasFieldError &&
+                  value !== undefined &&
+                  value !== null &&
+                  value !== "";
                 const copied = txCopiedOutputHandle === handleId;
 
                 return (
@@ -1923,8 +1961,13 @@ export function CalculationNodeView({
                       <div
                         className={cn(
                           "max-h-20 min-w-0 overflow-y-auto whitespace-pre-wrap break-all font-mono text-sm leading-relaxed",
-                          canCopy ? "text-primary" : "text-muted-foreground"
+                          hasFieldError
+                            ? "text-destructive"
+                            : canCopy
+                              ? "text-primary"
+                              : "text-muted-foreground"
                         )}
+                        title={hasFieldError ? String(fieldError) : undefined}
                       >
                         {display}
                       </div>

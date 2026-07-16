@@ -95,6 +95,14 @@ def test_whitespace_and_case_normalization():
     assert script_viewer(" 63\n A8\t68 ") == "OP_IF\n    OP_SHA256\nOP_ENDIF"
 
 
+def test_parity_whitespace_class_matches_ts_disassembler():
+    # Pinned class shared with the TS disassembler's cleanHex: str.split()
+    # and JS \s disagree on BOM/NEL/file separators, so both sides strip
+    # this exact set (DA-16).
+    hexs = "\ufeff63\u00a0a8\x1c\x8568\u3000"
+    assert script_viewer(hexs) == "OP_IF\n    OP_SHA256\nOP_ENDIF"
+
+
 def test_unbalanced_control_flow_warning():
     assert script_viewer("6351").endswith("# warning: unbalanced OP_IF/OP_ENDIF — missing OP_ENDIF")
     assert "without a matching OP_IF" in script_viewer("68")

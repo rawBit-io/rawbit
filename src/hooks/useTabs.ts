@@ -524,6 +524,8 @@ interface UseTabsArgs {
   initializeTabHistory: (tabId: string, nodes: FlowNode[], edges: Edge[]) => void;
   setActiveTabCtx: (tabId: string) => void;
   removeTabHistory: (tabId: string) => void;
+  /** Drop a closed tab's queued frames + pending after-calc entry (DA-20). */
+  discardTabSnapshots: (tabIds?: string[]) => void;
 }
 
 interface CloseDialogState {
@@ -578,6 +580,7 @@ export function useTabs({
   initializeTabHistory,
   setActiveTabCtx,
   removeTabHistory,
+  discardTabSnapshots,
 }: UseTabsArgs): UseTabsResult {
   const initialTabsRef = useRef(hydrateTabs());
   const [tabs, setTabs] = useState<FlowTab[]>([
@@ -1116,8 +1119,12 @@ export function useTabs({
         removeTabArchive(tabId);
         removeTabHistory(tabId);
       });
+      // Cancel any queued snapshot frames and drop the pending after-calc
+      // entry for the closed tab(s) so nothing fires (or is inherited by a
+      // recycled tab id) after close (DA-20).
+      discardTabSnapshots(tabIds);
     },
-    [removeTabArchive, removeTabHistory]
+    [discardTabSnapshots, removeTabArchive, removeTabHistory]
   );
 
   const requestCloseTab = useCallback(

@@ -93,6 +93,7 @@ describe("TextInfoNode", () => {
       clearPendingAfterCalc: vi.fn(),
       lockNodeRemovalSnapshotSkip: vi.fn(),
       releaseNodeRemovalSnapshotSkip: vi.fn(),
+      discardTabSnapshots: vi.fn(),
     };
 
     clipboardHook.mockReset();

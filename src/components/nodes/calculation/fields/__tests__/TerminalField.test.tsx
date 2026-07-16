@@ -23,6 +23,49 @@ function ControlledTerminalField({ initialValue }: { initialValue: string }) {
   );
 }
 
+describe("TerminalField unmount flush", () => {
+  // Off-viewport culling unmounts nodes without firing blur; the field must
+  // flush a focused in-progress draft (DA-01 class) but never write back a
+  // readOnly (connected) value (DA-05 guard).
+  it("fires onBlur with the draft when unmounted mid-edit", async () => {
+    const user = userEvent.setup();
+    const onBlur = vi.fn();
+    const view = render(
+      <TerminalField label="Input:" value="ab" onBlur={onBlur} />
+    );
+    const textarea = view.getByRole("textbox");
+    await user.click(textarea);
+    await user.keyboard("cd");
+
+    view.unmount();
+    expect(onBlur).toHaveBeenCalledWith("abcd");
+  });
+
+  it("does not fire onBlur on unmount when the draft is unchanged", async () => {
+    const user = userEvent.setup();
+    const onBlur = vi.fn();
+    const view = render(
+      <TerminalField label="Input:" value="ab" onBlur={onBlur} />
+    );
+    await user.click(view.getByRole("textbox"));
+
+    view.unmount();
+    expect(onBlur).not.toHaveBeenCalled();
+  });
+
+  it("never flushes a readOnly field on unmount", async () => {
+    const user = userEvent.setup();
+    const onBlur = vi.fn();
+    const view = render(
+      <TerminalField label="Input:" value="upstream" readOnly onBlur={onBlur} />
+    );
+    await user.click(view.getByRole("textbox"));
+
+    view.unmount();
+    expect(onBlur).not.toHaveBeenCalled();
+  });
+});
+
 describe("TerminalField", () => {
   it("preserves the caret while editing in the middle of a controlled value", async () => {
     const user = userEvent.setup();

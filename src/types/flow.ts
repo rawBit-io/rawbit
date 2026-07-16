@@ -143,6 +143,8 @@ export interface CalculationNodeData extends Record<string, unknown> {
   outputLayout?: OutputLayoutMode;
   outputPorts?: OutputPortDefinition[];
   outputValues?: Record<string, unknown>;
+  /** Per-output-handle error messages (dynamic TX field extract, DA-06). */
+  outputErrors?: Record<string, unknown>;
   txFieldExtractMode?: "dynamic";
   txExtractFields?: string[];
   banner?: unknown;

@@ -133,9 +133,15 @@ const normalizePastedRadioNodes = (
     );
   }
 
-  const reservedChannels = new Set(
-    existingNodes.filter(isRadioNode).map((node) => radioChannelFromData(node.data)),
-  );
+  // Reserve the pasted nodes' channels too: a pasted receive that matches no
+  // pasted send KEEPS its channel, and a freshly assigned send channel must
+  // not collide with it (it would wrongly capture that receive).
+  const reservedChannels = new Set([
+    ...existingNodes
+      .filter(isRadioNode)
+      .map((node) => radioChannelFromData(node.data)),
+    ...nodes.filter(isRadioNode).map((node) => radioChannelFromData(node.data)),
+  ]);
   const channelMap = new Map<string, string>();
   pastedSendChannels.forEach((originalChannel) => {
     const nextChannel = nextPasteRadioChannel(existingNodes, reservedChannels);

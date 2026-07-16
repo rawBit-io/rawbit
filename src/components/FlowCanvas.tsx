@@ -672,9 +672,20 @@ export function FlowCanvas({
     [onPaneClick]
   );
 
-  const handleCanvasPointerDownCapture = useCallback(() => {
-    dispatchDismissNodeMenusEvent();
-  }, []);
+  const handleCanvasPointerDownCapture = useCallback(
+    (event: React.PointerEvent) => {
+      // Portaled node menus propagate through the React tree, so this
+      // capture handler fires BEFORE a menu item's own handlers — the menu
+      // would unmount between pointerdown and click and its actions could
+      // never activate (and the toggle would instantly reopen). Anything
+      // stamped data-node-portal-menu (menu containers and their anchor
+      // buttons) is exempt from the global dismiss (DA-04).
+      const target = event?.target as Element | null | undefined;
+      if (target?.closest?.("[data-node-portal-menu]")) return;
+      dispatchDismissNodeMenusEvent();
+    },
+    []
+  );
 
   return (
     <CanonicalGraphContext.Provider value={canonicalGraph}>

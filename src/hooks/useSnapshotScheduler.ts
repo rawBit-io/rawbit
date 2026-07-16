@@ -94,6 +94,13 @@ export interface SnapshotScheduler {
   clearPendingAfterCalc: () => void;
   lockNodeRemovalSnapshotSkip: () => void;
   releaseNodeRemovalSnapshotSkip: () => void;
+  /**
+   * Drop scheduler bookkeeping for closed tabs: cancel their queued snapshot
+   * frames and delete their pending after-calc entries. Pass no ids to clear
+   * everything (closeAllTabs). Prevents post-close snapshots and pending
+   * state being inherited by a recycled tab id (DA-20).
+   */
+  discardTabSnapshots: (tabIds?: string[]) => void;
 }
 
 export function useSnapshotScheduler({
@@ -363,6 +370,32 @@ export function useSnapshotScheduler({
     skipNextNodeRemovalRef.current = false;
   }, []);
 
+  // Closing a tab must drop its scheduler bookkeeping: a queued state-bearing
+  // frame would otherwise fire after the tab is gone (resurrecting history for
+  // the dead id), and a leftover PendingEntry would be inherited by a recycled
+  // tab id, producing a spurious "After calc" undo entry in a fresh tab
+  // (DA-20). Pass no ids to clear everything (closeAllTabs).
+  const discardTabSnapshots = useCallback((tabIds?: string[]) => {
+    const frames = snapshotFramesRef.current;
+    const pending = pendingByTabRef.current;
+    if (!tabIds) {
+      for (const frameId of frames.values()) cancelAnimationFrame(frameId);
+      frames.clear();
+      pending.clear();
+      return;
+    }
+    for (const tabId of tabIds) {
+      for (const [key, frameId] of frames) {
+        // snapshotKey is the tab id, optionally suffixed; match either.
+        if (key === tabId || key.startsWith(`${tabId}:`)) {
+          cancelAnimationFrame(frameId);
+          frames.delete(key);
+        }
+      }
+      pending.delete(tabId);
+    }
+  }, []);
+
   useEffect(() => {
     const snapshotFrames = snapshotFramesRef.current;
     return () => {
@@ -490,6 +523,7 @@ export function useSnapshotScheduler({
       clearPendingAfterCalc,
       lockNodeRemovalSnapshotSkip,
       releaseNodeRemovalSnapshotSkip,
+      discardTabSnapshots,
     }),
     [
       pushCleanState,
@@ -502,6 +536,7 @@ export function useSnapshotScheduler({
       clearPendingAfterCalc,
       lockNodeRemovalSnapshotSkip,
       releaseNodeRemovalSnapshotSkip,
+      discardTabSnapshots,
     ]
   );
 }

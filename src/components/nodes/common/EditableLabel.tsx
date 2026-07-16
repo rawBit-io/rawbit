@@ -42,6 +42,37 @@ export function EditableLabel({
 
   useEffect(() => setTempValue(value), [value]);
 
+  // Nodes unmount off-viewport (onlyRenderVisibleElements), destroying an
+  // in-progress edit before blur commits it. Flush the pending edit on
+  // unmount — except when the parent supplied onDraftChange: those callers
+  // (e.g. GroupNode) own the draft and flush it themselves; a self-flush
+  // here would double-commit. Escape exits editing first, so cancelled
+  // edits never reach the flush.
+  const pendingRef = useRef({
+    isEditing,
+    tempValue,
+    value,
+    onCommit,
+    fallback,
+    ownedByParent: Boolean(onDraftChange),
+  });
+  pendingRef.current = {
+    isEditing,
+    tempValue,
+    value,
+    onCommit,
+    fallback,
+    ownedByParent: Boolean(onDraftChange),
+  };
+  useEffect(
+    () => () => {
+      const p = pendingRef.current;
+      if (p.ownedByParent || !p.isEditing || p.tempValue === p.value) return;
+      p.onCommit(p.tempValue.trim().length ? p.tempValue : p.fallback);
+    },
+    []
+  );
+
   const labelStyle: React.CSSProperties = {
     fontSize,
     fontWeight: 400,

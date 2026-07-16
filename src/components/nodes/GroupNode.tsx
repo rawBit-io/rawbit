@@ -660,33 +660,11 @@ export default function ShadcnGroupNode({
 
   const deleteGroup = useCallback(() => {
     setShowMenu(false);
-    // Recursively collect ids of the group and all its descendants
-    const all = rf.getNodes() as FlowNode[];
-    const toRemove = new Set<string>([id]);
-    let changed = true;
-    while (changed) {
-      changed = false;
-      for (const n of all) {
-        if (n.parentId && toRemove.has(n.parentId) && !toRemove.has(n.id)) {
-          toRemove.add(n.id);
-          changed = true;
-        }
-      }
-    }
-
-    rf.setNodes((nds) => nds.filter((n) => !toRemove.has(n.id)));
-
-    rf.setEdges((eds) => {
-      if (!eds.length) return eds;
-      let removedEdge = false;
-      const filtered = eds.filter((edge) => {
-        const shouldRemove =
-          toRemove.has(edge.source) || toRemove.has(edge.target);
-        if (shouldRemove) removedEdge = true;
-        return !shouldRemove;
-      });
-      return removedEdge ? filtered : eds;
-    });
+    // Route through deleteElements so the shared onDelete pipeline runs:
+    // it cascades descendants, dirties surviving consumers AND radio peers
+    // of deleted radio children (deleteRecalc), which the previous manual
+    // setNodes/setEdges filtering silently bypassed (DA-19).
+    void rf.deleteElements({ nodes: [{ id }] });
 
     scheduleSnapshot("Node(s) removed", {
       refresh: true,
@@ -905,6 +883,7 @@ export default function ShadcnGroupNode({
                 onPointerDownCapture={handleHeaderControlPointerDown}
                 aria-label="More"
                 title="More"
+                data-node-portal-menu=""
               >
                 <MoreHorizontal
                   className="text-foreground"
@@ -987,6 +966,7 @@ export default function ShadcnGroupNode({
               left: `${menuPosition.left}px`,
               minWidth: MENU_WIDTH,
             }}
+            data-node-portal-menu=""
             onPointerDownCapture={(e) => e.stopPropagation()}
           >
             <button

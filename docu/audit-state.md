@@ -1,10 +1,58 @@
 # Audit state
 
-Last updated: 2026-06-16
+Last updated: 2026-07-16
 
 Primary playbook: `docu/periodic-bug-audit-playbook.md`
 
 Latest full audit report: `docu/bug-audit-2026-06-16.md`
+
+## DA-01..DA-21 fix pass — 2026-07-16 (all 21 FIXED)
+
+The 2026-07-07 diff audit's 21 findings (DA-01..DA-21) were re-verified against
+the current tree and fixed. Two were already fixed by intervening commits and
+confirmed as such: DA-02/DA-03 (bundled-edge reconnect/delete resolved against
+the canonical store by `880c30e`) and DA-09 (paste radio remap by `432fabd`).
+
+Fixed in this pass:
+- **Draft-flush class (DA-01/05/12/14/17)** — class-level unmount flush added to
+  both `EditableLabel` variants and `TerminalField`; `common/EditableLabel`
+  skips the self-flush when `onDraftChange` is set (GroupNode owns that flush).
+  DA-05 got a `connected.hasEdge` guard in `ScriptViewerNode.handleValueBlur`;
+  DA-17 a ref-held flush for the TX custom-field drafts in `CalculationNodeView`.
+- **DA-04** — portal node-menu dismiss is now target-aware: the canvas
+  pointerdown-capture skips `[data-node-portal-menu]` (menu container + anchor),
+  so menu actions activate and the More toggle can close.
+- **DA-06** — dynamic TX field extract ships per-field `outputErrors`
+  (tombstoned, not popped); the row renders the error in destructive style
+  instead of a silent `--`.
+- **DA-07** — a dropped radio node is marked dirty and dirties its channel peers.
+- **DA-08** — `getAffectedSubgraph` pulls in every radio node on an affected
+  node's channel, so the backend sees the full channel population (fixes the
+  duplicate-sender mis-match/mis-diagnosis; single-sender case was already fixed).
+- **DA-10** — `buildSharePayload` prunes handle-dangling edges before export.
+- **DA-11** — occupancy checks (`getOccupiedTargetHandles`, the drag-connect
+  duplicate guard) ignore edges hidden as dangling by the render projection.
+- **DA-13** — bip110 error paths ship the `showHandle:false` sentinel outputPorts
+  instead of `[]` (which rendered a phantom "out" handle).
+- **DA-15** — Script Viewer upstream-error banner no longer promises a stale
+  result over a blank box (tombstoned upstreams ship `""`).
+- **DA-16** — the TS and Python disassembler hex-cleaning whitespace class is
+  pinned identically (BOM/NEL/file-separators) on both sides.
+- **DA-18** — pasted radio channels are reserved so a fresh Send channel can't
+  capture a kept pasted Receive.
+- **DA-19** — GroupNode menu delete routes through `rf.deleteElements` so the
+  shared `onDelete` pipeline (consumer + radio-peer dirtying) runs.
+- **DA-20** — closing a tab discards its scheduler frames + pending after-calc
+  entry (`discardTabSnapshots`), preventing post-close snapshots and state
+  inherited by a recycled tab id.
+- **DA-21** — `useNodeOperations.fitGroupToChildren` gained the NB-05 group-origin
+  compensation its sibling `fitGroupToChildrenInNodes` already had (no jolt).
+
+Gates (2026-07-16): typecheck Pass; lint Pass (0 warnings); vitest 797/797;
+`pytest backend/tests` 505 passed, 2 failed — the 2 failures are the p13/p14
+lesson-flow goldens added by 69de6ac and are **pre-existing/stale at that commit**
+(they fail identically on a clean checkout, unrelated to these fixes; refresh
+needed). `npm audit` unchanged (deferred CODEX-01).
 
 ## Current open findings
 

@@ -46,6 +46,7 @@ import {
 } from "@/lib/share/scriptStepsCache";
 import { isFlowFileCandidate, isRecord } from "@/lib/flow/guards";
 import { isCalculableNode } from "@/lib/flow/nonCalculableNodes";
+import { pruneDanglingEdges } from "@/lib/flow/pruneDanglingEdges";
 import {
   sanitizeGroupBundleRenderEdgesForState,
   sanitizeGroupBundleVisualElementsForState,
@@ -156,6 +157,10 @@ function withAutoRadioChannel(
     ...(dragData.nodeData ?? {}),
     title: radioTitleForFunction(fnName, channel),
     radioChannel: channel,
+    // A dropped radio node forms its virtual link at drop time (channel
+    // auto-pairing) with no edge to dirty the endpoints — mark it dirty so
+    // the pairing is actually calculated (DA-07).
+    dirty: true,
   };
 
   if (Array.isArray(dragData.nodeData?.outputPorts)) {
@@ -325,6 +330,14 @@ function fitGroupToChildren(
           ...n,
           width: newWidth,
           height: newHeight,
+          // NB-05 invariant (same as fitGroupToChildrenInNodes): when the
+          // children are shifted to restore the padding, move the group's
+          // own origin by the opposite amount so every child keeps its
+          // absolute position — the frame grows top-left, nothing jolts.
+          position: {
+            x: n.position.x - shiftX,
+            y: n.position.y - shiftY,
+          },
           measured: {
             ...n.measured,
             width: newWidth,
@@ -573,7 +586,15 @@ export function useNodeOperations() {
   const onConnect = useCallback(
     (c: Connection) => {
       if (!c.source || !c.target) return;
-      const duplicate = edges.some(
+      // Ignore dangling edges when checking occupancy: an edge whose source
+      // handle was removed is hidden from the canvas by the render
+      // projection but would otherwise still block the (visible, free)
+      // target input (DA-11). pruneDanglingEdges applies the same buildPorts
+      // liveness the renderer uses.
+      const liveEdges = rf
+        ? pruneDanglingEdges(rf.getNodes() as FlowNode[], edges).edges
+        : edges;
+      const duplicate = liveEdges.some(
         (e) => e.target === c.target && e.targetHandle === c.targetHandle,
       );
       if (duplicate) return;
@@ -598,7 +619,7 @@ export function useNodeOperations() {
         ),
       );
     },
-    [edges, setEdges, setNodes],
+    [edges, rf, setEdges, setNodes],
   );
 
   /* ─────────────────────────────────────────────────────────────── */
@@ -712,6 +733,21 @@ export function useNodeOperations() {
           pos,
           parentTarget,
         );
+
+        // A dropped radio node can complete (or break) a channel pairing
+        // canvas-wide without any edge change; dirty the other radio nodes
+        // so peers recalculate, mirroring the channel-edit path (DA-07).
+        const droppedFn = data.nodeData?.functionName ?? data.functionName;
+        if (isRadioFunctionName(droppedFn)) {
+          setNodes((nds) =>
+            nds.map((node) =>
+              node.id !== droppedNode.id &&
+              isRadioFunctionName(node.data?.functionName)
+                ? { ...node, data: { ...node.data, dirty: true } }
+                : node,
+            ),
+          );
+        }
 
         if (parentTarget) {
           requestAnimationFrame(() => {

@@ -40,6 +40,26 @@ const reactFlowInstance = {
   getEdges: vi.fn<() => Edge[]>(),
   getViewport: vi.fn<() => { x: number; y: number; zoom: number }>(),
   setViewport: vi.fn<(viewport: { x: number; y: number; zoom: number }) => void>(),
+  // Emulates xyflow's cascade semantics: descendants of a deleted group and
+  // edges touching any removed node go with it (the real instance also
+  // fires onDelete, which is what deleteGroup relies on for dirtying).
+  deleteElements: vi.fn(
+    async ({ nodes: toDelete = [] }: { nodes?: { id: string }[] }) => {
+      const ids = new Set(toDelete.map((n) => n.id));
+      let changed = true;
+      while (changed) {
+        changed = false;
+        for (const n of nodes) {
+          if (n.parentId && ids.has(n.parentId) && !ids.has(n.id)) {
+            ids.add(n.id);
+            changed = true;
+          }
+        }
+      }
+      nodes = nodes.filter((n) => !ids.has(n.id));
+      edges = edges.filter((e) => !ids.has(e.source) && !ids.has(e.target));
+    },
+  ),
 };
 
 type NodeResizerSpyProps = {
@@ -987,6 +1007,11 @@ describe("GroupNode interactions", () => {
     openGroupMenu();
     fireEvent.click(screen.getByText(/Delete Node/i));
 
+    // Deletion must go through deleteElements so the shared onDelete
+    // pipeline (dirtying of consumers and radio peers) runs (DA-19).
+    expect(reactFlowInstance.deleteElements).toHaveBeenCalledWith({
+      nodes: [{ id: parent.id }],
+    });
     expect(nodes).toEqual([]);
     expect(edges).toEqual([
       expect.objectContaining({

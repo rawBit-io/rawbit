@@ -10,6 +10,7 @@ import { FLOW_SCHEMA_VERSION } from "@/lib/flow/schema";
 import { hydrateNodesWithScriptSteps } from "@/lib/share/scriptStepsCache";
 import { stripLegacyFlowMapNodeData } from "@/lib/flow/legacyCompatibility";
 import { normalizeAndDedupeEdgeConnections } from "@/lib/flow/edgeNormalization";
+import { pruneDanglingEdges } from "@/lib/flow/pruneDanglingEdges";
 import { buildRadioVirtualEdgeMetadata } from "@/lib/graphUtils";
 
 export function buildSharePayload(
@@ -44,8 +45,15 @@ export function buildSharePayload(
   });
 
   // Import validation hard-rejects dangling edges, so never share one.
+  // pruneDanglingEdges drops provable handle-dangles (e.g. a legacy archive
+  // whose handle schema changed) with the same buildPorts truth the import
+  // validator uses — without it a sender's silently-dangling edge makes the
+  // recipient's link dead (EDGE_*_HANDLE_UNKNOWN hard-fail).
   const sharedNodeIds = new Set(cleanedNodes.map((n) => n.id));
-  const cleanedEdges: SharedEdge[] = normalizeAndDedupeEdgeConnections(edges)
+  const { edges: liveEdges } = pruneDanglingEdges(nodesWithSteps, edges);
+  const cleanedEdges: SharedEdge[] = normalizeAndDedupeEdgeConnections(
+    liveEdges
+  )
     .filter(
       (edge) => sharedNodeIds.has(edge.source) && sharedNodeIds.has(edge.target)
     )

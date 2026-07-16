@@ -206,6 +206,34 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
     [onBlur]
   );
 
+  // Nodes unmount off-viewport (onlyRenderVisibleElements) without firing
+  // blur, so blur-committing call sites (e.g. the Script Viewer hex field)
+  // would silently lose the draft. Mirror a real blur on unmount — but only
+  // for a focused, editable field with an actual pending change; readOnly
+  // fields must never write back (a connected field's displayed upstream
+  // value is not the user's edit).
+  const pendingFlushRef = useRef({
+    focused: focusedRef.current,
+    draft: draftValue,
+    value: normalizedValue,
+    readOnly,
+    onBlur,
+  });
+  pendingFlushRef.current = {
+    focused: focusedRef.current,
+    draft: draftValue,
+    value: normalizedValue,
+    readOnly,
+    onBlur,
+  };
+  useEffect(
+    () => () => {
+      const p = pendingFlushRef.current;
+      if (p.focused && !p.readOnly && p.draft !== p.value) p.onBlur?.(p.draft);
+    },
+    []
+  );
+
   if (comment) {
     return (
       <TooltipProvider>

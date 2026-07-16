@@ -567,6 +567,32 @@ export function getAffectedSubgraph(
         });
     }
 
+    // Radio matching is CANVAS-wide truth, but the backend re-derives it
+    // from the payload alone. Virtual edges only exist for channels with
+    // exactly one sender, so an ambiguous channel (duplicate Sends) could
+    // ship a partial population and mis-match or mis-diagnose. Whenever a
+    // radio node is affected, pull in every radio node on its channel so
+    // the backend sees the full population (DA-08).
+    const affectedRadioChannels = new Set(
+      fullNodes
+        .filter(
+          (n) => affected.has(n.id) && isRadioFunctionName(n.data?.functionName),
+        )
+        .map((n) => radioChannelFromData(n.data)),
+    );
+    if (affectedRadioChannels.size) {
+      for (const node of fullNodes) {
+        if (
+          !affected.has(node.id) &&
+          isRadioFunctionName(node.data?.functionName) &&
+          affectedRadioChannels.has(radioChannelFromData(node.data))
+        ) {
+          seedIds.add(node.id);
+          changed = true;
+        }
+      }
+    }
+
     if (changed) affected = buildClosure(seedIds);
   }
 

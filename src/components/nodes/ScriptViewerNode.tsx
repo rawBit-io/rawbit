@@ -159,6 +159,14 @@ export default function ScriptViewerNode({
 
   const handleValueBlur = useCallback(
     (value: string) => {
+      // A connected field displays the upstream hex, not the user's script.
+      // Blurring it (readOnly textareas are still focusable) must never
+      // write the connected value over the stored manual script — that
+      // clobber only surfaces later, when the edge is removed.
+      if (connected.hasEdge) {
+        setInputDraft(null);
+        return;
+      }
       setInputDraft(null);
       if (value === storedValue) return;
       setNodes((nds) =>
@@ -166,7 +174,7 @@ export default function ScriptViewerNode({
       );
       scheduleSnapshot("Update Script Viewer input");
     },
-    [id, storedValue, scheduleSnapshot, setNodes]
+    [connected.hasEdge, id, storedValue, scheduleSnapshot, setNodes]
   );
 
   const handleTitleUpdate = useCallback(
@@ -464,9 +472,12 @@ export default function ScriptViewerNode({
           ) : connected.hasEdge && connected.error ? (
             <>
               <div className="mb-1 font-medium text-destructive">
-                ⚠ Upstream node has an error — showing last successful result.
+                ⚠ Upstream node has an error — no script value.
               </div>
-              {hasValue && disasm.ok ? (
+              {/* Errored upstreams ship tombstoned ("") results, which parse
+                  to zero lines — require actual content, or the banner would
+                  sit over a blank box while "No script" stays unreachable. */}
+              {hasValue && disasm.ok && disasm.lines.length > 0 ? (
                 disassemblyBody
               ) : (
                 <div className="italic text-muted-foreground">

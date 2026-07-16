@@ -181,6 +181,14 @@ describe("parseScriptDisassembly", () => {
     expect(r.lines.map((l) => l.text)).toEqual(["OP_IF", "OP_SHA256", "OP_ENDIF"]);
   });
 
+  it("strips the parity whitespace class (BOM, NEL, NBSP, file separators)", () => {
+    // Must match the Python reference byte-for-byte: JS \s and Python
+    // str.split() disagree on these, so the class is pinned on both sides.
+    const r = parseScriptDisassembly("\ufeff63\u00a0a8\x1c\x8568\u3000");
+    expect(r.ok).toBe(true);
+    expect(r.lines.map((l) => l.text)).toEqual(["OP_IF", "OP_SHA256", "OP_ENDIF"]);
+  });
+
   it("handles consensus-legal consecutive OP_ELSE", () => {
     // OP_IF OP_1 OP_ELSE OP_2 OP_ELSE OP_3 OP_ENDIF
     const r = parseScriptDisassembly("635167526753" + "68");

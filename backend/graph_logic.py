@@ -812,6 +812,7 @@ def _calculate_dynamic_tx_field_extract(data, inp_dict, fn_name="extract_tx_fiel
     fields = _tx_field_extract_fields(data, fn_name)
 
     output_values = {}
+    output_errors = {}
     result_lines = []
     for output_index, field in enumerate(fields):
         handle_id = f"output-{output_index}"
@@ -825,11 +826,18 @@ def _calculate_dynamic_tx_field_extract(data, inp_dict, fn_name="extract_tx_fiel
             result_lines.append(f"{field}: {value}")
         except Exception as exc:  # noqa: BLE001 - surface per field, never abort the node
             output_values[handle_id] = ""
+            # Ship the per-field error so the row can render it instead of a
+            # silent "--" that looks identical to "no input yet" (DA-06).
+            output_errors[handle_id] = str(exc)
             result_lines.append(f"{field}: <error: {exc}>")
 
     data["txExtractFields"] = fields
     data["outputPorts"] = _tx_field_extract_output_ports(fields)
     data["outputValues"] = output_values
+    # Always assign (possibly {}) — a stale error map must never survive on a
+    # now-clean field. The client merge resurrects absent keys, so this must
+    # be written, not popped.
+    data["outputErrors"] = output_errors
     data["result"] = "\n".join(result_lines)
 
 
@@ -853,6 +861,9 @@ def _tombstone_node_outputs(data):
     """
     data["result"] = ""
     data["outputValues"] = {}
+    # Per-field TX-extract errors must clear too (tombstone, not pop, so the
+    # client merge can't resurrect a stale error map) — DA-06.
+    data["outputErrors"] = {}
 
 
 # ───────────────────────────────────────────────────────────────
@@ -932,7 +943,11 @@ def bulk_calculate_logic(nodes, edges):
                     data["result"] = ""
                 if fn_name == "bip110_picture_p2sh_scripts":
                     data.pop("outputValues", None)
-                    data["outputPorts"] = []
+                    # Sidebar sentinel, never []: the client renders an empty
+                    # list as the default "out" handle (a phantom output on
+                    # every error path), while showHandle=False renders none
+                    # (DA-13).
+                    data["outputPorts"] = [{"label": "scripts", "handleId": "", "showHandle": False}]
                     data["result"] = ""
 
                 func = CALC_FUNCTIONS.get(fn_name)
@@ -1096,7 +1111,7 @@ def bulk_calculate_logic(nodes, edges):
                             _apply_picture_p2sh_outputs(data, result)
                         except Exception:
                             data["result"] = result
-                            data["outputPorts"] = []
+                            data["outputPorts"] = [{"label": "scripts", "handleId": "", "showHandle": False}]
                             data.pop("outputValues", None)
                     else:
                         data["result"] = result

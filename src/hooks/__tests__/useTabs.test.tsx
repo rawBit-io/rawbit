@@ -38,6 +38,7 @@ describe("useTabs", () => {
   let baseSetEdges: ReturnType<typeof vi.fn>;
   let initializeTabHistory: ReturnType<typeof vi.fn>;
   let removeTabHistory: ReturnType<typeof vi.fn>;
+  let discardTabSnapshots: ReturnType<typeof vi.fn>;
   let refreshBanner: ReturnType<typeof vi.fn>;
   let setActiveTabCtx: ReturnType<typeof vi.fn>;
   let getFlowInstance: () => ReactFlowInstance | null;
@@ -58,6 +59,7 @@ describe("useTabs", () => {
     });
     initializeTabHistory = vi.fn();
     removeTabHistory = vi.fn();
+    discardTabSnapshots = vi.fn();
     refreshBanner = vi.fn();
     setActiveTabCtx = vi.fn();
     viewportState = { x: 0, y: 0, zoom: 1 };
@@ -90,6 +92,7 @@ describe("useTabs", () => {
         initializeTabHistory,
         setActiveTabCtx,
         removeTabHistory,
+        discardTabSnapshots,
       })
     );
 

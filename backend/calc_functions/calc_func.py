@@ -2938,8 +2938,15 @@ def script_viewer(val) -> str:
     max_hex_chars = 20_000
     pushdata_names = {0x4C: "OP_PUSHDATA1", 0x4D: "OP_PUSHDATA2", 0x4E: "OP_PUSHDATA4"}
 
-    # Strip all whitespace (spaces/tabs/newlines) so multi-line pasted hex works.
-    hex_str = "".join(str(val if val is not None else "").split()).lower()
+    # Strip whitespace (spaces/tabs/newlines) so multi-line pasted hex works.
+    # Explicit class, byte-for-byte identical with the TS disassembler's
+    # cleanHex - str.split() and JS \s disagree on U+0085/U+001C-1F/U+FEFF.
+    hex_str = re.sub(
+        "[ \t\r\n\v\f\x1c-\x1f\x85\u00a0\u1680\u2000-\u200a"
+        "\u2028\u2029\u202f\u205f\u3000\ufeff]+",
+        "",
+        str(val if val is not None else ""),
+    ).lower()
     if not hex_str:
         return ""
     if len(hex_str) > max_hex_chars:

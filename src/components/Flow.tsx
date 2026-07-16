@@ -623,6 +623,15 @@ function FlowContent() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const activeTabIdRef = useRef<string | null>(null);
   const loadingUndoRef = useRef(false);
+  // useTabs is created before the snapshot scheduler, so bridge the
+  // scheduler's discardTabSnapshots through a ref that useTabs reads at
+  // call time (DA-20).
+  const discardTabSnapshotsRef = useRef<(tabIds?: string[]) => void>(
+    () => {}
+  );
+  const discardTabSnapshots = useCallback((tabIds?: string[]) => {
+    discardTabSnapshotsRef.current(tabIds);
+  }, []);
   const isPastingRef = useRef(false);
   const welcomeCompleteRef = useRef(false);
   const introDropScheduledRef = useRef(false);
@@ -1209,6 +1218,7 @@ function FlowContent() {
     initializeTabHistory,
     setActiveTabCtx: setActiveTab,
     removeTabHistory,
+    discardTabSnapshots,
   });
 
   const reapplyPendingSharedGraph = useCallback(() => {
@@ -1450,6 +1460,9 @@ function FlowContent() {
     armAfterCalcCoalesce,
     releaseNodeRemovalSnapshotSkip,
   } = snapshotScheduler;
+
+  // Populate the bridge ref now that the scheduler exists (see declaration).
+  discardTabSnapshotsRef.current = snapshotScheduler.discardTabSnapshots;
 
   const clearExampleFitRetryTimers = useCallback(() => {
     if (typeof window === "undefined") return;
