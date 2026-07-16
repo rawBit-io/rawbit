@@ -95,6 +95,19 @@ export interface StepData {
   kind?: "opcode" | "validator";
   /** Machine name of a validator step, e.g. "witness_load", "scriptcode_derive". */
   step?: string;
+  /** false when an opcode sits in a not-taken IF/ELSE branch (it is processed but does not run). */
+  branch_active?: boolean;
+  /** Stable machine code on a terminal failure step, e.g. "WITNESS_PROGRAM_MISMATCH". */
+  error_code?: string;
+  /** taproot witness_script: control-block commitment verified. */
+  committed?: boolean;
+  /** taproot witness_script: the leaf body was actually executed (0xc0 tapscript, not OP_SUCCESS). */
+  executed?: boolean;
+  /** op_success: "ok" | "discouraged". */
+  policy?: string;
+  /** taproot_annex: the annex bytes and their hash. */
+  annex_hex?: string;
+  annex_hash?: string;
   /** Inner script surfaced by the tracer (scriptCode / witnessScript / redeemScript). */
   script_hex?: string;
   /** witness_load: zero-based index of the item being deserialized. */

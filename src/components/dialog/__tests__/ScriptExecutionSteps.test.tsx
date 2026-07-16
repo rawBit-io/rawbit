@@ -217,7 +217,7 @@ describe("ScriptExecutionSteps", () => {
     ],
   };
 
-  it("walks a native P2WPKH trace as opcode steps only, P2SH-style", async () => {
+  it("walks a native P2WPKH trace: scriptPubKey opcodes, the derivation rule, then the scriptCode", async () => {
     const user = userEvent.setup();
     render(
       <ScriptExecutionSteps
@@ -227,9 +227,10 @@ describe("ScriptExecutionSteps", () => {
       />
     );
 
-    // validator bookkeeping steps (phase "witness") are not walked:
-    // 2 scriptPubKey opcodes + 1 scriptCode opcode remain
-    expect(screen.getByText(/Step 1\/3 — Phase 2 \(scriptPubKey\)/i)).toBeInTheDocument();
+    // pure bookkeeping (witness_program_match, witness_load) stays hidden;
+    // the scriptCode-derivation rule is walked: 2 scriptPubKey opcodes +
+    // 1 derive rule + 1 scriptCode opcode = 4 steps
+    expect(screen.getByText(/Step 1\/4 — Phase 2 \(scriptPubKey\)/i)).toBeInTheDocument();
 
     // the empty scriptSig field stays visible with a short origin note
     expect(screen.getByTestId("scriptSig-empty-pane")).toHaveTextContent(
@@ -252,13 +253,24 @@ describe("ScriptExecutionSteps", () => {
     const nextButton = screen.getByRole("button", { name: /Next/i });
     await user.click(nextButton);
 
-    // step 2 (last old-rules step): the old-nodes verdict note
+    // step 2 (last scriptPubKey step): the old-nodes verdict note
     expect(
       screen.getByText(/valid under their rules/i)
     ).toBeInTheDocument();
     expect(
       screen.queryByText(/witness items become the new stack/i)
     ).not.toBeInTheDocument();
+
+    await user.click(nextButton);
+
+    // step 3: the scriptCode-derivation rule is now a walkable Rule step
+    expect(screen.getByText("Rule:")).toBeInTheDocument();
+    expect(
+      screen.getByText(/Derive scriptCode from the witness program/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Step 3\/4 — Witness validation/i)
+    ).toBeInTheDocument();
 
     await user.click(nextButton);
 
@@ -273,18 +285,12 @@ describe("ScriptExecutionSteps", () => {
       screen.queryByText(/valid under their rules/i)
     ).not.toBeInTheDocument();
     expect(
-      screen.getByText(/Step 3\/3 — Phase 4 \(scriptCode\)/i)
+      screen.getByText(/Step 4\/4 — Phase 4 \(scriptCode\)/i)
     ).toBeInTheDocument();
     expect(nextButton).toBeDisabled();
-
-    // no rule steps surface in the walk
-    expect(screen.queryByText("Rule:")).not.toBeInTheDocument();
-    expect(
-      screen.queryByText(/Witness validation/i)
-    ).not.toBeInTheDocument();
   });
 
-  it("labels a P2WSH execution as witnessScript and skips the check steps", () => {
+  it("walks the P2WSH hash-check rule then the witnessScript, hiding item load", () => {
     const program = "ab".repeat(32);
     render(
       <ScriptExecutionSteps
@@ -333,14 +339,15 @@ describe("ScriptExecutionSteps", () => {
       />
     );
 
-    // only the opcode step is walked
+    // witness_load is hidden; the hash-check rule + the opcode are walked
     expect(
-      screen.getByText(/Step 1\/1 — Phase 4 \(witnessScript\)/i)
+      screen.getByText(/Step 1\/2 — Witness validation/i)
     ).toBeInTheDocument();
+    expect(screen.getByText("Rule:")).toBeInTheDocument();
+    expect(screen.getByText(/Hash-check the witnessScript/i)).toBeInTheDocument();
     expect(
       screen.getByTestId("witnessScript-script-pane")
     ).toHaveTextContent(/last witness item/i);
-    expect(screen.queryByText("Rule:")).not.toBeInTheDocument();
   });
 
   it("exports the walked steps and the derived scriptCode via Copy All", async () => {
@@ -359,10 +366,11 @@ describe("ScriptExecutionSteps", () => {
 
     const written = (navigator.clipboard.writeText as unknown as Mock).mock
       .calls.at(-1)?.[0] as string;
-    // numbering matches the on-screen walk (witness bookkeeping excluded)
-    expect(written).toContain("Step #3");
-    expect(written).not.toContain("Step #4");
-    expect(written).not.toContain("RULE(");
+    // numbering matches the on-screen walk: 4 steps incl. the derive rule
+    expect(written).toContain("Step #4");
+    expect(written).not.toContain("Step #5");
+    // the scriptCode-derivation rule is now walked and copied
+    expect(written).toContain("RULE(BIP143)");
     expect(written).toContain(
       `scriptCode (BIP143, derived — never transmitted): 76a914${nativeP2wpkhHash}88ac`
     );
@@ -953,5 +961,172 @@ describe("ScriptExecutionSteps", () => {
       screen.getAllByRole("button", { name: /Close/i }).length
     ).toBeGreaterThan(0);
     spy.mockRestore();
+  });
+
+  it("marks an opcode in a not-taken branch with a 'branch not executed' badge", async () => {
+    const user = userEvent.setup();
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: true,
+          steps: [
+            {
+              pc: 0,
+              opcode: 0,
+              opcode_name: "OP_0",
+              stack_before: [],
+              stack_after: [""],
+              phase: "scriptPubKey",
+              branch_active: true,
+            },
+            {
+              pc: 1,
+              opcode: 99,
+              opcode_name: "OP_IF",
+              stack_before: [""],
+              stack_after: [],
+              phase: "scriptPubKey",
+              branch_active: true,
+            },
+            {
+              pc: 2,
+              opcode: 106,
+              opcode_name: "OP_RETURN",
+              stack_before: [],
+              stack_after: [],
+              phase: "scriptPubKey",
+              branch_active: false,
+            },
+          ],
+        }}
+      />
+    );
+
+    const nextButton = screen.getByRole("button", { name: /Next/i });
+    await user.click(nextButton);
+    await user.click(nextButton);
+
+    expect(screen.getByText("OP_RETURN")).toBeInTheDocument();
+    expect(screen.getByText(/branch not executed/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/inside a branch that was not taken/i)
+    ).toBeInTheDocument();
+  });
+
+  it("curates the op_success and taproot_annex validator events", () => {
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: true,
+          scriptPubKey: `5120${"11".repeat(32)}`,
+          steps: [
+            {
+              pc: 3,
+              kind: "validator",
+              step: "op_success",
+              opcode_name: "op_success",
+              policy: "ok",
+              stack_before: ["aa"],
+              stack_after: ["aa"],
+              phase: "taproot",
+            },
+          ],
+        }}
+      />
+    );
+    expect(
+      screen.getByText(/OP_SUCCESS — leaf succeeds without executing/i)
+    ).toBeInTheDocument();
+    expect(screen.getByText("BIP342")).toBeInTheDocument();
+  });
+
+  it("glosses a terminal failure by its machine error_code", async () => {
+    const user = userEvent.setup();
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: false,
+          error: "invalid schnorr signature size",
+          scriptPubKey: `5120${"11".repeat(32)}`,
+          steps: [
+            {
+              pc: -1,
+              kind: "validator",
+              step: "witness_stack",
+              opcode_name: "taproot_witness",
+              stack_before: ["aa"],
+              stack_after: ["aa"],
+              phase: "taproot",
+            },
+            {
+              pc: -1,
+              kind: "validator",
+              step: "schnorr_verify",
+              opcode_name: "taproot_schnorr_verify",
+              stack_before: ["aa"],
+              stack_after: [],
+              failed: true,
+              error: "invalid schnorr signature size",
+              error_code: "SCHNORR_SIG_SIZE",
+              phase: "taproot",
+            },
+          ],
+        }}
+      />
+    );
+    const nextButton = screen.getByRole("button", { name: /Next/i });
+    await user.click(nextButton);
+    // raw error + curated gloss both present
+    expect(
+      screen.getByText("invalid schnorr signature size")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/must be 64 or 65 bytes/i)
+    ).toBeInTheDocument();
+  });
+
+  it("labels the tapscript pane with committed/executed state", () => {
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: true,
+          scriptPubKey: `5120${"11".repeat(32)}`,
+          witnessScript: "51",
+          steps: [
+            {
+              pc: -1,
+              kind: "validator",
+              step: "witness_script",
+              opcode_name: "witness_script",
+              script_hex: "51",
+              committed: true,
+              executed: true,
+              stack_before: [],
+              stack_after: [],
+              phase: "witnessScript",
+            },
+            {
+              pc: 0,
+              opcode: 81,
+              opcode_name: "OP_1",
+              stack_before: [],
+              stack_after: ["01"],
+              phase: "witnessScript",
+            },
+          ],
+        }}
+      />
+    );
+    expect(screen.getByTestId("tapscript-script-pane")).toHaveTextContent(
+      /committed by the control block and executed/i
+    );
   });
 });

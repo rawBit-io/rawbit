@@ -82,6 +82,22 @@ const isValidatorStep = (step: StepData) =>
   (step.pc ?? 0) < 0 ||
   (step.pc === undefined && step.opcode === undefined);
 
+/**
+ * Pure witness bookkeeping that the walker does not dedicate steps to: the
+ * v0 program-pattern match and the per-item deserialization. These are pure
+ * mechanics ("the witness is data, not a script") and are conveyed by the
+ * witness pane instead. The two rule steps that carry actual teaching value
+ * — the P2WSH hash-check (witness_script_check) and the P2WPKH scriptCode
+ * derivation (scriptcode_derive) — are intentionally NOT hidden: they are
+ * walked as Rule steps, symmetric with the P2SH and Taproot commitment
+ * checks. Hiding is keyed on the machine step name, not the phase, so those
+ * two remain visible even though they share phase "witness".
+ */
+const HIDDEN_BOOKKEEPING_STEPS = new Set(["witness_program_match", "witness_load"]);
+
+const isHiddenBookkeeping = (step: StepData) =>
+  HIDDEN_BOOKKEEPING_STEPS.has(step.step ?? "");
+
 interface ValidatorStepInfo {
   bip: string;
   title: string;
@@ -191,6 +207,32 @@ const validatorStepInfo = (step: StepData): ValidatorStepInfo => {
           "block must still commit to the leaf, but the script is not " +
           "executed and the spend is deemed valid — while standard policy " +
           "discourages relaying such spends today.",
+      };
+    case "op_success":
+      return {
+        bip: "BIP342",
+        title:
+          step.policy === "discouraged"
+            ? "OP_SUCCESS (discouraged by policy)"
+            : "OP_SUCCESS — leaf succeeds without executing",
+        explain:
+          "The tapscript contains an OP_SUCCESSx opcode. Under consensus " +
+          "the whole leaf immediately succeeds and its remaining opcodes " +
+          "are never executed (they are reserved for future upgrades). " +
+          (step.policy === "discouraged"
+            ? "Standard policy discourages relaying such spends, so this " +
+              "flag combination rejects it."
+            : "Standard relay policy discourages this, but consensus accepts it."),
+      };
+    case "taproot_annex":
+      return {
+        bip: "BIP341",
+        title: "Process the annex",
+        explain:
+          "The witness ends with an annex (a 0x50-prefixed element). It is " +
+          "stripped from the stack before execution and its hash is folded " +
+          "into the signature message, so signatures commit to it even " +
+          "though the script never sees it.",
       };
     case "trace_truncated":
       return {
@@ -422,6 +464,48 @@ const OPCODES: Record<string, string> = {
   OP_NOP10: "Reserved NOP.",
   OP_RETURN: "Fail immediately; commonly used to make outputs unspendable.",
   /* you can continue with OP_CODESEPARATOR, OP_CAT (disabled)… */
+};
+
+/**
+ * Curated one-line explanations for the machine `error_code` that the
+ * validator attaches to a terminal failure step. Purely additive: the raw
+ * `error` message is always shown; this adds a friendlier gloss when the
+ * code is recognized, and is silently skipped otherwise.
+ */
+const ERROR_CODE_EXPLAIN: Record<string, string> = {
+  WITNESS_PROGRAM_MISMATCH:
+    "The revealed script/key does not hash to the program committed in the scriptPubKey.",
+  WITNESS_PROGRAM_WITNESS_EMPTY: "A witness program requires a non-empty witness.",
+  WITNESS_PROGRAM_WRONG_LENGTH:
+    "The witness program length does not match any known version (20 or 32 bytes).",
+  WITNESS_MALLEATED: "A native witness spend must have an empty scriptSig.",
+  WITNESS_UNEXPECTED: "Witness data was supplied for a non-witness output.",
+  TWEAK_MISMATCH:
+    "The Taproot output key is not the internal key tweaked by this script tree — the control block does not commit to this leaf.",
+  TAPROOT_WRONG_CONTROL_SIZE:
+    "The control block length is invalid (must be 33 + 32·k bytes).",
+  SCHNORR_SIG_SIZE: "A Schnorr signature must be 64 or 65 bytes.",
+  SCHNORR_SIG_HASHTYPE: "The signature's sighash byte is not a valid type.",
+  SCHNORR_SIG: "The Schnorr signature failed verification against the key and sighash.",
+  MISSING_SPENT_OUTPUTS:
+    "Taproot signature verification needs the spent outputs (amount + scriptPubKey) for every input.",
+  SIGHASH_ERROR: "The signature hash could not be computed (e.g. SIGHASH_SINGLE with no matching output).",
+  PUSH_SIZE: "A stack element exceeds the 520-byte maximum.",
+  STACK_SIZE: "The stack exceeds the 1000-item limit.",
+  SCRIPT_SIZE: "The script exceeds the maximum size.",
+  BAD_OPCODE: "The script is not decodable (a truncated or invalid opcode).",
+  UNBALANCED_CONDITIONAL: "An OP_IF/OP_NOTIF was never closed by OP_ENDIF.",
+  EVAL_FALSE: "Execution finished with a false (or empty) value on top of the stack.",
+  CLEANSTACK: "Execution left more than one item on the stack (CLEANSTACK requires exactly one).",
+  CLEANSTACK_REQUIRES_P2SH: "Invalid flag combination: CLEANSTACK requires P2SH.",
+  CLEANSTACK_REQUIRES_WITNESS: "Invalid flag combination: CLEANSTACK requires WITNESS.",
+  WITNESS_REQUIRES_P2SH: "Invalid flag combination: WITNESS requires P2SH.",
+  SIG_PUSHONLY: "The scriptSig must be push-only under SIGPUSHONLY.",
+  DISCOURAGE_OP_SUCCESS: "OP_SUCCESSx is discouraged by standard relay policy.",
+  DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM:
+    "An unknown witness version is discouraged by standard relay policy.",
+  DISCOURAGE_UPGRADABLE_TAPROOT_VERSION:
+    "An unknown Taproot leaf version is discouraged by standard relay policy.",
 };
 
 const OPCODE_NAME_BY_BYTE = (() => {
@@ -752,10 +836,10 @@ function ScriptExecutionStepsInner({
       );
     }
     lines.push("");
-    // Mirror the dialog: witness bookkeeping steps are not walked, so the
+    // Mirror the dialog: hidden bookkeeping steps are not walked, so the
     // copied numbering matches the on-screen "Step N/M" indicator.
     const copySteps = ((scriptResult.steps ?? []) as StepData[]).filter(
-      (s) => s.phase !== "witness",
+      (s) => !isHiddenBookkeeping(s),
     );
     copySteps.forEach((s, i) => {
       const stackBefore = s.stack_before ?? [];
@@ -791,12 +875,12 @@ function ScriptExecutionStepsInner({
     [],
   );
 
-  // The trace carries validator bookkeeping (phase "witness") for SegWit
-  // inputs; the modal walks opcode steps only, P2SH-style — the pane
-  // captions explain where derived data (scriptCode, witness items) comes
-  // from instead of dedicating steps to it.
+  // The trace carries validator bookkeeping for SegWit inputs; the walker
+  // hides only the pure mechanics (program match, item load) — the witness
+  // pane explains those — while the hash-check and scriptCode-derivation
+  // rules stay walkable (see isHiddenBookkeeping).
   const visibleSteps = ((scriptResult?.steps ?? []) as StepData[]).filter(
-    (traceStep) => traceStep.phase !== "witness",
+    (traceStep) => !isHiddenBookkeeping(traceStep),
   );
 
   /* placeholder if no trace */
@@ -863,8 +947,23 @@ function ScriptExecutionStepsInner({
     : scriptCodeHex
       ? "scriptCode"
       : "witnessScript";
+  // Taproot script-path: reflect the commitment/execution state the
+  // validator reported on the witness_script event, so the tapscript pane
+  // says whether the leaf was actually run (an OP_SUCCESS or unknown-version
+  // leaf is committed but never executed).
+  const witnessScriptStep = ((scriptResult.steps ?? []) as StepData[]).find(
+    (s) => s.step === "witness_script",
+  );
+  const taprootExecCaption =
+    witnessScriptStep === undefined
+      ? undefined
+      : witnessScriptStep.executed
+        ? "revealed leaf — committed by the control block and executed"
+        : witnessScriptStep.committed
+          ? "revealed leaf — committed by the control block, but not executed"
+          : "revealed leaf — commitment not verified";
   const execCaption = isTaprootTrace
-    ? undefined
+    ? taprootExecCaption
     : scriptCodeHex
       ? "derived from scriptPubKey — BIP143, never transmitted"
       : "last witness item, hash-checked against the program";
@@ -886,10 +985,20 @@ function ScriptExecutionStepsInner({
   const validatorCurrent = isValidatorStep(step);
   const validatorInfo = validatorCurrent ? validatorStepInfo(step) : null;
 
+  // B15: an opcode inside a not-taken IF/ELSE branch is processed (the
+  // engine still tracks nesting) but does not run. The library marks it
+  // branch_active:false; we render it dimmed with a badge so learners don't
+  // mistake a skipped opcode for one that executed.
+  const branchInactive = step.branch_active === false;
+
   const pretty = prettify(step.opcode, step.opcode_name);
-  const explain = validatorCurrent
-    ? (validatorInfo?.explain ?? "")
-    : opcodeExplanation(pretty);
+  const explain = branchInactive
+    ? "This opcode is inside a branch that was not taken, so it is skipped — " +
+      "the stack is unchanged. It still counts toward script limits and, if " +
+      "it is a disabled or always-invalid opcode, still fails the script."
+    : validatorCurrent
+      ? (validatorInfo?.explain ?? "")
+      : opcodeExplanation(pretty);
 
   const stepStackBefore = step.stack_before ?? [];
   const stepStackAfter = step.stack_after ?? [];
@@ -909,13 +1018,20 @@ function ScriptExecutionStepsInner({
   const showWitnessPane = !isTaprootTrace && witnessStack.length > 0;
 
   // SegWit v0: two one-time notes around the phase switch. On the last
-  // old-rules step, explain the verdict old nodes stop at; on the first
+  // scriptPubKey step, explain the verdict old nodes stop at; on the first
   // scriptCode/witnessScript step, explain the fresh-stack second run —
-  // the stack jump would otherwise be unexplained.
+  // the stack jump would otherwise be unexplained. The old-rules note keys
+  // on the scriptPubKey→witness boundary (not simply the step before the
+  // first executed step) so it stays put now that the derivation rule step
+  // is walked between them.
   const firstExecIdx = steps.findIndex((s) => s.phase === "witnessScript");
+  const lastScriptPubKeyIdx = steps.reduce(
+    (acc, s, i) => (s.phase === "scriptPubKey" ? i : acc),
+    -1,
+  );
   const segwitV0Notes = !isTaprootTrace && !!execHex && firstExecIdx > -1;
   const transitionNote =
-    segwitV0Notes && firstExecIdx > 0 && safeIdx === firstExecIdx - 1
+    segwitV0Notes && lastScriptPubKeyIdx > -1 && safeIdx === lastScriptPubKeyIdx
       ? "For old nodes the script ends here: the top of the stack is not " +
         "zero, so the spend is valid under their rules."
       : segwitV0Notes && safeIdx === firstExecIdx
@@ -1074,6 +1190,7 @@ function ScriptExecutionStepsInner({
                 validatorCurrent
                   ? "script-execution-rule-surface"
                   : "border-primary/20 bg-primary/5",
+                branchInactive && "opacity-55",
               )}
             >
               <div className="flex items-start justify-between gap-3">
@@ -1093,6 +1210,11 @@ function ScriptExecutionStepsInner({
                   </span>
                 </div>
                 <span className="flex shrink-0 items-center gap-2">
+                  {branchInactive && (
+                    <span className="rounded-sm border border-muted-foreground/40 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      branch not executed
+                    </span>
+                  )}
                   {validatorCurrent && validatorInfo?.bip && (
                     <span className="script-execution-rule rounded-sm border border-current/40 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide">
                       {validatorInfo.bip}
@@ -1110,6 +1232,11 @@ function ScriptExecutionStepsInner({
               {step.error && (
                 <div className="script-execution-error mt-1 text-xs font-medium">
                   {step.error}
+                </div>
+              )}
+              {step.error_code && ERROR_CODE_EXPLAIN[step.error_code] && (
+                <div className="mt-1 text-xs text-muted-foreground">
+                  {ERROR_CODE_EXPLAIN[step.error_code]}
                 </div>
               )}
             </div>

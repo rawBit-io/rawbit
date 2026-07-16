@@ -1608,6 +1608,38 @@ def test_script_verification_excluding_witness_clears_dependents():
     assert result["isValid"] is True
 
 
+def test_script_verification_exposes_taproot_policy_flags():
+    tx_hex = build_sample_tx_hex()
+    result = json.loads(calc.script_verification(["", "51", tx_hex, 0, ""]))
+    # the three Taproot policy flags are active AND disclosed in activeFlags
+    for name in (
+        "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
+        "DISCOURAGE_OP_SUCCESS",
+        "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+    ):
+        assert name in result["activeFlags"], name
+    # and each can now be excluded by name instead of raising "Unknown flag"
+    excluded = json.loads(
+        calc.script_verification(["", "51", tx_hex, 0, "DISCOURAGE_OP_SUCCESS"])
+    )
+    assert "DISCOURAGE_OP_SUCCESS" in excluded["excludedFlags"]
+    assert "DISCOURAGE_OP_SUCCESS" not in excluded["activeFlags"]
+    assert excluded["isValid"] is True
+
+
+def test_script_verification_excluding_taproot_clears_taproot_policy_flags():
+    tx_hex = build_sample_tx_hex()
+    result = json.loads(calc.script_verification(["", "51", tx_hex, 0, "TAPROOT"]))
+    assert {
+        "TAPROOT",
+        "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
+        "DISCOURAGE_OP_SUCCESS",
+        "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+    } <= set(result["excludedFlags"])
+    assert "TAPROOT" not in result["activeFlags"]
+    assert result["isValid"] is True
+
+
 def test_script_verification_legacy_false_spend_does_not_report_witness():
     tx_hex = build_sample_tx_hex()
     result = json.loads(calc.script_verification(["51", "00", tx_hex, 0, ""]))

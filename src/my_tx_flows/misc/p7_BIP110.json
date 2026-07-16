@@ -1588,7 +1588,8 @@
               "stack_after": [
                 "3044022047c61e861b510ada3dff49ba5abaabb11ce37fe260bf5bcd031771b060bb52880220793532c0e3a7debc9fdf07c7aa79b0c03cd44c8b8e81be0f89693f3906ba5faa01"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 72,
@@ -1601,7 +1602,8 @@
                 "3044022047c61e861b510ada3dff49ba5abaabb11ce37fe260bf5bcd031771b060bb52880220793532c0e3a7debc9fdf07c7aa79b0c03cd44c8b8e81be0f89693f3906ba5faa01",
                 "02b853bcd49de868b051ef09d7c845e8dda1999dd93cfaca0a6eb04970d47ca37e"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 0,
@@ -1616,7 +1618,8 @@
                 "02b853bcd49de868b051ef09d7c845e8dda1999dd93cfaca0a6eb04970d47ca37e",
                 "02b853bcd49de868b051ef09d7c845e8dda1999dd93cfaca0a6eb04970d47ca37e"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 1,
@@ -1632,7 +1635,8 @@
                 "02b853bcd49de868b051ef09d7c845e8dda1999dd93cfaca0a6eb04970d47ca37e",
                 "ff1c256d26165ace61b9830cb199e53960077f4a"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 2,
@@ -1649,7 +1653,8 @@
                 "ff1c256d26165ace61b9830cb199e53960077f4a",
                 "ff1c256d26165ace61b9830cb199e53960077f4a"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 23,
@@ -1665,7 +1670,8 @@
                 "3044022047c61e861b510ada3dff49ba5abaabb11ce37fe260bf5bcd031771b060bb52880220793532c0e3a7debc9fdf07c7aa79b0c03cd44c8b8e81be0f89693f3906ba5faa01",
                 "02b853bcd49de868b051ef09d7c845e8dda1999dd93cfaca0a6eb04970d47ca37e"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 24,
@@ -1675,10 +1681,9 @@
                 "3044022047c61e861b510ada3dff49ba5abaabb11ce37fe260bf5bcd031771b060bb52880220793532c0e3a7debc9fdf07c7aa79b0c03cd44c8b8e81be0f89693f3906ba5faa01",
                 "02b853bcd49de868b051ef09d7c845e8dda1999dd93cfaca0a6eb04970d47ca37e"
               ],
-              "stack_after": [
-                "01"
-              ],
-              "phase": "scriptPubKey"
+              "stack_after": ["01"],
+              "phase": "scriptPubKey",
+              "branch_active": true
             }
           ],
           "scriptSig": "473044022047c61e861b510ada3dff49ba5abaabb11ce37fe260bf5bcd031771b060bb52880220793532c0e3a7debc9fdf07c7aa79b0c03cd44c8b8e81be0f89693f3906ba5faa012102b853bcd49de868b051ef09d7c845e8dda1999dd93cfaca0a6eb04970d47ca37e",
@@ -1688,8 +1693,12 @@
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
             "MINIMALDATA",
@@ -3485,7 +3494,8 @@
               "stack_after": [
                 "30440220310bae7073a4d164c116054d65cb408ad245ee26c43d3b84bd1aa85c975f4b06022031654d1ee85df80341b37cfba307d4f44ef73db3f692efc4cb30551abbb89bb901"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 72,
@@ -3498,7 +3508,8 @@
                 "30440220310bae7073a4d164c116054d65cb408ad245ee26c43d3b84bd1aa85c975f4b06022031654d1ee85df80341b37cfba307d4f44ef73db3f692efc4cb30551abbb89bb901",
                 "4ca7546865206d61696e20636c61696d206f6620746865204b6e6f747320737570706f7274657273206973207468617420776865746865722074686520646174612069732073746f726564206f6e206469736b20696e746572727570746564206279206f746865722064617461206f72206e6f742028636f6e746967756f7573292068617320616e792062656172696e67206f6e2077686574686572206974206973206c6567616c2e4c84205468657265666f72652c207468657920636c61696d2c207765206861766520746f206465637265617365207468652073697a65206f6620657665727920626974206f66206461746120426974636f696e2073746f72657320746f20656e73757265206e6f626f64792063616e20646f20616e797468696e67206c696b6520746861742e2020546865206964656120697320616c7265616479207269646963756c6f75732e7575752103c35139c7b76ef1c1d6cdc1bd56eb11ba5c260a7493b528bb74a8aa8f12cb7a63ac"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 0,
@@ -3512,7 +3523,8 @@
                 "30440220310bae7073a4d164c116054d65cb408ad245ee26c43d3b84bd1aa85c975f4b06022031654d1ee85df80341b37cfba307d4f44ef73db3f692efc4cb30551abbb89bb901",
                 "f8d2daebfaa45ba32b41a85d1091f1879a908438"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 1,
@@ -3527,7 +3539,8 @@
                 "f8d2daebfaa45ba32b41a85d1091f1879a908438",
                 "f8d2daebfaa45ba32b41a85d1091f1879a908438"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 22,
@@ -3542,7 +3555,8 @@
                 "30440220310bae7073a4d164c116054d65cb408ad245ee26c43d3b84bd1aa85c975f4b06022031654d1ee85df80341b37cfba307d4f44ef73db3f692efc4cb30551abbb89bb901",
                 "01"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 0,
@@ -3555,7 +3569,8 @@
                 "30440220310bae7073a4d164c116054d65cb408ad245ee26c43d3b84bd1aa85c975f4b06022031654d1ee85df80341b37cfba307d4f44ef73db3f692efc4cb30551abbb89bb901",
                 "546865206d61696e20636c61696d206f6620746865204b6e6f747320737570706f7274657273206973207468617420776865746865722074686520646174612069732073746f726564206f6e206469736b20696e746572727570746564206279206f746865722064617461206f72206e6f742028636f6e746967756f7573292068617320616e792062656172696e67206f6e2077686574686572206974206973206c6567616c2e"
               ],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 169,
@@ -3570,7 +3585,8 @@
                 "546865206d61696e20636c61696d206f6620746865204b6e6f747320737570706f7274657273206973207468617420776865746865722074686520646174612069732073746f726564206f6e206469736b20696e746572727570746564206279206f746865722064617461206f72206e6f742028636f6e746967756f7573292068617320616e792062656172696e67206f6e2077686574686572206974206973206c6567616c2e",
                 "205468657265666f72652c207468657920636c61696d2c207765206861766520746f206465637265617365207468652073697a65206f6620657665727920626974206f66206461746120426974636f696e2073746f72657320746f20656e73757265206e6f626f64792063616e20646f20616e797468696e67206c696b6520746861742e"
               ],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 303,
@@ -3587,7 +3603,8 @@
                 "205468657265666f72652c207468657920636c61696d2c207765206861766520746f206465637265617365207468652073697a65206f6620657665727920626974206f66206461746120426974636f696e2073746f72657320746f20656e73757265206e6f626f64792063616e20646f20616e797468696e67206c696b6520746861742e",
                 "20546865206964656120697320616c7265616479207269646963756c6f75732e"
               ],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 336,
@@ -3604,7 +3621,8 @@
                 "546865206d61696e20636c61696d206f6620746865204b6e6f747320737570706f7274657273206973207468617420776865746865722074686520646174612069732073746f726564206f6e206469736b20696e746572727570746564206279206f746865722064617461206f72206e6f742028636f6e746967756f7573292068617320616e792062656172696e67206f6e2077686574686572206974206973206c6567616c2e",
                 "205468657265666f72652c207468657920636c61696d2c207765206861766520746f206465637265617365207468652073697a65206f6620657665727920626974206f66206461746120426974636f696e2073746f72657320746f20656e73757265206e6f626f64792063616e20646f20616e797468696e67206c696b6520746861742e"
               ],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 337,
@@ -3619,7 +3637,8 @@
                 "30440220310bae7073a4d164c116054d65cb408ad245ee26c43d3b84bd1aa85c975f4b06022031654d1ee85df80341b37cfba307d4f44ef73db3f692efc4cb30551abbb89bb901",
                 "546865206d61696e20636c61696d206f6620746865204b6e6f747320737570706f7274657273206973207468617420776865746865722074686520646174612069732073746f726564206f6e206469736b20696e746572727570746564206279206f746865722064617461206f72206e6f742028636f6e746967756f7573292068617320616e792062656172696e67206f6e2077686574686572206974206973206c6567616c2e"
               ],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 338,
@@ -3632,7 +3651,8 @@
               "stack_after": [
                 "30440220310bae7073a4d164c116054d65cb408ad245ee26c43d3b84bd1aa85c975f4b06022031654d1ee85df80341b37cfba307d4f44ef73db3f692efc4cb30551abbb89bb901"
               ],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 339,
@@ -3645,7 +3665,8 @@
                 "30440220310bae7073a4d164c116054d65cb408ad245ee26c43d3b84bd1aa85c975f4b06022031654d1ee85df80341b37cfba307d4f44ef73db3f692efc4cb30551abbb89bb901",
                 "03c35139c7b76ef1c1d6cdc1bd56eb11ba5c260a7493b528bb74a8aa8f12cb7a63"
               ],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 373,
@@ -3655,10 +3676,9 @@
                 "30440220310bae7073a4d164c116054d65cb408ad245ee26c43d3b84bd1aa85c975f4b06022031654d1ee85df80341b37cfba307d4f44ef73db3f692efc4cb30551abbb89bb901",
                 "03c35139c7b76ef1c1d6cdc1bd56eb11ba5c260a7493b528bb74a8aa8f12cb7a63"
               ],
-              "stack_after": [
-                "01"
-              ],
-              "phase": "redeemScript"
+              "stack_after": ["01"],
+              "phase": "redeemScript",
+              "branch_active": true
             }
           ],
           "scriptSig": "4730440220310bae7073a4d164c116054d65cb408ad245ee26c43d3b84bd1aa85c975f4b06022031654d1ee85df80341b37cfba307d4f44ef73db3f692efc4cb30551abbb89bb9014d76014ca7546865206d61696e20636c61696d206f6620746865204b6e6f747320737570706f7274657273206973207468617420776865746865722074686520646174612069732073746f726564206f6e206469736b20696e746572727570746564206279206f746865722064617461206f72206e6f742028636f6e746967756f7573292068617320616e792062656172696e67206f6e2077686574686572206974206973206c6567616c2e4c84205468657265666f72652c207468657920636c61696d2c207765206861766520746f206465637265617365207468652073697a65206f6620657665727920626974206f66206461746120426974636f696e2073746f72657320746f20656e73757265206e6f626f64792063616e20646f20616e797468696e67206c696b6520746861742e2020546865206964656120697320616c7265616479207269646963756c6f75732e7575752103c35139c7b76ef1c1d6cdc1bd56eb11ba5c260a7493b528bb74a8aa8f12cb7a63ac",
@@ -3668,8 +3688,12 @@
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
             "MINIMALDATA",

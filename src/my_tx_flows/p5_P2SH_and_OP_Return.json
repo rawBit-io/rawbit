@@ -1605,7 +1605,8 @@
               "stack_after": [
                 "304302205bf086d6e8db953e2ea4f50a09d2562fcc407d0792afc1990757a0e9e61d8e96021f6c9463a09fc81527d051c59bd2d67c150e5357d8705841458aed444926d1ee01"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 71,
@@ -1618,7 +1619,8 @@
                 "304302205bf086d6e8db953e2ea4f50a09d2562fcc407d0792afc1990757a0e9e61d8e96021f6c9463a09fc81527d051c59bd2d67c150e5357d8705841458aed444926d1ee01",
                 "03b7881c8fe895e5d5b0b02c5b35057a61e54621cf146c095afd36b4ef5887ed36"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 0,
@@ -1633,7 +1635,8 @@
                 "03b7881c8fe895e5d5b0b02c5b35057a61e54621cf146c095afd36b4ef5887ed36",
                 "03b7881c8fe895e5d5b0b02c5b35057a61e54621cf146c095afd36b4ef5887ed36"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 1,
@@ -1649,7 +1652,8 @@
                 "03b7881c8fe895e5d5b0b02c5b35057a61e54621cf146c095afd36b4ef5887ed36",
                 "2ac255dc3eb0e0c14406b41bd89745d165822c5a"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 2,
@@ -1666,7 +1670,8 @@
                 "2ac255dc3eb0e0c14406b41bd89745d165822c5a",
                 "2ac255dc3eb0e0c14406b41bd89745d165822c5a"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 23,
@@ -1682,7 +1687,8 @@
                 "304302205bf086d6e8db953e2ea4f50a09d2562fcc407d0792afc1990757a0e9e61d8e96021f6c9463a09fc81527d051c59bd2d67c150e5357d8705841458aed444926d1ee01",
                 "03b7881c8fe895e5d5b0b02c5b35057a61e54621cf146c095afd36b4ef5887ed36"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 24,
@@ -1692,10 +1698,9 @@
                 "304302205bf086d6e8db953e2ea4f50a09d2562fcc407d0792afc1990757a0e9e61d8e96021f6c9463a09fc81527d051c59bd2d67c150e5357d8705841458aed444926d1ee01",
                 "03b7881c8fe895e5d5b0b02c5b35057a61e54621cf146c095afd36b4ef5887ed36"
               ],
-              "stack_after": [
-                "01"
-              ],
-              "phase": "scriptPubKey"
+              "stack_after": ["01"],
+              "phase": "scriptPubKey",
+              "branch_active": true
             }
           ],
           "scriptSig": "46304302205bf086d6e8db953e2ea4f50a09d2562fcc407d0792afc1990757a0e9e61d8e96021f6c9463a09fc81527d051c59bd2d67c150e5357d8705841458aed444926d1ee012103b7881c8fe895e5d5b0b02c5b35057a61e54621cf146c095afd36b4ef5887ed36",
@@ -1705,8 +1710,12 @@
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
             "MINIMALDATA",
@@ -4459,7 +4468,8 @@
               "stack_after": [
                 "304402202c64540aad20d80311b4dce8b4a9f2e928b5fc1fa0891a311798760f8a65e32c022018f8a5883beaa9cd6469f29666705e28cc387a634266cc6b165419d37d0f5ff001"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 72,
@@ -4472,7 +4482,8 @@
                 "304402202c64540aad20d80311b4dce8b4a9f2e928b5fc1fa0891a311798760f8a65e32c022018f8a5883beaa9cd6469f29666705e28cc387a634266cc6b165419d37d0f5ff001",
                 "01"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 73,
@@ -4487,7 +4498,8 @@
                 "01",
                 "632103248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5ac6704a721316ab17521029d6b8399f89c5fc633cdec81c4f4685ae13858494a2c501a0721c15f9ed086d7ac68"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 0,
@@ -4503,7 +4515,8 @@
                 "01",
                 "031c71e45837d9a1591bf6faf999ebb50d181ef5"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 1,
@@ -4520,7 +4533,8 @@
                 "031c71e45837d9a1591bf6faf999ebb50d181ef5",
                 "031c71e45837d9a1591bf6faf999ebb50d181ef5"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 22,
@@ -4537,7 +4551,8 @@
                 "01",
                 "01"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 0,
@@ -4550,7 +4565,8 @@
               "stack_after": [
                 "304402202c64540aad20d80311b4dce8b4a9f2e928b5fc1fa0891a311798760f8a65e32c022018f8a5883beaa9cd6469f29666705e28cc387a634266cc6b165419d37d0f5ff001"
               ],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 1,
@@ -4563,7 +4579,8 @@
                 "304402202c64540aad20d80311b4dce8b4a9f2e928b5fc1fa0891a311798760f8a65e32c022018f8a5883beaa9cd6469f29666705e28cc387a634266cc6b165419d37d0f5ff001",
                 "03248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5"
               ],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 35,
@@ -4573,94 +4590,72 @@
                 "304402202c64540aad20d80311b4dce8b4a9f2e928b5fc1fa0891a311798760f8a65e32c022018f8a5883beaa9cd6469f29666705e28cc387a634266cc6b165419d37d0f5ff001",
                 "03248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5"
               ],
-              "stack_after": [
-                "01"
-              ],
-              "phase": "redeemScript"
+              "stack_after": ["01"],
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 36,
               "opcode": 103,
               "opcode_name": "OP_ELSE",
-              "stack_before": [
-                "01"
-              ],
-              "stack_after": [
-                "01"
-              ],
-              "phase": "redeemScript"
+              "stack_before": ["01"],
+              "stack_after": ["01"],
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 37,
               "opcode": 4,
               "opcode_name": "PUSH 4 bytes",
-              "stack_before": [
-                "01"
-              ],
-              "stack_after": [
-                "01"
-              ],
-              "phase": "redeemScript"
+              "stack_before": ["01"],
+              "stack_after": ["01"],
+              "phase": "redeemScript",
+              "branch_active": false
             },
             {
               "pc": 42,
               "opcode": 177,
               "opcode_name": "OP_CHECKLOCKTIMEVERIFY",
-              "stack_before": [
-                "01"
-              ],
-              "stack_after": [
-                "01"
-              ],
-              "phase": "redeemScript"
+              "stack_before": ["01"],
+              "stack_after": ["01"],
+              "phase": "redeemScript",
+              "branch_active": false
             },
             {
               "pc": 43,
               "opcode": 117,
               "opcode_name": "OP_DROP",
-              "stack_before": [
-                "01"
-              ],
-              "stack_after": [
-                "01"
-              ],
-              "phase": "redeemScript"
+              "stack_before": ["01"],
+              "stack_after": ["01"],
+              "phase": "redeemScript",
+              "branch_active": false
             },
             {
               "pc": 44,
               "opcode": 33,
               "opcode_name": "PUSH 33 bytes",
-              "stack_before": [
-                "01"
-              ],
-              "stack_after": [
-                "01"
-              ],
-              "phase": "redeemScript"
+              "stack_before": ["01"],
+              "stack_after": ["01"],
+              "phase": "redeemScript",
+              "branch_active": false
             },
             {
               "pc": 78,
               "opcode": 172,
               "opcode_name": "OP_CHECKSIG",
-              "stack_before": [
-                "01"
-              ],
-              "stack_after": [
-                "01"
-              ],
-              "phase": "redeemScript"
+              "stack_before": ["01"],
+              "stack_after": ["01"],
+              "phase": "redeemScript",
+              "branch_active": false
             },
             {
               "pc": 79,
               "opcode": 104,
               "opcode_name": "OP_ENDIF",
-              "stack_before": [
-                "01"
-              ],
-              "stack_after": [
-                "01"
-              ],
-              "phase": "redeemScript"
+              "stack_before": ["01"],
+              "stack_after": ["01"],
+              "phase": "redeemScript",
+              "branch_active": false
             }
           ],
           "scriptSig": "47304402202c64540aad20d80311b4dce8b4a9f2e928b5fc1fa0891a311798760f8a65e32c022018f8a5883beaa9cd6469f29666705e28cc387a634266cc6b165419d37d0f5ff001514c50632103248f243cee747782209f98dfde440c287e15d8f1bc1be20542fe83b3e0da4ed5ac6704a721316ab17521029d6b8399f89c5fc633cdec81c4f4685ae13858494a2c501a0721c15f9ed086d7ac68",
@@ -4670,8 +4665,12 @@
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
             "MINIMALDATA",

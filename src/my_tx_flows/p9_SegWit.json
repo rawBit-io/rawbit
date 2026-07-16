@@ -1125,7 +1125,8 @@
               "opcode_name": "OP_0",
               "stack_before": [],
               "stack_after": [""],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 1,
@@ -1133,7 +1134,8 @@
               "opcode_name": "PUSH 20 bytes",
               "stack_before": [""],
               "stack_after": ["", "ac5481e5be3e36c82a8db4340da410e1cffef479"],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": -1,
@@ -1206,7 +1208,8 @@
                 "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf",
                 "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf"
               ],
-              "phase": "witnessScript"
+              "phase": "witnessScript",
+              "branch_active": true
             },
             {
               "pc": 1,
@@ -1222,7 +1225,8 @@
                 "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf",
                 "ac5481e5be3e36c82a8db4340da410e1cffef479"
               ],
-              "phase": "witnessScript"
+              "phase": "witnessScript",
+              "branch_active": true
             },
             {
               "pc": 2,
@@ -1239,7 +1243,8 @@
                 "ac5481e5be3e36c82a8db4340da410e1cffef479",
                 "ac5481e5be3e36c82a8db4340da410e1cffef479"
               ],
-              "phase": "witnessScript"
+              "phase": "witnessScript",
+              "branch_active": true
             },
             {
               "pc": 23,
@@ -1255,7 +1260,8 @@
                 "304402207732541827828e440c3a574a6312e9c3c3ee02c2e07061d3ea1e8f808b08be3e02200ccdebdc1ae8a54b079ebaa228a54a0f1e378f60c7763bb64a27367754a9ffc301",
                 "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf"
               ],
-              "phase": "witnessScript"
+              "phase": "witnessScript",
+              "branch_active": true
             },
             {
               "pc": 24,
@@ -1266,7 +1272,8 @@
                 "02c8f6da45015cb82fb98addbc8b2aaddad75a31389c9ad19da1d2e1a4d55b0bdf"
               ],
               "stack_after": ["01"],
-              "phase": "witnessScript"
+              "phase": "witnessScript",
+              "branch_active": true
             }
           ],
           "scriptSig": "",
@@ -1276,8 +1283,12 @@
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
             "MINIMALDATA",

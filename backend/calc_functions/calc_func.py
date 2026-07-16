@@ -70,6 +70,9 @@ from bitcointx.core.scripteval import (
     # convenience sets
     STANDARD_SCRIPT_VERIFY_FLAGS,
     UNHANDLED_SCRIPT_VERIFY_FLAGS,
+    # canonical name -> flag map (source of truth for every verify flag,
+    # incl. the Taproot policy flags rawBit used to omit)
+    SCRIPT_VERIFY_FLAGS_BY_NAME,
 )
 
 # ===== ADDRESS ENCODING HELPERS (Base58Check + Bech32/Bech32m) =====
@@ -3181,27 +3184,20 @@ def script_verification(vals: list) -> str:
     except Exception:
         pass
     
-    # Create explicit flag map for educational clarity
-    FLAG_BY_NAME = {
-        "P2SH": SCRIPT_VERIFY_P2SH,
-        "WITNESS": SCRIPT_VERIFY_WITNESS,
-        "CLEANSTACK": SCRIPT_VERIFY_CLEANSTACK,
-        "DERSIG": SCRIPT_VERIFY_DERSIG,
-        "LOW_S": SCRIPT_VERIFY_LOW_S,
-        "STRICTENC": SCRIPT_VERIFY_STRICTENC,
-        "NULLDUMMY": SCRIPT_VERIFY_NULLDUMMY,
-        "CHECKLOCKTIMEVERIFY": SCRIPT_VERIFY_CHECKLOCKTIMEVERIFY,
-        "CHECKSEQUENCEVERIFY": SCRIPT_VERIFY_CHECKSEQUENCEVERIFY,
-        "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM": SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM,
-        "WITNESS_PUBKEYTYPE": SCRIPT_VERIFY_WITNESS_PUBKEYTYPE,
-        "MINIMALDATA": SCRIPT_VERIFY_MINIMALDATA,
-        "SIGPUSHONLY": SCRIPT_VERIFY_SIGPUSHONLY,
-        "MINIMALIF": SCRIPT_VERIFY_MINIMALIF,
-        "NULLFAIL": SCRIPT_VERIFY_NULLFAIL,
-        "DISCOURAGE_UPGRADABLE_NOPS": SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_NOPS,
-        "CONST_SCRIPTCODE": SCRIPT_VERIFY_CONST_SCRIPTCODE,
-        "TAPROOT": SCRIPT_VERIFY_TAPROOT,
-    }
+    # Derive the exclude/display map from the library's canonical name->flag
+    # table so every verify flag the engine actually applies is disclosable
+    # to the user — including the Taproot policy flags
+    # (DISCOURAGE_UPGRADABLE_TAPROOT_VERSION, DISCOURAGE_OP_SUCCESS,
+    # DISCOURAGE_UPGRADABLE_PUBKEYTYPE) that a hand-written map used to omit.
+    FLAG_BY_NAME = dict(SCRIPT_VERIFY_FLAGS_BY_NAME)
+
+    # Flags whose meaning is gated on TAPROOT: excluding TAPROOT must also
+    # drop them, mirroring how excluding WITNESS drops its dependents.
+    TAPROOT_DEPENDENT_FLAGS = [
+        "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
+        "DISCOURAGE_OP_SUCCESS",
+        "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+    ]
     
     # ------------------------------------------------------------------
     # 1.  Parameter sanity
@@ -3309,8 +3305,24 @@ def script_verification(vals: list) -> str:
                 flags.discard(FLAG_BY_NAME[dep_flag])
                 if dep_flag not in excluded_names:
                     excluded_names.append(dep_flag)
-    
-    # Build list of active flags
+
+    # Excluding TAPROOT drops the Taproot-only policy flags too: they have no
+    # meaning once BIP341/342 validation is off.
+    if "TAPROOT" in excluded_names:
+        for dep_flag in TAPROOT_DEPENDENT_FLAGS:
+            if dep_flag in FLAG_BY_NAME:
+                flags.discard(FLAG_BY_NAME[dep_flag])
+                if dep_flag not in excluded_names:
+                    excluded_names.append(dep_flag)
+
+    # Build list of active flags. Every active flag has a name because the
+    # map is derived from the library's canonical table; assert it so a
+    # future library flag can never again be silently undisclosed.
+    displayable = {value for value in FLAG_BY_NAME.values()}
+    assert flags <= displayable, (
+        "active verify flags without a display name: "
+        f"{flags - displayable}"
+    )
     active_flags = sorted([name for name, value in FLAG_BY_NAME.items() if value in flags])
     # ------------------------------------------------------------------
     # 3.5  Extract witness AFTER flags are defined

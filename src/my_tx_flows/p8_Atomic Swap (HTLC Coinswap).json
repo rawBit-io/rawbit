@@ -763,7 +763,8 @@
               "stack_after": [
                 "30440220411f48841cb175b9a371d27ea5a48f3821e765c6a23cfdce112af0f69f470fc3022065d4740f1ebcfb3787a6b94a96f735b88a33582bd50043b40c658c935fc757d401"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 72,
@@ -776,7 +777,8 @@
                 "30440220411f48841cb175b9a371d27ea5a48f3821e765c6a23cfdce112af0f69f470fc3022065d4740f1ebcfb3787a6b94a96f735b88a33582bd50043b40c658c935fc757d401",
                 "0223c7c462b2707770025eee6a65fd5f10b4c991fc6a2ba75e010a0491f5a30e61"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 0,
@@ -791,7 +793,8 @@
                 "0223c7c462b2707770025eee6a65fd5f10b4c991fc6a2ba75e010a0491f5a30e61",
                 "0223c7c462b2707770025eee6a65fd5f10b4c991fc6a2ba75e010a0491f5a30e61"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 1,
@@ -807,7 +810,8 @@
                 "0223c7c462b2707770025eee6a65fd5f10b4c991fc6a2ba75e010a0491f5a30e61",
                 "e907394ae5ac6ada9bd956f919ed38acf89cb02f"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 2,
@@ -824,7 +828,8 @@
                 "e907394ae5ac6ada9bd956f919ed38acf89cb02f",
                 "e907394ae5ac6ada9bd956f919ed38acf89cb02f"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 23,
@@ -840,7 +845,8 @@
                 "30440220411f48841cb175b9a371d27ea5a48f3821e765c6a23cfdce112af0f69f470fc3022065d4740f1ebcfb3787a6b94a96f735b88a33582bd50043b40c658c935fc757d401",
                 "0223c7c462b2707770025eee6a65fd5f10b4c991fc6a2ba75e010a0491f5a30e61"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 24,
@@ -851,7 +857,8 @@
                 "0223c7c462b2707770025eee6a65fd5f10b4c991fc6a2ba75e010a0491f5a30e61"
               ],
               "stack_after": ["01"],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             }
           ],
           "scriptSig": "4730440220411f48841cb175b9a371d27ea5a48f3821e765c6a23cfdce112af0f69f470fc3022065d4740f1ebcfb3787a6b94a96f735b88a33582bd50043b40c658c935fc757d401210223c7c462b2707770025eee6a65fd5f10b4c991fc6a2ba75e010a0491f5a30e61",
@@ -861,8 +868,12 @@
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
             "MINIMALDATA",
@@ -3229,7 +3240,8 @@
               "stack_after": [
                 "3044022058c90839a02de0be27c3a7afbfad8da22c827d75e4890db5e4010deeaad3ddbb02202af9a30cea380e0a7a10002e83bfae9a325ca2235f92ba317576dc358786632701"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 72,
@@ -3242,7 +3254,8 @@
                 "3044022058c90839a02de0be27c3a7afbfad8da22c827d75e4890db5e4010deeaad3ddbb02202af9a30cea380e0a7a10002e83bfae9a325ca2235f92ba317576dc358786632701",
                 "0399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 0,
@@ -3257,7 +3270,8 @@
                 "0399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8",
                 "0399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 1,
@@ -3273,7 +3287,8 @@
                 "0399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8",
                 "77e1d233533d384009648908b087e5c27e1b5381"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 2,
@@ -3290,7 +3305,8 @@
                 "77e1d233533d384009648908b087e5c27e1b5381",
                 "77e1d233533d384009648908b087e5c27e1b5381"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 23,
@@ -3306,7 +3322,8 @@
                 "3044022058c90839a02de0be27c3a7afbfad8da22c827d75e4890db5e4010deeaad3ddbb02202af9a30cea380e0a7a10002e83bfae9a325ca2235f92ba317576dc358786632701",
                 "0399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 24,
@@ -3317,7 +3334,8 @@
                 "0399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8"
               ],
               "stack_after": ["01"],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             }
           ],
           "scriptSig": "473044022058c90839a02de0be27c3a7afbfad8da22c827d75e4890db5e4010deeaad3ddbb02202af9a30cea380e0a7a10002e83bfae9a325ca2235f92ba317576dc358786632701210399ccfb4af5581885590d4c8c5377e1999ac476620fa54b5970b2668c243c27b8",
@@ -3327,8 +3345,12 @@
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
             "MINIMALDATA",
@@ -5631,7 +5653,8 @@
               "stack_after": [
                 "304402202657d1057c25c234a0356825c1a05c2e4d0e046f648830b5b0f74d4ece33bdbc022066fc757b98e569be4a13fc677a4bcf8d9ba608593d6ffada229878983de5dfa301"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 72,
@@ -5644,7 +5667,8 @@
                 "304402202657d1057c25c234a0356825c1a05c2e4d0e046f648830b5b0f74d4ece33bdbc022066fc757b98e569be4a13fc677a4bcf8d9ba608593d6ffada229878983de5dfa301",
                 "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 105,
@@ -5659,7 +5683,8 @@
                 "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb",
                 "01"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 106,
@@ -5676,7 +5701,8 @@
                 "01",
                 "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd8821029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0aac6704a7dc486ab17521039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029dac68"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 0,
@@ -5694,7 +5720,8 @@
                 "01",
                 "99ea333b22c8eb5685aa79ab59c472f69844ffb3"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 1,
@@ -5713,7 +5740,8 @@
                 "99ea333b22c8eb5685aa79ab59c472f69844ffb3",
                 "99ea333b22c8eb5685aa79ab59c472f69844ffb3"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 22,
@@ -5732,7 +5760,8 @@
                 "01",
                 "01"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 0,
@@ -5747,7 +5776,8 @@
                 "304402202657d1057c25c234a0356825c1a05c2e4d0e046f648830b5b0f74d4ece33bdbc022066fc757b98e569be4a13fc677a4bcf8d9ba608593d6ffada229878983de5dfa301",
                 "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb"
               ],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 1,
@@ -5761,7 +5791,8 @@
                 "304402202657d1057c25c234a0356825c1a05c2e4d0e046f648830b5b0f74d4ece33bdbc022066fc757b98e569be4a13fc677a4bcf8d9ba608593d6ffada229878983de5dfa301",
                 "9995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd"
               ],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 2,
@@ -5776,7 +5807,8 @@
                 "9995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd",
                 "9995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd"
               ],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 35,
@@ -5790,7 +5822,8 @@
               "stack_after": [
                 "304402202657d1057c25c234a0356825c1a05c2e4d0e046f648830b5b0f74d4ece33bdbc022066fc757b98e569be4a13fc677a4bcf8d9ba608593d6ffada229878983de5dfa301"
               ],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 36,
@@ -5803,7 +5836,8 @@
                 "304402202657d1057c25c234a0356825c1a05c2e4d0e046f648830b5b0f74d4ece33bdbc022066fc757b98e569be4a13fc677a4bcf8d9ba608593d6ffada229878983de5dfa301",
                 "029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0a"
               ],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 70,
@@ -5814,7 +5848,8 @@
                 "029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0a"
               ],
               "stack_after": ["01"],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 71,
@@ -5822,7 +5857,8 @@
               "opcode_name": "OP_ELSE",
               "stack_before": ["01"],
               "stack_after": ["01"],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 72,
@@ -5830,7 +5866,8 @@
               "opcode_name": "PUSH 4 bytes",
               "stack_before": ["01"],
               "stack_after": ["01"],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": false
             },
             {
               "pc": 77,
@@ -5838,7 +5875,8 @@
               "opcode_name": "OP_CHECKLOCKTIMEVERIFY",
               "stack_before": ["01"],
               "stack_after": ["01"],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": false
             },
             {
               "pc": 78,
@@ -5846,7 +5884,8 @@
               "opcode_name": "OP_DROP",
               "stack_before": ["01"],
               "stack_after": ["01"],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": false
             },
             {
               "pc": 79,
@@ -5854,7 +5893,8 @@
               "opcode_name": "PUSH 33 bytes",
               "stack_before": ["01"],
               "stack_after": ["01"],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": false
             },
             {
               "pc": 113,
@@ -5862,7 +5902,8 @@
               "opcode_name": "OP_CHECKSIG",
               "stack_before": ["01"],
               "stack_after": ["01"],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": false
             },
             {
               "pc": 114,
@@ -5870,7 +5911,8 @@
               "opcode_name": "OP_ENDIF",
               "stack_before": ["01"],
               "stack_after": ["01"],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": false
             }
           ],
           "scriptSig": "47304402202657d1057c25c234a0356825c1a05c2e4d0e046f648830b5b0f74d4ece33bdbc022066fc757b98e569be4a13fc677a4bcf8d9ba608593d6ffada229878983de5dfa30120e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb514c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd8821029e8d6dbb6884c4697befc683f02f74f64b9cf275c7130f5bbb48a4bad0fb6a0aac6704a7dc486ab17521039d060b3959eb68f81a31c362eab43cc32c083cd505befe07a1f2a01dd376029dac68",
@@ -5880,8 +5922,12 @@
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
             "MINIMALDATA",
@@ -7445,7 +7491,8 @@
               "stack_after": [
                 "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 72,
@@ -7458,7 +7505,8 @@
                 "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
                 "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 105,
@@ -7473,7 +7521,8 @@
                 "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb",
                 "01"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 106,
@@ -7490,7 +7539,8 @@
                 "01",
                 "63a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 0,
@@ -7508,7 +7558,8 @@
                 "01",
                 "be103c6c8048f7e40035b427fe521db9bef1ed37"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 1,
@@ -7527,7 +7578,8 @@
                 "be103c6c8048f7e40035b427fe521db9bef1ed37",
                 "be103c6c8048f7e40035b427fe521db9bef1ed37"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 22,
@@ -7546,7 +7598,8 @@
                 "01",
                 "01"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 0,
@@ -7561,7 +7614,8 @@
                 "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
                 "e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb"
               ],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 1,
@@ -7575,7 +7629,8 @@
                 "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
                 "9995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd"
               ],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 2,
@@ -7590,7 +7645,8 @@
                 "9995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd",
                 "9995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd"
               ],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 35,
@@ -7604,7 +7660,8 @@
               "stack_after": [
                 "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01"
               ],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 36,
@@ -7617,7 +7674,8 @@
                 "30440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a01",
                 "0339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950"
               ],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 70,
@@ -7628,7 +7686,8 @@
                 "0339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950"
               ],
               "stack_after": ["01"],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 71,
@@ -7636,7 +7695,8 @@
               "opcode_name": "OP_ELSE",
               "stack_before": ["01"],
               "stack_after": ["01"],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": true
             },
             {
               "pc": 72,
@@ -7644,7 +7704,8 @@
               "opcode_name": "PUSH 4 bytes",
               "stack_before": ["01"],
               "stack_after": ["01"],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": false
             },
             {
               "pc": 77,
@@ -7652,7 +7713,8 @@
               "opcode_name": "OP_CHECKLOCKTIMEVERIFY",
               "stack_before": ["01"],
               "stack_after": ["01"],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": false
             },
             {
               "pc": 78,
@@ -7660,7 +7722,8 @@
               "opcode_name": "OP_DROP",
               "stack_before": ["01"],
               "stack_after": ["01"],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": false
             },
             {
               "pc": 79,
@@ -7668,7 +7731,8 @@
               "opcode_name": "PUSH 33 bytes",
               "stack_before": ["01"],
               "stack_after": ["01"],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": false
             },
             {
               "pc": 113,
@@ -7676,7 +7740,8 @@
               "opcode_name": "OP_CHECKSIG",
               "stack_before": ["01"],
               "stack_after": ["01"],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": false
             },
             {
               "pc": 114,
@@ -7684,7 +7749,8 @@
               "opcode_name": "OP_ENDIF",
               "stack_before": ["01"],
               "stack_after": ["01"],
-              "phase": "redeemScript"
+              "phase": "redeemScript",
+              "branch_active": false
             }
           ],
           "scriptSig": "4730440220201881860071bcd6a913dbf1df21a2cd085b76dafc4e4d80f0a8ec38d248d5f302201f3fda3ef4a82e01c5c21a3bafd4ad9851ad30d9476392d2584b576c4beff00a0120e3c520f093c7b4513dcd23f361cdbc7955d169906adf255d62f7afc4fb2658eb514c7363a8209995df34eca7ce4bf18684d64e9580f1488d877fff1e089f133187388bb4b6bd88210339d1e5d595af488347b0a6e499a50b1a61ad0c976e5dc56a377b46657f899950ac6704272e4a6ab17521028b37510be4b6f45784503d1311b08e8278ea6b8d9f98f757e2e59e5a6ec7659aac68",
@@ -7694,8 +7760,12 @@
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
             "MINIMALDATA",

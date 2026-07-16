@@ -5,11 +5,11 @@ import { test, expect } from '@playwright/test';
 import { ensureNodeVisible, gotoEditor, repoRoot } from './utils';
 
 // The published SegWit lesson: a native P2WPKH spend. The modal walks the
-// trace P2SH-style — opcode steps only — while the panes carry short notes
-// about the SegWit mechanics (empty scriptSig, witness as data, derived
-// scriptCode). Validator bookkeeping steps in the trace are not walked.
+// scriptPubKey opcodes, then the scriptCode-derivation rule, then the
+// derived scriptCode opcodes. The pure bookkeeping steps (program match,
+// witness item load) stay hidden and are explained by the panes instead.
 test.describe('SegWit script execution steps', () => {
-  test('walks the p9 P2WPKH trace as opcode steps with derivation notes', async ({
+  test('walks the p9 P2WPKH trace: opcodes, the derivation rule, then the scriptCode', async ({
     page,
   }) => {
     test.setTimeout(150_000);
@@ -34,10 +34,11 @@ test.describe('SegWit script execution steps', () => {
     const dialog = page.getByRole('dialog', { name: 'Script Execution Steps' });
     await expect(dialog).toBeVisible();
 
-    // 7 opcode steps: OP_0 + PUSH 20 (scriptPubKey), then the 5 scriptCode
-    // opcodes. Witness bookkeeping is explained in the panes, not stepped.
+    // 8 walked steps: OP_0 + PUSH 20 (scriptPubKey), the scriptCode
+    // derivation rule, then the 5 scriptCode opcodes. The program-match and
+    // item-load bookkeeping is explained in the panes, not stepped.
     await expect(
-      dialog.getByText(/Step 1\/7 — Phase 2 \(scriptPubKey\)/i),
+      dialog.getByText(/Step 1\/8 — Phase 2 \(scriptPubKey\)/i),
     ).toBeVisible();
 
     // The empty scriptSig stays visible with a short origin note.
@@ -62,38 +63,42 @@ test.describe('SegWit script execution steps', () => {
 
     const next = dialog.getByRole('button', { name: 'Next' });
 
-    // Step 2 (last old-rules step): the old-nodes verdict note.
+    // Step 2 (last scriptPubKey step): the old-nodes verdict note.
     await next.click();
     await expect(
       dialog.getByText(/valid under their rules/i),
     ).toBeVisible();
 
-    // Step 3: first opcode inside the derived scriptCode — the one-time
+    // Step 3: the scriptCode-derivation rule is now a walkable Rule step.
+    await next.click();
+    await expect(dialog.getByText('Rule:')).toBeVisible();
+    await expect(
+      dialog.getByText(/Derive scriptCode from the witness program/i),
+    ).toBeVisible();
+    await expect(dialog.getByText(/valid under their rules/i)).toHaveCount(0);
+
+    // Step 4: first opcode inside the derived scriptCode — the one-time
     // second-run note explains the fresh-stack jump exactly here.
     await next.click();
     await expect(dialog.getByText('Opcode:')).toBeVisible();
     await expect(
-      dialog.getByText(/Step 3\/7 — Phase 4 \(scriptCode\)/i),
+      dialog.getByText(/Step 4\/8 — Phase 4 \(scriptCode\)/i),
     ).toBeVisible();
     await expect(dialog.getByText('OP_DUP')).toBeVisible();
     await expect(
       dialog.getByText(/witness items become the new stack/i),
     ).toBeVisible();
-    await expect(dialog.getByText(/valid under their rules/i)).toHaveCount(0);
 
-    // ...and only there: both gone on the next step.
+    // ...and only there: gone on the next step.
     await next.click();
     await expect(dialog.getByText(/witness items become the new stack/i)).toHaveCount(0);
-    await expect(dialog.getByText(/valid under their rules/i)).toHaveCount(0);
-    await next.click();
 
-    // The trace ends on OP_CHECKSIG; no rule steps surface in the walk.
-    for (let i = 0; i < 2; i += 1) {
+    // The trace ends on OP_CHECKSIG.
+    for (let i = 0; i < 3; i += 1) {
       await next.click();
     }
     await expect(next).toBeDisabled();
-    await expect(dialog.getByText(/Step 7\/7/i)).toBeVisible();
+    await expect(dialog.getByText(/Step 8\/8/i)).toBeVisible();
     await expect(dialog.getByText('OP_CHECKSIG')).toBeVisible();
-    await expect(dialog.getByText('Rule:')).toHaveCount(0);
   });
 });
