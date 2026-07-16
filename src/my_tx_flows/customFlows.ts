@@ -16,6 +16,8 @@ import segwit from "@/my_tx_flows/p9_SegWit.json";
 import segwitMultiInput from "@/my_tx_flows/p10_SegWit_2in_1out.json";
 import p2wshInheritance from "@/my_tx_flows/p11_SegWit_P2SH.json";
 import wrappedSegwitP2wpkh from "@/my_tx_flows/p12_SegWit_wrapped_tx_P2WPKH_in_P2SH.json";
+import summerOfBitcoin2026Poc from "@/my_tx_flows/p13_Summer of Bitcoin 2026 PoC.json";
+import trezorSigningFlowCurrent from "@/my_tx_flows/p14_Trezor Signing Flow.json";
 import txMalleability from "@/my_tx_flows/misc/p6_TX_Malleability.json";
 import bip110 from "@/my_tx_flows/misc/p7_BIP110.json";
 import intro_p2pkh_p2pk from "@/my_tx_flows/old/p1_Intro_P2PKH_and_P2PK.json";
@@ -173,6 +175,38 @@ export const customFlows: CustomFlowTemplate[] = [
     flowNo: 7,
     level: "intermediate",
     tags: ["bip110", "p2sh", "data", "picture", "policy", "spam"],
+  },
+  {
+    id: "flow-13-summer-of-bitcoin-2026-poc",
+    label: "Summer of Bitcoin 2026 PoC",
+    data: summerOfBitcoin2026Poc as unknown as FlowData,
+    section: "misc",
+    flowNo: 13,
+    level: "challenge",
+    tags: [
+      "summer-of-bitcoin",
+      "proof-of-competence",
+      "p2sh",
+      "sigops",
+      "policy",
+      "non-standard",
+    ],
+  },
+  {
+    id: "flow-14-trezor-signing",
+    label: "Trezor Signing Flow",
+    data: trezorSigningFlowCurrent as unknown as FlowData,
+    section: "misc",
+    flowNo: 14,
+    level: "advanced",
+    tags: [
+      "trezor",
+      "hardware-wallet",
+      "signing",
+      "bip39",
+      "bip32",
+      "rfc6979",
+    ],
   },
   {
     id: "flow-1",

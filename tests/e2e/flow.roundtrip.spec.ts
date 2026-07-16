@@ -220,6 +220,40 @@ const FLOW_SCENARIOS: Scenario[] = [
     scriptNode: 'node_wmDtkjI0', // Verify Script (P2SH-P2WPKH spend)
   },
   {
+    // Tx1 creates the standard P2SH output; Tx2 reveals the consensus-valid
+    // but policy-nonstandard redeemScript. Editing Tx1's amount exercises its
+    // signature and propagates the changed funding txid into Tx2.
+    name: 'p13_Summer_of_Bitcoin_2026_PoC',
+    relativePath: path.join(
+      'src',
+      'my_tx_flows',
+      'p13_Summer of Bitcoin 2026 PoC.json',
+    ),
+    nodeChanges: {
+      node_IRajBmor: '165000', // Tx1 P2SH output amount (166000 → 165000)
+    },
+    anchorNode: 'node_deWDUuH5', // Tx2 Final Raw Transaction
+    // Tx2 deliberately has no executed signature, so its opcode trace is
+    // amount-independent. Tx1 re-signs and supplies the changing trace.
+    scriptNode: 'node_iNdDaNuU', // Verify Script (Tx1 P2PKH spend)
+  },
+  {
+    // The hardware action is a frozen signed-TX fixture during recalculation.
+    // Mutating rawBit's amount re-signs its deterministic RFC6979 path, changes
+    // Verify/Compare, and restoring the amount must reproduce the full baseline.
+    name: 'p14_Trezor_Signing_Flow',
+    relativePath: path.join(
+      'src',
+      'my_tx_flows',
+      'p14_Trezor Signing Flow.json',
+    ),
+    nodeChanges: {
+      node_IRajBmor: '123001', // Output amount (123000 → 123001)
+    },
+    anchorNode: 'node_24bD1CIj', // rawBit transaction TXID
+    scriptNode: 'node_5sul83i', // Verify Script (rawBit transaction)
+  },
+  {
     name: 'p1_Intro_P2PKH_and_P2PK',
     relativePath: path.join('src', 'my_tx_flows', 'old', 'p1_Intro_P2PKH_and_P2PK.json'),
     nodeChanges: {
