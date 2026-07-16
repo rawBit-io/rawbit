@@ -1006,6 +1006,8 @@ describe("ScriptExecutionSteps", () => {
 
     const nextButton = screen.getByRole("button", { name: /Next/i });
     await user.click(nextButton);
+    // OP_IF ran in the taken branch: its step card must not be dimmed.
+    expect(screen.getByText("OP_IF").closest(".opacity-55")).toBeNull();
     await user.click(nextButton);
 
     expect(screen.getByText("OP_RETURN")).toBeInTheDocument();
@@ -1013,9 +1015,44 @@ describe("ScriptExecutionSteps", () => {
     expect(
       screen.getByText(/inside a branch that was not taken/i)
     ).toBeInTheDocument();
+    // The skipped opcode's card renders dimmed, not hidden.
+    expect(
+      screen.getByText("OP_RETURN").closest(".opacity-55")
+    ).not.toBeNull();
   });
 
-  it("curates the op_success and taproot_annex validator events", () => {
+  it("curates the taproot_annex validator event", () => {
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: true,
+          scriptPubKey: `5120${"11".repeat(32)}`,
+          steps: [
+            {
+              pc: -1,
+              kind: "validator",
+              step: "taproot_annex",
+              opcode_name: "taproot_annex",
+              phase: "taproot",
+              annex_hex: `50${"aa".repeat(4)}`,
+              annex_hash: "bb".repeat(32),
+              stack_before: ["cc".repeat(64), `50${"aa".repeat(4)}`],
+              stack_after: ["cc".repeat(64)],
+            },
+          ],
+        }}
+      />
+    );
+    expect(screen.getByText("Process the annex")).toBeInTheDocument();
+    expect(screen.getByText("BIP341")).toBeInTheDocument();
+    expect(
+      screen.getByText(/stripped from the stack before execution/i)
+    ).toBeInTheDocument();
+  });
+
+  it("curates the op_success validator event", () => {
     render(
       <ScriptExecutionSteps
         open

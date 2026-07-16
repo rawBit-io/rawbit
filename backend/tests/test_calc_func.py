@@ -1640,6 +1640,23 @@ def test_script_verification_excluding_taproot_clears_taproot_policy_flags():
     assert result["isValid"] is True
 
 
+def test_script_verification_undisclosable_active_flag_fails_hard(monkeypatch):
+    # If the library ever applies a verify flag that the derived display map
+    # cannot name (e.g. the canonical table loses an entry the STANDARD set
+    # still contains), verification must fail loudly — not silently hide the
+    # flag from activeFlags. RuntimeError (not assert) so `python -O` cannot
+    # strip the guard.
+    tx_hex = build_sample_tx_hex()
+    crippled = {
+        name: value
+        for name, value in calc.SCRIPT_VERIFY_FLAGS_BY_NAME.items()
+        if name != "TAPROOT"
+    }
+    monkeypatch.setattr(calc, "SCRIPT_VERIFY_FLAGS_BY_NAME", crippled)
+    with pytest.raises(RuntimeError, match="without a display name"):
+        calc.script_verification(["", "51", tx_hex, 0, ""])
+
+
 def test_script_verification_legacy_false_spend_does_not_report_witness():
     tx_hex = build_sample_tx_hex()
     result = json.loads(calc.script_verification(["51", "00", tx_hex, 0, ""]))

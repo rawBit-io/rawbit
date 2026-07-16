@@ -3316,13 +3316,15 @@ def script_verification(vals: list) -> str:
                     excluded_names.append(dep_flag)
 
     # Build list of active flags. Every active flag has a name because the
-    # map is derived from the library's canonical table; assert it so a
-    # future library flag can never again be silently undisclosed.
+    # map is derived from the library's canonical table; fail hard (a bare
+    # assert would be stripped under `python -O`) so a future library flag
+    # can never again be silently undisclosed.
     displayable = {value for value in FLAG_BY_NAME.values()}
-    assert flags <= displayable, (
-        "active verify flags without a display name: "
-        f"{flags - displayable}"
-    )
+    if not flags <= displayable:
+        raise RuntimeError(
+            "active verify flags without a display name: "
+            f"{flags - displayable}"
+        )
     active_flags = sorted([name for name, value in FLAG_BY_NAME.items() if value in flags])
     # ------------------------------------------------------------------
     # 3.5  Extract witness AFTER flags are defined
