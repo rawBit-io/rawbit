@@ -485,6 +485,44 @@ describe("mergePartialResultsIntoFullGraph", () => {
     expect(getScriptSteps("sv")).toBeNull();
   });
 
+  it("keeps backend tombstones for errored nodes instead of resurrecting old values", async () => {
+    const { mergePartialResultsIntoFullGraph } = await loadGraphUtils();
+
+    // The merge spreads ...old.data under ...fresh.data, so a key the
+    // backend merely deleted would resurrect its stale value. The backend
+    // therefore tombstones (result: "", outputValues: {}) on failure —
+    // this test pins that contract at the merge layer for ordinary
+    // (non-script_verification) nodes.
+    const full = [
+      createNode("calc", {
+        functionName: "sha256_hex",
+        result: "stale-success",
+        outputValues: { h: "stale" },
+      }),
+    ];
+    const fresh = [
+      {
+        ...full[0],
+        data: {
+          functionName: "sha256_hex",
+          result: "",
+          outputValues: {},
+          error: true,
+          extendedError: "Calculation failed: boom",
+          dirty: false,
+        },
+      },
+    ] as Node<CalculationNodeData>[];
+
+    const merged = mergePartialResultsIntoFullGraph(full, fresh, [
+      { nodeId: "calc", error: "boom" },
+    ]);
+
+    expect(merged[0].data.error).toBe(true);
+    expect(merged[0].data.result).toBe("");
+    expect(merged[0].data.outputValues).toEqual({});
+  });
+
   it("clears a stale radio receiver error when the backend returns it clean", async () => {
     const { mergePartialResultsIntoFullGraph } = await loadGraphUtils();
 

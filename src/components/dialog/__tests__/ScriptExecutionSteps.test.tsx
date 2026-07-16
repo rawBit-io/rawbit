@@ -1166,4 +1166,185 @@ describe("ScriptExecutionSteps", () => {
       /committed by the control block and executed/i
     );
   });
+
+  it("labels an inactive control-flow opcode as processed, not skipped", async () => {
+    const user = userEvent.setup();
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: true,
+          steps: [
+            {
+              pc: 0,
+              opcode: 0,
+              opcode_name: "OP_0",
+              stack_before: [],
+              stack_after: [""],
+              phase: "scriptPubKey",
+              branch_active: true,
+            },
+            {
+              pc: 1,
+              opcode: 103,
+              opcode_name: "OP_ELSE",
+              stack_before: [],
+              stack_after: [],
+              phase: "scriptPubKey",
+              branch_active: false,
+            },
+          ],
+        }}
+      />
+    );
+
+    await user.click(screen.getByRole("button", { name: /Next/i }));
+
+    expect(screen.getByText("OP_ELSE")).toBeInTheDocument();
+    expect(
+      screen.getByText(/control-flow marker processed/i)
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/branch not executed/i)).toBeNull();
+    expect(
+      screen.getByText(/manages the IF\/ELSE branch structure/i)
+    ).toBeInTheDocument();
+    // Processed control opcodes keep full opacity — no skipped dimming.
+    expect(screen.getByText("OP_ELSE").closest(".opacity-55")).toBeNull();
+  });
+
+  it("renders an empty tapscript pane instead of implying a key-path spend", () => {
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: true,
+          scriptPubKey: `5120${"11".repeat(32)}`,
+          witnessScript: "",
+          steps: [
+            {
+              pc: -1,
+              kind: "validator",
+              step: "witness_script",
+              opcode_name: "witness_script",
+              script_hex: "",
+              committed: true,
+              executed: true,
+              stack_before: ["01"],
+              stack_after: ["01"],
+              phase: "taproot",
+            },
+          ],
+        }}
+      />
+    );
+
+    const pane = screen.getByTestId("tapscript-script-pane");
+    expect(pane).toHaveTextContent(/empty tapscript — no opcodes execute/i);
+    expect(pane).toHaveTextContent(
+      /committed by the control block and executed/i
+    );
+  });
+
+  it("uses a neutral caption when an older trace lacks committed/executed", () => {
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: true,
+          scriptPubKey: `5120${"11".repeat(32)}`,
+          witnessScript: "51",
+          steps: [
+            {
+              pc: -1,
+              kind: "validator",
+              step: "witness_script",
+              opcode_name: "witness_script",
+              script_hex: "51",
+              stack_before: [],
+              stack_after: [],
+              phase: "witnessScript",
+            },
+          ],
+        }}
+      />
+    );
+    expect(screen.getByTestId("tapscript-script-pane")).toHaveTextContent(
+      /commitment status unavailable \(older trace\)/i
+    );
+    expect(
+      screen.queryByText(/commitment not verified/i)
+    ).toBeNull();
+  });
+
+  it("does not copy an empty tapscript as a key-path spend", async () => {
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: true,
+          scriptPubKey: `5120${"11".repeat(32)}`,
+          witnessScript: "",
+          steps: [
+            {
+              pc: -1,
+              kind: "validator",
+              step: "witness_script",
+              opcode_name: "witness_script",
+              script_hex: "",
+              committed: true,
+              executed: true,
+              stack_before: ["01"],
+              stack_after: ["01"],
+              phase: "taproot",
+            },
+          ],
+        }}
+      />
+    );
+
+    const copyButton = screen.getByRole("button", { name: /Copy All/i });
+    await act(async () => {
+      fireEvent.click(copyButton);
+    });
+
+    const written = (navigator.clipboard.writeText as unknown as Mock).mock
+      .calls.at(-1)?.[0] as string;
+    expect(written).not.toContain("Taproot key-path spend");
+  });
+
+  it("labels a failed P2WSH candidate as a hash mismatch, not hash-checked", () => {
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: false,
+          error: "witness program mismatch",
+          witnessScript: "51",
+          steps: [
+            {
+              pc: -1,
+              kind: "validator",
+              step: "witness_script_check",
+              opcode_name: "witness_script_check",
+              script_hex: "51",
+              failed: true,
+              error: "witness program mismatch",
+              error_code: "WITNESS_PROGRAM_MISMATCH",
+              stack_before: ["51"],
+              stack_after: [],
+              phase: "witness",
+            },
+          ],
+        }}
+      />
+    );
+    expect(
+      screen.getByTestId("witnessScript-script-pane")
+    ).toHaveTextContent(/its SHA256 did not match the committed program/i);
+  });
 });

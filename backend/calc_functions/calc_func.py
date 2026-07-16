@@ -3362,7 +3362,7 @@ def script_verification(vals: list) -> str:
             or _has_witness_stack_items(witness_obj)
         )
     )
-    needs_taproot_prevouts = (
+    is_taproot_spend = (
         witness_rules_enabled
         and SCRIPT_VERIFY_TAPROOT in flags
         and is_witness_program
@@ -3370,15 +3370,18 @@ def script_verification(vals: list) -> str:
         and len(wit_program) == 32
     )
 
-    spent_outputs = _build_taproot_prevouts(taproot_prevout_vals, len(tx.vin))
-    if needs_taproot_prevouts:
-        if len(tx.vin) > 1 and not spent_outputs:
-            raise ValueError(
-                "Taproot verification for multi-input transactions requires vin-ordered prevouts "
-                "(amount + scriptPubKey for each input). Add them in the Taproot prevouts section."
-            )
-        if not spent_outputs:
-            spent_outputs = [CTxOut(amount_param, script_pubkey_obj)]
+    built_prevouts = _build_taproot_prevouts(taproot_prevout_vals, len(tx.vin))
+    # Pass None (never []) when the user supplied no prevouts: the library
+    # checks `spent_outputs is None` and requires prevouts only when a
+    # Taproot signature hash is actually computed (key path or a tapscript
+    # sig-check). Signatureless tapscripts verify without them (B09) — the
+    # MISSING_SPENT_OUTPUTS translation below handles the cases that do
+    # need them, instead of predicting the need from the output envelope.
+    spent_outputs = built_prevouts if built_prevouts else None
+    if is_taproot_spend and spent_outputs is None and len(tx.vin) == 1:
+        # Educational convenience: for single-input spends, synthesize the
+        # one prevout from the scriptPubKey and amount already at hand.
+        spent_outputs = [CTxOut(amount_param, script_pubkey_obj)]
 
     # ------------------------------------------------------------------
     # 4.  Execute with tracing - include amount if witness active
@@ -3401,6 +3404,25 @@ def script_verification(vals: list) -> str:
         spent_outputs=spent_outputs
     )
     steps = _normalize_script_trace_steps(steps)
+
+    # Missing prevouts is a configuration gap, not a script verdict: the
+    # library rejects with the structural MISSING_SPENT_OUTPUTS code (on
+    # the key-path gate's validator event or the failing tapscript
+    # sig-check opcode step). Surface it as the same friendly node error
+    # the old envelope-based preflight used to raise.
+    if not is_valid:
+        terminal = next(
+            (s for s in reversed(steps) if s.get("failed") is True), None
+        )
+        if (
+            terminal is not None
+            and terminal.get("error_code") == "MISSING_SPENT_OUTPUTS"
+        ):
+            raise ValueError(
+                "Taproot signature verification requires vin-ordered prevouts "
+                "(amount + scriptPubKey for each input). Add them in the "
+                "Taproot prevouts section."
+            )
 
     # ------------------------------------------------------------------
     # 5.  Assemble JSON for the UI
@@ -3434,7 +3456,12 @@ def script_verification(vals: list) -> str:
         ph = st.get("phase")
         step_name = st.get("step")
         script_hex = st.get("script_hex")
-        if not script_hex:
+        if script_hex is None:
+            continue
+        if not script_hex and step_name != "witness_script":
+            # Only a taproot leaf (the witness_script event) may be
+            # legitimately empty — the key must still reach the UI so an
+            # empty tapscript is not mistaken for a key-path spend.
             continue
         if step_name == "scriptcode_derive":
             # P2WPKH: implied P2PKH template conjured by the validator

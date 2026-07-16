@@ -1657,6 +1657,110 @@ def test_script_verification_undisclosable_active_flag_fails_hard(monkeypatch):
         calc.script_verification(["", "51", tx_hex, 0, ""])
 
 
+def _build_taproot_script_spend(script_ops, witness_stack, n_inputs, leaf="leaf"):
+    """P2TR script-path spend: returns (scriptPubKey_hex, tx_hex); input 0
+    carries [stack..., leaf script, control block], other inputs are empty."""
+    from bitcointx.core import CTxWitness
+    from bitcointx.core.script import TaprootScriptTree
+    from bitcointx.wallet import CCoinKey, P2TRCoinAddress
+
+    key = CCoinKey.from_secret_bytes(b"\x33" * 32)
+    script = CScript(script_ops, name=leaf)
+    tree = TaprootScriptTree([script], internal_pubkey=key.xonly_pub)
+    committed, control = tree.get_script_with_control_block(leaf)
+    spk = P2TRCoinAddress.from_script_tree(tree).to_scriptPubKey()
+    vin = [
+        CMutableTxIn(COutPoint(bytes([i + 1]) * 32, 0), CScript(), 0xFFFFFFFF)
+        for i in range(n_inputs)
+    ]
+    wit = CTxWitness(
+        [CTxInWitness(CScriptWitness(
+            list(witness_stack) + [bytes(committed), control]))]
+        + [CTxInWitness()] * (n_inputs - 1)
+    )
+    tx = CMutableTransaction(
+        vin=vin, vout=[CMutableTxOut(1000, CScript([1]))], witness=wit
+    )
+    return b2x(spk), b2x(tx.serialize())
+
+
+def test_script_verification_signatureless_tapscript_needs_no_prevouts():
+    # B09 end-to-end: the library only needs prevouts when a Taproot sighash
+    # is computed. A signatureless OP_1 tapscript on a MULTI-input tx must
+    # verify without any prevouts (the old envelope-based preflight raised).
+    from bitcointx.core.script import OP_1 as TAP_OP_1
+
+    spk_hex, tx_hex = _build_taproot_script_spend([TAP_OP_1], [], n_inputs=2)
+    result = json.loads(calc.script_verification(["", spk_hex, tx_hex, 0, ""]))
+    assert result["isValid"] is True
+    assert "TAPROOT" in result["activeFlags"]
+
+
+def test_script_verification_tapscript_sigcheck_without_prevouts_raises():
+    # A tapscript signature check DOES need prevouts: the library rejects
+    # with the structural MISSING_SPENT_OUTPUTS code on the failing opcode
+    # step, which the backend translates into the friendly prevouts error.
+    from bitcointx.core.script import OP_CHECKSIG as TAP_OP_CHECKSIG
+
+    spk_hex, tx_hex = _build_taproot_script_spend(
+        [b"\x22" * 32, TAP_OP_CHECKSIG], [b"\x00" * 64], n_inputs=2
+    )
+    with pytest.raises(ValueError, match="vin-ordered prevouts"):
+        calc.script_verification(["", spk_hex, tx_hex, 0, ""])
+
+
+def test_script_verification_taproot_keypath_without_prevouts_raises():
+    # Key-path spends always need prevouts; the library's validator event
+    # carries MISSING_SPENT_OUTPUTS and gets the same friendly translation.
+    from bitcointx.core import CTxWitness
+    from bitcointx.wallet import CCoinKey, P2TRCoinAddress
+
+    key = CCoinKey.from_secret_bytes(b"\x44" * 32)
+    spk = P2TRCoinAddress.from_xonly_pubkey(key.xonly_pub).to_scriptPubKey()
+    vin = [
+        CMutableTxIn(COutPoint(bytes([i + 1]) * 32, 0), CScript(), 0xFFFFFFFF)
+        for i in range(2)
+    ]
+    wit = CTxWitness(
+        [CTxInWitness(CScriptWitness([b"\x00" * 64])), CTxInWitness()]
+    )
+    tx = CMutableTransaction(
+        vin=vin, vout=[CMutableTxOut(1000, CScript([1]))], witness=wit
+    )
+    with pytest.raises(ValueError, match="vin-ordered prevouts"):
+        calc.script_verification(["", b2x(spk), b2x(tx.serialize()), 0, ""])
+
+
+def test_script_verification_empty_tapscript_is_valid_and_harvested():
+    # An empty tapscript leaf is valid (nothing executes; the initial
+    # witness stack decides). The harvested witnessScript key must be
+    # PRESENT with "" so the viewer can tell it from a key-path spend.
+    spk_hex, tx_hex = _build_taproot_script_spend([], [b"\x01"], n_inputs=1)
+    result = json.loads(calc.script_verification(["", spk_hex, tx_hex, 0, ""]))
+    assert result["isValid"] is True
+    assert result["witnessScript"] == ""
+    ws_events = [
+        s for s in result["steps"] if s.get("step") == "witness_script"
+    ]
+    assert ws_events and ws_events[0]["committed"] is True
+    assert ws_events[0]["executed"] is True
+
+
+def test_script_verification_single_input_taproot_still_synthesizes_prevout():
+    # The single-input educational convenience is preserved: with no
+    # prevouts supplied, the one prevout is synthesized from the
+    # scriptPubKey + amount, so verification runs (and the dummy signature
+    # fails schnorr verification instead of raising a prevouts error).
+    from bitcointx.core.script import OP_CHECKSIG as TAP_OP_CHECKSIG
+
+    spk_hex, tx_hex = _build_taproot_script_spend(
+        [b"\x22" * 32, TAP_OP_CHECKSIG], [b"\x00" * 64], n_inputs=1
+    )
+    result = json.loads(calc.script_verification(["", spk_hex, tx_hex, 0, ""]))
+    assert result["isValid"] is False
+    assert "schnorr" in (result.get("error") or "").lower()
+
+
 def test_script_verification_legacy_false_spend_does_not_report_witness():
     tx_hex = build_sample_tx_hex()
     result = json.loads(calc.script_verification(["51", "00", tx_hex, 0, ""]))

@@ -1939,3 +1939,244 @@ def test_function_specs_cover_calc_functions():
     funcs = set(graph_logic.CALC_FUNCTIONS.keys())
     specs = set(graph_logic.FUNCTION_SPECS.keys())
     assert funcs == specs
+
+
+# ───────────────────────────────────────────────────────────────
+#  stale-output tombstones: a failed recalculation must never
+#  leave the previous result/outputValues for downstream nodes
+#  or the client merge (which spreads old data under fresh data)
+# ───────────────────────────────────────────────────────────────
+def test_failed_recalculation_tombstones_outputs_for_downstream():
+    source = {
+        "id": "src",
+        "type": "calculation",
+        "data": {"functionName": "identity", "value": "5", "dirty": True},
+    }
+    middle = {
+        "id": "mid",
+        "type": "calculation",
+        "data": {"functionName": "uint32_to_little_endian_4_bytes", "dirty": True},
+    }
+    sink = {
+        "id": "sink",
+        "type": "calculation",
+        "data": {"functionName": "sha256_hex", "dirty": True},
+    }
+    edges = [
+        {"source": "src", "target": "mid"},
+        {"source": "mid", "target": "sink"},
+    ]
+
+    first, first_errors = graph_logic.bulk_calculate_logic(
+        copy.deepcopy([source, middle, sink]), edges
+    )
+    first_map = {n["id"]: n for n in first}
+    assert first_errors == []
+    good_middle = first_map["mid"]["data"]["result"]
+    good_sink = first_map["sink"]["data"]["result"]
+    assert good_middle and good_sink
+
+    # Second round, as the client would send it: previous results still on
+    # the nodes, but the source value now makes the middle node fail.
+    poisoned = copy.deepcopy(list(first_map.values()))
+    poisoned_map = {n["id"]: n for n in poisoned}
+    poisoned_map["src"]["data"]["value"] = "not-an-int"
+    for node in poisoned:
+        node["data"]["dirty"] = True
+
+    second, second_errors = graph_logic.bulk_calculate_logic(poisoned, edges)
+    second_map = {n["id"]: n for n in second}
+
+    mid_data = second_map["mid"]["data"]
+    assert mid_data["error"] is True
+    assert mid_data["result"] == ""
+    assert mid_data["outputValues"] == {}
+    assert any(e["nodeId"] == "mid" for e in second_errors)
+
+    # The sink must not have consumed (or kept) the stale middle value.
+    sink_data = second_map["sink"]["data"]
+    assert sink_data.get("result") != good_sink
+    assert sink_data.get("result", "") == ""
+    assert sink_data["error"] is True
+
+
+def test_missing_function_tombstones_previous_outputs():
+    node = {
+        "id": "ghost",
+        "type": "calculation",
+        "data": {
+            "functionName": "no_such_function",
+            "result": "stale-success",
+            "outputValues": {"h": "stale"},
+            "dirty": True,
+        },
+    }
+
+    updated, errors = graph_logic.bulk_calculate_logic([node], [])
+    data = list(updated)[0]["data"]
+    assert data["error"] is True
+    assert data["result"] == ""
+    assert data["outputValues"] == {}
+    assert errors and errors[0]["nodeId"] == "ghost"
+
+
+def test_force_regenerate_failure_tombstones_previous_outputs():
+    # uint32_to_little_endian_4_bytes requires an argument, so the
+    # zero-argument regenerate call raises and must tombstone the old value.
+    node = {
+        "id": "regen",
+        "type": "calculation",
+        "data": {
+            "functionName": "uint32_to_little_endian_4_bytes",
+            "forceRegenerate": True,
+            "result": "05000000",
+            "outputValues": {"h": "stale"},
+            "dirty": True,
+        },
+    }
+
+    updated, errors = graph_logic.bulk_calculate_logic([node], [])
+    data = list(updated)[0]["data"]
+    assert data["error"] is True
+    assert "Regenerate fail" in data["extendedError"]
+    assert data["result"] == ""
+    assert data["outputValues"] == {}
+    assert errors and errors[0]["nodeId"] == "regen"
+
+
+def test_blocking_invalid_edge_tombstones_previous_outputs():
+    # An edge with an unknown SOURCE blocks its target (_invalidEdge): the
+    # calc loop skips it, so its cached success must be tombstoned or a
+    # downstream node would consume it (reproduced: stale "00" fed a
+    # downstream sha256 which then "succeeded").
+    blocked = {
+        "id": "blocked",
+        "type": "calculation",
+        "data": {
+            "functionName": "sha256_hex",
+            "result": "00",
+            "outputValues": {"h": "stale"},
+            "dirty": True,
+        },
+    }
+    downstream = {
+        "id": "down",
+        "type": "calculation",
+        "data": {"functionName": "sha256_hex", "dirty": True},
+    }
+    edges = [
+        {"source": "ghost", "target": "blocked"},
+        {"source": "blocked", "target": "down"},
+    ]
+
+    updated, errors = graph_logic.bulk_calculate_logic(
+        [blocked, downstream], edges
+    )
+    by_id = {n["id"]: n for n in updated}
+
+    blocked_data = by_id["blocked"]["data"]
+    assert blocked_data["error"] is True
+    assert blocked_data["result"] == ""
+    assert blocked_data["outputValues"] == {}
+
+    down_data = by_id["down"]["data"]
+    assert down_data.get("result", "") == ""
+    assert down_data["error"] is True
+
+
+def test_unknown_target_edge_keeps_source_calculating():
+    # The non-blocking case: an edge pointing at an unknown TARGET annotates
+    # the source but the source still recalculates — no tombstone.
+    source = {
+        "id": "src",
+        "type": "calculation",
+        "data": {"functionName": "identity", "value": "05", "dirty": True},
+    }
+    edges = [{"source": "src", "target": "ghost"}]
+
+    updated, errors = graph_logic.bulk_calculate_logic([source], edges)
+    data = list(updated)[0]["data"]
+    assert data["result"] == "05"
+    assert any(e["nodeId"] == "src" for e in errors)
+
+
+def test_timeout_annotation_tombstones_dirty_nodes():
+    node_map = {
+        "pending": {
+            "id": "pending",
+            "data": {
+                "dirty": True,
+                "result": "cafe",
+                "outputValues": {"h": "stale"},
+            },
+        },
+        "finished": {
+            "id": "finished",
+            "data": {"dirty": False, "result": "keep-me"},
+        },
+    }
+    errors = []
+    graph_logic._annotate_timeout_and_collect_errors(
+        node_map, errors, "calculation timed out"
+    )
+
+    pending = node_map["pending"]["data"]
+    assert pending["error"] is True
+    assert pending["result"] == ""
+    assert pending["outputValues"] == {}
+    # Nodes that completed before the timeout keep their fresh values.
+    assert node_map["finished"]["data"]["result"] == "keep-me"
+
+
+def test_cycle_blocked_nodes_tombstone_previous_outputs():
+    a = {
+        "id": "a",
+        "type": "calculation",
+        "data": {
+            "functionName": "sha256_hex",
+            "result": "stale-a",
+            "dirty": True,
+        },
+    }
+    b = {
+        "id": "b",
+        "type": "calculation",
+        "data": {
+            "functionName": "sha256_hex",
+            "result": "stale-b",
+            "outputValues": {"h": "stale"},
+            "dirty": True,
+        },
+    }
+    edges = [
+        {"source": "a", "target": "b"},
+        {"source": "b", "target": "a"},
+    ]
+
+    updated, errors = graph_logic.bulk_calculate_logic([a, b], edges)
+    for node in updated:
+        data = node["data"]
+        assert data["error"] is True
+        assert "Cycle detected" in data["extendedError"]
+        assert data["result"] == ""
+        assert data.get("outputValues", {}) == {}
+
+
+def test_has_regenerate_shortcut_preserves_cached_value():
+    cached = "ab" * 32
+    node = {
+        "id": "rand",
+        "type": "calculation",
+        "data": {
+            "functionName": "random_256",
+            "hasRegenerate": True,
+            "result": cached,
+            "dirty": True,
+        },
+    }
+
+    updated, errors = graph_logic.bulk_calculate_logic([node], [])
+    data = list(updated)[0]["data"]
+    assert errors == []
+    assert data["result"] == cached
+    assert not data.get("error")

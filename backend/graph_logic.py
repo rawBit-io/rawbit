@@ -243,6 +243,9 @@ def _annotate_timeout_and_collect_errors(node_map, errors, message: str):
         if not isinstance(data, dict):
             continue
         if data.get("dirty"):
+            # The node never got (re)calculated this round; its cached
+            # outputs are stale and must not survive as successes.
+            _tombstone_node_outputs(data)
             data.update(
                 {
                     "error": True,
@@ -269,6 +272,10 @@ def _mark_invalid_edge(node, message, errors, *, block_execution):
     })
     if block_execution:
         data["_invalidEdge"] = True
+        # The node is skipped by the calc loop, so its cached outputs would
+        # otherwise survive as consumable stale successes. The non-blocking
+        # case (unknown TARGET) still recalculates normally — don't clear.
+        _tombstone_node_outputs(data)
 
     errors.append({"nodeId": node.get("id"), "error": message})
 
@@ -439,6 +446,9 @@ def _mark_cycle_errors(nodes, topo_order, errors):
     cyclic_ids = {n["id"] for n in nodes if n["id"] not in topo_order}
     for n in nodes:
         if n["id"] in cyclic_ids:
+            # Cycle-blocked nodes are skipped by the calc loop; clear their
+            # cached outputs so nothing downstream consumes a stale success.
+            _tombstone_node_outputs(n["data"])
             n["data"].update(
                 {
                     "_cycle": True,           # ← sentinel
@@ -832,6 +842,19 @@ PARAM_BUILDERS = {
     "multi_val_with_network": build_multi_val_with_network_params,
 }
 
+def _tombstone_node_outputs(data):
+    """Overwrite a node's computed outputs after its calculation failed.
+
+    Tombstones ("" / {}) instead of pop(): the client merges old node data
+    under fresh data (graphUtils.ts spreads ...old.data then ...fresh.data),
+    so a key that is merely absent would resurrect the previous value.
+    Downstream nodes read result/outputValues through get_res and must never
+    consume a stale success from a node that just errored.
+    """
+    data["result"] = ""
+    data["outputValues"] = {}
+
+
 # ───────────────────────────────────────────────────────────────
 #  main entry
 # ───────────────────────────────────────────────────────────────
@@ -914,6 +937,7 @@ def bulk_calculate_logic(nodes, edges):
 
                 func = CALC_FUNCTIONS.get(fn_name)
                 if not func:
+                    _tombstone_node_outputs(data)
                     data.update(
                         {
                             "error": True,
@@ -939,6 +963,7 @@ def bulk_calculate_logic(nodes, edges):
                             data.pop("error", None)
                             data.pop("extendedError", None)
                         else:
+                            _tombstone_node_outputs(data)
                             data.update(
                                 {
                                     "error": True,
@@ -1113,9 +1138,7 @@ def bulk_calculate_logic(nodes, edges):
                         data.pop("error", None)
                         data.pop("extendedError", None)
                     else:
-                        if fn_name == "build_trezor_sign_transaction_params":
-                            data["result"] = ""
-                            data.pop("outputValues", None)
+                        _tombstone_node_outputs(data)
                         data.update(
                             {
                                 "error": True,

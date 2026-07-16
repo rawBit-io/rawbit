@@ -95,6 +95,11 @@ const isValidatorStep = (step: StepData) =>
  */
 const HIDDEN_BOOKKEEPING_STEPS = new Set(["witness_program_match", "witness_load"]);
 
+// Conditional-control opcodes are processed by the engine even inside a
+// branch that is not taken (they steer which branch is live), so a
+// branch_active:false on them must not read as "skipped".
+const CONTROL_FLOW_MARKERS = new Set(["OP_IF", "OP_NOTIF", "OP_ELSE", "OP_ENDIF"]);
+
 const isHiddenBookkeeping = (step: StepData) =>
   HIDDEN_BOOKKEEPING_STEPS.has(step.step ?? "");
 
@@ -660,6 +665,9 @@ type PaneProps = RenderHighlightedScriptProps & {
   highlighted?: boolean;
   /** One-line origin note rendered next to the label. */
   caption?: string;
+  /** Rendered instead of bytes when scriptHex is legitimately empty
+      (e.g. an empty tapscript leaf). Without it, an empty pane hides. */
+  emptyNote?: string;
 };
 
 function ScriptPane({
@@ -670,8 +678,28 @@ function ScriptPane({
   label,
   highlighted = true,
   caption,
+  emptyNote,
 }: PaneProps) {
-  if (!scriptHex) return null;
+  if (!scriptHex && !emptyNote) return null;
+  if (!scriptHex) {
+    return (
+      <div className="mb-3 text-xs" data-testid={`${label}-script-pane`}>
+        <div className="mb-1 font-semibold text-primary">
+          {label}
+          {caption && (
+            <span className="font-normal text-muted-foreground">
+              {" "}
+              ({caption})
+            </span>
+          )}
+          :
+        </div>
+        <div className="field-surface rounded-md border p-2 font-mono italic text-muted-foreground">
+          {emptyNote}
+        </div>
+      </div>
+    );
+  }
 
   const { bytes, relPC, len, hiEnd } = scriptByteRange(
     scriptHex,
@@ -819,9 +847,14 @@ function ScriptExecutionStepsInner({
       `isValid: ${scriptResult.isValid}`,
     ];
     if (scriptResult.error) lines.push(`FinalError: ${scriptResult.error}`);
+    // Key-path means NO tapscript at all — presence-based, so an empty
+    // tapscript leaf (witnessScript === "") is not misclassified.
     const taprootKeyPathCopy =
       (scriptResult.steps || []).some((s) => s.phase === "taproot") &&
-      !scriptResult.witnessScript;
+      scriptResult.witnessScript === undefined &&
+      !((scriptResult.steps ?? []) as StepData[]).some(
+        (s) => s.step === "witness_script",
+      );
     if (taprootKeyPathCopy) {
       lines.push(
         "Taproot key-path spend: no witnessScript; pseudo-steps: taproot_witness → taproot_sighash → taproot_schnorr_verify.",
@@ -954,19 +987,34 @@ function ScriptExecutionStepsInner({
   const witnessScriptStep = ((scriptResult.steps ?? []) as StepData[]).find(
     (s) => s.step === "witness_script",
   );
+  // Script-path presence is a matter of the witness_script event (or the
+  // stored key) EXISTING, never of the hex being non-empty: an empty
+  // tapscript leaf is valid and must not masquerade as a key-path spend.
+  const hasTapscript =
+    witnessScriptStep !== undefined ||
+    scriptResult.witnessScript !== undefined;
   const taprootExecCaption =
     witnessScriptStep === undefined
       ? undefined
       : witnessScriptStep.executed
         ? "revealed leaf — committed by the control block and executed"
-        : witnessScriptStep.committed
+        : witnessScriptStep.committed === true
           ? "revealed leaf — committed by the control block, but not executed"
-          : "revealed leaf — commitment not verified";
+          : witnessScriptStep.committed === false
+            ? "revealed leaf — commitment not verified"
+            : "revealed leaf — commitment status unavailable (older trace)";
+  // P2WSH: only claim the hash check passed when it actually did — a
+  // failed candidate is still shown, labelled as a mismatch.
+  const p2wshCheckStep = ((scriptResult.steps ?? []) as StepData[]).find(
+    (s) => s.step === "witness_script_check",
+  );
   const execCaption = isTaprootTrace
     ? taprootExecCaption
     : scriptCodeHex
       ? "derived from scriptPubKey — BIP143, never transmitted"
-      : "last witness item, hash-checked against the program";
+      : p2wshCheckStep?.failed
+        ? "last witness item — its SHA256 did not match the committed program"
+        : "last witness item, hash-checked against the program";
 
   const witnessStack =
     scriptResult.witnessStack ??
@@ -988,17 +1036,26 @@ function ScriptExecutionStepsInner({
   // B15: an opcode inside a not-taken IF/ELSE branch is processed (the
   // engine still tracks nesting) but does not run. The library marks it
   // branch_active:false; we render it dimmed with a badge so learners don't
-  // mistake a skipped opcode for one that executed.
+  // mistake a skipped opcode for one that executed. Conditional-control
+  // opcodes are the exception: they run regardless, so they get their own
+  // badge and keep full opacity.
   const branchInactive = step.branch_active === false;
+  const controlFlowMarker =
+    branchInactive && CONTROL_FLOW_MARKERS.has(step.opcode_name ?? "");
+  const branchSkipped = branchInactive && !controlFlowMarker;
 
   const pretty = prettify(step.opcode, step.opcode_name);
-  const explain = branchInactive
-    ? "This opcode is inside a branch that was not taken, so it is skipped — " +
-      "the stack is unchanged. It still counts toward script limits and, if " +
-      "it is a disabled or always-invalid opcode, still fails the script."
-    : validatorCurrent
-      ? (validatorInfo?.explain ?? "")
-      : opcodeExplanation(pretty);
+  const explain = controlFlowMarker
+    ? "This opcode manages the IF/ELSE branch structure, so the engine " +
+      "processes it even inside a branch that is not taken — it updates " +
+      "which branch is live but touches nothing on the stack."
+    : branchSkipped
+      ? "This opcode is inside a branch that was not taken, so it is skipped — " +
+        "the stack is unchanged. It still counts toward script limits and, if " +
+        "it is a disabled or always-invalid opcode, still fails the script."
+      : validatorCurrent
+        ? (validatorInfo?.explain ?? "")
+        : opcodeExplanation(pretty);
 
   const stepStackBefore = step.stack_before ?? [];
   const stepStackAfter = step.stack_after ?? [];
@@ -1006,7 +1063,7 @@ function ScriptExecutionStepsInner({
   const afterR = [...stepStackAfter].reverse();
   const consumed = consumedFlags(beforeR, afterR, step.opcode_name ?? "");
   const taprootPhase = phase === "taproot";
-  const isTaprootKeyPath = taprootPhase && !rawWitnessScript;
+  const isTaprootKeyPath = taprootPhase && !hasTapscript;
   const witnessStackDisplay = taprootPhase
     ? beforeR
     : [...witnessStack].reverse();
@@ -1153,7 +1210,7 @@ function ScriptExecutionStepsInner({
             />
           )}
           {showWitnessPane && <WitnessPane items={witnessStack} />}
-          {execHex && (
+          {(execHex || (isTaprootTrace && hasTapscript)) && (
             <ScriptPane
               scriptHex={execHex}
               offset={0}
@@ -1165,6 +1222,12 @@ function ScriptExecutionStepsInner({
               opcodeName={pretty}
               label={execLabel}
               caption={execCaption}
+              emptyNote={
+                isTaprootTrace && hasTapscript
+                  ? "empty tapscript — no opcodes execute; the initial " +
+                    "witness stack decides the outcome"
+                  : undefined
+              }
               highlighted={phase === "witnessScript" || phase === "taproot"}
               isInScriptPubKey={false}
             />
@@ -1190,7 +1253,7 @@ function ScriptExecutionStepsInner({
                 validatorCurrent
                   ? "script-execution-rule-surface"
                   : "border-primary/20 bg-primary/5",
-                branchInactive && "opacity-55",
+                branchSkipped && "opacity-55",
               )}
             >
               <div className="flex items-start justify-between gap-3">
@@ -1212,7 +1275,9 @@ function ScriptExecutionStepsInner({
                 <span className="flex shrink-0 items-center gap-2">
                   {branchInactive && (
                     <span className="rounded-sm border border-muted-foreground/40 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                      branch not executed
+                      {controlFlowMarker
+                        ? "control-flow marker processed"
+                        : "branch not executed"}
                     </span>
                   )}
                   {validatorCurrent && validatorInfo?.bip && (
