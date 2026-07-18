@@ -261,6 +261,88 @@ const createMockInstance = (
     expect(droppedReceive?.data.outputPorts?.[0]?.label).toBe("8");
   });
 
+  it("dirties only the dropped node's channel peers, not every radio node (DA-07)", () => {
+    const { result } = renderHook(() => useNodeOperations(), { wrapper });
+    const mockRf = createMockInstance(result);
+
+    act(() => {
+      result.current.onInit(mockRf);
+    });
+
+    act(() => {
+      result.current.setNodes(() => [
+        // Unmatched send on channel 5 — the dropped receive will adopt it.
+        buildFlowNode({
+          id: "send-5",
+          type: "radioNode",
+          position: { x: 0, y: 0 },
+          data: {
+            functionName: "radio_send",
+            title: "Radio Send 5",
+            radioChannel: "5",
+            dirty: false,
+          },
+        }),
+        // A radio node on a DIFFERENT channel must stay untouched.
+        buildFlowNode({
+          id: "send-2",
+          type: "radioNode",
+          position: { x: 0, y: 200 },
+          data: {
+            functionName: "radio_send",
+            title: "Radio Send 2",
+            radioChannel: "2",
+            dirty: false,
+          },
+        }),
+      ]);
+    });
+
+    const dropReceive = () =>
+      ({
+        preventDefault: vi.fn(),
+        dataTransfer: {
+          getData: (type: string) =>
+            type === "application/reactflow"
+              ? JSON.stringify({
+                  type: "radioNode",
+                  functionName: "radio_receive",
+                  nodeData: {
+                    functionName: "radio_receive",
+                    title: "Radio Receive 1",
+                    radioChannel: "1",
+                    outputPorts: [
+                      { label: "1", handleId: "", showLabel: false },
+                    ],
+                  },
+                })
+              : "",
+        },
+        clientX: 50,
+        clientY: 60,
+      }) as unknown as React.DragEvent<HTMLDivElement>;
+
+    act(() => {
+      mockRf.getNodes = () => result.current.nodes;
+      result.current.onDrop(dropReceive());
+    });
+
+    const byId = (id: string) =>
+      result.current.nodes.find((node) => node.id === id);
+    const droppedReceive = result.current.nodes.find(
+      (node) => node.selected && node.data?.functionName === "radio_receive",
+    );
+    const droppedChannel = droppedReceive?.data.radioChannel;
+    // Exactly the peer on the dropped node's channel is dirtied; the radio
+    // node on the other channel stays clean (no canvas-wide dirtying).
+    const send5Channel = byId("send-5")?.data.radioChannel;
+    const send2Channel = byId("send-2")?.data.radioChannel;
+    expect(byId("send-5")?.data.dirty).toBe(send5Channel === droppedChannel);
+    expect(byId("send-2")?.data.dirty).toBe(send2Channel === droppedChannel);
+    // …and they are on different channels, so only one matched.
+    expect(send5Channel).not.toBe(send2Channel);
+  });
+
   it("uses a waiting radio receive channel when dropping the matching send", () => {
     const { result } = renderHook(() => useNodeOperations(), { wrapper });
     const mockRf = createMockInstance(result);

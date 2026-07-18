@@ -3,6 +3,7 @@ import { addEdge, type Connection, type Edge } from "@xyflow/react";
 import type { FlowNode } from "@/types";
 import { buildPorts } from "@/lib/nodes/ports";
 import { isCalculableNode } from "@/lib/flow/nonCalculableNodes";
+import { makeEdgeIsLive } from "@/lib/flow/pruneDanglingEdges";
 import {
   getDirectionAvailability,
   type ConnectMode,
@@ -95,15 +96,25 @@ export function useConnectPorts({
     return nodes.map((node) => cache.get(node.id) ?? buildPorts(node));
   }, [connectOpen, edges, selectedSignature, nodes]);
 
+  // Occupancy must be judged against edges the projection actually draws: a
+  // dangling edge (an endpoint handle removed by a group/template shrink) is
+  // hidden on canvas yet still parks on a live input. Filter it out here so
+  // every downstream check (dialog checkboxes, getDirectionAvailability,
+  // getOccupiedTargetHandles) sees the same live set the user sees (DA-11).
+  const liveEdges = useMemo(
+    () => (connectOpen ? edges.filter(makeEdgeIsLive(nodes)) : []),
+    [connectOpen, edges, nodes]
+  );
+
   const existingEdges = useMemo(() => {
     if (!connectOpen) return [];
-    return edges.map((e) => ({
+    return liveEdges.map((e) => ({
       source: e.source,
       sourceHandle: e.sourceHandle ?? null,
       target: e.target,
       targetHandle: e.targetHandle ?? null,
     }));
-  }, [connectOpen, edges]);
+  }, [connectOpen, liveEdges]);
 
   const {
     sourcePorts,
@@ -113,7 +124,7 @@ export function useConnectPorts({
     canCopyInputs,
     availableModes,
   } = useMemo(() => {
-    const edgeLikes: EdgeLike[] = edges.map((edge) => ({
+    const edgeLikes: EdgeLike[] = liveEdges.map((edge) => ({
       source: edge.source,
       sourceHandle: edge.sourceHandle ?? null,
       target: edge.target,
@@ -177,7 +188,7 @@ export function useConnectPorts({
       canCopyInputs: selectedAvailability.canCopyInputs,
       availableModes: selectedAvailability.availableModes,
     };
-  }, [connectOpen, edges, isSwapped, nodes, selectedNodeIds]);
+  }, [connectOpen, liveEdges, isSwapped, nodes, selectedNodeIds]);
 
   return {
     allPorts,

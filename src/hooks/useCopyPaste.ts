@@ -269,10 +269,31 @@ export const fitGroupToChildrenInNodes = (
 
   const shiftX = Math.max(0, GROUP_PADDING - minX);
   const shiftY = Math.max(0, GROUP_PADDING - minY);
+
+  // Compensate the group origin for the child shift so EXISTING children keep
+  // their absolute screen position — the frame grows on the top-left side to
+  // make room, instead of jolting every untouched child down-right (NB-05).
+  // But a nested group with extent:"parent" is clamped to its parent's inner
+  // origin (floor 0), so it may not move the full shift; shift children by the
+  // amount the group ACTUALLY moves, or they over-shift and jolt. The leftmost
+  // child then keeps less than GROUP_PADDING — unavoidable at the parent wall.
+  const parentClamped = group.extent === "parent" && group.parentId != null;
+  const nextX = parentClamped
+    ? Math.max(0, group.position.x - shiftX)
+    : group.position.x - shiftX;
+  const nextY = parentClamped
+    ? Math.max(0, group.position.y - shiftY)
+    : group.position.y - shiftY;
+  const appliedShiftX = group.position.x - nextX;
+  const appliedShiftY = group.position.y - nextY;
+
   const currentWidth = getNodeDimension(group, "width", 300);
   const currentHeight = getNodeDimension(group, "height", 200);
-  const nextWidth = Math.max(currentWidth, maxX + shiftX + GROUP_PADDING);
-  const nextHeight = Math.max(currentHeight, maxY + shiftY + GROUP_PADDING);
+  const nextWidth = Math.max(currentWidth, maxX + appliedShiftX + GROUP_PADDING);
+  const nextHeight = Math.max(
+    currentHeight,
+    maxY + appliedShiftY + GROUP_PADDING
+  );
 
   if (
     shiftX === 0 &&
@@ -287,18 +308,8 @@ export const fitGroupToChildrenInNodes = (
     if (node.id === groupId) {
       return {
         ...node,
-        // Compensate the group origin for the child shift so EXISTING children
-        // keep their absolute screen position — the frame just grows on the
-        // top-left side to make room for the pasted node, instead of jolting
-        // every untouched child down-right (NB-05). Origin is relative to the
-        // group's own parent, so this is safe for nested groups too.
         ...(shiftX !== 0 || shiftY !== 0
-          ? {
-              position: {
-                x: node.position.x - shiftX,
-                y: node.position.y - shiftY,
-              },
-            }
+          ? { position: { x: nextX, y: nextY } }
           : {}),
         width: nextWidth,
         height: nextHeight,
@@ -315,8 +326,8 @@ export const fitGroupToChildrenInNodes = (
       return {
         ...node,
         position: {
-          x: node.position.x + shiftX,
-          y: node.position.y + shiftY,
+          x: node.position.x + appliedShiftX,
+          y: node.position.y + appliedShiftY,
         },
       };
     }

@@ -3115,15 +3115,25 @@ function FlowContent() {
   // coalesce with the just-bumped token so the resulting "After calc" folds
   // into the "Node(s) removed" snapshot (one deletion = one undo step).
   const handleElementsDelete = useCallback(
-    ({ nodes: deletedNodes, edges: deletedEdges }: { nodes: FlowNode[]; edges: Edge[] }) => {
+    ({ nodes: deletedNodes }: { nodes: FlowNode[]; edges: Edge[] }) => {
       if (loadingUndoRef.current || isPastingRef.current) return;
       const deletedHasRadioNode = deletedNodes.some((node) =>
         isRadioFunctionName(node.data?.functionName)
       );
-      if (!deletedEdges.length && !deletedHasRadioNode) return;
+      // onDelete's edge list is the PROJECTED store, which omits the
+      // deletable:false bundle segments that stand in for canonical
+      // cross-group edges — so a group deletion would not dirty the consumer
+      // on the far side of a bundle. Derive the removed edges from the
+      // canonical store by deleted-node membership instead (DA-19).
+      const deletedNodeIds = new Set(deletedNodes.map((node) => node.id));
+      const canonicalDeletedEdges = edgesRef.current.filter(
+        (edge) =>
+          deletedNodeIds.has(edge.source) || deletedNodeIds.has(edge.target)
+      );
+      if (!canonicalDeletedEdges.length && !deletedHasRadioNode) return;
       const dirtyIds = survivingCalculableConsumersOnDelete(
         deletedNodes,
-        deletedEdges,
+        canonicalDeletedEdges,
         nodesRef.current
       );
       if (!dirtyIds.size) return;

@@ -52,19 +52,12 @@ export function getOccupiedTargetHandles(
   edges: EdgeLike[]
 ) {
   if (!target) return new Set<string>();
-  // Only count edges landing on a handle that actually exists on the target.
-  // A dangling edge (its handle removed by a schema change) is hidden from
-  // the canvas by the render projection but would otherwise still occupy the
-  // input, silently blocking any new connection (DA-11).
-  const liveInputHandles = new Set(target.inputs.map((input) => input.handleId));
+  // Callers pass the live (projection-visible) edge set — see the liveEdges
+  // filter in useConnectPorts — so a dangling edge that a source/target handle
+  // removal hid on canvas no longer parks on an input here (DA-11).
   return new Set(
     edges
-      .filter(
-        (edge) =>
-          edge.target === target.id &&
-          edge.targetHandle &&
-          liveInputHandles.has(edge.targetHandle)
-      )
+      .filter((edge) => edge.target === target.id && edge.targetHandle)
       .map((edge) => edge.targetHandle!)
   );
 }

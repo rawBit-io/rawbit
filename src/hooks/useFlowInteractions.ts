@@ -12,6 +12,7 @@ import { reconnectEdge } from "@xyflow/react";
 import type { FlowNode } from "@/types";
 import { isSafariBrowser } from "@/lib/device";
 import { isCalculableNode } from "@/lib/flow/nonCalculableNodes";
+import { makeEdgeIsLive } from "@/lib/flow/pruneDanglingEdges";
 
 const LARGE_DRAG_THRESHOLD = 30;
 const DRAG_FPS_BANDS = [
@@ -101,7 +102,8 @@ const edgeConnectionChanged = (previous: Edge, next: Edge): boolean =>
 const targetHandleOccupiedByAnotherEdge = (
   oldEdge: Edge,
   connection: Connection,
-  edges: Edge[]
+  edges: Edge[],
+  isLive: (edge: Edge) => boolean
 ): boolean => {
   if (!connection.target) return false;
   const nextTargetHandle = connection.targetHandle ?? null;
@@ -110,7 +112,10 @@ const targetHandleOccupiedByAnotherEdge = (
     (edge) =>
       edge.id !== oldEdge.id &&
       edge.target === connection.target &&
-      (edge.targetHandle ?? null) === nextTargetHandle
+      (edge.targetHandle ?? null) === nextTargetHandle &&
+      // Only a projection-visible edge blocks the reconnect; a dangling one is
+      // hidden on canvas and must not lock a visibly-free handle (DA-11).
+      isLive(edge)
   );
 };
 
@@ -880,7 +885,8 @@ export function useFlowInteractions({
         targetHandleOccupiedByAnotherEdge(
           oldEdge,
           newConnection,
-          currentEdges
+          currentEdges,
+          makeEdgeIsLive(getNodes())
         )
       ) {
         return;
@@ -905,6 +911,7 @@ export function useFlowInteractions({
     },
     [
       getEdges,
+      getNodes,
       loadingUndoRef,
       markPendingAfterDirtyChange,
       setEdges,

@@ -47,10 +47,16 @@ test.describe('Script Viewer node', () => {
     // Exactly one handle (the left input); no output handle.
     await expect(viewer.locator('.react-flow__handle')).toHaveCount(1);
 
-    // "Show Code" is available in the node menu.
+    // "Show Code" is available in the node menu — and CLICKING it activates.
+    // The canvas pointerdown-capture dismiss must not unmount the portaled
+    // menu before the item's onSelect fires (DA-04 class); assert the action's
+    // effect (the code dialog), not just visibility.
     await viewer.locator('button').first().click();
-    await expect(
-      page.getByRole('menuitem', { name: /show code/i })
-    ).toBeVisible();
+    const showCode = page.getByRole('menuitem', { name: /show code/i });
+    await expect(showCode).toBeVisible();
+    await showCode.click();
+    await expect(page.getByText(/Python source for:/i)).toBeVisible({
+      timeout: 10_000,
+    });
   });
 });

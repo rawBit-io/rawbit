@@ -6,6 +6,42 @@ Primary playbook: `docu/periodic-bug-audit-playbook.md`
 
 Latest full audit report: `docu/bug-audit-2026-06-16.md`
 
+## Self-review of the DA fix pass — 2026-07-18 (8-angle review + fixes)
+
+A multi-angle code review of commit 299c668 (the DA fix pass) found five of the
+fixes were incomplete/inconsistent; all are now resolved (uncommitted):
+
+- **DA-11 occupancy** — the fix only covered one of three occupancy consumers
+  and filtered the wrong endpoint. Now a single shared `edgeIsLive`/
+  `makeEdgeIsLive` predicate (extracted from `pruneDanglingEdges`) is used by
+  the Connect dialog (`useConnectPorts.liveEdges`), the drag-connect guard, and
+  the reconnect guard; drag-connect also prunes a dead same-handle edge so it
+  can't revive into a double connection. + `makeEdgeIsLive` unit tests.
+- **bip110 error paths** — still `pop`ped `outputValues` (resurrected by the
+  client merge); now tombstoned `= {}`. + before/after test.
+- **DA-07 radio drop** — dirtied every radio node; now scoped to the dropped
+  node's channel. + channel-scope test.
+- **DA-19 group delete** — `onDelete` gets the projected edge list (drops
+  deletable:false bundle segments), so cross-group consumers weren't dirtied.
+  Fixed at altitude in `Flow.handleElementsDelete`: derive removed edges from
+  the canonical store by deleted-node membership (fixes every delete path).
+- **DA-04 (the notable one)** — the review claimed the fix was incomplete for
+  the four Radix node menus. Driving the app **empirically refuted** this: the
+  Radix menus activate fine without any exemption (proven by removing the stamp
+  and re-running — the "Show Code" action still fires). The GroupNode
+  hand-rolled portal was the only real DA-04 case; its original stamp stays. The
+  four speculative Radix stamps were reverted as unnecessary complexity, and a
+  permanent e2e assertion (script-viewer.spec: click "Show Code" → dialog opens)
+  now guards Radix node-menu actions.
+
+Also: NB-05 nested-group clamp handling (extent:"parent" groups shift children
+by the group's ACTUAL clamped movement); the two `fitGroupToChildren` siblings
+deduped (one delegates to the shared pass); a shared `useUnmountFlush` hook
+replaces the repeated latest-ref flush idiom; explicit `parentOwnsUnmountFlush`
+prop; dead `startsWith` branch removed. Gates: tsc 0, lint 0, vitest 801/801,
+backend 505 passed (same 2 pre-existing p13/p14 stale goldens), group + radio +
+script-viewer e2e green on chromium.
+
 ## DA-01..DA-21 fix pass — 2026-07-16 (all 21 FIXED)
 
 The 2026-07-07 diff audit's 21 findings (DA-01..DA-21) were re-verified against

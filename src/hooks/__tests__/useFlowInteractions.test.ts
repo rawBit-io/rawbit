@@ -185,8 +185,10 @@ describe("useFlowInteractions", () => {
       {
         id: "target",
         type: "calculation",
+        // Two real inputs, so input-1 is a rendered handle and the edge on it
+        // is live (the occupancy guard ignores dangling edges — DA-11).
+        data: { dirty: false, numInputs: 2 },
         position: { x: 200, y: 0 },
-        data: { dirty: false },
       } as FlowNode,
     ];
     let edgesState: Edge[] = [

@@ -14,6 +14,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { useUnmountFlush } from "@/hooks/useUnmountFlush";
 
 export interface TerminalFieldProps {
   label: string;
@@ -212,27 +213,14 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
   // for a focused, editable field with an actual pending change; readOnly
   // fields must never write back (a connected field's displayed upstream
   // value is not the user's edit).
-  const pendingFlushRef = useRef({
-    focused: focusedRef.current,
-    draft: draftValue,
-    value: normalizedValue,
-    readOnly,
-    onBlur,
+  // Only a focused, editable field with a real pending change flushes on
+  // unmount — readOnly (connected) fields must never write their displayed
+  // upstream value back (that would reintroduce DA-05).
+  useUnmountFlush({
+    shouldFlush:
+      focusedRef.current && !readOnly && draftValue !== normalizedValue,
+    flush: () => onBlur?.(draftValue),
   });
-  pendingFlushRef.current = {
-    focused: focusedRef.current,
-    draft: draftValue,
-    value: normalizedValue,
-    readOnly,
-    onBlur,
-  };
-  useEffect(
-    () => () => {
-      const p = pendingFlushRef.current;
-      if (p.focused && !p.readOnly && p.draft !== p.value) p.onBlur?.(p.draft);
-    },
-    []
-  );
 
   if (comment) {
     return (

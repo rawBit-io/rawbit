@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { Edge } from "@xyflow/react";
 
-import { pruneDanglingEdges } from "@/lib/flow/pruneDanglingEdges";
+import {
+  makeEdgeIsLive,
+  pruneDanglingEdges,
+} from "@/lib/flow/pruneDanglingEdges";
 import type { FlowNode } from "@/types";
 
 // A transaction-template node whose OUTPUTS[] group has been reduced to a
@@ -101,5 +104,45 @@ describe("pruneDanglingEdges", () => {
 
   it("returns the input array unchanged when there is nothing to prune", () => {
     expect(pruneDanglingEdges([], []).edges).toEqual([]);
+  });
+});
+
+describe("makeEdgeIsLive (shared occupancy predicate)", () => {
+  // The occupancy checks (Connect dialog, drag-connect, reconnect guard) use
+  // this to ignore edges the projection hides — so a dangling edge no longer
+  // parks on a visibly-free input (DA-11).
+  it("treats an edge on a removed handle as NOT live", () => {
+    const nodes = [satNode(), txTemplate()];
+    // The tx template's second OUTPUTS instance was removed, so input-3100 no
+    // longer renders — an edge landing on that handle is dangling (hidden by
+    // the projection) yet would otherwise occupy the input.
+    const dangling = {
+      id: "e",
+      source: "sat",
+      target: "tx",
+      targetHandle: "input-3100",
+    } as Edge;
+    expect(makeEdgeIsLive(nodes)(dangling)).toBe(false);
+  });
+
+  it("treats an edge on live handles at both ends as live", () => {
+    const nodes = [satNode(), txTemplate()];
+    const live = {
+      id: "e",
+      source: "sat",
+      target: "tx",
+      targetHandle: "input-0",
+    } as Edge;
+    expect(makeEdgeIsLive(nodes)(live)).toBe(true);
+  });
+
+  it("is conservative: an edge whose node cannot be enumerated is live", () => {
+    const live = {
+      id: "e",
+      source: "ghost",
+      target: "ghost2",
+      targetHandle: "input-0",
+    } as Edge;
+    expect(makeEdgeIsLive([])(live)).toBe(true);
   });
 });

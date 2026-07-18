@@ -46,7 +46,8 @@ import {
 } from "@/lib/share/scriptStepsCache";
 import { isFlowFileCandidate, isRecord } from "@/lib/flow/guards";
 import { isCalculableNode } from "@/lib/flow/nonCalculableNodes";
-import { pruneDanglingEdges } from "@/lib/flow/pruneDanglingEdges";
+import { makeEdgeIsLive } from "@/lib/flow/pruneDanglingEdges";
+import { fitGroupToChildrenInNodes } from "@/hooks/useCopyPaste";
 import {
   sanitizeGroupBundleRenderEdgesForState,
   sanitizeGroupBundleVisualElementsForState,
@@ -72,7 +73,6 @@ type RF = ReactFlowInstance<FlowNode, Edge> & {
   updateNodeInternals?: (id: string) => void;
 };
 const randomId = () => Math.random().toString(36).slice(2, 9);
-const GROUP_PADDING = 32;
 const MAX_RADIO_CHANNEL = 99;
 
 type PaletteDragData = {
@@ -265,9 +265,11 @@ function scheduleNodeInternalsUpdate(rf: RF, ids: string[]) {
 
 /* ------------------------------------------------------------------ */
 /**
- * Enlarges a "shadcnGroup" so all children fit, **without moving the group**.
- * If a child is left / above the current origin we *shift all children* by the
- * same delta.  That keeps their relative geometry intact.
+ * Enlarges a "shadcnGroup" so all children fit. Delegates to the single shared
+ * geometry pass ({@link fitGroupToChildrenInNodes}) — the two used to be
+ * byte-for-byte siblings that drifted (DA-21), so there is now one
+ * implementation, which also carries the NB-05 origin compensation and the
+ * nested-group clamp handling.
  */
 /* ------------------------------------------------------------------ */
 function fitGroupToChildren(
@@ -276,86 +278,7 @@ function fitGroupToChildren(
   setNodes: (fn: (n: FlowNode[]) => FlowNode[]) => void,
 ) {
   if (!rf) return;
-
-  setNodes((nodes) => {
-    const group = nodes.find(
-      (n) => n.id === groupId && n.type === "shadcnGroup",
-    );
-    if (!group) return nodes;
-
-    const children = nodes.filter((n) => n.parentId === groupId);
-    if (!children.length) return nodes;
-
-    // --- 1 · bounding box of children ----------------------------
-    let minX = Infinity,
-      minY = Infinity,
-      maxX = -Infinity,
-      maxY = -Infinity;
-
-    children.forEach((child) => {
-      const w = getNodeDimension(child, "width", 250);
-      const h = getNodeDimension(child, "height", 150);
-      minX = Math.min(minX, child.position.x);
-      minY = Math.min(minY, child.position.y);
-      maxX = Math.max(maxX, child.position.x + w);
-      maxY = Math.max(maxY, child.position.y + h);
-    });
-
-    // --- 2 · how much must we grow / shift? ----------------------
-    const shiftX = Math.max(0, GROUP_PADDING - minX);
-    const shiftY = Math.max(0, GROUP_PADDING - minY);
-
-    const newWidth = Math.max(
-      getNodeDimension(group, "width", 300),
-      maxX + shiftX + GROUP_PADDING,
-    );
-    const newHeight = Math.max(
-      getNodeDimension(group, "height", 200),
-      maxY + shiftY + GROUP_PADDING,
-    );
-
-    if (
-      shiftX === 0 &&
-      shiftY === 0 &&
-      newWidth === getNodeDimension(group, "width", 300) &&
-      newHeight === getNodeDimension(group, "height", 200)
-    ) {
-      return nodes; // nothing to do
-    }
-
-    // --- 3 · apply ------------------------------------------------
-    return nodes.map((n) => {
-      if (n.id === groupId) {
-        return {
-          ...n,
-          width: newWidth,
-          height: newHeight,
-          // NB-05 invariant (same as fitGroupToChildrenInNodes): when the
-          // children are shifted to restore the padding, move the group's
-          // own origin by the opposite amount so every child keeps its
-          // absolute position — the frame grows top-left, nothing jolts.
-          position: {
-            x: n.position.x - shiftX,
-            y: n.position.y - shiftY,
-          },
-          measured: {
-            ...n.measured,
-            width: newWidth,
-            height: newHeight,
-          },
-          data: { ...n.data, width: newWidth, height: newHeight },
-        };
-      }
-      if (n.parentId === groupId) {
-        return {
-          ...n,
-          position: { x: n.position.x + shiftX, y: n.position.y + shiftY },
-        };
-      }
-      return n;
-    });
-  });
-
+  setNodes((nodes) => fitGroupToChildrenInNodes(nodes, groupId));
   scheduleNodeInternalsUpdate(rf, [groupId]);
 }
 
@@ -586,21 +509,23 @@ export function useNodeOperations() {
   const onConnect = useCallback(
     (c: Connection) => {
       if (!c.source || !c.target) return;
-      // Ignore dangling edges when checking occupancy: an edge whose source
-      // handle was removed is hidden from the canvas by the render
-      // projection but would otherwise still block the (visible, free)
-      // target input (DA-11). pruneDanglingEdges applies the same buildPorts
-      // liveness the renderer uses.
-      const liveEdges = rf
-        ? pruneDanglingEdges(rf.getNodes() as FlowNode[], edges).edges
-        : edges;
-      const duplicate = liveEdges.some(
-        (e) => e.target === c.target && e.targetHandle === c.targetHandle,
-      );
+      // Occupancy is judged against edges the projection draws: a dangling
+      // edge (source/target handle removed) is hidden on canvas and must not
+      // block the visibly-free input (DA-11). Same buildPorts liveness the
+      // renderer and dialog use.
+      const isLive = rf
+        ? makeEdgeIsLive(rf.getNodes() as FlowNode[])
+        : () => true;
+      const occupiesTarget = (e: Edge) =>
+        e.target === c.target && e.targetHandle === c.targetHandle;
+      const duplicate = edges.some((e) => occupiesTarget(e) && isLive(e));
       if (duplicate) return;
 
       setEdges((eds) => [
-        ...eds,
+        // Drop any DEAD edge already parked on this handle before adding the
+        // new one — otherwise it would revive into a second edge on a
+        // single-input handle when its missing handle reappears.
+        ...eds.filter((e) => !(occupiesTarget(e) && !isLive(e))),
         {
           id: `edge_${randomId()}`,
           source: c.source,
@@ -734,15 +659,19 @@ export function useNodeOperations() {
           parentTarget,
         );
 
-        // A dropped radio node can complete (or break) a channel pairing
-        // canvas-wide without any edge change; dirty the other radio nodes
-        // so peers recalculate, mirroring the channel-edit path (DA-07).
+        // A dropped radio node can complete (or break) a pairing on its OWN
+        // channel without any edge change; dirty just that channel's peers so
+        // they recalculate. Scoped to the channel (not every radio node) so a
+        // drop can't snowball into a canvas-wide recalc via the affected-
+        // subgraph channel expansion (DA-07).
         const droppedFn = data.nodeData?.functionName ?? data.functionName;
         if (isRadioFunctionName(droppedFn)) {
+          const droppedChannel = radioChannelFromData(droppedNode.data);
           setNodes((nds) =>
             nds.map((node) =>
               node.id !== droppedNode.id &&
-              isRadioFunctionName(node.data?.functionName)
+              isRadioFunctionName(node.data?.functionName) &&
+              radioChannelFromData(node.data) === droppedChannel
                 ? { ...node, data: { ...node.data, dirty: true } }
                 : node,
             ),

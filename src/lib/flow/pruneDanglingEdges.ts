@@ -31,12 +31,12 @@ export interface PruneDanglingEdgesResult {
  * legacy default handle) are kept, as are edges on nodes whose ports cannot be
  * enumerated.
  */
-export function pruneDanglingEdges(
-  nodes: FlowNode[],
-  edges: Edge[]
-): PruneDanglingEdgesResult {
-  if (!edges.length) return { edges, removed: [] };
-
+/**
+ * Resolves rendered handle ids per node with memoisation. Shared by
+ * {@link pruneDanglingEdges} and {@link makeEdgeIsLive} so every dangling-edge
+ * decision — pruning AND input-occupancy — uses one definition of "live".
+ */
+export function makeHandleResolver(nodes: FlowNode[]) {
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
   const inputHandleCache = new Map<string, Set<string>>();
   const outputHandleCache = new Map<string, Set<string>>();
@@ -56,30 +56,58 @@ export function pruneDanglingEdges(
     return handles;
   };
 
+  return { nodeById, handlesFor };
+}
+
+/**
+ * True when neither endpoint of the edge is dangling — i.e. the render
+ * projection would draw it. An edge is dead when a node it references exists
+ * but the specific handle it targets no longer does. Mirrors
+ * {@link pruneDanglingEdges}'s per-edge test exactly; conservative in the same
+ * way (empty/legacy handles and un-enumerable ports are treated as live).
+ */
+export function edgeIsLive(
+  edge: Edge,
+  nodeById: Map<string, FlowNode>,
+  handlesFor: (nodeId: string, kind: "input" | "output") => Set<string>
+): boolean {
+  const targetHandle = normalizeHandle(edge.targetHandle);
+  if (targetHandle !== undefined && nodeById.has(edge.target)) {
+    const valid = handlesFor(edge.target, "input");
+    if (valid.size > 0 && !valid.has(targetHandle)) return false;
+  }
+
+  const sourceHandle = normalizeHandle(edge.sourceHandle);
+  if (sourceHandle !== undefined && nodeById.has(edge.source)) {
+    const valid = handlesFor(edge.source, "output");
+    if (valid.size > 0 && !valid.has(sourceHandle)) return false;
+  }
+
+  return true;
+}
+
+/**
+ * Build an `edgeIsLive(edge)` predicate bound to a node set — the occupancy
+ * checks' entry point. One resolver is shared across every edge tested.
+ */
+export function makeEdgeIsLive(nodes: FlowNode[]): (edge: Edge) => boolean {
+  const { nodeById, handlesFor } = makeHandleResolver(nodes);
+  return (edge: Edge) => edgeIsLive(edge, nodeById, handlesFor);
+}
+
+export function pruneDanglingEdges(
+  nodes: FlowNode[],
+  edges: Edge[]
+): PruneDanglingEdgesResult {
+  if (!edges.length) return { edges, removed: [] };
+
+  const { nodeById, handlesFor } = makeHandleResolver(nodes);
+
   const removed: Edge[] = [];
   const kept = edges.filter((edge) => {
-    // Dangling target handle (the common case: a shrunk group instance).
-    const targetHandle = normalizeHandle(edge.targetHandle);
-    if (targetHandle !== undefined && nodeById.has(edge.target)) {
-      const valid = handlesFor(edge.target, "input");
-      if (valid.size > 0 && !valid.has(targetHandle)) {
-        removed.push(edge);
-        return false;
-      }
-    }
-
-    // Dangling explicit source handle (multi-output nodes only — single-output
-    // nodes expose the default empty handle and are left untouched).
-    const sourceHandle = normalizeHandle(edge.sourceHandle);
-    if (sourceHandle !== undefined && nodeById.has(edge.source)) {
-      const valid = handlesFor(edge.source, "output");
-      if (valid.size > 0 && !valid.has(sourceHandle)) {
-        removed.push(edge);
-        return false;
-      }
-    }
-
-    return true;
+    if (edgeIsLive(edge, nodeById, handlesFor)) return true;
+    removed.push(edge);
+    return false;
   });
 
   return removed.length ? { edges: kept, removed } : { edges, removed: [] };

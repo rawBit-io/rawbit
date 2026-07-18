@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
+import { useUnmountFlush } from "@/hooks/useUnmountFlush";
 
 interface EditableLabelProps {
   value: string;
@@ -21,20 +22,13 @@ export function EditableLabel({
 
   useEffect(() => setTmp(value), [value]);
 
-  // Nodes unmount off-viewport (onlyRenderVisibleElements), which destroys
-  // an in-progress edit before blur can commit it. Keep the latest edit
-  // state in a ref and flush it on unmount. Escape resets tmp to value
-  // first, so cancelled edits never commit; the tmp !== value guard keeps
-  // no-op commits (and their undo snapshots) from firing.
-  const pendingRef = useRef({ isEditing, tmp, value, onCommit });
-  pendingRef.current = { isEditing, tmp, value, onCommit };
-  useEffect(
-    () => () => {
-      const p = pendingRef.current;
-      if (p.isEditing && p.tmp !== p.value) p.onCommit(p.tmp || "");
-    },
-    []
-  );
+  // Flush an in-progress edit if the node is culled off-viewport before blur
+  // fires. Escape resets tmp to value first (cancelled edits never commit);
+  // the tmp !== value guard keeps no-op commits (and their snapshots) away.
+  useUnmountFlush({
+    shouldFlush: isEditing && tmp !== value,
+    flush: () => onCommit(tmp || ""),
+  });
 
   const commit = useCallback(() => {
     onCommit(tmp || "");

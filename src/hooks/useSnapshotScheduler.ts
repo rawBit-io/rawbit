@@ -385,12 +385,12 @@ export function useSnapshotScheduler({
       return;
     }
     for (const tabId of tabIds) {
-      for (const [key, frameId] of frames) {
-        // snapshotKey is the tab id, optionally suffixed; match either.
-        if (key === tabId || key.startsWith(`${tabId}:`)) {
-          cancelAnimationFrame(frameId);
-          frames.delete(key);
-        }
+      // snapshotKey is exactly the tab id (`resolvedTabId ?? "__active__"`),
+      // never suffixed, so a direct delete is enough.
+      const frameId = frames.get(tabId);
+      if (frameId !== undefined) {
+        cancelAnimationFrame(frameId);
+        frames.delete(tabId);
       }
       pending.delete(tabId);
     }

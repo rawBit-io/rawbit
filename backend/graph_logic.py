@@ -942,7 +942,10 @@ def bulk_calculate_logic(nodes, edges):
                     data.pop("outputValues", None)
                     data["result"] = ""
                 if fn_name == "bip110_picture_p2sh_scripts":
-                    data.pop("outputValues", None)
+                    # Tombstone, never pop: the client merge resurrects absent
+                    # keys, so a popped map would keep the previous run's
+                    # per-handle scripts (DA-06 rule).
+                    data["outputValues"] = {}
                     # Sidebar sentinel, never []: the client renders an empty
                     # list as the default "out" handle (a phantom output on
                     # every error path), while showHandle=False renders none
@@ -1112,7 +1115,11 @@ def bulk_calculate_logic(nodes, edges):
                         except Exception:
                             data["result"] = result
                             data["outputPorts"] = [{"label": "scripts", "handleId": "", "showHandle": False}]
-                            data.pop("outputValues", None)
+                            # Tombstone (not pop): a successful earlier run's
+                            # per-handle scripts would otherwise be resurrected
+                            # by the client merge and fed to a downstream
+                            # consumer as current (DA-06 rule).
+                            data["outputValues"] = {}
                     else:
                         data["result"] = result
 

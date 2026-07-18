@@ -87,6 +87,7 @@ import type { UseCalcNodeMutationsResult } from "@/hooks/nodes/useCalcNodeMutati
 import type { UseGroupInstancesResult } from "@/hooks/nodes/useGroupInstances";
 import type { ClipboardLiteResult } from "@/hooks/nodes/useClipboardLite";
 import { useDismissNodeMenuOnCanvasPointerDown } from "@/hooks/nodes/useDismissNodeMenuOnCanvasPointerDown";
+import { useUnmountFlush } from "@/hooks/useUnmountFlush";
 
 const ScriptExecutionSteps = React.lazy(
   () => import("@/components/dialog/ScriptExecutionSteps")
@@ -513,21 +514,12 @@ export function CalculationNodeView({
     [mut]
   );
 
-  // onlyRenderVisibleElements unmounts off-viewport nodes without firing
-  // blur; flush an in-progress comment edit so typed text isn't lost.
-  const commentFlushRef = useRef({
-    isCommentEditing,
-    commentDraft,
-    handleCommentBlur,
+  // Off-viewport culling unmounts nodes without firing blur; flush an
+  // in-progress comment edit so typed text isn't lost.
+  useUnmountFlush({
+    shouldFlush: isCommentEditing,
+    flush: () => handleCommentBlur(commentDraft),
   });
-  commentFlushRef.current = { isCommentEditing, commentDraft, handleCommentBlur };
-  useEffect(
-    () => () => {
-      const pending = commentFlushRef.current;
-      if (pending.isCommentEditing) pending.handleCommentBlur(pending.commentDraft);
-    },
-    []
-  );
   const [anchoredHandleTops, setAnchoredHandleTops] = useState<
     Record<string, number | null>
   >({});
@@ -541,28 +533,6 @@ export function CalculationNodeView({
   const [txCustomFieldDrafts, setTxCustomFieldDrafts] = useState<
     Record<string, string>
   >({});
-  // Same unmount hazard as comments: off-viewport culling destroys the
-  // drafts before blur commits them. Flush pending custom-field edits with
-  // the exact blur semantics (trimmed, non-empty, changed).
-  const txCustomFlushRef = useRef<{
-    drafts: Record<string, string>;
-    fields: string[];
-    setField: (index: number, value: string) => void;
-  }>({ drafts: {}, fields: [], setField: () => {} });
-  useEffect(
-    () => () => {
-      const pending = txCustomFlushRef.current;
-      for (const [handleId, draft] of Object.entries(pending.drafts)) {
-        const index = Number(handleId.replace("output-", ""));
-        if (!Number.isInteger(index)) continue;
-        const next = draft.trim();
-        if (next && next !== pending.fields[index]) {
-          pending.setField(index, next);
-        }
-      }
-    },
-    []
-  );
   const cardRef = useRef<HTMLDivElement | null>(null);
   const txOutputRowRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [txOutputHandleTops, setTxOutputHandleTops] = useState<
@@ -628,11 +598,22 @@ export function CalculationNodeView({
     () => normalizeTxFieldExtractFields(data.txExtractFields, data.functionName),
     [data.txExtractFields, data.functionName]
   );
-  txCustomFlushRef.current = {
-    drafts: txCustomFieldDrafts,
-    fields: txExtractFields,
-    setField: mut.setTxFieldExtractField,
-  };
+  // Same unmount hazard as comments: off-viewport culling destroys the TX
+  // "Custom…" drafts before blur commits them. Flush with the exact blur
+  // semantics (trimmed, non-empty, changed).
+  useUnmountFlush({
+    shouldFlush: Object.keys(txCustomFieldDrafts).length > 0,
+    flush: () => {
+      for (const [handleId, draft] of Object.entries(txCustomFieldDrafts)) {
+        const index = Number(handleId.replace("output-", ""));
+        if (!Number.isInteger(index)) continue;
+        const next = draft.trim();
+        if (next && next !== txExtractFields[index]) {
+          mut.setTxFieldExtractField(index, next);
+        }
+      }
+    },
+  });
   const txExtractOutputValues =
     data.outputValues && typeof data.outputValues === "object"
       ? (data.outputValues as Record<string, unknown>)

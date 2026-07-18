@@ -1,11 +1,20 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
+import { useUnmountFlush } from "@/hooks/useUnmountFlush";
 
 interface EditableLabelProps {
   value: string;
   onCommit: (value: string) => void;
   onDraftChange?: (value: string | null) => void;
+  /**
+   * When true, the PARENT is responsible for committing an in-progress edit on
+   * unmount (e.g. GroupNode, which holds the draft via onDraftChange), so this
+   * component skips its own unmount flush to avoid a double-commit. Defaults to
+   * `onDraftChange != null` for back-compat; a consumer that uses onDraftChange
+   * only for live preview (and does NOT own the flush) should pass `false`.
+   */
+  parentOwnsUnmountFlush?: boolean;
   editSignal?: number;
   maxLength?: number;
   className?: string;
@@ -26,6 +35,7 @@ export function EditableLabel({
   value,
   onCommit,
   onDraftChange,
+  parentOwnsUnmountFlush,
   editSignal,
   maxLength = 100,
   className = "",
@@ -42,36 +52,15 @@ export function EditableLabel({
 
   useEffect(() => setTempValue(value), [value]);
 
-  // Nodes unmount off-viewport (onlyRenderVisibleElements), destroying an
-  // in-progress edit before blur commits it. Flush the pending edit on
-  // unmount — except when the parent supplied onDraftChange: those callers
-  // (e.g. GroupNode) own the draft and flush it themselves; a self-flush
-  // here would double-commit. Escape exits editing first, so cancelled
-  // edits never reach the flush.
-  const pendingRef = useRef({
-    isEditing,
-    tempValue,
-    value,
-    onCommit,
-    fallback,
-    ownedByParent: Boolean(onDraftChange),
+  // Flush an in-progress edit if the node is culled off-viewport before blur
+  // fires — unless the parent owns that flush (see parentOwnsUnmountFlush).
+  // Escape exits editing first, so cancelled edits never reach the flush.
+  const ownedByParent = parentOwnsUnmountFlush ?? onDraftChange != null;
+  useUnmountFlush({
+    shouldFlush: !ownedByParent && isEditing && tempValue !== value,
+    flush: () =>
+      onCommit(tempValue.trim().length ? tempValue : fallback),
   });
-  pendingRef.current = {
-    isEditing,
-    tempValue,
-    value,
-    onCommit,
-    fallback,
-    ownedByParent: Boolean(onDraftChange),
-  };
-  useEffect(
-    () => () => {
-      const p = pendingRef.current;
-      if (p.ownedByParent || !p.isEditing || p.tempValue === p.value) return;
-      p.onCommit(p.tempValue.trim().length ? p.tempValue : p.fallback);
-    },
-    []
-  );
 
   const labelStyle: React.CSSProperties = {
     fontSize,

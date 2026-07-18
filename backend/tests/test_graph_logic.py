@@ -1346,6 +1346,41 @@ def test_bip110_error_path_ships_no_phantom_output_handle():
         {"label": "scripts", "handleId": "", "showHandle": False}
     ]
     assert data["outputPorts"] != []
+    # Tombstone, not pop: a popped outputValues would be resurrected by the
+    # client merge from a previous successful run and fed downstream.
+    assert data["outputValues"] == {}
+
+
+def test_bip110_error_after_success_tombstones_stale_output_values():
+    # A node that computed once (per-handle scripts populated) then errors must
+    # ship outputValues={}, or the client merge keeps the previous run's
+    # scripts and a downstream consumer reads them as current.
+    good = {
+        "id": "picture",
+        "type": "calculation",
+        "data": {
+            "functionName": "bip110_picture_p2sh_scripts",
+            "paramExtraction": "multi_val",
+            "inputStructure": {
+                "ungrouped": [
+                    {"index": 0, "label": "Picture hex:"},
+                    {"index": 1, "label": "Compressed pubkey:"},
+                ]
+            },
+            "inputs": {"vals": {"0": "ab" * 481, "1": "02" + "11" * 32}},
+            "dirty": True,
+        },
+    }
+    first_nodes, _ = graph_logic.bulk_calculate_logic([good], [])
+    populated = list(first_nodes)[0]
+    assert populated["data"]["outputValues"]  # non-empty after success
+
+    populated["data"]["inputs"]["vals"]["0"] = "xyz"  # now invalid
+    populated["data"]["dirty"] = True
+    second_nodes, _ = graph_logic.bulk_calculate_logic([populated], [])
+    data = list(second_nodes)[0]["data"]
+    assert data["error"] is True
+    assert data["outputValues"] == {}
 
 
 def _dynamic_extract_node(fields, vals):
