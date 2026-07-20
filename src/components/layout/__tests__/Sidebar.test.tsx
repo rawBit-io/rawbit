@@ -87,6 +87,18 @@ function createCustomFlows() {
       tags: ["segwit"],
     },
     {
+      id: "spilman-flow",
+      label: "Spilman Channel",
+      data: {
+        nodes: [],
+        edges: [],
+      },
+      section: "payment-channels",
+      flowNo: 15,
+      level: "intermediate",
+      tags: ["payment-channel", "spilman"],
+    },
+    {
       id: "intro-flow",
       label: "Intro",
       data: {
@@ -187,7 +199,18 @@ describe("Sidebar", () => {
     expect(screen.getByText("Intro")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Legacy$/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^SegWit$/i })).toBeInTheDocument();
+    const segwitSection = screen.getByRole("button", { name: /^SegWit$/i });
+    const paymentChannelsSection = screen.getByRole("button", {
+      name: /^Payment Channels$/i,
+    });
+    expect(paymentChannelsSection).toBeInTheDocument();
+    expect(
+      segwitSection.compareDocumentPosition(paymentChannelsSection) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
     expect(screen.getByText("P2PK vs P2PKH")).toBeInTheDocument();
+    fireEvent.click(paymentChannelsSection);
+    expect(screen.getByText("15. Spilman Channel")).toBeInTheDocument();
     expect(screen.getByText(/Older flows hidden/i)).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /Legacy Foundations/i })

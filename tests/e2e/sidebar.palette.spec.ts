@@ -3,6 +3,29 @@ import { expect, test } from '@playwright/test';
 import { delay } from './utils';
 
 test.describe('Sidebar palette', () => {
+  test('shows Payment Channels directly below SegWit without enabling older flows', async ({ page }) => {
+    await page.goto('/');
+
+    const segwitSection = page.getByRole('button', { name: 'SegWit', exact: true });
+    const paymentChannelsSection = page.getByRole('button', {
+      name: 'Payment Channels',
+      exact: true,
+    });
+
+    await expect(segwitSection).toBeVisible();
+    await expect(paymentChannelsSection).toBeVisible();
+    await expect(page.getByRole('switch', { name: 'Show older flow examples' })).not.toBeChecked();
+
+    const segwitBox = await segwitSection.boundingBox();
+    const paymentChannelsBox = await paymentChannelsSection.boundingBox();
+    expect(segwitBox).not.toBeNull();
+    expect(paymentChannelsBox).not.toBeNull();
+    expect(paymentChannelsBox!.y).toBeGreaterThan(segwitBox!.y);
+
+    await paymentChannelsSection.click();
+    await expect(page.getByText('15. Spilman Channel', { exact: true })).toBeVisible();
+  });
+
   test('drag-and-drop template creates node with undo/redo history', async ({ page }) => {
     await page.goto('/');
 

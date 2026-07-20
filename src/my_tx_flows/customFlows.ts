@@ -18,6 +18,7 @@ import p2wshInheritance from "@/my_tx_flows/p11_SegWit_P2SH.json";
 import wrappedSegwitP2wpkh from "@/my_tx_flows/p12_SegWit_wrapped_tx_P2WPKH_in_P2SH.json";
 import summerOfBitcoin2026Poc from "@/my_tx_flows/p13_Summer of Bitcoin 2026 PoC.json";
 import trezorSigningFlowCurrent from "@/my_tx_flows/p14_Trezor Signing Flow.json";
+import spilmanPaymentChannel from "@/my_tx_flows/p15_Spilman.json";
 import txMalleability from "@/my_tx_flows/misc/p6_TX_Malleability.json";
 import bip110 from "@/my_tx_flows/misc/p7_BIP110.json";
 import intro_p2pkh_p2pk from "@/my_tx_flows/old/p1_Intro_P2PKH_and_P2PK.json";
@@ -156,6 +157,22 @@ export const customFlows: CustomFlowTemplate[] = [
       "bip141",
       "bip143",
       "witness",
+    ],
+  },
+  {
+    id: "flow-15-spilman",
+    label: "Spilman Channel",
+    data: spilmanPaymentChannel as unknown as FlowData,
+    section: "payment-channels",
+    flowNo: 15,
+    level: "intermediate",
+    tags: [
+      "payment-channel",
+      "spilman",
+      "p2sh",
+      "multisig",
+      "refund",
+      "bip68",
     ],
   },
   {

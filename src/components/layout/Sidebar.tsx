@@ -140,6 +140,7 @@ const ALWAYS_VISIBLE_FLOW_SECTIONS = new Set([
   TOP_LEVEL_FLOW_SECTION,
   "legacy",
   "segwit",
+  "payment-channels",
   "misc",
 ]);
 const SIDEBAR_REVEAL_ITEM_COUNT = 5;
@@ -147,6 +148,7 @@ const SIDEBAR_REVEAL_ITEM_COUNT = 5;
 const flowSections = [
   { id: "legacy", label: "Legacy" },
   { id: "segwit", label: "SegWit" },
+  { id: "payment-channels", label: "Payment Channels" },
   { id: "misc", label: "Misc" },
   { id: "legacy-foundations", label: "Legacy Foundations" },
   {
