@@ -994,7 +994,7 @@
       "id": "node_DbEuwK2d",
       "type": "calculation",
       "parentId": "node_nrvb8KUa",
-      "functionName": "extract_tx_field",
+      "functionName": "parse_tx_field",
       "numInputs": 2,
       "inputs": {
         "vals": {
@@ -2012,7 +2012,7 @@
       "id": "node_oBe36h7R",
       "type": "calculation",
       "parentId": "node_qHLs1Tu4",
-      "functionName": "extract_tx_field",
+      "functionName": "parse_tx_field",
       "numInputs": 2,
       "inputs": {
         "vals": {

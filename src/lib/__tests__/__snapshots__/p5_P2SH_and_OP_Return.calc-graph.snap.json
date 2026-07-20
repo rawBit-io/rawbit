@@ -1088,7 +1088,7 @@
       "id": "node_kzcs3gx",
       "type": "calculation",
       "parentId": "group_7w6adu7",
-      "functionName": "extract_tx_field",
+      "functionName": "parse_tx_field",
       "numInputs": 2,
       "inputs": {
         "vals": {
@@ -2934,7 +2934,7 @@
       "id": "node_Bd3AR5Eo",
       "type": "calculation",
       "parentId": "node_L0EP4zuC",
-      "functionName": "extract_tx_field",
+      "functionName": "parse_tx_field",
       "numInputs": 2,
       "inputs": {
         "vals": {
@@ -3365,7 +3365,7 @@
       "id": "node_Y3G6Rw74",
       "type": "calculation",
       "parentId": "node_L0EP4zuC",
-      "functionName": "extract_tx_field",
+      "functionName": "parse_tx_field",
       "numInputs": 2,
       "inputs": {
         "vals": {

@@ -2048,8 +2048,8 @@
         "y": 322.89966991461415
       },
       "data": {
-        "functionName": "extract_tx_field",
-        "title": "TX Field Extract",
+        "functionName": "parse_tx_field",
+        "title": "TX Parser",
         "paramExtraction": "multi_val",
         "numInputs": 2,
         "result": "txid: 67d60153be449d7ff8685193eb00bf518969f4a71849e07c53ba8d73eec22f22\nvout.scriptPubKey: 76a914918976552e1164768fba9ee3ef11d867cfcdfd3188ac",

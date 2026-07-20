@@ -302,12 +302,12 @@ describe("P0-3 dynamic tx extract (node_kzcs3gx)", () => {
     expect(added.data.txExtractFields).toEqual([
       "txid",
       "vout.scriptPubKey",
-      "vout.value",
+      "vin.witness",
     ]);
     expect(added.data.outputPorts).toEqual([
       { label: "txid", handleId: "output-0", showLabel: false },
       { label: "vout.scriptPubKey", handleId: "output-1", showLabel: false },
-      { label: "vout.value", handleId: "output-2", showLabel: false },
+      { label: "vin.witness", handleId: "output-2", showLabel: false },
     ]);
     // existing committed output values survive; the new port has none yet
     expect(added.data.outputValues).toEqual(baseNode.data.outputValues);

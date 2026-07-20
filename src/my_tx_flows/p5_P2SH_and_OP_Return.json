@@ -30,8 +30,8 @@
       "id": "group_7v4cyqu",
       "type": "shadcnGroup",
       "position": {
-        "x": -328.02791238450936,
-        "y": 7766.563841699623
+        "x": -338.76884451677046,
+        "y": 7916.255550608768
       },
       "data": {
         "isGroup": true,
@@ -58,8 +58,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 14341.698023536084,
-        "y": 4979.477903916274
+        "x": 14330.957091403823,
+        "y": 5129.16961282542
       },
       "data": {
         "isGroup": true,
@@ -91,8 +91,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 10717.248562476261,
-        "y": 1314.6997266136905
+        "x": 10706.507630344,
+        "y": 1464.3914355228358
       },
       "data": {
         "isGroup": true,
@@ -121,8 +121,8 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 5581.055882215982,
-        "y": 2951.4140767517965
+        "x": 5570.314950083721,
+        "y": 3101.105785660942
       },
       "data": {
         "isGroup": true,
@@ -155,8 +155,8 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": -5057.814701699819,
-        "y": 6197.15196870838
+        "x": -5068.55563383208,
+        "y": 6346.843677617526
       },
       "data": {
         "isGroup": true,
@@ -184,8 +184,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 2322.242229964446,
-        "y": 445.5452355027628
+        "x": 2311.5012978321847,
+        "y": 595.2369444119081
       },
       "data": {
         "isGroup": true,
@@ -431,10 +431,7 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100
-          ]
+          "INPUTS[]": [0, 100]
         },
         "baseHeight": 80,
         "title": "Preimage",
@@ -495,10 +492,7 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100
-          ]
+          "INPUTS[]": [0, 100]
         },
         "baseHeight": 80,
         "title": "Signature + Flag",
@@ -561,12 +555,7 @@
           "INPUTS[]": 4
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100,
-            200,
-            300
-          ]
+          "INPUTS[]": [0, 100, 200, 300]
         },
         "baseHeight": 80,
         "title": "scriptSig (push sig & pubkey)",
@@ -725,13 +714,8 @@
           "OUTPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            1000
-          ],
-          "OUTPUTS[]": [
-            3000,
-            3100
-          ]
+          "INPUTS[]": [1000],
+          "OUTPUTS[]": [3000, 3100]
         },
         "baseHeight": 120,
         "totalInputs": 15,
@@ -885,13 +869,8 @@
           "OUTPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            1000
-          ],
-          "OUTPUTS[]": [
-            3000,
-            3100
-          ]
+          "INPUTS[]": [1000],
+          "OUTPUTS[]": [3000, 3100]
         },
         "baseHeight": 120,
         "totalInputs": 15,
@@ -1815,8 +1794,8 @@
         "y": 322.89966991461415
       },
       "data": {
-        "functionName": "extract_tx_field",
-        "title": "TX Field Extract",
+        "functionName": "parse_tx_field",
+        "title": "TX Parser",
         "paramExtraction": "multi_val",
         "numInputs": 2,
         "result": "txid: cc1a91fdcbd16a4b6b060512d0558027828af352664e9f3469906b283b2a4490\nvout.scriptPubKey: 76a9142ac255dc3eb0e0c14406b41bd89745d165822c5a88ac",
@@ -1827,10 +1806,7 @@
           }
         },
         "txFieldExtractMode": "dynamic",
-        "txExtractFields": [
-          "txid",
-          "vout.scriptPubKey"
-        ],
+        "txExtractFields": ["txid", "vout.scriptPubKey"],
         "outputPorts": [
           {
             "label": "txid",
@@ -1869,7 +1845,8 @@
           "output-1": "76a9142ac255dc3eb0e0c14406b41bd89745d165822c5a88ac"
         },
         "showComment": true,
-        "comment": "txid is in raw input byte order, reverse to find the tx in client/explorer"
+        "comment": "txid is in raw input byte order, reverse to find the tx in client/explorer",
+        "outputErrors": {}
       },
       "parentId": "group_7w6adu7",
       "extent": "parent"
@@ -1934,8 +1911,8 @@
       "id": "node_nd5uge0",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -5080.486987108628,
-        "y": 5670.461229376273
+        "x": -5091.22791924089,
+        "y": 5820.152938285419
       },
       "data": {
         "content": "#  Inheritance Script\n```\nOP_IF\n    <owner_pubkey> OP_CHECKSIG                 \nOP_ELSE\n    <unlock_time> OP_CHECKLOCKTIMEVERIFY OP_DROP\n    <heir_pubkey> OP_CHECKSIG                  \nOP_ENDIF\n```",
@@ -2052,18 +2029,7 @@
         },
         "groupInstanceKeys": {
           "INPUTS[]": [
-            0,
-            100,
-            200,
-            300,
-            400,
-            500,
-            600,
-            700,
-            800,
-            900,
-            1000,
-            1100
+            0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100
           ]
         },
         "baseHeight": 80,
@@ -2238,12 +2204,7 @@
           "INPUTS[]": 4
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100,
-            200,
-            300
-          ]
+          "INPUTS[]": [0, 100, 200, 300]
         },
         "baseHeight": 80,
         "totalInputs": 4,
@@ -2870,11 +2831,7 @@
           "INPUTS[]": 3
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100,
-            200
-          ]
+          "INPUTS[]": [0, 100, 200]
         },
         "baseHeight": 80,
         "title": "OP_RETURN",
@@ -3135,8 +3092,8 @@
       "id": "node_75JB67PO",
       "type": "shadcnGroup",
       "position": {
-        "x": 30866.31518591396,
-        "y": 14552.906206814952
+        "x": 30855.574253781702,
+        "y": 14702.597915724098
       },
       "data": {
         "isGroup": true,
@@ -3164,8 +3121,8 @@
       "id": "node_TC7BVduR",
       "type": "shadcnGroup",
       "position": {
-        "x": 26140.772906812585,
-        "y": 10768.746874156948
+        "x": 26130.031974680325,
+        "y": 10918.438583066094
       },
       "data": {
         "isGroup": true,
@@ -3196,8 +3153,8 @@
       "id": "node_L0EP4zuC",
       "type": "shadcnGroup",
       "position": {
-        "x": 19146.95960618952,
-        "y": 12517.408842715377
+        "x": 19136.21867405726,
+        "y": 12667.100551624522
       },
       "data": {
         "isGroup": true,
@@ -3450,10 +3407,7 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100
-          ]
+          "INPUTS[]": [0, 100]
         },
         "baseHeight": 80,
         "title": "Preimage",
@@ -3514,10 +3468,7 @@
           "INPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100
-          ]
+          "INPUTS[]": [0, 100]
         },
         "baseHeight": 80,
         "title": "Signature + Flag",
@@ -3581,13 +3532,7 @@
           "INPUTS[]": 5
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100,
-            200,
-            300,
-            400
-          ]
+          "INPUTS[]": [0, 100, 200, 300, 400]
         },
         "baseHeight": 80,
         "title": "scriptSig (push sig & redeemScript)",
@@ -3744,12 +3689,8 @@
           "OUTPUTS[]": 1
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            1000
-          ],
-          "OUTPUTS[]": [
-            3000
-          ]
+          "INPUTS[]": [1000],
+          "OUTPUTS[]": [3000]
         },
         "baseHeight": 120,
         "totalInputs": 12,
@@ -3900,12 +3841,8 @@
           "OUTPUTS[]": 1
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            1000
-          ],
-          "OUTPUTS[]": [
-            3000
-          ]
+          "INPUTS[]": [1000],
+          "OUTPUTS[]": [3000]
         },
         "baseHeight": 120,
         "totalInputs": 12,
@@ -4734,8 +4671,8 @@
         "y": 309.524543378564
       },
       "data": {
-        "functionName": "extract_tx_field",
-        "title": "TX Field Extract",
+        "functionName": "parse_tx_field",
+        "title": "TX Parser",
         "paramExtraction": "multi_val",
         "numInputs": 2,
         "result": "txid: fb522febeccdb83931549d39d0eb569b56b2d5d226a74fde71b30548ab7c7d40\nvout.scriptPubKey: a914031c71e45837d9a1591bf6faf999ebb50d181ef587",
@@ -4746,10 +4683,7 @@
           }
         },
         "txFieldExtractMode": "dynamic",
-        "txExtractFields": [
-          "txid",
-          "vout.scriptPubKey"
-        ],
+        "txExtractFields": ["txid", "vout.scriptPubKey"],
         "outputPorts": [
           {
             "label": "txid",
@@ -4788,7 +4722,8 @@
           "output-1": "a914031c71e45837d9a1591bf6faf999ebb50d181ef587"
         },
         "showComment": true,
-        "comment": "txid is in raw input byte order, reverse to find the tx in client/explorer"
+        "comment": "txid is in raw input byte order, reverse to find the tx in client/explorer",
+        "outputErrors": {}
       },
       "parentId": "node_L0EP4zuC",
       "extent": "parent"
@@ -4853,8 +4788,8 @@
       "id": "node_JXkIOct0",
       "type": "shadcnGroup",
       "position": {
-        "x": 16310.144073128575,
-        "y": 15904.297296676323
+        "x": 16299.403140996314,
+        "y": 16053.989005585468
       },
       "data": {
         "isGroup": true,
@@ -5016,12 +4951,7 @@
           "INPUTS[]": 4
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [
-            0,
-            100,
-            200,
-            300
-          ]
+          "INPUTS[]": [0, 100, 200, 300]
         },
         "baseHeight": 80,
         "title": "scriptPubKey",
@@ -5374,8 +5304,8 @@
         "y": 1185.3576300704372
       },
       "data": {
-        "functionName": "extract_tx_field",
-        "title": "TX Field Extract",
+        "functionName": "parse_tx_field",
+        "title": "TX Parser",
         "paramExtraction": "multi_val",
         "numInputs": 2,
         "result": "op_return.data: 5242454349455331036cc3e56ac4a36b6b85f2fa29f93caab2997b560881f4d0527f85e6fad78ff8b22e7b28bc73466bcb38ad5f496b6aa23c8e127503facf009d5b2e1b3460b8ed49439bbe43c3b9b86cd287833bd3d2137664b33448c9153cfe4581a00af0c7058d3ecf1d5df94396d756adb1a32ff53ab1aac0aa900120163129144c997d770f15966020ae06e63b0df4cce6cf11b2c7fb86c5cd5d86234686e5b26444f8ba43f536d1f816f9578d0008c140b62afacddb66c693a45e51efe14faa2b092f5795528a7ca92d2a5f58eeed396c0a684fdf6662b0b77adecaf6f08a9a55a84306e49a22853bbe76c1807b20f8bc4a04cffb08",
@@ -5386,9 +5316,7 @@
           }
         },
         "txFieldExtractMode": "dynamic",
-        "txExtractFields": [
-          "op_return.data"
-        ],
+        "txExtractFields": ["op_return.data"],
         "outputPorts": [
           {
             "label": "op_return.data",
@@ -5421,7 +5349,8 @@
           "output-0": "5242454349455331036cc3e56ac4a36b6b85f2fa29f93caab2997b560881f4d0527f85e6fad78ff8b22e7b28bc73466bcb38ad5f496b6aa23c8e127503facf009d5b2e1b3460b8ed49439bbe43c3b9b86cd287833bd3d2137664b33448c9153cfe4581a00af0c7058d3ecf1d5df94396d756adb1a32ff53ab1aac0aa900120163129144c997d770f15966020ae06e63b0df4cce6cf11b2c7fb86c5cd5d86234686e5b26444f8ba43f536d1f816f9578d0008c140b62afacddb66c693a45e51efe14faa2b092f5795528a7ca92d2a5f58eeed396c0a684fdf6662b0b77adecaf6f08a9a55a84306e49a22853bbe76c1807b20f8bc4a04cffb08"
         },
         "showComment": true,
-        "comment": "get encrypted redeem Script"
+        "comment": "get encrypted redeem Script",
+        "outputErrors": {}
       },
       "parentId": "node_L0EP4zuC",
       "extent": "parent"
@@ -5430,8 +5359,8 @@
       "id": "node_3gpktfq",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -340.81521675913064,
-        "y": 7108.51440129953
+        "x": -351.55614889139173,
+        "y": 7258.206110208675
       },
       "data": {
         "content": "## Using Identifiers in OP_RETURN\n\nWhen storing encrypted recovery data in an `OP_RETURN`, it is useful to add a short, human-readable **prefix** at the beginning.\n\n**Why it helps:**\n- Makes the transaction easy to find on block explorers\n- Distinguishes it from other `OP_RETURN` outputs\n- Supports versioning and can include short instructions\n\n**Recommended approach:**  \nUse a short cleartext prefix followed by the encrypted redeemScript. This improves discoverability while keeping the sensitive content encrypted.",
@@ -5448,8 +5377,8 @@
       "id": "node_kn7y2jz",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 4056.8147601812034,
-        "y": 4168.790868498776
+        "x": 4046.0738280489422,
+        "y": 4318.482577407922
       },
       "data": {
         "content": "## Try it yourself\n\n- Do it the **classical way**: Instead of using the decrypted data from the `OP_RETURN`, get the redeemScript directly from the original **redeemScript builder** node (as if you had saved it off-chain when creating the inheritance). Feed it into the spending `scriptSig` and verify that **Verify Script** still passes.\n\n### Start with fresh funding address\n*These exercises modify the transaction structure — fund a new address first so you can broadcast and verify your variation on testnet4.*\n\n- Create your own inheritance transaction using a **new funding UTXO**.\n- In a real setup you would typically create **two `OP_RETURN` outputs** — one encrypted to the owner and one encrypted to the heir (each using their respective public key). Try implementing this.\n- Add a short **human-readable identifier** at the beginning of the `OP_RETURN`(s).\n- Spend the P2SH output using the **heir path** (`OP_0` + sufficient `nLockTime`).\n- Verify the transaction with the **Verify Script** node.",
@@ -5467,8 +5396,8 @@
       "id": "node_x52rof9",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 4038.9100774337385,
-        "y": 2994.6356039066777
+        "x": 4028.1691453014773,
+        "y": 3144.327312815823
       },
       "data": {
         "content": "# Overview: P2SH Recovery with Encrypted OP_RETURN\n\nThis flow demonstrates a **P2SH inheritance pattern** on testnet4 where the redeemScript is stored encrypted on-chain inside an `OP_RETURN`.\n\nThe funding transaction creates two outputs:\n- **Output 1**: P2SH output locking funds to `HASH160(redeemScript)`\n- **Output 2**: `OP_RETURN` containing the redeemScript encrypted with ECIES\n\n**Why this matters:**\n\nIn classic P2SH inheritance, heirs must securely store and update the redeemScript off-chain. Losing it can make coins permanently unspendable.\n\nThis flow puts the recovery data **on-chain but encrypted**, removing the need for heirs to manage off-chain backups.\n\n> **Note:** With many heirs, a more efficient approach is to encrypt the redeemScript once (symmetric encryption) and then encrypt the key for each heir. This example uses per-heir encryption for simplicity.",
@@ -5485,8 +5414,8 @@
       "id": "node_wpwsvgv",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 265.7409321322611,
-        "y": 255.30829109085465
+        "x": 255,
+        "y": 405
       },
       "data": {
         "content": "## P2SH Inheritance: Risk vs On-Chain Recovery\n\n**The Problem with Classic P2SH Inheritance**\n\nIn traditional P2SH setups, the full `redeemScript` is **not stored on-chain**. Heirs must receive and securely store  it off-chain for many years. If the redeemScript is lost or corrupted the coins can become permanently unspendable — even if the heir still controls the correct private key.\n\n### Proposal\n\nInstead of relying only on off-chain storage, this approach stores an encrypted copy of the redeemScript directly on-chain inside the `OP_RETURN`. This reduces the risk of losing the redeemScript while keeping the actual script content private.\n\n",
@@ -5503,8 +5432,8 @@
       "id": "node_mhkgx80",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1492.3697403802662,
-        "y": 472.9996332700739
+        "x": 1481.628808248005,
+        "y": 622.6913421792192
       },
       "data": {
         "content": "## How This Flow Works\n\nThis flow demonstrates the following on testnet4:\n\n1. Create and fund a **P2PKH address** with testnet coins.\n2. Spend that UTXO in a **setup transaction** that creates:\n   - A P2SH output (the actual inheritance funds)\n   - An `OP_RETURN` output containing the redeemScript encrypted with ECIES\n3. Spend the P2SH output in a **recovery transaction** using the owner path (`OP_1`).\n\n\n> **Note:** In this simplified example, the redeemScript is encrypted to the **owner** key. In a real inheritance setup, you would typically encrypt it to the heir(s).",
@@ -5515,6 +5444,36 @@
       },
       "width": 774,
       "height": 806
+    },
+    {
+      "id": "node_6k6svuk",
+      "type": "scriptViewer",
+      "position": {
+        "x": 2809.9270051334283,
+        "y": 2285.1592282225156
+      },
+      "data": {
+        "functionName": "script_viewer",
+        "title": "Script Viewer",
+        "numInputs": 1,
+        "value": "",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "SCRIPT HEX:",
+              "rows": 1
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_hegqa99",
+      "extent": "parent"
     }
   ],
   "edges": [
@@ -6711,6 +6670,14 @@
       "sourceHandle": "output-1",
       "targetHandle": "input-1",
       "selected": false
+    },
+    {
+      "id": "edge_8pmop7x",
+      "source": "node_uOPuPcje",
+      "target": "node_6k6svuk",
+      "targetHandle": "input-0",
+      "selected": false
     }
-  ]
+  ],
+  "virtualEdges": []
 }

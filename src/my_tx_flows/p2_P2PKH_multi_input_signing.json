@@ -1950,8 +1950,8 @@
         "y": 229.48790030441342
       },
       "data": {
-        "functionName": "extract_tx_field",
-        "title": "TX Field Extract",
+        "functionName": "parse_tx_field",
+        "title": "TX Parser",
         "paramExtraction": "multi_val",
         "numInputs": 2,
         "result": "txid: 0b2852ede2689db26ebc503ca9a99c3021b6021abc82840703d5623b8d8340b0\nvout.scriptPubKey: 76a914c1dacc6771d79d9eb1a52441675eb184df8c464e88ac",
@@ -3162,8 +3162,8 @@
         "y": 1324.5241221641131
       },
       "data": {
-        "functionName": "extract_tx_field",
-        "title": "TX Field Extract",
+        "functionName": "parse_tx_field",
+        "title": "TX Parser",
         "paramExtraction": "multi_val",
         "numInputs": 2,
         "result": "txid: bda5b7958289a66779a346279c0ccde54b2ee22d052a392b6cca57cb8a1fca25\nvout.scriptPubKey: 76a914498a29dc4641e99f8ab3dd4fe19a65db28a6c4c788ac",

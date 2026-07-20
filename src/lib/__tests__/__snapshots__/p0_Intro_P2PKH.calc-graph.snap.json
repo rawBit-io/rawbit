@@ -1281,7 +1281,7 @@
       "id": "node_kzcs3gx",
       "type": "calculation",
       "parentId": "group_7w6adu7",
-      "functionName": "extract_tx_field",
+      "functionName": "parse_tx_field",
       "numInputs": 2,
       "inputs": {
         "vals": {

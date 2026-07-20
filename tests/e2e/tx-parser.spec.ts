@@ -61,7 +61,7 @@ test.describe('TX Parser node (parse_tx_field)', () => {
     // A free-text input (no handle) appears; type a field the dropdown
     // doesn't enumerate.
     const custom = parser.locator(
-      'input[placeholder="e.g. vin.witness.item7"]'
+      'input[placeholder="e.g. vin.scriptSig.item1"]'
     );
     await expect(custom).toBeVisible();
     await custom.fill('vin.witness_count');
