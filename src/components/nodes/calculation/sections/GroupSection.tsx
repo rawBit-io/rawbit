@@ -113,6 +113,7 @@ export function GroupSection({
                 className={buttonClassName}
                 onClick={onDecrement}
                 disabled={!canDecrement}
+                aria-label={`Remove ${title}`}
               >
                 <Minus className={iconClassName} />
               </Button>
@@ -122,6 +123,7 @@ export function GroupSection({
                 className={buttonClassName}
                 onClick={onIncrement}
                 disabled={!canIncrement}
+                aria-label={`Add ${title}`}
               >
                 <Plus className={iconClassName} />
               </Button>

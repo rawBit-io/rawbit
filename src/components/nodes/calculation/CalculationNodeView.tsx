@@ -1400,7 +1400,9 @@ export function CalculationNodeView({
   ) => {
     const keys = groupInstanceKeys(groupDef);
     const instanceCount = data.groupInstances?.[groupDef.title] ?? keys.length;
-    const hideHeader = HIDDEN_GROUP_HEADER_TITLES.has(groupDef.title);
+    const hideHeader =
+      HIDDEN_GROUP_HEADER_TITLES.has(groupDef.title) &&
+      !isTxTemplatePrimaryGroup(groupDef);
     const canDecrement = instanceCount > (groupDef.minInstances ?? 1);
     const canIncrement = Boolean(
       groupDef.expandable &&

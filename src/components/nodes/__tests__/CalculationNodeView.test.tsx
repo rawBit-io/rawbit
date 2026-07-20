@@ -5,6 +5,7 @@ import type { ClipboardLiteResult } from "@/hooks/nodes/useClipboardLite";
 import userEvent from "@testing-library/user-event";
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { DISMISS_NODE_MENUS_EVENT } from "@/lib/flow/nodeMenuEvents";
+import { allSidebarNodes } from "@/components/sidebar-nodes";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/components/dialog/ScriptExecutionSteps", () => ({
@@ -920,4 +921,61 @@ describe("CalculationNodeView", () => {
     expect(screen.getByText("> SCRIPTLEN:")).toBeInTheDocument();
     expect(screen.getByText("> SCRIPTPUBKEY:")).toBeInTheDocument();
   });
+
+  it.each(["TX Template legacy", "TX Template"])(
+    "keeps the OUTPUTS[] resize controls visible in %s",
+    (title) => {
+      const mut = createMut();
+      const clip = createClip();
+      const handleGroupSize = vi.fn();
+      const template = allSidebarNodes.find((node) => node.label === title);
+
+      expect(template).toBeDefined();
+
+      renderWithProviders(
+        <CalculationNodeView
+          selected={false}
+          data={structuredClone(template!.nodeData) as NodeData}
+          rawTitle={title}
+          derived={{
+            ...derived,
+            isMultiVal: true,
+            nodeWidth: 360,
+            minHeight: 400,
+            connectionStatus: { connected: 0, total: 4, shouldShow: true },
+          }}
+          isInputConnected={() => false}
+          mut={mut}
+          group={{ handleGroupSize }}
+          clip={clip}
+          result=""
+          error={false}
+          hasRegenerate={false}
+          showComment={false}
+          comment=""
+          script={{
+            isScriptVerification: false,
+            scriptResult: null,
+            scriptSigInputHex: "",
+            scriptPubKeyInputHex: "",
+          }}
+        />
+      );
+
+      expect(screen.getByText("> OUTPUTS[]")).toBeInTheDocument();
+      const removeOutput = screen.getByRole("button", {
+        name: "Remove OUTPUTS[]",
+      });
+      const addOutput = screen.getByRole("button", { name: "Add OUTPUTS[]" });
+      expect(removeOutput).toBeDisabled();
+      expect(addOutput).toBeEnabled();
+
+      fireEvent.click(addOutput);
+      expect(handleGroupSize).toHaveBeenCalledWith(
+        "OUTPUTS[]",
+        expect.objectContaining({ title: "OUTPUTS[]" }),
+        true
+      );
+    }
+  );
 });
