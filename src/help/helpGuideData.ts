@@ -12,6 +12,7 @@ import {
   MapPinned,
   Paintbrush,
   Palette,
+  RadioTower,
   Save,
   Search,
   Share,
@@ -160,6 +161,38 @@ export const HELP_GUIDE_GROUPS: HelpGuideGroup[] = [
           "Ungroup requires an explicit group or child-node selection",
         ],
         icon: SquareSplitVertical,
+      },
+    ],
+  },
+  {
+    title: "Canvas nodes",
+    items: [
+      {
+        title: "Radio Send",
+        body: "Send a value across the canvas on a numbered channel",
+        moreInfo: [
+          {
+            text: "Radio links replace long visible wires between distant parts of a flow",
+            strong: true,
+          },
+          "Drag Radio Send and Radio Receive from Canvas & Inputs → Wireless Links",
+          "Connect a value to Radio Send; rawBit assigns a likely channel automatically, or double-click its number to change it",
+          "Use exactly one Radio Send per channel; duplicate senders show a warning and do not create a link",
+          "One Radio Send can feed any number of Radio Receive nodes on the same channel",
+          "Select either end of a valid radio link to reveal its dashed connection on the canvas",
+        ],
+        icon: RadioTower,
+      },
+      {
+        title: "Radio Receive",
+        body: "Receive the value sent on a matching numbered channel",
+        moreInfo: [
+          "Set Radio Receive to the same channel as its Radio Send; no visible edge is required between them",
+          "Connect the Radio Receive output to downstream nodes like any other output",
+          "A warning appears when a receiver has no sender or its channel has multiple senders",
+          "Double-click the channel number to change it, or select the node to reveal its dashed radio link",
+        ],
+        icon: RadioTower,
       },
     ],
   },

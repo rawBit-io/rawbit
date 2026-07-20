@@ -43,6 +43,29 @@ describe("HelpMenu search", () => {
     expect(screen.getByText("Close tab")).toBeInTheDocument();
   });
 
+  it("documents the Radio Send and Radio Receive controls", () => {
+    renderHelpMenu();
+
+    fireEvent.change(screen.getByLabelText("Search help"), {
+      target: { value: "radio" },
+    });
+
+    expect(screen.getByText("Radio Send")).toBeInTheDocument();
+    expect(screen.getByText("Radio Receive")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Search help"), {
+      target: { value: "multiple senders" },
+    });
+
+    expect(screen.getByText("Radio Receive")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "A warning appears when a receiver has no sender or its channel has multiple senders",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Radio Send")).not.toBeInTheDocument();
+  });
+
   it("searches guided demo step text", () => {
     renderHelpMenu();
 
