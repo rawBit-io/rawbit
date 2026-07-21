@@ -5,7 +5,11 @@ import {
   renderedInputHandleIds,
   renderedOutputHandleIds,
 } from "@/lib/nodes/renderedHandles";
-import type { FlowNode, NodeData } from "@/types";
+import type {
+  FlowNode,
+  GroupBundlePortOffsets,
+  NodeData,
+} from "@/types";
 
 export const GROUP_BUNDLE_EDGE_TYPE = "groupBundle";
 export const GROUP_BUNDLE_SEGMENT_EDGE_TYPE = "groupBundleSegment";
@@ -186,6 +190,70 @@ const hasPersistedGroupBundlePortOffset = (
   }
   return false;
 };
+
+/** Node id referenced by one side of a bundle key: either a raw group id or
+ *  the `node:<nodeId>:<handle>` form produced by bundleEndpointKey. */
+const bundleKeySegmentNodeId = (segment: string): string =>
+  segment.startsWith("node:")
+    ? segment.slice(5, segment.lastIndexOf(":"))
+    : segment;
+
+/**
+ * Drop per-bundle offsets whose bundle key references a removed node/group.
+ * Nothing else ever prunes these: deletion only cleans edges, import keeps
+ * unknown ids verbatim, and export serializes node data as-is — so without
+ * this the counterpart group carries `aId->deletedId` keys forever, and a
+ * stale-only map also suppresses the legacy scalar fallback (NB-19 guard
+ * above). Untouched nodes keep their identity so no spurious re-renders.
+ */
+export function pruneGroupBundleOffsetsForRemovedNodes(
+  nodes: FlowNode[],
+  removedIds: ReadonlySet<string>
+): FlowNode[] {
+  if (!removedIds.size) return nodes;
+
+  const keyIsStale = (bundleId: string): boolean => {
+    const arrow = bundleId.indexOf("->");
+    if (arrow < 0) return false;
+    return (
+      removedIds.has(bundleKeySegmentNodeId(bundleId.slice(0, arrow))) ||
+      removedIds.has(bundleKeySegmentNodeId(bundleId.slice(arrow + 2)))
+    );
+  };
+
+  let changed = false;
+  const nextNodes = nodes.map((node) => {
+    const offsets = (node.data as NodeData | undefined)
+      ?.groupBundlePortOffsets;
+    if (!offsets) return node;
+
+    let mapsChanged = false;
+    const nextOffsets: GroupBundlePortOffsets = { ...offsets };
+    for (const role of ["sourceByBundle", "targetByBundle"] as const) {
+      const map = offsets[role];
+      if (!map) continue;
+      const kept = Object.entries(map).filter(
+        ([bundleId]) => !keyIsStale(bundleId)
+      );
+      if (kept.length === Object.keys(map).length) continue;
+      mapsChanged = true;
+      if (kept.length) nextOffsets[role] = Object.fromEntries(kept);
+      else delete nextOffsets[role];
+    }
+    if (!mapsChanged) return node;
+
+    changed = true;
+    const nextData: NodeData = { ...node.data };
+    if (Object.keys(nextOffsets).length) {
+      nextData.groupBundlePortOffsets = nextOffsets;
+    } else {
+      delete nextData.groupBundlePortOffsets;
+    }
+    return { ...node, data: nextData };
+  });
+
+  return changed ? nextNodes : nodes;
+}
 
 const groupRect = (node: FlowNode): GroupRect => {
   const data = node.data as NodeData | undefined;

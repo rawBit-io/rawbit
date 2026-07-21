@@ -11,6 +11,7 @@ import type {
 import { reconnectEdge } from "@xyflow/react";
 import type { FlowNode } from "@/types";
 import { isSafariBrowser } from "@/lib/device";
+import { pruneGroupBundleOffsetsForRemovedNodes } from "@/lib/flow/groupEdgeBundling";
 import { isCalculableNode } from "@/lib/flow/nonCalculableNodes";
 import { makeEdgeIsLive } from "@/lib/flow/pruneDanglingEdges";
 
@@ -495,8 +496,16 @@ export function useFlowInteractions({
         );
         return nextEdges.length === edges.length ? edges : nextEdges;
       });
+
+      // Surviving groups' bundle-port offsets are keyed "aId->bId"; without
+      // this prune a key referencing the removed counterpart survives every
+      // save/load forever (delete only cleans edges, import keeps unknown
+      // ids verbatim).
+      setNodes((nodes) =>
+        pruneGroupBundleOffsetsForRemovedNodes(nodes, removedWithDescendants)
+      );
     },
-    [setEdges]
+    [setEdges, setNodes]
   );
 
   useEffect(() => {

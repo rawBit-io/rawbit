@@ -49,6 +49,7 @@ import { isCalculableNode } from "@/lib/flow/nonCalculableNodes";
 import { makeEdgeIsLive } from "@/lib/flow/pruneDanglingEdges";
 import { fitGroupToChildrenInNodes } from "@/hooks/useCopyPaste";
 import {
+  pruneGroupBundleOffsetsForRemovedNodes,
   sanitizeGroupBundleRenderEdgesForState,
   sanitizeGroupBundleVisualElementsForState,
   stripGroupBundlePortNodes,
@@ -877,27 +878,32 @@ export function useNodeOperations() {
       });
 
       setNodes((nds) =>
-        nds.flatMap((n) => {
-          /* remove the group node itself */
-          if (gidSet.has(n.id)) return [];
+        // The dissolved group ids die here, so other groups' bundle-offset
+        // keys referencing them must be pruned (same contract as deletion).
+        pruneGroupBundleOffsetsForRemovedNodes(
+          nds.flatMap((n) => {
+            /* remove the group node itself */
+            if (gidSet.has(n.id)) return [];
 
-          /* lift every child of any selected group */
-          if (n.parentId && gidSet.has(n.parentId)) {
-            const absPos = getAbsoluteNodePosition(n, all);
+            /* lift every child of any selected group */
+            if (n.parentId && gidSet.has(n.parentId)) {
+              const absPos = getAbsoluteNodePosition(n, all);
 
-            return [
-              {
-                ...n,
-                parentId: undefined,
-                extent: undefined,
-                position: absPos,
-                selected: true,
-              },
-            ];
-          }
+              return [
+                {
+                  ...n,
+                  parentId: undefined,
+                  extent: undefined,
+                  position: absPos,
+                  selected: true,
+                },
+              ];
+            }
 
-          return [n];
-        }),
+            return [n];
+          }),
+          gidSet,
+        ),
       );
 
       return true;
