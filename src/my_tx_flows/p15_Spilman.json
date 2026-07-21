@@ -1,5 +1,5 @@
 {
-  "name": "Spilman_rework",
+  "name": "Spilman Channel",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -30,15 +30,15 @@
       "id": "node_1tk0jii",
       "type": "shadcnGroup",
       "position": {
-        "x": 2526.228032263611,
-        "y": 1050.7984507446504
+        "x": 241.76956015207224,
+        "y": 1299.977706752906
       },
       "data": {
         "isGroup": true,
         "groupFlash": false,
-        "width": 2035,
+        "width": 2048.7318723899753,
         "height": 2592,
-        "title": "Setup — shared swap parameters",
+        "title": "Setup — shared parameters",
         "fontSize": 44,
         "groupBundlePortOffsets": {
           "targetByBundle": {
@@ -48,7 +48,7 @@
         },
         "dirty": false
       },
-      "width": 2035,
+      "width": 2048.7318723899753,
       "height": 2592,
       "dragHandle": "[data-drag-handle]"
     },
@@ -56,8 +56,8 @@
       "id": "node_l1drJMFI",
       "type": "shadcnGroup",
       "position": {
-        "x": 473.4058266185866,
-        "y": 2963.20064293911
+        "x": -1808.4325461540316,
+        "y": 3212.3798989473653
       },
       "data": {
         "isGroup": true,
@@ -75,8 +75,8 @@
       "id": "node_sx1b2eLL",
       "type": "shadcnGroup",
       "position": {
-        "x": 467.6536902811944,
-        "y": 1718.905963293755
+        "x": -1814.1846824914237,
+        "y": 1968.0852193020105
       },
       "data": {
         "isGroup": true,
@@ -116,7 +116,7 @@
       "id": "node_6WbInZF7",
       "type": "calculation",
       "position": {
-        "x": 180.178832806625,
+        "x": 182.79893214554568,
         "y": 395.58437981508087
       },
       "data": {
@@ -151,7 +151,7 @@
       "id": "node_hRUX7Zzs",
       "type": "radioNode",
       "position": {
-        "x": 583.3312592133161,
+        "x": 585.9513585522368,
         "y": 426.4654415009272
       },
       "data": {
@@ -204,21 +204,21 @@
       "id": "node_ErWTJiFz",
       "type": "calculation",
       "position": {
-        "x": 187.1485652919655,
-        "y": 809.5966047119118
+        "x": 186.11876652271985,
+        "y": 700.0996614669307
       },
       "data": {
         "functionName": "identity",
-        "title": "refund delay",
+        "title": "refund delay in blocks",
         "showField": true,
         "numInputs": 0,
-        "value": "144",
+        "value": "2016",
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "144"
+          "val": "2016"
         },
-        "result": "144",
+        "result": "2016",
         "inputStructure": {
           "ungrouped": [
             {
@@ -229,8 +229,9 @@
           ]
         },
         "groupInstances": {},
-        "showComment": false,
-        "error": false
+        "showComment": true,
+        "error": false,
+        "comment": "14d (144 x 14)"
       },
       "parentId": "node_1tk0jii",
       "extent": "parent"
@@ -239,7 +240,7 @@
       "id": "node_KHNhrMsE",
       "type": "radioNode",
       "position": {
-        "x": 590.0030458944202,
+        "x": 592.6231452333409,
         "y": 804.7649547744413
       },
       "data": {
@@ -249,10 +250,10 @@
         "numInputs": 1,
         "inputs": {
           "vals": {
-            "0": "144"
+            "0": "2016"
           }
         },
-        "result": "144",
+        "result": "2016",
         "radioChannel": "4",
         "outputPorts": [
           {
@@ -292,8 +293,8 @@
       "id": "node_Jbnn4cRz",
       "type": "calculation",
       "position": {
-        "x": 1279.487285805677,
-        "y": 1117.8434470397733
+        "x": 1395.3606000621317,
+        "y": 1123.3679941089213
       },
       "data": {
         "functionName": "public_key_from_private_key",
@@ -316,8 +317,8 @@
       "id": "node_tkU5SumG",
       "type": "radioNode",
       "position": {
-        "x": 1631.3854615927157,
-        "y": 1203.8571130241821
+        "x": 1747.25877584917,
+        "y": 1209.38166009333
       },
       "data": {
         "functionName": "radio_send",
@@ -369,12 +370,12 @@
       "id": "node_pCC5dMjS",
       "type": "calculation",
       "position": {
-        "x": 1284.5778206871692,
-        "y": 1430.057528247291
+        "x": 1400.4511349436239,
+        "y": 1435.582075316439
       },
       "data": {
         "functionName": "public_key_from_private_key",
-        "title": "PrivKey → PubKey (Bob refund pubkey)",
+        "title": "PrivKey → PubKey (Bob payment pubkey)",
         "hasRegenerate": false,
         "numInputs": 1,
         "showField": false,
@@ -393,8 +394,8 @@
       "id": "node_fJGaDB1E",
       "type": "radioNode",
       "position": {
-        "x": 1650.858558133521,
-        "y": 1483.6205651253972
+        "x": 1766.7318723899753,
+        "y": 1489.1451121945452
       },
       "data": {
         "functionName": "radio_send",
@@ -490,7 +491,7 @@
       "id": "node_faDfvpr5",
       "type": "calculation",
       "position": {
-        "x": 197.54833210766947,
+        "x": 200.16843144659015,
         "y": 1157.1057293775093
       },
       "data": {
@@ -514,7 +515,7 @@
       "id": "node_KNa9GTCt",
       "type": "radioNode",
       "position": {
-        "x": 583.204508706257,
+        "x": 585.8246080451777,
         "y": 1295.446219943893
       },
       "data": {
@@ -567,7 +568,7 @@
       "id": "node_jnzI37fH",
       "type": "calculation",
       "position": {
-        "x": 176.87723981797717,
+        "x": 179.49733915689785,
         "y": 1567.7900952147838
       },
       "data": {
@@ -613,7 +614,7 @@
       "id": "node_0lVMRw2V",
       "type": "radioNode",
       "position": {
-        "x": 529.6858503766198,
+        "x": 532.3059497155405,
         "y": 1627.7068467064473
       },
       "data": {
@@ -666,61 +667,43 @@
       "id": "node_u5d6hln",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 156.81362441856436,
-        "y": 103.81042638313534
+        "x": 32,
+        "y": 67.91360278947764
       },
       "data": {
-        "content": "## Alice",
-        "fontSize": 36,
-        "width": 370,
-        "height": 169,
+        "content": "## Alice\n*payer · funds the channel · stores the signed refund · authorizes cumulative payments*",
+        "fontSize": 34,
+        "width": 929,
+        "height": 251,
         "title": "Text Info Node",
         "dirty": false,
         "textAlign": "center"
       },
       "parentId": "node_1tk0jii",
       "extent": "parent",
-      "width": 370,
-      "height": 169
+      "width": 929,
+      "height": 251
     },
     {
       "id": "node_357J805o",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1237.2921873114697,
-        "y": 101.53718378814392
+        "x": 1232.561716336072,
+        "y": 66.62197479513065
       },
       "data": {
-        "content": "## Bob",
-        "fontSize": 36,
-        "width": 303,
-        "height": 168,
+        "content": "## Bob\n*payee · co-signs the refund · stores the best settlement · closes the channel*",
+        "fontSize": 34,
+        "width": 653,
+        "height": 263,
         "title": "Text Info Node",
         "dirty": false,
         "textAlign": "center"
       },
       "parentId": "node_1tk0jii",
       "extent": "parent",
-      "width": 303,
-      "height": 168
-    },
-    {
-      "id": "node_qx4nrak",
-      "type": "shadcnTextInfo",
-      "position": {
-        "x": 471.2444342750441,
-        "y": 1039.2754731924597
-      },
-      "data": {
-        "content": "# Step 1 - Negotiate\n\n",
-        "fontSize": 36,
-        "width": 1700,
-        "height": 429,
-        "title": "Text Info Node",
-        "dirty": false
-      },
-      "width": 1700,
-      "height": 429
+      "width": 653,
+      "height": 263
     },
     {
       "id": "node_tfub6we",
@@ -832,11 +815,11 @@
       "id": "node_cxlqPvSe",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 2489.7126758588142,
-        "y": -100.0216280551028
+        "x": 225,
+        "y": 225
       },
       "data": {
-        "content": "## Setup: what the parties exchange\n\nAll public data, agreed before any coins move:\n\n- **Channel capacity** - total sats Alice locks in the 2-of-2 funding output (135,000 here); Bob later checks the on-chain funding pays *at least* this\n- **Refund delay** - relative timelock in blocks (BIP-68 `nSequence`, 144 here ≈ one day); after it Alice can reclaim via the pre-signed refund, so Bob must broadcast his best commitment *before* it expires\n- **Channel pubkeys** - one from each side, both go into the 2-of-2 redeemScript (`OP_2 <Alice> <Bob> OP_2 OP_CHECKMULTISIG`), so each party rebuilds it independently and audits the P2SH funding address\n- **Payout pubkeys** - Alice's refund P2PKH (timeout path) and Bob's payout P2PKH, which Bob verifies in every commitment he receives\n- **No secret, no hash** - unlike the HTLC coinswap there is nothing to reveal; safety comes from the pre-signed refund plus Bob only ever broadcasting the *newest* commitment\n\nThe numbered radio nodes carry these values across the canvas without visible edges - select one to highlight its link.\n",
+        "content": "# Step 1 — Negotiate\n## Setup: what the parties exchange\n\nAll public data, agreed before any coins move:\n\n- **Channel capacity** - total sats Alice locks in the 2-of-2 funding output; Bob later checks the on-chain funding pays *at least* this\n- **Refund delay** - relative timelock in blocks (BIP-68 `nSequence`, 2016 here ≈ two weeks); after it Alice can reclaim via the pre-signed refund, so Bob must broadcast his best commitment *before* it expires\n- **Channel pubkeys** - one from each side, both go into the 2-of-2 redeemScript (`OP_2 <Alice> <Bob> OP_2 OP_CHECKMULTISIG`), so each party rebuilds it independently and audits the P2SH funding address\n- **Payout pubkeys** - Alice's refund P2PKH (timeout path) and Bob's payout P2PKH, which Bob verifies in every commitment he receives\n- **No secret, no hash** - unlike the HTLC coinswap there is nothing to reveal; safety comes from the pre-signed refund plus Bob only ever broadcasting the *newest* commitment\n\nThe numbered radio nodes carry these values across the canvas without visible edges - select one to highlight its link.\n",
         "fontSize": 36,
         "width": 2115,
         "height": 1002,
@@ -850,26 +833,26 @@
       "id": "node_8s7el6b",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1506.8394447621208,
-        "y": 4669.905759200397
+        "x": -495.4646970006779,
+        "y": 4455.1630397757845
       },
       "data": {
-        "content": "# Step 2 - Alice builds funding tx (no broadcast yet)",
+        "content": "# Step 2 — Alice builds the funding tx (no broadcast)\n\nTX1 spends Alice's faucet coins into the channel: the full capacity locked behind `OP_HASH160 <hash(redeemScript)> OP_EQUAL`. On-chain it's an anonymous P2SH output — the 2-of-2 stays hidden until someone spends it.\n\n**Alice must not broadcast yet.** Once these coins confirm they can only move with *both* signatures. If Bob vanished now, Alice's money would be hostage forever — the classic multisig trap.\n\nWhat she *does* need from TX1 right away is its **txid** (the TXID → Reversed node shows the display form): the refund in Step 3 spends it, so the exit must be built and countersigned first. Verify Script already shows the spend of her P2PKH input is valid — the transaction is ready and waiting.",
         "fontSize": 42,
-        "width": 1384,
-        "height": 185,
+        "width": 1986,
+        "height": 762,
         "title": "Text Info Node",
         "dirty": false
       },
-      "width": 1384,
-      "height": 185
+      "width": 1986,
+      "height": 762
     },
     {
       "id": "node_ROZuZDm2",
       "type": "shadcnGroup",
       "position": {
-        "x": 14048.994005313596,
-        "y": 8920.587118120318
+        "x": 11767.155632540978,
+        "y": 9169.766374128574
       },
       "data": {
         "isGroup": true,
@@ -895,8 +878,8 @@
       "id": "node_MK258d3e",
       "type": "shadcnGroup",
       "position": {
-        "x": 10424.544544253773,
-        "y": 5266.261614106456
+        "x": 8142.706171481155,
+        "y": 5515.440870114712
       },
       "data": {
         "isGroup": true,
@@ -925,8 +908,8 @@
       "id": "node_nrvb8KUa",
       "type": "shadcnGroup",
       "position": {
-        "x": 5079.498982620538,
-        "y": 6116.283041533145
+        "x": 2797.66060984792,
+        "y": 6365.4622975414
       },
       "data": {
         "isGroup": true,
@@ -957,8 +940,8 @@
       "id": "node_kht0iiVH",
       "type": "shadcnGroup",
       "position": {
-        "x": -242,
-        "y": 11809.866482892367
+        "x": -2523.838372772618,
+        "y": 12059.045738900622
       },
       "data": {
         "isGroup": true,
@@ -983,8 +966,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 1820.3335187383545,
-        "y": 5151.503787602848
+        "x": -461.50485403426364,
+        "y": 5400.683043611104
       },
       "data": {
         "isGroup": true,
@@ -3286,8 +3269,8 @@
       "id": "node_5CvQEOUN",
       "type": "shadcnGroup",
       "position": {
-        "x": 16943.807738652853,
-        "y": 24820.75664611943
+        "x": 14661.969365880235,
+        "y": 21781.606279878615
       },
       "data": {
         "isGroup": true,
@@ -3313,8 +3296,8 @@
       "id": "node_yLMUFpMY",
       "type": "shadcnGroup",
       "position": {
-        "x": 11508.484487185317,
-        "y": 19690.608522641425
+        "x": 9226.646114412699,
+        "y": 16651.45815640061
       },
       "data": {
         "isGroup": true,
@@ -3342,8 +3325,8 @@
       "id": "node_qHLs1Tu4",
       "type": "shadcnGroup",
       "position": {
-        "x": 6126.952316448771,
-        "y": 22121.739141588336
+        "x": 3845.1139436761528,
+        "y": 19082.58877534752
       },
       "data": {
         "isGroup": true,
@@ -3373,8 +3356,8 @@
       "id": "node_y4kVQeNY",
       "type": "shadcnGroup",
       "position": {
-        "x": 2106.6016978368825,
-        "y": 25725.618034057
+        "x": -175.23667493573566,
+        "y": 22686.467667816185
       },
       "data": {
         "isGroup": true,
@@ -3550,13 +3533,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae900000000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac00000000",
+            "0": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252aee00700000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac00000000",
             "100": "01000000"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae900000000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac0000000001000000",
+        "result": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252aee00700000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac0000000001000000",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -3611,13 +3594,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d9180",
+            "0": "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b4",
             "100": "01"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
+        "result": "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -3674,16 +3657,16 @@
           "vals": {
             "0": "00",
             "100": "47",
-            "200": "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
+            "200": "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
             "300": "47",
-            "400": "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301",
+            "400": "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101",
             "500": "47",
             "600": "5221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "0047304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d91800147304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae",
+        "result": "0047304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b40147304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -3713,7 +3696,7 @@
           "INPUTS[]": [0, 100, 200, 300, 400, 500, 600]
         },
         "baseHeight": 80,
-        "title": "Recovery path scriptSig",
+        "title": "scriptSig",
         "totalInputs": 7,
         "unwiredCount": 0,
         "error": false,
@@ -3727,7 +3710,7 @@
           "600": "redeem Script:"
         },
         "showComment": true,
-        "comment": "OP_0 <sig1> <sig2>"
+        "comment": "OP_0 <sig1> <sig2>  <redeemScript>"
       },
       "parentId": "node_yLMUFpMY",
       "extent": "parent"
@@ -3751,7 +3734,7 @@
             "1010": "00000000",
             "1020": "47",
             "1030": "5221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae",
-            "1040": "90000000",
+            "1040": "e0070000",
             "2000": "01",
             "3000": "2888040000000000",
             "3010": "19",
@@ -3761,7 +3744,7 @@
         },
         "dirty": false,
         "version": 0,
-        "result": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae900000000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac00000000",
+        "result": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252aee00700000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac00000000",
         "inputStructure": {
           "afterGroups": [
             {
@@ -3902,8 +3885,8 @@
             "1000": "1a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a55",
             "1010": "00000000",
             "1020": "d9",
-            "1030": "0047304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d91800147304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae",
-            "1040": "90000000",
+            "1030": "0047304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b40147304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae",
+            "1040": "e0070000",
             "2000": "01",
             "3000": "2888040000000000",
             "3010": "19",
@@ -3913,7 +3896,7 @@
         },
         "dirty": false,
         "version": 0,
-        "result": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000d90047304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d91800147304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae900000000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac00000000",
+        "result": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000d90047304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b40147304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252aee00700000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac00000000",
         "inputStructure": {
           "afterGroups": [
             {
@@ -4147,9 +4130,9 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae900000000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac0000000001000000"
+          "val": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252aee00700000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac0000000001000000"
         },
-        "result": "25a393417c4544c8ebe314fbf06db0003ba0d1c4d9b7d11fbb7f8f1caa91c851",
+        "result": "8f509ffac5aa6e65c18793dedb02d19ce067e0d0449c0429d51bb78c648f49e9",
         "inputStructure": {
           "ungrouped": [
             {
@@ -4181,7 +4164,7 @@
         "inputs": {
           "vals": {
             "0": "f03be1f268ff66d9733cd03a5439d593cdf4cbbb5c92d426e21d0b01df90dad7",
-            "1": "25a393417c4544c8ebe314fbf06db0003ba0d1c4d9b7d11fbb7f8f1caa91c851"
+            "1": "8f509ffac5aa6e65c18793dedb02d19ce067e0d0449c0429d51bb78c648f49e9"
           }
         },
         "inputStructure": {
@@ -4199,7 +4182,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d9180",
+        "result": "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b4",
         "totalInputs": 2,
         "unwiredCount": 0,
         "error": false
@@ -4222,7 +4205,7 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": "0047304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d91800147304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae"
+          "val": "0047304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b40147304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae"
         },
         "result": "d9",
         "error": false
@@ -4245,9 +4228,9 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000d90047304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d91800147304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae900000000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac00000000"
+          "val": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000d90047304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b40147304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252aee00700000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac00000000"
         },
-        "result": "56f5f9fae5c4e34ccd741b02f7cc78904d19d5f2c7840703a62d23e165fcb2d1",
+        "result": "dd14b9c44ec62edeb50ee7688a3bd105e717587ae28ea46c6e25c0a405d18769",
         "inputStructure": {
           "ungrouped": [
             {
@@ -4278,9 +4261,9 @@
         "showField": false,
         "dirty": false,
         "groupInstances": {},
-        "result": "d1b2fc65e1232da6030784c7f2d5194d9078ccf7021b74cd4ce3c4e5faf9f556",
+        "result": "6987d105a4c0256e6ca48ee27a5817e705d13b8a68e70eb5de2ec64ec4b914dd",
         "inputs": {
-          "val": "56f5f9fae5c4e34ccd741b02f7cc78904d19d5f2c7840703a62d23e165fcb2d1"
+          "val": "dd14b9c44ec62edeb50ee7688a3bd105e717587ae28ea46c6e25c0a405d18769"
         },
         "showComment": true,
         "comment": "TXID as displayed by bitcoin clients",
@@ -4304,7 +4287,7 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001"
+          "val": "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401"
         },
         "result": "47",
         "inputStructure": {
@@ -4872,9 +4855,9 @@
         "numInputs": 6,
         "inputs": {
           "vals": {
-            "0": "0047304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d91800147304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae",
+            "0": "0047304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b40147304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae",
             "1": "a9148fe0005939dec8b48d299c616e977825ae9dab8587",
-            "2": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000d90047304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d91800147304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae900000000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac00000000",
+            "2": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000d90047304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b40147304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252aee00700000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac00000000",
             "3": "0",
             "5": "__EMPTY__"
           }
@@ -4979,7 +4962,7 @@
               "stack_before": [""],
               "stack_after": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001"
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401"
               ],
               "phase": "scriptSig",
               "branch_active": true
@@ -4990,12 +4973,12 @@
               "opcode_name": "PUSH 71 bytes",
               "stack_before": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001"
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401"
               ],
               "stack_after": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301"
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
+                "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101"
               ],
               "phase": "scriptSig",
               "branch_active": true
@@ -5006,13 +4989,13 @@
               "opcode_name": "PUSH 71 bytes",
               "stack_before": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301"
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
+                "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101"
               ],
               "stack_after": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301",
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
+                "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101",
                 "5221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae"
               ],
               "phase": "scriptSig",
@@ -5024,14 +5007,14 @@
               "opcode_name": "OP_HASH160",
               "stack_before": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301",
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
+                "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101",
                 "5221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae"
               ],
               "stack_after": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301",
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
+                "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101",
                 "8fe0005939dec8b48d299c616e977825ae9dab85"
               ],
               "phase": "scriptPubKey",
@@ -5043,14 +5026,14 @@
               "opcode_name": "PUSH 20 bytes",
               "stack_before": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301",
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
+                "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101",
                 "8fe0005939dec8b48d299c616e977825ae9dab85"
               ],
               "stack_after": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301",
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
+                "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101",
                 "8fe0005939dec8b48d299c616e977825ae9dab85",
                 "8fe0005939dec8b48d299c616e977825ae9dab85"
               ],
@@ -5063,15 +5046,15 @@
               "opcode_name": "OP_EQUAL",
               "stack_before": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301",
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
+                "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101",
                 "8fe0005939dec8b48d299c616e977825ae9dab85",
                 "8fe0005939dec8b48d299c616e977825ae9dab85"
               ],
               "stack_after": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301",
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
+                "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101",
                 "01"
               ],
               "phase": "scriptPubKey",
@@ -5083,13 +5066,13 @@
               "opcode_name": "OP_2",
               "stack_before": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301"
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
+                "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101"
               ],
               "stack_after": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301",
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
+                "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101",
                 "02"
               ],
               "phase": "redeemScript",
@@ -5101,14 +5084,14 @@
               "opcode_name": "PUSH 33 bytes",
               "stack_before": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301",
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
+                "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101",
                 "02"
               ],
               "stack_after": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301",
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
+                "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101",
                 "02",
                 "029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc"
               ],
@@ -5121,15 +5104,15 @@
               "opcode_name": "PUSH 33 bytes",
               "stack_before": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301",
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
+                "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101",
                 "02",
                 "029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc"
               ],
               "stack_after": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301",
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
+                "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101",
                 "02",
                 "029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc",
                 "033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d0128392"
@@ -5143,16 +5126,16 @@
               "opcode_name": "OP_2",
               "stack_before": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301",
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
+                "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101",
                 "02",
                 "029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc",
                 "033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d0128392"
               ],
               "stack_after": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301",
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
+                "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101",
                 "02",
                 "029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc",
                 "033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d0128392",
@@ -5167,8 +5150,8 @@
               "opcode_name": "OP_CHECKMULTISIG",
               "stack_before": [
                 "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301",
+                "304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b401",
+                "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101",
                 "02",
                 "029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc",
                 "033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d0128392",
@@ -5179,7 +5162,7 @@
               "branch_active": true
             }
           ],
-          "scriptSig": "0047304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d91800147304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae",
+          "scriptSig": "0047304402200222b9bc2cf538e138ff06c10061894d977281fd6ea8017cc1bac2430633088e02205106ad4063d40c1890891cead9d145004b22baef38ff0bd69b8878c28514b9b40147304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae",
           "scriptPubKey": "a9148fe0005939dec8b48d299c616e977825ae9dab8587",
           "excludedFlags": [],
           "activeFlags": [
@@ -5227,9 +5210,9 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": 144
+          "val": 2016
         },
-        "result": "90000000",
+        "result": "e0070000",
         "error": false,
         "outputValues": {},
         "outputErrors": {}
@@ -5250,9 +5233,9 @@
         "numInputs": 1,
         "version": 0,
         "inputs": {
-          "val": 144
+          "val": 2016
         },
-        "result": 144,
+        "result": 2016,
         "inputStructure": {
           "ungrouped": [
             {
@@ -5276,19 +5259,19 @@
       "id": "node_F2l2yR46",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 6161.884543750849,
-        "y": 21678.605102083195
+        "x": 3837.2311222287476,
+        "y": 18229.835004638437
       },
       "data": {
-        "content": "# Step 3 - Alice builds refund tx and sends it to Bob to sign",
+        "content": "# Step 3 — Alice builds the refund and sends it to Bob\n\nThe refund is Alice's **exit** — built while the funding tx exists only on her screen:\n\n- spends the (still unbroadcast) TX1 output — legacy P2SH signing puts the **redeemScript** in the preimage's script slot, not the P2SH scriptPubKey\n- pays the capacity minus a small fee back to Alice's refund key, nothing to Bob\n- input `nSequence` carries the agreed delay → a **BIP-68 relative timelock**: consensus rejects this tx until the funding output is that many blocks old (needs `version ≥ 2`, which is why every tx here is v2)\n\nAlice sends Bob the **unsigned refund** — the preimage is everything he needs to check it and sign. ",
         "fontSize": 42,
-        "width": 1519,
-        "height": 171,
+        "width": 1780,
+        "height": 796,
         "title": "Text Info Node",
         "dirty": false
       },
-      "width": 1519,
-      "height": 171
+      "width": 1780,
+      "height": 796
     },
     {
       "id": "node_t5nvzx4",
@@ -5635,7 +5618,7 @@
         "functionName": "radio_receive",
         "title": "Radio Receive 4",
         "numInputs": 0,
-        "result": "144",
+        "result": "2016",
         "radioChannel": "4",
         "outputPorts": [
           {
@@ -5650,7 +5633,7 @@
         "height": 64,
         "dirty": false,
         "inputs": {
-          "val": "144"
+          "val": "2016"
         },
         "error": false
       },
@@ -5663,19 +5646,19 @@
       "id": "node_1FLJ7mWM",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 11563.169036896481,
-        "y": 19165.641744137567
+        "x": 9208.335235920615,
+        "y": 15165.475826663549
       },
       "data": {
-        "content": "# Step 4 - Bob verifies the tx and signs",
+        "content": "# Step 4 — Bob verifies, then signs\n\nBob never signs blind — everything he needs to check is inside the preimage itself:\n\n- **scriptCode == the agreed 2-of-2** — legacy P2SH signing puts the redeemScript right in the preimage's script slot; Bob rebuilds `OP_2 <Alice> <Bob> OP_2 OP_CHECKMULTISIG` from Step 1's pubkeys and compares. His signature will be valid against this script and no other.\n- **outputs pay only Alice's refund key** — the agreed refund template, nothing extra\n- **`nSequence` ≥ the agreed delay** — the security teeth: without it, his signature would hand Alice an *immediate* exit that races every commitment he'll ever hold\n- **`SIGHASH_ALL`** — so none of the above can be swapped out after signing\n- **records the txid:vout** — he *can't* verify it (TX1 lives only on Alice's screen), but it names the channel: in Step 5 the on-chain funding must match this outpoint, or Bob treats the channel as never opened. A made-up txid costs Alice her exit; it can't hurt Bob.\n\nThen he signs and **returns his signature to Alice** — she adds her own, and the canvas assembles the finished scriptSig. The order matters: `OP_CHECKMULTISIG` matches signatures **in redeemScript pubkey order** — Alice first, Bob second — and the leading `OP_0` feeds the famous off-by-one dummy. Verify Script: **true, with both signatures**. Alice's exit is now guaranteed by consensus, not by Bob's goodwill.",
         "fontSize": 42,
-        "width": 1519,
-        "height": 171,
+        "width": 1937,
+        "height": 1308,
         "title": "Text Info Node",
         "dirty": false
       },
-      "width": 1519,
-      "height": 171
+      "width": 1937,
+      "height": 1308
     },
     {
       "id": "node_nqU7UGrG",
@@ -5690,13 +5673,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b3",
+            "0": "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b11",
             "100": "01"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301",
+        "result": "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -5754,7 +5737,7 @@
         "inputs": {
           "vals": {
             "0": "f6ec9ab0d9359216cb984a225427fc6f0aa80213e427f3b23d4edf65f180a066",
-            "1": "25a393417c4544c8ebe314fbf06db0003ba0d1c4d9b7d11fbb7f8f1caa91c851"
+            "1": "8f509ffac5aa6e65c18793dedb02d19ce067e0d0449c0429d51bb78c648f49e9"
           }
         },
         "inputStructure": {
@@ -5772,7 +5755,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b3",
+        "result": "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b11",
         "totalInputs": 2,
         "unwiredCount": 0,
         "error": false
@@ -5795,7 +5778,7 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "304402205ca26d98a23e0b8e3665627b57ed779728ceef0d7d02e3067a581c885c87a140022023b90a45d364f27f81846993cbefff8a96477d82850fe55322e9fbfc2d33b2b301"
+          "val": "304402203e8653580579e2bfebf1e1a8bcc7d734103d2b4a54c632e0eb8aef93dd411774022039d1a245b07dd782411510bbe9ba55afab97150a387d4bb683e96b32a6111b1101"
         },
         "result": "47",
         "inputStructure": {
@@ -5888,8 +5871,8 @@
       "id": "node_A0VqlmJr",
       "type": "calculation",
       "position": {
-        "x": 1378.4701873207086,
-        "y": 1218.9228392165496
+        "x": 1402.7005952015206,
+        "y": 1201.153873437288
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -5957,59 +5940,32 @@
       "id": "node_K5TAY3WQ",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 2071.415208051341,
-        "y": 28692.97978062716
+        "x": 4181.667045520513,
+        "y": 27596.236958744594
       },
       "data": {
-        "content": "# Step 5 — Fund the channel, first payment\n\n- **Alice** verifies Bob's refund signature → only now safe to **broadcast the funding tx** (2-of-2 P2SH multisig)\n- **Bob** sees it on-chain: checks **amount** ≥ agreed capacity and **scriptPubKey** == expected P2SH, waits for a confirmation, records the **TXID**\n- **Bob** requests *N sats for ware X*\n- **Alice** builds a **commitment tx** spending the funding output — change to herself, **N to Bob** — signs it (SIGHASH_ALL) and sends **preimage + signature** to Bob\n- **Bob** verifies and **stores** it — that stored (tx + sig) *is* the payment; nothing is broadcast\n",
+        "content": "# Step 5 — Fund the channel, first payment\n\n- **Alice** verifies Bob's refund signature → only now safe to **broadcast TX1** (the 2-of-2 P2SH funding)\n- **Bob** sees it on-chain: checks the **outpoint matches the refund he signed in Step 4**, **amount** ≥ the agreed capacity, **scriptPubKey** == expected P2SH, waits for a confirmation — his closing deadline starts ticking here\n- **Bob** requests *N sats for ware X*\n- **Alice** builds a **commitment tx** spending the funding output — **N to Bob**, the rest back to herself minus the fee — signs it and sends **preimage + signature** to Bob\n- **Bob** verifies and **stores** it — the half-finished scriptSig `OP_0 <sigAlice>` plus the tx *is* the payment; nothing is broadcast\n- Next payment? Same template, bigger N, new Alice signature. Bob keeps the newest and discards the rest — **older commitments pay him less, so he has no reason to touch them.** That's Spilman's trick: no revocation needed.",
         "fontSize": 42,
-        "width": 1741,
-        "height": 817,
+        "width": 1788,
+        "height": 1104,
         "title": "Text Info Node",
         "dirty": false
       },
-      "width": 1741,
-      "height": 817
-    },
-    {
-      "id": "node_ylKIH7H5",
-      "type": "shadcnGroup",
-      "position": {
-        "x": 16922.20604081597,
-        "y": 36915.11490198186
-      },
-      "data": {
-        "isGroup": true,
-        "width": 1719,
-        "height": 2120,
-        "title": "Final TX2 and Verify Script",
-        "dirty": false,
-        "groupBundlePortOffsets": {
-          "targetByBundle": {
-            "node_PJxP60N4->node_ylKIH7H5": -41.89,
-            "node_CqNcTGrD->node_ylKIH7H5": -424.35,
-            "node_5W6z5M2w->node_ylKIH7H5": 292.52
-          }
-        },
-        "borderColor": "#7a4ea3",
-        "fontSize": 44
-      },
-      "width": 1719,
-      "height": 2120,
-      "dragHandle": "[data-drag-handle]"
+      "width": 1788,
+      "height": 1104
     },
     {
       "id": "node_CqNcTGrD",
       "type": "shadcnGroup",
       "position": {
-        "x": 11486.882789348434,
-        "y": 31784.96677850386
+        "x": 9781.090125528855,
+        "y": 26778.257818750495
       },
       "data": {
         "isGroup": true,
         "width": 3096,
-        "height": 1808,
-        "title": "TX2 Signature and scriptSig",
+        "height": 1988.3438670275755,
+        "title": "TX3 Signature and scriptSig",
         "groupBundlePortOffsets": {
           "target": -559.24,
           "sourceByBundle": {
@@ -6024,21 +5980,21 @@
         "fontSize": 44
       },
       "width": 3096,
-      "height": 1808,
+      "height": 1988.3438670275755,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "node_PJxP60N4",
       "type": "shadcnGroup",
       "position": {
-        "x": 6105.350618611888,
-        "y": 34216.097397450765
+        "x": 4199.321345524879,
+        "y": 28922.092433096303
       },
       "data": {
         "isGroup": true,
-        "width": 4981,
-        "height": 2702,
-        "title": "TX2 Preimage",
+        "width": 5209,
+        "height": 3733,
+        "title": "TX3 Preimage",
         "groupBundlePortOffsets": {
           "source": 1199.26,
           "target": 1028.2,
@@ -6047,29 +6003,30 @@
             "node_PJxP60N4->node_CqNcTGrD": -1276.99
           },
           "targetByBundle": {
-            "node_5W6z5M2w->node_PJxP60N4": 186.78
+            "node_5W6z5M2w->node_PJxP60N4": 1223.53,
+            "node_ft7ohoBP->node_PJxP60N4": 1557.51
           }
         },
         "dirty": false,
         "borderColor": "#008c86",
         "fontSize": 44
       },
-      "width": 4981,
-      "height": 2702,
+      "width": 5209,
+      "height": 3733,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "node_5W6z5M2w",
       "type": "shadcnGroup",
       "position": {
-        "x": 2085,
-        "y": 37819.97628991943
+        "x": 318.5211849418006,
+        "y": 32528.336587565456
       },
       "data": {
         "isGroup": true,
-        "width": 2478,
-        "height": 1092,
-        "title": "Locking Script (P2PKH)",
+        "width": 2532,
+        "height": 1118,
+        "title": "Locking Script (to Bob)",
         "dirty": false,
         "borderColor": "#a83a32",
         "fontSize": 44,
@@ -6080,8 +6037,8 @@
           }
         }
       },
-      "width": 2478,
-      "height": 1092,
+      "width": 2532,
+      "height": 1118,
       "dragHandle": "[data-drag-handle]"
     },
     {
@@ -6160,20 +6117,20 @@
       "id": "node_bNFJcy7L",
       "type": "calculation",
       "position": {
-        "x": 1268.9769716669834,
-        "y": 1791.3948498648933
+        "x": 1270.710673967089,
+        "y": 1855.5418349688189
       },
       "data": {
         "functionName": "identity",
         "showField": true,
         "numInputs": 0,
-        "value": "1",
+        "value": "2",
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "1"
+          "val": "2"
         },
-        "result": "1",
+        "result": "2",
         "inputStructure": {
           "ungrouped": [
             {
@@ -6239,13 +6196,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae900000000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac00000000",
+            "0": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252aefdffffff02b8880000000000001976a914485081184d924f784e5dd60932c38e4a9a28fd4588ac70ff0300000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac00000000",
             "100": "01000000"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae900000000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac0000000001000000",
+        "result": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252aefdffffff02b8880000000000001976a914485081184d924f784e5dd60932c38e4a9a28fd4588ac70ff0300000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac0000000001000000",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -6300,13 +6257,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d9180",
+            "0": "3044022042afce27cbf002f4f2657ae2f035c486ff7714ba53ea75fb3054b7e40c08d5b902203f26c201fcdf1964eae3d910342090169b37ff839a9c05d4034bbe9ab4c7c5c6",
             "100": "01"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
+        "result": "3044022042afce27cbf002f4f2657ae2f035c486ff7714ba53ea75fb3054b7e40c08d5b902203f26c201fcdf1964eae3d910342090169b37ff839a9c05d4034bbe9ab4c7c5c601",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -6363,14 +6320,12 @@
           "vals": {
             "0": "00",
             "100": "47",
-            "200": "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-            "500": "47",
-            "600": "5221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae"
+            "200": "3044022042afce27cbf002f4f2657ae2f035c486ff7714ba53ea75fb3054b7e40c08d5b902203f26c201fcdf1964eae3d910342090169b37ff839a9c05d4034bbe9ab4c7c5c601"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "0047304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae",
+        "result": "00473044022042afce27cbf002f4f2657ae2f035c486ff7714ba53ea75fb3054b7e40c08d5b902203f26c201fcdf1964eae3d910342090169b37ff839a9c05d4034bbe9ab4c7c5c601",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -6394,15 +6349,15 @@
           "ungrouped": []
         },
         "groupInstances": {
-          "INPUTS[]": 7
+          "INPUTS[]": 3
         },
         "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200, 300, 400, 500, 600]
+          "INPUTS[]": [0, 100, 200]
         },
         "baseHeight": 80,
-        "title": "Recovery path scriptSig",
-        "totalInputs": 7,
-        "unwiredCount": 2,
+        "title": "scriptSig",
+        "totalInputs": 3,
+        "unwiredCount": 0,
         "error": false,
         "customFieldLabels": {
           "0": "OP_code:",
@@ -6413,8 +6368,7 @@
           "500": "redeem Script len:",
           "600": "redeem Script:"
         },
-        "showComment": true,
-        "comment": "OP_0 <sig1> <sig2>"
+        "showComment": false
       },
       "parentId": "node_CqNcTGrD",
       "extent": "parent"
@@ -6438,17 +6392,20 @@
             "1010": "00000000",
             "1020": "47",
             "1030": "5221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae",
-            "1040": "90000000",
-            "2000": "01",
-            "3000": "2888040000000000",
+            "1040": "fdffffff",
+            "2000": "02",
+            "3000": "b888000000000000",
             "3010": "19",
-            "3020": "76a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac",
+            "3020": "76a914485081184d924f784e5dd60932c38e4a9a28fd4588ac",
+            "3100": "70ff030000000000",
+            "3110": "19",
+            "3120": "76a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac",
             "4000": "00000000"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae900000000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac00000000",
+        "result": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252aefdffffff02b8880000000000001976a914485081184d924f784e5dd60932c38e4a9a28fd4588ac70ff0300000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac00000000",
         "inputStructure": {
           "afterGroups": [
             {
@@ -6555,173 +6512,20 @@
         },
         "groupInstances": {
           "INPUTS[]": 1,
-          "OUTPUTS[]": 1
+          "OUTPUTS[]": 2
         },
         "groupInstanceKeys": {
           "INPUTS[]": [1000],
-          "OUTPUTS[]": [3000]
+          "OUTPUTS[]": [3000, 3100]
         },
         "baseHeight": 120,
-        "totalInputs": 12,
+        "totalInputs": 15,
         "unwiredCount": 0,
         "title": "Preimage Body",
         "error": false,
         "showComment": false
       },
       "parentId": "node_PJxP60N4",
-      "extent": "parent"
-    },
-    {
-      "id": "node_dZCLm4kZ",
-      "type": "calculation",
-      "position": {
-        "x": 217.64311459338933,
-        "y": 206.5517943564555
-      },
-      "data": {
-        "functionName": "concat_all",
-        "paramExtraction": "multi_val",
-        "numInputs": 12,
-        "inputs": {
-          "vals": {
-            "0": "02000000",
-            "10": "01",
-            "1000": "1a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a55",
-            "1010": "00000000",
-            "1020": "91",
-            "1030": "0047304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae",
-            "1040": "90000000",
-            "2000": "01",
-            "3000": "2888040000000000",
-            "3010": "19",
-            "3020": "76a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac",
-            "4000": "00000000"
-          }
-        },
-        "dirty": false,
-        "version": 0,
-        "result": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000910047304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae900000000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac00000000",
-        "inputStructure": {
-          "afterGroups": [
-            {
-              "index": 4000,
-              "label": "LOCKTIME[4]:",
-              "placeholder": "00000000",
-              "rows": 1
-            }
-          ],
-          "betweenGroups": {
-            "INPUTS[]": [
-              {
-                "index": 2000,
-                "label": "OUTPUT_COUNT (VarInt):",
-                "rows": 1,
-                "small": true
-              }
-            ]
-          },
-          "groups": [
-            {
-              "baseIndex": 1000,
-              "expandable": true,
-              "fieldCountToAdd": 5,
-              "fields": [
-                {
-                  "index": 0,
-                  "label": "TXID[32]:",
-                  "placeholder": "Prev TX ID",
-                  "rows": 2
-                },
-                {
-                  "index": 10,
-                  "label": "VOUT[4]:",
-                  "placeholder": "00000000",
-                  "rows": 1
-                },
-                {
-                  "allowEmpty00": true,
-                  "index": 20,
-                  "label": "SCRIPT_LENGTH (VarInt):",
-                  "rows": 1
-                },
-                {
-                  "allowEmptyBlank": true,
-                  "index": 30,
-                  "label": "SCRIPT_SIG[]:",
-                  "placeholder": "<sig> <pk>",
-                  "rows": 3
-                },
-                {
-                  "index": 40,
-                  "label": "SEQUENCE[4]:",
-                  "placeholder": "ffffffff",
-                  "rows": 1
-                }
-              ],
-              "maxInstances": 10,
-              "minInstances": 1,
-              "title": "INPUTS[]"
-            },
-            {
-              "baseIndex": 3000,
-              "expandable": true,
-              "fieldCountToAdd": 3,
-              "fields": [
-                {
-                  "index": 0,
-                  "label": "AMOUNT[8]:",
-                  "placeholder": "Satoshis (hex)",
-                  "rows": 1
-                },
-                {
-                  "index": 10,
-                  "label": "SCRIPT_PUBKEY_LENGTH:",
-                  "rows": 1,
-                  "small": true
-                },
-                {
-                  "index": 20,
-                  "label": "SCRIPT_PUBKEY[]:",
-                  "placeholder": "Locking script",
-                  "rows": 3
-                }
-              ],
-              "maxInstances": 10,
-              "minInstances": 1,
-              "title": "OUTPUTS[]"
-            }
-          ],
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "VERSION[4]:",
-              "rows": 1
-            },
-            {
-              "index": 10,
-              "label": "INPUT_COUNT (VarInt):",
-              "rows": 1,
-              "small": true
-            }
-          ]
-        },
-        "groupInstances": {
-          "INPUTS[]": 1,
-          "OUTPUTS[]": 1
-        },
-        "groupInstanceKeys": {
-          "INPUTS[]": [1000],
-          "OUTPUTS[]": [3000]
-        },
-        "baseHeight": 120,
-        "totalInputs": 12,
-        "unwiredCount": 0,
-        "showComment": true,
-        "comment": "bitcoin-cli -testnet4 sendrawtransaction <hex>",
-        "title": "Final Raw Transaction",
-        "error": false
-      },
-      "parentId": "node_ylKIH7H5",
       "extent": "parent"
     },
     {
@@ -6751,8 +6555,8 @@
       "id": "node_JBrPXy3n",
       "type": "calculation",
       "position": {
-        "x": 1683.5182157018353,
-        "y": 1633.356931606755
+        "x": 1704.3226433031068,
+        "y": 1780.7216271157668
       },
       "data": {
         "functionName": "encode_varint",
@@ -6761,9 +6565,9 @@
         "showField": false,
         "dirty": false,
         "groupInstances": {},
-        "result": "01",
+        "result": "02",
         "inputs": {
-          "val": 1
+          "val": 2
         },
         "error": false
       },
@@ -6774,8 +6578,8 @@
       "id": "node_C35i4Imb",
       "type": "calculation",
       "position": {
-        "x": 1685.0082072879159,
-        "y": 1951.5806145195056
+        "x": 1535.9098094787996,
+        "y": 1327.447786481338
       },
       "data": {
         "functionName": "satoshi_to_8_le",
@@ -6786,10 +6590,12 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": 297000
+          "val": 35000
         },
-        "result": "2888040000000000",
-        "error": false
+        "result": "b888000000000000",
+        "error": false,
+        "outputValues": {},
+        "outputErrors": {}
       },
       "parentId": "node_PJxP60N4",
       "extent": "parent"
@@ -6834,9 +6640,9 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae900000000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac0000000001000000"
+          "val": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252aefdffffff02b8880000000000001976a914485081184d924f784e5dd60932c38e4a9a28fd4588ac70ff0300000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac0000000001000000"
         },
-        "result": "25a393417c4544c8ebe314fbf06db0003ba0d1c4d9b7d11fbb7f8f1caa91c851",
+        "result": "083fde60716679aa5c50b6c3af67482c03d5f61fd0702df6dc78effdb0da19de",
         "inputStructure": {
           "ungrouped": [
             {
@@ -6847,7 +6653,9 @@
           ]
         },
         "groupInstances": {},
-        "error": false
+        "error": false,
+        "outputValues": {},
+        "outputErrors": {}
       },
       "parentId": "node_PJxP60N4",
       "extent": "parent"
@@ -6868,7 +6676,7 @@
         "inputs": {
           "vals": {
             "0": "f03be1f268ff66d9733cd03a5439d593cdf4cbbb5c92d426e21d0b01df90dad7",
-            "1": "25a393417c4544c8ebe314fbf06db0003ba0d1c4d9b7d11fbb7f8f1caa91c851"
+            "1": "083fde60716679aa5c50b6c3af67482c03d5f61fd0702df6dc78effdb0da19de"
           }
         },
         "inputStructure": {
@@ -6886,10 +6694,12 @@
           ]
         },
         "groupInstances": {},
-        "result": "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d9180",
+        "result": "3044022042afce27cbf002f4f2657ae2f035c486ff7714ba53ea75fb3054b7e40c08d5b902203f26c201fcdf1964eae3d910342090169b37ff839a9c05d4034bbe9ab4c7c5c6",
         "totalInputs": 2,
         "unwiredCount": 0,
-        "error": false
+        "error": false,
+        "outputValues": {},
+        "outputErrors": {}
       },
       "parentId": "node_CqNcTGrD",
       "extent": "parent"
@@ -6909,71 +6719,12 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": "0047304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae"
+          "val": "00473044022042afce27cbf002f4f2657ae2f035c486ff7714ba53ea75fb3054b7e40c08d5b902203f26c201fcdf1964eae3d910342090169b37ff839a9c05d4034bbe9ab4c7c5c601"
         },
-        "result": "91",
+        "result": "49",
         "error": false
       },
       "parentId": "node_CqNcTGrD",
-      "extent": "parent"
-    },
-    {
-      "id": "node_GnkgZ5cl",
-      "type": "calculation",
-      "position": {
-        "x": 759.5069382856018,
-        "y": 1344.4336516672265
-      },
-      "data": {
-        "functionName": "double_sha256_hex",
-        "title": "Data → SHA-256d",
-        "showField": false,
-        "numInputs": 1,
-        "dirty": false,
-        "version": 0,
-        "inputs": {
-          "val": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000910047304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae900000000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac00000000"
-        },
-        "result": "9f670301d5cecce7ca5eda932930cb9010d9b02b76df1b6aea18eb08b2646151",
-        "inputStructure": {
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "Input Hex:",
-              "rows": 2
-            }
-          ]
-        },
-        "groupInstances": {},
-        "showComment": false,
-        "error": false
-      },
-      "parentId": "node_ylKIH7H5",
-      "extent": "parent"
-    },
-    {
-      "id": "node_keoaOQZt",
-      "type": "calculation",
-      "position": {
-        "x": 1163.16615876976,
-        "y": 1512.130956948502
-      },
-      "data": {
-        "functionName": "reverse_txid_bytes",
-        "title": "TXID → Reversed",
-        "numInputs": 1,
-        "showField": false,
-        "dirty": false,
-        "groupInstances": {},
-        "result": "516164b208eb18ea6a1bdf762bb0d91090cb302993da5ecae7ccced50103679f",
-        "inputs": {
-          "val": "9f670301d5cecce7ca5eda932930cb9010d9b02b76df1b6aea18eb08b2646151"
-        },
-        "showComment": true,
-        "comment": "TXID as displayed by bitcoin clients",
-        "error": false
-      },
-      "parentId": "node_ylKIH7H5",
       "extent": "parent"
     },
     {
@@ -6991,7 +6742,7 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001"
+          "val": "3044022042afce27cbf002f4f2657ae2f035c486ff7714ba53ea75fb3054b7e40c08d5b902203f26c201fcdf1964eae3d910342090169b37ff839a9c05d4034bbe9ab4c7c5c601"
         },
         "result": "47",
         "inputStructure": {
@@ -7063,8 +6814,8 @@
       "id": "node_lqwGFDH9",
       "type": "calculation",
       "position": {
-        "x": 1240.282838789346,
-        "y": 2262.5753867970743
+        "x": 919.460410803109,
+        "y": 3175.1847315243867
       },
       "data": {
         "functionName": "identity",
@@ -7198,8 +6949,8 @@
       "id": "node_0W3ptNJT",
       "type": "calculation",
       "position": {
-        "x": 1690.1922211585988,
-        "y": 2256.367443993837
+        "x": 1339.89685407056,
+        "y": 3118.699422018064
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -7359,13 +7110,13 @@
           "vals": {
             "0": "76a9",
             "100": "14",
-            "200": "ee18a43241cbcaa5fcccb4143e6858f963d72150",
+            "200": "485081184d924f784e5dd60932c38e4a9a28fd45",
             "300": "88ac"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "76a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac",
+        "result": "76a914485081184d924f784e5dd60932c38e4a9a28fd4588ac",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -7426,7 +7177,7 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": "76a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac"
+          "val": "76a914485081184d924f784e5dd60932c38e4a9a28fd4588ac"
         },
         "result": "19",
         "error": false
@@ -7439,7 +7190,7 @@
       "type": "calculation",
       "position": {
         "x": 1072.160566880404,
-        "y": 397.9258027068645
+        "y": 357.36052070789447
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -7449,7 +7200,7 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "ee18a43241cbcaa5fcccb4143e6858f963d72150"
+          "val": "485081184d924f784e5dd60932c38e4a9a28fd45"
         },
         "result": "14",
         "inputStructure": {
@@ -7485,9 +7236,9 @@
         "numInputs": 1,
         "dirty": false,
         "inputs": {
-          "val": "02e2a82a529556fd2f8bba9a410d338777357550b8a978721b5ab96e5a374672fe"
+          "val": "02855f723427c8310b3442f69984b41697790bb07251b83f04d3d4a225b10e8a29"
         },
-        "result": "ee18a43241cbcaa5fcccb4143e6858f963d72150",
+        "result": "485081184d924f784e5dd60932c38e4a9a28fd45",
         "inputStructure": {
           "ungrouped": [
             {
@@ -7546,415 +7297,6 @@
       "extent": "parent"
     },
     {
-      "id": "node_IiMR0pGS",
-      "type": "calculation",
-      "position": {
-        "x": 1085.0578078844555,
-        "y": 327.3764899592934
-      },
-      "data": {
-        "functionName": "script_verification",
-        "title": "Verify Script",
-        "paramExtraction": "multi_val",
-        "numInputs": 6,
-        "inputs": {
-          "vals": {
-            "0": "0047304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae",
-            "1": "a9148fe0005939dec8b48d299c616e977825ae9dab8587",
-            "2": "02000000011a09c37b25db93f77189e25043c76aa7edd6ea8876cbadb5cdc9e17dfd970a5500000000910047304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae900000000128880400000000001976a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac00000000",
-            "3": "0",
-            "5": "__EMPTY__"
-          }
-        },
-        "inputStructure": {
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "scriptSig_hex",
-              "rows": 3,
-              "placeholder": "Hex-encoded scriptSig",
-              "allowEmptyBlank": true
-            },
-            {
-              "index": 1,
-              "label": "scriptPubKey_hex",
-              "rows": 3,
-              "placeholder": "Hex-encoded scriptPubKey"
-            },
-            {
-              "index": 2,
-              "label": "tx_hex",
-              "rows": 3,
-              "placeholder": "Hex-encoded Transaction"
-            },
-            {
-              "index": 3,
-              "label": "input_index_to_verify",
-              "rows": 1,
-              "placeholder": "0",
-              "unconnectable": true
-            },
-            {
-              "index": 4,
-              "label": "exclude_flags",
-              "rows": 1,
-              "placeholder": "e.g., WITNESS,CLEANSTACK",
-              "unconnectable": true
-            },
-            {
-              "index": 5,
-              "label": "spent_amount_sats",
-              "rows": 1,
-              "placeholder": "Amount in satoshis (for SegWit/Taproot)",
-              "unconnectable": false,
-              "allowEmptyBlank": true
-            }
-          ],
-          "groups": [
-            {
-              "title": "Taproot prevouts",
-              "baseIndex": 100,
-              "expandable": true,
-              "fieldCountToAdd": 1,
-              "minInstances": 0,
-              "maxInstances": 10,
-              "fields": [
-                {
-                  "index": 0,
-                  "label": "prevout_amount_sats",
-                  "rows": 1,
-                  "placeholder": "Amount (sats)",
-                  "allowEmptyBlank": true
-                },
-                {
-                  "index": 1,
-                  "label": "prevout_scriptPubKey_hex",
-                  "rows": 3,
-                  "placeholder": "Hex-encoded scriptPubKey",
-                  "allowEmptyBlank": true
-                }
-              ]
-            }
-          ],
-          "afterGroups": []
-        },
-        "groupInstances": {},
-        "groupInstanceKeys": {},
-        "error": false,
-        "totalInputs": 4,
-        "unwiredCount": 0,
-        "dirty": false,
-        "outputValues": {},
-        "outputErrors": {},
-        "result": "false",
-        "scriptDebugSteps": {
-          "isValid": false,
-          "steps": [
-            {
-              "pc": 0,
-              "opcode": 0,
-              "opcode_name": "OP_0",
-              "stack_before": [],
-              "stack_after": [""],
-              "phase": "scriptSig",
-              "branch_active": true
-            },
-            {
-              "pc": 1,
-              "opcode": 71,
-              "opcode_name": "PUSH 71 bytes",
-              "stack_before": [""],
-              "stack_after": [
-                "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001"
-              ],
-              "phase": "scriptSig",
-              "branch_active": true
-            },
-            {
-              "pc": 73,
-              "opcode": 71,
-              "opcode_name": "PUSH 71 bytes",
-              "stack_before": [
-                "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001"
-              ],
-              "stack_after": [
-                "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "5221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae"
-              ],
-              "phase": "scriptSig",
-              "branch_active": true
-            },
-            {
-              "pc": 0,
-              "opcode": 169,
-              "opcode_name": "OP_HASH160",
-              "stack_before": [
-                "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "5221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae"
-              ],
-              "stack_after": [
-                "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "8fe0005939dec8b48d299c616e977825ae9dab85"
-              ],
-              "phase": "scriptPubKey",
-              "branch_active": true
-            },
-            {
-              "pc": 1,
-              "opcode": 20,
-              "opcode_name": "PUSH 20 bytes",
-              "stack_before": [
-                "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "8fe0005939dec8b48d299c616e977825ae9dab85"
-              ],
-              "stack_after": [
-                "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "8fe0005939dec8b48d299c616e977825ae9dab85",
-                "8fe0005939dec8b48d299c616e977825ae9dab85"
-              ],
-              "phase": "scriptPubKey",
-              "branch_active": true
-            },
-            {
-              "pc": 22,
-              "opcode": 135,
-              "opcode_name": "OP_EQUAL",
-              "stack_before": [
-                "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "8fe0005939dec8b48d299c616e977825ae9dab85",
-                "8fe0005939dec8b48d299c616e977825ae9dab85"
-              ],
-              "stack_after": [
-                "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "01"
-              ],
-              "phase": "scriptPubKey",
-              "branch_active": true
-            },
-            {
-              "pc": 0,
-              "opcode": 82,
-              "opcode_name": "OP_2",
-              "stack_before": [
-                "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001"
-              ],
-              "stack_after": [
-                "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "02"
-              ],
-              "phase": "redeemScript",
-              "branch_active": true
-            },
-            {
-              "pc": 1,
-              "opcode": 33,
-              "opcode_name": "PUSH 33 bytes",
-              "stack_before": [
-                "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "02"
-              ],
-              "stack_after": [
-                "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "02",
-                "029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc"
-              ],
-              "phase": "redeemScript",
-              "branch_active": true
-            },
-            {
-              "pc": 35,
-              "opcode": 33,
-              "opcode_name": "PUSH 33 bytes",
-              "stack_before": [
-                "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "02",
-                "029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc"
-              ],
-              "stack_after": [
-                "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "02",
-                "029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc",
-                "033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d0128392"
-              ],
-              "phase": "redeemScript",
-              "branch_active": true
-            },
-            {
-              "pc": 69,
-              "opcode": 82,
-              "opcode_name": "OP_2",
-              "stack_before": [
-                "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "02",
-                "029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc",
-                "033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d0128392"
-              ],
-              "stack_after": [
-                "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "02",
-                "029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc",
-                "033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d0128392",
-                "02"
-              ],
-              "phase": "redeemScript",
-              "branch_active": true
-            },
-            {
-              "pc": 70,
-              "opcode": 174,
-              "opcode_name": "OP_CHECKMULTISIG",
-              "stack_before": [
-                "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "02",
-                "029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc",
-                "033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d0128392",
-                "02"
-              ],
-              "stack_after": [
-                "",
-                "304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001",
-                "02",
-                "029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc",
-                "033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d0128392",
-                "02"
-              ],
-              "phase": "redeemScript",
-              "branch_active": true,
-              "failed": true,
-              "error": "EvalScript: OP_CHECKMULTISIG args invalid: missing dummy value"
-            }
-          ],
-          "scriptSig": "0047304402201f336407b089f5649d93e5a2fb86ba5cd93c69b056e49cff9917c96b4bd80a04022014817c278dc7911ed42cde94a866a7f6a44672a4c9571942aeacc5067d3d918001475221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae",
-          "scriptPubKey": "a9148fe0005939dec8b48d299c616e977825ae9dab8587",
-          "excludedFlags": [],
-          "activeFlags": [
-            "CHECKLOCKTIMEVERIFY",
-            "CHECKSEQUENCEVERIFY",
-            "CLEANSTACK",
-            "CONST_SCRIPTCODE",
-            "DERSIG",
-            "DISCOURAGE_OP_SUCCESS",
-            "DISCOURAGE_UPGRADABLE_NOPS",
-            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
-            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
-            "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
-            "LOW_S",
-            "MINIMALDATA",
-            "MINIMALIF",
-            "NULLDUMMY",
-            "NULLFAIL",
-            "P2SH",
-            "STRICTENC",
-            "TAPROOT",
-            "WITNESS",
-            "WITNESS_PUBKEYTYPE"
-          ],
-          "usesWitness": false,
-          "witnessRulesEnabled": true,
-          "error": "EvalScript: OP_CHECKMULTISIG args invalid: missing dummy value"
-        }
-      },
-      "parentId": "node_ylKIH7H5",
-      "extent": "parent"
-    },
-    {
-      "id": "node_JFmVQepd",
-      "type": "calculation",
-      "position": {
-        "x": 1685.8166825146454,
-        "y": 1433.7319555245595
-      },
-      "data": {
-        "functionName": "uint32_to_little_endian_4_bytes",
-        "title": "Uint32 → LE-4",
-        "numInputs": 1,
-        "showField": false,
-        "value": "2",
-        "dirty": false,
-        "groupInstances": {},
-        "inputs": {
-          "val": 144
-        },
-        "result": "90000000",
-        "error": false,
-        "outputValues": {},
-        "outputErrors": {}
-      },
-      "parentId": "node_PJxP60N4",
-      "extent": "parent"
-    },
-    {
-      "id": "node_cLjaYUB7",
-      "type": "calculation",
-      "position": {
-        "x": 1276.9735209938635,
-        "y": 1509.7649252858719
-      },
-      "data": {
-        "functionName": "blocks_to_sequence_number",
-        "title": "Blocks → Relative Lock",
-        "numInputs": 1,
-        "version": 0,
-        "inputs": {
-          "val": 144
-        },
-        "result": 144,
-        "inputStructure": {
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "Delay (blocks):",
-              "rows": 1,
-              "placeholder": "e.g., 10"
-            }
-          ]
-        },
-        "groupInstances": {},
-        "dirty": false,
-        "error": false,
-        "outputValues": {},
-        "outputErrors": {}
-      },
-      "parentId": "node_PJxP60N4",
-      "extent": "parent"
-    },
-    {
-      "id": "node_LJGp1Ve6",
-      "type": "shadcnTextInfo",
-      "position": {
-        "x": 6140.282845913966,
-        "y": 33772.96335794563
-      },
-      "data": {
-        "content": "# Step 3 - Alice builds refund tx and sends it to Bob to sign",
-        "fontSize": 42,
-        "width": 1519,
-        "height": 171,
-        "title": "Text Info Node",
-        "dirty": false
-      },
-      "width": 1519,
-      "height": 171
-    },
-    {
       "id": "node_E8f7f2X0",
       "type": "radioNode",
       "position": {
@@ -7963,13 +7305,13 @@
       },
       "data": {
         "functionName": "radio_receive",
-        "title": "Radio Receive 6",
+        "title": "Radio Receive 8",
         "numInputs": 0,
-        "result": "02e2a82a529556fd2f8bba9a410d338777357550b8a978721b5ab96e5a374672fe",
-        "radioChannel": "6",
+        "result": "02855f723427c8310b3442f69984b41697790bb07251b83f04d3d4a225b10e8a29",
+        "radioChannel": "8",
         "outputPorts": [
           {
-            "label": "6",
+            "label": "8",
             "handleId": "",
             "showLabel": false
           }
@@ -7980,7 +7322,7 @@
         "height": 64,
         "dirty": false,
         "inputs": {
-          "val": "02e2a82a529556fd2f8bba9a410d338777357550b8a978721b5ab96e5a374672fe"
+          "val": "02855f723427c8310b3442f69984b41697790bb07251b83f04d3d4a225b10e8a29"
         },
         "error": false
       },
@@ -8025,76 +7367,23 @@
       "height": 64
     },
     {
-      "id": "node_xaEJY463",
-      "type": "calculation",
-      "position": {
-        "x": 658.551165833549,
-        "y": 1923.4003891181492
-      },
-      "data": {
-        "functionName": "math_operation",
-        "title": "Math Operation",
-        "paramExtraction": "multi_val",
-        "numInputs": 3,
-        "inputs": {
-          "vals": {
-            "0": "298000",
-            "1": "-",
-            "2": "1000"
-          }
-        },
-        "result": "297000",
-        "inputStructure": {
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "Left value:",
-              "rows": 1,
-              "placeholder": "e.g. 5"
-            },
-            {
-              "index": 1,
-              "label": "Operator:",
-              "unconnectable": true,
-              "options": ["+", "-", "*", "/"]
-            },
-            {
-              "index": 2,
-              "label": "Right value:",
-              "rows": 1,
-              "placeholder": "e.g. 10"
-            }
-          ]
-        },
-        "groupInstances": {},
-        "totalInputs": 2,
-        "unwiredCount": 0,
-        "dirty": false,
-        "error": false,
-        "outputValues": {},
-        "outputErrors": {}
-      },
-      "parentId": "node_PJxP60N4",
-      "extent": "parent"
-    },
-    {
       "id": "node_hRyUmAuh",
       "type": "calculation",
       "position": {
-        "x": 278.04768355122906,
-        "y": 2223.2608584116642
+        "x": 137.37627727146628,
+        "y": 2105.235415290874
       },
       "data": {
         "functionName": "identity",
         "showField": true,
         "numInputs": 0,
-        "value": "1000",
+        "value": "35000",
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "1000"
+          "val": "35000"
         },
-        "result": "1000",
+        "result": "35000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -8105,7 +7394,7 @@
           ]
         },
         "groupInstances": {},
-        "title": "fees",
+        "title": "To Bob",
         "showComment": false,
         "error": false
       },
@@ -8116,8 +7405,8 @@
       "id": "node_11NzGjrP",
       "type": "radioNode",
       "position": {
-        "x": 383.04768355122906,
-        "y": 1908.2608584116642
+        "x": 421.1891341535611,
+        "y": 2029.6200194190897
       },
       "data": {
         "functionName": "radio_receive",
@@ -8183,59 +7472,6 @@
       "height": 64
     },
     {
-      "id": "node_kZsjhgjK",
-      "type": "radioNode",
-      "position": {
-        "x": 908.047683551229,
-        "y": 1563.2608584116642
-      },
-      "data": {
-        "functionName": "radio_receive",
-        "title": "Radio Receive 4",
-        "numInputs": 0,
-        "result": "144",
-        "radioChannel": "4",
-        "outputPorts": [
-          {
-            "label": "4",
-            "handleId": "",
-            "showLabel": false
-          }
-        ],
-        "groupInstances": {},
-        "baseHeight": 90,
-        "width": 132,
-        "height": 64,
-        "dirty": false,
-        "inputs": {
-          "val": "144"
-        },
-        "error": false
-      },
-      "parentId": "node_PJxP60N4",
-      "extent": "parent",
-      "width": 132,
-      "height": 64
-    },
-    {
-      "id": "node_m1ZUXoms",
-      "type": "shadcnTextInfo",
-      "position": {
-        "x": 11541.567339059598,
-        "y": 31260
-      },
-      "data": {
-        "content": "# Step 4 - Bob verifies the tx and signs",
-        "fontSize": 42,
-        "width": 1519,
-        "height": 171,
-        "title": "Text Info Node",
-        "dirty": false
-      },
-      "width": 1519,
-      "height": 171
-    },
-    {
       "id": "node_u44X2URD",
       "type": "radioNode",
       "position": {
@@ -8271,46 +7507,215 @@
       "height": 64
     },
     {
-      "id": "node_KxsUh1Es",
-      "type": "radioNode",
+      "id": "node_ft7ohoBP",
+      "type": "shadcnGroup",
       "position": {
-        "x": 60.45073698558008,
-        "y": 1006.2301881107305
+        "x": 253.9707269129899,
+        "y": 34050.99503564554
       },
       "data": {
-        "functionName": "radio_receive",
-        "title": "Radio Receive 2",
-        "numInputs": 0,
-        "result": "f6ec9ab0d9359216cb984a225427fc6f0aa80213e427f3b23d4edf65f180a066",
-        "radioChannel": "2",
-        "outputPorts": [
-          {
-            "label": "2",
-            "handleId": "",
-            "showLabel": false
-          }
-        ],
-        "groupInstances": {},
-        "baseHeight": 90,
-        "width": 132,
-        "height": 64,
+        "isGroup": true,
+        "width": 2532,
+        "height": 1118,
+        "title": "Locking Script (back to Alice)",
         "dirty": false,
-        "inputs": {
-          "val": "f6ec9ab0d9359216cb984a225427fc6f0aa80213e427f3b23d4edf65f180a066"
-        },
-        "error": false
+        "borderColor": "#a83a32",
+        "fontSize": 44
       },
-      "parentId": "node_CqNcTGrD",
-      "extent": "parent",
-      "width": 132,
-      "height": 64
+      "width": 2532,
+      "height": 1118,
+      "dragHandle": "[data-drag-handle]"
     },
     {
-      "id": "node_EukAEB7T",
+      "id": "node_FlqAv0q1",
+      "type": "opCodeNode",
+      "position": {
+        "x": 1063.9912317963317,
+        "y": 64.47225083258672
+      },
+      "data": {
+        "functionName": "op_code_select",
+        "inputs": {
+          "vals": {
+            "0": "OP_DUP",
+            "100": "OP_HASH160"
+          }
+        },
+        "dirty": false,
+        "version": 0,
+        "result": "76a9",
+        "groupInstances": {},
+        "paramExtraction": "multi_val",
+        "title": "Opcode Sequence",
+        "error": false,
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            },
+            {
+              "index": 100,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ],
+          "groups": [],
+          "betweenGroups": {},
+          "afterGroups": []
+        },
+        "numInputs": 2,
+        "groupInstanceKeys": {}
+      },
+      "parentId": "node_ft7ohoBP",
+      "extent": "parent"
+    },
+    {
+      "id": "node_CHrga5mV",
+      "type": "opCodeNode",
+      "position": {
+        "x": 1076.0371601759543,
+        "y": 730.8723034666837
+      },
+      "data": {
+        "functionName": "op_code_select",
+        "inputs": {
+          "vals": {
+            "0": "OP_EQUALVERIFY",
+            "100": "OP_CHECKSIG"
+          }
+        },
+        "dirty": false,
+        "version": 0,
+        "result": "88ac",
+        "groupInstances": {},
+        "paramExtraction": "multi_val",
+        "title": "Opcode Sequence",
+        "error": false,
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            },
+            {
+              "index": 100,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ],
+          "groups": [],
+          "betweenGroups": {},
+          "afterGroups": []
+        },
+        "numInputs": 2,
+        "groupInstanceKeys": {}
+      },
+      "parentId": "node_ft7ohoBP",
+      "extent": "parent"
+    },
+    {
+      "id": "node_w3isTXRG",
       "type": "calculation",
       "position": {
-        "x": 1378.4701873207086,
-        "y": 1218.9228392165496
+        "x": 1590.287946849494,
+        "y": 189.45845479574928
+      },
+      "data": {
+        "functionName": "concat_all",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": {
+          "vals": {
+            "0": "76a9",
+            "100": "14",
+            "200": "ee18a43241cbcaa5fcccb4143e6858f963d72150",
+            "300": "88ac"
+          }
+        },
+        "dirty": false,
+        "version": 0,
+        "result": "76a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [
+                {
+                  "index": 0,
+                  "label": "Value:",
+                  "placeholder": "<multi‑line input>",
+                  "rows": 3
+                }
+              ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": {
+          "INPUTS[]": 4
+        },
+        "groupInstanceKeys": {
+          "INPUTS[]": [0, 100, 200, 300]
+        },
+        "baseHeight": 80,
+        "title": "scriptPubKey",
+        "totalInputs": 4,
+        "unwiredCount": 0,
+        "showComment": true,
+        "comment": "OP_DUP OP_HASH160 pubKeyHash OP_EQUALVERIFY OP_CHECKSIG",
+        "error": false,
+        "customFieldLabels": {
+          "0": "OP codes",
+          "100": "pubKey hash len",
+          "200": "pubKey hash",
+          "300": "OP codes"
+        }
+      },
+      "parentId": "node_ft7ohoBP",
+      "extent": "parent"
+    },
+    {
+      "id": "node_HKlPFFcQ",
+      "type": "calculation",
+      "position": {
+        "x": 2139.9782055799806,
+        "y": 651.9740985692915
+      },
+      "data": {
+        "functionName": "varint_encoded_byte_length",
+        "title": "Data → VarInt Length",
+        "numInputs": 1,
+        "showField": false,
+        "dirty": false,
+        "groupInstances": {},
+        "inputs": {
+          "val": "76a914ee18a43241cbcaa5fcccb4143e6858f963d7215088ac"
+        },
+        "result": "19",
+        "error": false
+      },
+      "parentId": "node_ft7ohoBP",
+      "extent": "parent"
+    },
+    {
+      "id": "node_P153VV26",
+      "type": "calculation",
+      "position": {
+        "x": 1072.160566880404,
+        "y": 357.36052070789447
       },
       "data": {
         "functionName": "encode_script_push_data",
@@ -8320,9 +7725,9 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "5221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae"
+          "val": "ee18a43241cbcaa5fcccb4143e6858f963d72150"
         },
-        "result": "47",
+        "result": "14",
         "inputStructure": {
           "ungrouped": [
             {
@@ -8334,27 +7739,64 @@
           ]
         },
         "groupInstances": {},
-        "error": false
+        "error": false,
+        "outputValues": {},
+        "outputErrors": {}
       },
-      "parentId": "node_CqNcTGrD",
+      "parentId": "node_ft7ohoBP",
       "extent": "parent"
     },
     {
-      "id": "node_7X86AO6w",
+      "id": "node_r9wSvchp",
+      "type": "calculation",
+      "position": {
+        "x": 758.6514584287761,
+        "y": 561.1921517812152
+      },
+      "data": {
+        "functionName": "hash160_hex",
+        "title": "Data → HASH160",
+        "paramExtraction": "single_val",
+        "showField": false,
+        "numInputs": 1,
+        "dirty": false,
+        "inputs": {
+          "val": "02e2a82a529556fd2f8bba9a410d338777357550b8a978721b5ab96e5a374672fe"
+        },
+        "result": "ee18a43241cbcaa5fcccb4143e6858f963d72150",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT HEX:",
+              "rows": 2
+            }
+          ]
+        },
+        "groupInstances": {},
+        "error": false,
+        "outputValues": {},
+        "outputErrors": {}
+      },
+      "parentId": "node_ft7ohoBP",
+      "extent": "parent"
+    },
+    {
+      "id": "node_XCc16ARG",
       "type": "radioNode",
       "position": {
-        "x": 1196.5155128146835,
-        "y": 1577.0578715137963
+        "x": 353.3983021631175,
+        "y": 554.381965943001
       },
       "data": {
         "functionName": "radio_receive",
-        "title": "Radio Receive 10",
+        "title": "Radio Receive 6",
         "numInputs": 0,
-        "result": "5221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae",
-        "radioChannel": "10",
+        "result": "02e2a82a529556fd2f8bba9a410d338777357550b8a978721b5ab96e5a374672fe",
+        "radioChannel": "6",
         "outputPorts": [
           {
-            "label": "10",
+            "label": "6",
             "handleId": "",
             "showLabel": false
           }
@@ -8365,14 +7807,305 @@
         "height": 64,
         "dirty": false,
         "inputs": {
-          "val": "5221029a1a0ee0ff838d3aeb2670eed12d214aebbd7f5900a829db19632b4022b772cc21033bf78b86a66f1b20d5f3725f445e5bd48a85fa71e95912887f1bcc80d012839252ae"
+          "val": "02e2a82a529556fd2f8bba9a410d338777357550b8a978721b5ab96e5a374672fe"
         },
         "error": false
       },
-      "parentId": "node_CqNcTGrD",
+      "parentId": "node_ft7ohoBP",
       "extent": "parent",
       "width": 132,
       "height": 64
+    },
+    {
+      "id": "node_7tORHsZm",
+      "type": "calculation",
+      "position": {
+        "x": 689.2303805977426,
+        "y": 2125.1059901889093
+      },
+      "data": {
+        "functionName": "math_operation",
+        "title": "Math Operation",
+        "paramExtraction": "multi_val",
+        "numInputs": 3,
+        "inputs": {
+          "vals": {
+            "0": "298000",
+            "1": "-",
+            "2": "35000"
+          }
+        },
+        "result": "263000",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Left value:",
+              "rows": 1,
+              "placeholder": "e.g. 5"
+            },
+            {
+              "index": 1,
+              "label": "Operator:",
+              "unconnectable": true,
+              "options": ["+", "-", "*", "/"]
+            },
+            {
+              "index": 2,
+              "label": "Right value:",
+              "rows": 1,
+              "placeholder": "e.g. 10"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "totalInputs": 2,
+        "unwiredCount": 0,
+        "dirty": false,
+        "error": false,
+        "outputValues": {},
+        "outputErrors": {}
+      },
+      "parentId": "node_PJxP60N4",
+      "extent": "parent"
+    },
+    {
+      "id": "node_DCEahl2Z",
+      "type": "calculation",
+      "position": {
+        "x": 849.9918761284771,
+        "y": 2591.4586873616863
+      },
+      "data": {
+        "functionName": "identity",
+        "showField": true,
+        "numInputs": 0,
+        "value": "1000",
+        "dirty": false,
+        "version": 0,
+        "inputs": {
+          "val": "1000"
+        },
+        "result": "1000",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT VALUE:",
+              "rows": 1
+            }
+          ]
+        },
+        "groupInstances": {},
+        "title": "fees",
+        "showComment": false,
+        "error": false
+      },
+      "parentId": "node_PJxP60N4",
+      "extent": "parent"
+    },
+    {
+      "id": "node_Y7dlm6Ev",
+      "type": "calculation",
+      "position": {
+        "x": 1299.022777064377,
+        "y": 2188.059743849175
+      },
+      "data": {
+        "functionName": "math_operation",
+        "title": "Math Operation",
+        "paramExtraction": "multi_val",
+        "numInputs": 3,
+        "inputs": {
+          "vals": {
+            "0": "263000",
+            "1": "-",
+            "2": "1000"
+          }
+        },
+        "result": "262000",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Left value:",
+              "rows": 1,
+              "placeholder": "e.g. 5"
+            },
+            {
+              "index": 1,
+              "label": "Operator:",
+              "unconnectable": true,
+              "options": ["+", "-", "*", "/"]
+            },
+            {
+              "index": 2,
+              "label": "Right value:",
+              "rows": 1,
+              "placeholder": "e.g. 10"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "totalInputs": 2,
+        "unwiredCount": 0,
+        "dirty": false,
+        "error": false,
+        "outputValues": {},
+        "outputErrors": {}
+      },
+      "parentId": "node_PJxP60N4",
+      "extent": "parent"
+    },
+    {
+      "id": "node_0MF52SP4",
+      "type": "calculation",
+      "position": {
+        "x": 1780.9726069367389,
+        "y": 2076.644263531125
+      },
+      "data": {
+        "functionName": "satoshi_to_8_le",
+        "title": "Satoshi → LE-8",
+        "numInputs": 1,
+        "showField": false,
+        "value": "50000000",
+        "dirty": false,
+        "groupInstances": {},
+        "inputs": {
+          "val": 262000
+        },
+        "result": "70ff030000000000",
+        "error": false,
+        "outputValues": {},
+        "outputErrors": {}
+      },
+      "parentId": "node_PJxP60N4",
+      "extent": "parent"
+    },
+    {
+      "id": "node_v7K1rBTw",
+      "type": "calculation",
+      "position": {
+        "x": 1027.1705197649017,
+        "y": 1529.5214759159426
+      },
+      "data": {
+        "functionName": "identity",
+        "showField": true,
+        "numInputs": 0,
+        "value": "fffffffd",
+        "dirty": false,
+        "version": 0,
+        "inputs": {
+          "val": "fffffffd"
+        },
+        "result": "fffffffd",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT VALUE:",
+              "rows": 1
+            }
+          ]
+        },
+        "groupInstances": {},
+        "title": "Sequence",
+        "showComment": true,
+        "comment": "Signals opt-in RBF (< 0xfffffffe)",
+        "error": false
+      },
+      "parentId": "node_PJxP60N4",
+      "extent": "parent"
+    },
+    {
+      "id": "node_E7c0t33i",
+      "type": "calculation",
+      "position": {
+        "x": 1499.6998813996033,
+        "y": 1527.8514772395793
+      },
+      "data": {
+        "functionName": "reverse_bytes_4",
+        "title": "4-Byte → Reversed",
+        "numInputs": 1,
+        "showField": false,
+        "dirty": false,
+        "version": 0,
+        "inputs": {
+          "val": "fffffffd"
+        },
+        "result": "fdffffff",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "4-byte hex:",
+              "placeholder": "e.g., fffffffd",
+              "rows": 1
+            }
+          ]
+        },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "node_PJxP60N4",
+      "extent": "parent"
+    },
+    {
+      "id": "node_sdj7yu1",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -4552.687811485186,
+        "y": -113.5431250782795
+      },
+      "data": {
+        "content": "# Spilman Payment Channel — Overview\n\n**Pay someone a hundred times, touch the blockchain twice.** This flow builds the 2013 construction that Lightning grew out of: a one-way payment channel from **Alice** (payer) to **Bob** (payee), end to end on testnet4.\n\n**Three transactions, three fates:**\n- **TX1 — funding**: the channel capacity goes into a 2-of-2 P2SH. *Broadcast once, in Step 5.*\n- **Refund**: pre-signed by both parties, held back by a BIP-68 relative timelock — Alice's guaranteed exit. *Broadcast only if Bob disappears.*\n- **Commitments**: off-chain IOUs spending the funding output — re-issued with a bigger amount to Bob for every new payment. *Only the newest one ever hits the chain.*\n\nThe trust problem is solved purely by **ordering**: the exit is countersigned (Steps 3–4) *before* the entrance is broadcast (Step 5). Follow the numbered step cards; the radio nodes carry the shared values across the canvas.\n\nHowever many payments flow, the chain sees exactly **two transactions**: TX1 in, and either Bob's best commitment or Alice's refund out.\n\n",
+        "fontSize": 28,
+        "width": 1382,
+        "height": 843,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 1382,
+      "height": 843
+    },
+    {
+      "id": "node_v0nxlf6",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -3027.1714205486383,
+        "y": 112.16259270172083
+      },
+      "data": {
+        "content": "\n\n## Steps\n\n1. **Negotiate** — capacity, delay and pubkeys change hands; private keys stay home\n2. **Build the funding** — Alice locks coins into the 2-of-2 without broadcasting\n3. **Build the refund** — her timelocked exit, spending the still-invisible funding\n4. **Bob verifies & signs** — the exit is now guaranteed by consensus, not goodwill\n5. **Fund & pay** — funding goes on-chain; each payment is a re-signed commitment Bob stores\n6. **Close or refund** — Bob broadcasts his best commitment before the deadline, or Alice reclaims after it\n\nThe trust problem is solved purely by **ordering**: the exit is countersigned (3–4) *before* the entrance is broadcast (5). ",
+        "fontSize": 28,
+        "width": 1062,
+        "height": 694,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 1062,
+      "height": 694
+    },
+    {
+      "id": "node_hrda052",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -2915.1957892003866,
+        "y": 1240.9811836599677
+      },
+      "data": {
+        "content": "## Try it yourself\n\n1. **Complete the close** - in the TX3 signature group add Bob's `Sign TX (Low-R)`. Add a `Verify Script` - it must say `true`.\n2. **Payment #2** - pay Bob **+15,000**, re-sign, re-verify. Bob's total may only ever grow.\n3. **Bob's audit** - add `verify_signature` on Alice's commitment signature and parser checks (input txid, redeemScript slot, amount ≥ requested).\n4. **Race the deadline** - what happens if Bob broadcasts his commitment at block *funding + 2015* vs *funding + 2017*? \n",
+        "fontSize": 28,
+        "width": 1275,
+        "height": 497,
+        "title": "Text Info Node",
+        "borderColor": "#2d5fb3"
+      },
+      "width": 1275,
+      "height": 497
     }
   ],
   "edges": [
@@ -9532,22 +9265,6 @@
       "data": {}
     },
     {
-      "id": "edge_6MO430He",
-      "source": "node_a8Nj2WyR",
-      "target": "node_dZCLm4kZ",
-      "targetHandle": "input-1030",
-      "selected": false,
-      "data": {}
-    },
-    {
-      "source": "node_diEHIv7A",
-      "target": "node_dZCLm4kZ",
-      "targetHandle": "input-10",
-      "selected": false,
-      "id": "edge_6zDN6E2v",
-      "data": {}
-    },
-    {
       "source": "node_diEHIv7A",
       "target": "node_wEdsI58l",
       "targetHandle": "input-10",
@@ -9570,33 +9287,10 @@
     },
     {
       "source": "node_JBrPXy3n",
-      "target": "node_dZCLm4kZ",
-      "targetHandle": "input-2000",
-      "selected": false,
-      "id": "edge_y3bA1P6a",
-      "data": {}
-    },
-    {
-      "source": "node_JBrPXy3n",
       "target": "node_wEdsI58l",
       "targetHandle": "input-2000",
       "selected": false,
       "id": "edge_NZPi7qTH"
-    },
-    {
-      "source": "node_C35i4Imb",
-      "target": "node_dZCLm4kZ",
-      "targetHandle": "input-3000",
-      "selected": false,
-      "id": "edge_flPWmc4S",
-      "data": {}
-    },
-    {
-      "source": "node_C35i4Imb",
-      "target": "node_wEdsI58l",
-      "targetHandle": "input-3000",
-      "selected": false,
-      "id": "edge_IL0oIB1P"
     },
     {
       "source": "node_53cFqGLu",
@@ -9634,28 +9328,6 @@
       "id": "edge_3CJJezuC"
     },
     {
-      "source": "node_DGeMYDHH",
-      "target": "node_dZCLm4kZ",
-      "targetHandle": "input-1020",
-      "selected": false,
-      "id": "edge_PC55XTa6",
-      "data": {}
-    },
-    {
-      "source": "node_dZCLm4kZ",
-      "target": "node_GnkgZ5cl",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "edge_Rvwu3O4z"
-    },
-    {
-      "id": "edge_n8Z3pwKL",
-      "source": "node_GnkgZ5cl",
-      "target": "node_keoaOQZt",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
       "source": "node_We3llMgX",
       "target": "node_wCSmeYQZ",
       "targetHandle": "input-0",
@@ -9670,14 +9342,6 @@
       "id": "edge_d2rbHTCy"
     },
     {
-      "source": "node_T3SZYHrw",
-      "target": "node_dZCLm4kZ",
-      "targetHandle": "input-1010",
-      "selected": false,
-      "id": "edge_ooo2VktQ",
-      "data": {}
-    },
-    {
       "source": "node_UIUMzFW9",
       "target": "node_KLdj4JvU",
       "targetHandle": "input-0",
@@ -9690,14 +9354,6 @@
       "targetHandle": "input-0",
       "selected": false,
       "id": "edge_In9fFYeM"
-    },
-    {
-      "source": "node_KLdj4JvU",
-      "target": "node_dZCLm4kZ",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "edge_9r7YcAE7",
-      "data": {}
     },
     {
       "id": "edge_v2zwfF2Y",
@@ -9723,14 +9379,6 @@
       "selected": false
     },
     {
-      "id": "edge_G0eSehDQ",
-      "source": "node_k28mJvZL",
-      "target": "node_dZCLm4kZ",
-      "sourceHandle": "output-0",
-      "targetHandle": "input-1000",
-      "selected": false
-    },
-    {
       "id": "edge_N0G4PvmF",
       "source": "node_lqwGFDH9",
       "target": "node_0W3ptNJT",
@@ -9741,13 +9389,6 @@
       "id": "edge_xZqS4ASy",
       "source": "node_0W3ptNJT",
       "target": "node_wEdsI58l",
-      "targetHandle": "input-4000",
-      "selected": false
-    },
-    {
-      "id": "edge_863GlMAL",
-      "source": "node_0W3ptNJT",
-      "target": "node_dZCLm4kZ",
       "targetHandle": "input-4000",
       "selected": false
     },
@@ -9822,63 +9463,6 @@
       "selected": false
     },
     {
-      "id": "edge_xFUg1p33",
-      "source": "node_ZH3m3W1x",
-      "target": "node_dZCLm4kZ",
-      "targetHandle": "input-3010",
-      "selected": false
-    },
-    {
-      "id": "edge_y0LEv6Xj",
-      "source": "node_P3V2w6xW",
-      "target": "node_dZCLm4kZ",
-      "targetHandle": "input-3020",
-      "selected": false
-    },
-    {
-      "source": "node_a8Nj2WyR",
-      "target": "node_IiMR0pGS",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "edge_kUJzZ9Dg"
-    },
-    {
-      "source": "node_dZCLm4kZ",
-      "target": "node_IiMR0pGS",
-      "targetHandle": "input-2",
-      "selected": false,
-      "id": "edge_Om9vut09"
-    },
-    {
-      "id": "edge_sHCdYWMI",
-      "source": "node_k28mJvZL",
-      "target": "node_IiMR0pGS",
-      "sourceHandle": "output-1",
-      "targetHandle": "input-1",
-      "selected": false
-    },
-    {
-      "id": "edge_E4cC3P9d",
-      "source": "node_JFmVQepd",
-      "target": "node_wEdsI58l",
-      "targetHandle": "input-1040",
-      "selected": false
-    },
-    {
-      "id": "edge_1HmQqDg0",
-      "source": "node_JFmVQepd",
-      "target": "node_dZCLm4kZ",
-      "targetHandle": "input-1040",
-      "selected": false
-    },
-    {
-      "id": "edge_fq1hZeg1",
-      "source": "node_cLjaYUB7",
-      "target": "node_JFmVQepd",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
       "id": "edge_gs94rXWB",
       "source": "node_E8f7f2X0",
       "target": "node_yxvu99Rj",
@@ -9893,27 +9477,6 @@
       "selected": false
     },
     {
-      "id": "edge_nzAseyyu",
-      "source": "node_hRyUmAuh",
-      "target": "node_xaEJY463",
-      "targetHandle": "input-2",
-      "selected": false
-    },
-    {
-      "id": "edge_4kuNbUWA",
-      "source": "node_11NzGjrP",
-      "target": "node_xaEJY463",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "source": "node_xaEJY463",
-      "target": "node_C35i4Imb",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "edge_QTPd5Thl"
-    },
-    {
       "id": "edge_A82zsbAD",
       "source": "node_5vSb4s5E",
       "target": "node_53cFqGLu",
@@ -9925,13 +9488,6 @@
       "source": "node_5vSb4s5E",
       "target": "node_wEdsI58l",
       "targetHandle": "input-1030",
-      "selected": false
-    },
-    {
-      "id": "edge_W6ZGqoG8",
-      "source": "node_kZsjhgjK",
-      "target": "node_cLjaYUB7",
-      "targetHandle": "input-0",
       "selected": false
     },
     {
@@ -9963,24 +9519,136 @@
       "selected": false
     },
     {
-      "id": "edge_lD2yGmGd",
-      "source": "node_7X86AO6w",
-      "target": "node_EukAEB7T",
+      "source": "node_FlqAv0q1",
+      "target": "node_w3isTXRG",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "edge_xp9McIPF"
+    },
+    {
+      "id": "edge_eN3Pt4K6",
+      "source": "node_CHrga5mV",
+      "target": "node_w3isTXRG",
+      "targetHandle": "input-300",
+      "selected": false
+    },
+    {
+      "source": "node_w3isTXRG",
+      "target": "node_HKlPFFcQ",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "edge_RgDTL36K"
+    },
+    {
+      "source": "node_P153VV26",
+      "target": "node_w3isTXRG",
+      "targetHandle": "input-100",
+      "selected": false,
+      "id": "edge_UE5ZHH1N"
+    },
+    {
+      "id": "edge_cyn7URQV",
+      "source": "node_r9wSvchp",
+      "target": "node_P153VV26",
       "targetHandle": "input-0",
       "selected": false
     },
     {
-      "id": "edge_4B2JhI8g",
-      "source": "node_EukAEB7T",
-      "target": "node_a8Nj2WyR",
-      "targetHandle": "input-500",
+      "id": "edge_QdCUd0Rz",
+      "source": "node_r9wSvchp",
+      "target": "node_w3isTXRG",
+      "targetHandle": "input-200",
       "selected": false
     },
     {
-      "id": "edge_lxEprRJI",
-      "source": "node_7X86AO6w",
-      "target": "node_a8Nj2WyR",
-      "targetHandle": "input-600",
+      "id": "edge_hg6ngYqd",
+      "source": "node_XCc16ARG",
+      "target": "node_r9wSvchp",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_e7rp4p3",
+      "source": "node_7tORHsZm",
+      "target": "node_Y7dlm6Ev",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "source": "node_DCEahl2Z",
+      "target": "node_Y7dlm6Ev",
+      "targetHandle": "input-2",
+      "selected": false,
+      "id": "xy-edge__node_DCEahl2Z-node_Y7dlm6Evinput-2"
+    },
+    {
+      "id": "edge_e5vgir5",
+      "source": "node_hRyUmAuh",
+      "target": "node_7tORHsZm",
+      "targetHandle": "input-2",
+      "selected": false
+    },
+    {
+      "id": "edge_oq3uqzu",
+      "source": "node_11NzGjrP",
+      "target": "node_7tORHsZm",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "source": "node_C35i4Imb",
+      "target": "node_wEdsI58l",
+      "targetHandle": "input-3000",
+      "selected": false,
+      "id": "xy-edge__node_C35i4Imb-node_wEdsI58linput-3000"
+    },
+    {
+      "id": "edge_rhnsp45",
+      "source": "node_Y7dlm6Ev",
+      "target": "node_0MF52SP4",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_hsubt2g",
+      "source": "node_0MF52SP4",
+      "target": "node_wEdsI58l",
+      "targetHandle": "input-3100",
+      "selected": false
+    },
+    {
+      "id": "edge_bjp1nk2",
+      "source": "node_HKlPFFcQ",
+      "target": "node_wEdsI58l",
+      "targetHandle": "input-3110",
+      "selected": false
+    },
+    {
+      "id": "edge_sk72401",
+      "source": "node_w3isTXRG",
+      "target": "node_wEdsI58l",
+      "targetHandle": "input-3120",
+      "selected": false
+    },
+    {
+      "id": "edge_8tpm4gs",
+      "source": "node_hRyUmAuh",
+      "target": "node_C35i4Imb",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_L19UZW6Q",
+      "source": "node_v7K1rBTw",
+      "target": "node_E7c0t33i",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_q8zrikm",
+      "source": "node_E7c0t33i",
+      "target": "node_wEdsI58l",
+      "targetHandle": "input-1040",
       "selected": false
     }
   ],
@@ -10096,10 +9764,10 @@
       "targetFunction": "radio_receive"
     },
     {
-      "id": "__radio__node_0lVMRw2V__node_E8f7f2X0__6",
+      "id": "__radio__node_fJGaDB1E__node_E8f7f2X0__8",
       "kind": "radio",
-      "channel": "6",
-      "source": "node_0lVMRw2V",
+      "channel": "8",
+      "source": "node_fJGaDB1E",
       "target": "node_E8f7f2X0",
       "targetHandle": "input-0",
       "sourceFunction": "radio_send",
@@ -10136,16 +9804,6 @@
       "targetFunction": "radio_receive"
     },
     {
-      "id": "__radio__node_KHNhrMsE__node_kZsjhgjK__4",
-      "kind": "radio",
-      "channel": "4",
-      "source": "node_KHNhrMsE",
-      "target": "node_kZsjhgjK",
-      "targetHandle": "input-0",
-      "sourceFunction": "radio_send",
-      "targetFunction": "radio_receive"
-    },
-    {
       "id": "__radio__node_tfub6we__node_u44X2URD__1",
       "kind": "radio",
       "channel": "1",
@@ -10156,21 +9814,11 @@
       "targetFunction": "radio_receive"
     },
     {
-      "id": "__radio__node_8psnt8v__node_KxsUh1Es__2",
+      "id": "__radio__node_0lVMRw2V__node_XCc16ARG__6",
       "kind": "radio",
-      "channel": "2",
-      "source": "node_8psnt8v",
-      "target": "node_KxsUh1Es",
-      "targetHandle": "input-0",
-      "sourceFunction": "radio_send",
-      "targetFunction": "radio_receive"
-    },
-    {
-      "id": "__radio__node_o04hoh5__node_7X86AO6w__10",
-      "kind": "radio",
-      "channel": "10",
-      "source": "node_o04hoh5",
-      "target": "node_7X86AO6w",
+      "channel": "6",
+      "source": "node_0lVMRw2V",
+      "target": "node_XCc16ARG",
       "targetHandle": "input-0",
       "sourceFunction": "radio_send",
       "targetFunction": "radio_receive"

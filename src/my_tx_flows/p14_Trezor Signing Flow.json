@@ -30,8 +30,8 @@
       "id": "group_uv9plfw",
       "type": "shadcnGroup",
       "position": {
-        "x": 17635.23141409851,
-        "y": 3550.6977138608836
+        "x": 7363.505734550479,
+        "y": 7723.059582262462
       },
       "data": {
         "isGroup": true,
@@ -55,8 +55,8 @@
       "id": "group_auef8e1",
       "type": "shadcnGroup",
       "position": {
-        "x": 14076.665298975338,
-        "y": 4242.273885100774
+        "x": 3804.9396194273068,
+        "y": 8414.635753502353
       },
       "data": {
         "isGroup": true,
@@ -80,8 +80,8 @@
       "id": "group_pcs6sn3",
       "type": "shadcnGroup",
       "position": {
-        "x": 1412.1833594336813,
-        "y": 1812.478866165132
+        "x": -8859.54232011435,
+        "y": 5984.84073456671
       },
       "data": {
         "isGroup": true,
@@ -106,8 +106,8 @@
       "id": "group_0srv4w8",
       "type": "shadcnGroup",
       "position": {
-        "x": 10545.867136820494,
-        "y": -2886.892352388367
+        "x": 274.1414572724625,
+        "y": 1285.4695160132114
       },
       "data": {
         "isGroup": true,
@@ -132,8 +132,8 @@
       "id": "group_99escdo",
       "type": "shadcnGroup",
       "position": {
-        "x": 14823.62417413472,
-        "y": 1429.4322432264955
+        "x": 4551.898494586689,
+        "y": 5601.794111628074
       },
       "data": {
         "isGroup": true,
@@ -158,13 +158,13 @@
       "id": "group_xcib647",
       "type": "shadcnGroup",
       "position": {
-        "x": 5484.098712415397,
-        "y": -1327.5858709165066
+        "x": -4787.6269671326345,
+        "y": 2844.7759974850715
       },
       "data": {
         "isGroup": true,
         "width": 4549,
-        "height": 3046,
+        "height": 3046.3216668026316,
         "title": "Preimage",
         "fontSize": 44,
         "dirty": false,
@@ -181,20 +181,20 @@
         }
       },
       "width": 4549,
-      "height": 3046,
+      "height": 3046.3216668026316,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "group_jzwyh9t",
       "type": "shadcnGroup",
       "position": {
-        "x": -2549.8848927021836,
-        "y": -2069.294825194826
+        "x": -13034.189707121925,
+        "y": 1312.2726614839883
       },
       "data": {
         "isGroup": true,
-        "width": 2974,
-        "height": 1111.0314233441413,
+        "width": 2976.645890950763,
+        "height": 1176.9025051125964,
         "title": "Funding TX",
         "fontSize": 44,
         "borderColor": "#6f6a60",
@@ -206,8 +206,8 @@
           }
         }
       },
-      "width": 2974,
-      "height": 1111.0314233441413,
+      "width": 2976.645890950763,
+      "height": 1176.9025051125964,
       "dragHandle": "[data-drag-handle]"
     },
     {
@@ -3554,8 +3554,8 @@
       "id": "node_5c63i4i",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -4083.5051831744836,
-        "y": -2415.8498651577506
+        "x": -14540.374600161625,
+        "y": 1141.076367363934
       },
       "data": {
         "content": "# One rawTX, Built Twice: rawBit vs Trezor\n\nThis flow recreates the **same raw transaction** two ways — assembled byte by byte in rawBit, and composed & signed by a connected **Trezor** — then compares the two rawTX hex strings: **byte-for-byte identical**.\n\nAn identical rawTX means an identical scriptSig, which means an identical signature. That's only possible because both paths use the same key and implement **RFC 6979**: `same key + same sighash ⇒ same signature`. Everything the final bytes depend on is visible on the canvas:\n\nmnemonic → seed → BIP32 key (`m/44'/1'/0'/0/1`) → funding UTXO → preimage → sighash → signature → final rawTX\n\n**Requirements:** hardware calls need Chrome/Chromium, or a running Trezor Suite providing the bridge. Without a device, nodes keep the stored results from a real session.\n\n**Scope:** single-sig P2PKH for now. The params builder also handles BIP44/49/84/86 single-sig inputs and change outputs, but not multisig, coinjoin, OP_RETURN, or PSBT.\n\n⚠️ The mnemonic is a throwaway test seed — never use it for real coins. ",
@@ -3572,8 +3572,8 @@
       "id": "node_47oj1yi",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 10496.725679548032,
-        "y": -3767.3618684015782
+        "x": -831.6543503488248,
+        "y": 1534.6595600092892
       },
       "data": {
         "content": "# Manual Path — RFC 6979, Not Low-R\n\nThe preimage is standard legacy signing: the input's script slot temporarily holds the **previous output's scriptPubKey**, `SIGHASH_ALL` (`01000000`) is appended, and the result is double-SHA256'd.\n\nThe signing node is the deliberate choice here: **`Sign TX (RFC6979 / Trezor-style)`**, not Bitcoin Core's signer.\n\n- RFC 6979 derives the nonce `k` deterministically from the private key and the sighash — no randomness, so the signature is **reproducible**.\n- `s` is canonicalized to **low-S** (required by relay policy).\n- There is **no low-R grinding**. Bitcoin Core retries `k` until `r` fits in 32 bytes (71-byte signature); Trezor takes the first valid `k`. You can see the difference right here: `r` starts `0x97…`, needs a `00` pad byte, so this signature is **72 bytes** (push `0x48`).\n\nIn this flow both paths use compatible RFC6979 deterministic signing and low-S normalization, so they produce the same DER signature.",
@@ -3590,8 +3590,8 @@
       "id": "node_y4uoct5",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 12204.61936539751,
-        "y": 4269.01672936148
+        "x": 1932.893685849478,
+        "y": 8441.378597763058
       },
       "data": {
         "content": "# Device Path — Params, refTxs, Compare\n\nThe Trezor group is **self-contained**: every shared value arrives over numbered radio channels (version, locktime, path, vout, sequence, amounts, funding rawTX, destination hash160), and the group parses the funding tx again itself.\n\n**Trezor Sign Params** translates rawBit values into Trezor Connect conventions — the classic traps:\n\n- `prev_hash` is the txid in **display order** (byte-reversed from the rawTX order)\n- `sequence` becomes decimal: `fffffffd` → `4294967293`\n- hardened path segments carry the `0x80000000` offset: `44'` → `2147483692`\n- outputs take an **address**, not a scriptPubKey\n\n`refTxs` contains the complete previous transaction because a **legacy input doesn't commit to its amount** — the device re-hashes the refTx, checks it against `prev_hash`, and reads the true input value itself instead of trusting the host.\n\n**Trezor Sign** returns `payload.serializedTx`, and the compare node proves it equals the manual rawTX — every byte: same DER signature, same scriptSig, same serialization.",
