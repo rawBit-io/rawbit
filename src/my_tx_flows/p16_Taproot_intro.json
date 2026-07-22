@@ -30,8 +30,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 13745.503522222021,
-        "y": 6394.224374503456
+        "x": 16785.434130849466,
+        "y": 7768.01396150381
       },
       "data": {
         "isGroup": true,
@@ -58,8 +58,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 10161.137144742672,
-        "y": 1429.1411361838407
+        "x": 13201.067753370116,
+        "y": 2802.930723184194
       },
       "data": {
         "isGroup": true,
@@ -88,8 +88,8 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 3808.124278885347,
-        "y": 2547.490353722822
+        "x": 6848.054887512791,
+        "y": 3921.2799407231755
       },
       "data": {
         "isGroup": true,
@@ -121,8 +121,8 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": -130.04578708884037,
-        "y": 6531.382338804889
+        "x": 2909.8848215386033,
+        "y": 7905.171925805242
       },
       "data": {
         "isGroup": true,
@@ -147,8 +147,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 240,
-        "y": 240
+        "x": 3279.9306086274437,
+        "y": 1613.7895870003535
       },
       "data": {
         "isGroup": true,
@@ -2072,65 +2072,6 @@
       "extent": "parent"
     },
     {
-      "id": "node_C1vJHhmg",
-      "type": "calculation",
-      "position": {
-        "x": 4736.015962420434,
-        "y": 1043.727797586224
-      },
-      "data": {
-        "functionName": "concat_all",
-        "title": "TapSighash Tagged Input",
-        "paramExtraction": "multi_val",
-        "numInputs": 2,
-        "inputs": {
-          "vals": {
-            "0": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031",
-            "100": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031",
-            "200": "0000020000000000000052b00ae520b4fb7aec31d36ff79d7862ebc22dc9a7bb75a3409d6a515e9384126e020bb7798a8c498af3a1aae0ad290789a7be9d50bc1b8292faea5c105ff3c19760626cb41aa0bfcabee9e990cfe547df3e5f2b0007a6f7cf4308783038ad2c23e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2e168c91aa3af87b9151864ddbad2d077f6dc02a73cad481772b7199df3f5124c0000000000"
-          }
-        },
-        "version": 0,
-        "result": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a0310000020000000000000052b00ae520b4fb7aec31d36ff79d7862ebc22dc9a7bb75a3409d6a515e9384126e020bb7798a8c498af3a1aae0ad290789a7be9d50bc1b8292faea5c105ff3c19760626cb41aa0bfcabee9e990cfe547df3e5f2b0007a6f7cf4308783038ad2c23e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2e168c91aa3af87b9151864ddbad2d077f6dc02a73cad481772b7199df3f5124c0000000000",
-        "inputStructure": {
-          "groups": [
-            {
-              "title": "INPUTS[]",
-              "baseIndex": 0,
-              "expandable": true,
-              "fieldCountToAdd": 1,
-              "minInstances": 1,
-              "maxInstances": 99,
-              "fields": [
-                {
-                  "index": 0,
-                  "label": "Value:",
-                  "placeholder": "<input>",
-                  "rows": 3
-                }
-              ]
-            }
-          ],
-          "ungrouped": [],
-          "afterGroups": []
-        },
-        "groupInstances": {
-          "INPUTS[]": 3
-        },
-        "groupInstanceKeys": {
-          "INPUTS[]": [0, 100, 200]
-        },
-        "baseHeight": 80,
-        "totalInputs": 3,
-        "unwiredCount": 0,
-        "dirty": false,
-        "error": false,
-        "borderColor": "#eab308"
-      },
-      "parentId": "group_7w6adu7",
-      "extent": "parent"
-    },
-    {
       "id": "node_GV4QNHAE",
       "type": "calculation",
       "position": {
@@ -2824,32 +2765,14 @@
       "extent": "parent"
     },
     {
-      "id": "node_4be6wxs",
-      "type": "shadcnTextInfo",
-      "position": {
-        "x": -2388.568493806755,
-        "y": -320.7604512481491
-      },
-      "data": {
-        "content": "# Overview - Taproot\n\nSegWit reserved the higher witness versions as empty lanes for future rules. In 2021, Taproot filled lane one - and changed what a bitcoin output *is*.\n\n**Every output becomes a key.** No hash of a key, no hash of a script: the scriptPubKey is `OP_1` plus a 32-byte public key, sitting on-chain in the open. Scripts still exist - but they hide *inside* the key as a commitment. Spend the **key path** and no script ever surfaces, not even a hint that one existed. Spend a **script path** and you reveal exactly one leaf - the script you execute, plus the proof it was committed - while every sibling branch stays a 32-byte hash forever.\n\n**Every cooperative spend looks the same.**A single signer, a multisig that aggregated into one key (MuSig2), a Lightning channel closing on good terms - all of them spend with the same 64-byte Schnorr signature and nothing else. The chain cannot tell them apart, so the cheapest spend type is also the most private one.\n\n**Schnorr replaces ECDSA** (BIP340): fixed 64 bytes, no DER, no signature malleability by construction - and signatures that can be added together, which is what makes key aggregation possible at all.\n\nThis flow performs the fundamental Taproot operation: a **key-path spend** of a P2TR output into a new P2TR output. Everything is built live - the x-only keys, the tweak, the new sighash, even the tagged hashes themselves are assembled from raw SHA-256 nodes on this canvas.\n\n*Builds on SegWit intro - witness structure and bech32 are assumed.*",
-        "fontSize": 28,
-        "width": 1523,
-        "height": 917,
-        "title": "Text Info Node",
-        "dirty": false
-      },
-      "width": 1523,
-      "height": 917
-    },
-    {
       "id": "node_6itabjb",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -1264.8785741892636,
-        "y": 722.5165851998177
+        "x": 1775.05203443818,
+        "y": 2096.306172200171
       },
       "data": {
-        "content": "## X-only keys and the even-Y rule\n\nA compressed pubkey is 33 bytes: an x-coordinate plus one prefix byte (02/03) naming which of the two possible y-values is meant. BIP340 drops the prefix: keys are the **32-byte x-coordinate alone**, and the y question is settled by convention - **the even y is always meant**.\n\nThe key pair has to keep up. If your private key d produces a point with odd y, you don't have the key to the even-y point - its owner is n − d. So the rule on the signing side: check the point's parity, and if it's odd, **replace d with n − d**. Same x, even y, done. That is the entire job of the *PrivKey → Even-Y PrivKey* nodes.\n\nThis canvas happened to roll both outcomes: the funding key's point already has even y and passes through untouched - the destination key's point has odd y, and you can see the node output a *different* number than went in. A fair coin, both faces showing.\n\nOne byte saved per key sounds small. Multiply by every key in every output and every signature commitment, forever.",
+        "content": "## X-only keys and the even-Y rule\n\nA compressed pubkey is 33 bytes: an x-coordinate plus one prefix byte (02/03) naming which of the two possible y-values is meant. BIP340 drops the prefix: keys are the **32-byte x-coordinate alone**, and the y question is settled by convention - **the even y is always meant**.\n\nThe key pair has to keep up. If your private key d produces a point with odd y, you don't have the key to the even-y point - its owner is n − d. So the rule on the signing side: check the point's parity, and if it's odd, **replace d with n − d**. Same x, even y, done. That is the entire job of the *PrivKey → Even-Y PrivKey* nodes.\n\nThis canvas happened to roll both outcomes: the funding key's point already has even y and passes through untouched - the destination key's point has odd y, and you can see the node output a *different* number than went in. A fair coin, both faces showing.\n\nOne byte saved per key sounds small. Multiply by every key in every P2TR output and every signature commitment, forever.",
         "fontSize": 28,
         "width": 1346,
         "height": 740,
@@ -2863,11 +2786,11 @@
       "id": "node_nw5fchy",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -1264.3072056800952,
-        "y": 1515.4101931011653
+        "x": 1775.6234029473485,
+        "y": 2889.1997801015186
       },
       "data": {
-        "content": "## The tweak - a key that is also a commitment\n\nThe key on-chain is not the key you generated. Between them sits the tweak:\n\n```\nt = tagged_hash(\"TapTweak\", P ‖ merkle_root)\nQ = P + t·G\n```\n\nP is the **internal key** (yours, private, never on-chain). Q is the **output key** (in the scriptPubKey, in the address). The merkle root is the top of a tree of scripts - alternative spending conditions, each a leaf. Because t hashes P *and* the root, Q **commits** to those scripts: reveal one later with its merkle path, and any verifier can recompute Q and confirm the script was baked in from the start. That is the script path - the other door.\n\nThis flow has no scripts, so the root input is empty and t = H(P) alone. Tweaking *anyway* is the point (BIP86 makes it the standard): it proves the output has **no** hidden script path, and it keeps every output on the chain shaped identically, scripts or not.\n\nThe private key follows the same arithmetic: **q' = d + t**, computed by the *PrivKey → q'* node - so the signature below is made by a key that never existed until the tweak was applied. The address encodes Q. The internal key P never touches the chain.",
+        "content": "## The tweak - a key that is also a commitment\n\nThe key on-chain is not the key you generated. Between them sits the tweak:\n\n```\nt = tagged_hash(\"TapTweak\", P ‖ merkle_root)\nQ = P + t·G\n```\n\nP is the **internal key** - public, but kept off-chain: a key-path spend never shows it (a script-path spend would, in its control block). Q is the **output key** - in the scriptPubKey, in the address. The merkle root is the top of a tree of scripts - alternative spending conditions, each a leaf. Because t hashes P *and* the root, Q **commits** to those scripts: reveal one later with its merkle path, and any verifier can recompute Q and confirm the script was baked in from the start. That is the script path - the other door.\n\nThis flow has no scripts, so the root input is empty and t = H(P) alone. Tweaking *anyway* is the point (BIP86 makes it the standard): anyone you show P can verify the output hides **no** script path, and every output on the chain stays shaped identically, scripts or not.\n\nThe private key follows the same arithmetic: **q' = d + t**, computed by the *PrivKey → q'* node - a key that never existed until the tweak was applied. (Q's own parity is settled inside BIP340 signing - the even-Y rule, one last time.)",
         "fontSize": 28,
         "width": 1389,
         "height": 822,
@@ -2881,11 +2804,11 @@
       "id": "node_1i6vw7f",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 2565.4942624020796,
-        "y": 3160.6508920219435
+        "x": 5605.424871029523,
+        "y": 4534.440479022297
       },
       "data": {
-        "content": "## The BIP341 sighash - BIP143, finished\n\nBIP143 fixed quadratic hashing and let signatures commit to the spent amount. BIP341 completes the thought - the signature now commits to **everything a signer could be lied to about**:\n\n```\nepoch              00\nhash_type          00        (SIGHASH_DEFAULT)\nversion            02000000\nlocktime           00000000\nsha_prevouts       SHA256(all outpoints)\nsha_amounts        SHA256(all spent values)       ← every input\nsha_scriptpubkeys  SHA256(all spent scripts)      ← every input, new\nsha_sequences      SHA256(all nSequence)\nsha_outputs        SHA256(all outputs)\nspend_type         00        (key path, no annex)\ninput_index        00000000\n```\n\n**All inputs, not just this one.** BIP143 committed to *this* input's amount; a hardware wallet in a multi-input transaction could still be shown false data about the *other* inputs and tricked into overpaying fees. Here the amounts and scriptPubKeys of every spent coin are inside the hash - show a signer wrong data and the signature simply doesn't verify. The lying-host attack dies here.\n\n**Single SHA-256 throughout.** Legacy and BIP143 hashed everything twice; Taproot drops the second pass. The tag prefix already makes every hash purpose-specific, so one SHA-256 is enough - and validation gets cheaper. Note the fields enter *as serialized*: the scriptPubKey carries its length prefix `22`, the amount its full 8 LE bytes.\n\n**SIGHASH_DEFAULT (0x00)** means ALL semantics with the type byte *omitted* from the signature - the common case got one byte shorter. And the input's position is finally explicit: `input_index`, no more inferring it from context.\n\nThe result feeds the TapSighash tagged hash - 32 bytes the Schnorr node signs.",
+        "content": "## The BIP341 sighash - BIP143, finished\n\nBIP143 fixed quadratic hashing and let signatures commit to the spent amount. BIP341 completes the thought - the signature now commits to **everything a signer could be lied to about**:\n\n```\nepoch              00\nhash_type          00        (SIGHASH_DEFAULT)\nversion            02000000\nlocktime           00000000\nsha_prevouts       SHA256(all outpoints)\nsha_amounts        SHA256(all spent values)       ← every input\nsha_scriptpubkeys  SHA256(all spent scripts)      ← every input, new\nsha_sequences      SHA256(all nSequence)\nsha_outputs        SHA256(all outputs)\nspend_type         00        (key path, no annex)\ninput_index        00000000\n```\n\n**All inputs, not just this one.** BIP143 committed to *this* input's amount; a hardware wallet in a multi-input transaction could still be shown false data about the *other* inputs and tricked into overpaying fees. Here the amounts and scriptPubKeys of every spent coin are inside the hash - show a signer wrong data and the signature simply doesn't verify. The lying-host attack dies here.\n\n**Single SHA-256 - and only the last one tagged.** The five midstates are plain single SHA-256: no double-hashing, no tags. The tag appears exactly once, on the final TapSighash digest. Note the fields enter *as serialized*: the scriptPubKey carries its length prefix `0x22` (34 bytes), the amount its full 8 LE bytes.\n\n**SIGHASH_DEFAULT (0x00)** means ALL semantics with the type byte *omitted* from the signature - the common case got one byte shorter. And the input's position is finally explicit: `input_index`, no more inferring it from context.\n\nThe result feeds the TapSighash tagged hash - 32 bytes the Schnorr node signs.",
         "fontSize": 28,
         "width": 1152,
         "height": 1394,
@@ -2899,11 +2822,11 @@
       "id": "node_8kkkqtx",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 10140.513464702331,
-        "y": 253.97288099599692
+        "x": 13180.444073329774,
+        "y": 1627.7624679963506
       },
       "data": {
-        "content": "## The key-path witness - 66 bytes, nothing to see\n\nThe entire unlocking data:\n\n```\n01                    item count\n40 <64-byte sig>      one Schnorr signature\n```\n\nWhy so little? Every earlier output kept a *hash* and made the spender fill in the blank: P2PKH stores the hash of a key, so the scriptSig must deliver the pubkey before any signature can be checked; P2SH stores the hash of a script, so the whole script must travel at spend time. A P2TR output withholds nothing - the 32-byte output key sits in the scriptPubKey in the clear, and the key-path rule (*one valid Schnorr signature by that key*) lives in consensus itself, not in any script. The only thing left to deliver is the one thing that can't be published in advance: the signature.\n\nCompare the eras: a P2PKH scriptSig carries ~107 bytes of signature-plus-pubkey, P2WPKH moves the same ~107 into the witness, P2TR needs **66**.\n\nA Schnorr signature (BIP340) is simply **64 fixed bytes** - no wrapper, no variable length. An ECDSA signature travels in DER encoding, ~70-72 bytes that must be parsed and can be re-encoded; here there is nothing to parse and nothing to re-encode. Under SIGHASH_DEFAULT even the sighash-type byte disappears - only a non-default type adds a 65th.\n\nThe privacy claim becomes concrete here: this witness is byte-for-byte the *shape* of every cooperative Taproot spend on the chain - single keys, aggregated multisigs, contracts settling on their happy path.",
+        "content": "## The key-path witness - 66 bytes, nothing to see\n\nThe entire unlocking data:\n\n```\n01                    item count\n40 <64-byte sig>      one Schnorr signature\n```\n\nWhy so little? Every earlier output kept a *hash* and made the spender fill in the blank: P2PKH stores the hash of a key, so the scriptSig must deliver the pubkey before any signature can be checked; P2SH stores the hash of a script, so the whole script must travel at spend time. A P2TR output already hands the verifier everything the key path needs - the 32-byte output key sits in the scriptPubKey in the clear, and the key-path rule (*one valid Schnorr signature by that key*) lives in consensus itself, not in any script. The only thing left to deliver is the one thing that can't be published in advance: the signature.\n\nCompare the eras: a P2PKH scriptSig carries ~107 bytes of signature-plus-pubkey, P2WPKH moves the same ~107 into the witness, P2TR needs **66**.\n\nA Schnorr signature (BIP340) is simply **64 fixed bytes** - no wrapper, no variable length. An ECDSA signature travels in DER encoding, ~70-72 bytes that must be parsed and can be re-encoded; here there is nothing to parse and nothing to re-encode. Under SIGHASH_DEFAULT even the sighash-type byte disappears - only a non-default type adds a 65th.\n\nThe privacy claim becomes concrete here: this witness is byte-for-byte the *shape* of every cooperative Taproot spend on the chain - single keys, aggregated multisigs, contracts settling on their happy path.",
         "fontSize": 28,
         "width": 1401,
         "height": 1042,
@@ -2917,11 +2840,11 @@
       "id": "node_3lc51c3",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -130.4799484953989,
-        "y": 5821.860374486545
+        "x": 2909.450660132045,
+        "y": 7195.649961486899
       },
       "data": {
-        "content": "## The output - OP_1 and 32 bytes\n\nThis group repeats the Funding pipeline - fresh key → Even-Y → tweak → scriptPubKey - because that *is* receiving in Taproot: every P2TR address is this exact assembly, run with a fresh key each time.\n\nThe result is two pushes: `51 20 <Q>` - and as in SegWit, the **pattern** is the trigger. `OP_1` is the witness *version*, not a number to compute with; version and length together name the type: 20 bytes after `OP_0` was P2WPKH, 32 after `OP_1` is P2TR.\n\nAddresses moved one letter with the version: **bech32m** (`tb1p…`, `bc1p…`) replaces bech32 (`tb1q…`) - same alphabet, one changed checksum constant. A wallet that rejects a taproot address simply never learned the new checksum.\n\nOne extra output on the Tweak node: the **parity** of Q (`c0`/`c1`). The key path never needs it; a script-path spend records this bit in its control block - parked here for the next flow.",
+        "content": "## The output - OP_1 and 32 bytes\n\nThis group repeats the Funding pipeline - fresh key → Even-Y → tweak → scriptPubKey - because that *is* receiving in Taproot: every single-key P2TR address is this exact assembly, run with a fresh key each time.\n\nThe result is two pushes: `51 20 <Q>` - and as in SegWit, the **pattern** is the trigger. `OP_1` is the witness *version*, not a number to compute with; version and length together name the type: 20 bytes after `OP_0` was P2WPKH, 32 after `OP_1` is P2TR.\n\nAddresses moved one letter with the version: **bech32m** (`tb1p…`, `bc1p…`) replaces bech32 (`tb1q…`) - same alphabet, one changed checksum constant. A wallet that rejects a taproot address simply never learned the new checksum.\n\nOne extra output on the Tweak node: the **parity** of Q (`c0`/`c1`). The key-path witness never carries it - the signer's math absorbs it - while a script-path spend records exactly this bit in its control block. Parked here for the next flow.",
         "fontSize": 28,
         "width": 1476,
         "height": 641,
@@ -2970,19 +2893,95 @@
       "id": "node_qclz0wn",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 307.66738505456175,
-        "y": 2524.7237619466673
+        "x": 3347.5979936820054,
+        "y": 3898.513348947021
       },
       "data": {
-        "content": "## Try it yourself\n\nRebuild this canvas as a **two-input, two-output** key-path spend: two funded P2TR coins in, two fresh P2TR outputs out, each input signed with its own tweaked key.\n\nAlong the way you'll discover what \"all inputs\" in the sighash card really means: the five midstates widen but stay one hash each, shared by both signatures - and the two Preimage Body messages end up differing in exactly four bytes: `input_index`.\n\nCheck the fee, then `testmempoolaccept` before broadcasting.",
+        "content": "## Try it yourself\n\nRebuild this canvas as a **two-input, two-output** key-path spend: two funded P2TR coins in, two fresh P2TR outputs out, each input signed with its own tweaked key.\n\nAlong the way you'll discover what \"all inputs\" in the sighash card really means: the five midstates widen but stay one hash each, shared by both signatures - and the two Preimage Body messages end up differing in exactly four bytes: `input_index`.\n\nFund your rebuild with **fresh keys** - the fixture's are public - check the fee, then `testmempoolaccept` before broadcasting.",
         "fontSize": 28,
-        "width": 1306,
-        "height": 440,
+        "width": 1326,
+        "height": 478,
         "title": "Text Info Node",
-        "borderColor": "#2d5fb3"
+        "borderColor": "#2d5fb3",
+        "dirty": false
       },
-      "width": 1306,
-      "height": 440
+      "width": 1326,
+      "height": 478
+    },
+    {
+      "id": "node_2rr2lnj",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 255,
+        "y": 389.9999999999999
+      },
+      "data": {
+        "content": "# Overview - Taproot\n\nSegWit reserved the higher witness versions as empty lanes for future rules. In 2021, Taproot filled lane one - and changed what a bitcoin output *is*.\n\n**Every P2TR output becomes a key.** No hash of a key, no hash of a script: the scriptPubKey is `OP_1` plus a 32-byte public key, sitting on-chain in the open. Scripts still exist - but they hide *inside* the key as a commitment. Spend the **key path** and no script ever surfaces, not even a hint that one existed. Spend a **script path** and you reveal exactly one leaf - the script you execute, plus the proof it was committed - while every sibling branch stays a 32-byte hash forever.\n\n**Every cooperative spend looks the same.** A single signer, a multisig that aggregated into one key (MuSig2), a Lightning channel closing on good terms - all of them spend with the same 64-byte Schnorr signature and nothing else. The chain cannot tell them apart, so the cheapest spend type is also the most private one.\n\n**Schnorr replaces ECDSA** (BIP340): fixed 64 bytes, no DER, no signature malleability by construction - and a linear structure that makes aggregation protocols like MuSig2 possible. Finished signatures can't simply be added; the linearity is what lets a protocol combine them safely.\n\nThis flow performs the fundamental Taproot operation: a **key-path spend** of a P2TR output into a new P2TR output. Everything is built live - the x-only keys, the tweak, the new sighash, even the tagged hashes themselves are assembled from raw SHA-256 nodes on this canvas.\n\n*Builds on SegWit intro - witness structure and bech32 are assumed.*\n",
+        "fontSize": 32,
+        "width": 1584,
+        "height": 1096,
+        "title": "Text Info Node"
+      },
+      "width": 1584,
+      "height": 1096
+    },
+    {
+      "id": "node_jwoy4ny",
+      "type": "calculation",
+      "position": {
+        "x": 4734.335741959844,
+        "y": 1156.9416369770602
+      },
+      "data": {
+        "functionName": "concat_all",
+        "title": "Tagged Hash Input (BIP340)",
+        "paramExtraction": "multi_val",
+        "numInputs": 3,
+        "inputs": {
+          "vals": {
+            "0": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031",
+            "100": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031",
+            "200": "0000020000000000000052b00ae520b4fb7aec31d36ff79d7862ebc22dc9a7bb75a3409d6a515e9384126e020bb7798a8c498af3a1aae0ad290789a7be9d50bc1b8292faea5c105ff3c19760626cb41aa0bfcabee9e990cfe547df3e5f2b0007a6f7cf4308783038ad2c23e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2e168c91aa3af87b9151864ddbad2d077f6dc02a73cad481772b7199df3f5124c0000000000"
+          }
+        },
+        "version": 0,
+        "result": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a0310000020000000000000052b00ae520b4fb7aec31d36ff79d7862ebc22dc9a7bb75a3409d6a515e9384126e020bb7798a8c498af3a1aae0ad290789a7be9d50bc1b8292faea5c105ff3c19760626cb41aa0bfcabee9e990cfe547df3e5f2b0007a6f7cf4308783038ad2c23e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2e168c91aa3af87b9151864ddbad2d077f6dc02a73cad481772b7199df3f5124c0000000000",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "TAG HASH[32]:",
+              "rows": 2,
+              "placeholder": "SHA256 of the ASCII tag",
+              "comment": "Same value as the second field — wire both from one SHA-256 node"
+            },
+            {
+              "index": 100,
+              "label": "TAG HASH[32]:",
+              "rows": 2,
+              "placeholder": "SHA256 of the ASCII tag (again)",
+              "comment": "The doubled 64-byte prefix fills exactly one SHA-256 block, so implementations precompute it"
+            },
+            {
+              "index": 200,
+              "label": "MESSAGE:",
+              "rows": 3,
+              "placeholder": "Tag-specific payload",
+              "comment": "TapSighash: the SigMsg | TapTweak: P || merkle_root | TapLeaf: version || compactsize(script) || script"
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "baseHeight": 200,
+        "totalInputs": 3,
+        "unwiredCount": 0,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_7w6adu7",
+      "extent": "parent"
     }
   ],
   "edges": [
@@ -3300,27 +3299,6 @@
       "selected": false
     },
     {
-      "id": "edge_JTINs8zO",
-      "source": "node_qbaNa4B5",
-      "target": "node_C1vJHhmg",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "id": "edge_zrk4ifym",
-      "source": "node_qbaNa4B5",
-      "target": "node_C1vJHhmg",
-      "targetHandle": "input-100",
-      "selected": false
-    },
-    {
-      "id": "edge_qspbdjh",
-      "source": "node_C1vJHhmg",
-      "target": "node_GV4QNHAE",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
       "id": "edge_i0nnuxn",
       "source": "node_5iSO83jo",
       "target": "node_kxlgq4b",
@@ -3332,13 +3310,6 @@
       "source": "node_rTKg0zQN",
       "target": "node_kxlgq4b",
       "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "id": "edge_jfoua6z",
-      "source": "node_kxlgq4b",
-      "target": "node_C1vJHhmg",
-      "targetHandle": "input-200",
       "selected": false
     },
     {
@@ -3531,6 +3502,34 @@
       "target": "node_sgac5y6",
       "targetHandle": "input-0",
       "selected": false
+    },
+    {
+      "source": "node_qbaNa4B5",
+      "target": "node_jwoy4ny",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "xy-edge__node_qbaNa4B5-node_jwoy4nyinput-0"
+    },
+    {
+      "source": "node_qbaNa4B5",
+      "target": "node_jwoy4ny",
+      "targetHandle": "input-100",
+      "selected": false,
+      "id": "xy-edge__node_qbaNa4B5-node_jwoy4nyinput-100"
+    },
+    {
+      "source": "node_kxlgq4b",
+      "target": "node_jwoy4ny",
+      "targetHandle": "input-200",
+      "selected": false,
+      "id": "xy-edge__node_kxlgq4b-node_jwoy4nyinput-200"
+    },
+    {
+      "source": "node_jwoy4ny",
+      "target": "node_GV4QNHAE",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "xy-edge__node_jwoy4ny-node_GV4QNHAEinput-0"
     }
   ],
   "virtualEdges": []

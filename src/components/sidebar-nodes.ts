@@ -1357,6 +1357,55 @@ export const allSidebarNodes: NodeTemplate[] = [
       baseHeight: 220,
     },
   },
+  // TAGGED HASH INPUT (BIP340) Node - SHA256(tag) || SHA256(tag) || message
+  {
+    functionName: "concat_all",
+    label: "Tagged Hash Input (BIP340)",
+    category: "Transactions",
+    subcategory: "Preimages",
+    description:
+      "Assembles SHA256(tag) || SHA256(tag) || message for a BIP340 tagged hash (TapSighash, TapTweak, TapLeaf, TapBranch); feed the result into a SHA-256 node",
+    type: "calculation",
+    nodeData: {
+      functionName: "concat_all",
+      title: "Tagged Hash Input (BIP340)",
+      paramExtraction: "multi_val",
+      numInputs: 3,
+      inputs: { vals: [] },
+
+      version: 0,
+      result: "",
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "TAG HASH[32]:",
+            rows: 2,
+            placeholder: "SHA256 of the ASCII tag",
+            comment: "Same value as the second field — wire both from one SHA-256 node",
+          },
+          {
+            index: 100,
+            label: "TAG HASH[32]:",
+            rows: 2,
+            placeholder: "SHA256 of the ASCII tag (again)",
+            comment: "The doubled 64-byte prefix fills exactly one SHA-256 block, so implementations precompute it",
+          },
+          {
+            index: 200,
+            label: "MESSAGE:",
+            rows: 3,
+            placeholder: "Tag-specific payload",
+            comment: "TapSighash: the SigMsg | TapTweak: P || merkle_root | TapLeaf: version || compactsize(script) || script",
+          },
+        ],
+        groups: [],
+        afterGroups: [],
+      },
+      groupInstances: {},
+      baseHeight: 200,
+    },
+  },
 
   // ------------------------------------------------------------------
   // CRYPTOGRAPHIC OPERATIONS
