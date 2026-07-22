@@ -134,7 +134,7 @@ describe("buildPorts", () => {
       ["input-0", "input-10", "input-20", "input-30", "input-40"],
     ],
     [
-      "Preimage Body (BIP143)",
+      "Preimage Body SegWit (BIP143)",
       [
         "input-0",
         "input-10",
@@ -149,7 +149,7 @@ describe("buildPorts", () => {
       ],
     ],
     [
-      "Data to Sign (Taproot)",
+      "Preimage Body Taproot (BIP341)",
       [
         "input-0",
         "input-10",

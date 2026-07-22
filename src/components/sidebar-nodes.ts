@@ -1156,7 +1156,7 @@ export const allSidebarNodes: NodeTemplate[] = [
   // PREIMAGE BODY (BIP143) Node - Builds BIP143 signing data WITHOUT sighash
   {
     functionName: "concat_all",
-    label: "Preimage Body (BIP143)",
+    label: "Preimage Body SegWit (BIP143)",
     category: "Transactions",
     subcategory: "Preimages",
     description:
@@ -1164,7 +1164,7 @@ export const allSidebarNodes: NodeTemplate[] = [
     type: "calculation",
     nodeData: {
       functionName: "concat_all",
-      title: "Preimage Body (BIP143)",
+      title: "Preimage Body SegWit (BIP143)",
       paramExtraction: "multi_val",
       numInputs: 10, // Reduced from 11 - no SIGHASH
       inputs: { vals: [] },
@@ -1252,10 +1252,10 @@ export const allSidebarNodes: NodeTemplate[] = [
       baseHeight: 200,
     },
   },
-  // DATA TO SIGN (TAPROOT) Node - Builds key-path SigMsg (epoch 0x00, SIGHASH_DEFAULT)
+  // PREIMAGE BODY TAPROOT (BIP341) Node - Builds key-path SigMsg (epoch 0x00, SIGHASH_DEFAULT)
   {
     functionName: "concat_all",
-    label: "Data to Sign (Taproot)",
+    label: "Preimage Body Taproot (BIP341)",
     category: "Transactions",
     subcategory: "Preimages",
     description:
@@ -1263,7 +1263,7 @@ export const allSidebarNodes: NodeTemplate[] = [
     type: "calculation",
     nodeData: {
       functionName: "concat_all",
-      title: "Data to Sign (Taproot)",
+      title: "Preimage Body Taproot (BIP341)",
       paramExtraction: "multi_val",
       numInputs: 11,
       inputs: { vals: [] },

@@ -1,5 +1,5 @@
 {
-  "name": "Taproot rework",
+  "name": "Taproot intro",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -1856,7 +1856,7 @@
       },
       "data": {
         "functionName": "concat_all",
-        "title": "Data to Sign (Taproot)",
+        "title": "Preimage Body Taproot (BIP341)",
         "paramExtraction": "multi_val",
         "numInputs": 11,
         "inputs": {

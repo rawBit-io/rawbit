@@ -99,6 +99,18 @@ function createCustomFlows() {
       tags: ["payment-channel", "spilman"],
     },
     {
+      id: "taproot-intro-flow",
+      label: "Taproot intro",
+      data: {
+        nodes: [],
+        edges: [],
+      },
+      section: "taproot",
+      flowNo: 16,
+      level: "advanced",
+      tags: ["taproot", "p2tr"],
+    },
+    {
       id: "intro-flow",
       label: "Intro",
       data: {
@@ -211,6 +223,20 @@ describe("Sidebar", () => {
     expect(screen.getByText("P2PK vs P2PKH")).toBeInTheDocument();
     fireEvent.click(paymentChannelsSection);
     expect(screen.getByText("15. Spilman Channel")).toBeInTheDocument();
+    const taprootSection = screen.getByRole("button", {
+      name: /^Taproot$/i,
+    });
+    expect(taprootSection).toBeInTheDocument();
+    expect(
+      segwitSection.compareDocumentPosition(taprootSection) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    expect(
+      taprootSection.compareDocumentPosition(paymentChannelsSection) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    fireEvent.click(taprootSection);
+    expect(screen.getByText("16. Taproot intro")).toBeInTheDocument();
     expect(screen.getByText(/Older flows hidden/i)).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /Legacy Foundations/i })

@@ -3,6 +3,26 @@ import { expect, test } from '@playwright/test';
 import { delay } from './utils';
 
 test.describe('Sidebar palette', () => {
+  test('shows Taproot directly below SegWit without enabling older flows', async ({ page }) => {
+    await page.goto('/');
+
+    const segwitSection = page.getByRole('button', { name: 'SegWit', exact: true });
+    const taprootSection = page.getByRole('button', { name: 'Taproot', exact: true });
+
+    await expect(segwitSection).toBeVisible();
+    await expect(taprootSection).toBeVisible();
+    await expect(page.getByRole('switch', { name: 'Show older flow examples' })).not.toBeChecked();
+
+    const segwitBox = await segwitSection.boundingBox();
+    const taprootBox = await taprootSection.boundingBox();
+    expect(segwitBox).not.toBeNull();
+    expect(taprootBox).not.toBeNull();
+    expect(taprootBox!.y).toBeGreaterThan(segwitBox!.y);
+
+    await taprootSection.click();
+    await expect(page.getByText('16. Taproot intro', { exact: true })).toBeVisible();
+  });
+
   test('shows Payment Channels directly below SegWit without enabling older flows', async ({ page }) => {
     await page.goto('/');
 

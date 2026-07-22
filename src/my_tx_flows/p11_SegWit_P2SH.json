@@ -1225,7 +1225,7 @@
       },
       "data": {
         "functionName": "concat_all",
-        "title": "Preimage Body (BIP143)",
+        "title": "Preimage Body SegWit (BIP143)",
         "paramExtraction": "multi_val",
         "numInputs": 10,
         "inputs": {
@@ -4197,7 +4197,7 @@
       },
       "data": {
         "functionName": "concat_all",
-        "title": "Preimage Body (BIP143)",
+        "title": "Preimage Body SegWit (BIP143)",
         "paramExtraction": "multi_val",
         "numInputs": 10,
         "inputs": {
