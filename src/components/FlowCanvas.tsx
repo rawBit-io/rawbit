@@ -738,6 +738,10 @@ export function FlowCanvas({
           nodesDraggable={!isReadOnly}
           nodesConnectable={!isReadOnly}
           elementsSelectable={!isReadOnly}
+          // Reconnect anchors overlap when several edges share a handle.
+          // Keep the selected edge above its siblings so dragging that shared
+          // anchor deterministically reconnects the edge the user selected.
+          elevateEdgesOnSelect
           disableKeyboardA11y
         >
           <Background />

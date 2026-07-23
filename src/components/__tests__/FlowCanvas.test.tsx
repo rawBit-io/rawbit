@@ -132,6 +132,12 @@ describe("FlowCanvas", () => {
     expect(reactFlowSpy.props.panOnDrag).toEqual([1]);
   });
 
+  it("elevates the selected edge so its shared reconnect anchor wins hit-testing", () => {
+    render(<FlowCanvas {...baseProps} />);
+
+    expect(reactFlowSpy.props.elevateEdgesOnSelect).toBe(true);
+  });
+
   it("broadcasts node-menu dismissal before canvas pointer downs reach nodes", () => {
     const onDismiss = vi.fn();
     window.addEventListener(DISMISS_NODE_MENUS_EVENT, onDismiss);

@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "name": "edge-reconnect-shared-source",
+  "nodes": [
+    {
+      "id": "node_source_primary",
+      "type": "calculation",
+      "position": { "x": -260, "y": 0 },
+      "data": {
+        "functionName": "identity",
+        "title": "Primary Source",
+        "numInputs": 0,
+        "showField": true,
+        "value": "68656c6c6f",
+        "inputs": { "val": "68656c6c6f" },
+        "result": "",
+        "dirty": true,
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "INPUT VALUE:", "rows": 1 }
+          ]
+        },
+        "groupInstances": {}
+      }
+    },
+    {
+      "id": "node_source_alternate",
+      "type": "calculation",
+      "position": { "x": -260, "y": 280 },
+      "data": {
+        "functionName": "identity",
+        "title": "Alternate Source",
+        "numInputs": 0,
+        "showField": true,
+        "value": "776f726c64",
+        "inputs": { "val": "776f726c64" },
+        "result": "",
+        "dirty": true,
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "INPUT VALUE:", "rows": 1 }
+          ]
+        },
+        "groupInstances": {}
+      }
+    },
+    {
+      "id": "node_target_selected",
+      "type": "calculation",
+      "position": { "x": 140, "y": -120 },
+      "data": {
+        "functionName": "double_sha256_hex",
+        "title": "Selected Target",
+        "numInputs": 1,
+        "showField": false,
+        "inputs": { "val": "" },
+        "result": "",
+        "dirty": true,
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "Input Hex:", "rows": 2 }
+          ]
+        },
+        "groupInstances": {}
+      }
+    },
+    {
+      "id": "node_target_sibling",
+      "type": "calculation",
+      "position": { "x": 140, "y": 160 },
+      "data": {
+        "functionName": "double_sha256_hex",
+        "title": "Sibling Target",
+        "numInputs": 1,
+        "showField": false,
+        "inputs": { "val": "" },
+        "result": "",
+        "dirty": true,
+        "inputStructure": {
+          "ungrouped": [
+            { "index": 0, "label": "Input Hex:", "rows": 2 }
+          ]
+        },
+        "groupInstances": {}
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_selected_candidate",
+      "source": "node_source_primary",
+      "target": "node_target_selected",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge_rendered_last",
+      "source": "node_source_primary",
+      "target": "node_target_sibling",
+      "targetHandle": "input-0"
+    }
+  ]
+}

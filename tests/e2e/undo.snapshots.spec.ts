@@ -124,6 +124,86 @@ test.describe('Undo snapshots for interactions', () => {
   });
 });
 
+test.describe('Selected edge reconnect priority', () => {
+  test.beforeEach(async ({ page }) => {
+    await stubBulkCalculate(page);
+    await page.goto('/');
+    await loadFixture(page, 'reconnect-shared-source.json');
+  });
+
+  test.afterEach(async ({ page }) => {
+    await page.unroute('**/bulk_calculate');
+  });
+
+  test('reconnects the selected edge when source anchors overlap', async ({
+    page,
+  }) => {
+    const selectedCandidate = page.locator(
+      '.react-flow__edge[data-id="edge_selected_candidate"]',
+    );
+    const renderedLastSibling = page.locator(
+      '.react-flow__edge[data-id="edge_rendered_last"]',
+    );
+    await expect(selectedCandidate).toBeVisible();
+    await expect(renderedLastSibling).toBeVisible();
+
+    await selectedCandidate.click();
+    await expect(selectedCandidate).toHaveClass(/selected/);
+    await expect(renderedLastSibling).not.toHaveClass(/selected/);
+
+    const sourceUpdater = selectedCandidate.locator(
+      'circle.react-flow__edgeupdater-source',
+    );
+    const alternateSourceHandle = page.locator(
+      '[data-id="node_source_alternate"] .react-flow__handle.source',
+    );
+    await expect(sourceUpdater).toHaveCount(1);
+    await expect(sourceUpdater).toBeVisible();
+    await expect(alternateSourceHandle).toHaveCount(1);
+    await expect(alternateSourceHandle).toBeVisible();
+
+    const updaterBox = await sourceUpdater.boundingBox();
+    const newHandleBox = await alternateSourceHandle.boundingBox();
+    if (!updaterBox || !newHandleBox) {
+      throw new Error('Unable to compute shared reconnect anchor positions');
+    }
+
+    await waitForBulkResponse(
+      page,
+      async () => {
+        await page.mouse.move(
+          updaterBox.x + updaterBox.width / 2,
+          updaterBox.y + updaterBox.height / 2,
+        );
+        await page.mouse.down();
+        await page.mouse.move(
+          newHandleBox.x + newHandleBox.width / 2,
+          newHandleBox.y + newHandleBox.height / 2,
+          { steps: 12 },
+        );
+        await page.mouse.up();
+      },
+      { timeoutMs: 12_000 },
+    );
+
+    await expect(
+      page.getByRole('button', {
+        name: 'Edge from node_source_alternate to node_target_selected',
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', {
+        name: 'Edge from node_source_primary to node_target_sibling',
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', {
+        name: 'Edge from node_source_alternate to node_target_sibling',
+      }),
+    ).toHaveCount(0);
+  });
+});
+
 async function reconnectEdgeToPassthrough(
   page: Page,
   reconnectedEdgeButton: Locator
