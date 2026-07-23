@@ -234,7 +234,7 @@ describe("Sidebar", () => {
     ).toBeTruthy();
     expect(screen.getByText("P2PK vs P2PKH")).toBeInTheDocument();
     fireEvent.click(paymentChannelsSection);
-    expect(screen.getByText("15. Spilman Channel")).toBeInTheDocument();
+    expect(screen.getByText("Spilman Channel")).toBeInTheDocument();
     const taprootSection = screen.getByRole("button", {
       name: /^Taproot$/i,
     });
@@ -248,8 +248,8 @@ describe("Sidebar", () => {
         Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy();
     fireEvent.click(taprootSection);
-    expect(screen.getByText("16. Taproot intro")).toBeInTheDocument();
-    expect(screen.getByText("17. Taproot 2in 2out Keypath")).toBeInTheDocument();
+    expect(screen.getByText("Taproot intro")).toBeInTheDocument();
+    expect(screen.getByText("Taproot 2in 2out Keypath")).toBeInTheDocument();
     expect(screen.getByText(/Older flows hidden/i)).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /Legacy Foundations/i })

@@ -237,6 +237,7 @@ function formatNodeCategory(node: NodeTemplate) {
 }
 
 function formatFlowLabel(flow: CustomFlowTemplate) {
+  if (ALWAYS_VISIBLE_FLOW_SECTIONS.has(flow.section)) return flow.label;
   return flow.flowNo ? `${flow.flowNo}. ${flow.label}` : flow.label;
 }
 

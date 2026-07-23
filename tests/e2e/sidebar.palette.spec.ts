@@ -20,9 +20,9 @@ test.describe('Sidebar palette', () => {
     expect(taprootBox!.y).toBeGreaterThan(segwitBox!.y);
 
     await taprootSection.click();
-    await expect(page.getByText('16. Taproot intro', { exact: true })).toBeVisible();
+    await expect(page.getByText('Taproot intro', { exact: true })).toBeVisible();
     await expect(
-      page.getByText('17. Taproot 2in 2out Keypath', { exact: true }),
+      page.getByText('Taproot 2in 2out Keypath', { exact: true }),
     ).toBeVisible();
   });
 
@@ -46,7 +46,7 @@ test.describe('Sidebar palette', () => {
     expect(paymentChannelsBox!.y).toBeGreaterThan(segwitBox!.y);
 
     await paymentChannelsSection.click();
-    await expect(page.getByText('15. Spilman Channel', { exact: true })).toBeVisible();
+    await expect(page.getByText('Spilman Channel', { exact: true })).toBeVisible();
   });
 
   test('drag-and-drop template creates node with undo/redo history', async ({ page }) => {
