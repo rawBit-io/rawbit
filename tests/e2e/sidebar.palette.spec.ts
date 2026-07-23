@@ -21,6 +21,9 @@ test.describe('Sidebar palette', () => {
 
     await taprootSection.click();
     await expect(page.getByText('16. Taproot intro', { exact: true })).toBeVisible();
+    await expect(
+      page.getByText('17. Taproot 2in 2out Keypath', { exact: true }),
+    ).toBeVisible();
   });
 
   test('shows Payment Channels directly below SegWit without enabling older flows', async ({ page }) => {

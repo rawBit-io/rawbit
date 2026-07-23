@@ -111,6 +111,18 @@ function createCustomFlows() {
       tags: ["taproot", "p2tr"],
     },
     {
+      id: "taproot-2in-2out-keypath-flow",
+      label: "Taproot 2in 2out Keypath",
+      data: {
+        nodes: [],
+        edges: [],
+      },
+      section: "taproot",
+      flowNo: 17,
+      level: "advanced",
+      tags: ["taproot", "p2tr", "key-path", "multi-input", "multi-output"],
+    },
+    {
       id: "intro-flow",
       label: "Intro",
       data: {
@@ -237,6 +249,7 @@ describe("Sidebar", () => {
     ).toBeTruthy();
     fireEvent.click(taprootSection);
     expect(screen.getByText("16. Taproot intro")).toBeInTheDocument();
+    expect(screen.getByText("17. Taproot 2in 2out Keypath")).toBeInTheDocument();
     expect(screen.getByText(/Older flows hidden/i)).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /Legacy Foundations/i })

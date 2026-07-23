@@ -1,5 +1,5 @@
 {
-  "name": "Taproot 2in 2out (1)",
+  "name": "Taproot 2in 2out Keypath",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -30,8 +30,8 @@
       "id": "group_lbu0tht",
       "type": "shadcnGroup",
       "position": {
-        "x": 11379.115147265744,
-        "y": 2962.1320986395967
+        "x": 12491.947914156635,
+        "y": 6603.78491593597
       },
       "data": {
         "isGroup": true,
@@ -50,13 +50,13 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 21311.137484494528,
-        "y": 7224.887391592437
+        "x": 22423.97025138542,
+        "y": 10866.540208888811
       },
       "data": {
         "isGroup": true,
         "width": 3180,
-        "height": 3042.786841901223,
+        "height": 3102.786841901223,
         "title": "Final TX and Verify Script",
         "dirty": false,
         "groupBundlePortOffsets": {
@@ -73,15 +73,15 @@
         "fontSize": 44
       },
       "width": 3180,
-      "height": 3042.786841901223,
+      "height": 3102.786841901223,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 17506.658334745225,
-        "y": 224.52479730091665
+        "x": 18619.49110163612,
+        "y": 3866.1776145972904
       },
       "data": {
         "isGroup": true,
@@ -110,13 +110,13 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 5823.500458880427,
-        "y": 4222.743880645863
+        "x": 6936.333225771319,
+        "y": 7864.396697942237
       },
       "data": {
         "isGroup": true,
-        "width": 4522,
-        "height": 4543,
+        "width": 4711,
+        "height": 5234,
         "title": "Inputs",
         "groupBundlePortOffsets": {
           "source": 1199.26,
@@ -130,23 +130,24 @@
           "targetByBundle": {
             "group_zi8x2qm->group_7w6adu7": -1208.38,
             "group_ef2se5b->group_7w6adu7": -600.33,
-            "group_hegqa99->group_7w6adu7": 1409.82
+            "group_hegqa99->group_7w6adu7": 1409.82,
+            "node_1X5AaTXW->group_7w6adu7": 2267.53
           }
         },
         "dirty": false,
         "borderColor": "#008c86",
         "fontSize": 44
       },
-      "width": 4522,
-      "height": 4543,
+      "width": 4711,
+      "height": 5234,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": 1587.171164339998,
-        "y": 9166.545513184394
+        "x": 2700.00393123089,
+        "y": 12808.198330480767
       },
       "data": {
         "isGroup": true,
@@ -171,14 +172,14 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 1145.6675623026767,
-        "y": -3152.528552993984
+        "x": 2258.5003291935686,
+        "y": 489.12426430238975
       },
       "data": {
         "isGroup": true,
         "width": 2398,
         "height": 2035,
-        "title": "Funding TX",
+        "title": "Funding TX1",
         "groupBundlePortOffsets": {
           "source": 409.13,
           "sourceByBundle": {
@@ -483,8 +484,8 @@
       "id": "node_v7K1rBTw",
       "type": "calculation",
       "position": {
-        "x": 2648.6084961636434,
-        "y": 3571.1089962997894
+        "x": 1726.1029758255936,
+        "y": 3490.4414732209016
       },
       "data": {
         "functionName": "identity",
@@ -518,8 +519,8 @@
       "id": "node_E7c0t33i",
       "type": "calculation",
       "position": {
-        "x": 3056.360293226885,
-        "y": 3638.1028608123124
+        "x": 2229.0010821613687,
+        "y": 3398.1686896033125
       },
       "data": {
         "functionName": "reverse_bytes_4",
@@ -605,114 +606,6 @@
       "extent": "parent"
     },
     {
-      "id": "node_o6vul7a",
-      "type": "calculation",
-      "position": {
-        "x": 1933.0105194559,
-        "y": 1095.3774016054358
-      },
-      "data": {
-        "functionName": "script_verification",
-        "title": "Verify Script",
-        "paramExtraction": "multi_val",
-        "numInputs": 6,
-        "inputs": {
-          "vals": {
-            "0": "__EMPTY__",
-            "1": "0014e8c298589149ad3039f8eca93e2ef82b5d76e5f2",
-            "2": "020000000001019525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca0100000000fdffffff01f8a7000000000000225120202b340f2b6ba613471b1eb79d3bf6b39df1473ae816572cac815f270d75ac6c0140993d698ab89b769543680258df7c4f4ca61099b1514abb005fd7d9fffbc1cdf10584ab4629ff1df51c4db656a85dde79f5586451e88fa08c407cda209897834000000000",
-            "3": "0",
-            "5": "299969"
-          }
-        },
-        "inputStructure": {
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "scriptSig_hex",
-              "rows": 3,
-              "placeholder": "Hex-encoded scriptSig",
-              "allowEmptyBlank": true
-            },
-            {
-              "index": 1,
-              "label": "scriptPubKey_hex",
-              "rows": 3,
-              "placeholder": "Hex-encoded scriptPubKey"
-            },
-            {
-              "index": 2,
-              "label": "tx_hex",
-              "rows": 3,
-              "placeholder": "Hex-encoded Transaction"
-            },
-            {
-              "index": 3,
-              "label": "input_index_to_verify",
-              "rows": 1,
-              "placeholder": "0",
-              "unconnectable": true
-            },
-            {
-              "index": 4,
-              "label": "exclude_flags",
-              "rows": 1,
-              "placeholder": "e.g., WITNESS,CLEANSTACK",
-              "unconnectable": true
-            },
-            {
-              "index": 5,
-              "label": "spent_amount_sats",
-              "rows": 1,
-              "placeholder": "Amount in satoshis (for SegWit/Taproot)",
-              "unconnectable": false,
-              "allowEmptyBlank": true
-            }
-          ],
-          "groups": [
-            {
-              "title": "Taproot Prevouts (vin order)",
-              "baseIndex": 100,
-              "expandable": true,
-              "fieldCountToAdd": 1,
-              "minInstances": 0,
-              "maxInstances": 10,
-              "fields": [
-                {
-                  "index": 0,
-                  "label": "prevout_amount_sats",
-                  "rows": 1,
-                  "placeholder": "Amount (sats)",
-                  "allowEmptyBlank": true
-                },
-                {
-                  "index": 1,
-                  "label": "prevout_scriptPubKey_hex",
-                  "rows": 3,
-                  "placeholder": "Hex-encoded scriptPubKey",
-                  "allowEmptyBlank": true
-                }
-              ]
-            }
-          ],
-          "afterGroups": []
-        },
-        "groupInstances": {},
-        "groupInstanceKeys": {},
-        "error": true,
-        "totalInputs": 4,
-        "unwiredCount": 0,
-        "dirty": false,
-        "showComment": false,
-        "outputValues": {},
-        "outputErrors": {},
-        "extendedError": "Invalid transaction hex: Asked to read 78 bytes, but only got 56",
-        "scriptDebugSteps": null
-      },
-      "parentId": "group_ixnjwes",
-      "extent": "parent"
-    },
-    {
       "id": "node_ljj3f78",
       "type": "calculation",
       "position": {
@@ -724,12 +617,12 @@
         "title": "VOUT",
         "showField": true,
         "numInputs": 0,
-        "value": "1",
+        "value": "0",
         "version": 0,
         "inputs": {
-          "val": "1"
+          "val": "0"
         },
-        "result": "1",
+        "result": "0",
         "inputStructure": {
           "ungrouped": [
             {
@@ -823,11 +716,11 @@
         "inputs": {
           "vals": {
             "0": "9525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca",
-            "10": "01000000"
+            "10": "00000000"
           }
         },
         "version": 0,
-        "result": "9525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca01000000",
+        "result": "9525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca00000000",
         "inputStructure": {
           "ungrouped": [],
           "groups": [
@@ -889,9 +782,9 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": 1
+          "val": 0
         },
-        "result": "01000000",
+        "result": "00000000",
         "error": false
       },
       "parentId": "group_7w6adu7",
@@ -909,11 +802,11 @@
         "title": "TX Parser",
         "paramExtraction": "multi_val",
         "numInputs": 2,
-        "result": "txid: 9525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca\nvout.scriptPubKey: 0014e8c298589149ad3039f8eca93e2ef82b5d76e5f2\nvout.value: 299969",
+        "result": "txid: 9525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca\nvout.scriptPubKey: 51207746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81\nvout.value: 44833",
         "inputs": {
           "vals": {
             "0": "0200000000010106311cd180116472ff77bb0f6ec36d014931242b981be932e74d7b2b5a005bce0000000000fdffffff0221af0000000000002251207746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81c193040000000000160014e8c298589149ad3039f8eca93e2ef82b5d76e5f202483045022100d272b6a49ec60c6b654a9d9130db4c9ec1364b5b96f54c4f284ba0cc1c9cf2b90220761f086c27426d17b3e9b0f8e7bcf911d0297940dbea6a98da112b7c25bf8b4b012103856494ac7ae1ad7dc905596510ff9fa36a7a1834c48c33e35357b57f4a0c82bd00000000",
-            "1": "1"
+            "1": "0"
           }
         },
         "txFieldExtractMode": "dynamic",
@@ -957,8 +850,8 @@
         "dirty": false,
         "outputValues": {
           "output-0": "9525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca",
-          "output-1": "0014e8c298589149ad3039f8eca93e2ef82b5d76e5f2",
-          "output-2": "299969"
+          "output-1": "51207746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81",
+          "output-2": "44833"
         },
         "error": false,
         "outputErrors": {}
@@ -980,9 +873,9 @@
         "value": "50000000",
         "groupInstances": {},
         "inputs": {
-          "val": 299969
+          "val": 44833
         },
-        "result": "c193040000000000",
+        "result": "21af000000000000",
         "dirty": false,
         "error": false
       },
@@ -993,8 +886,8 @@
       "id": "node_3bk0l8l",
       "type": "calculation",
       "position": {
-        "x": 2616.825608586695,
-        "y": 3813.141061631488
+        "x": 2628.6810406355407,
+        "y": 3947.5026248517415
       },
       "data": {
         "functionName": "concat_all",
@@ -1082,25 +975,29 @@
             "20": "01",
             "30": "02",
             "1000": "9525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca",
-            "1010": "01000000",
+            "1010": "00000000",
             "1020": "__FORCE00__",
             "1030": "__EMPTY__",
             "1040": "fdffffff",
+            "1100": "6b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f6",
+            "1110": "01000000",
             "1120": "__FORCE00__",
             "1130": "__EMPTY__",
+            "1140": "fdffffff",
             "2000": "02",
             "3000": "f8a7000000000000",
             "3010": "22",
             "3020": "5120202b340f2b6ba613471b1eb79d3bf6b39df1473ae816572cac815f270d75ac6c",
+            "3100": "606d000000000000",
             "3110": "22",
             "3120": "5120c7d14427b01d854b651300463d7b321d140c267c14112c750a1e2e90ac2a9b1b",
-            "5000": "01408c05ae3dbb5ca2263b8837ae3857b0e5cd49fa30886cb4f803f47c04e0ef7d3d3b1407e1ee75bb9b4a7182a12f7be43ecfc71382b3a26fa701c95d70f9a8b257",
-            "5100": "0140808374e4c1f67f6434f0c04e8d407ec7df3b5c8f6b775862b9698f50958919511f94c2b1d12b0b7ca0a22d79528b2db48899174259de62cff7b12b763841a18b",
+            "5000": "01405acdc36fea0bcbc8cf5ab0ed236b21e211a577fff64c71bd2847b8c9403135045ffd179f6280c7dced7f9bae14fd6691735fce03ef98f2d67d3082e4ce6f8bdf",
+            "5100": "0140e8375d1a400f74f3fae92b9dbd897f50cbcac7de68b4991114a17c623677f1de9aff4efb9900c0daaaa643bb2ae72acae8224be2c42933798cfe009cb0fa7978",
             "6000": "00000000"
           }
         },
         "version": 0,
-        "result": "020000000001029525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca0100000000fdffffff0002f8a7000000000000225120202b340f2b6ba613471b1eb79d3bf6b39df1473ae816572cac815f270d75ac6c225120c7d14427b01d854b651300463d7b321d140c267c14112c750a1e2e90ac2a9b1b01408c05ae3dbb5ca2263b8837ae3857b0e5cd49fa30886cb4f803f47c04e0ef7d3d3b1407e1ee75bb9b4a7182a12f7be43ecfc71382b3a26fa701c95d70f9a8b2570140808374e4c1f67f6434f0c04e8d407ec7df3b5c8f6b775862b9698f50958919511f94c2b1d12b0b7ca0a22d79528b2db48899174259de62cff7b12b763841a18b00000000",
+        "result": "020000000001029525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca0000000000fdffffff6b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f60100000000fdffffff02f8a7000000000000225120202b340f2b6ba613471b1eb79d3bf6b39df1473ae816572cac815f270d75ac6c606d000000000000225120c7d14427b01d854b651300463d7b321d140c267c14112c750a1e2e90ac2a9b1b01405acdc36fea0bcbc8cf5ab0ed236b21e211a577fff64c71bd2847b8c9403135045ffd179f6280c7dced7f9bae14fd6691735fce03ef98f2d67d3082e4ce6f8bdf0140e8375d1a400f74f3fae92b9dbd897f50cbcac7de68b4991114a17c623677f1de9aff4efb9900c0daaaa643bb2ae72acae8224be2c42933798cfe009cb0fa797800000000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -1263,7 +1160,7 @@
         },
         "baseHeight": 150,
         "totalInputs": 24,
-        "unwiredCount": 4,
+        "unwiredCount": 0,
         "dirty": false,
         "error": false
       },
@@ -1795,17 +1692,17 @@
             "10": "00",
             "20": "02000000",
             "30": "00000000",
-            "40": "05effd3a948145998062b55e7fba0d8f0881ed96d444a84b9a561cb6b1ace00c",
-            "50": "f16e97e0d4ac549b63f528a3b2aac5fa38316438e9dc4b39d2e43561fbd1c59c",
-            "60": "9688379860c2a348746118015d5dcefa51a81529139ecae513183aaebe16dd40",
-            "70": "23e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2",
-            "80": "2ea9d23b0f2c165e9d9f7deb6398c4b0c89d4dc801566ed7ccc67e7a7e1b7df5",
+            "40": "63e9d9e271494bbc4cc4a10d467ca62a7c3db9888dc20d688e09c5c5a8349cb1",
+            "50": "2e88cabc5b615985f0e3f2f31a440d5ede0ffa52dfac23000e370188f795ebf5",
+            "60": "715a24359bcbe7051ffef6cfd0917575455d0a31f83b351b081fc00ba79faaa8",
+            "70": "82d397cbbcff87bc5d0c4c70e424f9b830efbad7bf0be479da5d1d1bafdb9798",
+            "80": "f15377e1c2f545aeefc228084ef724f4e2e837c6d4fe06fc4494d5d3b093a30c",
             "90": "00",
             "100": "00000000"
           }
         },
         "version": 0,
-        "result": "0000020000000000000005effd3a948145998062b55e7fba0d8f0881ed96d444a84b9a561cb6b1ace00cf16e97e0d4ac549b63f528a3b2aac5fa38316438e9dc4b39d2e43561fbd1c59c9688379860c2a348746118015d5dcefa51a81529139ecae513183aaebe16dd4023e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d22ea9d23b0f2c165e9d9f7deb6398c4b0c89d4dc801566ed7ccc67e7a7e1b7df50000000000",
+        "result": "0000020000000000000063e9d9e271494bbc4cc4a10d467ca62a7c3db9888dc20d688e09c5c5a8349cb12e88cabc5b615985f0e3f2f31a440d5ede0ffa52dfac23000e370188f795ebf5715a24359bcbe7051ffef6cfd0917575455d0a31f83b351b081fc00ba79faaa882d397cbbcff87bc5d0c4c70e424f9b830efbad7bf0be479da5d1d1bafdb9798f15377e1c2f545aeefc228084ef724f4e2e837c6d4fe06fc4494d5d3b093a30c0000000000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -2014,9 +1911,9 @@
         "numInputs": 1,
         "version": 0,
         "inputs": {
-          "val": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a0310000020000000000000005effd3a948145998062b55e7fba0d8f0881ed96d444a84b9a561cb6b1ace00cf16e97e0d4ac549b63f528a3b2aac5fa38316438e9dc4b39d2e43561fbd1c59c9688379860c2a348746118015d5dcefa51a81529139ecae513183aaebe16dd4023e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d22ea9d23b0f2c165e9d9f7deb6398c4b0c89d4dc801566ed7ccc67e7a7e1b7df50000000000"
+          "val": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a0310000020000000000000063e9d9e271494bbc4cc4a10d467ca62a7c3db9888dc20d688e09c5c5a8349cb12e88cabc5b615985f0e3f2f31a440d5ede0ffa52dfac23000e370188f795ebf5715a24359bcbe7051ffef6cfd0917575455d0a31f83b351b081fc00ba79faaa882d397cbbcff87bc5d0c4c70e424f9b830efbad7bf0be479da5d1d1bafdb9798f15377e1c2f545aeefc228084ef724f4e2e837c6d4fe06fc4494d5d3b093a30c0000000000"
         },
-        "result": "6b89e8350c37f8ae678185fd40521c3b75c9d6320147aaf2ad439b337d1113c9",
+        "result": "235c7b6f2d9d1f1e226d48fdb20e41ede7bf9d81a013f90023de9441c8a4ab8c",
         "inputStructure": {
           "ungrouped": [
             {
@@ -2121,7 +2018,7 @@
         "inputs": {
           "vals": {
             "0": "a0ae0523e49b80635469faa9c6139853e5ca372d68ed0ce6f3b99fa953b3027f",
-            "1": "6b89e8350c37f8ae678185fd40521c3b75c9d6320147aaf2ad439b337d1113c9",
+            "1": "235c7b6f2d9d1f1e226d48fdb20e41ede7bf9d81a013f90023de9441c8a4ab8c",
             "2": "__EMPTY__"
           }
         },
@@ -2150,7 +2047,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "8c05ae3dbb5ca2263b8837ae3857b0e5cd49fa30886cb4f803f47c04e0ef7d3d3b1407e1ee75bb9b4a7182a12f7be43ecfc71382b3a26fa701c95d70f9a8b257",
+        "result": "5acdc36fea0bcbc8cf5ab0ed236b21e211a577fff64c71bd2847b8c9403135045ffd179f6280c7dced7f9bae14fd6691735fce03ef98f2d67d3082e4ce6f8bdf",
         "totalInputs": 3,
         "unwiredCount": 0,
         "dirty": false,
@@ -2211,7 +2108,7 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": "8c05ae3dbb5ca2263b8837ae3857b0e5cd49fa30886cb4f803f47c04e0ef7d3d3b1407e1ee75bb9b4a7182a12f7be43ecfc71382b3a26fa701c95d70f9a8b257"
+          "val": "5acdc36fea0bcbc8cf5ab0ed236b21e211a577fff64c71bd2847b8c9403135045ffd179f6280c7dced7f9bae14fd6691735fce03ef98f2d67d3082e4ce6f8bdf"
         },
         "result": "40",
         "borderColor": "#eab308",
@@ -2236,7 +2133,7 @@
           "vals": {
             "0": "01",
             "1": "40",
-            "2": "8c05ae3dbb5ca2263b8837ae3857b0e5cd49fa30886cb4f803f47c04e0ef7d3d3b1407e1ee75bb9b4a7182a12f7be43ecfc71382b3a26fa701c95d70f9a8b257"
+            "2": "5acdc36fea0bcbc8cf5ab0ed236b21e211a577fff64c71bd2847b8c9403135045ffd179f6280c7dced7f9bae14fd6691735fce03ef98f2d67d3082e4ce6f8bdf"
           }
         },
         "inputStructure": {
@@ -2264,7 +2161,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "01408c05ae3dbb5ca2263b8837ae3857b0e5cd49fa30886cb4f803f47c04e0ef7d3d3b1407e1ee75bb9b4a7182a12f7be43ecfc71382b3a26fa701c95d70f9a8b257",
+        "result": "01405acdc36fea0bcbc8cf5ab0ed236b21e211a577fff64c71bd2847b8c9403135045ffd179f6280c7dced7f9bae14fd6691735fce03ef98f2d67d3082e4ce6f8bdf",
         "baseHeight": 100,
         "totalInputs": 3,
         "unwiredCount": 0,
@@ -2279,8 +2176,8 @@
       "id": "node_dEp1vnm1",
       "type": "calculation",
       "position": {
-        "x": 3837.559537519187,
-        "y": 3639.2196670646117
+        "x": 3812.4124114884535,
+        "y": 4754.175507337397
       },
       "data": {
         "functionName": "identity",
@@ -2325,9 +2222,9 @@
         "numInputs": 1,
         "version": 0,
         "inputs": {
-          "val": "9525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca010000006b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f6"
+          "val": "9525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca000000006b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f601000000"
         },
-        "result": "05effd3a948145998062b55e7fba0d8f0881ed96d444a84b9a561cb6b1ace00c",
+        "result": "63e9d9e271494bbc4cc4a10d467ca62a7c3db9888dc20d688e09c5c5a8349cb1",
         "inputStructure": {
           "ungrouped": [
             {
@@ -2360,9 +2257,9 @@
         "numInputs": 1,
         "version": 0,
         "inputs": {
-          "val": "fdffffff"
+          "val": "fdfffffffdffffff"
         },
-        "result": "23e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2",
+        "result": "82d397cbbcff87bc5d0c4c70e424f9b830efbad7bf0be479da5d1d1bafdb9798",
         "inputStructure": {
           "ungrouped": [
             {
@@ -2375,7 +2272,9 @@
         "groupInstances": {},
         "dirty": false,
         "error": false,
-        "borderColor": "#22c55e"
+        "borderColor": "#22c55e",
+        "outputValues": {},
+        "outputErrors": {}
       },
       "parentId": "group_7w6adu7",
       "extent": "parent"
@@ -2393,9 +2292,9 @@
         "numInputs": 1,
         "version": 0,
         "inputs": {
-          "val": "c193040000000000911e040000000000"
+          "val": "21af0000000000009774000000000000"
         },
-        "result": "f16e97e0d4ac549b63f528a3b2aac5fa38316438e9dc4b39d2e43561fbd1c59c",
+        "result": "2e88cabc5b615985f0e3f2f31a440d5ede0ffa52dfac23000e370188f795ebf5",
         "inputStructure": {
           "ungrouped": [
             {
@@ -2426,9 +2325,9 @@
         "numInputs": 1,
         "version": 0,
         "inputs": {
-          "val": "160014e8c298589149ad3039f8eca93e2ef82b5d76e5f2160014d0cf155ec54033a36d99a91ed3ed75c0c65067cd"
+          "val": "2251207746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81225120a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960"
         },
-        "result": "9688379860c2a348746118015d5dcefa51a81529139ecae513183aaebe16dd40",
+        "result": "715a24359bcbe7051ffef6cfd0917575455d0a31f83b351b081fc00ba79faaa8",
         "inputStructure": {
           "ungrouped": [
             {
@@ -2462,13 +2361,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "16",
-            "100": "0014e8c298589149ad3039f8eca93e2ef82b5d76e5f2"
+            "0": "22",
+            "100": "51207746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81"
           }
         },
         "compactConcatInputs": true,
         "version": 0,
-        "result": "160014e8c298589149ad3039f8eca93e2ef82b5d76e5f2",
+        "result": "2251207746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81",
         "inputStructure": {
           "groups": [
             {
@@ -2520,9 +2419,9 @@
         "numInputs": 1,
         "groupInstances": {},
         "inputs": {
-          "val": "0014e8c298589149ad3039f8eca93e2ef82b5d76e5f2"
+          "val": "51207746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81"
         },
-        "result": "16",
+        "result": "22",
         "dirty": false,
         "error": false
       },
@@ -2533,8 +2432,8 @@
       "id": "node_W2Oyxmai",
       "type": "calculation",
       "position": {
-        "x": 3226.4957667052486,
-        "y": 3868.2046348209324
+        "x": 3823.8743676629338,
+        "y": 4306.791812602651
       },
       "data": {
         "functionName": "sha256_hex",
@@ -2542,9 +2441,9 @@
         "numInputs": 1,
         "version": 0,
         "inputs": {
-          "val": "f8a7000000000000225120202b340f2b6ba613471b1eb79d3bf6b39df1473ae816572cac815f270d75ac6c"
+          "val": "f8a7000000000000225120202b340f2b6ba613471b1eb79d3bf6b39df1473ae816572cac815f270d75ac6c606d000000000000225120c7d14427b01d854b651300463d7b321d140c267c14112c750a1e2e90ac2a9b1b"
         },
-        "result": "2ea9d23b0f2c165e9d9f7deb6398c4b0c89d4dc801566ed7ccc67e7a7e1b7df5",
+        "result": "f15377e1c2f545aeefc228084ef724f4e2e837c6d4fe06fc4494d5d3b093a30c",
         "inputStructure": {
           "ungrouped": [
             {
@@ -2744,11 +2643,11 @@
           "vals": {
             "0": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031",
             "100": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031",
-            "200": "0000020000000000000005effd3a948145998062b55e7fba0d8f0881ed96d444a84b9a561cb6b1ace00cf16e97e0d4ac549b63f528a3b2aac5fa38316438e9dc4b39d2e43561fbd1c59c9688379860c2a348746118015d5dcefa51a81529139ecae513183aaebe16dd4023e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d22ea9d23b0f2c165e9d9f7deb6398c4b0c89d4dc801566ed7ccc67e7a7e1b7df50000000000"
+            "200": "0000020000000000000063e9d9e271494bbc4cc4a10d467ca62a7c3db9888dc20d688e09c5c5a8349cb12e88cabc5b615985f0e3f2f31a440d5ede0ffa52dfac23000e370188f795ebf5715a24359bcbe7051ffef6cfd0917575455d0a31f83b351b081fc00ba79faaa882d397cbbcff87bc5d0c4c70e424f9b830efbad7bf0be479da5d1d1bafdb9798f15377e1c2f545aeefc228084ef724f4e2e837c6d4fe06fc4494d5d3b093a30c0000000000"
           }
         },
         "version": 0,
-        "result": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a0310000020000000000000005effd3a948145998062b55e7fba0d8f0881ed96d444a84b9a561cb6b1ace00cf16e97e0d4ac549b63f528a3b2aac5fa38316438e9dc4b39d2e43561fbd1c59c9688379860c2a348746118015d5dcefa51a81529139ecae513183aaebe16dd4023e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d22ea9d23b0f2c165e9d9f7deb6398c4b0c89d4dc801566ed7ccc67e7a7e1b7df50000000000",
+        "result": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a0310000020000000000000063e9d9e271494bbc4cc4a10d467ca62a7c3db9888dc20d688e09c5c5a8349cb12e88cabc5b615985f0e3f2f31a440d5ede0ffa52dfac23000e370188f795ebf5715a24359bcbe7051ffef6cfd0917575455d0a31f83b351b081fc00ba79faaa882d397cbbcff87bc5d0c4c70e424f9b830efbad7bf0be479da5d1d1bafdb9798f15377e1c2f545aeefc228084ef724f4e2e837c6d4fe06fc4494d5d3b093a30c0000000000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -2790,8 +2689,8 @@
       "id": "node_1X5AaTXW",
       "type": "shadcnGroup",
       "position": {
-        "x": 2451.0641265328445,
-        "y": 11381.91129805384
+        "x": 3563.8968934237364,
+        "y": 15023.564115350213
       },
       "data": {
         "isGroup": true,
@@ -2800,7 +2699,12 @@
         "title": "Locking Script P2TR",
         "dirty": false,
         "borderColor": "#a83a32",
-        "fontSize": 40
+        "fontSize": 40,
+        "groupBundlePortOffsets": {
+          "sourceByBundle": {
+            "node_1X5AaTXW->group_7w6adu7": -464.95
+          }
+        }
       },
       "width": 2982,
       "height": 1525,
@@ -3171,14 +3075,14 @@
       "id": "node_WGqCyJjI",
       "type": "shadcnGroup",
       "position": {
-        "x": 1563.1309370327722,
-        "y": -327.90692477864536
+        "x": 2675.963703923664,
+        "y": 3313.745892517728
       },
       "data": {
         "isGroup": true,
         "width": 2398,
         "height": 2035,
-        "title": "Funding TX",
+        "title": "Funding TX2",
         "groupBundlePortOffsets": {
           "source": 409.13,
           "sourceByBundle": {
@@ -3186,7 +3090,7 @@
           }
         },
         "dirty": false,
-        "fontSize": 44,
+        "fontSize": 36,
         "borderColor": "#6f6a60"
       },
       "width": 2398,
@@ -3477,8 +3381,8 @@
       "id": "node_wITARdmE",
       "type": "shadcnGroup",
       "position": {
-        "x": 12327.2021844924,
-        "y": 5215.1583294575175
+        "x": 13440.034951383292,
+        "y": 8856.811146753891
       },
       "data": {
         "isGroup": true,
@@ -3511,17 +3415,17 @@
             "10": "00",
             "20": "02000000",
             "30": "00000000",
-            "40": "05effd3a948145998062b55e7fba0d8f0881ed96d444a84b9a561cb6b1ace00c",
-            "50": "f16e97e0d4ac549b63f528a3b2aac5fa38316438e9dc4b39d2e43561fbd1c59c",
-            "60": "9688379860c2a348746118015d5dcefa51a81529139ecae513183aaebe16dd40",
-            "70": "23e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2",
-            "80": "2ea9d23b0f2c165e9d9f7deb6398c4b0c89d4dc801566ed7ccc67e7a7e1b7df5",
+            "40": "63e9d9e271494bbc4cc4a10d467ca62a7c3db9888dc20d688e09c5c5a8349cb1",
+            "50": "2e88cabc5b615985f0e3f2f31a440d5ede0ffa52dfac23000e370188f795ebf5",
+            "60": "715a24359bcbe7051ffef6cfd0917575455d0a31f83b351b081fc00ba79faaa8",
+            "70": "82d397cbbcff87bc5d0c4c70e424f9b830efbad7bf0be479da5d1d1bafdb9798",
+            "80": "f15377e1c2f545aeefc228084ef724f4e2e837c6d4fe06fc4494d5d3b093a30c",
             "90": "00",
             "100": "01000000"
           }
         },
         "version": 0,
-        "result": "0000020000000000000005effd3a948145998062b55e7fba0d8f0881ed96d444a84b9a561cb6b1ace00cf16e97e0d4ac549b63f528a3b2aac5fa38316438e9dc4b39d2e43561fbd1c59c9688379860c2a348746118015d5dcefa51a81529139ecae513183aaebe16dd4023e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d22ea9d23b0f2c165e9d9f7deb6398c4b0c89d4dc801566ed7ccc67e7a7e1b7df50001000000",
+        "result": "0000020000000000000063e9d9e271494bbc4cc4a10d467ca62a7c3db9888dc20d688e09c5c5a8349cb12e88cabc5b615985f0e3f2f31a440d5ede0ffa52dfac23000e370188f795ebf5715a24359bcbe7051ffef6cfd0917575455d0a31f83b351b081fc00ba79faaa882d397cbbcff87bc5d0c4c70e424f9b830efbad7bf0be479da5d1d1bafdb9798f15377e1c2f545aeefc228084ef724f4e2e837c6d4fe06fc4494d5d3b093a30c0001000000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -3730,9 +3634,9 @@
         "numInputs": 1,
         "version": 0,
         "inputs": {
-          "val": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a0310000020000000000000005effd3a948145998062b55e7fba0d8f0881ed96d444a84b9a561cb6b1ace00cf16e97e0d4ac549b63f528a3b2aac5fa38316438e9dc4b39d2e43561fbd1c59c9688379860c2a348746118015d5dcefa51a81529139ecae513183aaebe16dd4023e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d22ea9d23b0f2c165e9d9f7deb6398c4b0c89d4dc801566ed7ccc67e7a7e1b7df50001000000"
+          "val": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a0310000020000000000000063e9d9e271494bbc4cc4a10d467ca62a7c3db9888dc20d688e09c5c5a8349cb12e88cabc5b615985f0e3f2f31a440d5ede0ffa52dfac23000e370188f795ebf5715a24359bcbe7051ffef6cfd0917575455d0a31f83b351b081fc00ba79faaa882d397cbbcff87bc5d0c4c70e424f9b830efbad7bf0be479da5d1d1bafdb9798f15377e1c2f545aeefc228084ef724f4e2e837c6d4fe06fc4494d5d3b093a30c0001000000"
         },
-        "result": "219cbb96dca4cc4ee970f47a1687a9129fa67e2e0f046fa48588d4f5ed108bf9",
+        "result": "ebe756a654900646888167f17209aff44f546970a7988dd93ac30bb2676f1489",
         "inputStructure": {
           "ungrouped": [
             {
@@ -3766,11 +3670,11 @@
           "vals": {
             "0": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031",
             "100": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031",
-            "200": "0000020000000000000005effd3a948145998062b55e7fba0d8f0881ed96d444a84b9a561cb6b1ace00cf16e97e0d4ac549b63f528a3b2aac5fa38316438e9dc4b39d2e43561fbd1c59c9688379860c2a348746118015d5dcefa51a81529139ecae513183aaebe16dd4023e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d22ea9d23b0f2c165e9d9f7deb6398c4b0c89d4dc801566ed7ccc67e7a7e1b7df50001000000"
+            "200": "0000020000000000000063e9d9e271494bbc4cc4a10d467ca62a7c3db9888dc20d688e09c5c5a8349cb12e88cabc5b615985f0e3f2f31a440d5ede0ffa52dfac23000e370188f795ebf5715a24359bcbe7051ffef6cfd0917575455d0a31f83b351b081fc00ba79faaa882d397cbbcff87bc5d0c4c70e424f9b830efbad7bf0be479da5d1d1bafdb9798f15377e1c2f545aeefc228084ef724f4e2e837c6d4fe06fc4494d5d3b093a30c0001000000"
           }
         },
         "version": 0,
-        "result": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a0310000020000000000000005effd3a948145998062b55e7fba0d8f0881ed96d444a84b9a561cb6b1ace00cf16e97e0d4ac549b63f528a3b2aac5fa38316438e9dc4b39d2e43561fbd1c59c9688379860c2a348746118015d5dcefa51a81529139ecae513183aaebe16dd4023e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d22ea9d23b0f2c165e9d9f7deb6398c4b0c89d4dc801566ed7ccc67e7a7e1b7df50001000000",
+        "result": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a0310000020000000000000063e9d9e271494bbc4cc4a10d467ca62a7c3db9888dc20d688e09c5c5a8349cb12e88cabc5b615985f0e3f2f31a440d5ede0ffa52dfac23000e370188f795ebf5715a24359bcbe7051ffef6cfd0917575455d0a31f83b351b081fc00ba79faaa882d397cbbcff87bc5d0c4c70e424f9b830efbad7bf0be479da5d1d1bafdb9798f15377e1c2f545aeefc228084ef724f4e2e837c6d4fe06fc4494d5d3b093a30c0001000000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -3870,8 +3774,8 @@
       "id": "node_HVHLyf0p",
       "type": "shadcnGroup",
       "position": {
-        "x": 16432.085896311753,
-        "y": 1681.1405535498648
+        "x": 17544.918663202647,
+        "y": 5322.793370846239
       },
       "data": {
         "isGroup": true,
@@ -3907,7 +3811,7 @@
         "inputs": {
           "vals": {
             "0": "f07e62b4c8ee5f8c27fcdfdf40139e9ae66674eca9b7abc7acc19129b414bd86",
-            "1": "219cbb96dca4cc4ee970f47a1687a9129fa67e2e0f046fa48588d4f5ed108bf9",
+            "1": "ebe756a654900646888167f17209aff44f546970a7988dd93ac30bb2676f1489",
             "2": "__EMPTY__"
           }
         },
@@ -3936,7 +3840,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "808374e4c1f67f6434f0c04e8d407ec7df3b5c8f6b775862b9698f50958919511f94c2b1d12b0b7ca0a22d79528b2db48899174259de62cff7b12b763841a18b",
+        "result": "e8375d1a400f74f3fae92b9dbd897f50cbcac7de68b4991114a17c623677f1de9aff4efb9900c0daaaa643bb2ae72acae8224be2c42933798cfe009cb0fa7978",
         "totalInputs": 3,
         "unwiredCount": 0,
         "dirty": false,
@@ -3997,7 +3901,7 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": "808374e4c1f67f6434f0c04e8d407ec7df3b5c8f6b775862b9698f50958919511f94c2b1d12b0b7ca0a22d79528b2db48899174259de62cff7b12b763841a18b"
+          "val": "e8375d1a400f74f3fae92b9dbd897f50cbcac7de68b4991114a17c623677f1de9aff4efb9900c0daaaa643bb2ae72acae8224be2c42933798cfe009cb0fa7978"
         },
         "result": "40",
         "borderColor": "#eab308",
@@ -4022,7 +3926,7 @@
           "vals": {
             "0": "01",
             "1": "40",
-            "2": "808374e4c1f67f6434f0c04e8d407ec7df3b5c8f6b775862b9698f50958919511f94c2b1d12b0b7ca0a22d79528b2db48899174259de62cff7b12b763841a18b"
+            "2": "e8375d1a400f74f3fae92b9dbd897f50cbcac7de68b4991114a17c623677f1de9aff4efb9900c0daaaa643bb2ae72acae8224be2c42933798cfe009cb0fa7978"
           }
         },
         "inputStructure": {
@@ -4050,7 +3954,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "0140808374e4c1f67f6434f0c04e8d407ec7df3b5c8f6b775862b9698f50958919511f94c2b1d12b0b7ca0a22d79528b2db48899174259de62cff7b12b763841a18b",
+        "result": "0140e8375d1a400f74f3fae92b9dbd897f50cbcac7de68b4991114a17c623677f1de9aff4efb9900c0daaaa643bb2ae72acae8224be2c42933798cfe009cb0fa7978",
         "baseHeight": 100,
         "totalInputs": 3,
         "unwiredCount": 0,
@@ -4076,10 +3980,14 @@
         "inputs": {
           "vals": {
             "0": "__EMPTY__",
-            "1": "0014e8c298589149ad3039f8eca93e2ef82b5d76e5f2",
-            "2": "020000000001019525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca0100000000fdffffff01f8a7000000000000225120202b340f2b6ba613471b1eb79d3bf6b39df1473ae816572cac815f270d75ac6c0140993d698ab89b769543680258df7c4f4ca61099b1514abb005fd7d9fffbc1cdf10584ab4629ff1df51c4db656a85dde79f5586451e88fa08c407cda209897834000000000",
+            "1": "5120a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960",
+            "2": "020000000001029525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca0000000000fdffffff6b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f60100000000fdffffff02f8a7000000000000225120202b340f2b6ba613471b1eb79d3bf6b39df1473ae816572cac815f270d75ac6c606d000000000000225120c7d14427b01d854b651300463d7b321d140c267c14112c750a1e2e90ac2a9b1b01405acdc36fea0bcbc8cf5ab0ed236b21e211a577fff64c71bd2847b8c9403135045ffd179f6280c7dced7f9bae14fd6691735fce03ef98f2d67d3082e4ce6f8bdf0140e8375d1a400f74f3fae92b9dbd897f50cbcac7de68b4991114a17c623677f1de9aff4efb9900c0daaaa643bb2ae72acae8224be2c42933798cfe009cb0fa797800000000",
             "3": "1",
-            "5": "299969"
+            "5": "__EMPTY__",
+            "100": "44833",
+            "101": "51207746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81",
+            "200": "29847",
+            "201": "5120a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960"
           }
         },
         "inputStructure": {
@@ -4154,17 +4062,120 @@
           ],
           "afterGroups": []
         },
-        "groupInstances": {},
-        "groupInstanceKeys": {},
-        "error": true,
-        "totalInputs": 4,
+        "groupInstances": {
+          "Taproot Prevouts (vin order)": 2
+        },
+        "groupInstanceKeys": {
+          "Taproot Prevouts (vin order)": [100, 200]
+        },
+        "error": false,
+        "totalInputs": 8,
         "unwiredCount": 0,
         "dirty": false,
         "showComment": false,
         "outputValues": {},
         "outputErrors": {},
-        "extendedError": "Invalid transaction hex: Asked to read 78 bytes, but only got 56",
-        "scriptDebugSteps": null
+        "result": "true",
+        "scriptDebugSteps": {
+          "isValid": true,
+          "steps": [
+            {
+              "pc": 0,
+              "opcode": 81,
+              "opcode_name": "OP_1",
+              "stack_before": [],
+              "stack_after": ["01"],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": 1,
+              "opcode": 32,
+              "opcode_name": "PUSH 32 bytes",
+              "stack_before": ["01"],
+              "stack_after": [
+                "01",
+                "a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960"
+              ],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": -1,
+              "opcode_name": "taproot_witness",
+              "phase": "taproot",
+              "step": "witness_stack",
+              "stack_before": [
+                "e8375d1a400f74f3fae92b9dbd897f50cbcac7de68b4991114a17c623677f1de9aff4efb9900c0daaaa643bb2ae72acae8224be2c42933798cfe009cb0fa7978"
+              ],
+              "stack_after": [
+                "e8375d1a400f74f3fae92b9dbd897f50cbcac7de68b4991114a17c623677f1de9aff4efb9900c0daaaa643bb2ae72acae8224be2c42933798cfe009cb0fa7978"
+              ]
+            },
+            {
+              "pc": -1,
+              "opcode_name": "taproot_sighash",
+              "phase": "taproot",
+              "step": "sighash",
+              "sigversion": "tapsighash",
+              "hashtype": 0,
+              "hashtype_name": "DEFAULT",
+              "sighash": "ebe756a654900646888167f17209aff44f546970a7988dd93ac30bb2676f1489",
+              "stack_before": [
+                "e8375d1a400f74f3fae92b9dbd897f50cbcac7de68b4991114a17c623677f1de9aff4efb9900c0daaaa643bb2ae72acae8224be2c42933798cfe009cb0fa7978"
+              ],
+              "stack_after": [
+                "e8375d1a400f74f3fae92b9dbd897f50cbcac7de68b4991114a17c623677f1de9aff4efb9900c0daaaa643bb2ae72acae8224be2c42933798cfe009cb0fa7978"
+              ]
+            },
+            {
+              "pc": -1,
+              "opcode_name": "taproot_schnorr_verify",
+              "phase": "taproot",
+              "step": "schnorr_verify",
+              "pubkey": "a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960",
+              "signature": "e8375d1a400f74f3fae92b9dbd897f50cbcac7de68b4991114a17c623677f1de9aff4efb9900c0daaaa643bb2ae72acae8224be2c42933798cfe009cb0fa7978",
+              "hashtype": 0,
+              "hashtype_name": "DEFAULT",
+              "result": true,
+              "stack_before": [
+                "e8375d1a400f74f3fae92b9dbd897f50cbcac7de68b4991114a17c623677f1de9aff4efb9900c0daaaa643bb2ae72acae8224be2c42933798cfe009cb0fa7978"
+              ],
+              "stack_after": ["01"]
+            }
+          ],
+          "scriptSig": "",
+          "scriptPubKey": "5120a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960",
+          "excludedFlags": [],
+          "activeFlags": [
+            "CHECKLOCKTIMEVERIFY",
+            "CHECKSEQUENCEVERIFY",
+            "CLEANSTACK",
+            "CONST_SCRIPTCODE",
+            "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
+            "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
+            "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
+            "LOW_S",
+            "MINIMALDATA",
+            "MINIMALIF",
+            "NULLDUMMY",
+            "NULLFAIL",
+            "P2SH",
+            "STRICTENC",
+            "TAPROOT",
+            "WITNESS",
+            "WITNESS_PUBKEYTYPE"
+          ],
+          "usesWitness": true,
+          "witnessRulesEnabled": true,
+          "amountUsed": 29847,
+          "witnessStack": [
+            "e8375d1a400f74f3fae92b9dbd897f50cbcac7de68b4991114a17c623677f1de9aff4efb9900c0daaaa643bb2ae72acae8224be2c42933798cfe009cb0fa7978"
+          ]
+        }
       },
       "parentId": "group_ixnjwes",
       "extent": "parent"
@@ -4173,20 +4184,20 @@
       "id": "node_sKFSkMCv",
       "type": "calculation",
       "position": {
-        "x": 90.20296360410703,
-        "y": 2558.973283629979
+        "x": 90.20892037257545,
+        "y": 2561.704072925423
       },
       "data": {
         "functionName": "identity",
         "title": "VOUT",
         "showField": true,
         "numInputs": 0,
-        "value": "0",
+        "value": "1",
         "version": 0,
         "inputs": {
-          "val": "0"
+          "val": "1"
         },
-        "result": "0",
+        "result": "1",
         "inputStructure": {
           "ungrouped": [
             {
@@ -4217,11 +4228,11 @@
         "title": "TX Parser",
         "paramExtraction": "multi_val",
         "numInputs": 2,
-        "result": "txid: 6b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f6\nvout.scriptPubKey: 0014d0cf155ec54033a36d99a91ed3ed75c0c65067cd\nvout.value: 269969",
+        "result": "txid: 6b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f6\nvout.scriptPubKey: 5120a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960\nvout.value: 29847",
         "inputs": {
           "vals": {
             "0": "020000000001019525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca0100000000fdffffff02911e040000000000160014d0cf155ec54033a36d99a91ed3ed75c0c65067cd9774000000000000225120a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f96002473044022063fdfa4a90e1e7ed50a5098b381cb9810c4fd1c27ca67fd7818bfc90ae80ed8d02203d27611928b9951f5256099a8e2615715b9259b17f3ac37245e0a137584e14ed01210303efe16c29d7c5519c5947641235d945cd7d30a849f96bb2a5ff8b55c5e12ef600000000",
-            "1": "0"
+            "1": "1"
           }
         },
         "txFieldExtractMode": "dynamic",
@@ -4265,8 +4276,8 @@
         "dirty": false,
         "outputValues": {
           "output-0": "6b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f6",
-          "output-1": "0014d0cf155ec54033a36d99a91ed3ed75c0c65067cd",
-          "output-2": "269969"
+          "output-1": "5120a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960",
+          "output-2": "29847"
         },
         "error": false,
         "outputErrors": {}
@@ -4278,8 +4289,8 @@
       "id": "node_1i6vw7f",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 4312.810555300917,
-        "y": 6191.315352868154
+        "x": 5513.678266377166,
+        "y": 10179.318371819962
       },
       "data": {
         "content": "## The BIP341 sighash - BIP143, finished\n\nBIP143 fixed quadratic hashing and let signatures commit to the spent amount. BIP341 completes the thought - the signature now commits to **everything a signer could be lied to about**:\n\n```\nepoch              00\nhash_type          00        (SIGHASH_DEFAULT)\nversion            02000000\nlocktime           00000000\nsha_prevouts       SHA256(all outpoints)\nsha_amounts        SHA256(all spent values)       ← every input\nsha_scriptpubkeys  SHA256(all spent scripts)      ← every input, new\nsha_sequences      SHA256(all nSequence)\nsha_outputs        SHA256(all outputs)\nspend_type         00        (key path, no annex)\ninput_index        00000000\n```\n\n**All inputs, not just this one.** BIP143 committed to *this* input's amount; a hardware wallet in a multi-input transaction could still be shown false data about the *other* inputs and tricked into overpaying fees. Here the amounts and scriptPubKeys of every spent coin are inside the hash - show a signer wrong data and the signature simply doesn't verify. The lying-host attack dies here.\n\n**Single SHA-256 - and only the last one tagged.** The five midstates are plain single SHA-256: no double-hashing, no tags. The tag appears exactly once, on the final TapSighash digest. Note the fields enter *as serialized*: the scriptPubKey carries its length prefix `0x22` (34 bytes), the amount its full 8 LE bytes.\n\n**SIGHASH_DEFAULT (0x00)** means ALL semantics with the type byte *omitted* from the signature - the common case got one byte shorter. And the input's position is finally explicit: `input_index`, no more inferring it from context.\n\nThe result feeds the TapSighash tagged hash - 32 bytes the Schnorr node signs.",
@@ -4307,11 +4318,11 @@
         "inputs": {
           "vals": {
             "0": "6b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f6",
-            "10": ""
+            "10": "01000000"
           }
         },
         "version": 0,
-        "result": "6b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f6",
+        "result": "6b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f601000000",
         "inputStructure": {
           "ungrouped": [],
           "groups": [
@@ -4361,8 +4372,8 @@
       "id": "node_WjGneaXf",
       "type": "calculation",
       "position": {
-        "x": 1652.2036160255047,
-        "y": 1475.3863570534422
+        "x": 1687.5449114413886,
+        "y": 1502.6496420885524
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -4375,9 +4386,8 @@
         "inputs": {
           "val": 1
         },
-        "result": "",
-        "error": true,
-        "extendedError": "Unwired input: node has outputs but no incoming value",
+        "result": "01000000",
+        "error": false,
         "outputValues": {},
         "outputErrors": {}
       },
@@ -4398,13 +4408,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "9525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca01000000",
-            "100": "6b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f6"
+            "0": "9525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca00000000",
+            "100": "6b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f601000000"
           }
         },
         "compactConcatInputs": true,
         "version": 0,
-        "result": "9525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca010000006b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f6",
+        "result": "9525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca000000006b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f601000000",
         "inputStructure": {
           "groups": [
             {
@@ -4461,13 +4471,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "c193040000000000",
-            "100": "911e040000000000"
+            "0": "21af000000000000",
+            "100": "9774000000000000"
           }
         },
         "compactConcatInputs": true,
         "version": 0,
-        "result": "c193040000000000911e040000000000",
+        "result": "21af0000000000009774000000000000",
         "inputStructure": {
           "groups": [
             {
@@ -4524,9 +4534,9 @@
         "value": "50000000",
         "groupInstances": {},
         "inputs": {
-          "val": 269969
+          "val": 29847
         },
-        "result": "911e040000000000",
+        "result": "9774000000000000",
         "dirty": false,
         "error": false,
         "outputValues": {},
@@ -4549,13 +4559,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "16",
-            "100": "0014d0cf155ec54033a36d99a91ed3ed75c0c65067cd"
+            "0": "22",
+            "100": "5120a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960"
           }
         },
         "compactConcatInputs": true,
         "version": 0,
-        "result": "160014d0cf155ec54033a36d99a91ed3ed75c0c65067cd",
+        "result": "225120a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960",
         "inputStructure": {
           "groups": [
             {
@@ -4607,9 +4617,9 @@
         "numInputs": 1,
         "groupInstances": {},
         "inputs": {
-          "val": "0014d0cf155ec54033a36d99a91ed3ed75c0c65067cd"
+          "val": "5120a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960"
         },
-        "result": "16",
+        "result": "22",
         "dirty": false,
         "error": false
       },
@@ -4620,8 +4630,8 @@
       "id": "node_I3j4A9WO",
       "type": "calculation",
       "position": {
-        "x": 2903.5030758628627,
-        "y": 2837.597896796441
+        "x": 2908.8676971751,
+        "y": 2723.1526421353783
       },
       "data": {
         "functionName": "concat_all",
@@ -4630,13 +4640,13 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "160014e8c298589149ad3039f8eca93e2ef82b5d76e5f2",
-            "100": "160014d0cf155ec54033a36d99a91ed3ed75c0c65067cd"
+            "0": "2251207746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81",
+            "100": "225120a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960"
           }
         },
         "compactConcatInputs": true,
         "version": 0,
-        "result": "160014e8c298589149ad3039f8eca93e2ef82b5d76e5f2160014d0cf155ec54033a36d99a91ed3ed75c0c65067cd",
+        "result": "2251207746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81225120a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960",
         "inputStructure": {
           "groups": [
             {
@@ -4678,6 +4688,563 @@
       },
       "parentId": "group_7w6adu7",
       "extent": "parent"
+    },
+    {
+      "id": "node_IYs0Twd4",
+      "type": "calculation",
+      "position": {
+        "x": 1745.310804234332,
+        "y": 3709.903807505545
+      },
+      "data": {
+        "functionName": "identity",
+        "showField": true,
+        "numInputs": 0,
+        "value": "fffffffd",
+        "dirty": false,
+        "version": 0,
+        "inputs": {
+          "val": "fffffffd"
+        },
+        "result": "fffffffd",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT VALUE:",
+              "rows": 1
+            }
+          ]
+        },
+        "groupInstances": {},
+        "title": "Sequence",
+        "showComment": false,
+        "error": false
+      },
+      "parentId": "group_7w6adu7",
+      "extent": "parent"
+    },
+    {
+      "id": "node_4v3wskj9",
+      "type": "calculation",
+      "position": {
+        "x": 2248.208910570107,
+        "y": 3617.631023887956
+      },
+      "data": {
+        "functionName": "reverse_bytes_4",
+        "title": "4-Byte → Reversed",
+        "numInputs": 1,
+        "showField": false,
+        "dirty": false,
+        "version": 0,
+        "inputs": {
+          "val": "fffffffd"
+        },
+        "result": "fdffffff",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "4-byte hex:",
+              "placeholder": "e.g., fffffffd",
+              "rows": 1
+            }
+          ]
+        },
+        "groupInstances": {},
+        "error": false
+      },
+      "parentId": "group_7w6adu7",
+      "extent": "parent"
+    },
+    {
+      "id": "node_idchmay",
+      "type": "calculation",
+      "position": {
+        "x": 2960.750349278981,
+        "y": 3321.8340503144746
+      },
+      "data": {
+        "functionName": "concat_all",
+        "title": "Sequence",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": {
+          "vals": {
+            "0": "fdffffff",
+            "100": "fdffffff"
+          }
+        },
+        "compactConcatInputs": true,
+        "version": 0,
+        "result": "fdfffffffdffffff",
+        "inputStructure": {
+          "groups": [
+            {
+              "title": "INPUTS[]",
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "minInstances": 1,
+              "maxInstances": 99,
+              "fields": [
+                {
+                  "index": 0,
+                  "label": "Value:",
+                  "placeholder": "<input>",
+                  "rows": 1,
+                  "autoResizeMaxRows": 3
+                }
+              ]
+            }
+          ],
+          "ungrouped": [],
+          "afterGroups": []
+        },
+        "groupInstances": {
+          "INPUTS[]": 2
+        },
+        "groupInstanceKeys": {
+          "INPUTS[]": [0, 100]
+        },
+        "baseHeight": 80,
+        "dirty": false,
+        "error": false,
+        "customFieldLabels": {
+          "0": "Sequence1",
+          "100": "Sequence2"
+        },
+        "totalInputs": 2,
+        "unwiredCount": 0
+      },
+      "parentId": "group_7w6adu7",
+      "extent": "parent"
+    },
+    {
+      "id": "node_deWffZfX",
+      "type": "calculation",
+      "position": {
+        "x": 1766.4995411195732,
+        "y": 4741.432885554066
+      },
+      "data": {
+        "functionName": "identity",
+        "showField": true,
+        "numInputs": 0,
+        "value": "28000",
+        "dirty": false,
+        "version": 0,
+        "inputs": {
+          "val": "28000"
+        },
+        "result": "28000",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT VALUE:",
+              "rows": 1
+            }
+          ]
+        },
+        "groupInstances": {},
+        "title": "Output Amount (satoshis)",
+        "showComment": false,
+        "error": false
+      },
+      "parentId": "group_7w6adu7",
+      "extent": "parent"
+    },
+    {
+      "id": "node_XfEoNM4D",
+      "type": "calculation",
+      "position": {
+        "x": 2119.9905090591865,
+        "y": 4717.7471176830495
+      },
+      "data": {
+        "functionName": "satoshi_to_8_le",
+        "title": "Satoshi → LE-8",
+        "numInputs": 1,
+        "showField": false,
+        "value": "50000000",
+        "dirty": false,
+        "groupInstances": {},
+        "inputs": {
+          "val": 28000
+        },
+        "result": "606d000000000000",
+        "error": false
+      },
+      "parentId": "group_7w6adu7",
+      "extent": "parent"
+    },
+    {
+      "id": "node_jzjcqnMJ",
+      "type": "calculation",
+      "position": {
+        "x": 2641.401983303408,
+        "y": 4592.036002555458
+      },
+      "data": {
+        "functionName": "concat_all",
+        "title": "OUTPUTS Builder",
+        "paramExtraction": "multi_val",
+        "numInputs": 3,
+        "inputs": {
+          "vals": {
+            "0": "606d000000000000",
+            "10": "22",
+            "20": "5120c7d14427b01d854b651300463d7b321d140c267c14112c750a1e2e90ac2a9b1b"
+          }
+        },
+        "version": 0,
+        "result": "606d000000000000225120c7d14427b01d854b651300463d7b321d140c267c14112c750a1e2e90ac2a9b1b",
+        "inputStructure": {
+          "ungrouped": [],
+          "groups": [
+            {
+              "title": "OUTPUTS[]",
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 3,
+              "minInstances": 1,
+              "maxInstances": 20,
+              "fields": [
+                {
+                  "index": 0,
+                  "label": "AMOUNT[8]:",
+                  "placeholder": "e.g., 3069020000000000",
+                  "rows": 1,
+                  "comment": "Amount in satoshis as 8-byte little-endian hex"
+                },
+                {
+                  "index": 10,
+                  "label": "SCRIPT_LENGTH:",
+                  "placeholder": "e.g., 16",
+                  "rows": 1,
+                  "small": true,
+                  "comment": "Script length as varint (usually 16 for P2WPKH, 19 for P2PKH)"
+                },
+                {
+                  "index": 20,
+                  "label": "SCRIPT_PUBKEY:",
+                  "placeholder": "e.g., 0014[20-byte-hash]",
+                  "rows": 2,
+                  "comment": "The locking script (scriptPubKey)"
+                }
+              ]
+            }
+          ],
+          "afterGroups": []
+        },
+        "groupInstances": {
+          "OUTPUTS[]": 1
+        },
+        "groupInstanceKeys": {
+          "OUTPUTS[]": [0]
+        },
+        "baseHeight": 100,
+        "totalInputs": 3,
+        "unwiredCount": 0,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_7w6adu7",
+      "extent": "parent"
+    },
+    {
+      "id": "node_2dwvhjp",
+      "type": "calculation",
+      "position": {
+        "x": 3236.499541119573,
+        "y": 4342.256119354137
+      },
+      "data": {
+        "functionName": "concat_all",
+        "title": "Concat",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": {
+          "vals": {
+            "0": "f8a7000000000000225120202b340f2b6ba613471b1eb79d3bf6b39df1473ae816572cac815f270d75ac6c",
+            "100": "606d000000000000225120c7d14427b01d854b651300463d7b321d140c267c14112c750a1e2e90ac2a9b1b"
+          }
+        },
+        "compactConcatInputs": true,
+        "version": 0,
+        "result": "f8a7000000000000225120202b340f2b6ba613471b1eb79d3bf6b39df1473ae816572cac815f270d75ac6c606d000000000000225120c7d14427b01d854b651300463d7b321d140c267c14112c750a1e2e90ac2a9b1b",
+        "inputStructure": {
+          "groups": [
+            {
+              "title": "INPUTS[]",
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "minInstances": 1,
+              "maxInstances": 99,
+              "fields": [
+                {
+                  "index": 0,
+                  "label": "Value:",
+                  "placeholder": "<input>",
+                  "rows": 1,
+                  "autoResizeMaxRows": 3
+                }
+              ]
+            }
+          ],
+          "ungrouped": [],
+          "afterGroups": []
+        },
+        "groupInstances": {
+          "INPUTS[]": 2
+        },
+        "groupInstanceKeys": {
+          "INPUTS[]": [0, 100]
+        },
+        "baseHeight": 80,
+        "totalInputs": 2,
+        "unwiredCount": 0,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_7w6adu7",
+      "extent": "parent"
+    },
+    {
+      "id": "node_OJ96KNz9",
+      "type": "calculation",
+      "position": {
+        "x": 1970.5616942593551,
+        "y": 418.25631664678076
+      },
+      "data": {
+        "functionName": "script_verification",
+        "title": "Verify Script",
+        "paramExtraction": "multi_val",
+        "numInputs": 6,
+        "inputs": {
+          "vals": {
+            "0": "__EMPTY__",
+            "1": "51207746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81",
+            "2": "020000000001029525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca0000000000fdffffff6b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f60100000000fdffffff02f8a7000000000000225120202b340f2b6ba613471b1eb79d3bf6b39df1473ae816572cac815f270d75ac6c606d000000000000225120c7d14427b01d854b651300463d7b321d140c267c14112c750a1e2e90ac2a9b1b01405acdc36fea0bcbc8cf5ab0ed236b21e211a577fff64c71bd2847b8c9403135045ffd179f6280c7dced7f9bae14fd6691735fce03ef98f2d67d3082e4ce6f8bdf0140e8375d1a400f74f3fae92b9dbd897f50cbcac7de68b4991114a17c623677f1de9aff4efb9900c0daaaa643bb2ae72acae8224be2c42933798cfe009cb0fa797800000000",
+            "3": "0",
+            "5": "__EMPTY__",
+            "100": "44833",
+            "101": "51207746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81",
+            "200": "29847",
+            "201": "5120a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960"
+          }
+        },
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "scriptSig_hex",
+              "rows": 3,
+              "placeholder": "Hex-encoded scriptSig",
+              "allowEmptyBlank": true
+            },
+            {
+              "index": 1,
+              "label": "scriptPubKey_hex",
+              "rows": 3,
+              "placeholder": "Hex-encoded scriptPubKey"
+            },
+            {
+              "index": 2,
+              "label": "tx_hex",
+              "rows": 3,
+              "placeholder": "Hex-encoded Transaction"
+            },
+            {
+              "index": 3,
+              "label": "input_index_to_verify",
+              "rows": 1,
+              "placeholder": "0",
+              "unconnectable": true
+            },
+            {
+              "index": 4,
+              "label": "exclude_flags",
+              "rows": 1,
+              "placeholder": "e.g., WITNESS,CLEANSTACK",
+              "unconnectable": true
+            },
+            {
+              "index": 5,
+              "label": "spent_amount_sats",
+              "rows": 1,
+              "placeholder": "Amount in satoshis (for SegWit/Taproot)",
+              "unconnectable": false,
+              "allowEmptyBlank": true
+            }
+          ],
+          "groups": [
+            {
+              "title": "Taproot Prevouts (vin order)",
+              "baseIndex": 100,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "minInstances": 0,
+              "maxInstances": 10,
+              "fields": [
+                {
+                  "index": 0,
+                  "label": "prevout_amount_sats",
+                  "rows": 1,
+                  "placeholder": "Amount (sats)",
+                  "allowEmptyBlank": true
+                },
+                {
+                  "index": 1,
+                  "label": "prevout_scriptPubKey_hex",
+                  "rows": 3,
+                  "placeholder": "Hex-encoded scriptPubKey",
+                  "allowEmptyBlank": true
+                }
+              ]
+            }
+          ],
+          "afterGroups": []
+        },
+        "groupInstances": {
+          "Taproot Prevouts (vin order)": 2
+        },
+        "groupInstanceKeys": {
+          "Taproot Prevouts (vin order)": [100, 200]
+        },
+        "error": false,
+        "totalInputs": 8,
+        "unwiredCount": 0,
+        "dirty": false,
+        "showComment": false,
+        "outputValues": {},
+        "outputErrors": {},
+        "result": "true",
+        "scriptDebugSteps": {
+          "isValid": true,
+          "steps": [
+            {
+              "pc": 0,
+              "opcode": 81,
+              "opcode_name": "OP_1",
+              "stack_before": [],
+              "stack_after": ["01"],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": 1,
+              "opcode": 32,
+              "opcode_name": "PUSH 32 bytes",
+              "stack_before": ["01"],
+              "stack_after": [
+                "01",
+                "7746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81"
+              ],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": -1,
+              "opcode_name": "taproot_witness",
+              "phase": "taproot",
+              "step": "witness_stack",
+              "stack_before": [
+                "5acdc36fea0bcbc8cf5ab0ed236b21e211a577fff64c71bd2847b8c9403135045ffd179f6280c7dced7f9bae14fd6691735fce03ef98f2d67d3082e4ce6f8bdf"
+              ],
+              "stack_after": [
+                "5acdc36fea0bcbc8cf5ab0ed236b21e211a577fff64c71bd2847b8c9403135045ffd179f6280c7dced7f9bae14fd6691735fce03ef98f2d67d3082e4ce6f8bdf"
+              ]
+            },
+            {
+              "pc": -1,
+              "opcode_name": "taproot_sighash",
+              "phase": "taproot",
+              "step": "sighash",
+              "sigversion": "tapsighash",
+              "hashtype": 0,
+              "hashtype_name": "DEFAULT",
+              "sighash": "235c7b6f2d9d1f1e226d48fdb20e41ede7bf9d81a013f90023de9441c8a4ab8c",
+              "stack_before": [
+                "5acdc36fea0bcbc8cf5ab0ed236b21e211a577fff64c71bd2847b8c9403135045ffd179f6280c7dced7f9bae14fd6691735fce03ef98f2d67d3082e4ce6f8bdf"
+              ],
+              "stack_after": [
+                "5acdc36fea0bcbc8cf5ab0ed236b21e211a577fff64c71bd2847b8c9403135045ffd179f6280c7dced7f9bae14fd6691735fce03ef98f2d67d3082e4ce6f8bdf"
+              ]
+            },
+            {
+              "pc": -1,
+              "opcode_name": "taproot_schnorr_verify",
+              "phase": "taproot",
+              "step": "schnorr_verify",
+              "pubkey": "7746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81",
+              "signature": "5acdc36fea0bcbc8cf5ab0ed236b21e211a577fff64c71bd2847b8c9403135045ffd179f6280c7dced7f9bae14fd6691735fce03ef98f2d67d3082e4ce6f8bdf",
+              "hashtype": 0,
+              "hashtype_name": "DEFAULT",
+              "result": true,
+              "stack_before": [
+                "5acdc36fea0bcbc8cf5ab0ed236b21e211a577fff64c71bd2847b8c9403135045ffd179f6280c7dced7f9bae14fd6691735fce03ef98f2d67d3082e4ce6f8bdf"
+              ],
+              "stack_after": ["01"]
+            }
+          ],
+          "scriptSig": "",
+          "scriptPubKey": "51207746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81",
+          "excludedFlags": [],
+          "activeFlags": [
+            "CHECKLOCKTIMEVERIFY",
+            "CHECKSEQUENCEVERIFY",
+            "CLEANSTACK",
+            "CONST_SCRIPTCODE",
+            "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
+            "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
+            "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
+            "LOW_S",
+            "MINIMALDATA",
+            "MINIMALIF",
+            "NULLDUMMY",
+            "NULLFAIL",
+            "P2SH",
+            "STRICTENC",
+            "TAPROOT",
+            "WITNESS",
+            "WITNESS_PUBKEYTYPE"
+          ],
+          "usesWitness": true,
+          "witnessRulesEnabled": true,
+          "amountUsed": 44833,
+          "witnessStack": [
+            "5acdc36fea0bcbc8cf5ab0ed236b21e211a577fff64c71bd2847b8c9403135045ffd179f6280c7dced7f9bae14fd6691735fce03ef98f2d67d3082e4ce6f8bdf"
+          ]
+        }
+      },
+      "parentId": "group_ixnjwes",
+      "extent": "parent"
+    },
+    {
+      "id": "node_h74aytc",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 195,
+        "y": 360
+      },
+      "data": {
+        "content": "## What two inputs change - and what they don't\n\nSame machinery as the intro: x-only keys, tweak, TapSighash, Schnorr. Four things are new.\n\n**Two messages, four bytes apart.** The five hash midstates are computed once - now spanning *both* coins and *both* outputs - and feed both Preimage Body nodes. The two finished messages are byte-identical except `input_index`: `00000000` vs `01000000`. Each signer therefore commits to the entire transaction - the other coin's amount and script included - so neither key can be shown a different version of the deal.\n\n**Each input answers to its own lock.** Signature 2 is made with the *second* coin's tweaked key and verifies only against the *second* coin's output key. A perfectly valid signature checked against the wrong prevout is still a failed signature.\n\n**One witness stack per input, in vin order.** No stack count byte - the input count already said how many. Each stack is the intro's same 66-byte shape (`01`, `40`, signature); the transaction simply carries two - one stack per input, none per output: outputs are committed data, they never sign. And every outpoint field stays fixed-width: spending vout 1 serializes as `01000000`, never as a bare `1` - one short byte and the whole transaction stops parsing.\n\n**Verification now demands every prevout.** With one input, the Verify node's own scriptPubKey and amount *were* the complete prevout list. With two, the second coin's data exists nowhere in the transaction - so the *Taproot Prevouts (vin order)* section becomes mandatory, on both Verify nodes, identically. That's not a tool quirk: a taproot verifier consults the UTXO set for every coin spent.",
+        "fontSize": 40,
+        "width": 1528,
+        "height": 1609,
+        "title": "Text Info Node",
+        "dirty": false
+      },
+      "width": 1528,
+      "height": 1609
     }
   ],
   "edges": [
@@ -4865,13 +5432,6 @@
       "selected": false
     },
     {
-      "id": "edge_u9vsnjz",
-      "source": "node_3n8jjlu",
-      "target": "node_o6vul7a",
-      "targetHandle": "input-2",
-      "selected": false
-    },
-    {
       "source": "node_v7K1rBTw",
       "target": "node_E7c0t33i",
       "targetHandle": "input-0",
@@ -4892,30 +5452,6 @@
       "targetHandle": "input-1000",
       "selected": false,
       "id": "xy-edge__node_qofvb2boutput-0-node_3n8jjluinput-1000"
-    },
-    {
-      "source": "node_qofvb2b",
-      "target": "node_o6vul7a",
-      "sourceHandle": "output-2",
-      "targetHandle": "input-5",
-      "selected": false,
-      "id": "xy-edge__node_qofvb2boutput-2-node_o6vul7ainput-5"
-    },
-    {
-      "source": "node_qofvb2b",
-      "target": "node_0e2jfhw",
-      "sourceHandle": "output-2",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "xy-edge__node_qofvb2boutput-2-node_0e2jfhwinput-0"
-    },
-    {
-      "source": "node_qofvb2b",
-      "target": "node_o6vul7a",
-      "sourceHandle": "output-1",
-      "targetHandle": "input-1",
-      "selected": false,
-      "id": "xy-edge__node_qofvb2boutput-1-node_o6vul7ainput-1"
     },
     {
       "id": "edge_og0t5Gyl",
@@ -5072,13 +5608,6 @@
       "id": "xy-edge__node_1XyIKP1B-node_kxlgq4binput-40"
     },
     {
-      "source": "node_E7c0t33i",
-      "target": "node_oc3tk6t9",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "xy-edge__node_E7c0t33i-node_oc3tk6t9input-0"
-    },
-    {
       "source": "node_oc3tk6t9",
       "target": "node_kxlgq4b",
       "targetHandle": "input-70",
@@ -5120,13 +5649,6 @@
       "targetHandle": "input-80",
       "selected": false,
       "id": "xy-edge__node_W2Oyxmai-node_kxlgq4binput-80"
-    },
-    {
-      "source": "node_3bk0l8l",
-      "target": "node_W2Oyxmai",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "xy-edge__node_3bk0l8l-node_W2Oyxmaiinput-0"
     },
     {
       "id": "edge_7ceemq4",
@@ -5465,29 +5987,6 @@
       "selected": false
     },
     {
-      "id": "edge_movZC0yf",
-      "source": "node_3n8jjlu",
-      "target": "node_qF9qBoLj",
-      "targetHandle": "input-2",
-      "selected": false
-    },
-    {
-      "source": "node_qofvb2b",
-      "target": "node_qF9qBoLj",
-      "sourceHandle": "output-2",
-      "targetHandle": "input-5",
-      "selected": false,
-      "id": "edge_vpanuhg7"
-    },
-    {
-      "source": "node_qofvb2b",
-      "target": "node_qF9qBoLj",
-      "sourceHandle": "output-1",
-      "targetHandle": "input-1",
-      "selected": false,
-      "id": "edge_48yxSCFN"
-    },
-    {
       "id": "edge_nvrlevx",
       "source": "node_6VWgJYvY",
       "target": "node_3n8jjlu",
@@ -5527,14 +6026,6 @@
       "source": "node_WjGneaXf",
       "target": "node_gaJldRRX",
       "targetHandle": "input-10",
-      "selected": false
-    },
-    {
-      "id": "edge_veknyv6",
-      "source": "node_cpqJXq9a",
-      "target": "node_gaJldRRX",
-      "sourceHandle": "output-0",
-      "targetHandle": "input-0",
       "selected": false
     },
     {
@@ -5613,13 +6104,15 @@
       "id": "edge_rw1qeb6",
       "source": "node_I3j4A9WO",
       "target": "node_P2P02eQR",
-      "targetHandle": "input-0"
+      "targetHandle": "input-0",
+      "selected": false
     },
     {
       "id": "edge_1n6ezpi",
       "source": "node_EQL1bAQP",
       "target": "node_I3j4A9WO",
-      "targetHandle": "input-100"
+      "targetHandle": "input-100",
+      "selected": false
     },
     {
       "source": "node_qofvb2b",
@@ -5636,6 +6129,229 @@
       "targetHandle": "input-0",
       "selected": false,
       "id": "xy-edge__node_cpqJXq9aoutput-2-node_QXsCoj7Zinput-0"
+    },
+    {
+      "source": "node_IYs0Twd4",
+      "target": "node_4v3wskj9",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "edge_huqJ796h"
+    },
+    {
+      "id": "edge_1fcno9y",
+      "source": "node_idchmay",
+      "target": "node_oc3tk6t9",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_tal726c",
+      "source": "node_4v3wskj9",
+      "target": "node_idchmay",
+      "targetHandle": "input-100",
+      "selected": false
+    },
+    {
+      "id": "edge_u2pda3j",
+      "source": "node_E7c0t33i",
+      "target": "node_idchmay",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "source": "node_deWffZfX",
+      "target": "node_XfEoNM4D",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "edge_a4iAXWTA"
+    },
+    {
+      "id": "edge_9xkooaXW",
+      "source": "node_XfEoNM4D",
+      "target": "node_jzjcqnMJ",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_kurx6ny",
+      "source": "node_6VWgJYvY",
+      "target": "node_jzjcqnMJ",
+      "targetHandle": "input-10",
+      "selected": false
+    },
+    {
+      "id": "edge_g9sat5u",
+      "source": "node_N1FNjGXd",
+      "target": "node_jzjcqnMJ",
+      "targetHandle": "input-20",
+      "selected": false
+    },
+    {
+      "source": "node_3bk0l8l",
+      "target": "node_2dwvhjp",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "xy-edge__node_3bk0l8l-node_2dwvhjpinput-0"
+    },
+    {
+      "id": "edge_cvlq2ev",
+      "source": "node_jzjcqnMJ",
+      "target": "node_2dwvhjp",
+      "targetHandle": "input-100",
+      "selected": false
+    },
+    {
+      "id": "edge_rh27ohe",
+      "source": "node_2dwvhjp",
+      "target": "node_W2Oyxmai",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_adqcytd",
+      "source": "node_sKFSkMCv",
+      "target": "node_WjGneaXf",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_e55t4wa",
+      "source": "node_4v3wskj9",
+      "target": "node_3n8jjlu",
+      "targetHandle": "input-1140",
+      "selected": false
+    },
+    {
+      "id": "edge_df5nru6",
+      "source": "node_XfEoNM4D",
+      "target": "node_3n8jjlu",
+      "targetHandle": "input-3100",
+      "selected": false
+    },
+    {
+      "id": "edge_r54yv7z",
+      "source": "node_WjGneaXf",
+      "target": "node_3n8jjlu",
+      "targetHandle": "input-1110",
+      "selected": false
+    },
+    {
+      "id": "edge_yn570vk",
+      "source": "node_cpqJXq9a",
+      "target": "node_qF9qBoLj",
+      "sourceHandle": "output-1",
+      "targetHandle": "input-1",
+      "selected": false
+    },
+    {
+      "id": "edge_jrtjkno",
+      "source": "node_qofvb2b",
+      "target": "node_qF9qBoLj",
+      "sourceHandle": "output-2",
+      "targetHandle": "input-100",
+      "selected": false
+    },
+    {
+      "id": "edge_rs0ynip",
+      "source": "node_qofvb2b",
+      "target": "node_qF9qBoLj",
+      "sourceHandle": "output-1",
+      "targetHandle": "input-101",
+      "selected": false
+    },
+    {
+      "id": "edge_8t975h2",
+      "source": "node_cpqJXq9a",
+      "target": "node_qF9qBoLj",
+      "sourceHandle": "output-2",
+      "targetHandle": "input-200",
+      "selected": false
+    },
+    {
+      "id": "edge_j0t2sy7",
+      "source": "node_cpqJXq9a",
+      "target": "node_qF9qBoLj",
+      "sourceHandle": "output-1",
+      "targetHandle": "input-201",
+      "selected": false
+    },
+    {
+      "id": "edge_R3SI4uWS",
+      "source": "node_3n8jjlu",
+      "target": "node_OJ96KNz9",
+      "targetHandle": "input-2",
+      "selected": false
+    },
+    {
+      "id": "edge_jHR0EmIK",
+      "source": "node_qofvb2b",
+      "target": "node_OJ96KNz9",
+      "sourceHandle": "output-2",
+      "targetHandle": "input-100",
+      "selected": false
+    },
+    {
+      "id": "edge_cFJ8RX49",
+      "source": "node_qofvb2b",
+      "target": "node_OJ96KNz9",
+      "sourceHandle": "output-1",
+      "targetHandle": "input-101",
+      "selected": false
+    },
+    {
+      "id": "edge_DjGUCYl9",
+      "source": "node_cpqJXq9a",
+      "target": "node_OJ96KNz9",
+      "sourceHandle": "output-2",
+      "targetHandle": "input-200",
+      "selected": false
+    },
+    {
+      "id": "edge_eM7RZiSU",
+      "source": "node_cpqJXq9a",
+      "target": "node_OJ96KNz9",
+      "sourceHandle": "output-1",
+      "targetHandle": "input-201",
+      "selected": false
+    },
+    {
+      "source": "node_qofvb2b",
+      "target": "node_0e2jfhw",
+      "sourceHandle": "output-2",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "xy-edge__node_qofvb2boutput-2-node_0e2jfhwinput-0"
+    },
+    {
+      "id": "edge_sipyop4",
+      "source": "node_qofvb2b",
+      "target": "node_OJ96KNz9",
+      "sourceHandle": "output-1",
+      "targetHandle": "input-1",
+      "selected": false
+    },
+    {
+      "source": "node_cpqJXq9a",
+      "target": "node_3n8jjlu",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-1100",
+      "selected": false,
+      "id": "xy-edge__node_cpqJXq9aoutput-0-node_3n8jjluinput-1100"
+    },
+    {
+      "source": "node_cpqJXq9a",
+      "target": "node_gaJldRRX",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "xy-edge__node_cpqJXq9aoutput-0-node_gaJldRRXinput-0"
+    },
+    {
+      "id": "edge_q3hakrq",
+      "source": "node_3n8jjlu",
+      "target": "node_qF9qBoLj",
+      "targetHandle": "input-2",
+      "selected": false
     }
   ],
   "virtualEdges": []

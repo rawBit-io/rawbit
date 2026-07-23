@@ -20,6 +20,7 @@ import summerOfBitcoin2026Poc from "@/my_tx_flows/p13_Summer of Bitcoin 2026 PoC
 import trezorSigningFlowCurrent from "@/my_tx_flows/p14_Trezor Signing Flow.json";
 import spilmanPaymentChannel from "@/my_tx_flows/p15_Spilman.json";
 import taprootIntro from "@/my_tx_flows/p16_Taproot_intro.json";
+import taproot2in2outKeypath from "@/my_tx_flows/p17_Taproot_2in_2out_keypath.json";
 import txMalleability from "@/my_tx_flows/misc/p6_TX_Malleability.json";
 import bip110 from "@/my_tx_flows/misc/p7_BIP110.json";
 import intro_p2pkh_p2pk from "@/my_tx_flows/old/p1_Intro_P2PKH_and_P2PK.json";
@@ -184,6 +185,24 @@ export const customFlows: CustomFlowTemplate[] = [
     flowNo: 16,
     level: "advanced",
     tags: ["taproot", "schnorr", "p2tr", "bip340", "bip341", "key-path"],
+  },
+  {
+    id: "flow-17-taproot-2in-2out-keypath",
+    label: "Taproot 2in 2out Keypath",
+    data: taproot2in2outKeypath as unknown as FlowData,
+    section: "taproot",
+    flowNo: 17,
+    level: "advanced",
+    tags: [
+      "taproot",
+      "schnorr",
+      "p2tr",
+      "bip340",
+      "bip341",
+      "key-path",
+      "multi-input",
+      "multi-output",
+    ],
   },
   {
     id: "flow-06-tx-malleability",
