@@ -170,7 +170,7 @@ describe("buildPorts", () => {
     ["SCRIPTCODE Builder", ["input-0", "input-10", "input-20", "input-30"]],
     ["OUTPOINT", ["input-0", "input-10"]],
     ["OUTPUTS Builder", ["input-0", "input-10", "input-20"]],
-    ["SCRIPTPUBKEYS", ["input-0", "input-10"]],
+    ["scriptPubKeys", ["input-0", "input-10"]],
   ])(
     "does not invent phantom numInputs ports for sparse-index template %s",
     (title, expected) => {

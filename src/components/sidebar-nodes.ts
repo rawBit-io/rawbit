@@ -3518,61 +3518,6 @@ export const allSidebarNodes: NodeTemplate[] = [
       baseHeight: 100,
     },
   },
-  // SCRIPTPUBKEYS Node - length-prefixed scriptPubKeys of all spent coins
-  {
-    functionName: "concat_all",
-    label: "SCRIPTPUBKEYS",
-    category: "Transactions",
-    subcategory: "Builders",
-    description:
-      "Concatenates length-prefixed scriptPubKeys of the spent coins in vin order - the sha_scriptpubkeys preimage (BIP341)",
-    type: "calculation",
-    nodeData: {
-      functionName: "concat_all",
-      title: "SCRIPTPUBKEYS",
-      paramExtraction: "multi_val",
-      numInputs: 2, // Initial: 1 input (2 fields)
-      inputs: { vals: [] },
-
-      version: 0,
-      result: "",
-      inputStructure: {
-        ungrouped: [],
-        groups: [
-          {
-            title: "SCRIPTPUBKEYS[]",
-            baseIndex: 0,
-            expandable: true,
-            fieldCountToAdd: 2,
-            minInstances: 1,
-            maxInstances: 20,
-            fields: [
-              {
-                index: 0,
-                label: "SCRIPT_LENGTH:",
-                placeholder: "e.g., 22",
-                rows: 1,
-                small: true,
-                comment:
-                  "Varint length prefix - BIP341 hashes scriptPubKeys serialized as script (22 for P2TR, 16 for P2WPKH)",
-              },
-              {
-                index: 10,
-                label: "SCRIPT_PUBKEY:",
-                placeholder: "e.g., 5120[32-byte-key]",
-                rows: 2,
-                comment: "The spent coin's locking script",
-              },
-            ],
-          },
-        ],
-        afterGroups: [],
-      },
-      groupInstances: { "SCRIPTPUBKEYS[]": 1 },
-      groupInstanceKeys: { "SCRIPTPUBKEYS[]": [0] },
-      baseHeight: 100,
-    },
-  },
 
   // SCRIPTS Node - Concatenates compact_size(scriptPubKey) + scriptPubKey per input
   {
@@ -3596,34 +3541,36 @@ export const allSidebarNodes: NodeTemplate[] = [
         ungrouped: [],
         groups: [
           {
-            title: "scriptPubKeys",
+            title: "SCRIPTPUBKEYS[]",
             baseIndex: 0,
             expandable: true,
             fieldCountToAdd: 2,
             minInstances: 1,
-            maxInstances: 99,
-            instanceLabelPrefix: "Input",
+            maxInstances: 20,
             fields: [
               {
                 index: 0,
-                label: "Compact Size:",
-                placeholder: "<compact_size>",
+                label: "SCRIPT_LENGTH:",
+                placeholder: "e.g., 22",
                 rows: 1,
+                comment:
+                  "Varint length prefix - BIP341 hashes scriptPubKeys serialized as script (22 for P2TR, 16 for P2WPKH)",
               },
               {
                 index: 10,
-                label: "scriptPubKey:",
-                placeholder: "<scriptPubKey>",
-                rows: 3,
+                label: "SCRIPT_PUBKEY:",
+                placeholder: "e.g., 5120[32-byte-key]",
+                rows: 2,
+                comment: "The spent coin's locking script",
               },
             ],
           },
         ],
         afterGroups: [],
       },
-      groupInstances: { scriptPubKeys: 1 },
-      groupInstanceKeys: { scriptPubKeys: [0] },
-      baseHeight: 120,
+      groupInstances: { "SCRIPTPUBKEYS[]": 1 },
+      groupInstanceKeys: { "SCRIPTPUBKEYS[]": [0] },
+      baseHeight: 100,
     },
   },
 

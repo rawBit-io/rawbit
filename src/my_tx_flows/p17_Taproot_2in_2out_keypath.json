@@ -30,8 +30,8 @@
       "id": "group_lbu0tht",
       "type": "shadcnGroup",
       "position": {
-        "x": 12491.947914156635,
-        "y": 6603.78491593597
+        "x": 12506.947914156635,
+        "y": 6678.78491593597
       },
       "data": {
         "isGroup": true,
@@ -50,8 +50,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 22423.97025138542,
-        "y": 10866.540208888811
+        "x": 22438.97025138542,
+        "y": 10941.540208888811
       },
       "data": {
         "isGroup": true,
@@ -64,7 +64,6 @@
             "group_7w6adu7->group_ixnjwes": -110.84,
             "group_hegqa99->group_ixnjwes": 432.73,
             "group_cd0gkcz->group_ixnjwes": -424.35,
-            "group_ef2se5b->group_ixnjwes": -858.27,
             "node_1X5AaTXW->group_ixnjwes": 813.86,
             "node_HVHLyf0p->group_ixnjwes": -240.55
           }
@@ -80,8 +79,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 18619.49110163612,
-        "y": 3866.1776145972904
+        "x": 18634.49110163612,
+        "y": 3941.1776145972904
       },
       "data": {
         "isGroup": true,
@@ -110,13 +109,13 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 6936.333225771319,
-        "y": 7864.396697942237
+        "x": 6956.333225771319,
+        "y": 8272.396697942237
       },
       "data": {
         "isGroup": true,
-        "width": 4711,
-        "height": 5234,
+        "width": 4706,
+        "height": 4901,
         "title": "Inputs",
         "groupBundlePortOffsets": {
           "source": 1199.26,
@@ -129,7 +128,6 @@
           },
           "targetByBundle": {
             "group_zi8x2qm->group_7w6adu7": -1208.38,
-            "group_ef2se5b->group_7w6adu7": -600.33,
             "group_hegqa99->group_7w6adu7": 1409.82,
             "node_1X5AaTXW->group_7w6adu7": 2267.53
           }
@@ -138,16 +136,16 @@
         "borderColor": "#008c86",
         "fontSize": 44
       },
-      "width": 4711,
-      "height": 5234,
+      "width": 4706,
+      "height": 4901,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": 2700.00393123089,
-        "y": 12808.198330480767
+        "x": 2715.00393123089,
+        "y": 12883.198330480767
       },
       "data": {
         "isGroup": true,
@@ -172,8 +170,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 2258.5003291935686,
-        "y": 489.12426430238975
+        "x": 2273.5003291935686,
+        "y": 564.1242643023897
       },
       "data": {
         "isGroup": true,
@@ -184,7 +182,6 @@
           "source": 409.13,
           "sourceByBundle": {
             "group_zi8x2qm->group_7w6adu7": 459.77,
-            "group_zi8x2qm->group_spy3f0v": 94.6,
             "group_zi8x2qm->group_cd0gkcz": 281.73
           }
         },
@@ -200,8 +197,8 @@
       "id": "node_8QSOHj19",
       "type": "calculation",
       "position": {
-        "x": 3287.780169570012,
-        "y": 923.2359795184684
+        "x": 3268.2404755730386,
+        "y": 666.1654926137708
       },
       "data": {
         "functionName": "identity",
@@ -235,8 +232,8 @@
       "id": "node_IRajBmor",
       "type": "calculation",
       "position": {
-        "x": 1753.7785984517059,
-        "y": 4096.8995078503485
+        "x": 1720.2185800968255,
+        "y": 3636.966092939765
       },
       "data": {
         "functionName": "identity",
@@ -399,8 +396,8 @@
       "id": "node_uc3qXmHd",
       "type": "calculation",
       "position": {
-        "x": 2107.269566391319,
-        "y": 4073.213739979332
+        "x": 2102.269566391319,
+        "y": 3740.213739979332
       },
       "data": {
         "functionName": "satoshi_to_8_le",
@@ -459,8 +456,8 @@
       "id": "node_iG1CdtRQ",
       "type": "calculation",
       "position": {
-        "x": 3660.653205360567,
-        "y": 992.504672479944
+        "x": 3675.0394640231953,
+        "y": 749.9738795722187
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -484,8 +481,8 @@
       "id": "node_v7K1rBTw",
       "type": "calculation",
       "position": {
-        "x": 1726.1029758255936,
-        "y": 3490.4414732209016
+        "x": 1721.1029758255936,
+        "y": 3157.4414732209016
       },
       "data": {
         "functionName": "identity",
@@ -519,8 +516,8 @@
       "id": "node_E7c0t33i",
       "type": "calculation",
       "position": {
-        "x": 2229.0010821613687,
-        "y": 3398.1686896033125
+        "x": 2224.0010821613687,
+        "y": 3065.1686896033125
       },
       "data": {
         "functionName": "reverse_bytes_4",
@@ -574,8 +571,8 @@
       "id": "node_hHXC5ZW3",
       "type": "calculation",
       "position": {
-        "x": 3311.8697991141244,
-        "y": 1240.0589099912795
+        "x": 3304.099580177901,
+        "y": 1023.4081053125974
       },
       "data": {
         "functionName": "identity",
@@ -609,8 +606,8 @@
       "id": "node_ljj3f78",
       "type": "calculation",
       "position": {
-        "x": 463.8013634278341,
-        "y": 928.6752682078459
+        "x": 458.8013634278341,
+        "y": 595.6752682078459
       },
       "data": {
         "functionName": "identity",
@@ -681,8 +678,8 @@
       "id": "node_Wi6L506K",
       "type": "calculation",
       "position": {
-        "x": 3756.5459358022463,
-        "y": 1280.0803002578514
+        "x": 3707.2224328226966,
+        "y": 1082.821028132721
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -705,8 +702,8 @@
       "id": "node_eaopfct",
       "type": "calculation",
       "position": {
-        "x": 2169.937829104997,
-        "y": 1239.486111323954
+        "x": 2315.8782100862445,
+        "y": 948.718264140507
       },
       "data": {
         "functionName": "concat_all",
@@ -716,11 +713,13 @@
         "inputs": {
           "vals": {
             "0": "9525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca",
-            "10": "00000000"
+            "10": "00000000",
+            "100": "6b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f6",
+            "110": "01000000"
           }
         },
         "version": 0,
-        "result": "9525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca00000000",
+        "result": "9525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca000000006b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f601000000",
         "inputStructure": {
           "ungrouped": [],
           "groups": [
@@ -752,13 +751,13 @@
           "afterGroups": []
         },
         "groupInstances": {
-          "PREVOUTS[]": 1
+          "PREVOUTS[]": 2
         },
         "groupInstanceKeys": {
-          "PREVOUTS[]": [0]
+          "PREVOUTS[]": [0, 100]
         },
         "baseHeight": 100,
-        "totalInputs": 2,
+        "totalInputs": 4,
         "unwiredCount": 0,
         "dirty": false,
         "error": false
@@ -770,8 +769,8 @@
       "id": "node_lg43lg2",
       "type": "calculation",
       "position": {
-        "x": 1678.7886858493648,
-        "y": 1052.6045103786282
+        "x": 1673.7886858493648,
+        "y": 719.6045103786282
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -794,8 +793,8 @@
       "id": "node_qofvb2b",
       "type": "calculation",
       "position": {
-        "x": 846.1641115749335,
-        "y": 1165.1319174872096
+        "x": 841.1641115749335,
+        "y": 832.1319174872096
       },
       "data": {
         "functionName": "parse_tx_field",
@@ -863,8 +862,8 @@
       "id": "node_0e2jfhw",
       "type": "calculation",
       "position": {
-        "x": 2200.6423144243518,
-        "y": 2049.988598735773
+        "x": 2195.6423144243518,
+        "y": 1716.988598735773
       },
       "data": {
         "functionName": "satoshi_to_8_le",
@@ -886,8 +885,8 @@
       "id": "node_3bk0l8l",
       "type": "calculation",
       "position": {
-        "x": 2628.6810406355407,
-        "y": 3947.5026248517415
+        "x": 2692.0117207114017,
+        "y": 3702.291318670852
       },
       "data": {
         "functionName": "concat_all",
@@ -898,11 +897,14 @@
           "vals": {
             "0": "f8a7000000000000",
             "10": "22",
-            "20": "5120202b340f2b6ba613471b1eb79d3bf6b39df1473ae816572cac815f270d75ac6c"
+            "20": "5120202b340f2b6ba613471b1eb79d3bf6b39df1473ae816572cac815f270d75ac6c",
+            "100": "606d000000000000",
+            "110": "22",
+            "120": "5120c7d14427b01d854b651300463d7b321d140c267c14112c750a1e2e90ac2a9b1b"
           }
         },
         "version": 0,
-        "result": "f8a7000000000000225120202b340f2b6ba613471b1eb79d3bf6b39df1473ae816572cac815f270d75ac6c",
+        "result": "f8a7000000000000225120202b340f2b6ba613471b1eb79d3bf6b39df1473ae816572cac815f270d75ac6c606d000000000000225120c7d14427b01d854b651300463d7b321d140c267c14112c750a1e2e90ac2a9b1b",
         "inputStructure": {
           "ungrouped": [],
           "groups": [
@@ -942,13 +944,13 @@
           "afterGroups": []
         },
         "groupInstances": {
-          "OUTPUTS[]": 1
+          "OUTPUTS[]": 2
         },
         "groupInstanceKeys": {
-          "OUTPUTS[]": [0]
+          "OUTPUTS[]": [0, 100]
         },
         "baseHeight": 100,
-        "totalInputs": 3,
+        "totalInputs": 6,
         "unwiredCount": 0,
         "dirty": false,
         "error": false
@@ -1935,8 +1937,8 @@
       "id": "node_rTKg0zQN",
       "type": "calculation",
       "position": {
-        "x": 3714.295423898563,
-        "y": 316.88029429570634
+        "x": 3743.899428092185,
+        "y": 95.82265356189237
       },
       "data": {
         "functionName": "identity",
@@ -1970,8 +1972,8 @@
       "id": "node_5iSO83jo",
       "type": "calculation",
       "position": {
-        "x": 3599.616081551333,
-        "y": 529.3670519987872
+        "x": 3733.333707940381,
+        "y": 369.24368008000783
       },
       "data": {
         "functionName": "identity",
@@ -2176,8 +2178,8 @@
       "id": "node_dEp1vnm1",
       "type": "calculation",
       "position": {
-        "x": 3812.4124114884535,
-        "y": 4754.175507337397
+        "x": 3807.4124114884535,
+        "y": 4421.175507337397
       },
       "data": {
         "functionName": "identity",
@@ -2213,8 +2215,8 @@
       "id": "node_1XyIKP1B",
       "type": "calculation",
       "position": {
-        "x": 3726.3641190695116,
-        "y": 1729.128872503984
+        "x": 3721.3641190695116,
+        "y": 1396.128872503984
       },
       "data": {
         "functionName": "sha256_hex",
@@ -2248,8 +2250,8 @@
       "id": "node_oc3tk6t9",
       "type": "calculation",
       "position": {
-        "x": 3762.8359919795193,
-        "y": 3407.888291425392
+        "x": 3757.8359919795193,
+        "y": 3074.888291425392
       },
       "data": {
         "functionName": "sha256_hex",
@@ -2283,8 +2285,8 @@
       "id": "node_PHzsXYIu",
       "type": "calculation",
       "position": {
-        "x": 3771.2274556020093,
-        "y": 2170.1485064787444
+        "x": 3766.2274556020093,
+        "y": 1837.1485064787444
       },
       "data": {
         "functionName": "sha256_hex",
@@ -2316,8 +2318,8 @@
       "id": "node_P2P02eQR",
       "type": "calculation",
       "position": {
-        "x": 3727.6693180685097,
-        "y": 2724.2901201417953
+        "x": 3722.6693180685097,
+        "y": 2391.2901201417953
       },
       "data": {
         "functionName": "sha256_hex",
@@ -2348,70 +2350,11 @@
       "extent": "parent"
     },
     {
-      "id": "node_jlxq0jh",
-      "type": "calculation",
-      "position": {
-        "x": 2200.487879987214,
-        "y": 2505.042367797685
-      },
-      "data": {
-        "functionName": "concat_all",
-        "title": "scriptPubKeys",
-        "paramExtraction": "multi_val",
-        "numInputs": 2,
-        "inputs": {
-          "vals": {
-            "0": "22",
-            "100": "51207746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81"
-          }
-        },
-        "compactConcatInputs": true,
-        "version": 0,
-        "result": "2251207746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81",
-        "inputStructure": {
-          "groups": [
-            {
-              "title": "INPUTS[]",
-              "baseIndex": 0,
-              "expandable": true,
-              "fieldCountToAdd": 1,
-              "minInstances": 1,
-              "maxInstances": 99,
-              "fields": [
-                {
-                  "index": 0,
-                  "label": "Value:",
-                  "placeholder": "<input>",
-                  "rows": 1,
-                  "autoResizeMaxRows": 3
-                }
-              ]
-            }
-          ],
-          "ungrouped": [],
-          "afterGroups": []
-        },
-        "groupInstances": {
-          "INPUTS[]": 2
-        },
-        "groupInstanceKeys": {
-          "INPUTS[]": [0, 100]
-        },
-        "baseHeight": 80,
-        "totalInputs": 2,
-        "unwiredCount": 0,
-        "dirty": false,
-        "error": false
-      },
-      "parentId": "group_7w6adu7",
-      "extent": "parent"
-    },
-    {
       "id": "node_8vvcdwh",
       "type": "calculation",
       "position": {
-        "x": 1690.2901446226815,
-        "y": 2700.615655647778
+        "x": 1685.2901446226815,
+        "y": 2367.615655647778
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -2432,8 +2375,8 @@
       "id": "node_W2Oyxmai",
       "type": "calculation",
       "position": {
-        "x": 3823.8743676629338,
-        "y": 4306.791812602651
+        "x": 3818.8743676629338,
+        "y": 3973.7918126026507
       },
       "data": {
         "functionName": "sha256_hex",
@@ -2689,8 +2632,8 @@
       "id": "node_1X5AaTXW",
       "type": "shadcnGroup",
       "position": {
-        "x": 3563.8968934237364,
-        "y": 15023.564115350213
+        "x": 3578.8968934237364,
+        "y": 15098.564115350213
       },
       "data": {
         "isGroup": true,
@@ -3075,8 +3018,8 @@
       "id": "node_WGqCyJjI",
       "type": "shadcnGroup",
       "position": {
-        "x": 2675.963703923664,
-        "y": 3313.745892517728
+        "x": 2690.963703923664,
+        "y": 3388.745892517728
       },
       "data": {
         "isGroup": true,
@@ -3381,8 +3324,8 @@
       "id": "node_wITARdmE",
       "type": "shadcnGroup",
       "position": {
-        "x": 13440.034951383292,
-        "y": 8856.811146753891
+        "x": 13455.034951383292,
+        "y": 8931.811146753891
       },
       "data": {
         "isGroup": true,
@@ -3774,8 +3717,8 @@
       "id": "node_HVHLyf0p",
       "type": "shadcnGroup",
       "position": {
-        "x": 17544.918663202647,
-        "y": 5322.793370846239
+        "x": 17559.918663202647,
+        "y": 5397.793370846239
       },
       "data": {
         "isGroup": true,
@@ -4184,8 +4127,8 @@
       "id": "node_sKFSkMCv",
       "type": "calculation",
       "position": {
-        "x": 90.20892037257545,
-        "y": 2561.704072925423
+        "x": 85.20892037257545,
+        "y": 2228.704072925423
       },
       "data": {
         "functionName": "identity",
@@ -4220,8 +4163,8 @@
       "id": "node_cpqJXq9a",
       "type": "calculation",
       "position": {
-        "x": 585.4363258168596,
-        "y": 2523.35049364899
+        "x": 580.4363258168596,
+        "y": 2190.35049364899
       },
       "data": {
         "functionName": "parse_tx_field",
@@ -4289,8 +4232,8 @@
       "id": "node_1i6vw7f",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 5513.678266377166,
-        "y": 10179.318371819962
+        "x": 5528.678266377166,
+        "y": 10254.318371819962
       },
       "data": {
         "content": "## The BIP341 sighash - BIP143, finished\n\nBIP143 fixed quadratic hashing and let signatures commit to the spent amount. BIP341 completes the thought - the signature now commits to **everything a signer could be lied to about**:\n\n```\nepoch              00\nhash_type          00        (SIGHASH_DEFAULT)\nversion            02000000\nlocktime           00000000\nsha_prevouts       SHA256(all outpoints)\nsha_amounts        SHA256(all spent values)       ← every input\nsha_scriptpubkeys  SHA256(all spent scripts)      ← every input, new\nsha_sequences      SHA256(all nSequence)\nsha_outputs        SHA256(all outputs)\nspend_type         00        (key path, no annex)\ninput_index        00000000\n```\n\n**All inputs, not just this one.** BIP143 committed to *this* input's amount; a hardware wallet in a multi-input transaction could still be shown false data about the *other* inputs and tricked into overpaying fees. Here the amounts and scriptPubKeys of every spent coin are inside the hash - show a signer wrong data and the signature simply doesn't verify. The lying-host attack dies here.\n\n**Single SHA-256 - and only the last one tagged.** The five midstates are plain single SHA-256: no double-hashing, no tags. The tag appears exactly once, on the final TapSighash digest. Note the fields enter *as serialized*: the scriptPubKey carries its length prefix `0x22` (34 bytes), the amount its full 8 LE bytes.\n\n**SIGHASH_DEFAULT (0x00)** means ALL semantics with the type byte *omitted* from the signature - the common case got one byte shorter. And the input's position is finally explicit: `input_index`, no more inferring it from context.\n\nThe result feeds the TapSighash tagged hash - 32 bytes the Schnorr node signs.",
@@ -4304,76 +4247,11 @@
       "height": 1394
     },
     {
-      "id": "node_gaJldRRX",
-      "type": "calculation",
-      "position": {
-        "x": 2194.5316273734343,
-        "y": 1602.5592785577564
-      },
-      "data": {
-        "functionName": "concat_all",
-        "title": "OUTPOINT",
-        "paramExtraction": "multi_val",
-        "numInputs": 2,
-        "inputs": {
-          "vals": {
-            "0": "6b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f6",
-            "10": "01000000"
-          }
-        },
-        "version": 0,
-        "result": "6b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f601000000",
-        "inputStructure": {
-          "ungrouped": [],
-          "groups": [
-            {
-              "title": "PREVOUTS[]",
-              "baseIndex": 0,
-              "expandable": true,
-              "fieldCountToAdd": 2,
-              "minInstances": 1,
-              "maxInstances": 20,
-              "fields": [
-                {
-                  "index": 0,
-                  "label": "TXID[32]:",
-                  "placeholder": "Previous transaction ID (reversed)",
-                  "rows": 2,
-                  "comment": "32-byte transaction ID in reversed byte order"
-                },
-                {
-                  "index": 10,
-                  "label": "VOUT[4]:",
-                  "placeholder": "00000000",
-                  "rows": 1,
-                  "comment": "Output index in little-endian (4 bytes)"
-                }
-              ]
-            }
-          ],
-          "afterGroups": []
-        },
-        "groupInstances": {
-          "PREVOUTS[]": 1
-        },
-        "groupInstanceKeys": {
-          "PREVOUTS[]": [0]
-        },
-        "baseHeight": 100,
-        "totalInputs": 2,
-        "unwiredCount": 0,
-        "dirty": false,
-        "error": false
-      },
-      "parentId": "group_7w6adu7",
-      "extent": "parent"
-    },
-    {
       "id": "node_WjGneaXf",
       "type": "calculation",
       "position": {
-        "x": 1687.5449114413886,
-        "y": 1502.6496420885524
+        "x": 1682.5449114413886,
+        "y": 1169.6496420885524
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -4395,74 +4273,11 @@
       "extent": "parent"
     },
     {
-      "id": "node_hwcv4nj",
-      "type": "calculation",
-      "position": {
-        "x": 2777.735261480614,
-        "y": 1492.192948888579
-      },
-      "data": {
-        "functionName": "concat_all",
-        "title": "OUTPOINT",
-        "paramExtraction": "multi_val",
-        "numInputs": 2,
-        "inputs": {
-          "vals": {
-            "0": "9525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca00000000",
-            "100": "6b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f601000000"
-          }
-        },
-        "compactConcatInputs": true,
-        "version": 0,
-        "result": "9525434bed50ceaa501af014c9559ca92deab920f2f0d2353727c9872ab5a3ca000000006b668e1335a284bb15979c13a518ea3085efc7cfa6487a3fb149e779350698f601000000",
-        "inputStructure": {
-          "groups": [
-            {
-              "title": "INPUTS[]",
-              "baseIndex": 0,
-              "expandable": true,
-              "fieldCountToAdd": 1,
-              "minInstances": 1,
-              "maxInstances": 99,
-              "fields": [
-                {
-                  "index": 0,
-                  "label": "Value:",
-                  "placeholder": "<input>",
-                  "rows": 1,
-                  "autoResizeMaxRows": 3
-                }
-              ]
-            }
-          ],
-          "ungrouped": [],
-          "afterGroups": []
-        },
-        "groupInstances": {
-          "INPUTS[]": 2
-        },
-        "groupInstanceKeys": {
-          "INPUTS[]": [0, 100]
-        },
-        "baseHeight": 80,
-        "totalInputs": 2,
-        "unwiredCount": 0,
-        "dirty": false,
-        "error": false,
-        "customFieldLabels": {
-          "0": "OUTPOINT1",
-          "100": "OUTPOINT2"
-        }
-      },
-      "parentId": "group_7w6adu7",
-      "extent": "parent"
-    },
-    {
       "id": "node_tK5TaF0a",
       "type": "calculation",
       "position": {
-        "x": 2829.2775859910425,
-        "y": 1980.2515787560687
+        "x": 2824.2775859910425,
+        "y": 1647.2515787560687
       },
       "data": {
         "functionName": "concat_all",
@@ -4524,8 +4339,8 @@
       "id": "node_QXsCoj7Z",
       "type": "calculation",
       "position": {
-        "x": 2196.613555240482,
-        "y": 2260.863390442979
+        "x": 2191.613555240482,
+        "y": 1927.863390442979
       },
       "data": {
         "functionName": "satoshi_to_8_le",
@@ -4546,70 +4361,11 @@
       "extent": "parent"
     },
     {
-      "id": "node_EQL1bAQP",
-      "type": "calculation",
-      "position": {
-        "x": 2213.2053962718664,
-        "y": 2944.017233849735
-      },
-      "data": {
-        "functionName": "concat_all",
-        "title": "scriptPubKeys",
-        "paramExtraction": "multi_val",
-        "numInputs": 2,
-        "inputs": {
-          "vals": {
-            "0": "22",
-            "100": "5120a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960"
-          }
-        },
-        "compactConcatInputs": true,
-        "version": 0,
-        "result": "225120a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960",
-        "inputStructure": {
-          "groups": [
-            {
-              "title": "INPUTS[]",
-              "baseIndex": 0,
-              "expandable": true,
-              "fieldCountToAdd": 1,
-              "minInstances": 1,
-              "maxInstances": 99,
-              "fields": [
-                {
-                  "index": 0,
-                  "label": "Value:",
-                  "placeholder": "<input>",
-                  "rows": 1,
-                  "autoResizeMaxRows": 3
-                }
-              ]
-            }
-          ],
-          "ungrouped": [],
-          "afterGroups": []
-        },
-        "groupInstances": {
-          "INPUTS[]": 2
-        },
-        "groupInstanceKeys": {
-          "INPUTS[]": [0, 100]
-        },
-        "baseHeight": 80,
-        "totalInputs": 2,
-        "unwiredCount": 0,
-        "dirty": false,
-        "error": false
-      },
-      "parentId": "group_7w6adu7",
-      "extent": "parent"
-    },
-    {
       "id": "node_nNWJ7eap",
       "type": "calculation",
       "position": {
-        "x": 1724.0094282789787,
-        "y": 3197.928764398842
+        "x": 1719.0094282789787,
+        "y": 2864.928764398842
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -4627,74 +4383,11 @@
       "extent": "parent"
     },
     {
-      "id": "node_I3j4A9WO",
-      "type": "calculation",
-      "position": {
-        "x": 2908.8676971751,
-        "y": 2723.1526421353783
-      },
-      "data": {
-        "functionName": "concat_all",
-        "title": "scriptPubKeys",
-        "paramExtraction": "multi_val",
-        "numInputs": 2,
-        "inputs": {
-          "vals": {
-            "0": "2251207746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81",
-            "100": "225120a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960"
-          }
-        },
-        "compactConcatInputs": true,
-        "version": 0,
-        "result": "2251207746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81225120a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960",
-        "inputStructure": {
-          "groups": [
-            {
-              "title": "INPUTS[]",
-              "baseIndex": 0,
-              "expandable": true,
-              "fieldCountToAdd": 1,
-              "minInstances": 1,
-              "maxInstances": 99,
-              "fields": [
-                {
-                  "index": 0,
-                  "label": "Value:",
-                  "placeholder": "<input>",
-                  "rows": 1,
-                  "autoResizeMaxRows": 3
-                }
-              ]
-            }
-          ],
-          "ungrouped": [],
-          "afterGroups": []
-        },
-        "groupInstances": {
-          "INPUTS[]": 2
-        },
-        "groupInstanceKeys": {
-          "INPUTS[]": [0, 100]
-        },
-        "baseHeight": 80,
-        "totalInputs": 2,
-        "unwiredCount": 0,
-        "dirty": false,
-        "error": false,
-        "customFieldLabels": {
-          "0": "scriptPubKey1",
-          "100": "scriptPubKey2"
-        }
-      },
-      "parentId": "group_7w6adu7",
-      "extent": "parent"
-    },
-    {
       "id": "node_IYs0Twd4",
       "type": "calculation",
       "position": {
-        "x": 1745.310804234332,
-        "y": 3709.903807505545
+        "x": 1740.310804234332,
+        "y": 3376.903807505545
       },
       "data": {
         "functionName": "identity",
@@ -4728,8 +4421,8 @@
       "id": "node_4v3wskj9",
       "type": "calculation",
       "position": {
-        "x": 2248.208910570107,
-        "y": 3617.631023887956
+        "x": 2243.208910570107,
+        "y": 3284.631023887956
       },
       "data": {
         "functionName": "reverse_bytes_4",
@@ -4762,8 +4455,8 @@
       "id": "node_idchmay",
       "type": "calculation",
       "position": {
-        "x": 2960.750349278981,
-        "y": 3321.8340503144746
+        "x": 2955.750349278981,
+        "y": 2988.8340503144746
       },
       "data": {
         "functionName": "concat_all",
@@ -4825,8 +4518,8 @@
       "id": "node_deWffZfX",
       "type": "calculation",
       "position": {
-        "x": 1766.4995411195732,
-        "y": 4741.432885554066
+        "x": 1761.4995411195732,
+        "y": 4408.432885554066
       },
       "data": {
         "functionName": "identity",
@@ -4860,8 +4553,8 @@
       "id": "node_XfEoNM4D",
       "type": "calculation",
       "position": {
-        "x": 2119.9905090591865,
-        "y": 4717.7471176830495
+        "x": 2114.9905090591865,
+        "y": 4384.7471176830495
       },
       "data": {
         "functionName": "satoshi_to_8_le",
@@ -4875,139 +4568,6 @@
           "val": 28000
         },
         "result": "606d000000000000",
-        "error": false
-      },
-      "parentId": "group_7w6adu7",
-      "extent": "parent"
-    },
-    {
-      "id": "node_jzjcqnMJ",
-      "type": "calculation",
-      "position": {
-        "x": 2641.401983303408,
-        "y": 4592.036002555458
-      },
-      "data": {
-        "functionName": "concat_all",
-        "title": "OUTPUTS Builder",
-        "paramExtraction": "multi_val",
-        "numInputs": 3,
-        "inputs": {
-          "vals": {
-            "0": "606d000000000000",
-            "10": "22",
-            "20": "5120c7d14427b01d854b651300463d7b321d140c267c14112c750a1e2e90ac2a9b1b"
-          }
-        },
-        "version": 0,
-        "result": "606d000000000000225120c7d14427b01d854b651300463d7b321d140c267c14112c750a1e2e90ac2a9b1b",
-        "inputStructure": {
-          "ungrouped": [],
-          "groups": [
-            {
-              "title": "OUTPUTS[]",
-              "baseIndex": 0,
-              "expandable": true,
-              "fieldCountToAdd": 3,
-              "minInstances": 1,
-              "maxInstances": 20,
-              "fields": [
-                {
-                  "index": 0,
-                  "label": "AMOUNT[8]:",
-                  "placeholder": "e.g., 3069020000000000",
-                  "rows": 1,
-                  "comment": "Amount in satoshis as 8-byte little-endian hex"
-                },
-                {
-                  "index": 10,
-                  "label": "SCRIPT_LENGTH:",
-                  "placeholder": "e.g., 16",
-                  "rows": 1,
-                  "small": true,
-                  "comment": "Script length as varint (usually 16 for P2WPKH, 19 for P2PKH)"
-                },
-                {
-                  "index": 20,
-                  "label": "SCRIPT_PUBKEY:",
-                  "placeholder": "e.g., 0014[20-byte-hash]",
-                  "rows": 2,
-                  "comment": "The locking script (scriptPubKey)"
-                }
-              ]
-            }
-          ],
-          "afterGroups": []
-        },
-        "groupInstances": {
-          "OUTPUTS[]": 1
-        },
-        "groupInstanceKeys": {
-          "OUTPUTS[]": [0]
-        },
-        "baseHeight": 100,
-        "totalInputs": 3,
-        "unwiredCount": 0,
-        "dirty": false,
-        "error": false
-      },
-      "parentId": "group_7w6adu7",
-      "extent": "parent"
-    },
-    {
-      "id": "node_2dwvhjp",
-      "type": "calculation",
-      "position": {
-        "x": 3236.499541119573,
-        "y": 4342.256119354137
-      },
-      "data": {
-        "functionName": "concat_all",
-        "title": "Concat",
-        "paramExtraction": "multi_val",
-        "numInputs": 2,
-        "inputs": {
-          "vals": {
-            "0": "f8a7000000000000225120202b340f2b6ba613471b1eb79d3bf6b39df1473ae816572cac815f270d75ac6c",
-            "100": "606d000000000000225120c7d14427b01d854b651300463d7b321d140c267c14112c750a1e2e90ac2a9b1b"
-          }
-        },
-        "compactConcatInputs": true,
-        "version": 0,
-        "result": "f8a7000000000000225120202b340f2b6ba613471b1eb79d3bf6b39df1473ae816572cac815f270d75ac6c606d000000000000225120c7d14427b01d854b651300463d7b321d140c267c14112c750a1e2e90ac2a9b1b",
-        "inputStructure": {
-          "groups": [
-            {
-              "title": "INPUTS[]",
-              "baseIndex": 0,
-              "expandable": true,
-              "fieldCountToAdd": 1,
-              "minInstances": 1,
-              "maxInstances": 99,
-              "fields": [
-                {
-                  "index": 0,
-                  "label": "Value:",
-                  "placeholder": "<input>",
-                  "rows": 1,
-                  "autoResizeMaxRows": 3
-                }
-              ]
-            }
-          ],
-          "ungrouped": [],
-          "afterGroups": []
-        },
-        "groupInstances": {
-          "INPUTS[]": 2
-        },
-        "groupInstanceKeys": {
-          "INPUTS[]": [0, 100]
-        },
-        "baseHeight": 80,
-        "totalInputs": 2,
-        "unwiredCount": 0,
-        "dirty": false,
         "error": false
       },
       "parentId": "group_7w6adu7",
@@ -5232,8 +4792,8 @@
       "id": "node_h74aytc",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 195,
-        "y": 360
+        "x": 210,
+        "y": 435
       },
       "data": {
         "content": "## What two inputs change - and what they don't\n\nSame machinery as the intro: x-only keys, tweak, TapSighash, Schnorr. Four things are new.\n\n**Two messages, four bytes apart.** The five hash midstates are computed once - now spanning *both* coins and *both* outputs - and feed both Preimage Body nodes. The two finished messages are byte-identical except `input_index`: `00000000` vs `01000000`. Each signer therefore commits to the entire transaction - the other coin's amount and script included - so neither key can be shown a different version of the deal.\n\n**Each input answers to its own lock.** Signature 2 is made with the *second* coin's tweaked key and verifies only against the *second* coin's output key. A perfectly valid signature checked against the wrong prevout is still a failed signature.\n\n**One witness stack per input, in vin order.** No stack count byte - the input count already said how many. Each stack is the intro's same 66-byte shape (`01`, `40`, signature); the transaction simply carries two - one stack per input, none per output: outputs are committed data, they never sign. And every outpoint field stays fixed-width: spending vout 1 serializes as `01000000`, never as a bare `1` - one short byte and the whole transaction stops parsing.\n\n**Verification now demands every prevout.** With one input, the Verify node's own scriptPubKey and amount *were* the complete prevout list. With two, the second coin's data exists nowhere in the transaction - so the *Taproot Prevouts (vin order)* section becomes mandatory, on both Verify nodes, identically. That's not a tool quirk: a taproot verifier consults the UTXO set for every coin spent.",
@@ -5245,6 +4805,73 @@
       },
       "width": 1528,
       "height": 1609
+    },
+    {
+      "id": "node_s6z457w",
+      "type": "calculation",
+      "position": {
+        "x": 2297.2344978091696,
+        "y": 2272.7058780957977
+      },
+      "data": {
+        "functionName": "concat_all",
+        "title": "scriptPubKeys",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": {
+          "vals": {
+            "0": "22",
+            "10": "51207746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81",
+            "100": "22",
+            "110": "5120a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960"
+          }
+        },
+        "version": 0,
+        "result": "2251207746b5070d17d2f18f72c1ec1aedfbb60e295b4400d8048a17a05c946a2a7d81225120a98bece50ff9e3ba93fbe777030dc9910606ebd5d5f1c9ac148407008c95f960",
+        "inputStructure": {
+          "ungrouped": [],
+          "groups": [
+            {
+              "title": "SCRIPTPUBKEYS[]",
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 2,
+              "minInstances": 1,
+              "maxInstances": 20,
+              "fields": [
+                {
+                  "index": 0,
+                  "label": "SCRIPT_LENGTH:",
+                  "placeholder": "e.g., 22",
+                  "rows": 1,
+                  "comment": "Varint length prefix - BIP341 hashes scriptPubKeys serialized as script (22 for P2TR, 16 for P2WPKH)"
+                },
+                {
+                  "index": 10,
+                  "label": "SCRIPT_PUBKEY:",
+                  "placeholder": "e.g., 5120[32-byte-key]",
+                  "rows": 2,
+                  "comment": "The spent coin's locking script"
+                }
+              ]
+            }
+          ],
+          "afterGroups": []
+        },
+        "groupInstances": {
+          "SCRIPTPUBKEYS[]": 2
+        },
+        "groupInstanceKeys": {
+          "SCRIPTPUBKEYS[]": [0, 100]
+        },
+        "baseHeight": 100,
+        "totalInputs": 4,
+        "unwiredCount": 0,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_7w6adu7",
+      "extent": "parent"
     }
   ],
   "edges": [
@@ -5637,13 +5264,6 @@
       "selected": false
     },
     {
-      "id": "edge_0tx88sc",
-      "source": "node_8vvcdwh",
-      "target": "node_jlxq0jh",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
       "source": "node_W2Oyxmai",
       "target": "node_kxlgq4b",
       "targetHandle": "input-80",
@@ -6022,34 +5642,6 @@
       "selected": false
     },
     {
-      "id": "edge_JWeX2hcd",
-      "source": "node_WjGneaXf",
-      "target": "node_gaJldRRX",
-      "targetHandle": "input-10",
-      "selected": false
-    },
-    {
-      "id": "edge_gjkqfy4",
-      "source": "node_gaJldRRX",
-      "target": "node_hwcv4nj",
-      "targetHandle": "input-100",
-      "selected": false
-    },
-    {
-      "source": "node_eaopfct",
-      "target": "node_hwcv4nj",
-      "targetHandle": "input-0",
-      "id": "xy-edge__node_eaopfct-node_hwcv4njinput-0",
-      "selected": false
-    },
-    {
-      "id": "edge_fqij2et",
-      "source": "node_hwcv4nj",
-      "target": "node_1XyIKP1B",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
       "id": "edge_qvw3c89",
       "source": "node_QXsCoj7Z",
       "target": "node_tK5TaF0a",
@@ -6071,56 +5663,12 @@
       "selected": false
     },
     {
-      "id": "edge_pdpe7rNx",
-      "source": "node_nNWJ7eap",
-      "target": "node_EQL1bAQP",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
       "id": "edge_p1vjatl",
       "source": "node_cpqJXq9a",
       "target": "node_nNWJ7eap",
       "sourceHandle": "output-1",
       "targetHandle": "input-0",
       "selected": false
-    },
-    {
-      "id": "edge_hmc26qs",
-      "source": "node_cpqJXq9a",
-      "target": "node_EQL1bAQP",
-      "sourceHandle": "output-1",
-      "targetHandle": "input-100",
-      "selected": false
-    },
-    {
-      "source": "node_jlxq0jh",
-      "target": "node_I3j4A9WO",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "xy-edge__node_jlxq0jh-node_I3j4A9WOinput-0"
-    },
-    {
-      "id": "edge_rw1qeb6",
-      "source": "node_I3j4A9WO",
-      "target": "node_P2P02eQR",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "id": "edge_1n6ezpi",
-      "source": "node_EQL1bAQP",
-      "target": "node_I3j4A9WO",
-      "targetHandle": "input-100",
-      "selected": false
-    },
-    {
-      "source": "node_qofvb2b",
-      "target": "node_jlxq0jh",
-      "sourceHandle": "output-1",
-      "targetHandle": "input-100",
-      "selected": false,
-      "id": "xy-edge__node_qofvb2boutput-1-node_jlxq0jhinput-100"
     },
     {
       "source": "node_cpqJXq9a",
@@ -6164,48 +5712,6 @@
       "targetHandle": "input-0",
       "selected": false,
       "id": "edge_a4iAXWTA"
-    },
-    {
-      "id": "edge_9xkooaXW",
-      "source": "node_XfEoNM4D",
-      "target": "node_jzjcqnMJ",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "id": "edge_kurx6ny",
-      "source": "node_6VWgJYvY",
-      "target": "node_jzjcqnMJ",
-      "targetHandle": "input-10",
-      "selected": false
-    },
-    {
-      "id": "edge_g9sat5u",
-      "source": "node_N1FNjGXd",
-      "target": "node_jzjcqnMJ",
-      "targetHandle": "input-20",
-      "selected": false
-    },
-    {
-      "source": "node_3bk0l8l",
-      "target": "node_2dwvhjp",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "xy-edge__node_3bk0l8l-node_2dwvhjpinput-0"
-    },
-    {
-      "id": "edge_cvlq2ev",
-      "source": "node_jzjcqnMJ",
-      "target": "node_2dwvhjp",
-      "targetHandle": "input-100",
-      "selected": false
-    },
-    {
-      "id": "edge_rh27ohe",
-      "source": "node_2dwvhjp",
-      "target": "node_W2Oyxmai",
-      "targetHandle": "input-0",
-      "selected": false
     },
     {
       "id": "edge_adqcytd",
@@ -6339,19 +5845,98 @@
       "id": "xy-edge__node_cpqJXq9aoutput-0-node_3n8jjluinput-1100"
     },
     {
-      "source": "node_cpqJXq9a",
-      "target": "node_gaJldRRX",
-      "sourceHandle": "output-0",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "xy-edge__node_cpqJXq9aoutput-0-node_gaJldRRXinput-0"
-    },
-    {
       "id": "edge_q3hakrq",
       "source": "node_3n8jjlu",
       "target": "node_qF9qBoLj",
       "targetHandle": "input-2",
       "selected": false
+    },
+    {
+      "source": "node_cpqJXq9a",
+      "target": "node_eaopfct",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-100",
+      "selected": false,
+      "id": "xy-edge__node_cpqJXq9aoutput-0-node_eaopfctinput-100"
+    },
+    {
+      "source": "node_WjGneaXf",
+      "target": "node_eaopfct",
+      "targetHandle": "input-110",
+      "selected": false,
+      "id": "xy-edge__node_WjGneaXf-node_eaopfctinput-110"
+    },
+    {
+      "source": "node_eaopfct",
+      "target": "node_1XyIKP1B",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "xy-edge__node_eaopfct-node_1XyIKP1Binput-0"
+    },
+    {
+      "source": "node_XfEoNM4D",
+      "target": "node_3bk0l8l",
+      "targetHandle": "input-100",
+      "selected": false,
+      "id": "xy-edge__node_XfEoNM4D-node_3bk0l8linput-100"
+    },
+    {
+      "source": "node_6VWgJYvY",
+      "target": "node_3bk0l8l",
+      "targetHandle": "input-110",
+      "selected": false,
+      "id": "xy-edge__node_6VWgJYvY-node_3bk0l8linput-110"
+    },
+    {
+      "source": "node_N1FNjGXd",
+      "target": "node_3bk0l8l",
+      "targetHandle": "input-120",
+      "selected": false,
+      "id": "xy-edge__node_N1FNjGXd-node_3bk0l8linput-120"
+    },
+    {
+      "source": "node_3bk0l8l",
+      "target": "node_W2Oyxmai",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "xy-edge__node_3bk0l8l-node_W2Oyxmaiinput-0"
+    },
+    {
+      "source": "node_8vvcdwh",
+      "target": "node_s6z457w",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "xy-edge__node_8vvcdwh-node_s6z457winput-0"
+    },
+    {
+      "source": "node_qofvb2b",
+      "target": "node_s6z457w",
+      "sourceHandle": "output-1",
+      "targetHandle": "input-10",
+      "selected": false,
+      "id": "xy-edge__node_qofvb2boutput-1-node_s6z457winput-10"
+    },
+    {
+      "source": "node_nNWJ7eap",
+      "target": "node_s6z457w",
+      "targetHandle": "input-100",
+      "selected": false,
+      "id": "xy-edge__node_nNWJ7eap-node_s6z457winput-100"
+    },
+    {
+      "source": "node_cpqJXq9a",
+      "target": "node_s6z457w",
+      "sourceHandle": "output-1",
+      "targetHandle": "input-110",
+      "selected": false,
+      "id": "xy-edge__node_cpqJXq9aoutput-1-node_s6z457winput-110"
+    },
+    {
+      "source": "node_s6z457w",
+      "target": "node_P2P02eQR",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "xy-edge__node_s6z457w-node_P2P02eQRinput-0"
     }
   ],
   "virtualEdges": []
