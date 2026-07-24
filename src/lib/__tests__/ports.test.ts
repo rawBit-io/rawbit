@@ -167,7 +167,6 @@ describe("buildPorts", () => {
     ["Taproot Control Block", ["input-0", "input-100", "input-200"]],
     ["Tagged Hash Input (BIP340)", ["input-0", "input-100", "input-200"]],
     ["TapLeaf Preimage (BIP341)", ["input-0", "input-100", "input-200"]],
-    ["OUTPOINT Builder", ["input-0", "input-10"]],
     ["SCRIPTCODE Builder", ["input-0", "input-10", "input-20", "input-30"]],
   ])(
     "does not invent phantom numInputs ports for sparse-index template %s",

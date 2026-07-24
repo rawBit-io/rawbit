@@ -3572,48 +3572,6 @@ export const allSidebarNodes: NodeTemplate[] = [
     },
   },
 
-  // OUTPOINT Node - Single outpoint (txid + vout) for specific input signing
-  {
-    functionName: "concat_all",
-    label: "OUTPOINT Builder",
-    category: "Transactions",
-    subcategory: "Builders",
-    description:
-      "Builds a single outpoint (txid+vout) for BIP143 signing of specific input",
-    type: "calculation",
-    nodeData: {
-      functionName: "concat_all",
-      title: "OUTPOINT Builder",
-      paramExtraction: "multi_val",
-      numInputs: 2,
-      inputs: { vals: [] },
-
-      version: 0,
-      result: "",
-      inputStructure: {
-        ungrouped: [
-          {
-            index: 0,
-            label: "TXID[32]:",
-            placeholder: "Transaction ID of UTXO being spent (reversed)",
-            rows: 2,
-            comment: "The specific input's previous transaction ID",
-          },
-          {
-            index: 10,
-            label: "VOUT[4]:",
-            placeholder: "00000000",
-            rows: 1,
-            comment: "The specific input's output index (little-endian)",
-          },
-        ],
-        groups: [],
-        afterGroups: [],
-      },
-      groupInstances: {},
-      baseHeight: 80,
-    },
-  },
 
   // OUTPUTS Node - Concatenates all outputs (amount + script_length + script)
   {
