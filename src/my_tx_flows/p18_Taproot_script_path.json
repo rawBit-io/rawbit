@@ -1,5 +1,5 @@
 {
-  "name": "Taproot Script rework",
+  "name": "Taproot Script Path",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -30,8 +30,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 16053.713690018436,
-        "y": 7526.571681116382
+        "x": 16512.911189716735,
+        "y": 6501.011577894172
       },
       "data": {
         "isGroup": true,
@@ -44,7 +44,7 @@
             "group_7w6adu7->group_ixnjwes": -41.89,
             "group_hegqa99->group_ixnjwes": 432.73,
             "group_cd0gkcz->group_ixnjwes": -424.35,
-            "group_ef2se5b->group_ixnjwes": -858.27
+            "node_QlQB8akV->group_ixnjwes": 519.24
           }
         },
         "borderColor": "#7a4ea3",
@@ -58,8 +58,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 12469.347312539086,
-        "y": 2561.4884427967663
+        "x": 12928.544812237385,
+        "y": 1535.9283395745563
       },
       "data": {
         "isGroup": true,
@@ -88,8 +88,8 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 6116.33444668176,
-        "y": 3679.8376603357483
+        "x": 6543.53194638006,
+        "y": 2654.277557113538
       },
       "data": {
         "isGroup": true,
@@ -105,8 +105,8 @@
           },
           "targetByBundle": {
             "group_zi8x2qm->group_7w6adu7": -1208.38,
-            "group_ef2se5b->group_7w6adu7": -600.33,
-            "group_hegqa99->group_7w6adu7": 1409.82
+            "group_hegqa99->group_7w6adu7": 1409.82,
+            "node_QlQB8akV->group_7w6adu7": 1419.63
           }
         },
         "dirty": false,
@@ -121,13 +121,13 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": 1074.8280382130201,
-        "y": 8352.336545649165
+        "x": -5285.0402133593325,
+        "y": 7941.356193572694
       },
       "data": {
         "isGroup": true,
         "width": 5149,
-        "height": 2103,
+        "height": 1916,
         "title": "Locking Script P2TR - leaf A",
         "dirty": false,
         "borderColor": "#a83a32",
@@ -140,15 +140,15 @@
         }
       },
       "width": 5149,
-      "height": 2103,
+      "height": 1916,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 2548.2101677964133,
-        "y": 1372.347306612926
+        "x": 3007.4076674947128,
+        "y": 346.78720339071606
       },
       "data": {
         "isGroup": true,
@@ -159,7 +159,6 @@
           "source": 409.13,
           "sourceByBundle": {
             "group_zi8x2qm->group_7w6adu7": 459.77,
-            "group_zi8x2qm->group_spy3f0v": 94.6,
             "group_zi8x2qm->group_cd0gkcz": 281.73
           }
         },
@@ -175,7 +174,7 @@
       "id": "node_8QSOHj19",
       "type": "calculation",
       "position": {
-        "x": 2310.955924773898,
+        "x": 2342.955924773898,
         "y": 677.4662659456608
       },
       "data": {
@@ -210,8 +209,8 @@
       "id": "node_IRajBmor",
       "type": "calculation",
       "position": {
-        "x": 699.7785984517059,
-        "y": 2784.08294868513
+        "x": 631.0897033396031,
+        "y": 2576.5671760945224
       },
       "data": {
         "functionName": "identity",
@@ -245,8 +244,8 @@
       "id": "node_uc3qXmHd",
       "type": "calculation",
       "position": {
-        "x": 1053.2695663913191,
-        "y": 2760.397180814114
+        "x": 1077.8097711477458,
+        "y": 2568.4646664028587
       },
       "data": {
         "functionName": "satoshi_to_8_le",
@@ -269,7 +268,7 @@
       "id": "node_iG1CdtRQ",
       "type": "calculation",
       "position": {
-        "x": 2683.8289605644522,
+        "x": 2715.8289605644522,
         "y": 746.7349589071364
       },
       "data": {
@@ -294,7 +293,7 @@
       "id": "node_v7K1rBTw",
       "type": "calculation",
       "position": {
-        "x": 1321.9667111993076,
+        "x": 1353.9667111993076,
         "y": 1259.0652482739251
       },
       "data": {
@@ -329,7 +328,7 @@
       "id": "node_E7c0t33i",
       "type": "calculation",
       "position": {
-        "x": 1725.9870592076286,
+        "x": 1757.9870592076286,
         "y": 1225.5022567118494
       },
       "data": {
@@ -363,7 +362,7 @@
       "id": "node_hHXC5ZW3",
       "type": "calculation",
       "position": {
-        "x": 2355.962629624357,
+        "x": 2387.962629624357,
         "y": 946.6555153796294
       },
       "data": {
@@ -410,7 +409,7 @@
           "vals": {
             "0": "__EMPTY__",
             "1": "51200e08b7edab116f9062e4475e01e982d1645e531abe269dc2b23d4cb857e183e0",
-            "2": "02000000000101b27e2d91b91b62acadd3da46b0465e4a1da87bb0db6de47cd28574bed51c542c0000000000fdffffff01d06c0400000000002251206513ad8b87e27d99382922695d6e334f9738c0975ae9f60897b8b0673673d0950140b59e610433bac16d92c548956d20cefb3abf8f891c829cae89f43e7bd8493297f6b31c5fe56991c689481ea5f5fbce6eeeaa530f45c77da4ebf7ad1840deacc100000000",
+            "2": "02000000000101b27e2d91b91b62acadd3da46b0465e4a1da87bb0db6de47cd28574bed51c542c0000000000fdffffff01d06c04000000000022512099795af15be99f214c444a562657fa567751ebf39dc81c67078941040e6d5fe201400678ee28bdbee2703b11ccb80b85bd5745e7e6e1703f0f5874dde862999698fbab8820549ae71833833b473dc7271404a446dc65e66ae0e4305cea7224779da100000000",
             "3": "0",
             "5": "290610"
           }
@@ -527,10 +526,10 @@
               "phase": "taproot",
               "step": "witness_stack",
               "stack_before": [
-                "b59e610433bac16d92c548956d20cefb3abf8f891c829cae89f43e7bd8493297f6b31c5fe56991c689481ea5f5fbce6eeeaa530f45c77da4ebf7ad1840deacc1"
+                "0678ee28bdbee2703b11ccb80b85bd5745e7e6e1703f0f5874dde862999698fbab8820549ae71833833b473dc7271404a446dc65e66ae0e4305cea7224779da1"
               ],
               "stack_after": [
-                "b59e610433bac16d92c548956d20cefb3abf8f891c829cae89f43e7bd8493297f6b31c5fe56991c689481ea5f5fbce6eeeaa530f45c77da4ebf7ad1840deacc1"
+                "0678ee28bdbee2703b11ccb80b85bd5745e7e6e1703f0f5874dde862999698fbab8820549ae71833833b473dc7271404a446dc65e66ae0e4305cea7224779da1"
               ]
             },
             {
@@ -541,12 +540,12 @@
               "sigversion": "tapsighash",
               "hashtype": 0,
               "hashtype_name": "DEFAULT",
-              "sighash": "b9a150e31f9d006fb0c53a6db1d39a3d8f542c15c9f6a1f600fa3bb15980b5ad",
+              "sighash": "2fb1fcd7442070859bd6711658f378f3d2492c6feb85a276f6767359d2be882b",
               "stack_before": [
-                "b59e610433bac16d92c548956d20cefb3abf8f891c829cae89f43e7bd8493297f6b31c5fe56991c689481ea5f5fbce6eeeaa530f45c77da4ebf7ad1840deacc1"
+                "0678ee28bdbee2703b11ccb80b85bd5745e7e6e1703f0f5874dde862999698fbab8820549ae71833833b473dc7271404a446dc65e66ae0e4305cea7224779da1"
               ],
               "stack_after": [
-                "b59e610433bac16d92c548956d20cefb3abf8f891c829cae89f43e7bd8493297f6b31c5fe56991c689481ea5f5fbce6eeeaa530f45c77da4ebf7ad1840deacc1"
+                "0678ee28bdbee2703b11ccb80b85bd5745e7e6e1703f0f5874dde862999698fbab8820549ae71833833b473dc7271404a446dc65e66ae0e4305cea7224779da1"
               ]
             },
             {
@@ -555,12 +554,12 @@
               "phase": "taproot",
               "step": "schnorr_verify",
               "pubkey": "0e08b7edab116f9062e4475e01e982d1645e531abe269dc2b23d4cb857e183e0",
-              "signature": "b59e610433bac16d92c548956d20cefb3abf8f891c829cae89f43e7bd8493297f6b31c5fe56991c689481ea5f5fbce6eeeaa530f45c77da4ebf7ad1840deacc1",
+              "signature": "0678ee28bdbee2703b11ccb80b85bd5745e7e6e1703f0f5874dde862999698fbab8820549ae71833833b473dc7271404a446dc65e66ae0e4305cea7224779da1",
               "hashtype": 0,
               "hashtype_name": "DEFAULT",
               "result": true,
               "stack_before": [
-                "b59e610433bac16d92c548956d20cefb3abf8f891c829cae89f43e7bd8493297f6b31c5fe56991c689481ea5f5fbce6eeeaa530f45c77da4ebf7ad1840deacc1"
+                "0678ee28bdbee2703b11ccb80b85bd5745e7e6e1703f0f5874dde862999698fbab8820549ae71833833b473dc7271404a446dc65e66ae0e4305cea7224779da1"
               ],
               "stack_after": ["01"]
             }
@@ -594,7 +593,7 @@
           "witnessRulesEnabled": true,
           "amountUsed": 290610,
           "witnessStack": [
-            "b59e610433bac16d92c548956d20cefb3abf8f891c829cae89f43e7bd8493297f6b31c5fe56991c689481ea5f5fbce6eeeaa530f45c77da4ebf7ad1840deacc1"
+            "0678ee28bdbee2703b11ccb80b85bd5745e7e6e1703f0f5874dde862999698fbab8820549ae71833833b473dc7271404a446dc65e66ae0e4305cea7224779da1"
           ]
         }
       },
@@ -605,7 +604,7 @@
       "id": "node_ljj3f78",
       "type": "calculation",
       "position": {
-        "x": 189.51185666618858,
+        "x": 221.51185666618858,
         "y": 907.1601703103665
       },
       "data": {
@@ -677,7 +676,7 @@
       "id": "node_Wi6L506K",
       "type": "calculation",
       "position": {
-        "x": 2728.1353698483954,
+        "x": 2760.1353698483954,
         "y": 978.1470942974843
       },
       "data": {
@@ -701,7 +700,7 @@
       "id": "node_eaopfct",
       "type": "calculation",
       "position": {
-        "x": 1662.149772196466,
+        "x": 1694.149772196466,
         "y": 705.5706531064857
       },
       "data": {
@@ -766,7 +765,7 @@
       "id": "node_lg43lg2",
       "type": "calculation",
       "position": {
-        "x": 1295.6620369495713,
+        "x": 1327.6620369495713,
         "y": 1046.1802811651369
       },
       "data": {
@@ -790,7 +789,7 @@
       "id": "node_qofvb2b",
       "type": "calculation",
       "position": {
-        "x": 571.874604813288,
+        "x": 603.874604813288,
         "y": 1143.6168195897294
       },
       "data": {
@@ -859,7 +858,7 @@
       "id": "node_0e2jfhw",
       "type": "calculation",
       "position": {
-        "x": 1780.804822486658,
+        "x": 1812.804822486658,
         "y": 1454.7351784849325
       },
       "data": {
@@ -882,7 +881,7 @@
       "id": "node_3bk0l8l",
       "type": "calculation",
       "position": {
-        "x": 1562.8256085866951,
+        "x": 1594.8256085866951,
         "y": 2500.324502466269
       },
       "data": {
@@ -894,11 +893,11 @@
           "vals": {
             "0": "d06c040000000000",
             "10": "22",
-            "20": "51206513ad8b87e27d99382922695d6e334f9738c0975ae9f60897b8b0673673d095"
+            "20": "512099795af15be99f214c444a562657fa567751ebf39dc81c67078941040e6d5fe2"
           }
         },
         "version": 0,
-        "result": "d06c0400000000002251206513ad8b87e27d99382922695d6e334f9738c0975ae9f60897b8b0673673d095",
+        "result": "d06c04000000000022512099795af15be99f214c444a562657fa567751ebf39dc81c67078941040e6d5fe2",
         "inputStructure": {
           "ungrouped": [],
           "groups": [
@@ -945,7 +944,7 @@
         },
         "baseHeight": 100,
         "totalInputs": 3,
-        "unwiredCount": 2,
+        "unwiredCount": 0,
         "dirty": false,
         "error": false
       },
@@ -978,13 +977,13 @@
             "2000": "01",
             "3000": "d06c040000000000",
             "3010": "22",
-            "3020": "51206513ad8b87e27d99382922695d6e334f9738c0975ae9f60897b8b0673673d095",
-            "5000": "0140b59e610433bac16d92c548956d20cefb3abf8f891c829cae89f43e7bd8493297f6b31c5fe56991c689481ea5f5fbce6eeeaa530f45c77da4ebf7ad1840deacc1",
+            "3020": "512099795af15be99f214c444a562657fa567751ebf39dc81c67078941040e6d5fe2",
+            "5000": "01400678ee28bdbee2703b11ccb80b85bd5745e7e6e1703f0f5874dde862999698fbab8820549ae71833833b473dc7271404a446dc65e66ae0e4305cea7224779da1",
             "6000": "00000000"
           }
         },
         "version": 0,
-        "result": "02000000000101b27e2d91b91b62acadd3da46b0465e4a1da87bb0db6de47cd28574bed51c542c0000000000fdffffff01d06c0400000000002251206513ad8b87e27d99382922695d6e334f9738c0975ae9f60897b8b0673673d0950140b59e610433bac16d92c548956d20cefb3abf8f891c829cae89f43e7bd8493297f6b31c5fe56991c689481ea5f5fbce6eeeaa530f45c77da4ebf7ad1840deacc100000000",
+        "result": "02000000000101b27e2d91b91b62acadd3da46b0465e4a1da87bb0db6de47cd28574bed51c542c0000000000fdffffff01d06c04000000000022512099795af15be99f214c444a562657fa567751ebf39dc81c67078941040e6d5fe201400678ee28bdbee2703b11ccb80b85bd5745e7e6e1703f0f5874dde862999698fbab8820549ae71833833b473dc7271404a446dc65e66ae0e4305cea7224779da100000000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -1147,7 +1146,7 @@
         },
         "baseHeight": 150,
         "totalInputs": 15,
-        "unwiredCount": 2,
+        "unwiredCount": 0,
         "dirty": false,
         "error": false
       },
@@ -1328,8 +1327,8 @@
       "id": "node_dfhKIBr9",
       "type": "calculation",
       "position": {
-        "x": 625.8152969379207,
-        "y": 1290.4607069773529
+        "x": 620.2211114327401,
+        "y": 1271.440476259746
       },
       "data": {
         "functionName": "encode_varint",
@@ -1596,7 +1595,7 @@
       "id": "node_kxlgq4b",
       "type": "calculation",
       "position": {
-        "x": 3446.032355086548,
+        "x": 3478.032355086548,
         "y": 997.0228469011208
       },
       "data": {
@@ -1614,13 +1613,13 @@
             "50": "72358b0ef71194560ebf27a15d33db7229d533ce1356190612cc9fa9fdcf8a11",
             "60": "5e052ee9dd86dfbd8de0b57552a0935a9bae6e2ab86a3ef3a8f9022fce32f1c3",
             "70": "23e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2",
-            "80": "f0c972332d00c891e5873a3f2ad05901f673a44d7a50bc1a0b23d44426eabe25",
+            "80": "050bb9b3ee0c14f4753e742e6091bbd866573762b28d536aa6c1244fe4526860",
             "90": "00",
             "100": "00000000"
           }
         },
         "version": 0,
-        "result": "00000200000000000000bfcb7e4878bd20862e88022c5df52f04844e640021a5e63d40ceb0eef13d1bce72358b0ef71194560ebf27a15d33db7229d533ce1356190612cc9fa9fdcf8a115e052ee9dd86dfbd8de0b57552a0935a9bae6e2ab86a3ef3a8f9022fce32f1c323e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2f0c972332d00c891e5873a3f2ad05901f673a44d7a50bc1a0b23d44426eabe250000000000",
+        "result": "00000200000000000000bfcb7e4878bd20862e88022c5df52f04844e640021a5e63d40ceb0eef13d1bce72358b0ef71194560ebf27a15d33db7229d533ce1356190612cc9fa9fdcf8a115e052ee9dd86dfbd8de0b57552a0935a9bae6e2ab86a3ef3a8f9022fce32f1c323e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2050bb9b3ee0c14f4753e742e6091bbd866573762b28d536aa6c1244fe45268600000000000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -1718,7 +1717,7 @@
       "id": "node_f4qfwYD7",
       "type": "calculation",
       "position": {
-        "x": 3732.5168167025995,
+        "x": 3764.5168167025995,
         "y": 728.6406973488511
       },
       "data": {
@@ -1753,7 +1752,7 @@
       "id": "node_qbaNa4B5",
       "type": "calculation",
       "position": {
-        "x": 4362.703884853222,
+        "x": 4394.703884853222,
         "y": 1054.2456376051032
       },
       "data": {
@@ -1786,7 +1785,7 @@
       "id": "node_DPq9ih6F",
       "type": "calculation",
       "position": {
-        "x": 4052.8984158248722,
+        "x": 4084.8984158248722,
         "y": 856.1522917165294
       },
       "data": {
@@ -1820,7 +1819,7 @@
       "id": "node_GV4QNHAE",
       "type": "calculation",
       "position": {
-        "x": 5268.217501425114,
+        "x": 5300.217501425114,
         "y": 1289.6525373970053
       },
       "data": {
@@ -1829,9 +1828,9 @@
         "numInputs": 1,
         "version": 0,
         "inputs": {
-          "val": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a03100000200000000000000bfcb7e4878bd20862e88022c5df52f04844e640021a5e63d40ceb0eef13d1bce72358b0ef71194560ebf27a15d33db7229d533ce1356190612cc9fa9fdcf8a115e052ee9dd86dfbd8de0b57552a0935a9bae6e2ab86a3ef3a8f9022fce32f1c323e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2f0c972332d00c891e5873a3f2ad05901f673a44d7a50bc1a0b23d44426eabe250000000000"
+          "val": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a03100000200000000000000bfcb7e4878bd20862e88022c5df52f04844e640021a5e63d40ceb0eef13d1bce72358b0ef71194560ebf27a15d33db7229d533ce1356190612cc9fa9fdcf8a115e052ee9dd86dfbd8de0b57552a0935a9bae6e2ab86a3ef3a8f9022fce32f1c323e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2050bb9b3ee0c14f4753e742e6091bbd866573762b28d536aa6c1244fe45268600000000000"
         },
-        "result": "b9a150e31f9d006fb0c53a6db1d39a3d8f542c15c9f6a1f600fa3bb15980b5ad",
+        "result": "2fb1fcd7442070859bd6711658f378f3d2492c6feb85a276f6767359d2be882b",
         "inputStructure": {
           "ungrouped": [
             {
@@ -1853,7 +1852,7 @@
       "id": "node_rTKg0zQN",
       "type": "calculation",
       "position": {
-        "x": 2710.627438161966,
+        "x": 2742.627438161966,
         "y": 144.93086830922402
       },
       "data": {
@@ -1888,7 +1887,7 @@
       "id": "node_5iSO83jo",
       "type": "calculation",
       "position": {
-        "x": 2559.0379520215756,
+        "x": 2591.0379520215756,
         "y": 337.28482030694477
       },
       "data": {
@@ -1936,7 +1935,7 @@
         "inputs": {
           "vals": {
             "0": "c04978426b3154231253faf97f65ab55f92777e250d63e6655283763130d2f56",
-            "1": "b9a150e31f9d006fb0c53a6db1d39a3d8f542c15c9f6a1f600fa3bb15980b5ad",
+            "1": "2fb1fcd7442070859bd6711658f378f3d2492c6feb85a276f6767359d2be882b",
             "2": "__EMPTY__"
           }
         },
@@ -1965,7 +1964,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "b59e610433bac16d92c548956d20cefb3abf8f891c829cae89f43e7bd8493297f6b31c5fe56991c689481ea5f5fbce6eeeaa530f45c77da4ebf7ad1840deacc1",
+        "result": "0678ee28bdbee2703b11ccb80b85bd5745e7e6e1703f0f5874dde862999698fbab8820549ae71833833b473dc7271404a446dc65e66ae0e4305cea7224779da1",
         "totalInputs": 3,
         "unwiredCount": 0,
         "dirty": false,
@@ -2026,7 +2025,7 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": "b59e610433bac16d92c548956d20cefb3abf8f891c829cae89f43e7bd8493297f6b31c5fe56991c689481ea5f5fbce6eeeaa530f45c77da4ebf7ad1840deacc1"
+          "val": "0678ee28bdbee2703b11ccb80b85bd5745e7e6e1703f0f5874dde862999698fbab8820549ae71833833b473dc7271404a446dc65e66ae0e4305cea7224779da1"
         },
         "result": "40",
         "borderColor": "#eab308",
@@ -2051,7 +2050,7 @@
           "vals": {
             "0": "01",
             "1": "40",
-            "2": "b59e610433bac16d92c548956d20cefb3abf8f891c829cae89f43e7bd8493297f6b31c5fe56991c689481ea5f5fbce6eeeaa530f45c77da4ebf7ad1840deacc1"
+            "2": "0678ee28bdbee2703b11ccb80b85bd5745e7e6e1703f0f5874dde862999698fbab8820549ae71833833b473dc7271404a446dc65e66ae0e4305cea7224779da1"
           }
         },
         "inputStructure": {
@@ -2079,7 +2078,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "0140b59e610433bac16d92c548956d20cefb3abf8f891c829cae89f43e7bd8493297f6b31c5fe56991c689481ea5f5fbce6eeeaa530f45c77da4ebf7ad1840deacc1",
+        "result": "01400678ee28bdbee2703b11ccb80b85bd5745e7e6e1703f0f5874dde862999698fbab8820549ae71833833b473dc7271404a446dc65e66ae0e4305cea7224779da1",
         "baseHeight": 100,
         "totalInputs": 3,
         "unwiredCount": 0,
@@ -2094,7 +2093,7 @@
       "id": "node_dEp1vnm1",
       "type": "calculation",
       "position": {
-        "x": 2783.559537519186,
+        "x": 2815.559537519186,
         "y": 2326.403107899393
       },
       "data": {
@@ -2131,7 +2130,7 @@
       "id": "node_1XyIKP1B",
       "type": "calculation",
       "position": {
-        "x": 2724.945157639754,
+        "x": 2756.945157639754,
         "y": 1172.9275380113909
       },
       "data": {
@@ -2166,7 +2165,7 @@
       "id": "node_oc3tk6t9",
       "type": "calculation",
       "position": {
-        "x": 2664.190520863822,
+        "x": 2696.190520863822,
         "y": 1868.4495199230569
       },
       "data": {
@@ -2199,7 +2198,7 @@
       "id": "node_PHzsXYIu",
       "type": "calculation",
       "position": {
-        "x": 2717.2274556020093,
+        "x": 2749.2274556020093,
         "y": 1384.1485064787444
       },
       "data": {
@@ -2232,7 +2231,7 @@
       "id": "node_P2P02eQR",
       "type": "calculation",
       "position": {
-        "x": 2673.6693180685097,
+        "x": 2705.6693180685097,
         "y": 1653.6287953542733
       },
       "data": {
@@ -2267,7 +2266,7 @@
       "id": "node_jlxq0jh",
       "type": "calculation",
       "position": {
-        "x": 1719.3781231273815,
+        "x": 1751.3781231273815,
         "y": 1701.1154484081126
       },
       "data": {
@@ -2326,7 +2325,7 @@
       "id": "node_8vvcdwh",
       "type": "calculation",
       "position": {
-        "x": 1174.050620198048,
+        "x": 1206.050620198048,
         "y": 1895.7745189997177
       },
       "data": {
@@ -2348,7 +2347,7 @@
       "id": "node_W2Oyxmai",
       "type": "calculation",
       "position": {
-        "x": 2172.4957667052486,
+        "x": 2204.4957667052486,
         "y": 2555.3880756557137
       },
       "data": {
@@ -2357,9 +2356,9 @@
         "numInputs": 1,
         "version": 0,
         "inputs": {
-          "val": "d06c0400000000002251206513ad8b87e27d99382922695d6e334f9738c0975ae9f60897b8b0673673d095"
+          "val": "d06c04000000000022512099795af15be99f214c444a562657fa567751ebf39dc81c67078941040e6d5fe2"
         },
-        "result": "f0c972332d00c891e5873a3f2ad05901f673a44d7a50bc1a0b23d44426eabe25",
+        "result": "050bb9b3ee0c14f4753e742e6091bbd866573762b28d536aa6c1244fe4526860",
         "inputStructure": {
           "ungrouped": [
             {
@@ -2383,7 +2382,7 @@
       "id": "node_hZ24AUWT",
       "type": "calculation",
       "position": {
-        "x": 2610.0404257652626,
+        "x": 2642.0404257652626,
         "y": 2868.111989126968
       },
       "data": {
@@ -2419,7 +2418,7 @@
       "id": "node_pc022m9",
       "type": "calculation",
       "position": {
-        "x": 2899.244866422844,
+        "x": 2931.244866422844,
         "y": 2802.6361565036714
       },
       "data": {
@@ -2442,7 +2441,7 @@
       "id": "node_jwoy4ny",
       "type": "calculation",
       "position": {
-        "x": 4734.335741959844,
+        "x": 4766.335741959844,
         "y": 1156.9416369770602
       },
       "data": {
@@ -2454,11 +2453,11 @@
           "vals": {
             "0": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031",
             "100": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031",
-            "200": "00000200000000000000bfcb7e4878bd20862e88022c5df52f04844e640021a5e63d40ceb0eef13d1bce72358b0ef71194560ebf27a15d33db7229d533ce1356190612cc9fa9fdcf8a115e052ee9dd86dfbd8de0b57552a0935a9bae6e2ab86a3ef3a8f9022fce32f1c323e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2f0c972332d00c891e5873a3f2ad05901f673a44d7a50bc1a0b23d44426eabe250000000000"
+            "200": "00000200000000000000bfcb7e4878bd20862e88022c5df52f04844e640021a5e63d40ceb0eef13d1bce72358b0ef71194560ebf27a15d33db7229d533ce1356190612cc9fa9fdcf8a115e052ee9dd86dfbd8de0b57552a0935a9bae6e2ab86a3ef3a8f9022fce32f1c323e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2050bb9b3ee0c14f4753e742e6091bbd866573762b28d536aa6c1244fe45268600000000000"
           }
         },
         "version": 0,
-        "result": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a03100000200000000000000bfcb7e4878bd20862e88022c5df52f04844e640021a5e63d40ceb0eef13d1bce72358b0ef71194560ebf27a15d33db7229d533ce1356190612cc9fa9fdcf8a115e052ee9dd86dfbd8de0b57552a0935a9bae6e2ab86a3ef3a8f9022fce32f1c323e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2f0c972332d00c891e5873a3f2ad05901f673a44d7a50bc1a0b23d44426eabe250000000000",
+        "result": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a03100000200000000000000bfcb7e4878bd20862e88022c5df52f04844e640021a5e63d40ceb0eef13d1bce72358b0ef71194560ebf27a15d33db7229d533ce1356190612cc9fa9fdcf8a115e052ee9dd86dfbd8de0b57552a0935a9bae6e2ab86a3ef3a8f9022fce32f1c323e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2050bb9b3ee0c14f4753e742e6091bbd866573762b28d536aa6c1244fe45268600000000000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -2500,8 +2499,8 @@
       "id": "node_d6gdw9w",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -234.19749969829968,
-        "y": 1340.56010322221
+        "x": -5213.037964966421,
+        "y": 6129.964207766298
       },
       "data": {
         "content": "## The same vault, one era earlier - P2SH\n\nBefore taproot, all four spending paths live in **one script**, glued together with IF/ELSE ladders. The spender steers the branches by pushing 1/0 flags:\n\n```\nOP_IF\n    <Alice> OP_CHECKSIG                        ← path 1: daily spending\nOP_ELSE\n    OP_IF\n        <144> OP_CSV OP_DROP                   ← path 2: Bob, ~1 day\n        <Bob> OP_CHECKSIG\n    OP_ELSE\n        OP_IF\n            <4320> OP_CSV OP_DROP              ← path 3: Charlie, ~30 days\n            <Charlie> OP_CHECKSIG\n        OP_ELSE\n            <8640> OP_CSV OP_DROP              ← path 4: estate council, ~60 days\n            OP_2 <Bob> <Charlie> <Diana> OP_3\n            OP_CHECKMULTISIG\n        OP_ENDIF\n    OP_ENDIF\nOP_ENDIF\n```\n\nRoughly 235 bytes, wrapped in the usual 23-byte P2SH envelope: `OP_HASH160 <hash> OP_EQUAL`.\n\n**Hidden only until the first spend.** The address is a hash, so the vault starts out private - but the *first* spend of any path publishes the entire script forever: every heir's key, every delay, the whole family structure. Taproot's tree reveals one leaf per spend and nothing else - and the key path reveals no script at all.\n\n**Everyone pays for every branch.** Each spend - including Alice's Tuesday coffee - must carry all 235 bytes plus the steering flags on-chain. In the taproot version Alice's daily spend is a 66-byte witness that looks identical to any single-sig payment; the contingency paths cost bytes only in the year they actually fire.\n\n**Control flow is where script bugs live.** Three nested IF/ELSE/ENDIF ladders, flag ordering the spender must get right, a DROP after every CSV. The taproot tree replaces control flow with *structure*: each leaf is a short, straight-line script, and the merkle proof does the branching.\n",
@@ -2685,8 +2684,8 @@
       "id": "node_1twzg5i",
       "type": "calculation",
       "position": {
-        "x": 2250.2952803125113,
-        "y": 243.29334385069524
+        "x": 2256.3119389279177,
+        "y": 156.05179392730133
       },
       "data": {
         "functionName": "identity",
@@ -2711,7 +2710,9 @@
         "groupInstances": {},
         "dirty": false,
         "error": false,
-        "borderColor": "#22c55e"
+        "borderColor": "#22c55e",
+        "showComment": true,
+        "comment": "c0 means tapscript v0 (BIP342)"
       },
       "parentId": "group_hegqa99",
       "extent": "parent"
@@ -3002,8 +3003,8 @@
       "id": "node_0i5d2pi",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1041.8279709572425,
-        "y": 6279.889438329045
+        "x": -3709.6621202830784,
+        "y": 6133.818430307263
       },
       "data": {
         "content": "## The same vault in taproot - a tree instead of a ladder\n\nThe four paths stop being one script. Three become **separate straight-line scripts**, each a leaf in a tree; the fourth becomes no script at all:\n\n```\n        Q = P_Alice + H_TapTweak(P ‖ root)·G     ← the whole lock: OP_1 <Q>\n        │\n      root\n     /    \\\n branch    leaf C\n /    \\\nleaf A  leaf B\n\nleaf A:  <144>  OP_CSV OP_DROP  <Bob>     OP_CHECKSIG\nleaf B:  <4320> OP_CSV OP_DROP  <Charlie> OP_CHECKSIG\nleaf C:  <8640> OP_CSV OP_DROP\n         <Bob> OP_CHECKSIG  <Charlie> OP_CHECKSIGADD  <Diana> OP_CHECKSIGADD\n         OP_2 OP_NUMEQUAL\n```\n\n**Path 1 is not a leaf - it's the key.** Alice is the internal key P, so her daily spend is the 66-byte key-path witness from the intro flow. No script surfaces, no tree is mentioned; the chain sees an ordinary single-sig payment. The vault's most-used path costs nothing extra, ever.\n\n**No steering flags, no ladder.** \"Which branch\" is no longer opcodes the spender executes - it's a merkle proof the spender *presents*. Each leaf is short, linear, and independently auditable: ~40 bytes for A and B, ~110 for the council leaf, versus the 235-byte monolith. The IF/ELSE bug surface is simply gone.\n\n**One spend reveals one leaf.** When Bob recovers after a day, the chain learns his script and a control block - parity byte, Alice's internal key, and the two sibling hashes proving his leaf was always inside Q (33 + 2×32 = 97 bytes). Leaf B and leaf C stay 32-byte hashes forever: Charlie's delay, the council's existence, even *how many* other clauses there were - never published. The estate leaf, one level shallower, would need only a 65-byte proof.\n\n**And the multisig modernized on the way in:** OP_CHECKMULTISIG doesn't exist in tapscript - the council leaf counts valid signatures instead (`OP_CHECKSIG / OP_CHECKSIGADD ... OP_2 OP_NUMEQUAL`), one slot per key, empty slot for non-signers, no dummy element.\n",
@@ -3259,6 +3260,2399 @@
         "error": false
       },
       "parentId": "group_hegqa99",
+      "extent": "parent"
+    },
+    {
+      "id": "node_R4pgt3mN",
+      "type": "shadcnGroup",
+      "position": {
+        "x": -4301.94632677729,
+        "y": 10765.319649233106
+      },
+      "data": {
+        "isGroup": true,
+        "width": 5149,
+        "height": 2103,
+        "title": "Locking Script P2TR - leaf B",
+        "dirty": false,
+        "borderColor": "#a83a32",
+        "fontSize": 40
+      },
+      "width": 5149,
+      "height": 2103,
+      "dragHandle": "[data-drag-handle]"
+    },
+    {
+      "id": "node_AhaBpBau",
+      "type": "calculation",
+      "position": {
+        "x": 1137.8821387031555,
+        "y": 875.1466318569046
+      },
+      "data": {
+        "functionName": "encode_script_push_data",
+        "title": "Data → Push Opcode",
+        "showField": false,
+        "numInputs": 1,
+        "dirty": false,
+        "version": 0,
+        "inputs": {
+          "val": "1ed1ea0290010274b21384d6fc086f4061ed548cc46dc8bec765cbcebd008eaa"
+        },
+        "result": "20",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Hex Data:",
+              "placeholder": "Enter hex data to calculate push opcode",
+              "rows": 2
+            }
+          ]
+        },
+        "groupInstances": {},
+        "borderColor": "#22c55e",
+        "error": false
+      },
+      "parentId": "node_R4pgt3mN",
+      "extent": "parent"
+    },
+    {
+      "id": "node_7WcjDcTn",
+      "type": "calculation",
+      "position": {
+        "x": 84.10928722306153,
+        "y": 1035.261532980393
+      },
+      "data": {
+        "functionName": "random_256",
+        "title": "Random 32 Bytes",
+        "hasRegenerate": true,
+        "dirty": false,
+        "numInputs": 0,
+        "groupInstances": {},
+        "result": "eb7731190caaa6c8a1305adc60f93a90d3ca07d858bea60e078cd2847e381172",
+        "error": false,
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_R4pgt3mN",
+      "extent": "parent"
+    },
+    {
+      "id": "node_ViwDo5x0",
+      "type": "calculation",
+      "position": {
+        "x": 464.4287978162738,
+        "y": 1016.3553221294142
+      },
+      "data": {
+        "functionName": "even_y_private_key",
+        "title": "PrivKey → Even-Y PrivKey",
+        "numInputs": 1,
+        "inputs": {
+          "val": "eb7731190caaa6c8a1305adc60f93a90d3ca07d858bea60e078cd2847e381172"
+        },
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Private Key (32B hex):",
+              "rows": 2,
+              "placeholder": "<privkey hex>"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "result": "1488cee6f35559375ecfa5239f06c56de6e4d50e5689fa2db8458c0851fe2fcf",
+        "dirty": false,
+        "error": false,
+        "showComment": false,
+        "comment": "",
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_R4pgt3mN",
+      "extent": "parent"
+    },
+    {
+      "id": "node_sS5YDPqO",
+      "type": "calculation",
+      "position": {
+        "x": 822.1451100860111,
+        "y": 1054.2729464632366
+      },
+      "data": {
+        "functionName": "xonly_pubkey",
+        "title": "Even-Y PrivKey → X-only PubKey",
+        "numInputs": 1,
+        "inputs": {
+          "val": "1488cee6f35559375ecfa5239f06c56de6e4d50e5689fa2db8458c0851fe2fcf"
+        },
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Even-Y Private Key (32B hex):",
+              "rows": 2,
+              "placeholder": "<privkey hex>"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "result": "1ed1ea0290010274b21384d6fc086f4061ed548cc46dc8bec765cbcebd008eaa",
+        "dirty": false,
+        "error": false,
+        "showComment": false,
+        "comment": "",
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_R4pgt3mN",
+      "extent": "parent"
+    },
+    {
+      "id": "node_aV0Lyg9Q",
+      "type": "opCodeNode",
+      "position": {
+        "x": 1134.213850968739,
+        "y": 1307.1244625145055
+      },
+      "data": {
+        "functionName": "op_code_select",
+        "inputs": {
+          "vals": {
+            "0": "OP_CHECKSIG"
+          }
+        },
+        "dirty": false,
+        "version": 0,
+        "result": "ac",
+        "groupInstances": {},
+        "paramExtraction": "multi_val",
+        "title": "Opcode Sequence",
+        "borderColor": "#22c55e",
+        "error": false,
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ],
+          "groups": [],
+          "betweenGroups": {},
+          "afterGroups": []
+        },
+        "numInputs": 1,
+        "groupInstanceKeys": {}
+      },
+      "parentId": "node_R4pgt3mN",
+      "extent": "parent"
+    },
+    {
+      "id": "node_VFrlZwdp",
+      "type": "calculation",
+      "position": {
+        "x": 2250.2952803125117,
+        "y": 243.29334385069524
+      },
+      "data": {
+        "functionName": "identity",
+        "title": "leaf version constant",
+        "showField": true,
+        "numInputs": 0,
+        "value": "c0",
+        "version": 0,
+        "inputs": {
+          "val": "c0"
+        },
+        "result": "c0",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT VALUE:",
+              "rows": 1
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false,
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_R4pgt3mN",
+      "extent": "parent"
+    },
+    {
+      "id": "node_4H6tt9vf",
+      "type": "calculation",
+      "position": {
+        "x": 2219.944208953967,
+        "y": 633.3473987241341
+      },
+      "data": {
+        "functionName": "varint_encoded_byte_length",
+        "title": "Data → VarInt Length",
+        "numInputs": 1,
+        "groupInstances": {},
+        "inputs": {
+          "val": "02e010b275201ed1ea0290010274b21384d6fc086f4061ed548cc46dc8bec765cbcebd008eaaac"
+        },
+        "result": "27",
+        "dirty": false,
+        "error": false,
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_R4pgt3mN",
+      "extent": "parent"
+    },
+    {
+      "id": "node_wC5j7gdx",
+      "type": "calculation",
+      "position": {
+        "x": 3113.1931529745307,
+        "y": 530.4429373730509
+      },
+      "data": {
+        "functionName": "identity",
+        "title": "Tag",
+        "showField": true,
+        "numInputs": 0,
+        "value": "TapLeaf",
+        "version": 0,
+        "inputs": {
+          "val": "TapLeaf"
+        },
+        "result": "TapLeaf",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT VALUE:",
+              "rows": 1
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false,
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_R4pgt3mN",
+      "extent": "parent"
+    },
+    {
+      "id": "node_ePokNnh3",
+      "type": "calculation",
+      "position": {
+        "x": 1719.8240735465104,
+        "y": 519.3097126244538
+      },
+      "data": {
+        "functionName": "concat_all",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": {
+          "vals": {
+            "0": "02",
+            "100": "e010",
+            "200": "b275",
+            "300": "20",
+            "400": "1ed1ea0290010274b21384d6fc086f4061ed548cc46dc8bec765cbcebd008eaa",
+            "500": "ac"
+          }
+        },
+        "dirty": false,
+        "version": 0,
+        "result": "02e010b275201ed1ea0290010274b21384d6fc086f4061ed548cc46dc8bec765cbcebd008eaaac",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [
+                {
+                  "index": 0,
+                  "label": "Value:",
+                  "placeholder": "<multi‑line input>",
+                  "rows": 3
+                }
+              ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": {
+          "INPUTS[]": 6
+        },
+        "groupInstanceKeys": {
+          "INPUTS[]": [0, 100, 200, 300, 400, 500]
+        },
+        "baseHeight": 80,
+        "title": "leaf B",
+        "borderColor": "#22c55e",
+        "totalInputs": 6,
+        "unwiredCount": 0,
+        "showComment": true,
+        "comment": "leaf B:  <4320> OP_CSV OP_DROP  <Charlie> OP_CHECKSIG",
+        "error": false,
+        "customFieldLabels": {
+          "0": "delay len:",
+          "100": "delay:",
+          "200": "OP code",
+          "300": "pubkey len",
+          "400": "pubkey",
+          "500": "op code"
+        }
+      },
+      "parentId": "node_R4pgt3mN",
+      "extent": "parent"
+    },
+    {
+      "id": "node_yI9vFcB1",
+      "type": "calculation",
+      "position": {
+        "x": 230.94705511259735,
+        "y": 229.339630432567
+      },
+      "data": {
+        "functionName": "identity",
+        "title": "delay in blocks",
+        "showField": true,
+        "numInputs": 0,
+        "value": "4320",
+        "version": 0,
+        "inputs": {
+          "val": "4320"
+        },
+        "result": "4320",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT VALUE:",
+              "rows": 1
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false,
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_R4pgt3mN",
+      "extent": "parent"
+    },
+    {
+      "id": "node_Lr1g2N18",
+      "type": "calculation",
+      "position": {
+        "x": 1084.192382042277,
+        "y": 131.84439942665995
+      },
+      "data": {
+        "functionName": "encode_script_push_data",
+        "title": "Data → Push Opcode",
+        "showField": false,
+        "numInputs": 1,
+        "dirty": false,
+        "version": 0,
+        "inputs": {
+          "val": "e010"
+        },
+        "result": "02",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Hex Data:",
+              "placeholder": "Enter hex data to calculate push opcode",
+              "rows": 2
+            }
+          ]
+        },
+        "groupInstances": {},
+        "borderColor": "#22c55e",
+        "error": false
+      },
+      "parentId": "node_R4pgt3mN",
+      "extent": "parent"
+    },
+    {
+      "id": "node_82hK7Qev",
+      "type": "calculation",
+      "position": {
+        "x": 616.8289576145423,
+        "y": 240.64819773901036
+      },
+      "data": {
+        "functionName": "int_to_script_bytes",
+        "title": "Int → ScriptBytes",
+        "numInputs": 1,
+        "version": 0,
+        "inputs": {
+          "val": 4320
+        },
+        "result": "e010",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Integer value:",
+              "rows": 1,
+              "placeholder": "e.g. 4404774"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false,
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_R4pgt3mN",
+      "extent": "parent"
+    },
+    {
+      "id": "node_9lSbS61P",
+      "type": "opCodeNode",
+      "position": {
+        "x": 967.7866270570692,
+        "y": 533.9725602119943
+      },
+      "data": {
+        "functionName": "op_code_select",
+        "inputs": {
+          "vals": {
+            "0": "OP_CHECKSEQUENCEVERIFY",
+            "100": "OP_DROP"
+          }
+        },
+        "dirty": false,
+        "version": 0,
+        "result": "b275",
+        "groupInstances": {},
+        "paramExtraction": "multi_val",
+        "title": "Opcode Sequence",
+        "borderColor": "#22c55e",
+        "error": false,
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            },
+            {
+              "index": 100,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ],
+          "groups": [],
+          "betweenGroups": {},
+          "afterGroups": []
+        },
+        "numInputs": 2,
+        "groupInstanceKeys": {}
+      },
+      "parentId": "node_R4pgt3mN",
+      "extent": "parent"
+    },
+    {
+      "id": "node_TfayD1vc",
+      "type": "calculation",
+      "position": {
+        "x": 4253.735740526487,
+        "y": 947.6859953202047
+      },
+      "data": {
+        "functionName": "concat_all",
+        "title": "Tagged Hash Input (BIP340)",
+        "paramExtraction": "multi_val",
+        "numInputs": 3,
+        "inputs": {
+          "vals": {
+            "0": "aeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9ee",
+            "100": "aeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9ee",
+            "200": "c02702e010b275201ed1ea0290010274b21384d6fc086f4061ed548cc46dc8bec765cbcebd008eaaac"
+          }
+        },
+        "version": 0,
+        "result": "aeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9eeaeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9eec02702e010b275201ed1ea0290010274b21384d6fc086f4061ed548cc46dc8bec765cbcebd008eaaac",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "TAG HASH[32]:",
+              "rows": 2,
+              "placeholder": "SHA256 of the ASCII tag",
+              "comment": "Same value as the second field — wire both from one SHA-256 node"
+            },
+            {
+              "index": 100,
+              "label": "TAG HASH[32]:",
+              "rows": 2,
+              "placeholder": "SHA256 of the ASCII tag (again)",
+              "comment": "The doubled 64-byte prefix fills exactly one SHA-256 block, so implementations precompute it"
+            },
+            {
+              "index": 200,
+              "label": "MESSAGE:",
+              "rows": 3,
+              "placeholder": "Tag-specific payload",
+              "comment": "TapSighash: the SigMsg | TapTweak: P || merkle_root | TapLeaf: version || compactsize(script) || script"
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "baseHeight": 200,
+        "totalInputs": 3,
+        "unwiredCount": 0,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_R4pgt3mN",
+      "extent": "parent"
+    },
+    {
+      "id": "node_ODtDFin2",
+      "type": "calculation",
+      "position": {
+        "x": 3813.1058538833004,
+        "y": 878.3201904710413
+      },
+      "data": {
+        "functionName": "sha256_hex",
+        "title": "Data → SHA-256",
+        "numInputs": 1,
+        "version": 0,
+        "inputs": {
+          "val": "5461704c656166"
+        },
+        "result": "aeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9ee",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Input Hex:",
+              "rows": 2
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false,
+        "borderColor": "#eab308"
+      },
+      "parentId": "node_R4pgt3mN",
+      "extent": "parent"
+    },
+    {
+      "id": "node_wHu7AWC0",
+      "type": "calculation",
+      "position": {
+        "x": 3439.1843706964482,
+        "y": 695.6999064557822
+      },
+      "data": {
+        "functionName": "text_to_hex",
+        "title": "Text → Hex",
+        "numInputs": 1,
+        "version": 0,
+        "inputs": {
+          "val": "TapLeaf"
+        },
+        "result": "5461704c656166",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Text input:",
+              "rows": 1,
+              "placeholder": "e.g., 2009"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false,
+        "borderColor": "#eab308"
+      },
+      "parentId": "node_R4pgt3mN",
+      "extent": "parent"
+    },
+    {
+      "id": "node_O9pF0EKQ",
+      "type": "calculation",
+      "position": {
+        "x": 4769.841287039542,
+        "y": 1182.443776537163
+      },
+      "data": {
+        "functionName": "sha256_hex",
+        "title": "Data → SHA-256",
+        "numInputs": 1,
+        "version": 0,
+        "inputs": {
+          "val": "aeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9eeaeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9eec02702e010b275201ed1ea0290010274b21384d6fc086f4061ed548cc46dc8bec765cbcebd008eaaac"
+        },
+        "result": "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Input Hex:",
+              "rows": 2
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_R4pgt3mN",
+      "extent": "parent"
+    },
+    {
+      "id": "node_rCAxHXNz",
+      "type": "calculation",
+      "position": {
+        "x": 2674.1294965351663,
+        "y": 730.825209817187
+      },
+      "data": {
+        "functionName": "concat_all",
+        "title": "TapLeaf Preimage (BIP341)",
+        "paramExtraction": "multi_val",
+        "numInputs": 3,
+        "inputs": {
+          "vals": {
+            "0": "c0",
+            "100": "27",
+            "200": "02e010b275201ed1ea0290010274b21384d6fc086f4061ed548cc46dc8bec765cbcebd008eaaac"
+          }
+        },
+        "version": 0,
+        "result": "c02702e010b275201ed1ea0290010274b21384d6fc086f4061ed548cc46dc8bec765cbcebd008eaaac",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "LEAF VERSION:",
+              "rows": 1,
+              "placeholder": "c0",
+              "comment": "0xc0 = tapscript v0; other even bytes are soft-fork space. Reappears as the control block's first byte (OR'd with the output-key parity)"
+            },
+            {
+              "index": 100,
+              "label": "SCRIPT LENGTH (varint):",
+              "rows": 1,
+              "placeholder": "compactsize of the script",
+              "comment": "Wire from Data → VarInt Length of the tapscript"
+            },
+            {
+              "index": 200,
+              "label": "TAPSCRIPT:",
+              "rows": 3,
+              "placeholder": "The leaf script bytes",
+              "comment": "The script alone — raw, unhashed. The tagged hash over this whole preimage is the leaf hash"
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "baseHeight": 200,
+        "totalInputs": 3,
+        "unwiredCount": 0,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_R4pgt3mN",
+      "extent": "parent"
+    },
+    {
+      "id": "node_CUpubs5U",
+      "type": "scriptViewer",
+      "position": {
+        "x": 2360.1719617869803,
+        "y": 1292.6634543508344
+      },
+      "data": {
+        "functionName": "script_viewer",
+        "title": "Script Viewer",
+        "numInputs": 1,
+        "value": "",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "SCRIPT HEX:",
+              "rows": 1
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_R4pgt3mN",
+      "extent": "parent"
+    },
+    {
+      "id": "node_gXB7x7XV",
+      "type": "shadcnGroup",
+      "position": {
+        "x": -3549.7266325151904,
+        "y": 13559.339703186854
+      },
+      "data": {
+        "isGroup": true,
+        "width": 5185,
+        "height": 3289,
+        "title": "Locking Script P2TR - leaf C",
+        "dirty": false,
+        "borderColor": "#a83a32",
+        "fontSize": 40
+      },
+      "width": 5185,
+      "height": 3289,
+      "dragHandle": "[data-drag-handle]"
+    },
+    {
+      "id": "node_8iAx4F3u",
+      "type": "calculation",
+      "position": {
+        "x": 1137.8821387031555,
+        "y": 875.1466318569046
+      },
+      "data": {
+        "functionName": "encode_script_push_data",
+        "title": "Data → Push Opcode",
+        "showField": false,
+        "numInputs": 1,
+        "dirty": false,
+        "version": 0,
+        "inputs": {
+          "val": "cfdd003b4b59c48814bb2abdca2e473ce5c043ffbba682ba3fddf1d633234ca5"
+        },
+        "result": "20",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Hex Data:",
+              "placeholder": "Enter hex data to calculate push opcode",
+              "rows": 2
+            }
+          ]
+        },
+        "groupInstances": {},
+        "borderColor": "#22c55e",
+        "error": false
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_2wVIlgr0",
+      "type": "calculation",
+      "position": {
+        "x": 84.10928722306153,
+        "y": 1035.261532980393
+      },
+      "data": {
+        "functionName": "random_256",
+        "title": "Random 32 Bytes",
+        "hasRegenerate": true,
+        "dirty": false,
+        "numInputs": 0,
+        "groupInstances": {},
+        "result": "d3ff17c290902a34eda7cf3d6d106e486980ca088f00922b19e4eb6c0b4ec856",
+        "error": false,
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_AjBzaI8l",
+      "type": "calculation",
+      "position": {
+        "x": 464.4287978162738,
+        "y": 1016.3553221294142
+      },
+      "data": {
+        "functionName": "even_y_private_key",
+        "title": "PrivKey → Even-Y PrivKey",
+        "numInputs": 1,
+        "inputs": {
+          "val": "d3ff17c290902a34eda7cf3d6d106e486980ca088f00922b19e4eb6c0b4ec856"
+        },
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Private Key (32B hex):",
+              "rows": 2,
+              "placeholder": "<privkey hex>"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "result": "d3ff17c290902a34eda7cf3d6d106e486980ca088f00922b19e4eb6c0b4ec856",
+        "dirty": false,
+        "error": false,
+        "showComment": false,
+        "comment": "",
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_le8AXnKv",
+      "type": "calculation",
+      "position": {
+        "x": 822.1451100860111,
+        "y": 1054.2729464632366
+      },
+      "data": {
+        "functionName": "xonly_pubkey",
+        "title": "Even-Y PrivKey → X-only PubKey",
+        "numInputs": 1,
+        "inputs": {
+          "val": "d3ff17c290902a34eda7cf3d6d106e486980ca088f00922b19e4eb6c0b4ec856"
+        },
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Even-Y Private Key (32B hex):",
+              "rows": 2,
+              "placeholder": "<privkey hex>"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "result": "cfdd003b4b59c48814bb2abdca2e473ce5c043ffbba682ba3fddf1d633234ca5",
+        "dirty": false,
+        "error": false,
+        "showComment": false,
+        "comment": "",
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_cwprAu2h",
+      "type": "opCodeNode",
+      "position": {
+        "x": 1136.310375919773,
+        "y": 1214.877364669017
+      },
+      "data": {
+        "functionName": "op_code_select",
+        "inputs": {
+          "vals": {
+            "0": "OP_CHECKSIG"
+          }
+        },
+        "dirty": false,
+        "version": 0,
+        "result": "ac",
+        "groupInstances": {},
+        "paramExtraction": "multi_val",
+        "title": "Opcode Sequence",
+        "borderColor": "#22c55e",
+        "error": false,
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ],
+          "groups": [],
+          "betweenGroups": {},
+          "afterGroups": []
+        },
+        "numInputs": 1,
+        "groupInstanceKeys": {}
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_zLx7Slo6",
+      "type": "calculation",
+      "position": {
+        "x": 2250.2952803125117,
+        "y": 243.29334385069524
+      },
+      "data": {
+        "functionName": "identity",
+        "title": "leaf version constant",
+        "showField": true,
+        "numInputs": 0,
+        "value": "c0",
+        "version": 0,
+        "inputs": {
+          "val": "c0"
+        },
+        "result": "c0",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT VALUE:",
+              "rows": 1
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false,
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_i31rCA7k",
+      "type": "calculation",
+      "position": {
+        "x": 2219.944208953967,
+        "y": 633.3473987241341
+      },
+      "data": {
+        "functionName": "varint_encoded_byte_length",
+        "title": "Data → VarInt Length",
+        "numInputs": 1,
+        "groupInstances": {},
+        "inputs": {
+          "val": "02c021b27520cfdd003b4b59c48814bb2abdca2e473ce5c043ffbba682ba3fddf1d633234ca5ac2071f1ed49b88b03c3df76472a4b2514fd681f0a545a0dde7eea00562b70cb1f45ba20d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cfba529c"
+        },
+        "result": "6d",
+        "dirty": false,
+        "error": false,
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_ygbcgRJi",
+      "type": "calculation",
+      "position": {
+        "x": 3113.1931529745307,
+        "y": 530.4429373730509
+      },
+      "data": {
+        "functionName": "identity",
+        "title": "Tag",
+        "showField": true,
+        "numInputs": 0,
+        "value": "TapLeaf",
+        "version": 0,
+        "inputs": {
+          "val": "TapLeaf"
+        },
+        "result": "TapLeaf",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT VALUE:",
+              "rows": 1
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false,
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_jUyJ6i3w",
+      "type": "calculation",
+      "position": {
+        "x": 1719.8240735465104,
+        "y": 519.3097126244538
+      },
+      "data": {
+        "functionName": "concat_all",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": {
+          "vals": {
+            "0": "02",
+            "100": "c021",
+            "200": "b275",
+            "300": "20",
+            "400": "cfdd003b4b59c48814bb2abdca2e473ce5c043ffbba682ba3fddf1d633234ca5",
+            "500": "ac",
+            "600": "20",
+            "700": "71f1ed49b88b03c3df76472a4b2514fd681f0a545a0dde7eea00562b70cb1f45",
+            "800": "ba",
+            "900": "20",
+            "1000": "d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cf",
+            "1100": "ba",
+            "1200": "529c"
+          }
+        },
+        "dirty": false,
+        "version": 0,
+        "result": "02c021b27520cfdd003b4b59c48814bb2abdca2e473ce5c043ffbba682ba3fddf1d633234ca5ac2071f1ed49b88b03c3df76472a4b2514fd681f0a545a0dde7eea00562b70cb1f45ba20d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cfba529c",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [
+                {
+                  "index": 0,
+                  "label": "Value:",
+                  "placeholder": "<multi‑line input>",
+                  "rows": 3
+                }
+              ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": {
+          "INPUTS[]": 13
+        },
+        "groupInstanceKeys": {
+          "INPUTS[]": [
+            0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200
+          ]
+        },
+        "baseHeight": 80,
+        "title": "leaf C",
+        "borderColor": "#22c55e",
+        "totalInputs": 13,
+        "unwiredCount": 0,
+        "showComment": true,
+        "comment": "leaf C:  <8640> OP_CSV OP_DROP\n         <Bob> OP_CHECKSIG  <Charlie> OP_CHECKSIGADD  <Diana> OP_CHECKSIGADD\n         OP_2 OP_NUMEQUAL",
+        "error": false,
+        "customFieldLabels": {
+          "0": "delay len:",
+          "100": "delay:",
+          "200": "OP code",
+          "300": "pubkey len",
+          "400": "pubkey",
+          "500": "op code",
+          "600": "pubkey len",
+          "700": "pubkey",
+          "800": "op code",
+          "900": "pubkey len",
+          "1000": "pubkey",
+          "1100": "op code",
+          "1200": "op code"
+        }
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_8mn83x3a",
+      "type": "calculation",
+      "position": {
+        "x": 230.94705511259735,
+        "y": 229.339630432567
+      },
+      "data": {
+        "functionName": "identity",
+        "title": "delay in blocks",
+        "showField": true,
+        "numInputs": 0,
+        "value": "8640",
+        "version": 0,
+        "inputs": {
+          "val": "8640"
+        },
+        "result": "8640",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT VALUE:",
+              "rows": 1
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false,
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_XcRoOedz",
+      "type": "calculation",
+      "position": {
+        "x": 1084.192382042277,
+        "y": 131.84439942665995
+      },
+      "data": {
+        "functionName": "encode_script_push_data",
+        "title": "Data → Push Opcode",
+        "showField": false,
+        "numInputs": 1,
+        "dirty": false,
+        "version": 0,
+        "inputs": {
+          "val": "c021"
+        },
+        "result": "02",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Hex Data:",
+              "placeholder": "Enter hex data to calculate push opcode",
+              "rows": 2
+            }
+          ]
+        },
+        "groupInstances": {},
+        "borderColor": "#22c55e",
+        "error": false
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_EUfOZVkC",
+      "type": "calculation",
+      "position": {
+        "x": 616.8289576145423,
+        "y": 240.64819773901036
+      },
+      "data": {
+        "functionName": "int_to_script_bytes",
+        "title": "Int → ScriptBytes",
+        "numInputs": 1,
+        "version": 0,
+        "inputs": {
+          "val": 8640
+        },
+        "result": "c021",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Integer value:",
+              "rows": 1,
+              "placeholder": "e.g. 4404774"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false,
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_h6wEW0D0",
+      "type": "opCodeNode",
+      "position": {
+        "x": 967.7866270570692,
+        "y": 533.9725602119943
+      },
+      "data": {
+        "functionName": "op_code_select",
+        "inputs": {
+          "vals": {
+            "0": "OP_CHECKSEQUENCEVERIFY",
+            "100": "OP_DROP"
+          }
+        },
+        "dirty": false,
+        "version": 0,
+        "result": "b275",
+        "groupInstances": {},
+        "paramExtraction": "multi_val",
+        "title": "Opcode Sequence",
+        "borderColor": "#22c55e",
+        "error": false,
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            },
+            {
+              "index": 100,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ],
+          "groups": [],
+          "betweenGroups": {},
+          "afterGroups": []
+        },
+        "numInputs": 2,
+        "groupInstanceKeys": {}
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_qRKyDuR2",
+      "type": "calculation",
+      "position": {
+        "x": 4253.735740526487,
+        "y": 947.6859953202047
+      },
+      "data": {
+        "functionName": "concat_all",
+        "title": "Tagged Hash Input (BIP340)",
+        "paramExtraction": "multi_val",
+        "numInputs": 3,
+        "inputs": {
+          "vals": {
+            "0": "aeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9ee",
+            "100": "aeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9ee",
+            "200": "c06d02c021b27520cfdd003b4b59c48814bb2abdca2e473ce5c043ffbba682ba3fddf1d633234ca5ac2071f1ed49b88b03c3df76472a4b2514fd681f0a545a0dde7eea00562b70cb1f45ba20d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cfba529c"
+          }
+        },
+        "version": 0,
+        "result": "aeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9eeaeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9eec06d02c021b27520cfdd003b4b59c48814bb2abdca2e473ce5c043ffbba682ba3fddf1d633234ca5ac2071f1ed49b88b03c3df76472a4b2514fd681f0a545a0dde7eea00562b70cb1f45ba20d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cfba529c",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "TAG HASH[32]:",
+              "rows": 2,
+              "placeholder": "SHA256 of the ASCII tag",
+              "comment": "Same value as the second field — wire both from one SHA-256 node"
+            },
+            {
+              "index": 100,
+              "label": "TAG HASH[32]:",
+              "rows": 2,
+              "placeholder": "SHA256 of the ASCII tag (again)",
+              "comment": "The doubled 64-byte prefix fills exactly one SHA-256 block, so implementations precompute it"
+            },
+            {
+              "index": 200,
+              "label": "MESSAGE:",
+              "rows": 3,
+              "placeholder": "Tag-specific payload",
+              "comment": "TapSighash: the SigMsg | TapTweak: P || merkle_root | TapLeaf: version || compactsize(script) || script"
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "baseHeight": 200,
+        "totalInputs": 3,
+        "unwiredCount": 0,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_72Lb04Ce",
+      "type": "calculation",
+      "position": {
+        "x": 3813.1058538833004,
+        "y": 878.3201904710413
+      },
+      "data": {
+        "functionName": "sha256_hex",
+        "title": "Data → SHA-256",
+        "numInputs": 1,
+        "version": 0,
+        "inputs": {
+          "val": "5461704c656166"
+        },
+        "result": "aeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9ee",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Input Hex:",
+              "rows": 2
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false,
+        "borderColor": "#eab308"
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_jQhzQab0",
+      "type": "calculation",
+      "position": {
+        "x": 3439.1843706964482,
+        "y": 695.6999064557822
+      },
+      "data": {
+        "functionName": "text_to_hex",
+        "title": "Text → Hex",
+        "numInputs": 1,
+        "version": 0,
+        "inputs": {
+          "val": "TapLeaf"
+        },
+        "result": "5461704c656166",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Text input:",
+              "rows": 1,
+              "placeholder": "e.g., 2009"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false,
+        "borderColor": "#eab308"
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_o6j76ilC",
+      "type": "calculation",
+      "position": {
+        "x": 4769.841287039542,
+        "y": 1182.443776537163
+      },
+      "data": {
+        "functionName": "sha256_hex",
+        "title": "Data → SHA-256",
+        "numInputs": 1,
+        "version": 0,
+        "inputs": {
+          "val": "aeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9eeaeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9eec06d02c021b27520cfdd003b4b59c48814bb2abdca2e473ce5c043ffbba682ba3fddf1d633234ca5ac2071f1ed49b88b03c3df76472a4b2514fd681f0a545a0dde7eea00562b70cb1f45ba20d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cfba529c"
+        },
+        "result": "7fe2da7434c3345181902eeb2739c4a91a2589474da9b2cc7b4c6fb8b6674294",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Input Hex:",
+              "rows": 2
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_Z0KiSIj5",
+      "type": "calculation",
+      "position": {
+        "x": 2674.1294965351663,
+        "y": 730.825209817187
+      },
+      "data": {
+        "functionName": "concat_all",
+        "title": "TapLeaf Preimage (BIP341)",
+        "paramExtraction": "multi_val",
+        "numInputs": 3,
+        "inputs": {
+          "vals": {
+            "0": "c0",
+            "100": "6d",
+            "200": "02c021b27520cfdd003b4b59c48814bb2abdca2e473ce5c043ffbba682ba3fddf1d633234ca5ac2071f1ed49b88b03c3df76472a4b2514fd681f0a545a0dde7eea00562b70cb1f45ba20d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cfba529c"
+          }
+        },
+        "version": 0,
+        "result": "c06d02c021b27520cfdd003b4b59c48814bb2abdca2e473ce5c043ffbba682ba3fddf1d633234ca5ac2071f1ed49b88b03c3df76472a4b2514fd681f0a545a0dde7eea00562b70cb1f45ba20d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cfba529c",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "LEAF VERSION:",
+              "rows": 1,
+              "placeholder": "c0",
+              "comment": "0xc0 = tapscript v0; other even bytes are soft-fork space. Reappears as the control block's first byte (OR'd with the output-key parity)"
+            },
+            {
+              "index": 100,
+              "label": "SCRIPT LENGTH (varint):",
+              "rows": 1,
+              "placeholder": "compactsize of the script",
+              "comment": "Wire from Data → VarInt Length of the tapscript"
+            },
+            {
+              "index": 200,
+              "label": "TAPSCRIPT:",
+              "rows": 3,
+              "placeholder": "The leaf script bytes",
+              "comment": "The script alone — raw, unhashed. The tagged hash over this whole preimage is the leaf hash"
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "baseHeight": 200,
+        "totalInputs": 3,
+        "unwiredCount": 0,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_6nSGc02k",
+      "type": "scriptViewer",
+      "position": {
+        "x": 2360.1719617869803,
+        "y": 1292.6634543508344
+      },
+      "data": {
+        "functionName": "script_viewer",
+        "title": "Script Viewer",
+        "numInputs": 1,
+        "value": "",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "SCRIPT HEX:",
+              "rows": 1
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_z00sHgr3",
+      "type": "calculation",
+      "position": {
+        "x": 1166.2523861497943,
+        "y": 1564.0541231352327
+      },
+      "data": {
+        "functionName": "encode_script_push_data",
+        "title": "Data → Push Opcode",
+        "showField": false,
+        "numInputs": 1,
+        "dirty": false,
+        "version": 0,
+        "inputs": {
+          "val": "71f1ed49b88b03c3df76472a4b2514fd681f0a545a0dde7eea00562b70cb1f45"
+        },
+        "result": "20",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Hex Data:",
+              "placeholder": "Enter hex data to calculate push opcode",
+              "rows": 2
+            }
+          ]
+        },
+        "groupInstances": {},
+        "borderColor": "#22c55e",
+        "error": false
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_TszDFApn",
+      "type": "calculation",
+      "position": {
+        "x": 72.64556060005725,
+        "y": 1621.4393016580616
+      },
+      "data": {
+        "functionName": "random_256",
+        "title": "Random 32 Bytes",
+        "hasRegenerate": true,
+        "dirty": false,
+        "numInputs": 0,
+        "groupInstances": {},
+        "result": "b0b5820920d6e3705c64b27b8ed4af8767777d330ae875e7d104d95615608926",
+        "error": false,
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_P5LEHJtL",
+      "type": "calculation",
+      "position": {
+        "x": 438.2893965360331,
+        "y": 1661.235789436032
+      },
+      "data": {
+        "functionName": "even_y_private_key",
+        "title": "PrivKey → Even-Y PrivKey",
+        "numInputs": 1,
+        "inputs": {
+          "val": "b0b5820920d6e3705c64b27b8ed4af8767777d330ae875e7d104d95615608926"
+        },
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Private Key (32B hex):",
+              "rows": 2,
+              "placeholder": "<privkey hex>"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "result": "4f4a7df6df291c8fa39b4d84712b507753375fb3a4602a53eecd8536bad5b81b",
+        "dirty": false,
+        "error": false,
+        "showComment": false,
+        "comment": "",
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_SFk37qUa",
+      "type": "calculation",
+      "position": {
+        "x": 856.8049323857522,
+        "y": 1720.1186632801928
+      },
+      "data": {
+        "functionName": "xonly_pubkey",
+        "title": "Even-Y PrivKey → X-only PubKey",
+        "numInputs": 1,
+        "inputs": {
+          "val": "4f4a7df6df291c8fa39b4d84712b507753375fb3a4602a53eecd8536bad5b81b"
+        },
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Even-Y Private Key (32B hex):",
+              "rows": 2,
+              "placeholder": "<privkey hex>"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "result": "71f1ed49b88b03c3df76472a4b2514fd681f0a545a0dde7eea00562b70cb1f45",
+        "dirty": false,
+        "error": false,
+        "showComment": false,
+        "comment": "",
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_tfCpqo97",
+      "type": "opCodeNode",
+      "position": {
+        "x": 1163.182127811002,
+        "y": 1884.3078357933628
+      },
+      "data": {
+        "functionName": "op_code_select",
+        "inputs": {
+          "vals": {
+            "0": "OP_CHECKSIGADD"
+          }
+        },
+        "dirty": false,
+        "version": 0,
+        "result": "ba",
+        "groupInstances": {},
+        "paramExtraction": "multi_val",
+        "title": "Opcode Sequence",
+        "borderColor": "#22c55e",
+        "error": false,
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ],
+          "groups": [],
+          "betweenGroups": {},
+          "afterGroups": []
+        },
+        "numInputs": 1,
+        "groupInstanceKeys": {}
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_wEC2Kyjc",
+      "type": "opCodeNode",
+      "position": {
+        "x": 1185.2855392507968,
+        "y": 2888.3429321120584
+      },
+      "data": {
+        "functionName": "op_code_select",
+        "inputs": {
+          "vals": {
+            "0": "OP_2",
+            "100": "OP_NUMEQUAL"
+          }
+        },
+        "dirty": false,
+        "version": 0,
+        "result": "529c",
+        "groupInstances": {},
+        "paramExtraction": "multi_val",
+        "title": "Opcode Sequence",
+        "borderColor": "#22c55e",
+        "error": false,
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            },
+            {
+              "index": 100,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ],
+          "groups": [],
+          "betweenGroups": {},
+          "afterGroups": []
+        },
+        "numInputs": 2,
+        "groupInstanceKeys": {}
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_sn89e3kj",
+      "type": "calculation",
+      "position": {
+        "x": 1165.3854026417857,
+        "y": 2207.1836245598442
+      },
+      "data": {
+        "functionName": "encode_script_push_data",
+        "title": "Data → Push Opcode",
+        "showField": false,
+        "numInputs": 1,
+        "dirty": false,
+        "version": 0,
+        "inputs": {
+          "val": "d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cf"
+        },
+        "result": "20",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Hex Data:",
+              "placeholder": "Enter hex data to calculate push opcode",
+              "rows": 2
+            }
+          ]
+        },
+        "groupInstances": {},
+        "borderColor": "#22c55e",
+        "error": false
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_7NHN6CHJ",
+      "type": "calculation",
+      "position": {
+        "x": 57.68119939125427,
+        "y": 2268.5966252829003
+      },
+      "data": {
+        "functionName": "random_256",
+        "title": "Random 32 Bytes",
+        "hasRegenerate": true,
+        "dirty": false,
+        "numInputs": 0,
+        "groupInstances": {},
+        "result": "cd19877d6342ee872f56a4ce4c8154fe8ff7f151fe3e9f0f404eeb4da811da5e",
+        "error": false,
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_a6hdFmxq",
+      "type": "calculation",
+      "position": {
+        "x": 423.3250353272301,
+        "y": 2308.3931130608707
+      },
+      "data": {
+        "functionName": "even_y_private_key",
+        "title": "PrivKey → Even-Y PrivKey",
+        "numInputs": 1,
+        "inputs": {
+          "val": "cd19877d6342ee872f56a4ce4c8154fe8ff7f151fe3e9f0f404eeb4da811da5e"
+        },
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Private Key (32B hex):",
+              "rows": 2,
+              "placeholder": "<privkey hex>"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "result": "32e678829cbd1178d0a95b31b37eab002ab6eb94b10a012c7f83733f282466e3",
+        "dirty": false,
+        "error": false,
+        "showComment": false,
+        "comment": "",
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_HrIafqow",
+      "type": "calculation",
+      "position": {
+        "x": 841.8405711769492,
+        "y": 2367.2759869050315
+      },
+      "data": {
+        "functionName": "xonly_pubkey",
+        "title": "Even-Y PrivKey → X-only PubKey",
+        "numInputs": 1,
+        "inputs": {
+          "val": "32e678829cbd1178d0a95b31b37eab002ab6eb94b10a012c7f83733f282466e3"
+        },
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Even-Y Private Key (32B hex):",
+              "rows": 2,
+              "placeholder": "<privkey hex>"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "result": "d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cf",
+        "dirty": false,
+        "error": false,
+        "showComment": false,
+        "comment": "",
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_WwB5LtyZ",
+      "type": "opCodeNode",
+      "position": {
+        "x": 1148.217766602199,
+        "y": 2531.4651594182014
+      },
+      "data": {
+        "functionName": "op_code_select",
+        "inputs": {
+          "vals": {
+            "0": "OP_CHECKSIGADD"
+          }
+        },
+        "dirty": false,
+        "version": 0,
+        "result": "ba",
+        "groupInstances": {},
+        "paramExtraction": "multi_val",
+        "title": "Opcode Sequence",
+        "borderColor": "#22c55e",
+        "error": false,
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ],
+          "groups": [],
+          "betweenGroups": {},
+          "afterGroups": []
+        },
+        "numInputs": 1,
+        "groupInstanceKeys": {}
+      },
+      "parentId": "node_gXB7x7XV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_QlQB8akV",
+      "type": "shadcnGroup",
+      "position": {
+        "x": 2565,
+        "y": 9675
+      },
+      "data": {
+        "isGroup": true,
+        "width": 2982,
+        "height": 1634.5459103605917,
+        "title": "Locking Script P2TR - ROOT",
+        "dirty": false,
+        "borderColor": "#a83a32",
+        "fontSize": 48,
+        "groupBundlePortOffsets": {
+          "targetByBundle": {
+            "node_R4pgt3mN->node_QlQB8akV": 242.41,
+            "node_gXB7x7XV->node_QlQB8akV": 478.91
+          },
+          "sourceByBundle": {
+            "node_QlQB8akV->group_ixnjwes": 326.98
+          }
+        }
+      },
+      "width": 2982,
+      "height": 1634.5459103605917,
+      "dragHandle": "[data-drag-handle]"
+    },
+    {
+      "id": "node_Dj53D8z4",
+      "type": "opCodeNode",
+      "position": {
+        "x": 1543.9912317963303,
+        "y": 116.47225083258763
+      },
+      "data": {
+        "functionName": "op_code_select",
+        "inputs": {
+          "vals": {
+            "0": "OP_1"
+          }
+        },
+        "dirty": false,
+        "version": 0,
+        "result": "51",
+        "groupInstances": {},
+        "paramExtraction": "multi_val",
+        "title": "Opcode Sequence",
+        "error": false,
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Opcode:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ],
+          "groups": [],
+          "betweenGroups": {},
+          "afterGroups": []
+        },
+        "numInputs": 1,
+        "groupInstanceKeys": {}
+      },
+      "parentId": "node_QlQB8akV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_7bQgp6gF",
+      "type": "calculation",
+      "position": {
+        "x": 2106.077406109612,
+        "y": 376.1952425985628
+      },
+      "data": {
+        "functionName": "concat_all",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": {
+          "vals": {
+            "0": "51",
+            "100": "20",
+            "200": "99795af15be99f214c444a562657fa567751ebf39dc81c67078941040e6d5fe2"
+          }
+        },
+        "dirty": false,
+        "version": 0,
+        "result": "512099795af15be99f214c444a562657fa567751ebf39dc81c67078941040e6d5fe2",
+        "inputStructure": {
+          "afterGroups": [],
+          "groups": [
+            {
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "fields": [
+                {
+                  "index": 0,
+                  "label": "Value:",
+                  "placeholder": "<multi‑line input>",
+                  "rows": 3
+                }
+              ],
+              "maxInstances": 25,
+              "minInstances": 1,
+              "title": "INPUTS[]"
+            }
+          ],
+          "ungrouped": []
+        },
+        "groupInstances": {
+          "INPUTS[]": 3
+        },
+        "groupInstanceKeys": {
+          "INPUTS[]": [0, 100, 200]
+        },
+        "baseHeight": 80,
+        "title": "scriptPubKey P2TR",
+        "totalInputs": 3,
+        "unwiredCount": 0,
+        "showComment": true,
+        "comment": "OP_1 <tweaked output key Q>",
+        "error": false,
+        "customFieldLabels": {
+          "0": "OP codes",
+          "100": "pubKey len",
+          "200": "pubKey ",
+          "300": "OP codes"
+        }
+      },
+      "parentId": "node_QlQB8akV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_jM1BkHeL",
+      "type": "calculation",
+      "position": {
+        "x": 2632.867200253191,
+        "y": 501.54635124441666
+      },
+      "data": {
+        "functionName": "varint_encoded_byte_length",
+        "title": "Data → VarInt Length",
+        "numInputs": 1,
+        "showField": false,
+        "dirty": false,
+        "groupInstances": {},
+        "inputs": {
+          "val": "512099795af15be99f214c444a562657fa567751ebf39dc81c67078941040e6d5fe2"
+        },
+        "result": "22",
+        "error": false
+      },
+      "parentId": "node_QlQB8akV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_hXZugDJb",
+      "type": "calculation",
+      "position": {
+        "x": 1716.6144430283362,
+        "y": 472.03249253967624
+      },
+      "data": {
+        "functionName": "encode_script_push_data",
+        "title": "Data → Push Opcode",
+        "showField": false,
+        "numInputs": 1,
+        "dirty": false,
+        "version": 0,
+        "inputs": {
+          "val": "99795af15be99f214c444a562657fa567751ebf39dc81c67078941040e6d5fe2"
+        },
+        "result": "20",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Hex Data:",
+              "placeholder": "Enter hex data to calculate push opcode",
+              "rows": 2
+            }
+          ]
+        },
+        "groupInstances": {},
+        "error": false,
+        "outputValues": {},
+        "outputErrors": {}
+      },
+      "parentId": "node_QlQB8akV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_JMarfc2B",
+      "type": "calculation",
+      "position": {
+        "x": 39.07764457464236,
+        "y": 340.78527976987243
+      },
+      "data": {
+        "functionName": "random_256",
+        "title": "Random 32 Bytes",
+        "hasRegenerate": true,
+        "dirty": false,
+        "numInputs": 0,
+        "groupInstances": {},
+        "result": "7f022ec1036d4bb4ffd63a03e49149623a290914102d85efa9590da43d7ef727",
+        "showComment": false,
+        "error": false
+      },
+      "parentId": "node_QlQB8akV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_Qm8Ur78A",
+      "type": "calculation",
+      "position": {
+        "x": 468.5843137939687,
+        "y": 358.3663946921497
+      },
+      "data": {
+        "functionName": "even_y_private_key",
+        "title": "PrivKey → Even-Y PrivKey",
+        "numInputs": 1,
+        "inputs": {
+          "val": "7f022ec1036d4bb4ffd63a03e49149623a290914102d85efa9590da43d7ef727"
+        },
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Private Key (32B hex):",
+              "rows": 2,
+              "placeholder": "<privkey hex>"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "result": "7f022ec1036d4bb4ffd63a03e49149623a290914102d85efa9590da43d7ef727",
+        "dirty": false,
+        "error": false,
+        "showComment": true,
+        "comment": "If the pubkey from this private key has odd Y (prefix 03),\nwe replace d with d' = n − d so the corresponding pubkey has even Y.",
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_QlQB8akV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_1X014Z9C",
+      "type": "calculation",
+      "position": {
+        "x": 834.2898420456613,
+        "y": 492.7689228907002
+      },
+      "data": {
+        "functionName": "xonly_pubkey",
+        "title": "Even-Y PrivKey → X-only PubKey",
+        "numInputs": 1,
+        "inputs": {
+          "val": "7f022ec1036d4bb4ffd63a03e49149623a290914102d85efa9590da43d7ef727"
+        },
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Even-Y Private Key (32B hex):",
+              "rows": 2,
+              "placeholder": "<privkey hex>"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "result": "7ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f9",
+        "dirty": false,
+        "error": false,
+        "showComment": false,
+        "borderColor": "#22c55e"
+      },
+      "parentId": "node_QlQB8akV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_pnyewjg",
+      "type": "calculation",
+      "position": {
+        "x": 1221.2364800193914,
+        "y": 483.481139346045
+      },
+      "data": {
+        "functionName": "taproot_tweak_xonly_pubkey",
+        "title": "Taproot Tweak (X-only → Q)",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": {
+          "vals": {
+            "0": "7ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f9",
+            "1": "04df30b0ebbed8d5bae4b33e2128337c75e8096cfe85c8d862a4562ed2c7b5bd"
+          }
+        },
+        "outputLayout": "taproot_tweak_xonly_pubkey",
+        "outputPorts": [
+          {
+            "label": "Q (x-only)",
+            "handleId": "",
+            "handleTop": "50%",
+            "showLabel": false
+          },
+          {
+            "label": "parity (c0/c1)",
+            "handleId": "output-1",
+            "handleTopSource": "taproot-output-parity",
+            "showLabel": false
+          },
+          {
+            "label": "tweak (32B)",
+            "handleId": "output-2",
+            "showHandle": false,
+            "showLabel": false
+          }
+        ],
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Internal X-only PubKey (32B hex):",
+              "rows": 2,
+              "placeholder": "<x-only pubkey>"
+            },
+            {
+              "index": 1,
+              "label": "Merkle Root (32B hex, optional):",
+              "rows": 2,
+              "placeholder": "leave empty for key-path only",
+              "allowEmptyBlank": true
+            }
+          ]
+        },
+        "groupInstances": {},
+        "result": "99795af15be99f214c444a562657fa567751ebf39dc81c67078941040e6d5fe2",
+        "totalInputs": 2,
+        "unwiredCount": 0,
+        "dirty": false,
+        "error": false,
+        "outputValues": {
+          "output-1": "c0",
+          "output-2": "0fa87d338e5d8cddb9b96f0e4f121394473ad407071d8a92780ca12e6049749d"
+        },
+        "outputErrors": {}
+      },
+      "parentId": "node_QlQB8akV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_sgac5y6",
+      "type": "calculation",
+      "position": {
+        "x": 1794.6616366558992,
+        "y": 1089.708841478012
+      },
+      "data": {
+        "functionName": "p2tr_address_from_xonly",
+        "title": "X-only → P2TR Address",
+        "numInputs": 1,
+        "networkDependent": true,
+        "selectedNetwork": "testnet",
+        "inputs": {
+          "val": "99795af15be99f214c444a562657fa567751ebf39dc81c67078941040e6d5fe2",
+          "selectedNetwork": "testnet"
+        },
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "X-only PubKey (32B hex):",
+              "rows": 2,
+              "placeholder": "<x-only pubkey>"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "result": "tb1pn9u44u2max0jznzyfftzv4l62em4r6lnnhypcec839qsgrndtl3qzrhmet",
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "node_QlQB8akV",
+      "extent": "parent"
+    },
+    {
+      "id": "node_vbbwnb3",
+      "type": "calculation",
+      "position": {
+        "x": 464.800853708648,
+        "y": 864.5459103605917
+      },
+      "data": {
+        "functionName": "taproot_tree_builder",
+        "title": "Taproot Tree Builder",
+        "paramExtraction": "multi_val",
+        "numInputs": 1,
+        "inputs": {
+          "vals": {
+            "1000": "8c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be9",
+            "1100": "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475",
+            "1200": "7fe2da7434c3345181902eeb2739c4a91a2589474da9b2cc7b4c6fb8b6674294"
+          }
+        },
+        "outputLayout": "taproot_tree_builder",
+        "taprootLeafIndex": 0,
+        "outputPorts": [
+          {
+            "label": "root",
+            "handleId": "",
+            "handleTop": "50%",
+            "showLabel": false
+          },
+          {
+            "label": "path",
+            "handleId": "output-1",
+            "handleTopSource": "taproot-path-select",
+            "showLabel": false
+          }
+        ],
+        "inputStructure": {
+          "ungrouped": [],
+          "groups": [
+            {
+              "title": "LEAF_HASHES[]",
+              "baseIndex": 1000,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "minInstances": 1,
+              "maxInstances": 20,
+              "fields": [
+                {
+                  "index": 0,
+                  "label": "Leaf Hash (TapLeaf hex):",
+                  "rows": 2,
+                  "placeholder": "<32B hex>",
+                  "comment": "Order defines the policy tree (paired left-to-right)."
+                }
+              ]
+            }
+          ],
+          "afterGroups": []
+        },
+        "groupInstances": {
+          "LEAF_HASHES[]": 3
+        },
+        "groupInstanceKeys": {
+          "LEAF_HASHES[]": [1000, 1100, 1200]
+        },
+        "result": "04df30b0ebbed8d5bae4b33e2128337c75e8096cfe85c8d862a4562ed2c7b5bd",
+        "totalInputs": 3,
+        "unwiredCount": 0,
+        "customFieldLabels": {
+          "1000": "Leaf A",
+          "1100": "Leaf B",
+          "1200": "Leaf C",
+          "1300": "Leaf D"
+        },
+        "dirty": false,
+        "taprootTree": {
+          "root": "04df30b0ebbed8d5bae4b33e2128337c75e8096cfe85c8d862a4562ed2c7b5bd",
+          "leafCount": 3,
+          "leafHashes": [
+            "8c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be9",
+            "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475",
+            "7fe2da7434c3345181902eeb2739c4a91a2589474da9b2cc7b4c6fb8b6674294"
+          ],
+          "leafLabels": ["A", "B", "C"],
+          "paths": [
+            [
+              "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475",
+              "7fe2da7434c3345181902eeb2739c4a91a2589474da9b2cc7b4c6fb8b6674294"
+            ],
+            [
+              "8c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be9",
+              "7fe2da7434c3345181902eeb2739c4a91a2589474da9b2cc7b4c6fb8b6674294"
+            ],
+            ["2fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"]
+          ],
+          "pathLabels": [["B", "C"], ["A", "C"], ["(A,B)"]],
+          "structure": "((A,B),C)",
+          "display": "Tree:\n((A,B),C)\n\nLevels:\nL0: A  B  C\nL1: (A,B)  C\nL2: ((A,B),C)\n\nLeaves:\nA = 8c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be9\nB = 2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475\nC = 7fe2da7434c3345181902eeb2739c4a91a2589474da9b2cc7b4c6fb8b6674294\n\nPaths (labels):\nA: B, C\nB: A, C\nC: (A,B)\n\nPaths (hashes):\nA: 2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475, 7fe2da7434c3345181902eeb2739c4a91a2589474da9b2cc7b4c6fb8b6674294\nB: 8c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be9, 7fe2da7434c3345181902eeb2739c4a91a2589474da9b2cc7b4c6fb8b6674294\nC: 2fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
+        },
+        "outputValues": {
+          "output-1": "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d4757fe2da7434c3345181902eeb2739c4a91a2589474da9b2cc7b4c6fb8b6674294"
+        },
+        "outputErrors": {},
+        "error": false
+      },
+      "parentId": "node_QlQB8akV",
       "extent": "parent"
     }
   ],
@@ -3869,7 +6263,522 @@
       "id": "edge_shckhmd",
       "source": "node_qF2UdTW5",
       "target": "node_b4gu7pu",
-      "targetHandle": "input-0"
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_9m3HsoLs",
+      "source": "node_7WcjDcTn",
+      "target": "node_ViwDo5x0",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_gcUFM6cI",
+      "source": "node_ViwDo5x0",
+      "target": "node_sS5YDPqO",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_JwORNv6o",
+      "source": "node_sS5YDPqO",
+      "target": "node_AhaBpBau",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "source": "node_ePokNnh3",
+      "target": "node_4H6tt9vf",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "edge_Sd1CnYer"
+    },
+    {
+      "id": "edge_5Voaj9rs",
+      "source": "node_yI9vFcB1",
+      "target": "node_82hK7Qev",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_62WfzA1A",
+      "source": "node_82hK7Qev",
+      "target": "node_Lr1g2N18",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_MU1ttRrO",
+      "source": "node_Lr1g2N18",
+      "target": "node_ePokNnh3",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_TTvepwUB",
+      "source": "node_82hK7Qev",
+      "target": "node_ePokNnh3",
+      "targetHandle": "input-100",
+      "selected": false
+    },
+    {
+      "id": "edge_bw0P5ymn",
+      "source": "node_9lSbS61P",
+      "target": "node_ePokNnh3",
+      "targetHandle": "input-200",
+      "selected": false
+    },
+    {
+      "id": "edge_83CsWwiV",
+      "source": "node_AhaBpBau",
+      "target": "node_ePokNnh3",
+      "targetHandle": "input-300",
+      "selected": false
+    },
+    {
+      "id": "edge_vQm2p6Rk",
+      "source": "node_sS5YDPqO",
+      "target": "node_ePokNnh3",
+      "targetHandle": "input-400",
+      "selected": false
+    },
+    {
+      "id": "edge_jPsf7Eex",
+      "source": "node_aV0Lyg9Q",
+      "target": "node_ePokNnh3",
+      "targetHandle": "input-500",
+      "selected": false
+    },
+    {
+      "id": "edge_Q4tFPmHH",
+      "source": "node_wHu7AWC0",
+      "target": "node_ODtDFin2",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "source": "node_wC5j7gdx",
+      "target": "node_wHu7AWC0",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "edge_upiJOuau"
+    },
+    {
+      "id": "edge_OT2HKPWw",
+      "source": "node_ODtDFin2",
+      "target": "node_TfayD1vc",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_4bgmCPuH",
+      "source": "node_ODtDFin2",
+      "target": "node_TfayD1vc",
+      "targetHandle": "input-100",
+      "selected": false
+    },
+    {
+      "id": "edge_6kmxaFPA",
+      "source": "node_TfayD1vc",
+      "target": "node_O9pF0EKQ",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "source": "node_VFrlZwdp",
+      "target": "node_rCAxHXNz",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "edge_eewm1Con"
+    },
+    {
+      "source": "node_4H6tt9vf",
+      "target": "node_rCAxHXNz",
+      "targetHandle": "input-100",
+      "selected": false,
+      "id": "edge_3IpDkAL4"
+    },
+    {
+      "source": "node_ePokNnh3",
+      "target": "node_rCAxHXNz",
+      "targetHandle": "input-200",
+      "selected": false,
+      "id": "edge_jDwzWVKz"
+    },
+    {
+      "source": "node_rCAxHXNz",
+      "target": "node_TfayD1vc",
+      "targetHandle": "input-200",
+      "selected": false,
+      "id": "edge_CoF5NT5X"
+    },
+    {
+      "id": "edge_yPbsfECs",
+      "source": "node_ePokNnh3",
+      "target": "node_CUpubs5U",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_FcVzFf6K",
+      "source": "node_2wVIlgr0",
+      "target": "node_AjBzaI8l",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_1nc5IX0E",
+      "source": "node_AjBzaI8l",
+      "target": "node_le8AXnKv",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_Q7K7MC1E",
+      "source": "node_le8AXnKv",
+      "target": "node_8iAx4F3u",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "source": "node_jUyJ6i3w",
+      "target": "node_i31rCA7k",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "edge_xbszt7wr"
+    },
+    {
+      "id": "edge_1Mp0L8jl",
+      "source": "node_8mn83x3a",
+      "target": "node_EUfOZVkC",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_aE91l4Iq",
+      "source": "node_EUfOZVkC",
+      "target": "node_XcRoOedz",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_gnUsBI9p",
+      "source": "node_XcRoOedz",
+      "target": "node_jUyJ6i3w",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_cEbqcFnF",
+      "source": "node_EUfOZVkC",
+      "target": "node_jUyJ6i3w",
+      "targetHandle": "input-100",
+      "selected": false
+    },
+    {
+      "id": "edge_bsvZsAqD",
+      "source": "node_h6wEW0D0",
+      "target": "node_jUyJ6i3w",
+      "targetHandle": "input-200",
+      "selected": false
+    },
+    {
+      "id": "edge_Vj2DBDMB",
+      "source": "node_8iAx4F3u",
+      "target": "node_jUyJ6i3w",
+      "targetHandle": "input-300",
+      "selected": false
+    },
+    {
+      "id": "edge_ElLXcuy0",
+      "source": "node_le8AXnKv",
+      "target": "node_jUyJ6i3w",
+      "targetHandle": "input-400",
+      "selected": false
+    },
+    {
+      "id": "edge_8e1LykbQ",
+      "source": "node_cwprAu2h",
+      "target": "node_jUyJ6i3w",
+      "targetHandle": "input-500",
+      "selected": false
+    },
+    {
+      "id": "edge_AgOOcsi5",
+      "source": "node_jQhzQab0",
+      "target": "node_72Lb04Ce",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "source": "node_ygbcgRJi",
+      "target": "node_jQhzQab0",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "edge_3UWplod5"
+    },
+    {
+      "id": "edge_HqTnNdmE",
+      "source": "node_72Lb04Ce",
+      "target": "node_qRKyDuR2",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_lXIj6Urx",
+      "source": "node_72Lb04Ce",
+      "target": "node_qRKyDuR2",
+      "targetHandle": "input-100",
+      "selected": false
+    },
+    {
+      "id": "edge_QKEzqFJL",
+      "source": "node_qRKyDuR2",
+      "target": "node_o6j76ilC",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "source": "node_zLx7Slo6",
+      "target": "node_Z0KiSIj5",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "edge_4MnmycEP"
+    },
+    {
+      "source": "node_i31rCA7k",
+      "target": "node_Z0KiSIj5",
+      "targetHandle": "input-100",
+      "selected": false,
+      "id": "edge_fCh767Td"
+    },
+    {
+      "source": "node_jUyJ6i3w",
+      "target": "node_Z0KiSIj5",
+      "targetHandle": "input-200",
+      "selected": false,
+      "id": "edge_EudYG47M"
+    },
+    {
+      "source": "node_Z0KiSIj5",
+      "target": "node_qRKyDuR2",
+      "targetHandle": "input-200",
+      "selected": false,
+      "id": "edge_8VQ1ewzG"
+    },
+    {
+      "id": "edge_W203v2bJ",
+      "source": "node_jUyJ6i3w",
+      "target": "node_6nSGc02k",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_j27vkLh8",
+      "source": "node_TszDFApn",
+      "target": "node_P5LEHJtL",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_TFAdjDGX",
+      "source": "node_P5LEHJtL",
+      "target": "node_SFk37qUa",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_PN7s1F6L",
+      "source": "node_SFk37qUa",
+      "target": "node_z00sHgr3",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_6uzkfxs",
+      "source": "node_z00sHgr3",
+      "target": "node_jUyJ6i3w",
+      "targetHandle": "input-600",
+      "selected": false
+    },
+    {
+      "id": "edge_hztxcfq",
+      "source": "node_SFk37qUa",
+      "target": "node_jUyJ6i3w",
+      "targetHandle": "input-700",
+      "selected": false
+    },
+    {
+      "id": "edge_8q5vavf",
+      "source": "node_tfCpqo97",
+      "target": "node_jUyJ6i3w",
+      "targetHandle": "input-800",
+      "selected": false
+    },
+    {
+      "source": "node_wEC2Kyjc",
+      "target": "node_jUyJ6i3w",
+      "targetHandle": "input-1200",
+      "selected": false,
+      "id": "xy-edge__node_wEC2Kyjc-node_jUyJ6i3winput-1200"
+    },
+    {
+      "id": "edge_zFOVPmBi",
+      "source": "node_7NHN6CHJ",
+      "target": "node_a6hdFmxq",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_70gB1eNb",
+      "source": "node_a6hdFmxq",
+      "target": "node_HrIafqow",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_LxEykA1N",
+      "source": "node_HrIafqow",
+      "target": "node_sn89e3kj",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_ymzokt1",
+      "source": "node_sn89e3kj",
+      "target": "node_jUyJ6i3w",
+      "targetHandle": "input-900",
+      "selected": false
+    },
+    {
+      "id": "edge_cbfd886",
+      "source": "node_HrIafqow",
+      "target": "node_jUyJ6i3w",
+      "targetHandle": "input-1000",
+      "selected": false
+    },
+    {
+      "id": "edge_hvpcsvh",
+      "source": "node_WwB5LtyZ",
+      "target": "node_jUyJ6i3w",
+      "targetHandle": "input-1100",
+      "selected": false
+    },
+    {
+      "source": "node_Dj53D8z4",
+      "target": "node_7bQgp6gF",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "edge_jiihjd7j"
+    },
+    {
+      "source": "node_7bQgp6gF",
+      "target": "node_jM1BkHeL",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "edge_76dXRc4x"
+    },
+    {
+      "source": "node_hXZugDJb",
+      "target": "node_7bQgp6gF",
+      "targetHandle": "input-100",
+      "selected": false,
+      "id": "edge_rAtrLCPV"
+    },
+    {
+      "id": "edge_g3hd0zNk",
+      "source": "node_Qm8Ur78A",
+      "target": "node_1X014Z9C",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_w0281in",
+      "source": "node_JMarfc2B",
+      "target": "node_Qm8Ur78A",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "source": "node_1X014Z9C",
+      "target": "node_pnyewjg",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "xy-edge__node_1X014Z9C-node_pnyewjginput-0"
+    },
+    {
+      "id": "edge_gjulmky",
+      "source": "node_pnyewjg",
+      "target": "node_hXZugDJb",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_5iauna0",
+      "source": "node_pnyewjg",
+      "target": "node_7bQgp6gF",
+      "targetHandle": "input-200",
+      "selected": false
+    },
+    {
+      "id": "edge_ujpekqz",
+      "source": "node_pnyewjg",
+      "target": "node_sgac5y6",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_s1qornv",
+      "source": "node_u4kljyc",
+      "target": "node_vbbwnb3",
+      "targetHandle": "input-1000",
+      "selected": false
+    },
+    {
+      "id": "edge_ya4om4i",
+      "source": "node_O9pF0EKQ",
+      "target": "node_vbbwnb3",
+      "targetHandle": "input-1100",
+      "selected": false
+    },
+    {
+      "id": "edge_77og9r7",
+      "source": "node_o6j76ilC",
+      "target": "node_vbbwnb3",
+      "targetHandle": "input-1200",
+      "selected": false
+    },
+    {
+      "id": "edge_is3w4mq",
+      "source": "node_vbbwnb3",
+      "target": "node_pnyewjg",
+      "targetHandle": "input-1",
+      "selected": false
+    },
+    {
+      "id": "edge_w9pzhg0",
+      "source": "node_jM1BkHeL",
+      "target": "node_3bk0l8l",
+      "targetHandle": "input-10"
+    },
+    {
+      "id": "edge_pl8x4mm",
+      "source": "node_7bQgp6gF",
+      "target": "node_3bk0l8l",
+      "targetHandle": "input-20"
+    },
+    {
+      "id": "edge_4hedtq4",
+      "source": "node_jM1BkHeL",
+      "target": "node_3n8jjlu",
+      "targetHandle": "input-3010"
+    },
+    {
+      "id": "edge_38t22xk",
+      "source": "node_7bQgp6gF",
+      "target": "node_3n8jjlu",
+      "targetHandle": "input-3020"
     }
   ],
   "virtualEdges": []
