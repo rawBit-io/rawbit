@@ -1406,6 +1406,57 @@ export const allSidebarNodes: NodeTemplate[] = [
       baseHeight: 200,
     },
   },
+  // TAPLEAF PREIMAGE (BIP341) Node - leaf_version || compactsize(len) || script
+  {
+    functionName: "concat_all",
+    label: "TapLeaf Preimage (BIP341)",
+    category: "Transactions",
+    subcategory: "Preimages",
+    description:
+      "Builds the TapLeaf hash preimage: leaf_version || compactsize(script_len) || tapscript; feed into a TapLeaf tagged hash",
+    type: "calculation",
+    nodeData: {
+      functionName: "concat_all",
+      title: "TapLeaf Preimage (BIP341)",
+      paramExtraction: "multi_val",
+      numInputs: 3,
+      inputs: { vals: [] },
+
+      version: 0,
+      result: "",
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "LEAF VERSION:",
+            rows: 1,
+            placeholder: "c0",
+            comment:
+              "0xc0 = tapscript v0; other even bytes are soft-fork space. Reappears as the control block's first byte (OR'd with the output-key parity)",
+          },
+          {
+            index: 100,
+            label: "SCRIPT LENGTH (varint):",
+            rows: 1,
+            placeholder: "compactsize of the script",
+            comment: "Wire from Data → VarInt Length of the tapscript",
+          },
+          {
+            index: 200,
+            label: "TAPSCRIPT:",
+            rows: 3,
+            placeholder: "The leaf script bytes",
+            comment:
+              "The script alone — raw, unhashed. The tagged hash over this whole preimage is the leaf hash",
+          },
+        ],
+        groups: [],
+        afterGroups: [],
+      },
+      groupInstances: {},
+      baseHeight: 200,
+    },
+  },
 
   // ------------------------------------------------------------------
   // CRYPTOGRAPHIC OPERATIONS
