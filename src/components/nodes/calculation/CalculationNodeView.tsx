@@ -100,10 +100,18 @@ const SCRIPT_VERIFY_TAPROOT_PREVOUT_GROUPS = new Set([
   "Taproot Prevouts (vin order)",
   "Taproot prevouts",
 ]);
-const HIDDEN_GROUP_HEADER_TITLES = new Set([
+// Deliberately empty: builder groups (PREVOUTS[]/SEQUENCES[]/OUTPUTS[]) used
+// to hide their headers for compactness while SegWit flows only ever needed
+// one instance — but the +/- expansion controls live in the header row, and
+// BIP341 flows expand these serializations across all inputs/outputs.
+const HIDDEN_GROUP_HEADER_TITLES = new Set<string>([]);
+// Standalone serialization builders keep the compact no-divider header (the
+// TX-template and concat primary groups are already divider-free).
+const NO_DIVIDER_GROUP_TITLES = new Set([
   "PREVOUTS[]",
   "SEQUENCES[]",
   "OUTPUTS[]",
+  "SCRIPTPUBKEYS[]",
 ]);
 const TX_TEMPLATE_INPUT_GROUP_TITLE = "INPUTS[]";
 const TX_TEMPLATE_OUTPUT_GROUP_TITLE = "OUTPUTS[]";
@@ -1437,7 +1445,11 @@ export function CalculationNodeView({
           renderField={renderGroupField}
           headerDivider={
             options?.headerDivider ??
-            !(isTxTemplateSectionGroup(groupDef) || isConcatPrimaryGroup(groupDef))
+            !(
+              isTxTemplateSectionGroup(groupDef) ||
+              isConcatPrimaryGroup(groupDef) ||
+              NO_DIVIDER_GROUP_TITLES.has(groupDef.title)
+            )
           }
           className={
             isTxTemplateSectionGroup(groupDef)

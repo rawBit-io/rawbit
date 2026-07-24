@@ -818,7 +818,7 @@ describe("CalculationNodeView", () => {
     expect(screen.queryByTitle("Copy result to clipboard")).not.toBeInTheDocument();
   });
 
-  it("hides redundant prevouts, sequences, and outputs builder group headers", () => {
+  it("shows builder group headers with +/- expansion controls (BIP341 flows expand these across all inputs)", () => {
     const mut = createMut();
     const clip = createClip();
 
@@ -895,7 +895,13 @@ describe("CalculationNodeView", () => {
       { index: 10, label: "VOUT[4]:", rows: 1 },
     ]);
 
-    expect(screen.queryByText("> PREVOUTS[]")).not.toBeInTheDocument();
+    expect(screen.getByText("> PREVOUTS[]")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Add PREVOUTS[]" })
+    ).toBeEnabled();
+    expect(
+      screen.getByRole("button", { name: "Remove PREVOUTS[]" })
+    ).toBeInTheDocument();
     expect(screen.getByText("> TXID[32]:")).toBeInTheDocument();
     expect(screen.getByText("> VOUT[4]:")).toBeInTheDocument();
 
@@ -905,7 +911,10 @@ describe("CalculationNodeView", () => {
       { index: 0, label: "SEQUENCE[4]:", rows: 1 },
     ]);
 
-    expect(screen.queryByText("> SEQUENCES[]")).not.toBeInTheDocument();
+    expect(screen.getByText("> SEQUENCES[]")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Add SEQUENCES[]" })
+    ).toBeEnabled();
     expect(screen.getByText("> SEQUENCE[4]:")).toBeInTheDocument();
 
     rendered.unmount();
@@ -916,7 +925,10 @@ describe("CalculationNodeView", () => {
       { index: 20, label: "SCRIPTPUBKEY:", rows: 2 },
     ]);
 
-    expect(screen.queryByText("> OUTPUTS[]")).not.toBeInTheDocument();
+    expect(screen.getByText("> OUTPUTS[]")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Add OUTPUTS[]" })
+    ).toBeEnabled();
     expect(screen.getByText("> AMOUNT[8]:")).toBeInTheDocument();
     expect(screen.getByText("> SCRIPTLEN:")).toBeInTheDocument();
     expect(screen.getByText("> SCRIPTPUBKEY:")).toBeInTheDocument();
