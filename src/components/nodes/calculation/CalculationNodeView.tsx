@@ -485,6 +485,7 @@ export function CalculationNodeView({
   const updateNodeInternals = useUpdateNodeInternals();
   const [showCode, setShowCode] = useState(false);
   const [nodeMenuOpen, setNodeMenuOpen] = useState(false);
+  const [merklePathCopied, setMerklePathCopied] = useState(false);
   const [showSteps, setShowSteps] = useState(false);
   const [scriptVerifyAdvancedOpen, setScriptVerifyAdvancedOpen] =
     useState(false);
@@ -654,6 +655,7 @@ export function CalculationNodeView({
         leafCount?: number;
         leafLabels?: string[];
         paths?: string[][];
+        pathLabels?: string[][];
         display?: unknown;
       }
     | undefined;
@@ -1191,6 +1193,12 @@ export function CalculationNodeView({
     tree.label = "root";
     return renderAsciiTree(tree);
   })();
+  const taprootMerklePath = (() => {
+    const paths = taprootTree?.paths;
+    if (!Array.isArray(paths) || !paths.length) return "";
+    const path = paths[Math.min(taprootLeafIndex, paths.length - 1)];
+    return Array.isArray(path) ? path.join("") : "";
+  })();
   const hideResultForInputNode = showField && data.functionName === "identity";
   const hideGenericResult = hideResultForInputNode || isDynamicTxFieldExtract;
   const isSimpleResultOnly =
@@ -1391,6 +1399,7 @@ export function CalculationNodeView({
     isTaprootTreeBuilder,
     taprootLeafLabels.length,
     taprootTreeDisplay,
+    taprootMerklePath,
     taprootLeafIndex,
     isTaprootTweakXonly,
     parityDisplay,
@@ -2150,7 +2159,14 @@ export function CalculationNodeView({
                   >
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent
+                    onCloseAutoFocus={(event) => {
+                      // Radix returns focus to the trigger on close, leaving
+                      // a lingering focus ring on the canvas node.
+                      event.preventDefault();
+                      pathTriggerRef.current?.blur();
+                    }}
+                  >
                     {taprootLeafLabels.map((label, index) => (
                       <SelectItem key={`${label}-${index}`} value={String(index)}>
                         {label}
@@ -2158,6 +2174,48 @@ export function CalculationNodeView({
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+            ) : null}
+
+            {isTaprootTreeBuilder && taprootMerklePath ? (
+              <div className="mt-2">
+                <div className="calc-node-result-label mb-2 text-sm text-primary">
+                  {">"} Calculation Result:
+                </div>
+                <div className="flex items-start justify-between gap-2 text-sm">
+                  <div className="flex-1 min-w-0" data-testid="node-merkle-path">
+                    <span className="block whitespace-pre-wrap break-all">
+                      {taprootMerklePath}
+                    </span>
+                  </div>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="nodrag shrink-0 self-start"
+                    onPointerDownCapture={(event) => event.stopPropagation()}
+                    onClick={() => {
+                      navigator.clipboard
+                        ?.writeText(taprootMerklePath)
+                        .then(() => {
+                          setMerklePathCopied(true);
+                          setTimeout(() => setMerklePathCopied(false), 1500);
+                        })
+                        .catch(() => undefined);
+                    }}
+                    title={
+                      merklePathCopied
+                        ? "Copied!"
+                        : "Copy merkle path to clipboard"
+                    }
+                  >
+                    {merklePathCopied ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
               </div>
             ) : null}
 
@@ -2177,7 +2235,7 @@ export function CalculationNodeView({
             ) : null}
 
             {taprootTreeDisplay ? (
-              <div className="mt-3 border-t border-border pt-2">
+              <div className="mt-3">
                 <TerminalField
                   label="Taproot Tree:"
                   value={taprootTreeDisplay}
