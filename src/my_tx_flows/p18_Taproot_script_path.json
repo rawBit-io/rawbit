@@ -30,8 +30,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 13805.503522222021,
-        "y": 6469.224374503456
+        "x": 13790.503522222021,
+        "y": 6589.224374503456
       },
       "data": {
         "isGroup": true,
@@ -58,8 +58,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 10221.137144742672,
-        "y": 1504.1411361838402
+        "x": 10206.137144742672,
+        "y": 1624.1411361838402
       },
       "data": {
         "isGroup": true,
@@ -88,8 +88,8 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 3836.124278885347,
-        "y": 2622.490353722822
+        "x": 3821.124278885347,
+        "y": 2742.490353722822
       },
       "data": {
         "isGroup": true,
@@ -121,8 +121,8 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": -7992.447880854045,
-        "y": 7909.568990181978
+        "x": -8007.447880854045,
+        "y": 8029.568990181978
       },
       "data": {
         "isGroup": true,
@@ -148,8 +148,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 300,
-        "y": 315
+        "x": 285,
+        "y": 435
       },
       "data": {
         "isGroup": true,
@@ -2476,8 +2476,8 @@
       "id": "node_d6gdw9w",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -7920.445632461134,
-        "y": 6098.177004375582
+        "x": -6147.109849229251,
+        "y": 6264.300553298327
       },
       "data": {
         "content": "## The same vault, one era earlier - P2SH\n\nBefore taproot, all four spending paths live in **one script**, glued together with IF/ELSE ladders. The spender steers the branches by pushing 1/0 flags:\n\n```\nOP_IF\n    <Alice> OP_CHECKSIG                        ← path 1: daily spending\nOP_ELSE\n    OP_IF\n        <144> OP_CSV OP_DROP                   ← path 2: Bob, ~1 day\n        <Bob> OP_CHECKSIG\n    OP_ELSE\n        OP_IF\n            <4320> OP_CSV OP_DROP              ← path 3: Charlie, ~30 days\n            <Charlie> OP_CHECKSIG\n        OP_ELSE\n            <8640> OP_CSV OP_DROP              ← path 4: estate council, ~60 days\n            OP_2 <Bob> <Charlie> <Diana> OP_3\n            OP_CHECKMULTISIG\n        OP_ENDIF\n    OP_ENDIF\nOP_ENDIF\n```\n\nRoughly 235 bytes, wrapped in the usual 23-byte P2SH envelope: `OP_HASH160 <hash> OP_EQUAL`.\n\n**Hidden only until the first spend.** The address is a hash, so the vault starts out private - but the *first* spend of any path publishes the entire script forever: every heir's key, every delay, the whole family structure. Taproot's tree reveals one leaf per spend and nothing else - and the key path reveals no script at all.\n\n**Everyone pays for every branch.** Each spend - including Alice's Tuesday coffee - must carry all 235 bytes plus the steering flags on-chain. In the taproot version Alice's daily spend is a 66-byte witness that looks identical to any single-sig payment; the contingency paths cost bytes only in the year they actually fire.\n\n**Control flow is where script bugs live.** Three nested IF/ELSE/ENDIF ladders, flag ordering the spender must get right, a DROP after every CSV. The taproot tree replaces control flow with *structure*: each leaf is a short, straight-line script, and the merkle proof does the branching.\n",
@@ -2967,11 +2967,11 @@
       "id": "node_0i5d2pi",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -6417.069787777791,
-        "y": 6102.031226916547
+        "x": -8099.090147002926,
+        "y": 6464.718117747494
       },
       "data": {
-        "content": "## The same vault in taproot - a tree instead of a ladder\n\nThe four paths stop being one script. Three become **separate straight-line scripts**, each a leaf in a tree; the fourth becomes no script at all:\n\n```\n        Q = P_Alice + H_TapTweak(P ‖ root)·G     ← the whole lock: OP_1 <Q>\n        │\n      root\n     /    \\\n branch    leaf C\n /    \\\nleaf A  leaf B\n\nleaf A:  <144>  OP_CSV OP_DROP  <Bob>     OP_CHECKSIG\nleaf B:  <4320> OP_CSV OP_DROP  <Charlie> OP_CHECKSIG\nleaf C:  <8640> OP_CSV OP_DROP\n         <Bob> OP_CHECKSIG  <Charlie> OP_CHECKSIGADD  <Diana> OP_CHECKSIGADD\n         OP_2 OP_NUMEQUAL\n```\n\n**Path 1 is not a leaf - it's the key.** Alice is the internal key P, so her daily spend is the 66-byte key-path witness from the intro flow. No script surfaces, no tree is mentioned; the chain sees an ordinary single-sig payment. The vault's most-used path costs nothing extra, ever.\n\n**No steering flags, no ladder.** \"Which branch\" is no longer opcodes the spender executes - it's a merkle proof the spender *presents*. Each leaf is short, linear, and independently auditable: ~40 bytes for A and B, ~110 for the council leaf, versus the 235-byte monolith. The IF/ELSE bug surface is simply gone.\n\n**One spend reveals one leaf.** When Bob recovers after a day, the chain learns his script and a control block - parity byte, Alice's internal key, and the two sibling hashes proving his leaf was always inside Q (33 + 2×32 = 97 bytes). Leaf B and leaf C stay 32-byte hashes forever: Charlie's delay, the council's existence, even *how many* other clauses there were - never published. The estate leaf, one level shallower, would need only a 65-byte proof.\n\n**And the multisig modernized on the way in:** OP_CHECKMULTISIG doesn't exist in tapscript - the council leaf counts valid signatures instead (`OP_CHECKSIG / OP_CHECKSIGADD ... OP_2 OP_NUMEQUAL`), one slot per key, empty slot for non-signers, no dummy element.\n",
+        "content": "## The same vault in taproot - a tree instead of a ladder\n\nThe four paths stop being one script. Three become **separate straight-line scripts**, each a leaf in a tree; the fourth becomes no script at all:\n\n```\n        Q = P_Alice + H_TapTweak(P ‖ root)·G     ← the whole lock: OP_1 <Q>\n        │\n      root\n     /    \\\n branch    leaf C\n /    \\\nleaf A  leaf B\n\nleaf A:  <144>  OP_CSV OP_DROP  <Bob>     OP_CHECKSIG\nleaf B:  <4320> OP_CSV OP_DROP  <Charlie> OP_CHECKSIG\nleaf C:  <8640> OP_CSV OP_DROP\n         <Bob> OP_CHECKSIG  <Charlie> OP_CHECKSIGADD  <Diana> OP_CHECKSIGADD\n         OP_2 OP_NUMEQUAL\n```\n\n**Path 1 is not a leaf - it's the key.** Alice is the internal key P, so her daily spend is the 66-byte key-path witness from the intro flow. No script surfaces, no tree is mentioned; the chain sees an ordinary single-sig payment. The vault's most-used path costs nothing extra, ever.\n\n**No steering flags, no ladder.** \"Which branch\" is no longer opcodes the spender executes - it's a merkle proof the spender *presents*. Each leaf is short, linear, and independently auditable: ~40 bytes for A and B, ~110 for the council leaf, versus the 235-byte monolith. The IF/ELSE bug surface is simply gone.\n\n**One spend reveals one leaf.** When Bob recovers after a day, the chain learns his script and a control block - parity byte, Alice's internal key, and the two sibling hashes proving his leaf was always inside Q (33 + 2×32 = 97 bytes). Leaf B and leaf C stay 32-byte hashes forever: Charlie's delay, the council's existence, even *how many* other clauses there were - never published. The estate leaf, one level shallower, would need only a 65-byte proof.\n\n**And the multisig modernized on the way in:** OP_CHECKMULTISIG is disabled in tapscript - the council leaf counts valid signatures instead (`OP_CHECKSIG / OP_CHECKSIGADD ... OP_2 OP_NUMEQUAL`), one slot per key, empty slot for non-signers, no dummy element. Bob and Charlie appear in the council under **fresh keys** - deliberately. A revealed leaf publishes its key, and a reused key would let observers grind guesses against the hidden sibling hashes. Roles repeat; keys never do.",
         "fontSize": 28,
         "width": 1838,
         "height": 1372,
@@ -3228,8 +3228,8 @@
       "id": "node_R4pgt3mN",
       "type": "shadcnGroup",
       "position": {
-        "x": -7009.353994272003,
-        "y": 10733.53244584239
+        "x": -7024.353994272003,
+        "y": 10853.53244584239
       },
       "data": {
         "isGroup": true,
@@ -3962,8 +3962,8 @@
       "id": "node_gXB7x7XV",
       "type": "shadcnGroup",
       "position": {
-        "x": -6257.134300009903,
-        "y": 13527.552499796137
+        "x": -6272.134300009903,
+        "y": 13647.552499796137
       },
       "data": {
         "isGroup": true,
@@ -5083,8 +5083,8 @@
       "id": "node_QlQB8akV",
       "type": "shadcnGroup",
       "position": {
-        "x": -142.40766749471277,
-        "y": 9643.212796609285
+        "x": -157.40766749471277,
+        "y": 9763.212796609285
       },
       "data": {
         "isGroup": true,
@@ -5578,8 +5578,8 @@
       "id": "node_QutXQzIq",
       "type": "shadcnGroup",
       "position": {
-        "x": 32168.756684361524,
-        "y": 22050.401864564374
+        "x": 32153.756684361524,
+        "y": 22170.401864564374
       },
       "data": {
         "isGroup": true,
@@ -5605,8 +5605,8 @@
       "id": "node_utJC87jh",
       "type": "shadcnGroup",
       "position": {
-        "x": 28558,
-        "y": 17085.318626244756
+        "x": 28543,
+        "y": 17205.318626244756
       },
       "data": {
         "isGroup": true,
@@ -5634,8 +5634,8 @@
       "id": "node_YAY0ap50",
       "type": "shadcnGroup",
       "position": {
-        "x": 22231.377441024848,
-        "y": 18203.66784378374
+        "x": 22216.377441024848,
+        "y": 18323.66784378374
       },
       "data": {
         "isGroup": true,
@@ -5666,8 +5666,8 @@
       "id": "node_LuW69XEA",
       "type": "shadcnGroup",
       "position": {
-        "x": 18293.20737505066,
-        "y": 22187.559828865804
+        "x": 18278.20737505066,
+        "y": 22307.559828865804
       },
       "data": {
         "isGroup": true,
@@ -8962,6 +8962,92 @@
       "extent": "parent",
       "width": 132,
       "height": 64
+    },
+    {
+      "id": "node_zk1sqnu",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -1475.8325028477661,
+        "y": 401.8189436484008
+      },
+      "data": {
+        "content": "# Overview - The Other Door\n\nMost contracts end in agreement - that was the intro flow's bet, and its key path cashed it: one signature, nothing revealed. **This flow is what happens when they don't.**\n\nAlice's vault (told in the two story cards) guards the coins: her key is the internal key P, and three timelocked recovery clauses hang in the tree beneath it - Bob after ~a day, Charlie after ~a month, a 2-of-3 council after ~two months. In this run, Alice never shows up. Bob recovers the coins.\n\nTwo transactions live on this canvas:\n\n- **TX1 builds the vault**: a key-path spend of a faucet coin into `OP_1 <Q>`, where Q commits to Alice's key *and* the three-leaf tree - the tweak node's merkle-root input is finally non-empty\n- **TX2 is Bob's recovery**: it waits out the 144-block CSV, then opens leaf A with a three-item witness - his signature, the leaf script itself, and the proof it was always inside Q\n\nLeaf B and leaf C are committed alternatives - hashed into Q, never spent here.\n\nEverything is built live: leaf hashes, branch hashes, the control block, the extended sighash.\n\n*Builds on Taproot intro - tweak, TapSighash and the key path are assumed.*",
+        "fontSize": 32,
+        "width": 1451,
+        "height": 911,
+        "title": "Text Info Node"
+      },
+      "width": 1451,
+      "height": 911
+    },
+    {
+      "id": "node_hvc5zeo",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -172.4687918568742,
+        "y": 8699.275386122605
+      },
+      "data": {
+        "content": "## TapLeaf and TapBranch - hashing a tree\n\nEvery leaf becomes 32 bytes the same way:\n\n```\nleaf hash = tagged_hash(\"TapLeaf\", c0 ‖ compact_size(script) ‖ script)\n```\n\n`c0` is the leaf *version* - tapscript v0 today, an upgrade lane for tomorrow: every leaf could speak a different script language. Each leaf group builds this preimage from parts - version, length, script - through the TapLeaf tag machinery.\n\nPairs then merge upward:\n\n```\nbranch = tagged_hash(\"TapBranch\", min(h₁,h₂) ‖ max(h₁,h₂))\n```\n\nThe sort is the quiet masterstroke: children hash in **lexicographic order**, so a merkle proof never needs left/right directions - the verifier sorts too, and any path is just a bare list of sibling hashes. The Tree Builder pairs A with B, then their branch with C, and its output lands in the tweak node's second input. Empty in the intro, load-bearing here: Q now commits to Alice's key *and* every clause beneath it.",
+        "fontSize": 28,
+        "width": 1291,
+        "height": 914,
+        "title": "Text Info Node"
+      },
+      "width": 1291,
+      "height": 914
+    },
+    {
+      "id": "node_8kk2ql9",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 28523.376098320594,
+        "y": 16300.622373581185
+      },
+      "data": {
+        "content": "## The control block - the proof half of the reveal\n\nBob's witness must convince a verifier of something the chain has never seen: that his script was inside Q from the start. The control block is that proof:\n\n```\nc0            leaf version ‖ parity of Q    (1 byte)\n<P>           Alice's internal key          (32 bytes)\n<h_B> <h_C>   sibling hashes, leaf → root   (32 each)\n```\n\nThe verifier replays the build: hash Bob's script into a TapLeaf, fold in the siblings (sorting each pair), tweak P by the resulting root - and compare against the Q sitting in the spent output. Match, and the commitment is proven; then, and only then, the script executes.\n\nTwo promises from earlier flows get paid here. The **parity bit** the intro parked: during verification Q is a full point again, and this bit says which of its two y-values to lift - `c0` even, `c1` odd. And the **internal key P** finally surfaces - exactly as the tweak card warned it would in a script-path spend. What still doesn't surface: leaf B and leaf C. Charlie's clause, the council's existence, even the count of other doors - sibling hashes forever.",
+        "fontSize": 28,
+        "width": 1358,
+        "height": 809,
+        "title": "Text Info Node"
+      },
+      "width": 1358,
+      "height": 809
+    },
+    {
+      "id": "node_qq8sb2f",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 20972.663416534073,
+        "y": 18382.795353513164
+      },
+      "data": {
+        "content": "## The script-path sighash - and the witness that carries it\n\nThree things change against the intro's key-path signing:\n\n**`spend_type` flips to `02`** - script path, no annex - and the message grows a tail after `input_index`:\n\n```\ntapleaf_hash   which clause this signature serves\n00             key version (script keys - not the c0 leaf version)\nffffffff       last OP_CODESEPARATOR position (none)\n```\n\nThe leaf hash inside the signature pins it to *this* clause: Bob's signature cannot be replayed into some other leaf that happens to contain his key.\n\n**`nSequence` carries the timelock**: `90000000` = 144 blocks, BIP-68 encoded. OP_CSV in the script only *compares* against this field - consensus enforces the actual age. The script demands the promise, the transaction makes it, the chain checks it.\n\n**The signing key is Bob's, raw.** No tweak - tweaking belongs to the key path. Inside a leaf, keys are plain BIP340 x-only keys, and CHECKSIG verifies against them directly.\n\nThe witness then stacks the only three things a script-path spend ever needs:\n\n```\n40 <signature>       what the leaf demands\n27 <leaf script>     the clause itself\n61 <control block>   the proof it was committed\n```\n\n66 bytes bought the key path; Bob's unhappy path costs ~200. ",
+        "fontSize": 28,
+        "width": 1099,
+        "height": 1268,
+        "title": "Text Info Node"
+      },
+      "width": 1099,
+      "height": 1268
+    },
+    {
+      "id": "node_fl3df3r",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -1410,
+        "y": 1920
+      },
+      "data": {
+        "content": "## Try it yourself - recover as the council\n\nRebuild TX2 through **leaf C**: the 2-of-3 council claims the vault. Hints for what taproot changes:\n\n- **Signatures are counted.** CHECKSIGADD gives each key a slot; the counter must land *exactly* on `OP_2`.\n- **The skip is an empty item.** The non-signer's slot stays in the witness as a zero-length element - a wrong signature there doesn't add 0, it kills the script. No `OP_0` dummy anywhere.\n- **Witness order is script order, reversed:** Diana, Charlie, Bob.\n- **The proof shrinks.** One level up the tree, the merkle path is a single sibling - `Branch(A,B)` - and the control block drops to 65 bytes. Sequence: `8640`.\n\n",
+        "fontSize": 28,
+        "width": 1220,
+        "height": 653,
+        "title": "Text Info Node",
+        "borderColor": "#2d5fb3"
+      },
+      "width": 1220,
+      "height": 653
     }
   ],
   "edges": [
@@ -10728,13 +10814,15 @@
       "id": "edge_pg9p2lw",
       "source": "node_774a7xm",
       "target": "node_y62rcktu",
-      "targetHandle": "input-5000"
+      "targetHandle": "input-5000",
+      "selected": false
     },
     {
       "id": "edge_m8w2mva",
       "source": "node_rxcacvq",
       "target": "node_y62rcktu",
-      "targetHandle": "input-1040"
+      "targetHandle": "input-1040",
+      "selected": false
     }
   ],
   "virtualEdges": [
