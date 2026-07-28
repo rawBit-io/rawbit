@@ -1812,17 +1812,18 @@
             {
               "pc": 0,
               "opcode": 71,
-              "opcode_name": "unknown opcode",
+              "opcode_name": "PUSH 71 bytes",
               "stack_before": [],
               "stack_after": [
                 "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 72,
               "opcode": 33,
-              "opcode_name": "unknown opcode",
+              "opcode_name": "PUSH 33 bytes",
               "stack_before": [
                 "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301"
               ],
@@ -1830,7 +1831,8 @@
                 "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 0,
@@ -1845,7 +1847,8 @@
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 1,
@@ -1861,12 +1864,13 @@
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
                 "333d1836c8f4db933eae179bd5bf5ec9209eb78a"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 2,
               "opcode": 20,
-              "opcode_name": "unknown opcode",
+              "opcode_name": "PUSH 20 bytes",
               "stack_before": [
                 "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
@@ -1878,7 +1882,8 @@
                 "333d1836c8f4db933eae179bd5bf5ec9209eb78a",
                 "333d1836c8f4db933eae179bd5bf5ec9209eb78a"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 23,
@@ -1894,7 +1899,8 @@
                 "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 24,
@@ -1904,10 +1910,9 @@
                 "3044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d44301",
                 "026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5"
               ],
-              "stack_after": [
-                "01"
-              ],
-              "phase": "scriptPubKey"
+              "stack_after": ["01"],
+              "phase": "scriptPubKey",
+              "branch_active": true
             }
           ],
           "scriptSig": "473044022035add83989942767d30385c5581fa78df3a59e0e1c8704348770b99b8b968cc9022043d9644f814699f634a40609098ed2b813bd5643edede940c53be59039e6d4430121026e37102d6a1d91bda3560e77ef438b42eff695cbcd2cdf9c26f295adb564cdd5",
@@ -1917,8 +1922,12 @@
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
             "MINIMALDATA",
@@ -1931,8 +1940,8 @@
             "WITNESS",
             "WITNESS_PUBKEYTYPE"
           ],
-          "usesWitness": true,
-          "amountUsed": 0
+          "usesWitness": false,
+          "witnessRulesEnabled": true
         }
       },
       "parentId": "group_ixnjwes",

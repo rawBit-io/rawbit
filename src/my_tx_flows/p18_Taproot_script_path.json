@@ -6145,12 +6145,34 @@
             },
             {
               "pc": -1,
+              "kind": "validator",
+              "opcode_name": "taproot_control_block_extract",
+              "phase": "taproot",
+              "step": "control_block_extract",
+              "control_hex": "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa",
+              "stack_before": [
+                "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535",
+                "029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac",
+                "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa"
+              ],
+              "stack_after": [
+                "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535",
+                "029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac"
+              ],
+              "leaf_version": 192,
+              "parity": true,
+              "internal_pubkey": "7ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f9",
+              "merkle_path_len": 2
+            },
+            {
+              "pc": -1,
               "opcode_name": "witness_script",
               "phase": "witnessScript",
               "step": "witness_script",
               "script_hex": "029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac",
               "stack_before": [
-                "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535"
+                "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535",
+                "029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac"
               ],
               "stack_after": [
                 "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535"
@@ -6160,6 +6182,7 @@
             },
             {
               "pc": -1,
+              "kind": "validator",
               "opcode_name": "taproot_control_block",
               "phase": "taproot",
               "step": "control_block",
@@ -6169,7 +6192,13 @@
               "internal_pubkey": "7ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f9",
               "tweaked_pubkey": "902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f",
               "parity": true,
-              "result": true
+              "result": true,
+              "stack_before": [
+                "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535"
+              ],
+              "stack_after": [
+                "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535"
+              ]
             },
             {
               "pc": 0,

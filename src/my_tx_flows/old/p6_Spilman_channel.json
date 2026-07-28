@@ -7269,17 +7269,18 @@
             {
               "pc": 0,
               "opcode": 71,
-              "opcode_name": "unknown opcode",
+              "opcode_name": "PUSH 71 bytes",
               "stack_before": [],
               "stack_after": [
                 "30440220296a848cd7a9054262d0157793257557c819142864bb64d223d13d098b7e370e022065731fdb3b78ed32c9d2b32de8c70f445097468eea13d3422fa599c27daaeba901"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 72,
               "opcode": 33,
-              "opcode_name": "unknown opcode",
+              "opcode_name": "PUSH 33 bytes",
               "stack_before": [
                 "30440220296a848cd7a9054262d0157793257557c819142864bb64d223d13d098b7e370e022065731fdb3b78ed32c9d2b32de8c70f445097468eea13d3422fa599c27daaeba901"
               ],
@@ -7287,7 +7288,8 @@
                 "30440220296a848cd7a9054262d0157793257557c819142864bb64d223d13d098b7e370e022065731fdb3b78ed32c9d2b32de8c70f445097468eea13d3422fa599c27daaeba901",
                 "02a3cd270aa377301e1a9b8053483febb1a23c4f9ef730ba7296d6ec3fef99f62d"
               ],
-              "phase": "scriptSig"
+              "phase": "scriptSig",
+              "branch_active": true
             },
             {
               "pc": 0,
@@ -7302,7 +7304,8 @@
                 "02a3cd270aa377301e1a9b8053483febb1a23c4f9ef730ba7296d6ec3fef99f62d",
                 "02a3cd270aa377301e1a9b8053483febb1a23c4f9ef730ba7296d6ec3fef99f62d"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 1,
@@ -7318,12 +7321,13 @@
                 "02a3cd270aa377301e1a9b8053483febb1a23c4f9ef730ba7296d6ec3fef99f62d",
                 "6c8dbb1995afa89b2e4407a55a433fec5ff5c6a9"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 2,
               "opcode": 20,
-              "opcode_name": "unknown opcode",
+              "opcode_name": "PUSH 20 bytes",
               "stack_before": [
                 "30440220296a848cd7a9054262d0157793257557c819142864bb64d223d13d098b7e370e022065731fdb3b78ed32c9d2b32de8c70f445097468eea13d3422fa599c27daaeba901",
                 "02a3cd270aa377301e1a9b8053483febb1a23c4f9ef730ba7296d6ec3fef99f62d",
@@ -7335,7 +7339,8 @@
                 "6c8dbb1995afa89b2e4407a55a433fec5ff5c6a9",
                 "6c8dbb1995afa89b2e4407a55a433fec5ff5c6a9"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 23,
@@ -7351,7 +7356,8 @@
                 "30440220296a848cd7a9054262d0157793257557c819142864bb64d223d13d098b7e370e022065731fdb3b78ed32c9d2b32de8c70f445097468eea13d3422fa599c27daaeba901",
                 "02a3cd270aa377301e1a9b8053483febb1a23c4f9ef730ba7296d6ec3fef99f62d"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 24,
@@ -7362,7 +7368,8 @@
                 "02a3cd270aa377301e1a9b8053483febb1a23c4f9ef730ba7296d6ec3fef99f62d"
               ],
               "stack_after": ["01"],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             }
           ],
           "scriptSig": "4730440220296a848cd7a9054262d0157793257557c819142864bb64d223d13d098b7e370e022065731fdb3b78ed32c9d2b32de8c70f445097468eea13d3422fa599c27daaeba9012102a3cd270aa377301e1a9b8053483febb1a23c4f9ef730ba7296d6ec3fef99f62d",
@@ -7372,10 +7379,15 @@
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
+            "MINIMALDATA",
             "MINIMALIF",
             "NULLDUMMY",
             "NULLFAIL",
@@ -7385,8 +7397,8 @@
             "WITNESS",
             "WITNESS_PUBKEYTYPE"
           ],
-          "usesWitness": true,
-          "amountUsed": 0
+          "usesWitness": false,
+          "witnessRulesEnabled": true
         }
       },
       "parentId": "group_akliddy",

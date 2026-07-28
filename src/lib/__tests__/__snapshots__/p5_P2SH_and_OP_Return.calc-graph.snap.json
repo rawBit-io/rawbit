@@ -3430,6 +3430,27 @@
     {
       "id": "node_mhkgx80",
       "type": "shadcnTextInfo"
+    },
+    {
+      "id": "node_6k6svuk",
+      "type": "scriptViewer",
+      "parentId": "group_hegqa99",
+      "functionName": "script_viewer",
+      "numInputs": 1,
+      "value": "",
+      "inputStructure": {
+        "ungrouped": [
+          {
+            "index": 0,
+            "label": "SCRIPT HEX:",
+            "rows": 1
+          }
+        ],
+        "groups": [],
+        "afterGroups": []
+      },
+      "groupInstances": {},
+      "dirty": false
     }
   ],
   "edges": [
@@ -4437,6 +4458,12 @@
       "sourceHandle": "output-1",
       "target": "node_DL8WMoIO",
       "targetHandle": "input-1"
+    },
+    {
+      "id": "edge_8pmop7x",
+      "source": "node_uOPuPcje",
+      "target": "node_6k6svuk",
+      "targetHandle": "input-0"
     }
   ]
 }

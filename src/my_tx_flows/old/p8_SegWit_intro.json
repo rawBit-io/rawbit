@@ -5027,14 +5027,181 @@
         "totalInputs": 4,
         "unwiredCount": 0,
         "scriptDebugSteps": {
+          "isValid": true,
+          "steps": [
+            {
+              "pc": 0,
+              "opcode": 0,
+              "opcode_name": "OP_0",
+              "stack_before": [],
+              "stack_after": [""],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": 1,
+              "opcode": 20,
+              "opcode_name": "PUSH 20 bytes",
+              "stack_before": [""],
+              "stack_after": ["", "f92c8812da9e34c2c2a1c910346f9677ccf46d5a"],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": -1,
+              "opcode_name": "witness_program_match",
+              "kind": "validator",
+              "step": "witness_program_match",
+              "phase": "witness",
+              "witness_version": 0,
+              "program_hex": "f92c8812da9e34c2c2a1c910346f9677ccf46d5a",
+              "p2sh_wrapped": false,
+              "stack_before": [],
+              "stack_after": []
+            },
+            {
+              "pc": -1,
+              "opcode_name": "witness item 1/2",
+              "kind": "validator",
+              "step": "witness_load",
+              "phase": "witness",
+              "witness_index": 0,
+              "witness_total": 2,
+              "stack_before": [],
+              "stack_after": [
+                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801"
+              ]
+            },
+            {
+              "pc": -1,
+              "opcode_name": "witness item 2/2",
+              "kind": "validator",
+              "step": "witness_load",
+              "phase": "witness",
+              "witness_index": 1,
+              "witness_total": 2,
+              "stack_before": [
+                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801"
+              ],
+              "stack_after": [
+                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
+                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229"
+              ]
+            },
+            {
+              "pc": -1,
+              "opcode_name": "scriptcode_derive",
+              "kind": "validator",
+              "step": "scriptcode_derive",
+              "phase": "witness",
+              "script_hex": "76a914f92c8812da9e34c2c2a1c910346f9677ccf46d5a88ac",
+              "program_hex": "f92c8812da9e34c2c2a1c910346f9677ccf46d5a",
+              "stack_before": [
+                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
+                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229"
+              ],
+              "stack_after": [
+                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
+                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229"
+              ]
+            },
+            {
+              "pc": 0,
+              "opcode": 118,
+              "opcode_name": "OP_DUP",
+              "stack_before": [
+                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
+                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229"
+              ],
+              "stack_after": [
+                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
+                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229",
+                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229"
+              ],
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 1,
+              "opcode": 169,
+              "opcode_name": "OP_HASH160",
+              "stack_before": [
+                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
+                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229",
+                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229"
+              ],
+              "stack_after": [
+                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
+                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229",
+                "f92c8812da9e34c2c2a1c910346f9677ccf46d5a"
+              ],
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 2,
+              "opcode": 20,
+              "opcode_name": "PUSH 20 bytes",
+              "stack_before": [
+                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
+                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229",
+                "f92c8812da9e34c2c2a1c910346f9677ccf46d5a"
+              ],
+              "stack_after": [
+                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
+                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229",
+                "f92c8812da9e34c2c2a1c910346f9677ccf46d5a",
+                "f92c8812da9e34c2c2a1c910346f9677ccf46d5a"
+              ],
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 23,
+              "opcode": 136,
+              "opcode_name": "OP_EQUALVERIFY",
+              "stack_before": [
+                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
+                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229",
+                "f92c8812da9e34c2c2a1c910346f9677ccf46d5a",
+                "f92c8812da9e34c2c2a1c910346f9677ccf46d5a"
+              ],
+              "stack_after": [
+                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
+                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229"
+              ],
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 24,
+              "opcode": 172,
+              "opcode_name": "OP_CHECKSIG",
+              "stack_before": [
+                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
+                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229"
+              ],
+              "stack_after": ["01"],
+              "phase": "witnessScript",
+              "branch_active": true
+            }
+          ],
+          "scriptSig": "",
+          "scriptPubKey": "0014f92c8812da9e34c2c2a1c910346f9677ccf46d5a",
+          "excludedFlags": [],
           "activeFlags": [
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
+            "MINIMALDATA",
             "MINIMALIF",
             "NULLDUMMY",
             "NULLFAIL",
@@ -5044,107 +5211,14 @@
             "WITNESS",
             "WITNESS_PUBKEYTYPE"
           ],
-          "amountUsed": 159000,
-          "excludedFlags": [],
-          "isValid": true,
-          "scriptPubKey": "0014f92c8812da9e34c2c2a1c910346f9677ccf46d5a",
-          "scriptSig": "",
-          "steps": [
-            {
-              "opcode": 0,
-              "opcode_name": "OP_0",
-              "pc": 0,
-              "phase": "scriptPubKey",
-              "stack_after": [""],
-              "stack_before": []
-            },
-            {
-              "opcode": 20,
-              "opcode_name": "unknown opcode",
-              "pc": 1,
-              "phase": "scriptPubKey",
-              "stack_after": ["", "f92c8812da9e34c2c2a1c910346f9677ccf46d5a"],
-              "stack_before": [""]
-            },
-            {
-              "opcode": 118,
-              "opcode_name": "OP_DUP",
-              "pc": 0,
-              "phase": "witnessScript",
-              "script_hex": "76a914f92c8812da9e34c2c2a1c910346f9677ccf46d5a88ac",
-              "stack_after": [
-                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
-                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229",
-                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229"
-              ],
-              "stack_before": [
-                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
-                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229"
-              ]
-            },
-            {
-              "opcode": 169,
-              "opcode_name": "OP_HASH160",
-              "pc": 1,
-              "phase": "witnessScript",
-              "stack_after": [
-                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
-                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229",
-                "f92c8812da9e34c2c2a1c910346f9677ccf46d5a"
-              ],
-              "stack_before": [
-                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
-                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229",
-                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229"
-              ]
-            },
-            {
-              "opcode": 20,
-              "opcode_name": "unknown opcode",
-              "pc": 2,
-              "phase": "witnessScript",
-              "stack_after": [
-                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
-                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229",
-                "f92c8812da9e34c2c2a1c910346f9677ccf46d5a",
-                "f92c8812da9e34c2c2a1c910346f9677ccf46d5a"
-              ],
-              "stack_before": [
-                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
-                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229",
-                "f92c8812da9e34c2c2a1c910346f9677ccf46d5a"
-              ]
-            },
-            {
-              "opcode": 136,
-              "opcode_name": "OP_EQUALVERIFY",
-              "pc": 23,
-              "phase": "witnessScript",
-              "stack_after": [
-                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
-                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229"
-              ],
-              "stack_before": [
-                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
-                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229",
-                "f92c8812da9e34c2c2a1c910346f9677ccf46d5a",
-                "f92c8812da9e34c2c2a1c910346f9677ccf46d5a"
-              ]
-            },
-            {
-              "opcode": 172,
-              "opcode_name": "OP_CHECKSIG",
-              "pc": 24,
-              "phase": "witnessScript",
-              "stack_after": ["01"],
-              "stack_before": [
-                "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
-                "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229"
-              ]
-            }
-          ],
           "usesWitness": true,
-          "witnessScript": "76a914f92c8812da9e34c2c2a1c910346f9677ccf46d5a88ac"
+          "witnessRulesEnabled": true,
+          "amountUsed": 159000,
+          "witnessStack": [
+            "304402206f300a48e68d978a05b5fd543a2efd9071e5f631dabb1dd6e4edc20ac64fae2802201704db4b139f24677021524518146115c0321e6d26b75fb6079a2bfb00af797801",
+            "0240ab5eb674a794ebfd62fe52a3a898953da2bc112fc43b2daf8218c4aba1a229"
+          ],
+          "scriptCode": "76a914f92c8812da9e34c2c2a1c910346f9677ccf46d5a88ac"
         },
         "borderColor": "#a855f7"
       }
@@ -5224,12 +5298,133 @@
         "totalInputs": 4,
         "unwiredCount": 0,
         "scriptDebugSteps": {
+          "isValid": true,
+          "steps": [
+            {
+              "pc": 0,
+              "opcode": 71,
+              "opcode_name": "PUSH 71 bytes",
+              "stack_before": [],
+              "stack_after": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501"
+              ],
+              "phase": "scriptSig",
+              "branch_active": true
+            },
+            {
+              "pc": 72,
+              "opcode": 33,
+              "opcode_name": "PUSH 33 bytes",
+              "stack_before": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501"
+              ],
+              "stack_after": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
+              ],
+              "phase": "scriptSig",
+              "branch_active": true
+            },
+            {
+              "pc": 0,
+              "opcode": 118,
+              "opcode_name": "OP_DUP",
+              "stack_before": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
+              ],
+              "stack_after": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
+              ],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": 1,
+              "opcode": 169,
+              "opcode_name": "OP_HASH160",
+              "stack_before": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
+              ],
+              "stack_after": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
+                "8a0b8c565dfe34a8813d28f8918fabff37976448"
+              ],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": 2,
+              "opcode": 20,
+              "opcode_name": "PUSH 20 bytes",
+              "stack_before": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
+                "8a0b8c565dfe34a8813d28f8918fabff37976448"
+              ],
+              "stack_after": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
+                "8a0b8c565dfe34a8813d28f8918fabff37976448",
+                "8a0b8c565dfe34a8813d28f8918fabff37976448"
+              ],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": 23,
+              "opcode": 136,
+              "opcode_name": "OP_EQUALVERIFY",
+              "stack_before": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
+                "8a0b8c565dfe34a8813d28f8918fabff37976448",
+                "8a0b8c565dfe34a8813d28f8918fabff37976448"
+              ],
+              "stack_after": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
+              ],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": 24,
+              "opcode": 172,
+              "opcode_name": "OP_CHECKSIG",
+              "stack_before": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
+              ],
+              "stack_after": ["01"],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            }
+          ],
+          "scriptSig": "4730440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb550121023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
+          "scriptPubKey": "76a9148a0b8c565dfe34a8813d28f8918fabff3797644888ac",
+          "excludedFlags": [
+            "CLEANSTACK",
+            "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
+            "WITNESS",
+            "WITNESS_PUBKEYTYPE"
+          ],
           "activeFlags": [
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "LOW_S",
+            "MINIMALDATA",
             "MINIMALIF",
             "NULLDUMMY",
             "NULLFAIL",
@@ -5237,116 +5432,8 @@
             "STRICTENC",
             "TAPROOT"
           ],
-          "excludedFlags": [
-            "CLEANSTACK",
-            "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
-            "WITNESS",
-            "WITNESS_PUBKEYTYPE"
-          ],
-          "isValid": true,
-          "scriptPubKey": "76a9148a0b8c565dfe34a8813d28f8918fabff3797644888ac",
-          "scriptSig": "4730440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb550121023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
-          "steps": [
-            {
-              "opcode": 71,
-              "opcode_name": "unknown opcode",
-              "pc": 0,
-              "phase": "scriptSig",
-              "stack_after": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501"
-              ],
-              "stack_before": []
-            },
-            {
-              "opcode": 33,
-              "opcode_name": "unknown opcode",
-              "pc": 72,
-              "phase": "scriptSig",
-              "stack_after": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
-              ],
-              "stack_before": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501"
-              ]
-            },
-            {
-              "opcode": 118,
-              "opcode_name": "OP_DUP",
-              "pc": 0,
-              "phase": "scriptPubKey",
-              "stack_after": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
-              ],
-              "stack_before": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
-              ]
-            },
-            {
-              "opcode": 169,
-              "opcode_name": "OP_HASH160",
-              "pc": 1,
-              "phase": "scriptPubKey",
-              "stack_after": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
-                "8a0b8c565dfe34a8813d28f8918fabff37976448"
-              ],
-              "stack_before": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
-              ]
-            },
-            {
-              "opcode": 20,
-              "opcode_name": "unknown opcode",
-              "pc": 2,
-              "phase": "scriptPubKey",
-              "stack_after": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
-                "8a0b8c565dfe34a8813d28f8918fabff37976448",
-                "8a0b8c565dfe34a8813d28f8918fabff37976448"
-              ],
-              "stack_before": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
-                "8a0b8c565dfe34a8813d28f8918fabff37976448"
-              ]
-            },
-            {
-              "opcode": 136,
-              "opcode_name": "OP_EQUALVERIFY",
-              "pc": 23,
-              "phase": "scriptPubKey",
-              "stack_after": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
-              ],
-              "stack_before": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
-                "8a0b8c565dfe34a8813d28f8918fabff37976448",
-                "8a0b8c565dfe34a8813d28f8918fabff37976448"
-              ]
-            },
-            {
-              "opcode": 172,
-              "opcode_name": "OP_CHECKSIG",
-              "pc": 24,
-              "phase": "scriptPubKey",
-              "stack_after": ["01"],
-              "stack_before": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
-              ]
-            }
-          ],
-          "usesWitness": false
+          "usesWitness": false,
+          "witnessRulesEnabled": false
         },
         "borderColor": "#a855f7"
       }
@@ -5427,14 +5514,130 @@
         "showComment": true,
         "comment": "• Still verify legacy P2PKH/P2SH exactly like pre-SegWit.\n• The ‘amount’ field matters only when the spent output is a witness program.\n",
         "scriptDebugSteps": {
+          "isValid": true,
+          "steps": [
+            {
+              "pc": 0,
+              "opcode": 71,
+              "opcode_name": "PUSH 71 bytes",
+              "stack_before": [],
+              "stack_after": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501"
+              ],
+              "phase": "scriptSig",
+              "branch_active": true
+            },
+            {
+              "pc": 72,
+              "opcode": 33,
+              "opcode_name": "PUSH 33 bytes",
+              "stack_before": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501"
+              ],
+              "stack_after": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
+              ],
+              "phase": "scriptSig",
+              "branch_active": true
+            },
+            {
+              "pc": 0,
+              "opcode": 118,
+              "opcode_name": "OP_DUP",
+              "stack_before": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
+              ],
+              "stack_after": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
+              ],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": 1,
+              "opcode": 169,
+              "opcode_name": "OP_HASH160",
+              "stack_before": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
+              ],
+              "stack_after": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
+                "8a0b8c565dfe34a8813d28f8918fabff37976448"
+              ],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": 2,
+              "opcode": 20,
+              "opcode_name": "PUSH 20 bytes",
+              "stack_before": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
+                "8a0b8c565dfe34a8813d28f8918fabff37976448"
+              ],
+              "stack_after": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
+                "8a0b8c565dfe34a8813d28f8918fabff37976448",
+                "8a0b8c565dfe34a8813d28f8918fabff37976448"
+              ],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": 23,
+              "opcode": 136,
+              "opcode_name": "OP_EQUALVERIFY",
+              "stack_before": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
+                "8a0b8c565dfe34a8813d28f8918fabff37976448",
+                "8a0b8c565dfe34a8813d28f8918fabff37976448"
+              ],
+              "stack_after": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
+              ],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": 24,
+              "opcode": 172,
+              "opcode_name": "OP_CHECKSIG",
+              "stack_before": [
+                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
+                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
+              ],
+              "stack_after": ["01"],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            }
+          ],
+          "scriptSig": "4730440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb550121023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
+          "scriptPubKey": "76a9148a0b8c565dfe34a8813d28f8918fabff3797644888ac",
+          "excludedFlags": [],
           "activeFlags": [
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
+            "MINIMALDATA",
             "MINIMALIF",
             "NULLDUMMY",
             "NULLFAIL",
@@ -5444,112 +5647,8 @@
             "WITNESS",
             "WITNESS_PUBKEYTYPE"
           ],
-          "amountUsed": 0,
-          "excludedFlags": [],
-          "isValid": true,
-          "scriptPubKey": "76a9148a0b8c565dfe34a8813d28f8918fabff3797644888ac",
-          "scriptSig": "4730440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb550121023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
-          "steps": [
-            {
-              "opcode": 71,
-              "opcode_name": "unknown opcode",
-              "pc": 0,
-              "phase": "scriptSig",
-              "stack_after": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501"
-              ],
-              "stack_before": []
-            },
-            {
-              "opcode": 33,
-              "opcode_name": "unknown opcode",
-              "pc": 72,
-              "phase": "scriptSig",
-              "stack_after": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
-              ],
-              "stack_before": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501"
-              ]
-            },
-            {
-              "opcode": 118,
-              "opcode_name": "OP_DUP",
-              "pc": 0,
-              "phase": "scriptPubKey",
-              "stack_after": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
-              ],
-              "stack_before": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
-              ]
-            },
-            {
-              "opcode": 169,
-              "opcode_name": "OP_HASH160",
-              "pc": 1,
-              "phase": "scriptPubKey",
-              "stack_after": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
-                "8a0b8c565dfe34a8813d28f8918fabff37976448"
-              ],
-              "stack_before": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
-              ]
-            },
-            {
-              "opcode": 20,
-              "opcode_name": "unknown opcode",
-              "pc": 2,
-              "phase": "scriptPubKey",
-              "stack_after": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
-                "8a0b8c565dfe34a8813d28f8918fabff37976448",
-                "8a0b8c565dfe34a8813d28f8918fabff37976448"
-              ],
-              "stack_before": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
-                "8a0b8c565dfe34a8813d28f8918fabff37976448"
-              ]
-            },
-            {
-              "opcode": 136,
-              "opcode_name": "OP_EQUALVERIFY",
-              "pc": 23,
-              "phase": "scriptPubKey",
-              "stack_after": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
-              ],
-              "stack_before": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61",
-                "8a0b8c565dfe34a8813d28f8918fabff37976448",
-                "8a0b8c565dfe34a8813d28f8918fabff37976448"
-              ]
-            },
-            {
-              "opcode": 172,
-              "opcode_name": "OP_CHECKSIG",
-              "pc": 24,
-              "phase": "scriptPubKey",
-              "stack_after": ["01"],
-              "stack_before": [
-                "30440220769c163e8e627b068e27c1bd35b3541e152a518c910196be0ca77709b603671d0220411618bded5cfb89fc0a18ca5ae91cc667831750449c16535467f5bb29bcdb5501",
-                "023a33927c5eb51b1d555e276f034d415984150f1d0ccc54101e0aa1356e94df61"
-              ]
-            }
-          ],
-          "usesWitness": true
+          "usesWitness": false,
+          "witnessRulesEnabled": true
         },
         "borderColor": "#a855f7"
       }
@@ -5631,12 +5730,46 @@
         "showComment": true,
         "comment": "Pre-SegWit rules simulated—WITNESS + CLEANSTACK flags excluded, so a legacy node treats the OP_0 <20> output as anyone-can-spend and returns true.",
         "scriptDebugSteps": {
+          "isValid": true,
+          "steps": [
+            {
+              "pc": 0,
+              "opcode": 0,
+              "opcode_name": "OP_0",
+              "stack_before": [],
+              "stack_after": [""],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": 1,
+              "opcode": 20,
+              "opcode_name": "PUSH 20 bytes",
+              "stack_before": [""],
+              "stack_after": ["", "f92c8812da9e34c2c2a1c910346f9677ccf46d5a"],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            }
+          ],
+          "scriptSig": "",
+          "scriptPubKey": "0014f92c8812da9e34c2c2a1c910346f9677ccf46d5a",
+          "excludedFlags": [
+            "CLEANSTACK",
+            "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
+            "WITNESS",
+            "WITNESS_PUBKEYTYPE"
+          ],
           "activeFlags": [
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "LOW_S",
+            "MINIMALDATA",
             "MINIMALIF",
             "NULLDUMMY",
             "NULLFAIL",
@@ -5644,34 +5777,8 @@
             "STRICTENC",
             "TAPROOT"
           ],
-          "excludedFlags": [
-            "CLEANSTACK",
-            "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
-            "WITNESS",
-            "WITNESS_PUBKEYTYPE"
-          ],
-          "isValid": true,
-          "scriptPubKey": "0014f92c8812da9e34c2c2a1c910346f9677ccf46d5a",
-          "scriptSig": "",
-          "steps": [
-            {
-              "opcode": 0,
-              "opcode_name": "OP_0",
-              "pc": 0,
-              "phase": "scriptPubKey",
-              "stack_after": [""],
-              "stack_before": []
-            },
-            {
-              "opcode": 20,
-              "opcode_name": "unknown opcode",
-              "pc": 1,
-              "phase": "scriptPubKey",
-              "stack_after": ["", "f92c8812da9e34c2c2a1c910346f9677ccf46d5a"],
-              "stack_before": [""]
-            }
-          ],
-          "usesWitness": false
+          "usesWitness": false,
+          "witnessRulesEnabled": false
         }
       }
     },
@@ -5749,14 +5856,67 @@
         "totalInputs": 4,
         "unwiredCount": 0,
         "scriptDebugSteps": {
+          "isValid": false,
+          "steps": [
+            {
+              "pc": 0,
+              "opcode": 0,
+              "opcode_name": "OP_0",
+              "stack_before": [],
+              "stack_after": [""],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": 1,
+              "opcode": 20,
+              "opcode_name": "PUSH 20 bytes",
+              "stack_before": [""],
+              "stack_after": ["", "f92c8812da9e34c2c2a1c910346f9677ccf46d5a"],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": -1,
+              "opcode_name": "witness_program_match",
+              "kind": "validator",
+              "step": "witness_program_match",
+              "phase": "witness",
+              "witness_version": 0,
+              "program_hex": "f92c8812da9e34c2c2a1c910346f9677ccf46d5a",
+              "p2sh_wrapped": false,
+              "stack_before": [],
+              "stack_after": []
+            },
+            {
+              "pc": -1,
+              "kind": "validator",
+              "opcode_name": "witness_stack",
+              "step": "witness_stack",
+              "phase": "scriptPubKey",
+              "stack_before": [],
+              "stack_after": [],
+              "failed": true,
+              "error": "witness program mismatch",
+              "error_code": "WITNESS_PROGRAM_MISMATCH"
+            }
+          ],
+          "scriptSig": "",
+          "scriptPubKey": "0014f92c8812da9e34c2c2a1c910346f9677ccf46d5a",
+          "excludedFlags": [],
           "activeFlags": [
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
+            "MINIMALDATA",
             "MINIMALIF",
             "NULLDUMMY",
             "NULLFAIL",
@@ -5766,33 +5926,10 @@
             "WITNESS",
             "WITNESS_PUBKEYTYPE"
           ],
+          "usesWitness": true,
+          "witnessRulesEnabled": true,
           "amountUsed": 159000,
-          "error": "witness program mismatch (need 2 items for P2WPKH)",
-          "excludedFlags": [],
-          "isValid": false,
-          "scriptPubKey": "0014f92c8812da9e34c2c2a1c910346f9677ccf46d5a",
-          "scriptSig": "",
-          "steps": [
-            {
-              "opcode": 0,
-              "opcode_name": "OP_0",
-              "pc": 0,
-              "phase": "scriptPubKey",
-              "stack_after": [""],
-              "stack_before": []
-            },
-            {
-              "error": "witness program mismatch",
-              "failed": true,
-              "opcode": 20,
-              "opcode_name": "unknown opcode",
-              "pc": 1,
-              "phase": "scriptPubKey",
-              "stack_after": ["", "f92c8812da9e34c2c2a1c910346f9677ccf46d5a"],
-              "stack_before": [""]
-            }
-          ],
-          "usesWitness": true
+          "error": "witness program mismatch"
         }
       }
     },
@@ -5871,12 +6008,46 @@
         "totalInputs": 4,
         "unwiredCount": 0,
         "scriptDebugSteps": {
+          "isValid": true,
+          "steps": [
+            {
+              "pc": 0,
+              "opcode": 0,
+              "opcode_name": "OP_0",
+              "stack_before": [],
+              "stack_after": [""],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": 1,
+              "opcode": 20,
+              "opcode_name": "PUSH 20 bytes",
+              "stack_before": [""],
+              "stack_after": ["", "f92c8812da9e34c2c2a1c910346f9677ccf46d5a"],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            }
+          ],
+          "scriptSig": "",
+          "scriptPubKey": "0014f92c8812da9e34c2c2a1c910346f9677ccf46d5a",
+          "excludedFlags": [
+            "CLEANSTACK",
+            "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
+            "WITNESS",
+            "WITNESS_PUBKEYTYPE"
+          ],
           "activeFlags": [
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "LOW_S",
+            "MINIMALDATA",
             "MINIMALIF",
             "NULLDUMMY",
             "NULLFAIL",
@@ -5884,34 +6055,8 @@
             "STRICTENC",
             "TAPROOT"
           ],
-          "excludedFlags": [
-            "CLEANSTACK",
-            "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
-            "WITNESS",
-            "WITNESS_PUBKEYTYPE"
-          ],
-          "isValid": true,
-          "scriptPubKey": "0014f92c8812da9e34c2c2a1c910346f9677ccf46d5a",
-          "scriptSig": "",
-          "steps": [
-            {
-              "opcode": 0,
-              "opcode_name": "OP_0",
-              "pc": 0,
-              "phase": "scriptPubKey",
-              "stack_after": [""],
-              "stack_before": []
-            },
-            {
-              "opcode": 20,
-              "opcode_name": "unknown opcode",
-              "pc": 1,
-              "phase": "scriptPubKey",
-              "stack_after": ["", "f92c8812da9e34c2c2a1c910346f9677ccf46d5a"],
-              "stack_before": [""]
-            }
-          ],
-          "usesWitness": false
+          "usesWitness": false,
+          "witnessRulesEnabled": false
         },
         "borderColor": "#a855f7"
       }
@@ -5990,14 +6135,181 @@
         "totalInputs": 4,
         "unwiredCount": 0,
         "scriptDebugSteps": {
+          "isValid": true,
+          "steps": [
+            {
+              "pc": 0,
+              "opcode": 0,
+              "opcode_name": "OP_0",
+              "stack_before": [],
+              "stack_after": [""],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": 1,
+              "opcode": 20,
+              "opcode_name": "PUSH 20 bytes",
+              "stack_before": [""],
+              "stack_after": ["", "f28377678dc3c1d57be867ecc64e82b3d2eefd7f"],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": -1,
+              "opcode_name": "witness_program_match",
+              "kind": "validator",
+              "step": "witness_program_match",
+              "phase": "witness",
+              "witness_version": 0,
+              "program_hex": "f28377678dc3c1d57be867ecc64e82b3d2eefd7f",
+              "p2sh_wrapped": false,
+              "stack_before": [],
+              "stack_after": []
+            },
+            {
+              "pc": -1,
+              "opcode_name": "witness item 1/2",
+              "kind": "validator",
+              "step": "witness_load",
+              "phase": "witness",
+              "witness_index": 0,
+              "witness_total": 2,
+              "stack_before": [],
+              "stack_after": [
+                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01"
+              ]
+            },
+            {
+              "pc": -1,
+              "opcode_name": "witness item 2/2",
+              "kind": "validator",
+              "step": "witness_load",
+              "phase": "witness",
+              "witness_index": 1,
+              "witness_total": 2,
+              "stack_before": [
+                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01"
+              ],
+              "stack_after": [
+                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
+                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f"
+              ]
+            },
+            {
+              "pc": -1,
+              "opcode_name": "scriptcode_derive",
+              "kind": "validator",
+              "step": "scriptcode_derive",
+              "phase": "witness",
+              "script_hex": "76a914f28377678dc3c1d57be867ecc64e82b3d2eefd7f88ac",
+              "program_hex": "f28377678dc3c1d57be867ecc64e82b3d2eefd7f",
+              "stack_before": [
+                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
+                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f"
+              ],
+              "stack_after": [
+                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
+                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f"
+              ]
+            },
+            {
+              "pc": 0,
+              "opcode": 118,
+              "opcode_name": "OP_DUP",
+              "stack_before": [
+                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
+                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f"
+              ],
+              "stack_after": [
+                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
+                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f",
+                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f"
+              ],
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 1,
+              "opcode": 169,
+              "opcode_name": "OP_HASH160",
+              "stack_before": [
+                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
+                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f",
+                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f"
+              ],
+              "stack_after": [
+                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
+                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f",
+                "f28377678dc3c1d57be867ecc64e82b3d2eefd7f"
+              ],
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 2,
+              "opcode": 20,
+              "opcode_name": "PUSH 20 bytes",
+              "stack_before": [
+                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
+                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f",
+                "f28377678dc3c1d57be867ecc64e82b3d2eefd7f"
+              ],
+              "stack_after": [
+                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
+                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f",
+                "f28377678dc3c1d57be867ecc64e82b3d2eefd7f",
+                "f28377678dc3c1d57be867ecc64e82b3d2eefd7f"
+              ],
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 23,
+              "opcode": 136,
+              "opcode_name": "OP_EQUALVERIFY",
+              "stack_before": [
+                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
+                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f",
+                "f28377678dc3c1d57be867ecc64e82b3d2eefd7f",
+                "f28377678dc3c1d57be867ecc64e82b3d2eefd7f"
+              ],
+              "stack_after": [
+                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
+                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f"
+              ],
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 24,
+              "opcode": 172,
+              "opcode_name": "OP_CHECKSIG",
+              "stack_before": [
+                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
+                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f"
+              ],
+              "stack_after": ["01"],
+              "phase": "witnessScript",
+              "branch_active": true
+            }
+          ],
+          "scriptSig": "",
+          "scriptPubKey": "0014f28377678dc3c1d57be867ecc64e82b3d2eefd7f",
+          "excludedFlags": [],
           "activeFlags": [
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
+            "MINIMALDATA",
             "MINIMALIF",
             "NULLDUMMY",
             "NULLFAIL",
@@ -6007,107 +6319,14 @@
             "WITNESS",
             "WITNESS_PUBKEYTYPE"
           ],
-          "amountUsed": 158000,
-          "excludedFlags": [],
-          "isValid": true,
-          "scriptPubKey": "0014f28377678dc3c1d57be867ecc64e82b3d2eefd7f",
-          "scriptSig": "",
-          "steps": [
-            {
-              "opcode": 0,
-              "opcode_name": "OP_0",
-              "pc": 0,
-              "phase": "scriptPubKey",
-              "stack_after": [""],
-              "stack_before": []
-            },
-            {
-              "opcode": 20,
-              "opcode_name": "unknown opcode",
-              "pc": 1,
-              "phase": "scriptPubKey",
-              "stack_after": ["", "f28377678dc3c1d57be867ecc64e82b3d2eefd7f"],
-              "stack_before": [""]
-            },
-            {
-              "opcode": 118,
-              "opcode_name": "OP_DUP",
-              "pc": 0,
-              "phase": "witnessScript",
-              "script_hex": "76a914f28377678dc3c1d57be867ecc64e82b3d2eefd7f88ac",
-              "stack_after": [
-                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
-                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f",
-                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f"
-              ],
-              "stack_before": [
-                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
-                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f"
-              ]
-            },
-            {
-              "opcode": 169,
-              "opcode_name": "OP_HASH160",
-              "pc": 1,
-              "phase": "witnessScript",
-              "stack_after": [
-                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
-                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f",
-                "f28377678dc3c1d57be867ecc64e82b3d2eefd7f"
-              ],
-              "stack_before": [
-                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
-                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f",
-                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f"
-              ]
-            },
-            {
-              "opcode": 20,
-              "opcode_name": "unknown opcode",
-              "pc": 2,
-              "phase": "witnessScript",
-              "stack_after": [
-                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
-                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f",
-                "f28377678dc3c1d57be867ecc64e82b3d2eefd7f",
-                "f28377678dc3c1d57be867ecc64e82b3d2eefd7f"
-              ],
-              "stack_before": [
-                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
-                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f",
-                "f28377678dc3c1d57be867ecc64e82b3d2eefd7f"
-              ]
-            },
-            {
-              "opcode": 136,
-              "opcode_name": "OP_EQUALVERIFY",
-              "pc": 23,
-              "phase": "witnessScript",
-              "stack_after": [
-                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
-                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f"
-              ],
-              "stack_before": [
-                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
-                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f",
-                "f28377678dc3c1d57be867ecc64e82b3d2eefd7f",
-                "f28377678dc3c1d57be867ecc64e82b3d2eefd7f"
-              ]
-            },
-            {
-              "opcode": 172,
-              "opcode_name": "OP_CHECKSIG",
-              "pc": 24,
-              "phase": "witnessScript",
-              "stack_after": ["01"],
-              "stack_before": [
-                "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
-                "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f"
-              ]
-            }
-          ],
           "usesWitness": true,
-          "witnessScript": "76a914f28377678dc3c1d57be867ecc64e82b3d2eefd7f88ac"
+          "witnessRulesEnabled": true,
+          "amountUsed": 158000,
+          "witnessStack": [
+            "304402205485b49a951bb8e40db5ae76c8df337dd40b7b1952863bfd5ed92ca0b0adeda0022049def34833b8686e0e385004f8845cf0af364402e4fb530f314f35c2869a883f01",
+            "0309bc9966bbd809730c682e5cd9e8d986aafce9c0d3ca428502bd279b7bed404f"
+          ],
+          "scriptCode": "76a914f28377678dc3c1d57be867ecc64e82b3d2eefd7f88ac"
         },
         "borderColor": "#a855f7"
       }
@@ -9645,14 +9864,181 @@
         "totalInputs": 4,
         "unwiredCount": 0,
         "scriptDebugSteps": {
+          "isValid": true,
+          "steps": [
+            {
+              "pc": 0,
+              "opcode": 0,
+              "opcode_name": "OP_0",
+              "stack_before": [],
+              "stack_after": [""],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": 1,
+              "opcode": 20,
+              "opcode_name": "PUSH 20 bytes",
+              "stack_before": [""],
+              "stack_after": ["", "6153ce89894a1ba1f33e63fe64612a441c3f2a2f"],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": -1,
+              "opcode_name": "witness_program_match",
+              "kind": "validator",
+              "step": "witness_program_match",
+              "phase": "witness",
+              "witness_version": 0,
+              "program_hex": "6153ce89894a1ba1f33e63fe64612a441c3f2a2f",
+              "p2sh_wrapped": false,
+              "stack_before": [],
+              "stack_after": []
+            },
+            {
+              "pc": -1,
+              "opcode_name": "witness item 1/2",
+              "kind": "validator",
+              "step": "witness_load",
+              "phase": "witness",
+              "witness_index": 0,
+              "witness_total": 2,
+              "stack_before": [],
+              "stack_after": [
+                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01"
+              ]
+            },
+            {
+              "pc": -1,
+              "opcode_name": "witness item 2/2",
+              "kind": "validator",
+              "step": "witness_load",
+              "phase": "witness",
+              "witness_index": 1,
+              "witness_total": 2,
+              "stack_before": [
+                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01"
+              ],
+              "stack_after": [
+                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
+                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062"
+              ]
+            },
+            {
+              "pc": -1,
+              "opcode_name": "scriptcode_derive",
+              "kind": "validator",
+              "step": "scriptcode_derive",
+              "phase": "witness",
+              "script_hex": "76a9146153ce89894a1ba1f33e63fe64612a441c3f2a2f88ac",
+              "program_hex": "6153ce89894a1ba1f33e63fe64612a441c3f2a2f",
+              "stack_before": [
+                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
+                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062"
+              ],
+              "stack_after": [
+                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
+                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062"
+              ]
+            },
+            {
+              "pc": 0,
+              "opcode": 118,
+              "opcode_name": "OP_DUP",
+              "stack_before": [
+                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
+                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062"
+              ],
+              "stack_after": [
+                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
+                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062",
+                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062"
+              ],
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 1,
+              "opcode": 169,
+              "opcode_name": "OP_HASH160",
+              "stack_before": [
+                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
+                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062",
+                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062"
+              ],
+              "stack_after": [
+                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
+                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062",
+                "6153ce89894a1ba1f33e63fe64612a441c3f2a2f"
+              ],
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 2,
+              "opcode": 20,
+              "opcode_name": "PUSH 20 bytes",
+              "stack_before": [
+                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
+                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062",
+                "6153ce89894a1ba1f33e63fe64612a441c3f2a2f"
+              ],
+              "stack_after": [
+                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
+                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062",
+                "6153ce89894a1ba1f33e63fe64612a441c3f2a2f",
+                "6153ce89894a1ba1f33e63fe64612a441c3f2a2f"
+              ],
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 23,
+              "opcode": 136,
+              "opcode_name": "OP_EQUALVERIFY",
+              "stack_before": [
+                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
+                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062",
+                "6153ce89894a1ba1f33e63fe64612a441c3f2a2f",
+                "6153ce89894a1ba1f33e63fe64612a441c3f2a2f"
+              ],
+              "stack_after": [
+                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
+                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062"
+              ],
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 24,
+              "opcode": 172,
+              "opcode_name": "OP_CHECKSIG",
+              "stack_before": [
+                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
+                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062"
+              ],
+              "stack_after": ["01"],
+              "phase": "witnessScript",
+              "branch_active": true
+            }
+          ],
+          "scriptSig": "",
+          "scriptPubKey": "00146153ce89894a1ba1f33e63fe64612a441c3f2a2f",
+          "excludedFlags": [],
           "activeFlags": [
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
+            "MINIMALDATA",
             "MINIMALIF",
             "NULLDUMMY",
             "NULLFAIL",
@@ -9662,107 +10048,14 @@
             "WITNESS",
             "WITNESS_PUBKEYTYPE"
           ],
-          "amountUsed": 100000,
-          "excludedFlags": [],
-          "isValid": true,
-          "scriptPubKey": "00146153ce89894a1ba1f33e63fe64612a441c3f2a2f",
-          "scriptSig": "",
-          "steps": [
-            {
-              "opcode": 0,
-              "opcode_name": "OP_0",
-              "pc": 0,
-              "phase": "scriptPubKey",
-              "stack_after": [""],
-              "stack_before": []
-            },
-            {
-              "opcode": 20,
-              "opcode_name": "unknown opcode",
-              "pc": 1,
-              "phase": "scriptPubKey",
-              "stack_after": ["", "6153ce89894a1ba1f33e63fe64612a441c3f2a2f"],
-              "stack_before": [""]
-            },
-            {
-              "opcode": 118,
-              "opcode_name": "OP_DUP",
-              "pc": 0,
-              "phase": "witnessScript",
-              "script_hex": "76a9146153ce89894a1ba1f33e63fe64612a441c3f2a2f88ac",
-              "stack_after": [
-                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
-                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062",
-                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062"
-              ],
-              "stack_before": [
-                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
-                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062"
-              ]
-            },
-            {
-              "opcode": 169,
-              "opcode_name": "OP_HASH160",
-              "pc": 1,
-              "phase": "witnessScript",
-              "stack_after": [
-                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
-                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062",
-                "6153ce89894a1ba1f33e63fe64612a441c3f2a2f"
-              ],
-              "stack_before": [
-                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
-                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062",
-                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062"
-              ]
-            },
-            {
-              "opcode": 20,
-              "opcode_name": "unknown opcode",
-              "pc": 2,
-              "phase": "witnessScript",
-              "stack_after": [
-                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
-                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062",
-                "6153ce89894a1ba1f33e63fe64612a441c3f2a2f",
-                "6153ce89894a1ba1f33e63fe64612a441c3f2a2f"
-              ],
-              "stack_before": [
-                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
-                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062",
-                "6153ce89894a1ba1f33e63fe64612a441c3f2a2f"
-              ]
-            },
-            {
-              "opcode": 136,
-              "opcode_name": "OP_EQUALVERIFY",
-              "pc": 23,
-              "phase": "witnessScript",
-              "stack_after": [
-                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
-                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062"
-              ],
-              "stack_before": [
-                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
-                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062",
-                "6153ce89894a1ba1f33e63fe64612a441c3f2a2f",
-                "6153ce89894a1ba1f33e63fe64612a441c3f2a2f"
-              ]
-            },
-            {
-              "opcode": 172,
-              "opcode_name": "OP_CHECKSIG",
-              "pc": 24,
-              "phase": "witnessScript",
-              "stack_after": ["01"],
-              "stack_before": [
-                "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
-                "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062"
-              ]
-            }
-          ],
           "usesWitness": true,
-          "witnessScript": "76a9146153ce89894a1ba1f33e63fe64612a441c3f2a2f88ac"
+          "witnessRulesEnabled": true,
+          "amountUsed": 100000,
+          "witnessStack": [
+            "3044022056dfc6d44635baa089f2938b1b7388d85638cde9f41c22fb331750921f4b9f330220423f5a3c2f7d931b61b279201e40647c72893f88070d4acef031a8ae7187be2a01",
+            "03e1b7d1cd732029b9ed5f0d11749607edf15fb9310a4fe4b7d8dab49d2c410062"
+          ],
+          "scriptCode": "76a9146153ce89894a1ba1f33e63fe64612a441c3f2a2f88ac"
         },
         "borderColor": "#a855f7"
       }
@@ -9893,14 +10186,181 @@
         "totalInputs": 4,
         "unwiredCount": 0,
         "scriptDebugSteps": {
+          "isValid": true,
+          "steps": [
+            {
+              "pc": 0,
+              "opcode": 0,
+              "opcode_name": "OP_0",
+              "stack_before": [],
+              "stack_after": [""],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": 1,
+              "opcode": 20,
+              "opcode_name": "PUSH 20 bytes",
+              "stack_before": [""],
+              "stack_after": ["", "da8d324a4d200b181888a86af8240c46d7fad901"],
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": -1,
+              "opcode_name": "witness_program_match",
+              "kind": "validator",
+              "step": "witness_program_match",
+              "phase": "witness",
+              "witness_version": 0,
+              "program_hex": "da8d324a4d200b181888a86af8240c46d7fad901",
+              "p2sh_wrapped": false,
+              "stack_before": [],
+              "stack_after": []
+            },
+            {
+              "pc": -1,
+              "opcode_name": "witness item 1/2",
+              "kind": "validator",
+              "step": "witness_load",
+              "phase": "witness",
+              "witness_index": 0,
+              "witness_total": 2,
+              "stack_before": [],
+              "stack_after": [
+                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501"
+              ]
+            },
+            {
+              "pc": -1,
+              "opcode_name": "witness item 2/2",
+              "kind": "validator",
+              "step": "witness_load",
+              "phase": "witness",
+              "witness_index": 1,
+              "witness_total": 2,
+              "stack_before": [
+                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501"
+              ],
+              "stack_after": [
+                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
+                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5"
+              ]
+            },
+            {
+              "pc": -1,
+              "opcode_name": "scriptcode_derive",
+              "kind": "validator",
+              "step": "scriptcode_derive",
+              "phase": "witness",
+              "script_hex": "76a914da8d324a4d200b181888a86af8240c46d7fad90188ac",
+              "program_hex": "da8d324a4d200b181888a86af8240c46d7fad901",
+              "stack_before": [
+                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
+                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5"
+              ],
+              "stack_after": [
+                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
+                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5"
+              ]
+            },
+            {
+              "pc": 0,
+              "opcode": 118,
+              "opcode_name": "OP_DUP",
+              "stack_before": [
+                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
+                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5"
+              ],
+              "stack_after": [
+                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
+                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5",
+                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5"
+              ],
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 1,
+              "opcode": 169,
+              "opcode_name": "OP_HASH160",
+              "stack_before": [
+                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
+                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5",
+                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5"
+              ],
+              "stack_after": [
+                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
+                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5",
+                "da8d324a4d200b181888a86af8240c46d7fad901"
+              ],
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 2,
+              "opcode": 20,
+              "opcode_name": "PUSH 20 bytes",
+              "stack_before": [
+                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
+                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5",
+                "da8d324a4d200b181888a86af8240c46d7fad901"
+              ],
+              "stack_after": [
+                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
+                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5",
+                "da8d324a4d200b181888a86af8240c46d7fad901",
+                "da8d324a4d200b181888a86af8240c46d7fad901"
+              ],
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 23,
+              "opcode": 136,
+              "opcode_name": "OP_EQUALVERIFY",
+              "stack_before": [
+                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
+                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5",
+                "da8d324a4d200b181888a86af8240c46d7fad901",
+                "da8d324a4d200b181888a86af8240c46d7fad901"
+              ],
+              "stack_after": [
+                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
+                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5"
+              ],
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 24,
+              "opcode": 172,
+              "opcode_name": "OP_CHECKSIG",
+              "stack_before": [
+                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
+                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5"
+              ],
+              "stack_after": ["01"],
+              "phase": "witnessScript",
+              "branch_active": true
+            }
+          ],
+          "scriptSig": "",
+          "scriptPubKey": "0014da8d324a4d200b181888a86af8240c46d7fad901",
+          "excludedFlags": [],
           "activeFlags": [
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
+            "MINIMALDATA",
             "MINIMALIF",
             "NULLDUMMY",
             "NULLFAIL",
@@ -9910,107 +10370,14 @@
             "WITNESS",
             "WITNESS_PUBKEYTYPE"
           ],
-          "amountUsed": 55000,
-          "excludedFlags": [],
-          "isValid": true,
-          "scriptPubKey": "0014da8d324a4d200b181888a86af8240c46d7fad901",
-          "scriptSig": "",
-          "steps": [
-            {
-              "opcode": 0,
-              "opcode_name": "OP_0",
-              "pc": 0,
-              "phase": "scriptPubKey",
-              "stack_after": [""],
-              "stack_before": []
-            },
-            {
-              "opcode": 20,
-              "opcode_name": "unknown opcode",
-              "pc": 1,
-              "phase": "scriptPubKey",
-              "stack_after": ["", "da8d324a4d200b181888a86af8240c46d7fad901"],
-              "stack_before": [""]
-            },
-            {
-              "opcode": 118,
-              "opcode_name": "OP_DUP",
-              "pc": 0,
-              "phase": "witnessScript",
-              "script_hex": "76a914da8d324a4d200b181888a86af8240c46d7fad90188ac",
-              "stack_after": [
-                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
-                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5",
-                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5"
-              ],
-              "stack_before": [
-                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
-                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5"
-              ]
-            },
-            {
-              "opcode": 169,
-              "opcode_name": "OP_HASH160",
-              "pc": 1,
-              "phase": "witnessScript",
-              "stack_after": [
-                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
-                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5",
-                "da8d324a4d200b181888a86af8240c46d7fad901"
-              ],
-              "stack_before": [
-                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
-                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5",
-                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5"
-              ]
-            },
-            {
-              "opcode": 20,
-              "opcode_name": "unknown opcode",
-              "pc": 2,
-              "phase": "witnessScript",
-              "stack_after": [
-                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
-                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5",
-                "da8d324a4d200b181888a86af8240c46d7fad901",
-                "da8d324a4d200b181888a86af8240c46d7fad901"
-              ],
-              "stack_before": [
-                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
-                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5",
-                "da8d324a4d200b181888a86af8240c46d7fad901"
-              ]
-            },
-            {
-              "opcode": 136,
-              "opcode_name": "OP_EQUALVERIFY",
-              "pc": 23,
-              "phase": "witnessScript",
-              "stack_after": [
-                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
-                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5"
-              ],
-              "stack_before": [
-                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
-                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5",
-                "da8d324a4d200b181888a86af8240c46d7fad901",
-                "da8d324a4d200b181888a86af8240c46d7fad901"
-              ]
-            },
-            {
-              "opcode": 172,
-              "opcode_name": "OP_CHECKSIG",
-              "pc": 24,
-              "phase": "witnessScript",
-              "stack_after": ["01"],
-              "stack_before": [
-                "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
-                "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5"
-              ]
-            }
-          ],
           "usesWitness": true,
-          "witnessScript": "76a914da8d324a4d200b181888a86af8240c46d7fad90188ac"
+          "witnessRulesEnabled": true,
+          "amountUsed": 55000,
+          "witnessStack": [
+            "3044022028f683f4469dd7f95aa3948c09c0a0d3a5ed5e25918a87c8a332fb115845654002204733d3d08fac7f6bcd6f54617dc32ab924b998921ef75e126797653531c5880501",
+            "035d1ea8dedee8a617a904c62b9bc05cdcbe3b563f09421bb09d9937c58f1ed9f5"
+          ],
+          "scriptCode": "76a914da8d324a4d200b181888a86af8240c46d7fad90188ac"
         },
         "borderColor": "#a855f7"
       }

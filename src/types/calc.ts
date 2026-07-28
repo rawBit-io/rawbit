@@ -118,6 +118,10 @@ export interface StepData {
   program_hex?: string;
   /** witness_script_check: SHA256 of the candidate witnessScript. */
   sha256_hex?: string;
+  /** control_block_extract: raw control-block bytes popped from the witness. */
+  control_hex?: string;
+  /** control_block_extract: number of Merkle-path nodes in the control block. */
+  merkle_path_len?: number;
 }
 
 export interface ScriptExecutionResult {

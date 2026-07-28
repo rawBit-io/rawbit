@@ -2133,18 +2133,20 @@
               "opcode_name": "OP_1",
               "stack_before": [],
               "stack_after": ["01"],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 1,
               "opcode": 32,
-              "opcode_name": "unknown opcode",
+              "opcode_name": "PUSH 32 bytes",
               "stack_before": ["01"],
               "stack_after": [
                 "01",
                 "c6041a5e0128792c8309f5a1406a3e1d5bd6053a93593ed8bd92809c4c55c929"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": -1,
@@ -2197,8 +2199,12 @@
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
             "MINIMALDATA",
@@ -2212,6 +2218,7 @@
             "WITNESS_PUBKEYTYPE"
           ],
           "usesWitness": true,
+          "witnessRulesEnabled": true,
           "amountUsed": 130293,
           "witnessStack": [
             "b1b1a2eb6a9e356d71a12165146761b40f2f2272754f64b917cd8e4e2e7d422a695e3f929e10f319b0428814032be29a86a1c9dc2d32693ae556b48ff0b55b9e"
@@ -5555,18 +5562,20 @@
               "opcode_name": "OP_1",
               "stack_before": [],
               "stack_after": ["01"],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 1,
               "opcode": 32,
-              "opcode_name": "unknown opcode",
+              "opcode_name": "PUSH 32 bytes",
               "stack_before": ["01"],
               "stack_after": [
                 "01",
                 "147ce0078a2f86f3f193bc5ea2ff51d3c355b803ccc6bb7362926cc19d2b917b"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": -1,
@@ -5586,19 +5595,44 @@
             },
             {
               "pc": -1,
+              "kind": "validator",
+              "opcode_name": "taproot_control_block_extract",
+              "phase": "taproot",
+              "step": "control_block_extract",
+              "control_hex": "c08a75f4eda4317b47aae927012c4646e0e5d743c242b7fbc6bc213de5fe1a81274d0a608da99f45889e1196229827b70a719629ad71510805c96d7eae2c7913b6887c633b69148abe2f59211d6769a5d093e8b4a981bc10e56f5a8efb985a92ba",
+              "stack_before": [
+                "ba31c9983e542950305dfa4ba8fcb910f54855ed3bfae308704f587d492bc293f382ee19d30c05bca8348a2709f7fc5a6b154da0018bb501bcadf7e3f2a65a3a",
+                "029000b27520c4c1ab6a1dbde8d08515acf884a8fff2914cf8b9c29f71a58eae21e02c65b750ac",
+                "c08a75f4eda4317b47aae927012c4646e0e5d743c242b7fbc6bc213de5fe1a81274d0a608da99f45889e1196229827b70a719629ad71510805c96d7eae2c7913b6887c633b69148abe2f59211d6769a5d093e8b4a981bc10e56f5a8efb985a92ba"
+              ],
+              "stack_after": [
+                "ba31c9983e542950305dfa4ba8fcb910f54855ed3bfae308704f587d492bc293f382ee19d30c05bca8348a2709f7fc5a6b154da0018bb501bcadf7e3f2a65a3a",
+                "029000b27520c4c1ab6a1dbde8d08515acf884a8fff2914cf8b9c29f71a58eae21e02c65b750ac"
+              ],
+              "leaf_version": 192,
+              "parity": false,
+              "internal_pubkey": "8a75f4eda4317b47aae927012c4646e0e5d743c242b7fbc6bc213de5fe1a8127",
+              "merkle_path_len": 2
+            },
+            {
+              "pc": -1,
               "opcode_name": "witness_script",
               "phase": "witnessScript",
               "step": "witness_script",
               "script_hex": "029000b27520c4c1ab6a1dbde8d08515acf884a8fff2914cf8b9c29f71a58eae21e02c65b750ac",
               "stack_before": [
-                "ba31c9983e542950305dfa4ba8fcb910f54855ed3bfae308704f587d492bc293f382ee19d30c05bca8348a2709f7fc5a6b154da0018bb501bcadf7e3f2a65a3a"
+                "ba31c9983e542950305dfa4ba8fcb910f54855ed3bfae308704f587d492bc293f382ee19d30c05bca8348a2709f7fc5a6b154da0018bb501bcadf7e3f2a65a3a",
+                "029000b27520c4c1ab6a1dbde8d08515acf884a8fff2914cf8b9c29f71a58eae21e02c65b750ac"
               ],
               "stack_after": [
                 "ba31c9983e542950305dfa4ba8fcb910f54855ed3bfae308704f587d492bc293f382ee19d30c05bca8348a2709f7fc5a6b154da0018bb501bcadf7e3f2a65a3a"
-              ]
+              ],
+              "committed": true,
+              "executed": true
             },
             {
               "pc": -1,
+              "kind": "validator",
               "opcode_name": "taproot_control_block",
               "phase": "taproot",
               "step": "control_block",
@@ -5608,12 +5642,18 @@
               "internal_pubkey": "8a75f4eda4317b47aae927012c4646e0e5d743c242b7fbc6bc213de5fe1a8127",
               "tweaked_pubkey": "147ce0078a2f86f3f193bc5ea2ff51d3c355b803ccc6bb7362926cc19d2b917b",
               "parity": false,
-              "result": true
+              "result": true,
+              "stack_before": [
+                "ba31c9983e542950305dfa4ba8fcb910f54855ed3bfae308704f587d492bc293f382ee19d30c05bca8348a2709f7fc5a6b154da0018bb501bcadf7e3f2a65a3a"
+              ],
+              "stack_after": [
+                "ba31c9983e542950305dfa4ba8fcb910f54855ed3bfae308704f587d492bc293f382ee19d30c05bca8348a2709f7fc5a6b154da0018bb501bcadf7e3f2a65a3a"
+              ]
             },
             {
               "pc": 0,
               "opcode": 2,
-              "opcode_name": "unknown opcode",
+              "opcode_name": "PUSH 2 bytes",
               "stack_before": [
                 "ba31c9983e542950305dfa4ba8fcb910f54855ed3bfae308704f587d492bc293f382ee19d30c05bca8348a2709f7fc5a6b154da0018bb501bcadf7e3f2a65a3a"
               ],
@@ -5621,7 +5661,8 @@
                 "ba31c9983e542950305dfa4ba8fcb910f54855ed3bfae308704f587d492bc293f382ee19d30c05bca8348a2709f7fc5a6b154da0018bb501bcadf7e3f2a65a3a",
                 "9000"
               ],
-              "phase": "witnessScript"
+              "phase": "witnessScript",
+              "branch_active": true
             },
             {
               "pc": 3,
@@ -5635,7 +5676,8 @@
                 "ba31c9983e542950305dfa4ba8fcb910f54855ed3bfae308704f587d492bc293f382ee19d30c05bca8348a2709f7fc5a6b154da0018bb501bcadf7e3f2a65a3a",
                 "9000"
               ],
-              "phase": "witnessScript"
+              "phase": "witnessScript",
+              "branch_active": true
             },
             {
               "pc": 4,
@@ -5648,12 +5690,13 @@
               "stack_after": [
                 "ba31c9983e542950305dfa4ba8fcb910f54855ed3bfae308704f587d492bc293f382ee19d30c05bca8348a2709f7fc5a6b154da0018bb501bcadf7e3f2a65a3a"
               ],
-              "phase": "witnessScript"
+              "phase": "witnessScript",
+              "branch_active": true
             },
             {
               "pc": 5,
               "opcode": 32,
-              "opcode_name": "unknown opcode",
+              "opcode_name": "PUSH 32 bytes",
               "stack_before": [
                 "ba31c9983e542950305dfa4ba8fcb910f54855ed3bfae308704f587d492bc293f382ee19d30c05bca8348a2709f7fc5a6b154da0018bb501bcadf7e3f2a65a3a"
               ],
@@ -5661,7 +5704,8 @@
                 "ba31c9983e542950305dfa4ba8fcb910f54855ed3bfae308704f587d492bc293f382ee19d30c05bca8348a2709f7fc5a6b154da0018bb501bcadf7e3f2a65a3a",
                 "c4c1ab6a1dbde8d08515acf884a8fff2914cf8b9c29f71a58eae21e02c65b750"
               ],
-              "phase": "witnessScript"
+              "phase": "witnessScript",
+              "branch_active": true
             },
             {
               "pc": 38,
@@ -5672,7 +5716,8 @@
                 "c4c1ab6a1dbde8d08515acf884a8fff2914cf8b9c29f71a58eae21e02c65b750"
               ],
               "stack_after": ["01"],
-              "phase": "witnessScript"
+              "phase": "witnessScript",
+              "branch_active": true
             }
           ],
           "scriptSig": "",
@@ -5682,8 +5727,12 @@
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
             "MINIMALDATA",
@@ -5697,6 +5746,7 @@
             "WITNESS_PUBKEYTYPE"
           ],
           "usesWitness": true,
+          "witnessRulesEnabled": true,
           "amountUsed": 130000,
           "witnessStack": [
             "ba31c9983e542950305dfa4ba8fcb910f54855ed3bfae308704f587d492bc293f382ee19d30c05bca8348a2709f7fc5a6b154da0018bb501bcadf7e3f2a65a3a",

@@ -153,6 +153,20 @@ const validatorStepInfo = (step: StepData): ValidatorStepInfo => {
           "witnessScript.",
       };
     case "witness_script":
+      // Live taproot traces mark the leaf-script pop with committed/executed;
+      // legacy cached P2WPKH traces reused this step name for loading the
+      // witness and must keep their old labeling.
+      if (step.committed !== undefined || step.executed !== undefined) {
+        return {
+          bip: "BIP341",
+          title: "Pop the leaf script (second-to-last witness item)",
+          explain:
+            "Consensus removes the second-to-last witness item and declares " +
+            "it the tapscript that will execute. No opcode did this — the " +
+            "witness is dissected by position. Everything still on the " +
+            "stack becomes that script's initial stack.",
+        };
+      }
       return {
         bip: "BIP141",
         title: "Load the witness stack",
@@ -169,8 +183,20 @@ const validatorStepInfo = (step: StepData): ValidatorStepInfo => {
         bip: "BIP341",
         title: "Load the witness stack",
         explain:
-          "The witness items are deserialized directly onto the stack by " +
-          "the validator.",
+          "The scriptPubKey run above was only template recognition — its " +
+          "stack is discarded here. The witness items become the new stack, " +
+          "and BIP341's fixed validation algorithm takes over.",
+      };
+    case "control_block_extract":
+    case "taproot_control_block_extract":
+      return {
+        bip: "BIP341",
+        title: "Pop the control block (last witness item)",
+        explain:
+          "Consensus removes the last witness item by position — no opcode " +
+          "does this. Its first byte packs the leaf version with the output " +
+          "key's parity bit, followed by the 32-byte internal key P and the " +
+          "Merkle-path siblings.",
       };
     case "sighash":
     case "taproot_sighash":
@@ -199,7 +225,9 @@ const validatorStepInfo = (step: StepData): ValidatorStepInfo => {
           "The validator hashes the revealed script into a tapleaf, climbs " +
           "the Merkle path from the control block, tweaks the internal key " +
           "with the resulting root, and requires the tweaked key to match " +
-          "the 32-byte output key in the scriptPubKey.",
+          "the 32-byte output key in the scriptPubKey. The check is pure " +
+          "arithmetic against the scriptPubKey — the execution stack " +
+          "passes through untouched.",
       };
     case "leaf_version":
     case "taproot_leaf_version":

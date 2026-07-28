@@ -816,6 +816,65 @@ describe("ScriptExecutionSteps", () => {
     expect(screen.queryByText("taproot_witness")).not.toBeInTheDocument();
   });
 
+  it("curates the taproot script-path dissection rows", async () => {
+    const user = userEvent.setup();
+    const controlHex = `c1${"22".repeat(32)}${"33".repeat(32)}`;
+
+    render(
+      <ScriptExecutionSteps
+        open
+        onClose={vi.fn()}
+        scriptResult={{
+          isValid: true,
+          scriptPubKey: `5120${"11".repeat(32)}`,
+          steps: [
+            {
+              pc: -1,
+              kind: "validator",
+              step: "control_block_extract",
+              opcode_name: "taproot_control_block_extract",
+              control_hex: controlHex,
+              stack_before: ["aa", "51", controlHex],
+              stack_after: ["aa", "51"],
+              phase: "taproot",
+            },
+            {
+              pc: -1,
+              step: "witness_script",
+              opcode_name: "witness_script",
+              script_hex: "51",
+              stack_before: ["aa", "51"],
+              stack_after: ["aa"],
+              committed: true,
+              executed: true,
+              phase: "witnessScript",
+            },
+          ],
+        }}
+      />
+    );
+
+    // The pop of the control block is a curated BIP341 rule, not the raw
+    // machine name, and its stacks show the item leaving the stack.
+    expect(
+      screen.getByText(/Pop the control block \(last witness item\)/i)
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("BIP341").length).toBeGreaterThan(0);
+    expect(
+      screen.queryByText("taproot_control_block_extract")
+    ).not.toBeInTheDocument();
+
+    // A live taproot witness_script row (carries committed/executed) is the
+    // leaf-script pop — not the legacy "Load the witness stack" labeling.
+    await user.click(screen.getByRole("button", { name: /Next/i }));
+    expect(
+      screen.getByText(/Pop the leaf script \(second-to-last witness item\)/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Load the witness stack/i)
+    ).not.toBeInTheDocument();
+  });
+
   it("renders a schema-poor validator step (no pc/kind/stacks) without crashing", () => {
     render(
       <ScriptExecutionSteps

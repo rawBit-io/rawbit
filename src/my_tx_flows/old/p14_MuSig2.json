@@ -2232,18 +2232,20 @@
               "opcode_name": "OP_1",
               "stack_before": [],
               "stack_after": ["01"],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 1,
               "opcode": 32,
-              "opcode_name": "unknown opcode",
+              "opcode_name": "PUSH 32 bytes",
               "stack_before": ["01"],
               "stack_after": [
                 "01",
                 "06fedb06df0699b7f416b12b6014210e36b7a7a9f2ac1a6a6c27cd43ed49e144"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": -1,
@@ -2296,8 +2298,12 @@
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
             "MINIMALDATA",
@@ -2311,6 +2317,7 @@
             "WITNESS_PUBKEYTYPE"
           ],
           "usesWitness": true,
+          "witnessRulesEnabled": true,
           "amountUsed": 191885,
           "witnessStack": [
             "48c39cd760a6bc86a269cee513e5d685f8b423250bf95b7641cba61b092035c52104c972a095fd8ae2e23ff240fa1c89b9265e1758214496949206b19f783716"

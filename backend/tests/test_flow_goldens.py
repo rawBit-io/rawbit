@@ -49,83 +49,12 @@ SKIPPED_FLOWS = {
 # are refreshed (UPDATE_FLOW_GOLDENS=1) — do NOT add entries to silence new
 # regressions in visible lessons.
 #
-# math_operation division migrated from float to high-precision Decimal;
-# the committed results carry the old 17-significant-digit float rounding.
-STALE_RESULT_NODES = {
-    "old/p10_Wrapped_Addresses.json": {"node_LacFWJx6", "node_HLBjV5t9"},
-}
-# scriptDebugSteps saved with an older script-debugger format: push opcodes
-# were labelled "unknown opcode" (now "PUSH n bytes"), the MINIMALDATA flag
-# and the witnessRulesEnabled field did not exist yet, and traces carried a
-# since-removed amountUsed field. The "result" of these nodes still
-# reproduces; only the step traces are stale.
-STALE_STEPS_NODES = {
-    "old/p0_Intro.json": {"node_iNdDaNuU"},
-    "old/p1_Intro_P2PKH_and_P2PK.json": {
-        "node_iNdDaNuU",
-        "node_5f546Cv5",
-        "node_KBWoYzNw",
-        "node_wN3VberO",
-        "node_xXU31KtR",
-    },
-    "old/p2_Bare_P2MS_and_P2SH_MultiSig.json": {
-        "node_8I03vmXJ",
-        "node_u4WI2sqY",
-        "node_dCzijJSJ",
-    },
-    "old/p3_Locktime_Intro.json": {
-        "node_0i002oyO",
-        "node_m32ign0s",
-        "node_zuEu8yAa",
-        "node_s840E3hI",
-    },
-    "old/p4_Script_timelocks_CLTV_CSV.json": {
-        "node_yuzebud",
-        "node_lUJYZ2Y6",
-        "node_Vj6EpLCI",
-        "node_3GBmrwQ2",
-        "node_EpmkeB4i",
-    },
-    "old/p5_OP_Return.json": {"node_ypruhw9"},
-    "old/p6_Spilman_channel.json": {"node_f9edzna"},
-    "old/p7_TX_malleability.json": {
-        "node_tfje7ef",
-        "node_uyif194",
-        "node_b4bgmvv",
-        "node_rkh5hzb",
-    },
-    "old/p8_SegWit_intro.json": {
-        "node_qsxxlbi",
-        "node_5mw1ima",
-        "node_t9o43zb",
-        "node_3qe7g80",
-        "node_oa93jkt",
-        "node_lhwqcpn",
-        "node_yyzmv4v",
-        "node_jdjh5ca",
-        "node_uycw75n",
-    },
-    "old/p9_SegWit_P2WSH.json": {"node_e7y66jo", "node_klvqip0", "node_rk6psd1"},
-    "old/p10_Wrapped_Addresses.json": {
-        "node_4lhrqc0",
-        "node_dhtca4r",
-        "node_2hhl608",
-        "node_gffbxbn",
-        "node_xgmvlbk",
-        "node_2hhl608-1754309759174-6zvh",
-    },
-    "old/p11_Taproot_intro.json": {
-        "node_PF5j6PIX",
-        "node_TExfEpbS",
-        "node_CUu2wKhr",
-        "node_YSvPdWn5",
-        "node_OG0Z4ug8",
-    },
-    "old/p12_Taproot_script.json": {"node_d4aijWsZ", "node_xlsj74j"},
-    "old/p13_Taproot_MultiSig.json": {"node_TO9tpFgF", "node_KfX3PTyG"},
-    "old/p14_MuSig2.json": {"node_TO9tpFgF"},
-    "old/p16_Summer_of_Bitcoin_26_PoC.json": {"node_iNdDaNuU", "node_dCzijJSJ"},
-}
+# 2026-07-28: the entire stale backlog was refreshed in one batch alongside
+# the taproot trace-granularity rework (control_block_extract row, explicit
+# witness_script pop, passthrough stacks on the commitment check), so both
+# allowlists are empty. Keep them that way.
+STALE_RESULT_NODES: dict[str, set[str]] = {}
+STALE_STEPS_NODES: dict[str, set[str]] = {}
 
 
 def _flow_key(path: Path) -> str:

@@ -2882,18 +2882,20 @@
               "opcode_name": "OP_1",
               "stack_before": [],
               "stack_after": ["01"],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 1,
               "opcode": 32,
-              "opcode_name": "unknown opcode",
+              "opcode_name": "PUSH 32 bytes",
               "stack_before": ["01"],
               "stack_after": [
                 "01",
                 "6e4835c186e746ecfd815871f367173fabb3ca64623a6c790c4aa22aa91047aa"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": -1,
@@ -2946,8 +2948,12 @@
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
             "MINIMALDATA",
@@ -2961,6 +2967,7 @@
             "WITNESS_PUBKEYTYPE"
           ],
           "usesWitness": true,
+          "witnessRulesEnabled": true,
           "amountUsed": 175315,
           "witnessStack": [
             "355b5edf2839387dde868d1e36476a7eb62aebaf3d7870a0c4af0c67c0185b5d1a278146a9c457a9d434d3014097bf8feaaf5aeda41a77e38be1243b9805306e"
@@ -6331,18 +6338,20 @@
               "opcode_name": "OP_1",
               "stack_before": [],
               "stack_after": ["01"],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 1,
               "opcode": 32,
-              "opcode_name": "unknown opcode",
+              "opcode_name": "PUSH 32 bytes",
               "stack_before": ["01"],
               "stack_after": [
                 "01",
                 "6041627baebbd7162952fa39772de36f2337b284e0cc6e32d1d87e778a9cca2d"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": -1,
@@ -6395,8 +6404,12 @@
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
             "MINIMALDATA",
@@ -6410,6 +6423,7 @@
             "WITNESS_PUBKEYTYPE"
           ],
           "usesWitness": true,
+          "witnessRulesEnabled": true,
           "amountUsed": 100000,
           "witnessStack": [
             "b133c56a27346ea6024f23761a48a9d7eecb8c57e5ebf8e08fb6ca3cbc5b9a85e48bed02aa12fc094b7e1acee8feab9cdba37599a7fc89dab86383b79b0d45d7"
@@ -6799,18 +6813,20 @@
               "opcode_name": "OP_1",
               "stack_before": [],
               "stack_after": ["01"],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 1,
               "opcode": 32,
-              "opcode_name": "unknown opcode",
+              "opcode_name": "PUSH 32 bytes",
               "stack_before": ["01"],
               "stack_after": [
                 "01",
                 "6f340dd547a408f5d9a68e82a5cc0fc88998595beb047ee34284b7c030fcdf9f"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": -1,
@@ -6863,8 +6879,12 @@
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
             "MINIMALDATA",
@@ -6878,6 +6898,7 @@
             "WITNESS_PUBKEYTYPE"
           ],
           "usesWitness": true,
+          "witnessRulesEnabled": true,
           "amountUsed": 74000,
           "witnessStack": [
             "b5fc7530e0cc57ac11e31d04722262f89e5b6878903199ee69e7cfc1ea86f990a60cf282aad136db199c03312a354d0bbd137c8c759362602887774c39cd73f0"
@@ -7231,27 +7252,36 @@
               "opcode_name": "OP_1",
               "stack_before": [],
               "stack_after": ["01"],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 1,
               "opcode": 32,
-              "opcode_name": "unknown opcode",
+              "opcode_name": "PUSH 32 bytes",
               "stack_before": ["01"],
               "stack_after": [
                 "01",
                 "6e4835c186e746ecfd815871f367173fabb3ca64623a6c790c4aa22aa91047aa"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             }
           ],
           "scriptSig": "",
           "scriptPubKey": "51206e4835c186e746ecfd815871f367173fabb3ca64623a6c790c4aa22aa91047aa",
-          "excludedFlags": ["DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM", "TAPROOT"],
+          "excludedFlags": [
+            "DISCOURAGE_OP_SUCCESS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
+            "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
+            "TAPROOT"
+          ],
           "activeFlags": [
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
             "DISCOURAGE_UPGRADABLE_NOPS",
             "LOW_S",
@@ -7265,6 +7295,7 @@
             "WITNESS_PUBKEYTYPE"
           ],
           "usesWitness": true,
+          "witnessRulesEnabled": true,
           "amountUsed": 175315,
           "witnessStack": [""]
         }
@@ -7427,18 +7458,40 @@
               "opcode_name": "OP_1",
               "stack_before": [],
               "stack_after": ["01"],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
             },
             {
               "pc": 1,
               "opcode": 32,
-              "opcode_name": "unknown opcode",
+              "opcode_name": "PUSH 32 bytes",
               "stack_before": ["01"],
               "stack_after": [
                 "01",
                 "6e4835c186e746ecfd815871f367173fabb3ca64623a6c790c4aa22aa91047aa"
               ],
-              "phase": "scriptPubKey"
+              "phase": "scriptPubKey",
+              "branch_active": true
+            },
+            {
+              "pc": -1,
+              "opcode_name": "taproot_witness",
+              "phase": "taproot",
+              "step": "witness_stack",
+              "stack_before": [""],
+              "stack_after": [""]
+            },
+            {
+              "pc": -1,
+              "kind": "validator",
+              "opcode_name": "schnorr_signature",
+              "step": "schnorr_signature",
+              "phase": "taproot",
+              "stack_before": [""],
+              "stack_after": [""],
+              "failed": true,
+              "error": "invalid schnorr signature size",
+              "error_code": "SCHNORR_SIG_SIZE"
             }
           ],
           "scriptSig": "",
@@ -7448,8 +7501,12 @@
             "CHECKLOCKTIMEVERIFY",
             "CHECKSEQUENCEVERIFY",
             "CLEANSTACK",
+            "CONST_SCRIPTCODE",
             "DERSIG",
+            "DISCOURAGE_OP_SUCCESS",
             "DISCOURAGE_UPGRADABLE_NOPS",
+            "DISCOURAGE_UPGRADABLE_PUBKEYTYPE",
+            "DISCOURAGE_UPGRADABLE_TAPROOT_VERSION",
             "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM",
             "LOW_S",
             "MINIMALDATA",
@@ -7463,6 +7520,7 @@
             "WITNESS_PUBKEYTYPE"
           ],
           "usesWitness": true,
+          "witnessRulesEnabled": true,
           "amountUsed": 175315,
           "witnessStack": [""],
           "error": "invalid schnorr signature size"
