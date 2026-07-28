@@ -30,8 +30,8 @@
       "id": "node_1tk0jii",
       "type": "shadcnGroup",
       "position": {
-        "x": 5004.457371637258,
-        "y": 1698.5208318311854
+        "x": 5019.457371637258,
+        "y": 1788.5208318311854
       },
       "data": {
         "isGroup": true,
@@ -56,8 +56,8 @@
       "id": "node_l1drJMFI",
       "type": "shadcnGroup",
       "position": {
-        "x": 2954.2552653311545,
-        "y": 3610.9230240256447
+        "x": 2969.2552653311545,
+        "y": 3700.9230240256447
       },
       "data": {
         "isGroup": true,
@@ -75,8 +75,8 @@
       "id": "node_sx1b2eLL",
       "type": "shadcnGroup",
       "position": {
-        "x": 2948.5031289937624,
-        "y": 2366.62834438029
+        "x": 2963.5031289937624,
+        "y": 2456.62834438029
       },
       "data": {
         "isGroup": true,
@@ -815,8 +815,8 @@
       "id": "node_cxlqPvSe",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 4987.687811485186,
-        "y": 623.5431250782794
+        "x": 5002.687811485186,
+        "y": 713.5431250782794
       },
       "data": {
         "content": "# Step 1 — Negotiate\n## Setup: what the parties exchange\n\nAll public data, agreed before any coins move:\n\n- **Channel capacity** - total sats Alice locks in the 2-of-2 funding output; Bob later checks the on-chain funding pays *at least* this\n- **Refund delay** - relative timelock in blocks (BIP-68 `nSequence`, 2016 here ≈ two weeks); after it Alice can reclaim via the pre-signed refund, so Bob must broadcast his best commitment *before* it expires\n- **Channel pubkeys** - one from each side, both go into the 2-of-2 redeemScript (`OP_2 <Alice> <Bob> OP_2 OP_CHECKMULTISIG`), so each party rebuilds it independently and audits the P2SH funding address\n- **Payout pubkeys** - Alice's refund P2PKH (timeout path) and Bob's payout P2PKH, which Bob verifies in every commitment he receives\n- **No secret, no hash** - unlike the HTLC coinswap there is nothing to reveal; safety comes from the pre-signed refund plus Bob only ever broadcasting the *newest* commitment\n\nThe numbered radio nodes carry these values across the canvas without visible edges - select one to highlight its link.\n",
@@ -833,8 +833,8 @@
       "id": "node_8s7el6b",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 4267.223114484508,
-        "y": 4853.706164854064
+        "x": 4282.223114484508,
+        "y": 4943.706164854064
       },
       "data": {
         "content": "# Step 2 — Alice builds the funding tx (no broadcast)\n\nTX1 spends Alice's faucet coins into the channel: the full capacity locked behind `OP_HASH160 <hash(redeemScript)> OP_EQUAL`. On-chain it's an anonymous P2SH output — the 2-of-2 stays hidden until someone spends it.\n\n**Alice must not broadcast yet.** Once these coins confirm they can only move with *both* signatures. If Bob vanished now, Alice's money would be hostage forever — the classic multisig trap.\n\nWhat she *does* need from TX1 right away is its **txid** (the TXID → Reversed node shows the display form): the refund in Step 3 spends it, so the exit must be built and countersigned first. Verify Script already shows the spend of her P2PKH input is valid — the transaction is ready and waiting.",
@@ -851,8 +851,8 @@
       "id": "node_ROZuZDm2",
       "type": "shadcnGroup",
       "position": {
-        "x": 16529.843444026163,
-        "y": 9568.309499206855
+        "x": 16544.843444026163,
+        "y": 9658.309499206855
       },
       "data": {
         "isGroup": true,
@@ -878,8 +878,8 @@
       "id": "node_MK258d3e",
       "type": "shadcnGroup",
       "position": {
-        "x": 12905.393982966341,
-        "y": 5913.983995192992
+        "x": 12920.393982966341,
+        "y": 6003.983995192992
       },
       "data": {
         "isGroup": true,
@@ -908,8 +908,8 @@
       "id": "node_nrvb8KUa",
       "type": "shadcnGroup",
       "position": {
-        "x": 7560.348421333107,
-        "y": 6764.00542261968
+        "x": 7575.348421333107,
+        "y": 6854.00542261968
       },
       "data": {
         "isGroup": true,
@@ -940,8 +940,8 @@
       "id": "node_kht0iiVH",
       "type": "shadcnGroup",
       "position": {
-        "x": 2238.849438712568,
-        "y": 12457.588863978901
+        "x": 2253.849438712568,
+        "y": 12547.588863978901
       },
       "data": {
         "isGroup": true,
@@ -966,8 +966,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 4301.182957450923,
-        "y": 5799.2261686893835
+        "x": 4316.182957450923,
+        "y": 5889.2261686893835
       },
       "data": {
         "isGroup": true,
@@ -3269,8 +3269,8 @@
       "id": "node_5CvQEOUN",
       "type": "shadcnGroup",
       "position": {
-        "x": 19424.65717736542,
-        "y": 22180.149404956894
+        "x": 19439.65717736542,
+        "y": 22270.149404956894
       },
       "data": {
         "isGroup": true,
@@ -3296,8 +3296,8 @@
       "id": "node_yLMUFpMY",
       "type": "shadcnGroup",
       "position": {
-        "x": 13989.333925897885,
-        "y": 17050.00128147889
+        "x": 14004.333925897885,
+        "y": 17140.00128147889
       },
       "data": {
         "isGroup": true,
@@ -3325,8 +3325,8 @@
       "id": "node_qHLs1Tu4",
       "type": "shadcnGroup",
       "position": {
-        "x": 8607.80175516134,
-        "y": 19481.1319004258
+        "x": 8622.80175516134,
+        "y": 19571.1319004258
       },
       "data": {
         "isGroup": true,
@@ -3356,8 +3356,8 @@
       "id": "node_y4kVQeNY",
       "type": "shadcnGroup",
       "position": {
-        "x": 4587.451136549451,
-        "y": 23085.010792894464
+        "x": 4602.451136549451,
+        "y": 23175.010792894464
       },
       "data": {
         "isGroup": true,
@@ -5259,8 +5259,8 @@
       "id": "node_F2l2yR46",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 8599.918933713934,
-        "y": 18628.378129716715
+        "x": 8614.918933713934,
+        "y": 18718.378129716715
       },
       "data": {
         "content": "# Step 3 — Alice builds the refund and sends it to Bob\n\nThe refund is Alice's **exit** — built while the funding tx exists only on her screen:\n\n- spends the (still unbroadcast) TX1 output — legacy P2SH signing puts the **redeemScript** in the preimage's script slot, not the P2SH scriptPubKey\n- pays the capacity minus a small fee back to Alice's refund key, nothing to Bob\n- input `nSequence` carries the agreed delay → a **BIP-68 relative timelock**: consensus rejects this tx until the funding output is that many blocks old (needs `version ≥ 2`, which is why every tx here is v2)\n\nAlice sends Bob the **unsigned refund** — the preimage is everything he needs to check it and sign. ",
@@ -5646,8 +5646,8 @@
       "id": "node_1FLJ7mWM",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 13971.0230474058,
-        "y": 15564.01895174183
+        "x": 13986.0230474058,
+        "y": 15654.01895174183
       },
       "data": {
         "content": "# Step 4 — Bob verifies, then signs\n\nBob never signs blind — everything he needs to check is inside the preimage itself:\n\n- **scriptCode == the agreed 2-of-2** — legacy P2SH signing puts the redeemScript right in the preimage's script slot; Bob rebuilds `OP_2 <Alice> <Bob> OP_2 OP_CHECKMULTISIG` from Step 1's pubkeys and compares. His signature will be valid against this script and no other.\n- **outputs pay only Alice's refund key** — the agreed refund template, nothing extra\n- **`nSequence` ≥ the agreed delay** — the security teeth: without it, his signature would hand Alice an *immediate* exit that races every commitment he'll ever hold\n- **`SIGHASH_ALL`** — so none of the above can be swapped out after signing\n- **records the txid:vout** — he *can't* verify it (TX1 lives only on Alice's screen), but it names the channel: in Step 5 the on-chain funding must match this outpoint, or Bob treats the channel as never opened. A made-up txid costs Alice her exit; it can't hurt Bob.\n\nThen he signs and **returns his signature to Alice** — she adds her own, and the canvas assembles the finished scriptSig. The order matters: `OP_CHECKMULTISIG` matches signatures **in redeemScript pubkey order** — Alice first, Bob second — and the leading `OP_0` feeds the famous off-by-one dummy. Verify Script: **true, with both signatures**. Alice's exit is now guaranteed by consensus, not by Bob's goodwill.",
@@ -5940,8 +5940,8 @@
       "id": "node_K5TAY3WQ",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 8944.3548570057,
-        "y": 27994.780083822872
+        "x": 8959.3548570057,
+        "y": 28084.780083822872
       },
       "data": {
         "content": "# Step 5 — Fund the channel, first payment\n\n- **Alice** verifies Bob's refund signature → only now safe to **broadcast TX1** (the 2-of-2 P2SH funding)\n- **Bob** sees it on-chain: checks the **outpoint matches the refund he signed in Step 4**, **amount** ≥ the agreed capacity, **scriptPubKey** == expected P2SH, waits for a confirmation — his closing deadline starts ticking here\n- **Bob** requests *N sats for ware X*\n- **Alice** builds a **commitment tx** spending the funding output — **N to Bob**, the rest back to herself minus the fee — signs it and sends **preimage + signature** to Bob\n- **Bob** verifies and **stores** it — the half-finished scriptSig `OP_0 <sigAlice>` plus the tx *is* the payment; nothing is broadcast\n- Next payment? Same template, bigger N, new Alice signature. Bob keeps the newest and discards the rest — **older commitments pay him less, so he has no reason to touch them.** That's Spilman's trick: no revocation needed.",
@@ -5958,8 +5958,8 @@
       "id": "node_CqNcTGrD",
       "type": "shadcnGroup",
       "position": {
-        "x": 14543.777937014042,
-        "y": 27176.800943828774
+        "x": 14558.777937014042,
+        "y": 27266.800943828774
       },
       "data": {
         "isGroup": true,
@@ -5984,8 +5984,8 @@
       "id": "node_PJxP60N4",
       "type": "shadcnGroup",
       "position": {
-        "x": 8962.009157010065,
-        "y": 29320.63555817458
+        "x": 8977.009157010065,
+        "y": 29410.63555817458
       },
       "data": {
         "isGroup": true,
@@ -6015,8 +6015,8 @@
       "id": "node_5W6z5M2w",
       "type": "shadcnGroup",
       "position": {
-        "x": 5081.208996426987,
-        "y": 32926.879712643735
+        "x": 5096.208996426987,
+        "y": 33016.879712643735
       },
       "data": {
         "isGroup": true,
@@ -7505,8 +7505,8 @@
       "id": "node_ft7ohoBP",
       "type": "shadcnGroup",
       "position": {
-        "x": 5016.6585383981765,
-        "y": 34449.538160723816
+        "x": 5031.6585383981765,
+        "y": 34539.538160723816
       },
       "data": {
         "isGroup": true,
@@ -8052,8 +8052,8 @@
       "id": "node_sdj7yu1",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 210,
-        "y": 285
+        "x": 225,
+        "y": 375
       },
       "data": {
         "content": "# Spilman Payment Channel — Overview\n\n**Pay someone a hundred times, touch the blockchain twice.** This flow builds the 2013 construction that Lightning grew out of: a one-way payment channel from **Alice** (payer) to **Bob** (payee), on testnet4. (*This flow is BIP68 Variant*)\n\n**Three transactions, three fates:**\n- **TX1 — funding**: the channel capacity goes into a 2-of-2 P2SH. *Broadcast once, in Step 5.*\n- **Refund**: pre-signed by both parties, held back by a BIP-68 relative timelock — Alice's guaranteed exit. *Broadcast only if Bob disappears.*\n- **Commitments**: off-chain IOUs spending the funding output — re-issued with a bigger amount to Bob for every new payment. *Only the newest one ever hits the chain.*\n\nThe trust problem is solved purely by **ordering**: the exit is countersigned (Steps 3–4) *before* the entrance is broadcast (Step 5). Follow the numbered step cards; the radio nodes carry the shared values across the canvas.\n\nHowever many payments flow, the chain sees exactly **two transactions**: TX1 in, and either Bob's best commitment or Alice's refund out.\n\n",
@@ -8070,8 +8070,8 @@
       "id": "node_v0nxlf6",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1735.5163909365479,
-        "y": 510.70571778000027
+        "x": 1750.5163909365479,
+        "y": 600.7057177800002
       },
       "data": {
         "content": "## Steps\n\n1. **Negotiate** — capacity, delay and pubkeys change hands; private keys stay home\n2. **Build the funding** — Alice locks coins into the 2-of-2 without broadcasting\n3. **Build the refund** — her timelocked exit, spending the still-invisible funding\n4. **Bob verifies & signs** — the exit is now guaranteed by consensus, not goodwill\n5. **Fund & pay** — funding goes on-chain; each payment is a re-signed commitment Bob stores\n6. **Close or refund** — Bob broadcasts his best commitment before the deadline, or Alice reclaims after it (*exercise*)\n\nThe trust problem is solved purely by **ordering**: the exit is countersigned (3–4) *before* the entrance is broadcast (5). ",
@@ -8088,8 +8088,8 @@
       "id": "node_hrda052",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1727.2854565771759,
-        "y": 1379.8781268097805
+        "x": 1742.2854565771759,
+        "y": 1469.8781268097805
       },
       "data": {
         "content": "## Try it yourself\n\n1. **Complete the close** - in the TX3 signature group add Bob's `Sign TX (Low-R)`. Add a `Verify Script` - it must say `true`.\n2. **Payment #2** - pay Bob **+15,000**, re-sign, re-verify. Bob's total may only ever grow.\n3. **Bob's audit** - add `verify_signature` on Alice's commitment signature and parser checks (input txid, redeemScript slot, amount ≥ requested). Build complete tx with `Verify Script` node\n4. **Race the deadline** - what happens if Bob broadcasts his commitment at block *funding + 2015* vs *funding + 2017*? \n",
@@ -8097,10 +8097,28 @@
         "width": 1374,
         "height": 503,
         "title": "Text Info Node",
-        "borderColor": "#2d5fb3"
+        "borderColor": "#2d5fb3",
+        "dirty": false
       },
       "width": 1374,
       "height": 503
+    },
+    {
+      "id": "node_srmnwr5",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 2252.097830978748,
+        "y": 12186.769387069613
+      },
+      "data": {
+        "content": "# The Redeem Script (2-of-2 Multisig)\n\nThe redeemScript committed to by the P2SH output is:\n```\nOP_2 <alice_pubkey> <bob_pubkey> OP_2 OP_CHECKMULTISIG\n\n```\n",
+        "fontSize": 28,
+        "width": 935,
+        "height": 256,
+        "title": "Text Info Node"
+      },
+      "width": 935,
+      "height": 256
     }
   ],
   "edges": [
