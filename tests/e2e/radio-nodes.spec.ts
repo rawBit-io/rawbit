@@ -4,6 +4,55 @@ import type { Page } from '@playwright/test';
 import { gotoEditor, resolveFixturePath, waitForBulkResponse } from './utils';
 
 test.describe('Radio nodes', () => {
+  for (const radio of [
+    {
+      kind: 'Send',
+      nodeId: 'radio_send',
+      testId: 'radio-send-node',
+    },
+    {
+      kind: 'Receive',
+      nodeId: 'radio_recv',
+      testId: 'radio-receive-node',
+    },
+  ]) {
+    test(`copy/paste preserves a Radio ${radio.kind} channel`, async ({ page }) => {
+      await gotoEditor(page);
+      await page
+        .locator('input[type="file"][accept=".json"]')
+        .setInputFiles(resolveFixturePath('radio-pair-flow.json'));
+
+      const node = page.locator(`[data-id="${radio.nodeId}"]`);
+      await expect(node).toBeVisible();
+      await node
+        .getByRole('button', {
+          name: `Radio ${radio.kind} channel 2`,
+          exact: true,
+        })
+        .click();
+      await expect(node).toHaveClass(/selected/);
+
+      const copyButton = page.getByRole('button', {
+        name: 'Copy nodes (Ctrl/Cmd+C)',
+      });
+      await expect(copyButton).toBeEnabled();
+      await copyButton.click();
+
+      const isMac = await page.evaluate(() =>
+        /Mac|iPad|iPhone/.test(navigator.platform),
+      );
+      await page.keyboard.press(`${isMac ? 'Meta' : 'Control'}+v`);
+
+      await expect(page.getByTestId(radio.testId)).toHaveCount(2);
+      await expect(
+        page.getByRole('button', {
+          name: `Radio ${radio.kind} channel 2`,
+          exact: true,
+        }),
+      ).toHaveCount(2);
+    });
+  }
+
   test('renders wireless duplicate warnings without visible radio edges', async ({ page }) => {
     await gotoEditor(page);
     await page

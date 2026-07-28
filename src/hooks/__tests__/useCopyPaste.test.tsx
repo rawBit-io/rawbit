@@ -107,7 +107,7 @@ describe("useCopyPaste", () => {
     expect(getScriptSteps(secondPaste.id)).toEqual(originalSteps);
   });
 
-  it("remaps pasted radio pairs to a fresh channel and dirties radio nodes", () => {
+  it("preserves pasted radio pair channels and clears the pasted sender value", () => {
     const send = buildFlowNode({
       id: "radio-send-1",
       type: "radioNode",
@@ -116,6 +116,10 @@ describe("useCopyPaste", () => {
         functionName: "radio_send",
         title: "Radio Send 1",
         radioChannel: "1",
+        inputs: { vals: { 0: "copied payload" } },
+        result: "copied payload",
+        error: true,
+        extendedError: "Stale sender error",
         outputPorts: [
           { label: "1", handleId: "", showHandle: false, showLabel: false },
         ],
@@ -162,15 +166,77 @@ describe("useCopyPaste", () => {
     expect(
       state.nodes.find((node) => node.id === receive.id)?.data.dirty,
     ).toBe(true);
-    expect(pastedSend?.data.radioChannel).toBe("2");
-    expect(pastedSend?.data.title).toBe("Radio Send 2");
-    expect(pastedSend?.data.outputPorts?.[0]?.label).toBe("2");
+    expect(pastedSend?.data.radioChannel).toBe("1");
+    expect(pastedSend?.data.title).toBe("Radio Send 1");
+    expect(pastedSend?.data.outputPorts?.[0]?.label).toBe("1");
+    expect(pastedSend?.data.inputs?.vals).toEqual({ 0: "" });
+    expect(pastedSend?.data.result).toBe("");
+    expect(pastedSend?.data.error).toBeUndefined();
+    expect(pastedSend?.data.extendedError).toBeUndefined();
     expect(pastedSend?.data.dirty).toBe(true);
-    expect(pastedReceive?.data.radioChannel).toBe("2");
-    expect(pastedReceive?.data.title).toBe("Radio Receive 2");
-    expect(pastedReceive?.data.outputPorts?.[0]?.label).toBe("2");
+    expect(send.data.inputs?.vals).toEqual({ 0: "copied payload" });
+    expect(send.data.result).toBe("copied payload");
+    expect(pastedReceive?.data.radioChannel).toBe("1");
+    expect(pastedReceive?.data.title).toBe("Radio Receive 1");
+    expect(pastedReceive?.data.outputPorts?.[0]?.label).toBe("1");
     expect(pastedReceive?.data.dirty).toBe(true);
   });
+
+  it.each([
+    {
+      functionName: "radio_send",
+      title: "Radio Send 7",
+      nodeId: "radio-send-7",
+    },
+    {
+      functionName: "radio_receive",
+      title: "Radio Receive 7",
+      nodeId: "radio-receive-7",
+    },
+  ])(
+    "preserves the channel when pasting one $functionName node",
+    ({ functionName, title, nodeId }) => {
+      const original = buildFlowNode({
+        id: nodeId,
+        type: "radioNode",
+        position: { x: 0, y: 0 },
+        data: {
+          functionName,
+          title,
+          radioChannel: "7",
+          ...(functionName === "radio_send"
+            ? {
+                inputs: { vals: { 0: "copied payload" } },
+                result: "copied payload",
+              }
+            : {}),
+          outputPorts: [{ label: "7", handleId: "", showLabel: false }],
+        },
+        selected: true,
+      });
+      state.nodes = [original];
+
+      const { result } = renderHook(() => useCopyPaste());
+
+      act(() => {
+        result.current.copyNodes();
+      });
+      act(() => {
+        result.current.pasteNodes({ x: 300, y: 0 });
+      });
+
+      const pasted = state.nodes.find((node) => node.id !== original.id);
+      expect(pasted?.data.functionName).toBe(functionName);
+      expect(pasted?.data.radioChannel).toBe("7");
+      expect(pasted?.data.title).toBe(title);
+      expect(pasted?.data.outputPorts?.[0]?.label).toBe("7");
+      expect(pasted?.data.dirty).toBe(true);
+      if (functionName === "radio_send") {
+        expect(pasted?.data.inputs?.vals).toEqual({ 0: "" });
+        expect(pasted?.data.result).toBe("");
+      }
+    },
+  );
 
   it("copies canonical edges between selected groups from rendered bundle edges", () => {
     const canonicalNodes: FlowNode[] = [

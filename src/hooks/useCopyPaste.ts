@@ -22,13 +22,7 @@ import {
   sanitizeGroupBundleRenderEdgesForState,
   stripGroupBundlePortNodes,
 } from "@/lib/flow/groupEdgeBundling";
-import {
-  isRadioFunctionName,
-  normalizeRadioChannel,
-  radioChannelFromData,
-  radioTitleForFunction,
-  updateRadioOutputPortLabels,
-} from "@/lib/graphUtils";
+import { isRadioFunctionName } from "@/lib/graphUtils";
 
 /* ----------------------------------------------------------------
    LOCAL types
@@ -64,7 +58,6 @@ type UseCopyPasteOptions = {
 };
 
 const GROUP_PADDING = 32;
-const MAX_RADIO_CHANNEL = 99;
 
 const cloneScriptSteps = (
   steps: ScriptExecutionResult | undefined
@@ -91,84 +84,29 @@ const getRenderedSelectedNodeIds = (): Set<string> => {
 const isRadioNode = (node: Pick<FlowNode, "data">) =>
   isRadioFunctionName(node.data?.functionName);
 
-const nextPasteRadioChannel = (
-  existingNodes: FlowNode[],
-  reservedChannels: Set<string>,
-) => {
-  const highest = existingNodes.reduce((max, node) => {
-    if (!isRadioNode(node)) return max;
-    const channel = Number.parseInt(radioChannelFromData(node.data), 10);
-    return Number.isFinite(channel) ? Math.max(max, channel) : max;
-  }, 0);
-
-  for (let next = highest + 1; next <= MAX_RADIO_CHANNEL; next += 1) {
-    const channel = normalizeRadioChannel(String(next));
-    if (!reservedChannels.has(channel)) return channel;
-  }
-
-  for (let next = 1; next <= MAX_RADIO_CHANNEL; next += 1) {
-    const channel = normalizeRadioChannel(String(next));
-    if (!reservedChannels.has(channel)) return channel;
-  }
-
-  return normalizeRadioChannel(String(MAX_RADIO_CHANNEL));
-};
-
-const normalizePastedRadioNodes = (
-  nodes: FlowNode[],
-  existingNodes: FlowNode[],
-): FlowNode[] => {
-  const pastedSendChannels = new Set<string>();
-  nodes.forEach((node) => {
-    if (node.data?.functionName === "radio_send") {
-      pastedSendChannels.add(radioChannelFromData(node.data));
-    }
-  });
-
-  if (!pastedSendChannels.size) {
-    return nodes.map((node) =>
-      isRadioNode(node)
-        ? { ...node, data: { ...node.data, dirty: true } }
-        : node,
-    );
-  }
-
-  // Reserve the pasted nodes' channels too: a pasted receive that matches no
-  // pasted send KEEPS its channel, and a freshly assigned send channel must
-  // not collide with it (it would wrongly capture that receive).
-  const reservedChannels = new Set([
-    ...existingNodes
-      .filter(isRadioNode)
-      .map((node) => radioChannelFromData(node.data)),
-    ...nodes.filter(isRadioNode).map((node) => radioChannelFromData(node.data)),
-  ]);
-  const channelMap = new Map<string, string>();
-  pastedSendChannels.forEach((originalChannel) => {
-    const nextChannel = nextPasteRadioChannel(existingNodes, reservedChannels);
-    reservedChannels.add(nextChannel);
-    channelMap.set(originalChannel, nextChannel);
-  });
-
-  return nodes.map((node) => {
+const preparePastedRadioNodes = (nodes: FlowNode[]): FlowNode[] =>
+  nodes.map((node) => {
     if (!isRadioNode(node)) return node;
 
-    const originalChannel = radioChannelFromData(node.data);
-    const nextChannel = channelMap.get(originalChannel) ?? originalChannel;
-    const nextData = updateRadioOutputPortLabels(
-      {
-        ...node.data,
-        title: radioTitleForFunction(node.data?.functionName, nextChannel),
-        radioChannel: nextChannel,
-        dirty: true,
-        error: undefined,
-        extendedError: undefined,
-      },
-      nextChannel,
-    );
+    if (node.data?.functionName === "radio_send") {
+      return {
+        ...node,
+        data: {
+          ...node.data,
+          inputs: {
+            ...node.data.inputs,
+            vals: { 0: "" },
+          },
+          result: "",
+          dirty: true,
+          error: undefined,
+          extendedError: undefined,
+        },
+      };
+    }
 
-    return { ...node, data: nextData };
+    return { ...node, data: { ...node.data, dirty: true } };
   });
-};
 
 const asFiniteNumber = (value: unknown): number | undefined => {
   const numeric = Number(value);
@@ -719,7 +657,7 @@ export function useCopyPaste({
         dedupeEdges: true,
         renameMode: "collision",
       });
-      const remappedNewNodes = normalizePastedRadioNodes(
+      const remappedNewNodes = preparePastedRadioNodes(
         remapGroupBundlePortOffsetsInNodes(
           newNodes,
           copiedLookup,
@@ -727,7 +665,6 @@ export function useCopyPaste({
           idMap,
           currentNodeLookup,
         ),
-        currentNodes,
       );
       const pastedHasRadioNode = remappedNewNodes.some(isRadioNode);
 
