@@ -30,8 +30,8 @@
       "id": "group_p19sgn",
       "type": "shadcnGroup",
       "position": {
-        "x": -13774.242132141557,
-        "y": 2081.049148448505
+        "x": 1254.0037591880082,
+        "y": 1448.241409551729
       },
       "data": {
         "title": "Signers",
@@ -57,8 +57,8 @@
       "id": "group_p19agg",
       "type": "shadcnGroup",
       "position": {
-        "x": -11610.234589035572,
-        "y": 4055.4608003865123
+        "x": 3418.011302293993,
+        "y": 3422.6530614897365
       },
       "data": {
         "title": "Locking Script P2TR - MuSig2 KeyAgg",
@@ -84,8 +84,8 @@
       "id": "group_p19pre",
       "type": "shadcnGroup",
       "position": {
-        "x": -8132.918853160524,
-        "y": 7336.638661114747
+        "x": 6895.327038169041,
+        "y": 6703.830922217971
       },
       "data": {
         "title": "Preimage",
@@ -115,8 +115,8 @@
       "id": "group_p19pay",
       "type": "shadcnGroup",
       "position": {
-        "x": -12113.455838244763,
-        "y": 11584.75610470695
+        "x": 2914.790053084802,
+        "y": 10951.948365810174
       },
       "data": {
         "title": "Locking Script P2TR - payout",
@@ -140,8 +140,8 @@
       "id": "group_p19rn1",
       "type": "shadcnGroup",
       "position": {
-        "x": 233.63341462585322,
-        "y": 1692.408882109487
+        "x": 15254.729821631656,
+        "y": 1059.601143212711
       },
       "data": {
         "title": "Round 1: Nonces (MuSig2)",
@@ -166,58 +166,38 @@
       "id": "group_p19rn2",
       "type": "shadcnGroup",
       "position": {
-        "x": 3991.7964610321505,
-        "y": 3566.2167007547196
+        "x": 19020.042352361714,
+        "y": 2933.4089618579437
       },
       "data": {
-        "title": "Round 2: Partial Signatures (MuSig2)",
+        "title": "Round 2: Partial Signatures (MuSig2) and witness",
         "isGroup": true,
         "borderColor": "#d6a500",
         "fontSize": 44,
-        "width": 2650,
-        "height": 3350,
+        "width": 4480,
+        "height": 3476,
         "dirty": false,
         "groupBundlePortOffsets": {
-          "sourceByBundle": {
-            "group_p19rn2->group_p19wit": 1294.62
-          },
           "targetByBundle": {
             "group_p19rn1->group_p19rn2": -656.46,
             "group_p19pre->group_p19rn2": 356.15,
             "group_p19sgn->group_p19rn2": -262.41
+          },
+          "sourceByBundle": {
+            "group_p19rn2->group_p19fin": 1052.97
           }
         }
       },
-      "width": 2650,
-      "height": 3350,
-      "dragHandle": "[data-drag-handle]"
-    },
-    {
-      "id": "group_p19wit",
-      "type": "shadcnGroup",
-      "position": {
-        "x": 7187.691328413743,
-        "y": 6482.789938538252
-      },
-      "data": {
-        "title": "Signature and witness",
-        "isGroup": true,
-        "borderColor": "#d6a500",
-        "fontSize": 44,
-        "width": 1550,
-        "height": 950,
-        "dirty": false
-      },
-      "width": 1550,
-      "height": 950,
+      "width": 4480,
+      "height": 3476,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "group_p19fin",
       "type": "shadcnGroup",
       "position": {
-        "x": 9849.529733974463,
-        "y": 9380.300113809659
+        "x": 25093.85710567308,
+        "y": 8109.06981927705
       },
       "data": {
         "title": "Final TX and Verify Script",
@@ -230,7 +210,7 @@
         "groupBundlePortOffsets": {
           "targetByBundle": {
             "group_p19pay->group_p19fin": 665.87,
-            "group_p19wit->group_p19fin": -633.02
+            "group_p19rn2->group_p19fin": -170.62
           }
         }
       },
@@ -689,8 +669,8 @@
       "id": "node_gdG32TV6",
       "type": "calculation",
       "position": {
-        "x": 105.35726594806874,
-        "y": 118.32455582348666
+        "x": 3155.854886323603,
+        "y": 2207.276391013891
       },
       "data": {
         "functionName": "identity",
@@ -717,15 +697,15 @@
         "borderColor": "#eab308",
         "error": false
       },
-      "parentId": "group_p19wit",
+      "parentId": "group_p19rn2",
       "extent": "parent"
     },
     {
       "id": "node_Y8ygxDnf",
       "type": "calculation",
       "position": {
-        "x": 72.27277010096805,
-        "y": 478.7503396470456
+        "x": 3163.951993813862,
+        "y": 2452.3936854928425
       },
       "data": {
         "functionName": "varint_encoded_byte_length",
@@ -741,7 +721,7 @@
         "borderColor": "#eab308",
         "error": false
       },
-      "parentId": "group_p19wit",
+      "parentId": "group_p19rn2",
       "extent": "parent"
     },
     {
@@ -1918,8 +1898,8 @@
       "id": "node_Xhq5lC7C",
       "type": "calculation",
       "position": {
-        "x": 557.0158678905609,
-        "y": 355.121345559106
+        "x": 3714.5856569432326,
+        "y": 2670.57199910499
       },
       "data": {
         "functionName": "concat_all",
@@ -1966,7 +1946,7 @@
         "error": false,
         "borderColor": "#eab308"
       },
-      "parentId": "group_p19wit",
+      "parentId": "group_p19rn2",
       "extent": "parent"
     },
     {
@@ -2662,7 +2642,7 @@
       "id": "node_8oj8e6n",
       "type": "calculation",
       "position": {
-        "x": 24.850515676237478,
+        "x": 32.000000000000796,
         "y": 426.51566309531063
       },
       "data": {
@@ -2684,7 +2664,7 @@
       "id": "node_AlYY1TXR",
       "type": "calculation",
       "position": {
-        "x": 437.2290895951046,
+        "x": 444.3785739188679,
         "y": 1201.9954753782583
       },
       "data": {
@@ -2706,7 +2686,7 @@
       "id": "node_01EvnF6m",
       "type": "calculation",
       "position": {
-        "x": 962.1397763818168,
+        "x": 969.2892607055801,
         "y": 2096.195586236988
       },
       "data": {
@@ -2728,7 +2708,7 @@
       "id": "node_pyulfe8",
       "type": "calculation",
       "position": {
-        "x": 1786.9580260773218,
+        "x": 1794.1075104010852,
         "y": 1125.6179870302467
       },
       "data": {
@@ -3358,7 +3338,7 @@
       "id": "node_d8keuax",
       "type": "calculation",
       "position": {
-        "x": 366.50722339921776,
+        "x": 373.6567077229811,
         "y": 157.78211238442827
       },
       "data": {
@@ -3444,7 +3424,7 @@
       "id": "node_2u6g381",
       "type": "calculation",
       "position": {
-        "x": 830.2646480184258,
+        "x": 837.4141323421891,
         "y": 1026.3933125824342
       },
       "data": {
@@ -3530,7 +3510,7 @@
       "id": "node_iwvlpxz",
       "type": "calculation",
       "position": {
-        "x": 1323.4924941485533,
+        "x": 1330.6419784723166,
         "y": 1539.615100471131
       },
       "data": {
@@ -3990,8 +3970,8 @@
       "id": "node_qz48oqp",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -14818.245891329565,
-        "y": 827.8077388967761
+        "x": 210,
+        "y": 195
       },
       "data": {
         "content": "# Overview - MuSig2 (BIP327)\n\nThe intro flow promised it: \"a multisig that aggregated into one key (MuSig2).\" This canvas builds that key - and spends it.\n\nThree signers hold three ordinary keys. MuSig2 aggregates the **public** keys into one; nobody ever holds, or could compute, the matching private key. To spend, each signer contributes a **partial signature** using only their own secret, and the partials sum into one valid 64-byte Schnorr signature. Schnorr's linear structure is what makes the summing work - and why this needed Taproot.\n\nThe chain sees `OP_1 <Q>` and a 66-byte key-path witness: byte-for-byte the intro flow's spend. Three signers, zero trace.\n\nThe price: two interactive rounds - nonces first, partials second - with everyone online.\n\nThe pipeline: SIGNERS → KEYAGG → PREIMAGE → ROUND 1 → ROUND 2 → TRANSACTION.\n\n*Builds on Taproot intro. The signing nodes pass the official BIP327 test vectors.*",
@@ -4008,8 +3988,8 @@
       "id": "node_q42a52h",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -11652.785184266651,
-        "y": 3275.6544497839373
+        "x": 3375.4607070629136,
+        "y": 2642.846710887161
       },
       "data": {
         "content": "## KeyAgg - three keys become one\n\nNaive addition of public keys is broken: the last signer could craft a key that cancels the others and take sole control. BIP327 prevents this by giving each key a **coefficient** derived from the entire ordered key list, then summing the weighted keys. Every contribution is bound to the full participant set.\n\nConsequence: **order matters**. Same three keys, different order - different aggregate key. Agree on the order before you aggregate.\n\nThe aggregate then walks the standard path from the intro: TapTweak → output key Q → P2TR address. From here on, nothing on this canvas knows or cares that Q hides three people.",
@@ -4026,8 +4006,8 @@
       "id": "node_5mxifpw",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 119.73607081318687,
-        "y": 1001.7888545463109
+        "x": 15147.981962142752,
+        "y": 368.9811156495348
       },
       "data": {
         "content": "## Round 1 - nonces\n\nEach signer generates two secret nonces and publishes only their public halves; the three pubnonces aggregate into one 66-byte session nonce that Round 2 will use.\n\nThe randomness feeding each nonce is a visible node so the whole session is reproducible - frozen here as the public test vector of one completed session.\n\n**The one rule of MuSig2:** nonces are fresh every session, used once, destroyed. Reusing a secnonce across different messages lets an attacker solve for your private key with plain algebra. In production, this rule is the protocol.",
@@ -4044,8 +4024,8 @@
       "id": "node_2b84efw",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 3988.4331101049447,
-        "y": 2898.9383615713423
+        "x": 19016.67900143451,
+        "y": 2266.1306226745664
       },
       "data": {
         "content": "## Round 2 - partial signatures\n\nEach signer now computes a partial signature from their own secret key, their own secret nonces, and the shared session values - the aggregate nonce, the message, the key list, the tweak.\n\nA partial is just a 32-byte number. Anyone can add the three together; the aggregation node also folds in the taproot tweak, and the sum is a complete Schnorr signature that verifies against Q like any single-signer spend - though no single signer could have produced it, and the aggregate private key never existed anywhere.",

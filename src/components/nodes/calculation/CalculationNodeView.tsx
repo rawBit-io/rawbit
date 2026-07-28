@@ -113,6 +113,13 @@ const NO_DIVIDER_GROUP_TITLES = new Set([
   "OUTPUTS[]",
   "SCRIPTPUBKEYS[]",
 ]);
+const NO_DIVIDER_GROUP_TITLES_BY_FUNCTION: Record<
+  string,
+  ReadonlySet<string>
+> = {
+  musig2_partial_sign: new Set(["PUBKEYS[]"]),
+  musig2_partial_sig_agg: new Set(["PUBKEYS[]", "PARTIAL_SIGS[]"]),
+};
 const TX_TEMPLATE_INPUT_GROUP_TITLE = "INPUTS[]";
 const TX_TEMPLATE_OUTPUT_GROUP_TITLE = "OUTPUTS[]";
 const TX_TEMPLATE_WITNESS_GROUP_TITLE = "WITNESSES[]";
@@ -1430,6 +1437,11 @@ export function CalculationNodeView({
           groupDef.fields as FieldDefinition[]
         )
     );
+    const noDividerForFunction = data.functionName
+      ? (NO_DIVIDER_GROUP_TITLES_BY_FUNCTION[data.functionName]?.has(
+          groupDef.title
+        ) ?? false)
+      : false;
     return (
       <React.Fragment key={groupDef.title}>
         <GroupSection
@@ -1457,7 +1469,8 @@ export function CalculationNodeView({
             !(
               isTxTemplateSectionGroup(groupDef) ||
               isConcatPrimaryGroup(groupDef) ||
-              NO_DIVIDER_GROUP_TITLES.has(groupDef.title)
+              NO_DIVIDER_GROUP_TITLES.has(groupDef.title) ||
+              noDividerForFunction
             )
           }
           className={

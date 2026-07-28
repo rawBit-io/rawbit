@@ -934,6 +934,56 @@ describe("CalculationNodeView", () => {
     expect(screen.getByText("> SCRIPTPUBKEY:")).toBeInTheDocument();
   });
 
+  it.each([
+    ["MuSig2 Partial Sign", ["PUBKEYS[]"]],
+    ["MuSig2 Partial Sig Agg", ["PUBKEYS[]", "PARTIAL_SIGS[]"]],
+  ])("removes the requested MuSig2 group dividers from %s", (title, groups) => {
+    const mut = createMut();
+    const clip = createClip();
+    const template = allSidebarNodes.find((node) => node.label === title);
+
+    expect(template).toBeDefined();
+
+    renderWithProviders(
+      <CalculationNodeView
+        selected={false}
+        data={structuredClone(template!.nodeData) as NodeData}
+        rawTitle={title}
+        derived={{
+          ...derived,
+          isMultiVal: true,
+          nodeWidth: 360,
+          minHeight: 400,
+          connectionStatus: { connected: 0, total: 8, shouldShow: true },
+        }}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        result=""
+        error={false}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: false,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    groups.forEach((groupTitle) => {
+      const groupHeader = screen.getByText(`> ${groupTitle}`).parentElement;
+      expect(groupHeader).not.toBeNull();
+      expect(groupHeader).not.toHaveClass("border-b");
+      expect(
+        screen.getByRole("button", { name: `Add ${groupTitle}` })
+      ).toBeEnabled();
+    });
+  });
+
   it.each(["TX Template legacy", "TX Template"])(
     "keeps the OUTPUTS[] resize controls visible in %s",
     (title) => {
