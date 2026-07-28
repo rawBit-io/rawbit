@@ -38,11 +38,9 @@ UPDATE_FLOW_GOLDENS = os.environ.get("UPDATE_FLOW_GOLDENS") == "1"
 NONDETERMINISTIC_FUNCTIONS = {"random_256"}
 
 # Flows that are never evaluated against their committed goldens.
-SKIPPED_FLOWS = {
-    "old/empty.json": "placeholder file without calc nodes",
-    "old/p15_Trezor_signing_flow.json": "hardware (Trezor) signing flow; "
-    "results depend on a connected device",
-}
+# (Currently empty; nodeless placeholders like misc/empty.json are already
+# excluded by the _discover_flows nodes check.)
+SKIPPED_FLOWS: dict[str, str] = {}
 
 # Committed values that predate backend changes and no longer reproduce.
 # Every entry is a known-stale golden, kept on purpose until the lesson files
@@ -64,7 +62,6 @@ def _flow_key(path: Path) -> str:
 def _discover_flows():
     paths = (
         sorted(FLOW_DIR.glob("*.json"))
-        + sorted((FLOW_DIR / "old").glob("*.json"))
         + sorted((FLOW_DIR / "misc").glob("*.json"))
     )
     flows = []
@@ -182,7 +179,7 @@ def test_flow_reproduces_committed_goldens(flow_path):
 # Real bugs of this class existed: a stale _cycle sentinel, an unbounded
 # _TAG_HASH_CACHE, and the lru tx-deserialization cache. A flow calculation
 # must never change the outcome of another (or a repeated) calculation.
-TAPROOT_MUSIG_FLOW = FLOW_DIR / "old" / "p14_MuSig2.json"
+TAPROOT_MUSIG_FLOW = FLOW_DIR / "p19_MuSig2.json"
 LEGACY_FLOW = FLOW_DIR / "p0_Intro_P2PKH.json"
 
 

@@ -30,8 +30,8 @@
       "id": "group_p19sgn",
       "type": "shadcnGroup",
       "position": {
-        "x": -1595.609281785357,
-        "y": 1353.9369469026256
+        "x": -13774.242132141557,
+        "y": 2081.049148448505
       },
       "data": {
         "title": "Signers",
@@ -57,8 +57,8 @@
       "id": "group_p19agg",
       "type": "shadcnGroup",
       "position": {
-        "x": 402.19382253968456,
-        "y": 2952.5015238604155
+        "x": -11610.234589035572,
+        "y": 4055.4608003865123
       },
       "data": {
         "title": "Locking Script P2TR - MuSig2 KeyAgg",
@@ -84,8 +84,8 @@
       "id": "group_p19pre",
       "type": "shadcnGroup",
       "position": {
-        "x": 3909.2924694942512,
-        "y": 5177.060728160359
+        "x": -8132.918853160524,
+        "y": 7336.638661114747
       },
       "data": {
         "title": "Preimage",
@@ -115,8 +115,8 @@
       "id": "group_p19pay",
       "type": "shadcnGroup",
       "position": {
-        "x": -71.24451558998817,
-        "y": 9425.178171752563
+        "x": -12113.455838244763,
+        "y": 11584.75610470695
       },
       "data": {
         "title": "Locking Script P2TR - payout",
@@ -140,8 +140,8 @@
       "id": "group_p19rn1",
       "type": "shadcnGroup",
       "position": {
-        "x": 12297.311012878745,
-        "y": -1089.6910431902702
+        "x": 233.63341462585322,
+        "y": 1692.408882109487
       },
       "data": {
         "title": "Round 1: Nonces (MuSig2)",
@@ -166,8 +166,8 @@
       "id": "group_p19rn2",
       "type": "shadcnGroup",
       "position": {
-        "x": 16034.007783686926,
-        "y": 1406.638767800331
+        "x": 3991.7964610321505,
+        "y": 3566.2167007547196
       },
       "data": {
         "title": "Round 2: Partial Signatures (MuSig2)",
@@ -196,8 +196,8 @@
       "id": "group_p19wit",
       "type": "shadcnGroup",
       "position": {
-        "x": 19229.902651068518,
-        "y": 4323.212005583863
+        "x": 7187.691328413743,
+        "y": 6482.789938538252
       },
       "data": {
         "title": "Signature and witness",
@@ -216,8 +216,8 @@
       "id": "group_p19fin",
       "type": "shadcnGroup",
       "position": {
-        "x": 21891.74105662924,
-        "y": 7220.72218085527
+        "x": 9849.529733974463,
+        "y": 9380.300113809659
       },
       "data": {
         "title": "Final TX and Verify Script",
@@ -253,8 +253,7 @@
         "numInputs": 0,
         "groupInstances": {},
         "result": "e42bcf4d43d23ae539cd813cd650c37a0a9922f720e4873ab835893965ef0441",
-        "error": false,
-        "borderColor": "#22c55e"
+        "error": false
       },
       "parentId": "group_p19sgn",
       "extent": "parent"
@@ -274,8 +273,7 @@
         "numInputs": 0,
         "groupInstances": {},
         "result": "8452b9740e6886ab73fbaa47c14e7463019d72671c7ce8a23d7ae43c3670d092",
-        "error": false,
-        "borderColor": "#22c55e"
+        "error": false
       },
       "parentId": "group_p19sgn",
       "extent": "parent"
@@ -295,8 +293,7 @@
         "numInputs": 0,
         "groupInstances": {},
         "result": "894695a315bfe721e34b5f17451aacf821f46f4f5d3db888f26a3ba5c762a00d",
-        "error": false,
-        "borderColor": "#22c55e"
+        "error": false
       },
       "parentId": "group_p19sgn",
       "extent": "parent"
@@ -328,8 +325,7 @@
         "groupInstances": {},
         "result": "03cf2a84bc9f74c1ed1759ccd379de18baf4807fcd4ce982581c1b5372f1ed4c92",
         "dirty": false,
-        "error": false,
-        "borderColor": "#22c55e"
+        "error": false
       },
       "parentId": "group_p19sgn",
       "extent": "parent"
@@ -361,8 +357,7 @@
         "groupInstances": {},
         "result": "02a664b80c106ecacbdcc525594ed592c20ecfa23a018a6a178a5592c269be2466",
         "dirty": false,
-        "error": false,
-        "borderColor": "#22c55e"
+        "error": false
       },
       "parentId": "group_p19sgn",
       "extent": "parent"
@@ -394,8 +389,7 @@
         "groupInstances": {},
         "result": "02deb595057ddbac0d0be0bbea3d80f47c84216ada8b2644987815d7ecb90d4643",
         "dirty": false,
-        "error": false,
-        "borderColor": "#22c55e"
+        "error": false
       },
       "parentId": "group_p19sgn",
       "extent": "parent"
@@ -432,8 +426,7 @@
         "dirty": false,
         "error": false,
         "showComment": true,
-        "comment": "Fund this testnet address",
-        "borderColor": "#22c55e"
+        "comment": "Fund this testnet address"
       },
       "parentId": "group_p19agg",
       "extent": "parent"
@@ -466,7 +459,6 @@
           ]
         },
         "groupInstances": {},
-        "borderColor": "#eab308",
         "title": "Transaction Version",
         "error": false
       },
@@ -492,7 +484,6 @@
           "val": 2
         },
         "result": "02000000",
-        "borderColor": "#eab308",
         "error": false
       },
       "parentId": "group_p19fin",
@@ -782,7 +773,6 @@
           ]
         },
         "groupInstances": {},
-        "borderColor": "#eab308",
         "error": false
       },
       "parentId": "group_p19fin",
@@ -817,7 +807,6 @@
           ]
         },
         "groupInstances": {},
-        "borderColor": "#eab308",
         "error": false
       },
       "parentId": "group_p19fin",
@@ -851,7 +840,6 @@
           ]
         },
         "groupInstances": {},
-        "borderColor": "#eab308",
         "title": "Input Count",
         "customFieldLabels": {
           "0": "INPUT VALUE:"
@@ -879,7 +867,6 @@
         "inputs": {
           "val": 1
         },
-        "borderColor": "#eab308",
         "error": false
       },
       "parentId": "group_p19fin",
@@ -913,7 +900,6 @@
           ]
         },
         "groupInstances": {},
-        "borderColor": "#eab308",
         "title": "Output Count",
         "error": false
       },
@@ -938,7 +924,6 @@
         "inputs": {
           "val": 1
         },
-        "borderColor": "#eab308",
         "error": false
       },
       "parentId": "group_p19fin",
@@ -1340,7 +1325,6 @@
         "baseHeight": 150,
         "totalInputs": 15,
         "unwiredCount": 0,
-        "borderColor": "#a855f7",
         "error": false
       },
       "parentId": "group_p19fin",
@@ -1364,7 +1348,6 @@
           "val": "5120bbb51cbb3b83d90703df58340991aa5315c55ef291c786f6b7045fdec8c6b05a"
         },
         "result": "22",
-        "borderColor": "#22c55e",
         "error": false
       },
       "parentId": "group_p19pay",
@@ -2084,7 +2067,6 @@
         "totalInputs": 4,
         "unwiredCount": 0,
         "dirty": false,
-        "borderColor": "#a855f7",
         "result": "true",
         "scriptDebugSteps": {
           "isValid": true,
@@ -2476,7 +2458,6 @@
         "groupInstances": {},
         "paramExtraction": "multi_val",
         "title": "Opcode Sequence",
-        "borderColor": "#22c55e",
         "error": false,
         "inputStructure": {
           "ungrouped": [
@@ -2548,7 +2529,6 @@
         },
         "baseHeight": 80,
         "title": "scriptPubKey P2TR",
-        "borderColor": "#22c55e",
         "totalInputs": 3,
         "unwiredCount": 0,
         "showComment": true,
@@ -2587,7 +2567,6 @@
           ]
         },
         "groupInstances": {},
-        "borderColor": "#22c55e",
         "error": false
       },
       "parentId": "group_p19pay",
@@ -2608,8 +2587,7 @@
         "numInputs": 0,
         "groupInstances": {},
         "result": "e9c6c8022ce89d9143d5af253de3ba44c546ce0ddbb13c189b4c1c1fc4c683df",
-        "error": false,
-        "borderColor": "#22c55e"
+        "error": false
       },
       "parentId": "group_p19pay",
       "extent": "parent"
@@ -2643,8 +2621,7 @@
         "dirty": false,
         "error": false,
         "showComment": false,
-        "comment": "",
-        "borderColor": "#22c55e"
+        "comment": ""
       },
       "parentId": "group_p19pay",
       "extent": "parent"
@@ -2676,8 +2653,7 @@
         "groupInstances": {},
         "result": "8d6d734403e5bfd504e7145ba2e245e17811c07847799146be41e7d956269a98",
         "dirty": false,
-        "error": false,
-        "borderColor": "#22c55e"
+        "error": false
       },
       "parentId": "group_p19pay",
       "extent": "parent"
@@ -2686,8 +2662,8 @@
       "id": "node_8oj8e6n",
       "type": "calculation",
       "position": {
-        "x": 60,
-        "y": 397.75699410314155
+        "x": 24.850515676237478,
+        "y": 426.51566309531063
       },
       "data": {
         "functionName": "random_256",
@@ -2698,7 +2674,6 @@
         "groupInstances": {},
         "result": "53999b7345f50189bf38ff9207ac11f367ff9287c5467a8346f93a7e7237179f",
         "error": false,
-        "borderColor": "#22c55e",
         "showComment": true,
         "comment": "Must be fresh for every signing session"
       },
@@ -2721,7 +2696,6 @@
         "groupInstances": {},
         "result": "7a79285f12b6ac3bc0120de280bbadbe9e0e78e5f0898c96f5a988bb17303c64",
         "error": false,
-        "borderColor": "#22c55e",
         "showComment": true,
         "comment": "Must be fresh for every signing session"
       },
@@ -2744,7 +2718,6 @@
         "groupInstances": {},
         "result": "d6a0c6f77308477243ca6e459a26833d99e1629d827fa93bdaf1946887dec883",
         "error": false,
-        "borderColor": "#22c55e",
         "showComment": true,
         "comment": "Must be fresh for every signing session"
       },
@@ -2802,8 +2775,7 @@
         "totalInputs": 3,
         "unwiredCount": 0,
         "dirty": false,
-        "error": false,
-        "borderColor": "#22c55e"
+        "error": false
       },
       "parentId": "group_p19rn1",
       "extent": "parent"
@@ -2896,8 +2868,7 @@
         "totalInputs": 8,
         "unwiredCount": 0,
         "dirty": false,
-        "error": false,
-        "borderColor": "#22c55e"
+        "error": false
       },
       "parentId": "group_p19rn2",
       "extent": "parent"
@@ -2931,8 +2902,7 @@
         },
         "groupInstances": {},
         "dirty": false,
-        "error": false,
-        "borderColor": "#eab308"
+        "error": false
       },
       "parentId": "group_p19agg",
       "extent": "parent"
@@ -2964,8 +2934,7 @@
         },
         "groupInstances": {},
         "dirty": false,
-        "error": false,
-        "borderColor": "#eab308"
+        "error": false
       },
       "parentId": "group_p19agg",
       "extent": "parent"
@@ -2998,8 +2967,7 @@
         },
         "groupInstances": {},
         "dirty": false,
-        "error": false,
-        "borderColor": "#eab308"
+        "error": false
       },
       "parentId": "group_p19agg",
       "extent": "parent"
@@ -3057,8 +3025,7 @@
         "totalInputs": 3,
         "unwiredCount": 0,
         "dirty": false,
-        "error": false,
-        "borderColor": "#eab308"
+        "error": false
       },
       "parentId": "group_p19agg",
       "extent": "parent"
@@ -3090,8 +3057,7 @@
         },
         "groupInstances": {},
         "dirty": false,
-        "error": false,
-        "borderColor": "#22c55e"
+        "error": false
       },
       "parentId": "group_p19agg",
       "extent": "parent"
@@ -3184,8 +3150,7 @@
         "totalInputs": 8,
         "unwiredCount": 0,
         "dirty": false,
-        "error": false,
-        "borderColor": "#22c55e"
+        "error": false
       },
       "parentId": "group_p19rn2",
       "extent": "parent"
@@ -3281,8 +3246,7 @@
         "error": false,
         "customFieldLabels": {
           "2": "Aggnonce (66B hex):"
-        },
-        "borderColor": "#22c55e"
+        }
       },
       "parentId": "group_p19rn2",
       "extent": "parent"
@@ -3385,8 +3349,7 @@
         "error": false,
         "customFieldLabels": {
           "2": "Taproot Tweak (32B hex, optional):"
-        },
-        "borderColor": "#22c55e"
+        }
       },
       "parentId": "group_p19rn2",
       "extent": "parent"
@@ -3472,8 +3435,7 @@
         "error": false,
         "outputValues": {
           "output-1": "85a594f66ce85c83d78290f02ee5bb616993a463cf184afae913c1ad6f897810934f6af1855cc667a27f24d4fae325fbfa732315e78e1cced9f036ca8a00cfc503cf2a84bc9f74c1ed1759ccd379de18baf4807fcd4ce982581c1b5372f1ed4c92"
-        },
-        "borderColor": "#22c55e"
+        }
       },
       "parentId": "group_p19rn1",
       "extent": "parent"
@@ -3559,8 +3521,7 @@
         "error": false,
         "outputValues": {
           "output-1": "aca5f377fd2d03854ddf5857f33fad438fdb051652eeea7a62451b810c3cc37bff160df958a0cc47cb8b4339c68fcae526c7d7cc6fe1de4dc993706d3c0d9a4d02a664b80c106ecacbdcc525594ed592c20ecfa23a018a6a178a5592c269be2466"
-        },
-        "borderColor": "#22c55e"
+        }
       },
       "parentId": "group_p19rn1",
       "extent": "parent"
@@ -3646,8 +3607,7 @@
         "error": false,
         "outputValues": {
           "output-1": "a83ab364310525ec8ba4536591a25f3a9740e8dcce628234920f0901c3f6f10f2725341f8840c1c211107205d10dd7edc47854a92c2118506612c95cbfaef69202deb595057ddbac0d0be0bbea3d80f47c84216ada8b2644987815d7ecb90d4643"
-        },
-        "borderColor": "#22c55e"
+        }
       },
       "parentId": "group_p19rn1",
       "extent": "parent"
@@ -3709,8 +3669,7 @@
         "totalInputs": 3,
         "unwiredCount": 0,
         "dirty": false,
-        "error": false,
-        "borderColor": "#22c55e"
+        "error": false
       },
       "parentId": "group_p19agg",
       "extent": "parent"
@@ -3780,8 +3739,7 @@
           "output-1": "c0",
           "output-2": "cf970f63568c8a468767d7ae4149763e78ab89b016ab5896552b84916ef51d35"
         },
-        "error": false,
-        "borderColor": "#22c55e"
+        "error": false
       },
       "parentId": "group_p19agg",
       "extent": "parent"
@@ -3851,8 +3809,7 @@
         "outputValues": {
           "output-1": "c0",
           "output-2": "fd0cd24cbf935abc87623789c001c994a063e6f0b0a42c465c16f8ecb83268a6"
-        },
-        "borderColor": "#22c55e"
+        }
       },
       "parentId": "group_p19pay",
       "extent": "parent"
@@ -4033,32 +3990,34 @@
       "id": "node_qz48oqp",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -2739.185694418919,
-        "y": 1027.4652798100233
+        "x": -14818.245891329565,
+        "y": 827.8077388967761
       },
       "data": {
         "content": "# Overview - MuSig2 (BIP327)\n\nThe intro flow promised it: \"a multisig that aggregated into one key (MuSig2).\" This canvas builds that key - and spends it.\n\nThree signers hold three ordinary keys. MuSig2 aggregates the **public** keys into one; nobody ever holds, or could compute, the matching private key. To spend, each signer contributes a **partial signature** using only their own secret, and the partials sum into one valid 64-byte Schnorr signature. Schnorr's linear structure is what makes the summing work - and why this needed Taproot.\n\nThe chain sees `OP_1 <Q>` and a 66-byte key-path witness: byte-for-byte the intro flow's spend. Three signers, zero trace.\n\nThe price: two interactive rounds - nonces first, partials second - with everyone online.\n\nThe pipeline: SIGNERS → KEYAGG → PREIMAGE → ROUND 1 → ROUND 2 → TRANSACTION.\n\n*Builds on Taproot intro. The signing nodes pass the official BIP327 test vectors.*",
-        "fontSize": 28,
-        "width": 927,
-        "height": 903,
-        "title": "Text Info Node"
+        "fontSize": 36,
+        "width": 1127,
+        "height": 1158,
+        "title": "Text Info Node",
+        "dirty": false
       },
-      "width": 927,
-      "height": 903
+      "width": 1127,
+      "height": 1158
     },
     {
       "id": "node_q42a52h",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -583.6202129359351,
-        "y": 4026.898935320324
+        "x": -11652.785184266651,
+        "y": 3275.6544497839373
       },
       "data": {
         "content": "## KeyAgg - three keys become one\n\nNaive addition of public keys is broken: the last signer could craft a key that cancels the others and take sole control. BIP327 prevents this by giving each key a **coefficient** derived from the entire ordered key list, then summing the weighted keys. Every contribution is bound to the full participant set.\n\nConsequence: **order matters**. Same three keys, different order - different aggregate key. Agree on the order before you aggregate.\n\nThe aggregate then walks the standard path from the intro: TapTweak → output key Q → P2TR address. From here on, nothing on this canvas knows or cares that Q hides three people.",
         "fontSize": 28,
         "width": 891,
         "height": 700,
-        "title": "Text Info Node"
+        "title": "Text Info Node",
+        "dirty": false
       },
       "width": 891,
       "height": 700
@@ -4067,15 +4026,16 @@
       "id": "node_5mxifpw",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 12312.211322654775,
-        "y": -1769.5779329543882
+        "x": 119.73607081318687,
+        "y": 1001.7888545463109
       },
       "data": {
         "content": "## Round 1 - nonces\n\nEach signer generates two secret nonces and publishes only their public halves; the three pubnonces aggregate into one 66-byte session nonce that Round 2 will use.\n\nThe randomness feeding each nonce is a visible node so the whole session is reproducible - frozen here as the public test vector of one completed session.\n\n**The one rule of MuSig2:** nonces are fresh every session, used once, destroyed. Reusing a secnonce across different messages lets an attacker solve for your private key with plain algebra. In production, this rule is the protocol.",
         "fontSize": 28,
         "width": 1027,
         "height": 581,
-        "title": "Text Info Node"
+        "title": "Text Info Node",
+        "dirty": false
       },
       "width": 1027,
       "height": 581
@@ -4084,15 +4044,16 @@
       "id": "node_2b84efw",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 16030.64443275972,
-        "y": 739.3604286169536
+        "x": 3988.4331101049447,
+        "y": 2898.9383615713423
       },
       "data": {
         "content": "## Round 2 - partial signatures\n\nEach signer now computes a partial signature from their own secret key, their own secret nonces, and the shared session values - the aggregate nonce, the message, the key list, the tweak.\n\nA partial is just a 32-byte number. Anyone can add the three together; the aggregation node also folds in the taproot tweak, and the sum is a complete Schnorr signature that verifies against Q like any single-signer spend - though no single signer could have produced it, and the aggregate private key never existed anywhere.",
         "fontSize": 28,
         "width": 1024,
         "height": 594,
-        "title": "Text Info Node"
+        "title": "Text Info Node",
+        "dirty": false
       },
       "width": 1024,
       "height": 594

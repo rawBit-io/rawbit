@@ -9,7 +9,7 @@ import {
   GROUP_BUNDLE_SEGMENT_EDGE_ID_PREFIX,
   sanitizeGroupBundleVisualElementsForState,
 } from "@/lib/flow/groupEdgeBundling";
-import p14MuSig2 from "@/my_tx_flows/old/p14_MuSig2.json";
+import p19MuSig2 from "@/my_tx_flows/p19_MuSig2.json";
 import { buildEdge, buildFlowNode } from "@/test-utils/types";
 import type { FlowNode } from "@/types";
 
@@ -487,9 +487,9 @@ describe("buildGroupBundledEdges", () => {
     });
   });
 
-  it("collapses p14 MuSig2 cross-group traffic from 63 raw edges to 10 bundles", () => {
-    const nodes = p14MuSig2.nodes as FlowNode[];
-    const edges = p14MuSig2.edges as Edge[];
+  it("collapses p19 MuSig2 cross-group traffic into 14 bundles", () => {
+    const nodes = p19MuSig2.nodes as FlowNode[];
+    const edges = p19MuSig2.edges as Edge[];
     const rendered = buildGroupBundledEdges({ nodes, edges });
     const bundleEdges = rendered.filter((edge) =>
       edge.id.startsWith(GROUP_BUNDLE_EDGE_ID_PREFIX)
@@ -498,11 +498,11 @@ describe("buildGroupBundledEdges", () => {
       edge.id.startsWith(GROUP_BUNDLE_SEGMENT_EDGE_ID_PREFIX)
     );
 
-    expect(edges).toHaveLength(151);
-    expect(rendered).toHaveLength(194);
+    expect(edges).toHaveLength(135);
+    expect(rendered).toHaveLength(186);
     expect(rendered.filter((edge) => edge.hidden)).toHaveLength(0);
-    expect(bundleEdges).toHaveLength(10);
-    expect(segmentEdges).toHaveLength(96);
+    expect(bundleEdges).toHaveLength(14);
+    expect(segmentEdges).toHaveLength(97);
   });
 
   it("is idempotent when given an already projected visual graph", () => {

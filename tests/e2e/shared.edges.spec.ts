@@ -89,7 +89,7 @@ test.describe('Shared flow edge rendering', () => {
     test.setTimeout(90_000);
 
     const sharedPayload: FlowData = JSON.parse(
-      readFileSync('src/my_tx_flows/old/p14_MuSig2.json', 'utf8')
+      readFileSync('src/my_tx_flows/p18_Taproot_script_path.json', 'utf8')
     );
     const expectedNodes = sharedPayload.nodes?.length ?? 0;
     const expectedEdges = sharedPayload.edges?.length ?? 0;

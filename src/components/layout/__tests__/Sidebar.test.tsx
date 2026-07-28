@@ -1,5 +1,4 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 
 import { Sidebar } from "../Sidebar";
@@ -51,18 +50,6 @@ function createSidebarNodes(): NodeTemplate[] {
 
 function createCustomFlows() {
   return [
-    {
-      id: "custom-flow",
-      label: "Custom Flow",
-      data: {
-        nodes: [],
-        edges: [],
-      },
-      section: "legacy-foundations",
-      flowNo: 1,
-      level: "intro",
-      tags: ["legacy"],
-    },
     {
       id: "legacy-flow",
       label: "P2PK vs P2PKH",
@@ -217,7 +204,6 @@ describe("Sidebar", () => {
   });
 
   it("renders Flow Examples accordion and drag payload includes subgraph data", async () => {
-    const user = userEvent.setup();
     renderSidebar();
 
     expect(screen.getByText("Intro")).toBeInTheDocument();
@@ -250,24 +236,14 @@ describe("Sidebar", () => {
     fireEvent.click(taprootSection);
     expect(screen.getByText("Taproot intro")).toBeInTheDocument();
     expect(screen.getByText("Taproot 2in 2out Keypath")).toBeInTheDocument();
-    expect(screen.getByText(/Older flows hidden/i)).toBeInTheDocument();
+    // The older-flows toggle is gone: every registered flow is visible.
+    expect(screen.queryByText(/Older flows/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("switch", { name: /Show older flow examples/i })
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /Legacy Foundations/i })
     ).not.toBeInTheDocument();
-    expect(screen.queryByText("1. Custom Flow")).not.toBeInTheDocument();
-
-    const olderFlowsToggle = screen.getByRole("switch", {
-      name: /Show older flow examples/i,
-    });
-    expect(olderFlowsToggle).toHaveAttribute("aria-checked", "false");
-    await user.click(olderFlowsToggle);
-
-    expect(olderFlowsToggle).toHaveAttribute("aria-checked", "true");
-    expect(
-      screen.getByRole("button", { name: /Legacy Foundations/i })
-    ).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /Legacy Foundations/i }));
-    expect(screen.getByText("1. Custom Flow")).toBeInTheDocument();
 
     const introFlowCard = screen.getByText("Intro").closest("div");
     expect(introFlowCard).not.toBeNull();

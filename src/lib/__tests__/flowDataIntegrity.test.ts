@@ -81,16 +81,9 @@ const allowedFlowSections = new Set([
   "top-level",
   "legacy",
   "misc",
-  "legacy-foundations",
-  "scripts-timelocks-commitments",
-  "channels",
   "segwit",
   "taproot",
   "payment-channels",
-  "segwit-legacy",
-  "taproot-schnorr-musig",
-  "wallet-signing-labs",
-  "contributor-challenges",
 ]);
 
 for (const template of allSidebarNodes) {
@@ -185,8 +178,8 @@ describe("public flow data integrity", () => {
     expect(issues).toEqual([]);
   });
 
-  it("p15 Trezor address nodes do not keep fallbacks for wired inputs", () => {
-    const flow = loadFlow("old/p15_Trezor_signing_flow.json");
+  it("Trezor hardware nodes do not keep fallbacks for wired inputs", () => {
+    const flow = loadFlow("p14_Trezor Signing Flow.json");
     const mismatches: Array<{
       nodeId: string;
       inputIndex: number;
@@ -207,7 +200,7 @@ describe("public flow data integrity", () => {
 
     for (const node of flow.nodes) {
       const data = node.data as Record<string, unknown>;
-      if (data.hardwareAction !== "trezor_get_address") continue;
+      if (typeof data.hardwareAction !== "string") continue;
       if (typeof data.hardwareInputSnapshot !== "string") continue;
 
       const snapshot = JSON.parse(data.hardwareInputSnapshot) as Array<

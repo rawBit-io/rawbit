@@ -292,24 +292,6 @@ vi.mock("@/my_tx_flows/customFlows", () => ({
         name: "Legacy flow data",
       } as FlowData,
     },
-    {
-      id: "legacy-foundations-flow",
-      label: "Legacy foundations flow",
-      section: "legacy-foundations",
-      data: {
-        nodes: [
-          {
-            id: "legacy-foundations-node",
-            type: "calculation",
-            position: { x: 0, y: 0 },
-            data: { functionName: "identity", numInputs: 1 },
-          } as FlowNode,
-        ],
-        edges: [],
-        schemaVersion: 1,
-        name: "Legacy foundations flow data",
-      } as FlowData,
-    },
   ],
 }));
 

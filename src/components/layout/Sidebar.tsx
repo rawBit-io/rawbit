@@ -19,7 +19,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import type { NodeTemplate } from "@/types";
 import { allSidebarNodes } from "@/components/sidebar-nodes";
 
@@ -136,14 +135,6 @@ const subgroupLabelClass =
 const subgroupContentClass = "pt-1 pb-1";
 const subgroupItemsClass = "space-y-2 pb-1";
 const TOP_LEVEL_FLOW_SECTION = "top-level";
-const ALWAYS_VISIBLE_FLOW_SECTIONS = new Set([
-  TOP_LEVEL_FLOW_SECTION,
-  "legacy",
-  "segwit",
-  "taproot",
-  "payment-channels",
-  "misc",
-]);
 const SIDEBAR_REVEAL_ITEM_COUNT = 5;
 
 const flowSections = [
@@ -152,16 +143,6 @@ const flowSections = [
   { id: "taproot", label: "Taproot" },
   { id: "payment-channels", label: "Payment Channels" },
   { id: "misc", label: "Misc" },
-  { id: "legacy-foundations", label: "Legacy Foundations" },
-  {
-    id: "scripts-timelocks-commitments",
-    label: "Scripts, Timelocks & Commitments",
-  },
-  { id: "channels", label: "Channels" },
-  { id: "segwit-legacy", label: "SegWit Legacy" },
-  { id: "taproot-schnorr-musig", label: "Taproot, Schnorr & MuSig" },
-  { id: "wallet-signing-labs", label: "Wallet & Signing Labs" },
-  { id: "contributor-challenges", label: "Contributor / Challenge Flows" },
 ];
 
 const searchCorrections: Record<string, string[]> = {
@@ -237,8 +218,7 @@ function formatNodeCategory(node: NodeTemplate) {
 }
 
 function formatFlowLabel(flow: CustomFlowTemplate) {
-  if (ALWAYS_VISIBLE_FLOW_SECTIONS.has(flow.section)) return flow.label;
-  return flow.flowNo ? `${flow.flowNo}. ${flow.label}` : flow.label;
+  return flow.label;
 }
 
 function getFlowSearchText(flow: CustomFlowTemplate) {
@@ -277,7 +257,6 @@ export function Sidebar({
     Record<string, string[]>
   >({});
   const [openFlowSections, setOpenFlowSections] = useState<string[]>(["legacy"]);
-  const [showOlderFlowExamples, setShowOlderFlowExamples] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const envBadge =
     (import.meta.env.VITE_ENV_LABEL && import.meta.env.VITE_ENV_LABEL.trim()) ||
@@ -306,22 +285,7 @@ export function Sidebar({
     });
   }, [searchQuery]);
 
-  const visibleFlowTemplates = useMemo(
-    () =>
-      showOlderFlowExamples
-        ? customFlows
-        : customFlows.filter((flow) =>
-            ALWAYS_VISIBLE_FLOW_SECTIONS.has(flow.section),
-          ),
-    [showOlderFlowExamples],
-  );
-  const olderFlowExampleCount = useMemo(
-    () =>
-      customFlows.filter(
-        (flow) => !ALWAYS_VISIBLE_FLOW_SECTIONS.has(flow.section),
-      ).length,
-    [],
-  );
+  const visibleFlowTemplates = customFlows;
 
   const filteredFlows = useMemo(() => {
     if (!searchQuery.trim()) return [];
@@ -549,31 +513,6 @@ export function Sidebar({
       </div>
     </div>
   );
-
-  const renderFlowExampleOptions = () =>
-    olderFlowExampleCount > 0 ? (
-      <div className="ml-8 rounded-md border border-dashed border-border/70 bg-muted/20 p-2 text-xs text-muted-foreground">
-        <div className="flex items-center justify-between gap-3">
-          <span className="font-medium text-foreground">
-            Older flows {showOlderFlowExamples ? "visible" : "hidden"}
-          </span>
-          <div className="flex shrink-0 items-center gap-1.5">
-            <Switch
-              id="show-older-flow-examples"
-              aria-label="Show older flow examples"
-              checked={showOlderFlowExamples}
-              onCheckedChange={setShowOlderFlowExamples}
-              className="h-4 w-7 data-[state=checked]:bg-muted-foreground/70 data-[state=unchecked]:bg-muted"
-              thumbClassName="h-3 w-3 data-[state=checked]:translate-x-3"
-            />
-          </div>
-        </div>
-        <p className="mt-1 leading-snug">
-          Older flows still work, but are being updated with the new layout and
-          info nodes.
-        </p>
-      </div>
-    ) : null;
 
   // Expand/collapse logic for categories
   const handleCategoryChange = (value: string) => {
@@ -882,7 +821,6 @@ export function Sidebar({
                         ))}
                       </Accordion>
                     )}
-                    {renderFlowExampleOptions()}
                   </div>
                 ) : (
                   <div className="ml-4 p-3 text-sm text-muted-foreground rounded-md bg-muted/50">

@@ -47,10 +47,10 @@ describe("text info node data compatibility", () => {
     expect(node.data.height).toBe(460);
   });
 
-  it("normalizes stale text info dimensions in the SegWit intro bundled flow", () => {
+  it("normalizes stale text info dimensions in a bundled flow", () => {
     const flow = JSON.parse(
       readFileSync(
-        resolve(process.cwd(), "src/my_tx_flows/old/p8_SegWit_intro.json"),
+        resolve(process.cwd(), "src/my_tx_flows/p16_Taproot_intro.json"),
         "utf8"
       )
     ) as { nodes: FlowNode[] };
