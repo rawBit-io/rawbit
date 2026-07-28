@@ -22,6 +22,7 @@ import spilmanPaymentChannel from "@/my_tx_flows/p15_Spilman.json";
 import taprootIntro from "@/my_tx_flows/p16_Taproot_intro.json";
 import taproot2in2outKeypath from "@/my_tx_flows/p17_Taproot_2in_2out_keypath.json";
 import taprootScriptPath from "@/my_tx_flows/p18_Taproot_script_path.json";
+import musig2 from "@/my_tx_flows/p19_MuSig2.json";
 import txMalleability from "@/my_tx_flows/misc/p6_TX_Malleability.json";
 import bip110 from "@/my_tx_flows/misc/p7_BIP110.json";
 import intro_p2pkh_p2pk from "@/my_tx_flows/old/p1_Intro_P2PKH_and_P2PK.json";
@@ -221,6 +222,23 @@ export const customFlows: CustomFlowTemplate[] = [
       "tapleaf",
       "merkle-tree",
       "inheritance",
+    ],
+  },
+  {
+    id: "flow-19-musig2",
+    label: "MuSig2 (BIP327)",
+    data: musig2 as unknown as FlowData,
+    section: "taproot",
+    flowNo: 19,
+    level: "advanced",
+    tags: [
+      "taproot",
+      "schnorr",
+      "musig2",
+      "bip327",
+      "key-aggregation",
+      "key-path",
+      "multisig",
     ],
   },
   {
