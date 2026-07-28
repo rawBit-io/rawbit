@@ -5459,7 +5459,7 @@
           }
         },
         "outputLayout": "taproot_tree_builder",
-        "taprootLeafIndex": 2,
+        "taprootLeafIndex": 0,
         "outputPorts": [
           {
             "label": "root",
@@ -5538,7 +5538,7 @@
           "display": "Tree:\n((A,B),C)\n\nLevels:\nL0: A  B  C\nL1: (A,B)  C\nL2: ((A,B),C)\n\nLeaves:\nA = 8c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be9\nB = 2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475\nC = af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa\n\nPaths (labels):\nA: B, C\nB: A, C\nC: (A,B)\n\nPaths (hashes):\nA: 2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475, af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa\nB: 8c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be9, af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa\nC: 2fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
         },
         "outputValues": {
-          "output-1": "2fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
+          "output-1": "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa"
         },
         "outputErrors": {},
         "error": false
@@ -6016,7 +6016,7 @@
           "vals": {
             "0": "__EMPTY__",
             "1": "5120902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f",
-            "2": "02000000000101812f6ef5c684b485e3727ca64e07195050000422966a325b507f9b882899256400000000009000000001e8680400000000002251206513ad8b87e27d99382922695d6e334f9738c0975ae9f60897b8b0673673d09503409ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a353527029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac41c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a00000000",
+            "2": "02000000000101812f6ef5c684b485e3727ca64e07195050000422966a325b507f9b882899256400000000009000000001e8680400000000002251206513ad8b87e27d99382922695d6e334f9738c0975ae9f60897b8b0673673d09503409ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a353527029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac61c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa00000000",
             "3": "0",
             "5": "290000"
           }
@@ -6102,9 +6102,9 @@
         "showComment": false,
         "outputValues": {},
         "outputErrors": {},
-        "result": "false",
+        "result": "true",
         "scriptDebugSteps": {
-          "isValid": false,
+          "isValid": true,
           "steps": [
             {
               "pc": 0,
@@ -6135,12 +6135,12 @@
               "stack_before": [
                 "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535",
                 "029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac",
-                "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
+                "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa"
               ],
               "stack_after": [
                 "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535",
                 "029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac",
-                "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
+                "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa"
               ]
             },
             {
@@ -6155,8 +6155,8 @@
               "stack_after": [
                 "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535"
               ],
-              "committed": false,
-              "executed": false
+              "committed": true,
+              "executed": true
             },
             {
               "pc": -1,
@@ -6165,21 +6165,80 @@
               "step": "control_block",
               "leaf_version": 192,
               "tapleaf_hash": "8c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be9",
-              "merkle_root": "58c3888a4d07b2de9bd40fb4d96a84d06f7e7733ca46f628ccb058e1777cb791",
+              "merkle_root": "04852b7221f0d15b82bfa429d4111d8868be6a9cfa0f875e051da5feac477fab",
               "internal_pubkey": "7ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f9",
               "tweaked_pubkey": "902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f",
               "parity": true,
-              "result": false,
-              "kind": "validator",
+              "result": true
+            },
+            {
+              "pc": 0,
+              "opcode": 2,
+              "opcode_name": "PUSH 2 bytes",
               "stack_before": [
                 "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535"
               ],
               "stack_after": [
+                "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535",
+                "9000"
+              ],
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 3,
+              "opcode": 178,
+              "opcode_name": "OP_CHECKSEQUENCEVERIFY",
+              "stack_before": [
+                "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535",
+                "9000"
+              ],
+              "stack_after": [
+                "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535",
+                "9000"
+              ],
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 4,
+              "opcode": 117,
+              "opcode_name": "OP_DROP",
+              "stack_before": [
+                "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535",
+                "9000"
+              ],
+              "stack_after": [
                 "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535"
               ],
-              "failed": true,
-              "error": "witness program mismatch",
-              "error_code": "TWEAK_MISMATCH"
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 5,
+              "opcode": 32,
+              "opcode_name": "PUSH 32 bytes",
+              "stack_before": [
+                "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535"
+              ],
+              "stack_after": [
+                "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535",
+                "f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfc"
+              ],
+              "phase": "witnessScript",
+              "branch_active": true
+            },
+            {
+              "pc": 38,
+              "opcode": 172,
+              "opcode_name": "OP_CHECKSIG",
+              "stack_before": [
+                "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535",
+                "f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfc"
+              ],
+              "stack_after": ["01"],
+              "phase": "witnessScript",
+              "branch_active": true
             }
           ],
           "scriptSig": "",
@@ -6213,10 +6272,9 @@
           "witnessStack": [
             "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535",
             "029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac",
-            "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
+            "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa"
           ],
-          "witnessScript": "029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac",
-          "error": "witness program mismatch"
+          "witnessScript": "029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac"
         }
       },
       "parentId": "node_QutXQzIq",
@@ -6566,12 +6624,12 @@
             "3000": "e868040000000000",
             "3010": "22",
             "3020": "51206513ad8b87e27d99382922695d6e334f9738c0975ae9f60897b8b0673673d095",
-            "5000": "03409ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a353527029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac41c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a",
+            "5000": "03409ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a353527029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac61c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa",
             "6000": "00000000"
           }
         },
         "version": 0,
-        "result": "02000000000101812f6ef5c684b485e3727ca64e07195050000422966a325b507f9b882899256400000000009000000001e8680400000000002251206513ad8b87e27d99382922695d6e334f9738c0975ae9f60897b8b0673673d09503409ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a353527029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac41c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a00000000",
+        "result": "02000000000101812f6ef5c684b485e3727ca64e07195050000422966a325b507f9b882899256400000000009000000001e8680400000000002251206513ad8b87e27d99382922695d6e334f9738c0975ae9f60897b8b0673673d09503409ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a353527029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac61c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa00000000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -8310,7 +8368,7 @@
           "vals": {
             "0": "c1",
             "100": "7ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f9",
-            "200": "2fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
+            "200": "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa"
           }
         },
         "inputStructure": {
@@ -8338,7 +8396,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a",
+        "result": "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa",
         "baseHeight": 120,
         "totalInputs": 3,
         "unwiredCount": 0,
@@ -8453,10 +8511,10 @@
         "numInputs": 1,
         "inputs": {
           "vals": {
-            "0": "2fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
+            "0": "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa"
           }
         },
-        "result": "2fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a",
+        "result": "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa",
         "radioChannel": "5",
         "outputPorts": [
           {
@@ -8503,7 +8561,7 @@
         "functionName": "radio_receive",
         "title": "Radio Receive 5",
         "numInputs": 0,
-        "result": "2fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a",
+        "result": "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa",
         "radioChannel": "5",
         "outputPorts": [
           {
@@ -8518,7 +8576,7 @@
         "height": 64,
         "dirty": false,
         "inputs": {
-          "val": "2fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
+          "val": "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa"
         },
         "error": false
       },
@@ -8546,8 +8604,8 @@
             "1010": "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535",
             "2000": "27",
             "2010": "029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac",
-            "2020": "41",
-            "2030": "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
+            "2020": "61",
+            "2030": "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa"
           }
         },
         "inputStructure": {
@@ -8618,7 +8676,7 @@
         "groupInstanceKeys": {
           "STACK_ITEMS[]": [1000]
         },
-        "result": "03409ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a353527029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac41c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a",
+        "result": "03409ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a353527029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac61c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa",
         "baseHeight": 140,
         "totalInputs": 7,
         "unwiredCount": 0,
@@ -8755,9 +8813,9 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
+          "val": "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa"
         },
-        "result": "41",
+        "result": "61",
         "error": false,
         "outputValues": {},
         "outputErrors": {}
