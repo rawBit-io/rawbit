@@ -30,8 +30,8 @@
       "id": "group_ixnjwes",
       "type": "shadcnGroup",
       "position": {
-        "x": 15846.687945671345,
-        "y": 7214.321543645273
+        "x": 15861.687945671345,
+        "y": 7319.321543645273
       },
       "data": {
         "isGroup": true,
@@ -58,8 +58,8 @@
       "id": "group_cd0gkcz",
       "type": "shadcnGroup",
       "position": {
-        "x": 12262.321568191996,
-        "y": 2249.238305325657
+        "x": 12277.321568191996,
+        "y": 2354.238305325657
       },
       "data": {
         "isGroup": true,
@@ -88,8 +88,8 @@
       "id": "group_7w6adu7",
       "type": "shadcnGroup",
       "position": {
-        "x": 5877.308702334671,
-        "y": 3367.587522864639
+        "x": 5892.308702334671,
+        "y": 3472.587522864639
       },
       "data": {
         "isGroup": true,
@@ -121,8 +121,8 @@
       "id": "group_hegqa99",
       "type": "shadcnGroup",
       "position": {
-        "x": -5951.2634574047215,
-        "y": 8654.666159323795
+        "x": -5936.2634574047215,
+        "y": 8759.666159323795
       },
       "data": {
         "isGroup": true,
@@ -148,8 +148,8 @@
       "id": "group_zi8x2qm",
       "type": "shadcnGroup",
       "position": {
-        "x": 2341.1844234493237,
-        "y": 1060.0971691418172
+        "x": 2356.1844234493237,
+        "y": 1165.0971691418172
       },
       "data": {
         "isGroup": true,
@@ -412,7 +412,7 @@
           "vals": {
             "0": "__EMPTY__",
             "1": "51200e08b7edab116f9062e4475e01e982d1645e531abe269dc2b23d4cb857e183e0",
-            "2": "02000000000101b27e2d91b91b62acadd3da46b0465e4a1da87bb0db6de47cd28574bed51c542c0000000000fdffffff01d06c040000000000225120702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b901405b64ff94360ff6cd3caa9122cfaf1c6666156c3a1e6f80a2c0bbdbf51338c9f8246843b2418122533367d6aac1935e8db92234ff7b0623f490c91a425dab95e700000000",
+            "2": "02000000000101b27e2d91b91b62acadd3da46b0465e4a1da87bb0db6de47cd28574bed51c542c0000000000fdffffff01d06c040000000000225120902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f0140443ab00d3bb1c993e8eb3dc86e58603dbd427dea8a9d0923e25d97f0596e91ddd6daaa3f1c1589095ecfc152d7affc8002b1ab3bf613d4efbbadc6a8768dabb200000000",
             "3": "0",
             "5": "290610"
           }
@@ -529,10 +529,10 @@
               "phase": "taproot",
               "step": "witness_stack",
               "stack_before": [
-                "5b64ff94360ff6cd3caa9122cfaf1c6666156c3a1e6f80a2c0bbdbf51338c9f8246843b2418122533367d6aac1935e8db92234ff7b0623f490c91a425dab95e7"
+                "443ab00d3bb1c993e8eb3dc86e58603dbd427dea8a9d0923e25d97f0596e91ddd6daaa3f1c1589095ecfc152d7affc8002b1ab3bf613d4efbbadc6a8768dabb2"
               ],
               "stack_after": [
-                "5b64ff94360ff6cd3caa9122cfaf1c6666156c3a1e6f80a2c0bbdbf51338c9f8246843b2418122533367d6aac1935e8db92234ff7b0623f490c91a425dab95e7"
+                "443ab00d3bb1c993e8eb3dc86e58603dbd427dea8a9d0923e25d97f0596e91ddd6daaa3f1c1589095ecfc152d7affc8002b1ab3bf613d4efbbadc6a8768dabb2"
               ]
             },
             {
@@ -543,12 +543,12 @@
               "sigversion": "tapsighash",
               "hashtype": 0,
               "hashtype_name": "DEFAULT",
-              "sighash": "ac7cb46909eec1e24a08591253a91b9238a96afa6454bfa3e6968250ff132a42",
+              "sighash": "fbb604f3ac595dcb78667afbdc04ac070cbfdc2cfdf41a404326289f7041d30d",
               "stack_before": [
-                "5b64ff94360ff6cd3caa9122cfaf1c6666156c3a1e6f80a2c0bbdbf51338c9f8246843b2418122533367d6aac1935e8db92234ff7b0623f490c91a425dab95e7"
+                "443ab00d3bb1c993e8eb3dc86e58603dbd427dea8a9d0923e25d97f0596e91ddd6daaa3f1c1589095ecfc152d7affc8002b1ab3bf613d4efbbadc6a8768dabb2"
               ],
               "stack_after": [
-                "5b64ff94360ff6cd3caa9122cfaf1c6666156c3a1e6f80a2c0bbdbf51338c9f8246843b2418122533367d6aac1935e8db92234ff7b0623f490c91a425dab95e7"
+                "443ab00d3bb1c993e8eb3dc86e58603dbd427dea8a9d0923e25d97f0596e91ddd6daaa3f1c1589095ecfc152d7affc8002b1ab3bf613d4efbbadc6a8768dabb2"
               ]
             },
             {
@@ -557,12 +557,12 @@
               "phase": "taproot",
               "step": "schnorr_verify",
               "pubkey": "0e08b7edab116f9062e4475e01e982d1645e531abe269dc2b23d4cb857e183e0",
-              "signature": "5b64ff94360ff6cd3caa9122cfaf1c6666156c3a1e6f80a2c0bbdbf51338c9f8246843b2418122533367d6aac1935e8db92234ff7b0623f490c91a425dab95e7",
+              "signature": "443ab00d3bb1c993e8eb3dc86e58603dbd427dea8a9d0923e25d97f0596e91ddd6daaa3f1c1589095ecfc152d7affc8002b1ab3bf613d4efbbadc6a8768dabb2",
               "hashtype": 0,
               "hashtype_name": "DEFAULT",
               "result": true,
               "stack_before": [
-                "5b64ff94360ff6cd3caa9122cfaf1c6666156c3a1e6f80a2c0bbdbf51338c9f8246843b2418122533367d6aac1935e8db92234ff7b0623f490c91a425dab95e7"
+                "443ab00d3bb1c993e8eb3dc86e58603dbd427dea8a9d0923e25d97f0596e91ddd6daaa3f1c1589095ecfc152d7affc8002b1ab3bf613d4efbbadc6a8768dabb2"
               ],
               "stack_after": ["01"]
             }
@@ -596,7 +596,7 @@
           "witnessRulesEnabled": true,
           "amountUsed": 290610,
           "witnessStack": [
-            "5b64ff94360ff6cd3caa9122cfaf1c6666156c3a1e6f80a2c0bbdbf51338c9f8246843b2418122533367d6aac1935e8db92234ff7b0623f490c91a425dab95e7"
+            "443ab00d3bb1c993e8eb3dc86e58603dbd427dea8a9d0923e25d97f0596e91ddd6daaa3f1c1589095ecfc152d7affc8002b1ab3bf613d4efbbadc6a8768dabb2"
           ]
         }
       },
@@ -896,11 +896,11 @@
           "vals": {
             "0": "d06c040000000000",
             "10": "22",
-            "20": "5120702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9"
+            "20": "5120902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f"
           }
         },
         "version": 0,
-        "result": "d06c040000000000225120702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9",
+        "result": "d06c040000000000225120902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f",
         "inputStructure": {
           "ungrouped": [],
           "groups": [
@@ -980,13 +980,13 @@
             "2000": "01",
             "3000": "d06c040000000000",
             "3010": "22",
-            "3020": "5120702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9",
-            "5000": "01405b64ff94360ff6cd3caa9122cfaf1c6666156c3a1e6f80a2c0bbdbf51338c9f8246843b2418122533367d6aac1935e8db92234ff7b0623f490c91a425dab95e7",
+            "3020": "5120902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f",
+            "5000": "0140443ab00d3bb1c993e8eb3dc86e58603dbd427dea8a9d0923e25d97f0596e91ddd6daaa3f1c1589095ecfc152d7affc8002b1ab3bf613d4efbbadc6a8768dabb2",
             "6000": "00000000"
           }
         },
         "version": 0,
-        "result": "02000000000101b27e2d91b91b62acadd3da46b0465e4a1da87bb0db6de47cd28574bed51c542c0000000000fdffffff01d06c040000000000225120702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b901405b64ff94360ff6cd3caa9122cfaf1c6666156c3a1e6f80a2c0bbdbf51338c9f8246843b2418122533367d6aac1935e8db92234ff7b0623f490c91a425dab95e700000000",
+        "result": "02000000000101b27e2d91b91b62acadd3da46b0465e4a1da87bb0db6de47cd28574bed51c542c0000000000fdffffff01d06c040000000000225120902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f0140443ab00d3bb1c993e8eb3dc86e58603dbd427dea8a9d0923e25d97f0596e91ddd6daaa3f1c1589095ecfc152d7affc8002b1ab3bf613d4efbbadc6a8768dabb200000000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -1604,13 +1604,13 @@
             "50": "72358b0ef71194560ebf27a15d33db7229d533ce1356190612cc9fa9fdcf8a11",
             "60": "5e052ee9dd86dfbd8de0b57552a0935a9bae6e2ab86a3ef3a8f9022fce32f1c3",
             "70": "23e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2",
-            "80": "441ea4ab4c693383066a7cf27dd02a490c59ef0a237149b0dd512139313226a3",
+            "80": "6ac615ac098403f8cf4cb04fe9832299b20dd0825d845e42258d2196b035cf2a",
             "90": "00",
             "100": "00000000"
           }
         },
         "version": 0,
-        "result": "00000200000000000000bfcb7e4878bd20862e88022c5df52f04844e640021a5e63d40ceb0eef13d1bce72358b0ef71194560ebf27a15d33db7229d533ce1356190612cc9fa9fdcf8a115e052ee9dd86dfbd8de0b57552a0935a9bae6e2ab86a3ef3a8f9022fce32f1c323e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2441ea4ab4c693383066a7cf27dd02a490c59ef0a237149b0dd512139313226a30000000000",
+        "result": "00000200000000000000bfcb7e4878bd20862e88022c5df52f04844e640021a5e63d40ceb0eef13d1bce72358b0ef71194560ebf27a15d33db7229d533ce1356190612cc9fa9fdcf8a115e052ee9dd86dfbd8de0b57552a0935a9bae6e2ab86a3ef3a8f9022fce32f1c323e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d26ac615ac098403f8cf4cb04fe9832299b20dd0825d845e42258d2196b035cf2a0000000000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -1816,9 +1816,9 @@
         "numInputs": 1,
         "version": 0,
         "inputs": {
-          "val": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a03100000200000000000000bfcb7e4878bd20862e88022c5df52f04844e640021a5e63d40ceb0eef13d1bce72358b0ef71194560ebf27a15d33db7229d533ce1356190612cc9fa9fdcf8a115e052ee9dd86dfbd8de0b57552a0935a9bae6e2ab86a3ef3a8f9022fce32f1c323e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2441ea4ab4c693383066a7cf27dd02a490c59ef0a237149b0dd512139313226a30000000000"
+          "val": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a03100000200000000000000bfcb7e4878bd20862e88022c5df52f04844e640021a5e63d40ceb0eef13d1bce72358b0ef71194560ebf27a15d33db7229d533ce1356190612cc9fa9fdcf8a115e052ee9dd86dfbd8de0b57552a0935a9bae6e2ab86a3ef3a8f9022fce32f1c323e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d26ac615ac098403f8cf4cb04fe9832299b20dd0825d845e42258d2196b035cf2a0000000000"
         },
-        "result": "ac7cb46909eec1e24a08591253a91b9238a96afa6454bfa3e6968250ff132a42",
+        "result": "fbb604f3ac595dcb78667afbdc04ac070cbfdc2cfdf41a404326289f7041d30d",
         "inputStructure": {
           "ungrouped": [
             {
@@ -1920,7 +1920,7 @@
         "inputs": {
           "vals": {
             "0": "c04978426b3154231253faf97f65ab55f92777e250d63e6655283763130d2f56",
-            "1": "ac7cb46909eec1e24a08591253a91b9238a96afa6454bfa3e6968250ff132a42",
+            "1": "fbb604f3ac595dcb78667afbdc04ac070cbfdc2cfdf41a404326289f7041d30d",
             "2": "__EMPTY__"
           }
         },
@@ -1949,7 +1949,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "5b64ff94360ff6cd3caa9122cfaf1c6666156c3a1e6f80a2c0bbdbf51338c9f8246843b2418122533367d6aac1935e8db92234ff7b0623f490c91a425dab95e7",
+        "result": "443ab00d3bb1c993e8eb3dc86e58603dbd427dea8a9d0923e25d97f0596e91ddd6daaa3f1c1589095ecfc152d7affc8002b1ab3bf613d4efbbadc6a8768dabb2",
         "totalInputs": 3,
         "unwiredCount": 0,
         "dirty": false,
@@ -2009,7 +2009,7 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": "5b64ff94360ff6cd3caa9122cfaf1c6666156c3a1e6f80a2c0bbdbf51338c9f8246843b2418122533367d6aac1935e8db92234ff7b0623f490c91a425dab95e7"
+          "val": "443ab00d3bb1c993e8eb3dc86e58603dbd427dea8a9d0923e25d97f0596e91ddd6daaa3f1c1589095ecfc152d7affc8002b1ab3bf613d4efbbadc6a8768dabb2"
         },
         "result": "40",
         "error": false
@@ -2033,7 +2033,7 @@
           "vals": {
             "0": "01",
             "1": "40",
-            "2": "5b64ff94360ff6cd3caa9122cfaf1c6666156c3a1e6f80a2c0bbdbf51338c9f8246843b2418122533367d6aac1935e8db92234ff7b0623f490c91a425dab95e7"
+            "2": "443ab00d3bb1c993e8eb3dc86e58603dbd427dea8a9d0923e25d97f0596e91ddd6daaa3f1c1589095ecfc152d7affc8002b1ab3bf613d4efbbadc6a8768dabb2"
           }
         },
         "inputStructure": {
@@ -2061,7 +2061,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "01405b64ff94360ff6cd3caa9122cfaf1c6666156c3a1e6f80a2c0bbdbf51338c9f8246843b2418122533367d6aac1935e8db92234ff7b0623f490c91a425dab95e7",
+        "result": "0140443ab00d3bb1c993e8eb3dc86e58603dbd427dea8a9d0923e25d97f0596e91ddd6daaa3f1c1589095ecfc152d7affc8002b1ab3bf613d4efbbadc6a8768dabb2",
         "baseHeight": 100,
         "totalInputs": 3,
         "unwiredCount": 0,
@@ -2335,9 +2335,9 @@
         "numInputs": 1,
         "version": 0,
         "inputs": {
-          "val": "d06c040000000000225120702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9"
+          "val": "d06c040000000000225120902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f"
         },
-        "result": "441ea4ab4c693383066a7cf27dd02a490c59ef0a237149b0dd512139313226a3",
+        "result": "6ac615ac098403f8cf4cb04fe9832299b20dd0825d845e42258d2196b035cf2a",
         "inputStructure": {
           "ungrouped": [
             {
@@ -2430,11 +2430,11 @@
           "vals": {
             "0": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031",
             "100": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031",
-            "200": "00000200000000000000bfcb7e4878bd20862e88022c5df52f04844e640021a5e63d40ceb0eef13d1bce72358b0ef71194560ebf27a15d33db7229d533ce1356190612cc9fa9fdcf8a115e052ee9dd86dfbd8de0b57552a0935a9bae6e2ab86a3ef3a8f9022fce32f1c323e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2441ea4ab4c693383066a7cf27dd02a490c59ef0a237149b0dd512139313226a30000000000"
+            "200": "00000200000000000000bfcb7e4878bd20862e88022c5df52f04844e640021a5e63d40ceb0eef13d1bce72358b0ef71194560ebf27a15d33db7229d533ce1356190612cc9fa9fdcf8a115e052ee9dd86dfbd8de0b57552a0935a9bae6e2ab86a3ef3a8f9022fce32f1c323e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d26ac615ac098403f8cf4cb04fe9832299b20dd0825d845e42258d2196b035cf2a0000000000"
           }
         },
         "version": 0,
-        "result": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a03100000200000000000000bfcb7e4878bd20862e88022c5df52f04844e640021a5e63d40ceb0eef13d1bce72358b0ef71194560ebf27a15d33db7229d533ce1356190612cc9fa9fdcf8a115e052ee9dd86dfbd8de0b57552a0935a9bae6e2ab86a3ef3a8f9022fce32f1c323e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d2441ea4ab4c693383066a7cf27dd02a490c59ef0a237149b0dd512139313226a30000000000",
+        "result": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a03100000200000000000000bfcb7e4878bd20862e88022c5df52f04844e640021a5e63d40ceb0eef13d1bce72358b0ef71194560ebf27a15d33db7229d533ce1356190612cc9fa9fdcf8a115e052ee9dd86dfbd8de0b57552a0935a9bae6e2ab86a3ef3a8f9022fce32f1c323e9829bfb4e23fbd3c4848baa035af15d73bcb83e510f7f097f90a21a4280d26ac615ac098403f8cf4cb04fe9832299b20dd0825d845e42258d2196b035cf2a0000000000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -2476,8 +2476,8 @@
       "id": "node_d6gdw9w",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -4090.9254257799275,
-        "y": 6889.397722440144
+        "x": -4075.9254257799275,
+        "y": 6994.397722440144
       },
       "data": {
         "content": "## The same vault, one era earlier - P2SH\n\nBefore taproot, all four spending paths live in **one script**, glued together with IF/ELSE ladders. The spender steers the branches by pushing 1/0 flags:\n\n```\nOP_IF\n    <Alice> OP_CHECKSIG                        ← path 1: daily spending\nOP_ELSE\n    OP_IF\n        <144> OP_CSV OP_DROP                   ← path 2: Bob, ~1 day\n        <Bob> OP_CHECKSIG\n    OP_ELSE\n        OP_IF\n            <4320> OP_CSV OP_DROP              ← path 3: Charlie, ~30 days\n            <Charlie> OP_CHECKSIG\n        OP_ELSE\n            <8640> OP_CSV OP_DROP              ← path 4: estate council, ~60 days\n            OP_2 <Anna> <Maria> <Diana> OP_3\n            OP_CHECKMULTISIG\n        OP_ENDIF\n    OP_ENDIF\nOP_ENDIF\n```\n\nRoughly 235 bytes, wrapped in the usual 23-byte P2SH envelope: `OP_HASH160 <hash> OP_EQUAL`.\n\n**Hidden only until the first spend.** The address is a hash, so the vault starts out private - but the *first* spend of any path publishes the entire script forever: every heir's key, every delay, the whole family structure. Taproot's tree reveals one leaf per spend and nothing else - and the key path reveals no script at all.\n\n**Everyone pays for every branch.** Each spend - including Alice's Tuesday coffee - must carry all 235 bytes plus the steering flags on-chain. In the taproot version Alice's daily spend is a 66-byte witness that looks identical to any single-sig payment; the contingency paths cost bytes only in the year they actually fire.\n\n**Control flow is where script bugs live.** Three nested IF/ELSE/ENDIF ladders, flag ordering the spender must get right, a DROP after every CSV. The taproot tree replaces control flow with *structure*: each leaf is a short, straight-line script, and the merkle proof does the branching.\n",
@@ -2967,8 +2967,8 @@
       "id": "node_0i5d2pi",
       "type": "shadcnTextInfo",
       "position": {
-        "x": -6042.905723553602,
-        "y": 7089.815286889311
+        "x": -6027.905723553602,
+        "y": 7194.815286889311
       },
       "data": {
         "content": "## Vault in taproot - a tree instead of a ladder\n\nThe four paths stop being one script. Three become **separate straight-line scripts**, each a leaf in a tree; the fourth becomes no script at all:\n\n```\n        Q = P_Alice + H_TapTweak(P ‖ root)·G     ← the whole lock: OP_1 <Q>\n        │\n      root\n     /    \\\n branch    leaf C\n /    \\\nleaf A  leaf B\n\nleaf A:  <144>  OP_CSV OP_DROP  <Bob>     OP_CHECKSIG\nleaf B:  <4320> OP_CSV OP_DROP  <Charlie> OP_CHECKSIG\nleaf C:  <8640> OP_CSV OP_DROP\n         <Anna> OP_CHECKSIG  <Maria> OP_CHECKSIGADD  <Diana> OP_CHECKSIGADD\n         OP_2 OP_NUMEQUAL\n```\n\n**Path 1 is not a leaf - it's the key.** Alice is the internal key P, so her daily spend is the 66-byte key-path witness from the intro flow. No script surfaces, no tree is mentioned; the chain sees an ordinary single-sig payment. The vault's most-used path costs nothing extra, ever.\n\n**No steering flags, no ladder.** \"Which branch\" is no longer opcodes the spender executes - it's a merkle proof the spender *presents*. Each leaf is short, linear, and independently auditable: ~40 bytes for A and B, ~110 for the council leaf, versus the 235-byte monolith. The IF/ELSE bug surface is simply gone.\n\n**One spend reveals one leaf.** When Bob recovers after a day, the chain learns his script and a control block - parity byte, Alice's internal key, and the two sibling hashes proving his leaf was always inside Q (33 + 2×32 = 97 bytes). Leaf B and leaf C stay 32-byte hashes forever: Charlie's delay, the council's existence, even *how many* other clauses there were - never published. The estate leaf, one level shallower, would need only a 65-byte proof.\n\n**And the multisig modernized on the way in:** OP_CHECKMULTISIG is disabled in tapscript - the council leaf counts valid signatures instead (`OP_CHECKSIG / OP_CHECKSIGADD ... OP_2 OP_NUMEQUAL`), one slot per key, empty slot for non-signers, no dummy element. Bob and Charlie appear in the council under **fresh keys** - deliberately. A revealed leaf publishes its key, and a reused key would let observers grind guesses against the hidden sibling hashes. Roles repeat; keys never do.",
@@ -3228,8 +3228,8 @@
       "id": "node_R4pgt3mN",
       "type": "shadcnGroup",
       "position": {
-        "x": -4968.169570822679,
-        "y": 11478.629614984206
+        "x": -4953.169570822679,
+        "y": 11583.629614984206
       },
       "data": {
         "isGroup": true,
@@ -3962,8 +3962,8 @@
       "id": "node_gXB7x7XV",
       "type": "shadcnGroup",
       "position": {
-        "x": -4232,
-        "y": 14272.649668937953
+        "x": -4217,
+        "y": 14377.649668937953
       },
       "data": {
         "isGroup": true,
@@ -3993,7 +3993,7 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "64f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41"
+          "val": "eb134a2a8382c5d8458ed71674d405eeb41add13f2b21980c019f2c46f95fdcb"
         },
         "result": "20",
         "inputStructure": {
@@ -4026,7 +4026,7 @@
         "title": "PrivKey → Even-Y PrivKey",
         "numInputs": 1,
         "inputs": {
-          "val": "a259b5620488c4a9379a8d60372e7ab1e4ffa3d4f99f66923a732bb7bf952537"
+          "val": "208d58a937671c30f3144a69fa303f4892c6440650c6a5abdb6cc6b2d0cf3843"
         },
         "inputStructure": {
           "ungrouped": [
@@ -4039,7 +4039,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "a259b5620488c4a9379a8d60372e7ab1e4ffa3d4f99f66923a732bb7bf952537",
+        "result": "208d58a937671c30f3144a69fa303f4892c6440650c6a5abdb6cc6b2d0cf3843",
         "dirty": false,
         "error": false,
         "showComment": false,
@@ -4062,7 +4062,7 @@
         "title": "Even-Y PrivKey → X-only PubKey",
         "numInputs": 1,
         "inputs": {
-          "val": "a259b5620488c4a9379a8d60372e7ab1e4ffa3d4f99f66923a732bb7bf952537"
+          "val": "208d58a937671c30f3144a69fa303f4892c6440650c6a5abdb6cc6b2d0cf3843"
         },
         "inputStructure": {
           "ungrouped": [
@@ -4075,7 +4075,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "64f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41",
+        "result": "eb134a2a8382c5d8458ed71674d405eeb41add13f2b21980c019f2c46f95fdcb",
         "dirty": false,
         "error": false,
         "showComment": false,
@@ -4173,7 +4173,7 @@
         "numInputs": 1,
         "groupInstances": {},
         "inputs": {
-          "val": "02c021b2752064f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41ac2064f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41ba20d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cfba529c"
+          "val": "02c021b27520eb134a2a8382c5d8458ed71674d405eeb41add13f2b21980c019f2c46f95fdcbac203d5cf268d24cb1a02888e1692c32159017aa0bafba4d1d5b0894f46d0c745228ba20bca4ff8c4ace81657af5c3466e8b3938c56e352b9db09bffeef563a73246f741ba529c"
         },
         "result": "6d",
         "dirty": false,
@@ -4233,20 +4233,20 @@
             "100": "c021",
             "200": "b275",
             "300": "20",
-            "400": "64f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41",
+            "400": "eb134a2a8382c5d8458ed71674d405eeb41add13f2b21980c019f2c46f95fdcb",
             "500": "ac",
             "600": "20",
-            "700": "64f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41",
+            "700": "3d5cf268d24cb1a02888e1692c32159017aa0bafba4d1d5b0894f46d0c745228",
             "800": "ba",
             "900": "20",
-            "1000": "d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cf",
+            "1000": "bca4ff8c4ace81657af5c3466e8b3938c56e352b9db09bffeef563a73246f741",
             "1100": "ba",
             "1200": "529c"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "02c021b2752064f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41ac2064f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41ba20d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cfba529c",
+        "result": "02c021b27520eb134a2a8382c5d8458ed71674d405eeb41add13f2b21980c019f2c46f95fdcbac203d5cf268d24cb1a02888e1692c32159017aa0bafba4d1d5b0894f46d0c745228ba20bca4ff8c4ace81657af5c3466e8b3938c56e352b9db09bffeef563a73246f741ba529c",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -4467,11 +4467,11 @@
           "vals": {
             "0": "aeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9ee",
             "100": "aeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9ee",
-            "200": "c06d02c021b2752064f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41ac2064f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41ba20d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cfba529c"
+            "200": "c06d02c021b27520eb134a2a8382c5d8458ed71674d405eeb41add13f2b21980c019f2c46f95fdcbac203d5cf268d24cb1a02888e1692c32159017aa0bafba4d1d5b0894f46d0c745228ba20bca4ff8c4ace81657af5c3466e8b3938c56e352b9db09bffeef563a73246f741ba529c"
           }
         },
         "version": 0,
-        "result": "aeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9eeaeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9eec06d02c021b2752064f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41ac2064f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41ba20d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cfba529c",
+        "result": "aeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9eeaeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9eec06d02c021b27520eb134a2a8382c5d8458ed71674d405eeb41add13f2b21980c019f2c46f95fdcbac203d5cf268d24cb1a02888e1692c32159017aa0bafba4d1d5b0894f46d0c745228ba20bca4ff8c4ace81657af5c3466e8b3938c56e352b9db09bffeef563a73246f741ba529c",
         "inputStructure": {
           "ungrouped": [
             {
@@ -4587,9 +4587,9 @@
         "numInputs": 1,
         "version": 0,
         "inputs": {
-          "val": "aeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9eeaeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9eec06d02c021b2752064f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41ac2064f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41ba20d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cfba529c"
+          "val": "aeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9eeaeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9eec06d02c021b27520eb134a2a8382c5d8458ed71674d405eeb41add13f2b21980c019f2c46f95fdcbac203d5cf268d24cb1a02888e1692c32159017aa0bafba4d1d5b0894f46d0c745228ba20bca4ff8c4ace81657af5c3466e8b3938c56e352b9db09bffeef563a73246f741ba529c"
         },
-        "result": "1f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457",
+        "result": "af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa",
         "inputStructure": {
           "ungrouped": [
             {
@@ -4622,11 +4622,11 @@
           "vals": {
             "0": "c0",
             "100": "6d",
-            "200": "02c021b2752064f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41ac2064f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41ba20d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cfba529c"
+            "200": "02c021b27520eb134a2a8382c5d8458ed71674d405eeb41add13f2b21980c019f2c46f95fdcbac203d5cf268d24cb1a02888e1692c32159017aa0bafba4d1d5b0894f46d0c745228ba20bca4ff8c4ace81657af5c3466e8b3938c56e352b9db09bffeef563a73246f741ba529c"
           }
         },
         "version": 0,
-        "result": "c06d02c021b2752064f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41ac2064f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41ba20d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cfba529c",
+        "result": "c06d02c021b27520eb134a2a8382c5d8458ed71674d405eeb41add13f2b21980c019f2c46f95fdcbac203d5cf268d24cb1a02888e1692c32159017aa0bafba4d1d5b0894f46d0c745228ba20bca4ff8c4ace81657af5c3466e8b3938c56e352b9db09bffeef563a73246f741ba529c",
         "inputStructure": {
           "ungrouped": [
             {
@@ -4709,7 +4709,7 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "64f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41"
+          "val": "3d5cf268d24cb1a02888e1692c32159017aa0bafba4d1d5b0894f46d0c745228"
         },
         "result": "20",
         "inputStructure": {
@@ -4742,7 +4742,7 @@
         "title": "PrivKey → Even-Y PrivKey",
         "numInputs": 1,
         "inputs": {
-          "val": "a259b5620488c4a9379a8d60372e7ab1e4ffa3d4f99f66923a732bb7bf952537"
+          "val": "d9f946a0ba2fab83088d6e31c9b33cc9b25fa741a267431b57e67c2b6dec2cf0"
         },
         "inputStructure": {
           "ungrouped": [
@@ -4755,7 +4755,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "a259b5620488c4a9379a8d60372e7ab1e4ffa3d4f99f66923a732bb7bf952537",
+        "result": "d9f946a0ba2fab83088d6e31c9b33cc9b25fa741a267431b57e67c2b6dec2cf0",
         "dirty": false,
         "error": false,
         "showComment": false,
@@ -4778,7 +4778,7 @@
         "title": "Even-Y PrivKey → X-only PubKey",
         "numInputs": 1,
         "inputs": {
-          "val": "a259b5620488c4a9379a8d60372e7ab1e4ffa3d4f99f66923a732bb7bf952537"
+          "val": "d9f946a0ba2fab83088d6e31c9b33cc9b25fa741a267431b57e67c2b6dec2cf0"
         },
         "inputStructure": {
           "ungrouped": [
@@ -4791,7 +4791,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "64f4cc7d4a9f191f462f7e7340b96eb4e8f3447c3d1edac3bc7a1d17fc752e41",
+        "result": "3d5cf268d24cb1a02888e1692c32159017aa0bafba4d1d5b0894f46d0c745228",
         "dirty": false,
         "error": false,
         "showComment": false,
@@ -4904,7 +4904,7 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cf"
+          "val": "bca4ff8c4ace81657af5c3466e8b3938c56e352b9db09bffeef563a73246f741"
         },
         "result": "20",
         "inputStructure": {
@@ -4937,7 +4937,7 @@
         "dirty": false,
         "numInputs": 0,
         "groupInstances": {},
-        "result": "cd19877d6342ee872f56a4ce4c8154fe8ff7f151fe3e9f0f404eeb4da811da5e",
+        "result": "b9159490178bd8554f9c585000337a7fce746fc5f16ea54d6c72150173a12f58",
         "error": false
       },
       "parentId": "node_gXB7x7XV",
@@ -4955,7 +4955,7 @@
         "title": "PrivKey → Even-Y PrivKey",
         "numInputs": 1,
         "inputs": {
-          "val": "cd19877d6342ee872f56a4ce4c8154fe8ff7f151fe3e9f0f404eeb4da811da5e"
+          "val": "b9159490178bd8554f9c585000337a7fce746fc5f16ea54d6c72150173a12f58"
         },
         "inputStructure": {
           "ungrouped": [
@@ -4968,7 +4968,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "32e678829cbd1178d0a95b31b37eab002ab6eb94b10a012c7f83733f282466e3",
+        "result": "b9159490178bd8554f9c585000337a7fce746fc5f16ea54d6c72150173a12f58",
         "dirty": false,
         "error": false,
         "showComment": false,
@@ -4989,7 +4989,7 @@
         "title": "Even-Y PrivKey → X-only PubKey",
         "numInputs": 1,
         "inputs": {
-          "val": "32e678829cbd1178d0a95b31b37eab002ab6eb94b10a012c7f83733f282466e3"
+          "val": "b9159490178bd8554f9c585000337a7fce746fc5f16ea54d6c72150173a12f58"
         },
         "inputStructure": {
           "ungrouped": [
@@ -5002,7 +5002,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "d069f9232f9f13bcd10ea38105d307b5b7e5087ccb874ae234a54b8d475388cf",
+        "result": "bca4ff8c4ace81657af5c3466e8b3938c56e352b9db09bffeef563a73246f741",
         "dirty": false,
         "error": false,
         "showComment": false,
@@ -5055,8 +5055,8 @@
       "id": "node_QlQB8akV",
       "type": "shadcnGroup",
       "position": {
-        "x": 1898.7767559546107,
-        "y": 10388.309965751101
+        "x": 1913.7767559546107,
+        "y": 10493.309965751101
       },
       "data": {
         "isGroup": true,
@@ -5135,12 +5135,12 @@
           "vals": {
             "0": "51",
             "100": "20",
-            "200": "702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9"
+            "200": "902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f"
           }
         },
         "dirty": false,
         "version": 0,
-        "result": "5120702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9",
+        "result": "5120902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f",
         "inputStructure": {
           "afterGroups": [],
           "groups": [
@@ -5201,7 +5201,7 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": "5120702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9"
+          "val": "5120902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f"
         },
         "result": "22",
         "error": false
@@ -5224,7 +5224,7 @@
         "dirty": false,
         "version": 0,
         "inputs": {
-          "val": "702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9"
+          "val": "902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f"
         },
         "result": "20",
         "inputStructure": {
@@ -5348,7 +5348,7 @@
         "inputs": {
           "vals": {
             "0": "7ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f9",
-            "1": "7a2829998ddc6a838790243e6435460e61ca1e51b48d88236fe3583c5a879e6e"
+            "1": "04852b7221f0d15b82bfa429d4111d8868be6a9cfa0f875e051da5feac477fab"
           }
         },
         "outputLayout": "taproot_tweak_xonly_pubkey",
@@ -5390,14 +5390,14 @@
           ]
         },
         "groupInstances": {},
-        "result": "702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9",
+        "result": "902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f",
         "totalInputs": 2,
         "unwiredCount": 0,
         "dirty": false,
         "error": false,
         "outputValues": {
           "output-1": "c1",
-          "output-2": "2d317f84d6e34e21446c502080f3458a3c53b95ca48343e2c4c7d69fd711f9ab"
+          "output-2": "abffe1be3b063a31525b9ee994a243281b874487ddf5d5b266283af2ea3fb983"
         },
         "outputErrors": {}
       },
@@ -5418,7 +5418,7 @@
         "networkDependent": true,
         "selectedNetwork": "testnet",
         "inputs": {
-          "val": "702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9",
+          "val": "902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f",
           "selectedNetwork": "testnet"
         },
         "inputStructure": {
@@ -5432,7 +5432,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "tb1pwqks6ztlgdhmmaexsl6rvkxjzlf7vsulmzqpzvs9cgwwugvuzjusjtfdgp",
+        "result": "tb1pjqksuj7c2m5dx9sfh5ptq0cy82rjn0fd4z8eseze3lgxymlxse0smylma3",
         "dirty": false,
         "error": false
       },
@@ -5455,11 +5455,11 @@
           "vals": {
             "1000": "8c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be9",
             "1100": "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475",
-            "1200": "1f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457"
+            "1200": "af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa"
           }
         },
         "outputLayout": "taproot_tree_builder",
-        "taprootLeafIndex": 0,
+        "taprootLeafIndex": 2,
         "outputPorts": [
           {
             "label": "root",
@@ -5503,7 +5503,7 @@
         "groupInstanceKeys": {
           "LEAF_HASHES[]": [1000, 1100, 1200]
         },
-        "result": "7a2829998ddc6a838790243e6435460e61ca1e51b48d88236fe3583c5a879e6e",
+        "result": "04852b7221f0d15b82bfa429d4111d8868be6a9cfa0f875e051da5feac477fab",
         "totalInputs": 3,
         "unwiredCount": 0,
         "customFieldLabels": {
@@ -5514,31 +5514,31 @@
         },
         "dirty": false,
         "taprootTree": {
-          "root": "7a2829998ddc6a838790243e6435460e61ca1e51b48d88236fe3583c5a879e6e",
+          "root": "04852b7221f0d15b82bfa429d4111d8868be6a9cfa0f875e051da5feac477fab",
           "leafCount": 3,
           "leafHashes": [
             "8c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be9",
             "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475",
-            "1f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457"
+            "af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa"
           ],
           "leafLabels": ["A", "B", "C"],
           "paths": [
             [
               "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475",
-              "1f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457"
+              "af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa"
             ],
             [
               "8c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be9",
-              "1f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457"
+              "af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa"
             ],
             ["2fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"]
           ],
           "pathLabels": [["B", "C"], ["A", "C"], ["(A,B)"]],
           "structure": "((A,B),C)",
-          "display": "Tree:\n((A,B),C)\n\nLevels:\nL0: A  B  C\nL1: (A,B)  C\nL2: ((A,B),C)\n\nLeaves:\nA = 8c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be9\nB = 2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475\nC = 1f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457\n\nPaths (labels):\nA: B, C\nB: A, C\nC: (A,B)\n\nPaths (hashes):\nA: 2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475, 1f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457\nB: 8c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be9, 1f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457\nC: 2fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
+          "display": "Tree:\n((A,B),C)\n\nLevels:\nL0: A  B  C\nL1: (A,B)  C\nL2: ((A,B),C)\n\nLeaves:\nA = 8c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be9\nB = 2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475\nC = af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa\n\nPaths (labels):\nA: B, C\nB: A, C\nC: (A,B)\n\nPaths (hashes):\nA: 2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d475, af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa\nB: 8c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be9, af5ce616245123ad524bbd24757e255a2821ce5814a7f63aea054ea87789f5aa\nC: 2fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
         },
         "outputValues": {
-          "output-1": "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d4751f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457"
+          "output-1": "2fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
         },
         "outputErrors": {},
         "error": false
@@ -5550,8 +5550,8 @@
       "id": "node_QutXQzIq",
       "type": "shadcnGroup",
       "position": {
-        "x": 34209.941107810846,
-        "y": 22795.49903370619
+        "x": 34224.941107810846,
+        "y": 22900.49903370619
       },
       "data": {
         "isGroup": true,
@@ -5577,8 +5577,8 @@
       "id": "node_utJC87jh",
       "type": "shadcnGroup",
       "position": {
-        "x": 30771.927688551918,
-        "y": 17396.571102025468
+        "x": 30786.927688551918,
+        "y": 17501.571102025468
       },
       "data": {
         "isGroup": true,
@@ -5606,8 +5606,8 @@
       "id": "node_YAY0ap50",
       "type": "shadcnGroup",
       "position": {
-        "x": 24272.56186447417,
-        "y": 18948.765012925556
+        "x": 24287.56186447417,
+        "y": 19053.765012925556
       },
       "data": {
         "isGroup": true,
@@ -5638,8 +5638,8 @@
       "id": "node_LuW69XEA",
       "type": "shadcnGroup",
       "position": {
-        "x": 20334.391798499986,
-        "y": 22932.65699800762
+        "x": 20349.391798499986,
+        "y": 23037.65699800762
       },
       "data": {
         "isGroup": true,
@@ -6015,8 +6015,8 @@
         "inputs": {
           "vals": {
             "0": "__EMPTY__",
-            "1": "5120702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9",
-            "2": "020000000001012a0627ccaa2dbc3a17199569856fef7f5b4ec0c90d7205e742692b6740d8f12100000000009000000001e8680400000000002251206513ad8b87e27d99382922695d6e334f9738c0975ae9f60897b8b0673673d095034016e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e3927029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac61c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d4751f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be45700000000",
+            "1": "5120902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f",
+            "2": "02000000000101812f6ef5c684b485e3727ca64e07195050000422966a325b507f9b882899256400000000009000000001e8680400000000002251206513ad8b87e27d99382922695d6e334f9738c0975ae9f60897b8b0673673d09503409ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a353527029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac41c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a00000000",
             "3": "0",
             "5": "290000"
           }
@@ -6102,9 +6102,9 @@
         "showComment": false,
         "outputValues": {},
         "outputErrors": {},
-        "result": "true",
+        "result": "false",
         "scriptDebugSteps": {
-          "isValid": true,
+          "isValid": false,
           "steps": [
             {
               "pc": 0,
@@ -6122,7 +6122,7 @@
               "stack_before": ["01"],
               "stack_after": [
                 "01",
-                "702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9"
+                "902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f"
               ],
               "phase": "scriptPubKey",
               "branch_active": true
@@ -6133,14 +6133,14 @@
               "phase": "taproot",
               "step": "witness_stack",
               "stack_before": [
-                "16e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e39",
+                "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535",
                 "029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac",
-                "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d4751f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457"
+                "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
               ],
               "stack_after": [
-                "16e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e39",
+                "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535",
                 "029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac",
-                "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d4751f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457"
+                "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
               ]
             },
             {
@@ -6150,13 +6150,13 @@
               "step": "witness_script",
               "script_hex": "029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac",
               "stack_before": [
-                "16e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e39"
+                "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535"
               ],
               "stack_after": [
-                "16e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e39"
+                "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535"
               ],
-              "committed": true,
-              "executed": true
+              "committed": false,
+              "executed": false
             },
             {
               "pc": -1,
@@ -6165,84 +6165,25 @@
               "step": "control_block",
               "leaf_version": 192,
               "tapleaf_hash": "8c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be9",
-              "merkle_root": "7a2829998ddc6a838790243e6435460e61ca1e51b48d88236fe3583c5a879e6e",
+              "merkle_root": "58c3888a4d07b2de9bd40fb4d96a84d06f7e7733ca46f628ccb058e1777cb791",
               "internal_pubkey": "7ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f9",
-              "tweaked_pubkey": "702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9",
+              "tweaked_pubkey": "902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f",
               "parity": true,
-              "result": true
-            },
-            {
-              "pc": 0,
-              "opcode": 2,
-              "opcode_name": "PUSH 2 bytes",
+              "result": false,
+              "kind": "validator",
               "stack_before": [
-                "16e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e39"
+                "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535"
               ],
               "stack_after": [
-                "16e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e39",
-                "9000"
+                "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535"
               ],
-              "phase": "witnessScript",
-              "branch_active": true
-            },
-            {
-              "pc": 3,
-              "opcode": 178,
-              "opcode_name": "OP_CHECKSEQUENCEVERIFY",
-              "stack_before": [
-                "16e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e39",
-                "9000"
-              ],
-              "stack_after": [
-                "16e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e39",
-                "9000"
-              ],
-              "phase": "witnessScript",
-              "branch_active": true
-            },
-            {
-              "pc": 4,
-              "opcode": 117,
-              "opcode_name": "OP_DROP",
-              "stack_before": [
-                "16e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e39",
-                "9000"
-              ],
-              "stack_after": [
-                "16e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e39"
-              ],
-              "phase": "witnessScript",
-              "branch_active": true
-            },
-            {
-              "pc": 5,
-              "opcode": 32,
-              "opcode_name": "PUSH 32 bytes",
-              "stack_before": [
-                "16e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e39"
-              ],
-              "stack_after": [
-                "16e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e39",
-                "f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfc"
-              ],
-              "phase": "witnessScript",
-              "branch_active": true
-            },
-            {
-              "pc": 38,
-              "opcode": 172,
-              "opcode_name": "OP_CHECKSIG",
-              "stack_before": [
-                "16e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e39",
-                "f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfc"
-              ],
-              "stack_after": ["01"],
-              "phase": "witnessScript",
-              "branch_active": true
+              "failed": true,
+              "error": "witness program mismatch",
+              "error_code": "TWEAK_MISMATCH"
             }
           ],
           "scriptSig": "",
-          "scriptPubKey": "5120702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9",
+          "scriptPubKey": "5120902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f",
           "excludedFlags": [],
           "activeFlags": [
             "CHECKLOCKTIMEVERIFY",
@@ -6270,11 +6211,12 @@
           "witnessRulesEnabled": true,
           "amountUsed": 290000,
           "witnessStack": [
-            "16e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e39",
+            "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535",
             "029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac",
-            "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d4751f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457"
+            "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
           ],
-          "witnessScript": "029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac"
+          "witnessScript": "029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac",
+          "error": "witness program mismatch"
         }
       },
       "parentId": "node_QutXQzIq",
@@ -6354,12 +6296,12 @@
         "numInputs": 2,
         "inputs": {
           "vals": {
-            "0": "2a0627ccaa2dbc3a17199569856fef7f5b4ec0c90d7205e742692b6740d8f121",
+            "0": "812f6ef5c684b485e3727ca64e07195050000422966a325b507f9b8828992564",
             "10": "00000000"
           }
         },
         "version": 0,
-        "result": "2a0627ccaa2dbc3a17199569856fef7f5b4ec0c90d7205e742692b6740d8f12100000000",
+        "result": "812f6ef5c684b485e3727ca64e07195050000422966a325b507f9b882899256400000000",
         "inputStructure": {
           "ungrouped": [],
           "groups": [
@@ -6441,10 +6383,10 @@
         "title": "TX Parser",
         "paramExtraction": "multi_val",
         "numInputs": 2,
-        "result": "txid: 2a0627ccaa2dbc3a17199569856fef7f5b4ec0c90d7205e742692b6740d8f121\nvout.scriptPubKey: 5120702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9\nvout.value: 290000",
+        "result": "txid: 812f6ef5c684b485e3727ca64e07195050000422966a325b507f9b8828992564\nvout.scriptPubKey: 5120902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f\nvout.value: 290000",
         "inputs": {
           "vals": {
-            "0": "02000000000101b27e2d91b91b62acadd3da46b0465e4a1da87bb0db6de47cd28574bed51c542c0000000000fdffffff01d06c040000000000225120702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b901405b64ff94360ff6cd3caa9122cfaf1c6666156c3a1e6f80a2c0bbdbf51338c9f8246843b2418122533367d6aac1935e8db92234ff7b0623f490c91a425dab95e700000000",
+            "0": "02000000000101b27e2d91b91b62acadd3da46b0465e4a1da87bb0db6de47cd28574bed51c542c0000000000fdffffff01d06c040000000000225120902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f0140443ab00d3bb1c993e8eb3dc86e58603dbd427dea8a9d0923e25d97f0596e91ddd6daaa3f1c1589095ecfc152d7affc8002b1ab3bf613d4efbbadc6a8768dabb200000000",
             "1": "0"
           }
         },
@@ -6488,8 +6430,8 @@
         "unwiredCount": 0,
         "dirty": false,
         "outputValues": {
-          "output-0": "2a0627ccaa2dbc3a17199569856fef7f5b4ec0c90d7205e742692b6740d8f121",
-          "output-1": "5120702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9",
+          "output-0": "812f6ef5c684b485e3727ca64e07195050000422966a325b507f9b8828992564",
+          "output-1": "5120902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f",
           "output-2": "290000"
         },
         "error": false,
@@ -6615,7 +6557,7 @@
             "10": "00",
             "20": "01",
             "30": "01",
-            "1000": "2a0627ccaa2dbc3a17199569856fef7f5b4ec0c90d7205e742692b6740d8f121",
+            "1000": "812f6ef5c684b485e3727ca64e07195050000422966a325b507f9b8828992564",
             "1010": "00000000",
             "1020": "__FORCE00__",
             "1030": "__EMPTY__",
@@ -6624,12 +6566,12 @@
             "3000": "e868040000000000",
             "3010": "22",
             "3020": "51206513ad8b87e27d99382922695d6e334f9738c0975ae9f60897b8b0673673d095",
-            "5000": "034016e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e3927029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac61c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d4751f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457",
+            "5000": "03409ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a353527029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac41c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a",
             "6000": "00000000"
           }
         },
         "version": 0,
-        "result": "020000000001012a0627ccaa2dbc3a17199569856fef7f5b4ec0c90d7205e742692b6740d8f12100000000009000000001e8680400000000002251206513ad8b87e27d99382922695d6e334f9738c0975ae9f60897b8b0673673d095034016e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e3927029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac61c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d4751f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be45700000000",
+        "result": "02000000000101812f6ef5c684b485e3727ca64e07195050000422966a325b507f9b882899256400000000009000000001e8680400000000002251206513ad8b87e27d99382922695d6e334f9738c0975ae9f60897b8b0673673d09503409ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a353527029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac41c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a00000000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -7072,9 +7014,9 @@
             "10": "00",
             "20": "02000000",
             "30": "00000000",
-            "40": "b8e085f93755fd4ea6127ecee94ae73a8d05492146ce5cefce7ac40479d2cc56",
+            "40": "97e4979e186244527b113c2268942387d0a23873a0a7f76290111d5e2e71fd86",
             "50": "1aa68fb8e3d22b5f4b1c1a29f8fc8fb2cfdd6b63513f5e4abd0c39c099c22ff0",
-            "60": "050dd54e33dfbb2dab73e12793bfa9e6f24cdf5edb674fbd2eaa45a8c7f4bcdd",
+            "60": "f6d2f328c502933c5440128e2c124a77472b8db5b48731d6153704c14f37c967",
             "70": "0e6c738e4fe755a64a276418309bb5dc7e6bf36772bc0238010718e091a780da",
             "80": "b13c28b9b3cb6a9d85f24a03a72d69309f6ac91e4238792561e677babb38933f",
             "90": "02",
@@ -7082,7 +7024,7 @@
           }
         },
         "version": 0,
-        "result": "00000200000000000000b8e085f93755fd4ea6127ecee94ae73a8d05492146ce5cefce7ac40479d2cc561aa68fb8e3d22b5f4b1c1a29f8fc8fb2cfdd6b63513f5e4abd0c39c099c22ff0050dd54e33dfbb2dab73e12793bfa9e6f24cdf5edb674fbd2eaa45a8c7f4bcdd0e6c738e4fe755a64a276418309bb5dc7e6bf36772bc0238010718e091a780dab13c28b9b3cb6a9d85f24a03a72d69309f6ac91e4238792561e677babb38933f0200000000",
+        "result": "0000020000000000000097e4979e186244527b113c2268942387d0a23873a0a7f76290111d5e2e71fd861aa68fb8e3d22b5f4b1c1a29f8fc8fb2cfdd6b63513f5e4abd0c39c099c22ff0f6d2f328c502933c5440128e2c124a77472b8db5b48731d6153704c14f37c9670e6c738e4fe755a64a276418309bb5dc7e6bf36772bc0238010718e091a780dab13c28b9b3cb6a9d85f24a03a72d69309f6ac91e4238792561e677babb38933f0200000000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -7289,9 +7231,9 @@
         "numInputs": 1,
         "version": 0,
         "inputs": {
-          "val": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a03100000200000000000000b8e085f93755fd4ea6127ecee94ae73a8d05492146ce5cefce7ac40479d2cc561aa68fb8e3d22b5f4b1c1a29f8fc8fb2cfdd6b63513f5e4abd0c39c099c22ff0050dd54e33dfbb2dab73e12793bfa9e6f24cdf5edb674fbd2eaa45a8c7f4bcdd0e6c738e4fe755a64a276418309bb5dc7e6bf36772bc0238010718e091a780dab13c28b9b3cb6a9d85f24a03a72d69309f6ac91e4238792561e677babb38933f02000000008c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be900ffffffff"
+          "val": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a0310000020000000000000097e4979e186244527b113c2268942387d0a23873a0a7f76290111d5e2e71fd861aa68fb8e3d22b5f4b1c1a29f8fc8fb2cfdd6b63513f5e4abd0c39c099c22ff0f6d2f328c502933c5440128e2c124a77472b8db5b48731d6153704c14f37c9670e6c738e4fe755a64a276418309bb5dc7e6bf36772bc0238010718e091a780dab13c28b9b3cb6a9d85f24a03a72d69309f6ac91e4238792561e677babb38933f02000000008c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be900ffffffff"
         },
-        "result": "b4d4ba0c02b6c920faea42f306d31d7302038cac9d1305f36a4357fe13565541",
+        "result": "0d72ad03f51ba4386406e5398c6729c65803364a6facf3dd0230f508430c3c45",
         "inputStructure": {
           "ungrouped": [
             {
@@ -7393,7 +7335,7 @@
         "inputs": {
           "vals": {
             "0": "ae1ccd33426c2b6f46c3f3ef7a1c31793aac5af6b7c3258ce6c317232bf01654",
-            "1": "b4d4ba0c02b6c920faea42f306d31d7302038cac9d1305f36a4357fe13565541",
+            "1": "0d72ad03f51ba4386406e5398c6729c65803364a6facf3dd0230f508430c3c45",
             "2": "__EMPTY__"
           }
         },
@@ -7422,7 +7364,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "16e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e39",
+        "result": "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535",
         "totalInputs": 3,
         "unwiredCount": 0,
         "dirty": false,
@@ -7482,7 +7424,7 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": "16e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e39"
+          "val": "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535"
         },
         "result": "40",
         "error": false
@@ -7539,9 +7481,9 @@
         "numInputs": 1,
         "version": 0,
         "inputs": {
-          "val": "2a0627ccaa2dbc3a17199569856fef7f5b4ec0c90d7205e742692b6740d8f12100000000"
+          "val": "812f6ef5c684b485e3727ca64e07195050000422966a325b507f9b882899256400000000"
         },
-        "result": "b8e085f93755fd4ea6127ecee94ae73a8d05492146ce5cefce7ac40479d2cc56",
+        "result": "97e4979e186244527b113c2268942387d0a23873a0a7f76290111d5e2e71fd86",
         "inputStructure": {
           "ungrouped": [
             {
@@ -7641,9 +7583,9 @@
         "numInputs": 1,
         "version": 0,
         "inputs": {
-          "val": "225120702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9"
+          "val": "225120902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f"
         },
-        "result": "050dd54e33dfbb2dab73e12793bfa9e6f24cdf5edb674fbd2eaa45a8c7f4bcdd",
+        "result": "f6d2f328c502933c5440128e2c124a77472b8db5b48731d6153704c14f37c967",
         "inputStructure": {
           "ungrouped": [
             {
@@ -7677,12 +7619,12 @@
         "inputs": {
           "vals": {
             "0": "22",
-            "100": "5120702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9"
+            "100": "5120902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f"
           }
         },
         "compactConcatInputs": true,
         "version": 0,
-        "result": "225120702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9",
+        "result": "225120902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f",
         "inputStructure": {
           "groups": [
             {
@@ -7734,7 +7676,7 @@
         "numInputs": 1,
         "groupInstances": {},
         "inputs": {
-          "val": "5120702d0d097f436fbdf72687f43658d217d3e6439fd880113205c21cee219c14b9"
+          "val": "5120902d0e4bd856e8d31609bd02b03f043a8729bd2da88f9864598fd0626fe6865f"
         },
         "result": "22",
         "dirty": false,
@@ -7957,11 +7899,11 @@
           "vals": {
             "0": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031",
             "100": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031",
-            "200": "00000200000000000000b8e085f93755fd4ea6127ecee94ae73a8d05492146ce5cefce7ac40479d2cc561aa68fb8e3d22b5f4b1c1a29f8fc8fb2cfdd6b63513f5e4abd0c39c099c22ff0050dd54e33dfbb2dab73e12793bfa9e6f24cdf5edb674fbd2eaa45a8c7f4bcdd0e6c738e4fe755a64a276418309bb5dc7e6bf36772bc0238010718e091a780dab13c28b9b3cb6a9d85f24a03a72d69309f6ac91e4238792561e677babb38933f02000000008c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be900ffffffff"
+            "200": "0000020000000000000097e4979e186244527b113c2268942387d0a23873a0a7f76290111d5e2e71fd861aa68fb8e3d22b5f4b1c1a29f8fc8fb2cfdd6b63513f5e4abd0c39c099c22ff0f6d2f328c502933c5440128e2c124a77472b8db5b48731d6153704c14f37c9670e6c738e4fe755a64a276418309bb5dc7e6bf36772bc0238010718e091a780dab13c28b9b3cb6a9d85f24a03a72d69309f6ac91e4238792561e677babb38933f02000000008c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be900ffffffff"
           }
         },
         "version": 0,
-        "result": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a03100000200000000000000b8e085f93755fd4ea6127ecee94ae73a8d05492146ce5cefce7ac40479d2cc561aa68fb8e3d22b5f4b1c1a29f8fc8fb2cfdd6b63513f5e4abd0c39c099c22ff0050dd54e33dfbb2dab73e12793bfa9e6f24cdf5edb674fbd2eaa45a8c7f4bcdd0e6c738e4fe755a64a276418309bb5dc7e6bf36772bc0238010718e091a780dab13c28b9b3cb6a9d85f24a03a72d69309f6ac91e4238792561e677babb38933f02000000008c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be900ffffffff",
+        "result": "f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a031f40a48df4b2a70c8b4924bf2654661ed3d95fd66a313eb87237597c628e4a0310000020000000000000097e4979e186244527b113c2268942387d0a23873a0a7f76290111d5e2e71fd861aa68fb8e3d22b5f4b1c1a29f8fc8fb2cfdd6b63513f5e4abd0c39c099c22ff0f6d2f328c502933c5440128e2c124a77472b8db5b48731d6153704c14f37c9670e6c738e4fe755a64a276418309bb5dc7e6bf36772bc0238010718e091a780dab13c28b9b3cb6a9d85f24a03a72d69309f6ac91e4238792561e677babb38933f02000000008c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be900ffffffff",
         "inputStructure": {
           "ungrouped": [
             {
@@ -8216,7 +8158,7 @@
         "numInputs": 4,
         "inputs": {
           "vals": {
-            "0": "00000200000000000000b8e085f93755fd4ea6127ecee94ae73a8d05492146ce5cefce7ac40479d2cc561aa68fb8e3d22b5f4b1c1a29f8fc8fb2cfdd6b63513f5e4abd0c39c099c22ff0050dd54e33dfbb2dab73e12793bfa9e6f24cdf5edb674fbd2eaa45a8c7f4bcdd0e6c738e4fe755a64a276418309bb5dc7e6bf36772bc0238010718e091a780dab13c28b9b3cb6a9d85f24a03a72d69309f6ac91e4238792561e677babb38933f0200000000",
+            "0": "0000020000000000000097e4979e186244527b113c2268942387d0a23873a0a7f76290111d5e2e71fd861aa68fb8e3d22b5f4b1c1a29f8fc8fb2cfdd6b63513f5e4abd0c39c099c22ff0f6d2f328c502933c5440128e2c124a77472b8db5b48731d6153704c14f37c9670e6c738e4fe755a64a276418309bb5dc7e6bf36772bc0238010718e091a780dab13c28b9b3cb6a9d85f24a03a72d69309f6ac91e4238792561e677babb38933f0200000000",
             "1": "8c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be9",
             "2": "00",
             "3": "ffffffff"
@@ -8253,7 +8195,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "00000200000000000000b8e085f93755fd4ea6127ecee94ae73a8d05492146ce5cefce7ac40479d2cc561aa68fb8e3d22b5f4b1c1a29f8fc8fb2cfdd6b63513f5e4abd0c39c099c22ff0050dd54e33dfbb2dab73e12793bfa9e6f24cdf5edb674fbd2eaa45a8c7f4bcdd0e6c738e4fe755a64a276418309bb5dc7e6bf36772bc0238010718e091a780dab13c28b9b3cb6a9d85f24a03a72d69309f6ac91e4238792561e677babb38933f02000000008c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be900ffffffff",
+        "result": "0000020000000000000097e4979e186244527b113c2268942387d0a23873a0a7f76290111d5e2e71fd861aa68fb8e3d22b5f4b1c1a29f8fc8fb2cfdd6b63513f5e4abd0c39c099c22ff0f6d2f328c502933c5440128e2c124a77472b8db5b48731d6153704c14f37c9670e6c738e4fe755a64a276418309bb5dc7e6bf36772bc0238010718e091a780dab13c28b9b3cb6a9d85f24a03a72d69309f6ac91e4238792561e677babb38933f02000000008c9b3c39144147def45e8fed4b8681e0ec66bb6a4235ec20d33f2a076f821be900ffffffff",
         "totalInputs": 2,
         "unwiredCount": 0,
         "dirty": false,
@@ -8368,7 +8310,7 @@
           "vals": {
             "0": "c1",
             "100": "7ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f9",
-            "200": "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d4751f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457"
+            "200": "2fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
           }
         },
         "inputStructure": {
@@ -8396,7 +8338,7 @@
           ]
         },
         "groupInstances": {},
-        "result": "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d4751f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457",
+        "result": "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a",
         "baseHeight": 120,
         "totalInputs": 3,
         "unwiredCount": 0,
@@ -8511,10 +8453,10 @@
         "numInputs": 1,
         "inputs": {
           "vals": {
-            "0": "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d4751f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457"
+            "0": "2fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
           }
         },
-        "result": "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d4751f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457",
+        "result": "2fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a",
         "radioChannel": "5",
         "outputPorts": [
           {
@@ -8561,7 +8503,7 @@
         "functionName": "radio_receive",
         "title": "Radio Receive 5",
         "numInputs": 0,
-        "result": "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d4751f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457",
+        "result": "2fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a",
         "radioChannel": "5",
         "outputPorts": [
           {
@@ -8576,7 +8518,7 @@
         "height": 64,
         "dirty": false,
         "inputs": {
-          "val": "2c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d4751f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457"
+          "val": "2fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
         },
         "error": false
       },
@@ -8601,11 +8543,11 @@
           "vals": {
             "0": "03",
             "1000": "40",
-            "1010": "16e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e39",
+            "1010": "9ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a3535",
             "2000": "27",
             "2010": "029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac",
-            "2020": "61",
-            "2030": "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d4751f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457"
+            "2020": "41",
+            "2030": "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
           }
         },
         "inputStructure": {
@@ -8676,7 +8618,7 @@
         "groupInstanceKeys": {
           "STACK_ITEMS[]": [1000]
         },
-        "result": "034016e6b3b23870fc03d37a3d390fe0e71ec8af806e877c1066f973ec532f24ddfe6c169dc867044c38e53e01dc5b6e53390f5e3b365cc4d79072539b7e83461e3927029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac61c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d4751f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457",
+        "result": "03409ba44b24939cbb1f74c056f105e35eb857c776e70210df8e9a06497d05f5955ba7ce18cfd7021ac25e54dd511efe85084fb9720afd137398b0105417443a353527029000b27520f28bb631ba98100da8185091e8da7c5ec2174b738cdff49e389e978169bb8bfcac41c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a",
         "baseHeight": 140,
         "totalInputs": 7,
         "unwiredCount": 0,
@@ -8813,9 +8755,9 @@
         "dirty": false,
         "groupInstances": {},
         "inputs": {
-          "val": "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92c568036c71a8641e24f4eb449590277654779d8183a147d80266222b487d4751f53fa8098aac47771595e7eb6ba94491435ced02a1d8114e8069b4fc10be457"
+          "val": "c17ec44504fd3e8dde3ad81376be6ea0b3005f106fda5364eede0096330a0748f92fcb229f4a4c11fd5be2aecfacb436b2c4992bfcc1bc1b0e01fcf7048ad18a7a"
         },
-        "result": "61",
+        "result": "41",
         "error": false,
         "outputValues": {},
         "outputErrors": {}
@@ -8940,8 +8882,8 @@
       "id": "node_zk1sqnu",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 150,
-        "y": 480
+        "x": 165,
+        "y": 585
       },
       "data": {
         "content": "# Overview - Taproot Script Path\n\nThe intro flow spent a P2TR output through its key path - one signature, no script revealed. This flow demonstrates the second way to spend the same kind of output: through one of the **script paths** committed inside the key.\n\nAlice's vault (told in the two story cards) guards the coins: her key is the internal key P, and three timelocked recovery clauses hang in the tree beneath it - Bob after ~a day, Charlie after ~a month, a 2-of-3 council after ~two months. In this run Alice doesn't sign; Bob recovers the coins through his clause.\n\nTwo transactions live on this canvas:\n\n- **TX1 builds the vault**: a key-path spend of a faucet coin into `OP_1 <Q>`, where Q commits to Alice's key *and* the three-leaf tree - the tweak node's merkle-root input is non-empty for the first time in this series\n- **TX2 is Bob's recovery**: it waits out the 144-block CSV, then spends through leaf A with a three-item witness - his signature, the leaf script itself, and the proof it was committed inside Q\n\nLeaf B and leaf C are committed alternatives - hashed into Q, never spent here.\n\nEverything is built live: leaf hashes, branch hashes, the control block, the extended sighash.\n\n*Builds on Taproot intro - tweak, TapSighash and the key path are assumed.*",
@@ -8958,8 +8900,8 @@
       "id": "node_hvc5zeo",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 1905.1587038563114,
-        "y": 9395.29964044489
+        "x": 1920.1587038563114,
+        "y": 9500.29964044489
       },
       "data": {
         "content": "## TapLeaf and TapBranch - hashing a tree\n\nEvery leaf becomes 32 bytes the same way:\n\n```\nleaf hash = tagged_hash(\"TapLeaf\", c0 ‖ compact_size(script) ‖ script)\n```\n\n`c0` is the leaf *version* - tapscript v0 today. Future soft forks can define new versions, so each leaf could one day carry a different script language. Each leaf group builds this preimage from parts - version, length, script - and runs it through the TapLeaf tag construction.\n\nPairs then merge upward:\n\n```\nbranch = tagged_hash(\"TapBranch\", min(h₁,h₂) ‖ max(h₁,h₂))\n```\n\nNote the sort: the two children are hashed in **lexicographic order**, not tree order. Because the verifier sorts the same way, a merkle proof needs no left/right directions - any path is just a bare list of sibling hashes. The Tree Builder pairs A with B, then their branch with C, and its output lands in the tweak node's second input - empty in the intro flow, filled here: Q now commits to Alice's key *and* every clause beneath it.",
@@ -8976,8 +8918,8 @@
       "id": "node_qq8sb2f",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 23027.3550616001,
-        "y": 18995.950295588606
+        "x": 23042.3550616001,
+        "y": 19100.950295588606
       },
       "data": {
         "content": "## The script-path sighash - and the witness that carries it\n\nThree things change against the intro's key-path signing:\n\n**`spend_type` flips to `02`** - script path, no annex - and the message grows a tail after `input_index`:\n\n```\ntapleaf_hash   which clause this signature serves\n00             key version (script keys - not the c0 leaf version)\nffffffff       last OP_CODESEPARATOR position (none)\n```\n\nThe leaf hash inside the signature pins it to *this* clause: Bob's signature cannot be replayed into some other leaf that happens to contain his key.\n\n**`nSequence` carries the timelock**: `90000000` = 144 blocks, BIP-68 encoded. OP_CSV in the script only *compares* against this field - consensus enforces the actual age. The script demands the promise, the transaction makes it, the chain checks it.\n\n**The signing key is Bob's, raw.** No tweak - tweaking belongs to the key path. Inside a leaf, keys are plain BIP340 x-only keys, and CHECKSIG verifies against them directly.\n\nThe witness then stacks the only three things a script-path spend ever needs:\n\n```\n40 <signature>       what the leaf demands\n27 <leaf script>     the clause itself\n61 <control block>   the proof it was committed\n```\n\n",
@@ -8994,8 +8936,8 @@
       "id": "node_fl3df3r",
       "type": "shadcnTextInfo",
       "position": {
-        "x": 942.4048997614764,
-        "y": 1928.8589686591324
+        "x": 957.4048997614764,
+        "y": 2033.8589686591324
       },
       "data": {
         "content": "## Try it yourself - recover as the council\n\nRebuild TX2 through **leaf C**: the 2-of-3 council claims the vault. Hints for what taproot changes:\n\n- **Signatures are counted.** CHECKSIGADD gives each key a slot; the counter must land *exactly* on `OP_2`.\n- **The skip is an empty item.** The non-signer's slot stays in the witness as a zero-length element - a wrong signature there doesn't add 0, it kills the script. No `OP_0` dummy anywhere.\n- **Witness order is script order, reversed:** Diana, Maria, Anna.\n- **The proof shrinks.** One level up the tree, the merkle path is a single sibling - `Branch(A,B)` - and the control block drops to 65 bytes. Sequence: `8640`.\n\n",
@@ -9076,7 +9018,7 @@
         "dirty": false,
         "numInputs": 0,
         "groupInstances": {},
-        "result": "a259b5620488c4a9379a8d60372e7ab1e4ffa3d4f99f66923a732bb7bf952537",
+        "result": "208d58a937671c30f3144a69fa303f4892c6440650c6a5abdb6cc6b2d0cf3843",
         "error": false
       },
       "parentId": "node_gXB7x7XV",
@@ -9096,7 +9038,7 @@
         "dirty": false,
         "numInputs": 0,
         "groupInstances": {},
-        "result": "a259b5620488c4a9379a8d60372e7ab1e4ffa3d4f99f66923a732bb7bf952537",
+        "result": "d9f946a0ba2fab83088d6e31c9b33cc9b25fa741a267431b57e67c2b6dec2cf0",
         "error": false
       },
       "parentId": "node_gXB7x7XV",
