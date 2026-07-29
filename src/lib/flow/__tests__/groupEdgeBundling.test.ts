@@ -487,7 +487,7 @@ describe("buildGroupBundledEdges", () => {
     });
   });
 
-  it("collapses p19 MuSig2 cross-group traffic into 14 bundles", () => {
+  it("collapses p19 MuSig2 cross-group traffic into 13 bundles", () => {
     const nodes = p19MuSig2.nodes as FlowNode[];
     const edges = p19MuSig2.edges as Edge[];
     const rendered = buildGroupBundledEdges({ nodes, edges });
@@ -499,10 +499,10 @@ describe("buildGroupBundledEdges", () => {
     );
 
     expect(edges).toHaveLength(135);
-    expect(rendered).toHaveLength(186);
+    expect(rendered).toHaveLength(184);
     expect(rendered.filter((edge) => edge.hidden)).toHaveLength(0);
-    expect(bundleEdges).toHaveLength(14);
-    expect(segmentEdges).toHaveLength(97);
+    expect(bundleEdges).toHaveLength(13);
+    expect(segmentEdges).toHaveLength(94);
   });
 
   it("is idempotent when given an already projected visual graph", () => {

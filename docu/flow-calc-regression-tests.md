@@ -48,9 +48,10 @@ This rewrites stale `data.result` / `scriptDebugSteps` values in the lesson JSON
 formatting-preserving writer (validated byte-for-byte against the existing files, so diffs
 are surgical), then fails with a message telling you to review the diff. Lesson changes
 therefore always appear as reviewable diffs of the published files in the PR — never as
-silent test edits. The allowlists in `test_flow_goldens.py` (`STALE_STEPS_NODES`, the
-`old/p10` float-precision entries) also assert in reverse: if an allowlisted node *starts*
-reproducing, the test demands removing it, so the lists can only shrink.
+silent test edits. The allowlists in `test_flow_goldens.py` (`STALE_RESULT_NODES`,
+`STALE_STEPS_NODES` — both empty since 2026-07-28) also assert in reverse: if an
+allowlisted node *starts* reproducing, the test demands removing it, so the lists can
+only shrink. Keep them empty.
 
 ## Bugs found by these suites
 
@@ -64,16 +65,13 @@ reproducing, the test demands removing it, so the lists can only shrink.
   result and nulls its cached steps (`mergePartialResultsIntoFullGraph`); a successful recompute
   restores them. Asserted explicitly in the 429 test.
 
-## Known drift (recorded 2026-06-12, lessons intentionally not auto-fixed)
+## Known drift (recorded 2026-06-12 — resolved 2026-07-28)
 
-- **`old/p10_Wrapped_Addresses.json`** — two `math_operation` results were committed in the
-  float era (`0.3075916230366492`) while the backend now computes with `Decimal`
-  (`0.30759162303664921465…`). Results-level drift in published (old) content.
-- **53 nodes across 16 `old/` lessons** carry `scriptDebugSteps` in the pre-current debugger
-  format (`"unknown opcode"` instead of `"PUSH n bytes"`, missing
-  `witnessRulesEnabled`/`MINIMALDATA`, removed `amountUsed`). Their *results* all still
-  reproduce — only the stored traces are stale. Listed per flow in `STALE_STEPS_NODES`.
-- **All fifteen current p0–p14 lessons reproduce 100%** — results and complete traces.
-
-Running the `UPDATE_FLOW_GOLDENS` command above and reviewing the diff resolves both points
-when desired.
+The drift that used to live here is gone: the entire stale backlog (the `old/p10`
+float-era `math_operation` results and the pre-current-format `scriptDebugSteps`
+across 16 `old/` lessons) was refreshed in one batched `UPDATE_FLOW_GOLDENS=1` run
+alongside the taproot trace-granularity rework, and the superseded `old/` lessons
+were then removed from the repository entirely. Both allowlists are empty, and
+**every shipped lesson reproduces 100% — results and complete traces.** New drift
+should be handled the same way: refresh explicitly, review the diff, never allowlist
+a visible lesson.

@@ -8,25 +8,45 @@ Drag and drop nodes on a canvas to build transactions visually — no coding kno
 
 ## Flow Examples
 
-rawBit ships with **16 hands-on example flows** that you can instantly load, tweak, and inspect.  
+rawBit ships with **20 hands-on example flows** that you can instantly load, tweak, and inspect.  
 Just drag any flow from the sidebar’s **Flow Examples** section onto the canvas and start exploring.
 
-Flows 1–14 progress from legacy transactions through SegWit and Taproot.  
-Flows 15–16 cover standalone hardware-signing and contributor labs.
+The sidebar groups them by era — each flow builds on the ones before it.
 
-- **Flows 1–2:** P2PKH, P2PK, multisig, and P2SH fundamentals
-- **Flows 3–4:** Timelocks (nLockTime / nSequence), CLTV/CSV patterns
-- **Flows 5–6:** OP_RETURN anchors, Spilman payment channel
-- **Flow 7:** Pre-SegWit malleability (why TXIDs changed)
-- **Flow 8:** SegWit P2WPKH (BIP143 preimage, witness)
-- **Flow 9:** SegWit P2WSH (multisig & conditional scripts)
-- **Flow 10:** Fee savings: wrapped SegWit vs legacy
-- **Flow 11:** Taproot key-path spend (P2TR, Schnorr)
-- **Flow 12:** Taproot script-path spend (taptree, control block, tapscript)
-- **Flow 13:** Taproot script-path multisig (NUMS + OP_CHECKSIGADD)
-- **Flow 14:** MuSig2 multisig (BIP327, aggregated Schnorr)
-- **Flow 15:** Trezor signing flow (BIP39/BIP32, RFC6979, hardware signing comparison)
-- **Flow 16:** Summer of Bitcoin 2026 PoC flow
+**Legacy**
+
+- **Flow 0:** Intro — a complete P2PKH transaction, byte by byte
+- **Flow 1:** P2PK vs P2PKH
+- **Flow 2:** P2PKH multi-input signing
+- **Flow 3:** Bare multisig (P2MS)
+- **Flow 4:** P2SH and timelocks (CSV recovery paths)
+- **Flow 5:** P2SH recovery with OP_RETURN
+- **Flow 8:** Atomic swap — HTLC coinswap across two chains
+
+**SegWit**
+
+- **Flow 9:** SegWit P2WPKH (BIP143 preimage, witness)
+- **Flow 10:** SegWit multi-input signing
+- **Flow 11:** SegWit P2WSH (inheritance with CLTV)
+- **Flow 12:** Wrapped P2WPKH (P2SH-P2WPKH)
+
+**Taproot**
+
+- **Flow 16:** Taproot intro (P2TR key path, Schnorr)
+- **Flow 17:** Taproot 2-in/2-out key-path spend
+- **Flow 18:** Taproot script path (taptree, control block — an inheritance vault)
+- **Flow 19:** MuSig2 (BIP327 key aggregation: three signers, one signature)
+
+**Payment channels**
+
+- **Flow 15:** Spilman payment channel (2-of-2, off-chain updates, refund)
+
+**Misc**
+
+- **Flow 6:** Pre-SegWit transaction malleability (why TXIDs changed)
+- **Flow 7:** Embed a picture in P2SH (BIP110-compliant)
+- **Flow 13:** Summer of Bitcoin 2026 PoC
+- **Flow 14:** Trezor signing flow (BIP39/BIP32, RFC6979, hardware signing comparison)
 
 All flow transactions were broadcast on **testnet3/4**, so you can inspect them on-chain and compare the raw bytes yourself.
 
@@ -43,7 +63,7 @@ All flow transactions were broadcast on **testnet3/4**, so you can inspect them 
 - **Inspect the exact code** — Click any calculation node to see the precise Python function that powers its result.
 - **Integrated Script debugger** — Step through Bitcoin Script opcode by opcode, watch the stack change live, and instantly spot validation failures.
 - **Powerful canvas tools** — Organize complex flows with groups, tabs, templates, clipboard, undo/redo history, search and minimap
-- **Learn with built-in flows** — Explore P2PKH, P2SH, SegWit, Taproot, MuSig2, hardware signing, and contributor flows.
+- **Learn with built-in flows** — Explore P2PKH, P2SH, SegWit, Taproot, MuSig2, payment channels, hardware signing, and contributor flows.
 - **Export and share** — Save/load full graphs, create share links, export selected nodes, or generate LLM-ready bundles that include the backend code.
 
 ---
