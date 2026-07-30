@@ -2964,7 +2964,7 @@ def double_sha256_hex(val: str) -> str:
 
 # Bitcoin's difficulty-1 target (the target encoded by 0x1d00ffff).
 _DIFFICULTY_ONE_TARGET = 0x00000000FFFF0000000000000000000000000000000000000000000000000000
-_MAX_MINING_ATTEMPTS = 100_000
+_MAX_MINING_ATTEMPTS = 100
 _MAX_UINT32 = 0xFFFFFFFF
 
 
@@ -3113,7 +3113,7 @@ def mine_nonce_range(vals: list[str]) -> str:
 
     vals[0]: 76-byte serialized header prefix (everything except nonce)
     vals[1]: starting nonce, unsigned decimal
-    vals[2]: number of attempts, unsigned decimal (blank => 100; capped)
+    vals[2]: number of attempts, unsigned decimal (blank => 100; capped at 100)
     vals[3]: expanded 32-byte target, display-order hex
     """
     if len(vals) < 4:
@@ -3173,7 +3173,7 @@ def mine_nonce_range(vals: list[str]) -> str:
     summary = "\n".join(
         (
             f"found: {'true' if found else 'false'}",
-            f"nonce: {nonce_display}",
+            f"nonce (decimal): {nonce_display}",
             f"block hash: {hash_display}",
             f"tried: {start}\u2026{tried_end}",
             f"next start: {next_start}",

@@ -741,16 +741,18 @@ def test_mine_nonce_range_defaults_and_clamps_attempt_count():
     )
     clamped = json.loads(
         calc.mine_nonce_range(
-            [GENESIS_HEADER[:-8], "0", "100001", impossible_in_practice_target]
+            [GENESIS_HEADER[:-8], "0", "101", impossible_in_practice_target]
         )
     )
 
     assert defaulted["attempts"] == 100
+    assert defaulted["attempts_cap"] == 100
     assert defaulted["next_start"] == 100
-    assert clamped["attempts_requested"] == 100001
-    assert clamped["attempts"] == 100000
-    assert clamped["tried_end"] == 99999
-    assert clamped["next_start"] == 100000
+    assert clamped["attempts_requested"] == 101
+    assert clamped["attempts"] == 100
+    assert clamped["attempts_cap"] == 100
+    assert clamped["tried_end"] == 99
+    assert clamped["next_start"] == 100
 
 
 # ──────────────────────────────────────────────────────────────────────

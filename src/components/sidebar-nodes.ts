@@ -4209,7 +4209,7 @@ export const allSidebarNodes: NodeTemplate[] = [
   },
   {
     functionName: "mine_nonce_range",
-    label: "Mine Nonce Range",
+    label: "Mine nonce",
     category: "Mining & Blocks",
     subcategory: "General",
     description:
@@ -4217,7 +4217,7 @@ export const allSidebarNodes: NodeTemplate[] = [
     type: "calculation",
     nodeData: {
       functionName: "mine_nonce_range",
-      title: "Mine Nonce Range",
+      title: "Mine nonce",
       paramExtraction: "multi_val",
       numInputs: 4,
       inputs: {
@@ -4231,7 +4231,7 @@ export const allSidebarNodes: NodeTemplate[] = [
       advanceButton: {
         targetField: 1,
         stepField: 2,
-        label: "Mine next batch",
+        label: "Mine",
         nextValueOutput: "output-2",
         disableWhenOutput: {
           handleId: "output-1",
@@ -4239,9 +4239,14 @@ export const allSidebarNodes: NodeTemplate[] = [
         },
       },
       outputPorts: [
-        { label: "nonce (LE-4)", handleId: "output-0" },
-        { label: "found", handleId: "output-1" },
-        { label: "next start", handleId: "output-2" },
+        {
+          label: "nonce (LE-4)",
+          handleId: "output-0",
+          handleTopSource: "mine-nonce-output",
+          showLabel: false,
+        },
+        { label: "found", handleId: "output-1", showHandle: false },
+        { label: "next start", handleId: "output-2", showHandle: false },
       ],
       inputStructure: {
         ungrouped: [
@@ -4259,6 +4264,7 @@ export const allSidebarNodes: NodeTemplate[] = [
             placeholder: "0",
             rows: 1,
             small: true,
+            unconnectable: true,
           },
           {
             index: 2,
@@ -4266,7 +4272,10 @@ export const allSidebarNodes: NodeTemplate[] = [
             placeholder: "100",
             rows: 1,
             small: true,
-            comment: "Number of consecutive nonces to try in this batch.",
+            maxDecimalValue: 100,
+            unconnectable: true,
+            comment:
+              "Number of consecutive nonces to try in this batch (maximum 100).",
           },
           {
             index: 3,

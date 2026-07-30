@@ -19,6 +19,7 @@ export interface FieldWithHandleProps {
   small?: boolean;
   rows?: number;
   autoResizeMaxRows?: number;
+  maxDecimalValue?: number;
   onChange?: (val: string) => void;
   onBlur?: (val: string) => void;
   onLabelChange?: (val: string) => void;
@@ -51,6 +52,7 @@ function fieldWithHandlePropsAreEqual(
     prev.small === next.small &&
     prev.rows === next.rows &&
     prev.autoResizeMaxRows === next.autoResizeMaxRows &&
+    prev.maxDecimalValue === next.maxDecimalValue &&
     prev.comment === next.comment &&
     prev.onChange === next.onChange &&
     prev.onBlur === next.onBlur &&
@@ -79,6 +81,7 @@ export const FieldWithHandle = React.memo(function FieldWithHandleComponent({
   small,
   rows,
   autoResizeMaxRows,
+  maxDecimalValue,
   comment,
   onChange,
   onBlur,
@@ -150,6 +153,7 @@ export const FieldWithHandle = React.memo(function FieldWithHandleComponent({
         small={small}
         rows={rows}
         autoResizeMaxRows={autoResizeMaxRows}
+        maxDecimalValue={maxDecimalValue}
         comment={comment}
         className={className}
         labelClassName={labelClassName}

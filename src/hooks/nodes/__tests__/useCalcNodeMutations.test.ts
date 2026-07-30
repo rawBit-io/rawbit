@@ -137,6 +137,56 @@ describe("useCalcNodeMutations", () => {
     expect(nodes[0].data.dirty).toBe(true);
   });
 
+  it("clears a mining solution and restarts from nonce zero", () => {
+    nodes = [
+      {
+        ...baseNode(),
+        data: {
+          functionName: "mine_nonce_range",
+          inputs: {
+            vals: {
+              0: "header",
+              1: "400",
+              2: "100",
+              3: "target",
+            },
+          },
+          result: "found: true",
+          outputValues: {
+            "output-0": "ba010000",
+            "output-1": "true",
+            "output-2": "443",
+          },
+          outputErrors: { "output-0": "old error" },
+          dirty: false,
+          error: true,
+          extendedError: "old error",
+        },
+      },
+    ];
+
+    const { result } = renderHook(() =>
+      useCalcNodeMutations(nodeId, nodes[0].data, setNodes, setEdges)
+    );
+
+    act(() => {
+      result.current.clearMiningSolution(1, "0");
+    });
+
+    expect(nodes[0].data.inputs?.vals).toEqual({
+      0: "header",
+      1: "0",
+      2: "100",
+      3: "target",
+    });
+    expect(nodes[0].data.result).toBe("");
+    expect(nodes[0].data.outputValues).toEqual({});
+    expect(nodes[0].data.outputErrors).toEqual({});
+    expect(nodes[0].data.dirty).toBe(true);
+    expect(nodes[0].data.error).toBe(false);
+    expect(nodes[0].data.extendedError).toBeUndefined();
+  });
+
   it("updates dynamic TX extract outputs and removes edges from deleted outputs", () => {
     nodes = [
       {

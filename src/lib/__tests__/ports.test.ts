@@ -183,10 +183,7 @@ describe("buildPorts", () => {
       ],
     ],
     ["Raw Block Builder", ["input-0", "input-10", "input-100"]],
-    [
-      "Mine Nonce Range",
-      ["input-0", "input-1", "input-2", "input-3"],
-    ],
+    ["Mine nonce", ["input-0", "input-3"]],
     ["Target → Compact nBits", ["input-0"]],
     ["Bitcoin Block Merkle Tree", ["input-100"]],
   ])(

@@ -31,6 +31,7 @@ export interface UseCalcNodeMutationsResult {
     isConnected: boolean,
     nextValueOutput?: string
   ) => void;
+  clearMiningSolution: (startField: number, resetValue?: string) => void;
   setTaprootLeafIndex: (index: number) => void;
   setTxFieldExtractField: (index: number, field: string) => void;
   resizeTxFieldExtractFields: (increment: boolean) => void;
@@ -136,6 +137,43 @@ export function useCalcNodeMutations(
                   nextValue.toString()
                 ),
               },
+              dirty: true,
+              error: false,
+              extendedError: undefined,
+            },
+          };
+        })
+      );
+    },
+    [id, setNodes]
+  );
+
+  const clearMiningSolution = useCallback(
+    (startField: number, resetValue = "0") => {
+      setNodes((nodes) =>
+        nodes.map((node) => {
+          if (
+            node.id !== id ||
+            node.data.functionName !== "mine_nonce_range"
+          ) {
+            return node;
+          }
+
+          return {
+            ...node,
+            data: {
+              ...(node.data as NodeData),
+              inputs: {
+                ...(node.data.inputs ?? {}),
+                vals: setVal(
+                  node.data.inputs?.vals,
+                  startField,
+                  resetValue
+                ),
+              },
+              result: "",
+              outputValues: {},
+              outputErrors: {},
               dirty: true,
               error: false,
               extendedError: undefined,
@@ -462,6 +500,7 @@ export function useCalcNodeMutations(
   return {
     setFieldValue,
     advanceFieldValue,
+    clearMiningSolution,
     setTaprootLeafIndex,
     setTxFieldExtractField,
     resizeTxFieldExtractFields,

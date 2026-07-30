@@ -114,6 +114,7 @@ const NO_DIVIDER_GROUP_TITLES = new Set([
   "OUTPUTS[]",
   "SCRIPTPUBKEYS[]",
   "VALUES[]",
+  "TXS[]",
 ]);
 const NO_DIVIDER_GROUP_TITLES_BY_FUNCTION: Record<
   string,
@@ -628,6 +629,7 @@ export function CalculationNodeView({
   const [anchoredHandleTops, setAnchoredHandleTops] = useState<
     Record<string, number | null>
   >({});
+  const [mineNonceCopied, setMineNonceCopied] = useState(false);
   const [musig2SecnonceCopied, setMusig2SecnonceCopied] = useState(false);
   const [txCopiedOutputHandle, setTxCopiedOutputHandle] = useState<
     string | null
@@ -662,6 +664,7 @@ export function CalculationNodeView({
   const pathRowRef = useRef<HTMLDivElement | null>(null);
   const pathTriggerRef =
     useRef<React.ElementRef<typeof SelectTrigger> | null>(null);
+  const mineNonceRowRef = useRef<HTMLDivElement | null>(null);
   const parityRowRef = useRef<HTMLDivElement | null>(null);
   const parityValueRef = useRef<HTMLDivElement | null>(null);
   const musig2PubnonceRowRef = useRef<HTMLDivElement | null>(null);
@@ -686,6 +689,7 @@ export function CalculationNodeView({
   const isTaprootTreeBuilder = outputLayout === "taproot_tree_builder";
   const isTaprootTweakXonly = outputLayout === "taproot_tweak_xonly_pubkey";
   const isMusig2NonceGen = outputLayout === "musig2_nonce_gen";
+  const isMineNonceRange = data.functionName === "mine_nonce_range";
   const isPictureP2shScripts =
     data.functionName === "bip110_picture_p2sh_scripts";
   const picturePreview = useMemo(
@@ -788,6 +792,16 @@ export function CalculationNodeView({
       : String(blockMerkleMutatedValue);
   const blockMerkleMutationDetected =
     blockMerkleMutatedDisplay.toLowerCase() === "true";
+  const mineNonceValue =
+    data.outputValues && typeof data.outputValues === "object"
+      ? (data.outputValues as Record<string, unknown>)["output-0"]
+      : undefined;
+  const mineNonceDisplay =
+    mineNonceValue === undefined ||
+    mineNonceValue === null ||
+    mineNonceValue === ""
+      ? "--"
+      : String(mineNonceValue);
   const musig2Outputs =
     data.outputValues && typeof data.outputValues === "object"
       ? (data.outputValues as Record<string, unknown>)
@@ -840,6 +854,21 @@ export function CalculationNodeView({
     copyTextToClipboard(text, () => {
       setMusig2SecnonceCopied(true);
       window.setTimeout(() => setMusig2SecnonceCopied(false), 1000);
+    });
+  };
+
+  const copyMineNonce = () => {
+    if (
+      mineNonceValue === undefined ||
+      mineNonceValue === null ||
+      mineNonceValue === ""
+    ) {
+      return;
+    }
+
+    copyTextToClipboard(String(mineNonceValue), () => {
+      setMineNonceCopied(true);
+      window.setTimeout(() => setMineNonceCopied(false), 1000);
     });
   };
 
@@ -1006,6 +1035,7 @@ export function CalculationNodeView({
           small={field.small}
           rows={fieldRows}
           autoResizeMaxRows={autoResizeMaxRows}
+          maxDecimalValue={field.maxDecimalValue}
           className={cn(
             isDynamicTxFieldExtract && "mb-1",
             isTxFieldExtractRawTxField && "tx-field-extract-raw-field"
@@ -1136,6 +1166,7 @@ export function CalculationNodeView({
         small={field.small}
         rows={fieldRows}
         autoResizeMaxRows={autoResizeMaxRows}
+        maxDecimalValue={field.maxDecimalValue}
         labelClassName={isCountField ? txTemplateCountLabelClassName : undefined}
         handleOffset={-33}
         disableHandle={field.unconnectable}
@@ -1463,6 +1494,9 @@ export function CalculationNodeView({
       if (source === "taproot-path-select") {
         return pathTriggerRef.current ?? pathRowRef.current;
       }
+      if (source === "mine-nonce-output") {
+        return mineNonceRowRef.current;
+      }
       if (source === "taproot-output-parity") {
         return parityValueRef.current ?? parityRowRef.current;
       }
@@ -1557,6 +1591,8 @@ export function CalculationNodeView({
     taprootTreeDisplay,
     taprootMerklePath,
     taprootLeafIndex,
+    isMineNonceRange,
+    mineNonceDisplay,
     isTaprootTweakXonly,
     parityDisplay,
     isMusig2NonceGen,
@@ -1683,14 +1719,30 @@ export function CalculationNodeView({
     >
       <div
         className={cn(
-          "calc-node-header flex w-full flex-row items-start gap-2 p-2 text-xl",
+          "calc-node-header flex w-full flex-row gap-2 p-2 text-xl",
+          isMineNonceRange ? "items-center" : "items-start",
           isSimpleResultOnly && "calc-node-header-simple",
           "border-b border-border"
         )}
       >
-        <div className="min-w-0 flex-1 leading-tight">
-          <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
-            <div className="min-w-0 break-words">
+        <div
+          className={cn(
+            "min-w-0 flex-1 leading-tight",
+            isMineNonceRange && "whitespace-nowrap"
+          )}
+        >
+          <div
+            className={cn(
+              "flex min-w-0 items-baseline gap-x-2 gap-y-1",
+              isMineNonceRange ? "flex-nowrap" : "flex-wrap"
+            )}
+          >
+            <div
+              className={cn(
+                "min-w-0 break-words",
+                isMineNonceRange && "w-full whitespace-nowrap break-normal"
+              )}
+            >
               <EditableLabel
                 value={rawTitle}
                 onCommit={mut.handleTitleUpdate}
@@ -1701,7 +1753,12 @@ export function CalculationNodeView({
           </div>
         </div>
 
-        <div className="flex flex-shrink-0 items-center space-x-2">
+        <div
+          className={cn(
+            "flex flex-shrink-0 items-center",
+            isMineNonceRange ? "space-x-1" : "space-x-2"
+          )}
+        >
           {isInputNode && <InputTypeBadge />}
           {isConcatAll && <ConcatTypeBadge />}
 
@@ -1727,8 +1784,26 @@ export function CalculationNodeView({
                 );
               }}
             >
-              <Pickaxe className="h-3.5 w-3.5" />
+              {!isMineNonceRange && <Pickaxe className="h-3.5 w-3.5" />}
               <span>{advanceButton.label || "Advance"}</span>
+            </Button>
+          )}
+
+          {isMineNonceRange && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="nodrag flex h-8 shrink-0 items-center gap-1.5 px-2 text-xs"
+              disabled={data.dirty === true || mineNonceDisplay === "--"}
+              onPointerDownCapture={(event) => event.stopPropagation()}
+              onClick={(event) => {
+                event.stopPropagation();
+                mut.clearMiningSolution(1, "0");
+              }}
+              aria-label="Clear"
+              title="Clear the winning nonce and restart from nonce 0"
+            >
+              <span>Clear</span>
             </Button>
           )}
 
@@ -2226,9 +2301,59 @@ export function CalculationNodeView({
                 isMathOperationNode ? "mb-1" : "mb-2"
               )}
             >
-              {">"} {isPictureP2shScripts ? "Info:" : "Calculation Result:"}
+              {">"}{" "}
+              {isPictureP2shScripts
+                ? "Info:"
+                : isMineNonceRange
+                  ? "Output — NONCE (LE-4):"
+                  : "Calculation Result:"}
             </div>
-            {isMusig2NonceGen ? (
+            {isMineNonceRange ? (
+              <div className="space-y-3 text-sm">
+                <div
+                  ref={mineNonceRowRef}
+                  className="flex items-start justify-between gap-2"
+                >
+                  <div className="flex-1 min-w-0" data-testid="node-result">
+                    <span className="block whitespace-pre-wrap break-all">
+                      {mineNonceDisplay}
+                    </span>
+                  </div>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="nodrag shrink-0 self-start"
+                    onPointerDownCapture={(event) => event.stopPropagation()}
+                    onClick={copyMineNonce}
+                    disabled={mineNonceDisplay === "--"}
+                    title={
+                      mineNonceCopied
+                        ? "Copied!"
+                        : "Copy nonce output to clipboard"
+                    }
+                  >
+                    {mineNonceCopied ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+
+                <div className="pt-3">
+                  <div className="calc-node-result-label mb-2 text-sm text-primary">
+                    {">"} Additional info:
+                  </div>
+                  <span
+                    className="block whitespace-pre-wrap break-all text-muted-foreground"
+                    data-testid="mine-nonce-additional-info"
+                  >
+                    {clip.prettyResult}
+                  </span>
+                </div>
+              </div>
+            ) : isMusig2NonceGen ? (
               <div className="space-y-3 text-sm">
                 <div
                   ref={musig2PubnonceRowRef}

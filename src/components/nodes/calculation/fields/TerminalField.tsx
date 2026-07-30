@@ -24,6 +24,7 @@ export interface TerminalFieldProps {
   small?: boolean;
   rows?: number;
   autoResizeMaxRows?: number;
+  maxDecimalValue?: number;
   onChange?: (val: string) => void;
   onFocus?: (val: string) => void;
   onBlur?: (val: string) => void;
@@ -59,6 +60,7 @@ function terminalFieldPropsAreEqual(
     prev.small === next.small &&
     prev.rows === next.rows &&
     prev.autoResizeMaxRows === next.autoResizeMaxRows &&
+    prev.maxDecimalValue === next.maxDecimalValue &&
     prev.allowEmpty00 === next.allowEmpty00 &&
     prev.allowEmptyBlank === next.allowEmptyBlank &&
     prev.allowNull === next.allowNull &&
@@ -92,6 +94,7 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
   small,
   rows,
   autoResizeMaxRows,
+  maxDecimalValue,
   onChange,
   onFocus,
   onBlur,
@@ -120,6 +123,24 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
   const textareaRows = autoResizeMaxRows ? 1 : rows ?? 3;
   const normalizedValue = value ?? "";
   const [draftValue, setDraftValue] = useState(normalizedValue);
+
+  const clampDecimalValue = useCallback(
+    (nextValue: string) => {
+      if (
+        maxDecimalValue === undefined ||
+        !Number.isSafeInteger(maxDecimalValue) ||
+        maxDecimalValue < 0 ||
+        !/^\d+$/.test(nextValue)
+      ) {
+        return nextValue;
+      }
+
+      return BigInt(nextValue) > BigInt(maxDecimalValue)
+        ? String(maxDecimalValue)
+        : nextValue;
+    },
+    [maxDecimalValue]
+  );
 
   useEffect(() => {
     const ta = textareaRef.current;
@@ -177,7 +198,7 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
 
   const handleTextareaChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-      const nextValue = event.target.value;
+      const nextValue = clampDecimalValue(event.target.value);
       pendingSelectionRef.current = {
         start: event.target.selectionStart ?? nextValue.length,
         end: event.target.selectionEnd ?? nextValue.length,
@@ -185,7 +206,7 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
       setDraftValue(nextValue);
       onChange?.(nextValue);
     },
-    [onChange]
+    [clampDecimalValue, onChange]
   );
 
   const handleTextareaFocus = useCallback(
@@ -201,10 +222,11 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
     (event: React.FocusEvent<HTMLTextAreaElement>) => {
       focusedRef.current = false;
       pendingSelectionRef.current = null;
-      setDraftValue(event.target.value);
-      onBlur?.(event.target.value);
+      const nextValue = clampDecimalValue(event.target.value);
+      setDraftValue(nextValue);
+      onBlur?.(nextValue);
     },
-    [onBlur]
+    [clampDecimalValue, onBlur]
   );
 
   // Nodes unmount off-viewport (onlyRenderVisibleElements) without firing
@@ -311,6 +333,9 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
                   value={draftValue}
                   readOnly={readOnly}
                   rows={textareaRows}
+                  inputMode={
+                    maxDecimalValue === undefined ? undefined : "numeric"
+                  }
                   spellCheck={false}
                   onChange={handleTextareaChange}
                   onFocus={handleTextareaFocus}
@@ -416,6 +441,7 @@ export const TerminalField = React.memo(function TerminalFieldComponent({
           value={draftValue}
           readOnly={readOnly}
           rows={textareaRows}
+          inputMode={maxDecimalValue === undefined ? undefined : "numeric"}
           spellCheck={false}
           onChange={handleTextareaChange}
           onFocus={handleTextareaFocus}

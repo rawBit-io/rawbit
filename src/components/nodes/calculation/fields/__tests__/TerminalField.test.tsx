@@ -95,4 +95,25 @@ describe("TerminalField", () => {
 
     expect(textarea).toHaveValue("second");
   });
+
+  it("clamps decimal input to the configured maximum", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+
+    render(
+      <TerminalField
+        label="Attempts:"
+        value=""
+        maxDecimalValue={100}
+        onChange={onChange}
+      />
+    );
+
+    const textarea = screen.getByRole("textbox");
+    await user.type(textarea, "101");
+
+    expect(textarea).toHaveValue("100");
+    expect(textarea).toHaveAttribute("inputmode", "numeric");
+    expect(onChange).toHaveBeenLastCalledWith("100");
+  });
 });

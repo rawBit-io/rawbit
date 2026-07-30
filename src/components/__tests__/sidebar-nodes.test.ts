@@ -71,7 +71,7 @@ describe("sidebar node templates", () => {
       "Target → Compact nBits",
       "Bits → Target",
       "Bitcoin Block Merkle Tree",
-      "Mine Nonce Range",
+      "Mine nonce",
       "Verify Block PoW",
       "Block Header Builder",
       "Raw Block Builder",
@@ -126,7 +126,7 @@ describe("sidebar node templates", () => {
     expect(txHashKeys).toHaveLength(99);
     expect(txHashKeys.at(-1)).toBe(9_900);
 
-    const miner = templateByTitle("Mine Nonce Range");
+    const miner = templateByTitle("Mine nonce");
     expect(miner.nodeData?.inputs?.vals).toEqual({
       0: "",
       1: "0",
@@ -136,18 +136,38 @@ describe("sidebar node templates", () => {
     expect(miner.nodeData?.advanceButton).toEqual({
       targetField: 1,
       stepField: 2,
-      label: "Mine next batch",
+      label: "Mine",
       nextValueOutput: "output-2",
       disableWhenOutput: {
         handleId: "output-1",
         equals: "true",
       },
     });
-    expect(miner.nodeData?.outputPorts?.map((port) => port.handleId)).toEqual([
-      "output-0",
-      "output-1",
-      "output-2",
+    expect(miner.nodeData?.outputPorts).toEqual([
+      {
+        label: "nonce (LE-4)",
+        handleId: "output-0",
+        handleTopSource: "mine-nonce-output",
+        showLabel: false,
+      },
+      { label: "found", handleId: "output-1", showHandle: false },
+      { label: "next start", handleId: "output-2", showHandle: false },
     ]);
+    expect(
+      miner.nodeData?.inputStructure?.ungrouped?.find(
+        (field) => field.index === 2
+      )?.maxDecimalValue
+    ).toBe(100);
+    expect(
+      miner.nodeData?.inputStructure?.ungrouped?.find(
+        (field) => field.index === 1
+      )
+    ).toMatchObject({ unconnectable: true });
+    expect(
+      miner.nodeData?.inputStructure?.ungrouped?.find(
+        (field) => field.index === 2
+      )
+    ).toMatchObject({ unconnectable: true });
 
     const rawBlock = templateByTitle("Raw Block Builder");
     const transactions = rawBlock.nodeData?.inputStructure?.groups?.find(

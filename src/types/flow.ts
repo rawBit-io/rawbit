@@ -13,6 +13,7 @@ export interface FieldDefinition {
   small?: boolean;
   rows?: number;
   autoResizeMaxRows?: number;
+  maxDecimalValue?: number;
   allowEmpty00?: boolean;
   allowEmptyBlank?: boolean;
   allowNull?: boolean;

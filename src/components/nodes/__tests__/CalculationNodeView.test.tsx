@@ -42,6 +42,7 @@ function createMut() {
   return {
     setFieldValue: vi.fn(),
     advanceFieldValue: vi.fn(),
+    clearMiningSolution: vi.fn(),
     setTaprootLeafIndex: vi.fn(),
     setTxFieldExtractField: vi.fn(),
     resizeTxFieldExtractFields: vi.fn(),
@@ -240,11 +241,11 @@ describe("CalculationNodeView", () => {
           advanceButton: {
             targetField: 1,
             stepField: 2,
-            label: "Mine next batch",
+            label: "Mine",
             nextValueOutput: "output-2",
           },
         }}
-        rawTitle="Mine Nonce Range"
+        rawTitle="Mine nonce"
         derived={derived}
         isInputConnected={() => false}
         mut={mut}
@@ -266,7 +267,7 @@ describe("CalculationNodeView", () => {
     );
 
     await user.click(
-      screen.getByRole("button", { name: "Mine next batch" })
+      screen.getByRole("button", { name: "Mine" })
     );
 
     expect(mut.advanceFieldValue).toHaveBeenCalledWith(
@@ -283,7 +284,7 @@ describe("CalculationNodeView", () => {
     const advanceButton = {
       targetField: 1,
       stepField: 2,
-      label: "Mine next batch",
+      label: "Mine",
       disableWhenOutput: {
         handleId: "output-1",
         equals: "true",
@@ -294,7 +295,7 @@ describe("CalculationNodeView", () => {
       <CalculationNodeView
         selected={false}
         data={{ ...data, advanceButton, dirty: true }}
-        rawTitle="Mine Nonce Range"
+        rawTitle="Mine nonce"
         derived={derived}
         isInputConnected={() => false}
         mut={mut}
@@ -316,14 +317,14 @@ describe("CalculationNodeView", () => {
     );
 
     expect(
-      screen.getByRole("button", { name: "Mine next batch" })
+      screen.getByRole("button", { name: "Mine" })
     ).toBeDisabled();
 
     rerender(
       <CalculationNodeView
         selected={false}
         data={{ ...data, advanceButton, dirty: false }}
-        rawTitle="Mine Nonce Range"
+        rawTitle="Mine nonce"
         derived={derived}
         isInputConnected={() => false}
         mut={mut}
@@ -345,7 +346,7 @@ describe("CalculationNodeView", () => {
     );
 
     expect(
-      screen.getByRole("button", { name: "Mine next batch" })
+      screen.getByRole("button", { name: "Mine" })
     ).toBeDisabled();
 
     rerender(
@@ -357,7 +358,7 @@ describe("CalculationNodeView", () => {
           dirty: false,
           outputValues: { "output-1": "true" },
         }}
-        rawTitle="Mine Nonce Range"
+        rawTitle="Mine nonce"
         derived={derived}
         isInputConnected={() => false}
         mut={mut}
@@ -379,8 +380,82 @@ describe("CalculationNodeView", () => {
     );
 
     expect(
-      screen.getByRole("button", { name: "Mine next batch" })
+      screen.getByRole("button", { name: "Mine" })
     ).toBeDisabled();
+  });
+
+  it("separates the mining nonce output and can clear the solution", async () => {
+    const mut = createMut();
+    const user = userEvent.setup();
+    const summary =
+      "found: true\nnonce (decimal): 442\nblock hash: 0010\ntried: 400…442\nnext start: 443";
+    const template = allSidebarNodes.find(
+      (node) => node.label === "Mine nonce"
+    );
+
+    expect(template).toBeDefined();
+
+    renderWithProviders(
+      <CalculationNodeView
+        selected={false}
+        data={
+          {
+            ...structuredClone(template!.nodeData),
+            outputValues: {
+              "output-0": "ba010000",
+              "output-1": "true",
+              "output-2": "443",
+            },
+          } as NodeData
+        }
+        rawTitle="Mine nonce"
+        derived={{
+          ...derived,
+          isMultiVal: true,
+          nodeWidth: 420,
+          minHeight: 600,
+          connectionStatus: { connected: 0, total: 2, shouldShow: true },
+        }}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={createClip({ prettyResult: summary })}
+        result={summary}
+        error={false}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: false,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    expect(screen.getByText("> Output — NONCE (LE-4):")).toBeInTheDocument();
+    expect(screen.getByTestId("node-result")).toHaveTextContent("ba010000");
+    expect(screen.getByText("> Additional info:")).toBeInTheDocument();
+    expect(screen.getByTestId("mine-nonce-additional-info")).toHaveTextContent(
+      "nonce (decimal): 442"
+    );
+
+    const handleIds = screen
+      .getAllByTestId("rf-handle")
+      .map((handle) => handle.getAttribute("id"));
+    expect(handleIds).toEqual(
+      expect.arrayContaining(["input-0", "input-3", "output-0"])
+    );
+    expect(handleIds).not.toContain("input-1");
+    expect(handleIds).not.toContain("input-2");
+    expect(handleIds).not.toContain("output-1");
+    expect(handleIds).not.toContain("output-2");
+
+    await user.click(
+      screen.getByRole("button", { name: "Clear" })
+    );
+    expect(mut.clearMiningSolution).toHaveBeenCalledWith(1, "0");
   });
 
   it("closes the node menu on canvas pointer-down dismiss events", async () => {
@@ -1097,6 +1172,7 @@ describe("CalculationNodeView", () => {
     ["MuSig2 Partial Sig Agg", ["PUBKEYS[]", "PARTIAL_SIGS[]"]],
     ["Compare (==)", ["VALUES[]"]],
     ["Check Result", ["VALUES[]"]],
+    ["Raw Block Builder", ["TXS[]"]],
   ])("removes the requested group dividers from %s", (title, groups) => {
     const mut = createMut();
     const clip = createClip();
