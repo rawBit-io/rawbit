@@ -113,6 +113,7 @@ const NO_DIVIDER_GROUP_TITLES = new Set([
   "SEQUENCES[]",
   "OUTPUTS[]",
   "SCRIPTPUBKEYS[]",
+  "VALUES[]",
 ]);
 const NO_DIVIDER_GROUP_TITLES_BY_FUNCTION: Record<
   string,

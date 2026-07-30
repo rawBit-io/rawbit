@@ -23,6 +23,7 @@ import taprootIntro from "@/my_tx_flows/p16_Taproot_intro.json";
 import taproot2in2outKeypath from "@/my_tx_flows/p17_Taproot_2in_2out_keypath.json";
 import taprootScriptPath from "@/my_tx_flows/p18_Taproot_script_path.json";
 import musig2 from "@/my_tx_flows/p19_MuSig2.json";
+import mining from "@/my_tx_flows/p20_Mining.json";
 import txMalleability from "@/my_tx_flows/misc/p6_TX_Malleability.json";
 import bip110 from "@/my_tx_flows/misc/p7_BIP110.json";
 
@@ -273,6 +274,22 @@ export const customFlows: CustomFlowTemplate[] = [
       "bip39",
       "bip32",
       "rfc6979",
+    ],
+  },
+  {
+    id: "flow-20-mining",
+    label: "Mining a Bitcoin Block",
+    data: mining as unknown as FlowData,
+    section: "misc",
+    flowNo: 20,
+    level: "intermediate",
+    tags: [
+      "mining",
+      "block",
+      "coinbase",
+      "merkle-tree",
+      "proof-of-work",
+      "nonce",
     ],
   },
 

@@ -1095,6 +1095,8 @@ describe("CalculationNodeView", () => {
     ["Bitcoin Block Merkle Tree", ["TX_HASHES[]"]],
     ["MuSig2 Partial Sign", ["PUBKEYS[]"]],
     ["MuSig2 Partial Sig Agg", ["PUBKEYS[]", "PARTIAL_SIGS[]"]],
+    ["Compare (==)", ["VALUES[]"]],
+    ["Check Result", ["VALUES[]"]],
   ])("removes the requested group dividers from %s", (title, groups) => {
     const mut = createMut();
     const clip = createClip();

@@ -37,7 +37,7 @@
         "isGroup": true,
         "width": 1646.9642593288559,
         "height": 1472,
-        "title": "Group Node",
+        "title": "Transaction hashes and Merkle root",
         "fontSize": 44,
         "groupBundlePortOffsets": {
           "targetByBundle": {
@@ -1722,6 +1722,918 @@
       },
       "parentId": "group_11bw3g6",
       "extent": "parent"
+    },
+    {
+      "id": "group_header_target",
+      "type": "shadcnGroup",
+      "position": {
+        "x": 5470.583022908756,
+        "y": -996.3223720933331
+      },
+      "data": {
+        "isGroup": true,
+        "width": 2701,
+        "height": 3249,
+        "title": "Block header fields and target",
+        "fontSize": 44,
+        "dirty": false,
+        "groupBundlePortOffsets": {
+          "targetByBundle": {
+            "group_11bw3g6->group_header_target": -443.85
+          }
+        }
+      },
+      "width": 2701,
+      "height": 3249,
+      "dragHandle": "[data-drag-handle]"
+    },
+    {
+      "id": "node_prev_block_display",
+      "type": "calculation",
+      "position": {
+        "x": 197.17510976000813,
+        "y": 698.5854637794387
+      },
+      "data": {
+        "functionName": "identity",
+        "title": "Previous block hash (display order)",
+        "showField": true,
+        "numInputs": 0,
+        "value": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+        "version": 0,
+        "inputs": {
+          "val": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+        },
+        "result": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "HASH[32]:",
+              "rows": 3,
+              "unconnectable": true
+            }
+          ]
+        },
+        "groupInstances": {},
+        "comment": "Synthetic value used only by this teaching block",
+        "showComment": true,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_header_target",
+      "extent": "parent"
+    },
+    {
+      "id": "node_block_bits",
+      "type": "calculation",
+      "position": {
+        "x": 289.92933959118636,
+        "y": 1936.3408588648813
+      },
+      "data": {
+        "functionName": "identity",
+        "title": "nBits (display order)",
+        "showField": true,
+        "numInputs": 0,
+        "value": "2000ffff",
+        "version": 0,
+        "inputs": {
+          "val": "2000ffff"
+        },
+        "result": "2000ffff",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "COMPACT TARGET[4]:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ]
+        },
+        "groupInstances": {},
+        "comment": "Easy deterministic teaching target",
+        "showComment": true,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_header_target",
+      "extent": "parent"
+    },
+    {
+      "id": "node_block_bits_le",
+      "type": "calculation",
+      "position": {
+        "x": 715,
+        "y": 1638
+      },
+      "data": {
+        "functionName": "reverse_bytes_4",
+        "title": "nBits → header order",
+        "numInputs": 1,
+        "version": 0,
+        "inputs": {
+          "val": "2000ffff"
+        },
+        "result": "ffff0020",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "4-byte hex:",
+              "rows": 1
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_header_target",
+      "extent": "parent"
+    },
+    {
+      "id": "node_bits_target",
+      "type": "calculation",
+      "position": {
+        "x": 747.5918585314575,
+        "y": 2053.3533020440677
+      },
+      "data": {
+        "functionName": "bits_to_target",
+        "title": "Bits → Target",
+        "paramExtraction": "multi_val",
+        "numInputs": 1,
+        "inputs": {
+          "vals": {
+            "0": "2000ffff"
+          }
+        },
+        "outputPorts": [
+          {
+            "label": "target",
+            "handleId": ""
+          },
+          {
+            "label": "difficulty (mainnet diff-1)",
+            "handleId": "output-1"
+          }
+        ],
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "BITS (compact hex):",
+              "rows": 1,
+              "comment": "Human notation. The header stores the same four bytes in little-endian order."
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "totalInputs": 1,
+        "unwiredCount": 0,
+        "result": "00ffff0000000000000000000000000000000000000000000000000000000000",
+        "outputValues": {
+          "output-1": "5.9604645e-8"
+        },
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_header_target",
+      "extent": "parent"
+    },
+    {
+      "id": "node_header_prefix",
+      "type": "calculation",
+      "position": {
+        "x": 1672.0014189916737,
+        "y": 1012.9218368111879
+      },
+      "data": {
+        "functionName": "concat_all",
+        "title": "Header Prefix Builder [76 bytes]",
+        "paramExtraction": "multi_val",
+        "numInputs": 5,
+        "inputs": {
+          "vals": {
+            "0": "00000020",
+            "10": "1f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100",
+            "20": "4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f",
+            "30": "80e14e68",
+            "40": "ffff0020"
+          }
+        },
+        "result": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0020",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "VERSION[4]:",
+              "rows": 1
+            },
+            {
+              "index": 10,
+              "label": "PREV_BLOCK_HASH[32]:",
+              "rows": 3
+            },
+            {
+              "index": 20,
+              "label": "MERKLE_ROOT[32]:",
+              "rows": 3
+            },
+            {
+              "index": 30,
+              "label": "TIMESTAMP[4]:",
+              "rows": 1
+            },
+            {
+              "index": 40,
+              "label": "BITS[4]:",
+              "rows": 1
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "totalInputs": 5,
+        "unwiredCount": 0,
+        "baseHeight": 120,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_header_target",
+      "extent": "parent"
+    },
+    {
+      "id": "group_mine_verify",
+      "type": "shadcnGroup",
+      "position": {
+        "x": 9045,
+        "y": -450
+      },
+      "data": {
+        "isGroup": true,
+        "width": 2397,
+        "height": 2100,
+        "title": "Nonce search and proof of work",
+        "fontSize": 44,
+        "dirty": false
+      },
+      "width": 2397,
+      "height": 2100,
+      "dragHandle": "[data-drag-handle]"
+    },
+    {
+      "id": "node_mine_nonce",
+      "type": "calculation",
+      "position": {
+        "x": 100,
+        "y": 250
+      },
+      "data": {
+        "functionName": "mine_nonce_range",
+        "title": "Mine Nonce Range",
+        "paramExtraction": "multi_val",
+        "numInputs": 4,
+        "inputs": {
+          "vals": {
+            "0": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0020",
+            "1": "400",
+            "2": "100",
+            "3": "00ffff0000000000000000000000000000000000000000000000000000000000"
+          }
+        },
+        "advanceButton": {
+          "targetField": 1,
+          "stepField": 2,
+          "label": "Mine next batch",
+          "nextValueOutput": "output-2",
+          "disableWhenOutput": {
+            "handleId": "output-1",
+            "equals": "true"
+          }
+        },
+        "outputPorts": [
+          {
+            "label": "nonce (LE-4)",
+            "handleId": "output-0"
+          },
+          {
+            "label": "found",
+            "handleId": "output-1"
+          },
+          {
+            "label": "next start",
+            "handleId": "output-2"
+          }
+        ],
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "HEADER PREFIX[76]:",
+              "rows": 5,
+              "comment": "Version through nBits, without the nonce."
+            },
+            {
+              "index": 1,
+              "label": "START NONCE (decimal):",
+              "rows": 1,
+              "small": true,
+              "unconnectable": true,
+              "comment": "Saved at 400 so every downstream node is solved. Set to 0 to replay the exercise."
+            },
+            {
+              "index": 2,
+              "label": "ATTEMPTS (decimal):",
+              "rows": 1,
+              "small": true,
+              "unconnectable": true
+            },
+            {
+              "index": 3,
+              "label": "TARGET[32]:",
+              "rows": 3
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "totalInputs": 2,
+        "unwiredCount": 2,
+        "result": "found: true\nnonce: 442\nblock hash: 00100b903f55ad3798ce08906e05007d3193423e4a3b186c69f7d89a4f2fe5f9\ntried: 400…442\nnext start: 443",
+        "outputValues": {
+          "output-0": "ba010000",
+          "output-1": "true",
+          "output-2": "443"
+        },
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_mine_verify",
+      "extent": "parent"
+    },
+    {
+      "id": "node_block_header",
+      "type": "calculation",
+      "position": {
+        "x": 750,
+        "y": 170
+      },
+      "data": {
+        "functionName": "concat_all",
+        "title": "Block Header Builder",
+        "paramExtraction": "multi_val",
+        "numInputs": 6,
+        "inputs": {
+          "vals": {
+            "0": "00000020",
+            "10": "1f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100",
+            "20": "4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f",
+            "30": "80e14e68",
+            "40": "ffff0020",
+            "50": "ba010000"
+          }
+        },
+        "result": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0020ba010000",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "VERSION[4]:",
+              "rows": 1
+            },
+            {
+              "index": 10,
+              "label": "PREV_BLOCK_HASH[32]:",
+              "rows": 3
+            },
+            {
+              "index": 20,
+              "label": "MERKLE_ROOT[32]:",
+              "rows": 3
+            },
+            {
+              "index": 30,
+              "label": "TIMESTAMP[4]:",
+              "rows": 1
+            },
+            {
+              "index": 40,
+              "label": "BITS[4]:",
+              "rows": 1
+            },
+            {
+              "index": 50,
+              "label": "NONCE[4]:",
+              "rows": 1
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "totalInputs": 6,
+        "unwiredCount": 5,
+        "baseHeight": 120,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_mine_verify",
+      "extent": "parent"
+    },
+    {
+      "id": "node_verify_pow",
+      "type": "calculation",
+      "position": {
+        "x": 1400,
+        "y": 250
+      },
+      "data": {
+        "functionName": "check_pow",
+        "title": "Verify Block PoW",
+        "paramExtraction": "multi_val",
+        "numInputs": 2,
+        "inputs": {
+          "vals": {
+            "0": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0020ba010000",
+            "1": "00ffff0000000000000000000000000000000000000000000000000000000000"
+          }
+        },
+        "outputPorts": [
+          {
+            "label": "valid",
+            "handleId": ""
+          },
+          {
+            "label": "block hash",
+            "handleId": "output-1"
+          }
+        ],
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "BLOCK HEADER[80]:",
+              "rows": 5
+            },
+            {
+              "index": 1,
+              "label": "TARGET[32]:",
+              "rows": 3
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "totalInputs": 2,
+        "unwiredCount": 1,
+        "result": "true",
+        "outputValues": {
+          "output-1": "00100b903f55ad3798ce08906e05007d3193423e4a3b186c69f7d89a4f2fe5f9"
+        },
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_mine_verify",
+      "extent": "parent"
+    },
+    {
+      "id": "node_assert_pow",
+      "type": "calculation",
+      "position": {
+        "x": 1936.629926920803,
+        "y": 642.2055828435361
+      },
+      "data": {
+        "functionName": "check_result",
+        "title": "PoW must be valid",
+        "paramExtraction": "multi_val",
+        "numInputs": 1,
+        "inputs": {
+          "vals": {
+            "0": "true"
+          }
+        },
+        "result": "true",
+        "inputStructure": {
+          "groups": [
+            {
+              "title": "VALUES[]",
+              "baseIndex": 0,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "minInstances": 1,
+              "maxInstances": 12,
+              "fields": [
+                {
+                  "index": 0,
+                  "label": "Value:",
+                  "rows": 1
+                }
+              ]
+            }
+          ],
+          "ungrouped": [],
+          "afterGroups": []
+        },
+        "groupInstances": {
+          "VALUES[]": 1
+        },
+        "groupInstanceKeys": {
+          "VALUES[]": [0]
+        },
+        "totalInputs": 1,
+        "unwiredCount": 0,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_mine_verify",
+      "extent": "parent"
+    },
+    {
+      "id": "group_raw_block",
+      "type": "shadcnGroup",
+      "position": {
+        "x": 12435,
+        "y": -255
+      },
+      "data": {
+        "isGroup": true,
+        "width": 1850,
+        "height": 2100,
+        "title": "Solved block serialization",
+        "fontSize": 44,
+        "dirty": false
+      },
+      "width": 1850,
+      "height": 2100,
+      "dragHandle": "[data-drag-handle]"
+    },
+    {
+      "id": "node_block_tx_count",
+      "type": "calculation",
+      "position": {
+        "x": 100,
+        "y": 180
+      },
+      "data": {
+        "functionName": "identity",
+        "title": "Transaction count",
+        "showField": true,
+        "numInputs": 0,
+        "value": "3",
+        "version": 0,
+        "inputs": {
+          "val": "3"
+        },
+        "result": "3",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "COUNT (decimal):",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_raw_block",
+      "extent": "parent"
+    },
+    {
+      "id": "node_block_tx_count_varint",
+      "type": "calculation",
+      "position": {
+        "x": 500,
+        "y": 180
+      },
+      "data": {
+        "functionName": "encode_varint",
+        "title": "TX count → VarInt",
+        "numInputs": 1,
+        "groupInstances": {},
+        "result": "03",
+        "inputs": {
+          "val": "3"
+        },
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_raw_block",
+      "extent": "parent"
+    },
+    {
+      "id": "node_raw_block",
+      "type": "calculation",
+      "position": {
+        "x": 950,
+        "y": 180
+      },
+      "data": {
+        "functionName": "concat_all",
+        "title": "Raw Block Builder",
+        "paramExtraction": "multi_val",
+        "numInputs": 5,
+        "inputs": {
+          "vals": {
+            "0": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0020ba010000",
+            "10": "03",
+            "100": "02000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0903a0bb0d0400000000ffffffff01a06ba012000000001976a9149128229e0b4d25a6811f6436bb4124de2c87928a88ac00000000",
+            "200": "02000000017d933f4fe6261536bfdd323c5f2799669fc64bc7eaa343eaa1ae4962b06950b1010000006a47304402200ef1b4655771941c5f7cac84233d3fdbf64a90361076d5d5ff309f599cb080aa02201d0378e89a5b09bfccd725580cbbf0e07506b18ddb8253862249b20bb6e5eb24012103c996a054429c2ceea4b5b7008cc9289e0b9ef06d74f82c5bf29addeab7b404fafdffffff0198f20b0000000000232102d5e7c658ac969aea330ff6fdff09c668189d20d39d743e903a2437b76bc6b272ac00000000",
+            "300": "02000000013e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195000000004847304402205b166adf445966ad45443921e7a1a5269f376fc93c4398eda993274124cc2dce022064fd0718675d59f744581186f20c74696bca7adb851ae1fd83a5e1d5c2965dc801fdffffff01c8ea0b00000000001976a9148ae448729cbc16fe51faa9adc7be14087b45e4d988ac00000000"
+          }
+        },
+        "result": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0020ba0100000302000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0903a0bb0d0400000000ffffffff01a06ba012000000001976a9149128229e0b4d25a6811f6436bb4124de2c87928a88ac0000000002000000017d933f4fe6261536bfdd323c5f2799669fc64bc7eaa343eaa1ae4962b06950b1010000006a47304402200ef1b4655771941c5f7cac84233d3fdbf64a90361076d5d5ff309f599cb080aa02201d0378e89a5b09bfccd725580cbbf0e07506b18ddb8253862249b20bb6e5eb24012103c996a054429c2ceea4b5b7008cc9289e0b9ef06d74f82c5bf29addeab7b404fafdffffff0198f20b0000000000232102d5e7c658ac969aea330ff6fdff09c668189d20d39d743e903a2437b76bc6b272ac0000000002000000013e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195000000004847304402205b166adf445966ad45443921e7a1a5269f376fc93c4398eda993274124cc2dce022064fd0718675d59f744581186f20c74696bca7adb851ae1fd83a5e1d5c2965dc801fdffffff01c8ea0b00000000001976a9148ae448729cbc16fe51faa9adc7be14087b45e4d988ac00000000",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "HEADER[80]:",
+              "rows": 5
+            },
+            {
+              "index": 10,
+              "label": "TX_COUNT (VarInt):",
+              "rows": 1,
+              "small": true
+            }
+          ],
+          "groups": [
+            {
+              "title": "TXS[]",
+              "baseIndex": 100,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "minInstances": 1,
+              "maxInstances": 99,
+              "fields": [
+                {
+                  "index": 0,
+                  "label": "TRANSACTION:",
+                  "rows": 6,
+                  "autoResizeMaxRows": 10,
+                  "comment": "Transactions are serialized in this exact order. The first must be the coinbase."
+                }
+              ]
+            }
+          ],
+          "afterGroups": []
+        },
+        "groupInstances": {
+          "TXS[]": 3
+        },
+        "groupInstanceKeys": {
+          "TXS[]": [100, 200, 300]
+        },
+        "customFieldLabels": {
+          "100": "TX0 — coinbase:",
+          "200": "TX1 — parent:",
+          "300": "TX2 — child:"
+        },
+        "totalInputs": 5,
+        "unwiredCount": 4,
+        "baseHeight": 120,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_raw_block",
+      "extent": "parent"
+    },
+    {
+      "id": "node_raw_block_size",
+      "type": "calculation",
+      "position": {
+        "x": 1450,
+        "y": 1300
+      },
+      "data": {
+        "functionName": "hex_byte_length",
+        "title": "Serialized block size (bytes)",
+        "numInputs": 1,
+        "groupInstances": {},
+        "result": 533,
+        "inputs": {
+          "val": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0020ba0100000302000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0903a0bb0d0400000000ffffffff01a06ba012000000001976a9149128229e0b4d25a6811f6436bb4124de2c87928a88ac0000000002000000017d933f4fe6261536bfdd323c5f2799669fc64bc7eaa343eaa1ae4962b06950b1010000006a47304402200ef1b4655771941c5f7cac84233d3fdbf64a90361076d5d5ff309f599cb080aa02201d0378e89a5b09bfccd725580cbbf0e07506b18ddb8253862249b20bb6e5eb24012103c996a054429c2ceea4b5b7008cc9289e0b9ef06d74f82c5bf29addeab7b404fafdffffff0198f20b0000000000232102d5e7c658ac969aea330ff6fdff09c668189d20d39d743e903a2437b76bc6b272ac0000000002000000013e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195000000004847304402205b166adf445966ad45443921e7a1a5269f376fc93c4398eda993274124cc2dce022064fd0718675d59f744581186f20c74696bca7adb851ae1fd83a5e1d5c2965dc801fdffffff01c8ea0b00000000001976a9148ae448729cbc16fe51faa9adc7be14087b45e4d988ac00000000"
+        },
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "RAW BLOCK:",
+              "rows": 4
+            }
+          ]
+        },
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_raw_block",
+      "extent": "parent"
+    },
+    {
+      "id": "node_FrTZ7207",
+      "type": "calculation",
+      "position": {
+        "x": 739.416977091244,
+        "y": 351.3223720933331
+      },
+      "data": {
+        "functionName": "reverse_bytes_4",
+        "title": "4-Byte → Reversed",
+        "numInputs": 1,
+        "showField": false,
+        "dirty": false,
+        "version": 0,
+        "inputs": {
+          "val": "20000000 "
+        },
+        "result": "00000020",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "4-byte hex:",
+              "placeholder": "e.g., fffffffd",
+              "rows": 1
+            }
+          ]
+        },
+        "groupInstances": {},
+        "error": false,
+        "outputValues": {},
+        "outputErrors": {}
+      },
+      "parentId": "group_header_target",
+      "extent": "parent"
+    },
+    {
+      "id": "node_ix7tq4d",
+      "type": "calculation",
+      "position": {
+        "x": 209.30305909890103,
+        "y": 274.0404288204809
+      },
+      "data": {
+        "functionName": "identity",
+        "title": "Version",
+        "showField": true,
+        "numInputs": 0,
+        "value": "20000000 ",
+        "version": 0,
+        "inputs": {
+          "val": "20000000 "
+        },
+        "result": "20000000 ",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT VALUE:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_header_target",
+      "extent": "parent"
+    },
+    {
+      "id": "node_a60uf51",
+      "type": "calculation",
+      "position": {
+        "x": 773.3320690803539,
+        "y": 861.3223720933331
+      },
+      "data": {
+        "functionName": "reverse_txid_bytes",
+        "title": "TXID/WTXID → Reversed",
+        "numInputs": 1,
+        "groupInstances": {},
+        "result": "1f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100",
+        "inputs": {
+          "val": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+        },
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_header_target",
+      "extent": "parent"
+    },
+    {
+      "id": "node_sn1nlhl",
+      "type": "calculation",
+      "position": {
+        "x": 192.69860226772835,
+        "y": 1417.6097454393507
+      },
+      "data": {
+        "functionName": "identity",
+        "title": "Time",
+        "showField": true,
+        "numInputs": 0,
+        "value": "2025-06-15 15:06:40",
+        "version": 0,
+        "inputs": {
+          "val": "2025-06-15 15:06:40"
+        },
+        "result": "2025-06-15 15:06:40",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT VALUE:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_header_target",
+      "extent": "parent"
+    },
+    {
+      "id": "node_36ej2l2",
+      "type": "calculation",
+      "position": {
+        "x": 595.6021022259238,
+        "y": 1376.7883487559163
+      },
+      "data": {
+        "functionName": "date_to_unix_timestamp",
+        "title": "Date → Unix Time",
+        "numInputs": 1,
+        "version": 0,
+        "inputs": {
+          "val": "2025-06-15 15:06:40"
+        },
+        "result": "1750000000",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Date (UTC):",
+              "rows": 1,
+              "placeholder": "2025-01-01T00:00:00Z"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_header_target",
+      "extent": "parent"
+    },
+    {
+      "id": "node_x11d06h",
+      "type": "calculation",
+      "position": {
+        "x": 1042.8965280389775,
+        "y": 1377.238226385587
+      },
+      "data": {
+        "functionName": "int_to_script_bytes",
+        "title": "Int → ScriptBytes",
+        "numInputs": 1,
+        "version": 0,
+        "inputs": {
+          "val": 1750000000
+        },
+        "result": "80e14e68",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "Integer value:",
+              "rows": 1,
+              "placeholder": "e.g. 4404774"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_header_target",
+      "extent": "parent"
     }
   ],
   "edges": [
@@ -2017,6 +2929,126 @@
       "source": "node_1FtW4d0k",
       "target": "node_wcs3dpp",
       "targetHandle": "input-300",
+      "selected": false
+    },
+    {
+      "id": "edge_block_bits_le",
+      "source": "node_block_bits",
+      "target": "node_block_bits_le",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_bits_target",
+      "source": "node_block_bits",
+      "target": "node_bits_target",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_prefix_bits",
+      "source": "node_block_bits_le",
+      "target": "node_header_prefix",
+      "targetHandle": "input-40",
+      "selected": false
+    },
+    {
+      "id": "edge_header_nonce",
+      "source": "node_mine_nonce",
+      "sourceHandle": "output-0",
+      "target": "node_block_header",
+      "targetHandle": "input-50",
+      "selected": false
+    },
+    {
+      "id": "edge_verify_header",
+      "source": "node_block_header",
+      "target": "node_verify_pow",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_assert_pow",
+      "source": "node_verify_pow",
+      "target": "node_assert_pow",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_tx_count_varint",
+      "source": "node_block_tx_count",
+      "target": "node_block_tx_count_varint",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_raw_count",
+      "source": "node_block_tx_count_varint",
+      "target": "node_raw_block",
+      "targetHandle": "input-10",
+      "selected": false
+    },
+    {
+      "id": "edge_raw_size",
+      "source": "node_raw_block",
+      "target": "node_raw_block_size",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_ep1evta",
+      "source": "node_ix7tq4d",
+      "target": "node_FrTZ7207",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "source": "node_FrTZ7207",
+      "target": "node_header_prefix",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "xy-edge__node_FrTZ7207-node_header_prefixinput-0"
+    },
+    {
+      "id": "edge_iklf3mv",
+      "source": "node_prev_block_display",
+      "target": "node_a60uf51",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_9ihap8r",
+      "source": "node_a60uf51",
+      "target": "node_header_prefix",
+      "targetHandle": "input-10",
+      "selected": false
+    },
+    {
+      "id": "edge_qdpjnuu",
+      "source": "node_sn1nlhl",
+      "target": "node_36ej2l2",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_yhcmch1",
+      "source": "node_36ej2l2",
+      "target": "node_x11d06h",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_a6aclk8",
+      "source": "node_x11d06h",
+      "target": "node_header_prefix",
+      "targetHandle": "input-30",
+      "selected": false
+    },
+    {
+      "id": "edge_oiuexpf",
+      "source": "node_wcs3dpp",
+      "target": "node_header_prefix",
+      "targetHandle": "input-20",
       "selected": false
     }
   ],
