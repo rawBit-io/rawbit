@@ -263,6 +263,12 @@ FUNCTION_SPECS = {
             "val": {"type": "string", "required": True}
         }
     },
+    "target_to_bits": {
+        "paramExtraction": "multi_val",
+        "params": {
+            "vals": {"type": "any", "required": True}
+        }
+    },
     "bits_to_target": {
         "paramExtraction": "multi_val",
         "params": {

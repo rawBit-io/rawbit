@@ -597,6 +597,50 @@ GENESIS_TARGET = (
 GENESIS_BLOCK_HASH = (
     "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"
 )
+TEACHING_TARGET = (
+    "00ffff0000000000000000000000000000000000000000000000000000000000"
+)
+
+
+@pytest.mark.parametrize(
+    "target, bits",
+    [
+        (TEACHING_TARGET, "2000ffff"),
+        (GENESIS_TARGET, "1d00ffff"),
+        ("00" * 31 + "80", "02008000"),
+        ("00" * 31 + "01", "01010000"),
+        ("00" * 29 + "123456", "03123456"),
+        ("ff" * 32, "2100ffff"),
+    ],
+)
+def test_target_to_bits_matches_bitcoin_core_getcompact_vectors(target, bits):
+    assert calc.target_to_bits([target]) == bits
+
+
+def test_target_to_bits_truncates_low_order_bytes_without_rounding():
+    target = "00" * 27 + "123456789a"
+
+    bits = calc.target_to_bits([target])
+    effective = json.loads(calc.bits_to_target([bits]))["target"]
+
+    assert bits == "05123456"
+    assert effective == "00" * 27 + "1234560000"
+    assert int(effective, 16) < int(target, 16)
+
+
+@pytest.mark.parametrize(
+    "target, error",
+    [
+        ("00" * 32, "greater than zero"),
+        ("00" * 31, "exactly 32 bytes"),
+        ("0" * 63, "even.*number of hex characters"),
+        ("gg" * 32, "not valid hexadecimal"),
+        ("01" + "00" * 32, "overflows 256 bits"),
+    ],
+)
+def test_target_to_bits_rejects_invalid_targets(target, error):
+    with pytest.raises(ValueError, match=error):
+        calc.target_to_bits([target])
 
 
 def test_bits_to_target_mainnet_genesis_vector():

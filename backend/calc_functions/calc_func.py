@@ -3018,12 +3018,61 @@ def _decode_compact_target(bits_value: Any) -> tuple[int, int, int]:
     return target, exponent, mantissa
 
 
+def _encode_compact_target(target: int) -> int:
+    """Encode a positive uint256 using Bitcoin Core's GetCompact rules."""
+    if target <= 0:
+        raise ValueError("Target must be greater than zero")
+    if target.bit_length() > 256:
+        raise ValueError("Target overflows 256 bits")
+
+    exponent = (target.bit_length() + 7) // 8
+    if exponent <= 3:
+        mantissa = target << (8 * (3 - exponent))
+    else:
+        mantissa = target >> (8 * (exponent - 3))
+
+    # Compact targets reserve bit 23 as a sign bit. If the unsigned
+    # coefficient would set it, shift the coefficient right by one byte and
+    # increase the exponent, matching arith_uint256::GetCompact(false).
+    if mantissa & 0x00800000:
+        mantissa >>= 8
+        exponent += 1
+
+    return (exponent << 24) | (mantissa & 0x007FFFFF)
+
+
 def _format_mining_difficulty(target: int) -> str:
     """Format difficulty without rounding easy teaching targets down to 0.00."""
     difficulty = Decimal(_DIFFICULTY_ONE_TARGET) / Decimal(target)
     if Decimal("0.01") <= difficulty < Decimal("1000000000000"):
         return format(difficulty, ".2f")
     return format(difficulty, ".8g")
+
+
+def target_to_bits(vals: list[str]) -> str:
+    """
+    Encode a 256-bit proof-of-work target as compact display-order ``nBits``.
+
+    vals[0]: target in 32-byte numeric/display-order hexadecimal
+
+    Compact encoding retains only the target's most significant coefficient
+    bytes. Consumers should decode the returned nBits with ``bits_to_target``
+    and use that effective target for mining and proof-of-work validation.
+    """
+    if not vals or not str(vals[0]).strip():
+        raise ValueError("Need [targetHex]")
+
+    target_raw = _bytes_from_even_hex(str(vals[0]), name="target")
+    if len(target_raw) != 32:
+        candidate = int.from_bytes(target_raw, "big")
+        if candidate.bit_length() > 256:
+            raise ValueError("Target overflows 256 bits")
+        raise ValueError(
+            "target must be exactly 32 bytes (64 hex characters)"
+        )
+    target = int.from_bytes(target_raw, "big")
+    compact = _encode_compact_target(target)
+    return f"{compact:08x}"
 
 
 def bits_to_target(vals: list[str]) -> str:

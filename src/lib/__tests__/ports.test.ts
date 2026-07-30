@@ -187,6 +187,7 @@ describe("buildPorts", () => {
       "Mine Nonce Range",
       ["input-0", "input-1", "input-2", "input-3"],
     ],
+    ["Target → Compact nBits", ["input-0"]],
     ["Bitcoin Block Merkle Tree", ["input-100"]],
   ])(
     "does not invent phantom numInputs ports for sparse-index template %s",

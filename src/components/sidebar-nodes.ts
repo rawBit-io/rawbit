@@ -4077,6 +4077,45 @@ export const allSidebarNodes: NodeTemplate[] = [
   // MINING & BLOCKS
   // ------------------------------------------------------------------
   {
+    functionName: "target_to_bits",
+    label: "Target → Compact nBits",
+    category: "Mining & Blocks",
+    subcategory: "General",
+    description:
+      "Encode a 256-bit proof-of-work target using Bitcoin's compact nBits format",
+    type: "calculation",
+    nodeData: {
+      functionName: "target_to_bits",
+      title: "Target → Compact nBits",
+      paramExtraction: "multi_val",
+      numInputs: 1,
+      inputs: {
+        vals: {
+          0: "00ffff0000000000000000000000000000000000000000000000000000000000",
+        },
+      },
+      outputPorts: [
+        { label: "compact nBits (display order)", handleId: "" },
+      ],
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "TARGET[32] (big-endian hex):",
+            placeholder: "64-hex proof-of-work target",
+            rows: 3,
+            comment:
+              "Numeric/display order. Compact encoding can discard low-order bytes; decode the result with Bits → Target before mining. Reverse the four result bytes before writing nBits into a block header.",
+          },
+        ],
+        groups: [],
+        afterGroups: [],
+      },
+      groupInstances: {},
+      result: "",
+    },
+  },
+  {
     functionName: "bits_to_target",
     label: "Bits → Target",
     category: "Mining & Blocks",

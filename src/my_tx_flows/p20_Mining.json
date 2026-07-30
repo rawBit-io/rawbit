@@ -1,5 +1,5 @@
 {
-  "name": "Mining",
+  "name": "Mining a Bitcoin Block",
   "schemaVersion": 1,
   "runtimeSemantics": {
     "version": 1,
@@ -30,8 +30,8 @@
       "id": "group_11bw3g6",
       "type": "shadcnGroup",
       "position": {
-        "x": 2355,
-        "y": -1295.6698689932896
+        "x": 6682.7369575791,
+        "y": 483.5424764371869
       },
       "data": {
         "isGroup": true,
@@ -54,8 +54,8 @@
       "id": "group_m23e9jt",
       "type": "shadcnGroup",
       "position": {
-        "x": -3967.7369575790995,
-        "y": -1479.2123454304765
+        "x": 360.00000000000045,
+        "y": 300
       },
       "data": {
         "isGroup": true,
@@ -79,8 +79,8 @@
       "id": "group_jgrap54",
       "type": "shadcnGroup",
       "position": {
-        "x": -1615.8317424648412,
-        "y": -163.50631256392595
+        "x": 2711.9052151142587,
+        "y": 1615.7060328665505
       },
       "data": {
         "isGroup": true,
@@ -869,8 +869,8 @@
       "id": "node_y4kVQeNY",
       "type": "shadcnGroup",
       "position": {
-        "x": -4894.775254079414,
-        "y": 3720.670701618699
+        "x": -567.0382965003137,
+        "y": 5499.883047049176
       },
       "data": {
         "isGroup": true,
@@ -1727,24 +1727,24 @@
       "id": "group_header_target",
       "type": "shadcnGroup",
       "position": {
-        "x": 5470.583022908756,
-        "y": -996.3223720933331
+        "x": 9798.319980487857,
+        "y": 1066.8899733371434
       },
       "data": {
         "isGroup": true,
-        "width": 2701,
-        "height": 3249,
+        "width": 2370,
+        "height": 1963,
         "title": "Block header fields and target",
         "fontSize": 44,
         "dirty": false,
         "groupBundlePortOffsets": {
           "targetByBundle": {
-            "group_11bw3g6->group_header_target": -443.85
+            "group_11bw3g6->group_header_target": 22.71
           }
         }
       },
-      "width": 2701,
-      "height": 3249,
+      "width": 2370,
+      "height": 1963,
       "dragHandle": "[data-drag-handle]"
     },
     {
@@ -1752,7 +1752,7 @@
       "type": "calculation",
       "position": {
         "x": 197.17510976000813,
-        "y": 698.5854637794387
+        "y": 414.58546377943867
       },
       "data": {
         "functionName": "identity",
@@ -1785,132 +1785,11 @@
       "extent": "parent"
     },
     {
-      "id": "node_block_bits",
-      "type": "calculation",
-      "position": {
-        "x": 289.92933959118636,
-        "y": 1936.3408588648813
-      },
-      "data": {
-        "functionName": "identity",
-        "title": "nBits (display order)",
-        "showField": true,
-        "numInputs": 0,
-        "value": "2000ffff",
-        "version": 0,
-        "inputs": {
-          "val": "2000ffff"
-        },
-        "result": "2000ffff",
-        "inputStructure": {
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "COMPACT TARGET[4]:",
-              "rows": 1,
-              "unconnectable": true
-            }
-          ]
-        },
-        "groupInstances": {},
-        "comment": "Easy deterministic teaching target",
-        "showComment": true,
-        "dirty": false,
-        "error": false
-      },
-      "parentId": "group_header_target",
-      "extent": "parent"
-    },
-    {
-      "id": "node_block_bits_le",
-      "type": "calculation",
-      "position": {
-        "x": 715,
-        "y": 1638
-      },
-      "data": {
-        "functionName": "reverse_bytes_4",
-        "title": "nBits → header order",
-        "numInputs": 1,
-        "version": 0,
-        "inputs": {
-          "val": "2000ffff"
-        },
-        "result": "ffff0020",
-        "inputStructure": {
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "4-byte hex:",
-              "rows": 1
-            }
-          ]
-        },
-        "groupInstances": {},
-        "dirty": false,
-        "error": false
-      },
-      "parentId": "group_header_target",
-      "extent": "parent"
-    },
-    {
-      "id": "node_bits_target",
-      "type": "calculation",
-      "position": {
-        "x": 747.5918585314575,
-        "y": 2053.3533020440677
-      },
-      "data": {
-        "functionName": "bits_to_target",
-        "title": "Bits → Target",
-        "paramExtraction": "multi_val",
-        "numInputs": 1,
-        "inputs": {
-          "vals": {
-            "0": "2000ffff"
-          }
-        },
-        "outputPorts": [
-          {
-            "label": "target",
-            "handleId": ""
-          },
-          {
-            "label": "difficulty (mainnet diff-1)",
-            "handleId": "output-1"
-          }
-        ],
-        "inputStructure": {
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "BITS (compact hex):",
-              "rows": 1,
-              "comment": "Human notation. The header stores the same four bytes in little-endian order."
-            }
-          ],
-          "groups": [],
-          "afterGroups": []
-        },
-        "groupInstances": {},
-        "totalInputs": 1,
-        "unwiredCount": 0,
-        "result": "00ffff0000000000000000000000000000000000000000000000000000000000",
-        "outputValues": {
-          "output-1": "5.9604645e-8"
-        },
-        "dirty": false,
-        "error": false
-      },
-      "parentId": "group_header_target",
-      "extent": "parent"
-    },
-    {
       "id": "node_header_prefix",
       "type": "calculation",
       "position": {
         "x": 1672.0014189916737,
-        "y": 1012.9218368111879
+        "y": 728.9218368111879
       },
       "data": {
         "functionName": "concat_all",
@@ -1972,8 +1851,8 @@
       "id": "group_mine_verify",
       "type": "shadcnGroup",
       "position": {
-        "x": 9045,
-        "y": -450
+        "x": 13372.7369575791,
+        "y": 1329.2123454304765
       },
       "data": {
         "isGroup": true,
@@ -2261,8 +2140,8 @@
       "id": "group_raw_block",
       "type": "shadcnGroup",
       "position": {
-        "x": 12435,
-        "y": -255
+        "x": 16762.7369575791,
+        "y": 1524.2123454304765
       },
       "data": {
         "isGroup": true,
@@ -2445,8 +2324,8 @@
       "id": "node_FrTZ7207",
       "type": "calculation",
       "position": {
-        "x": 739.416977091244,
-        "y": 351.3223720933331
+        "x": 755.0877018526371,
+        "y": 220.1119385168936
       },
       "data": {
         "functionName": "reverse_bytes_4",
@@ -2481,8 +2360,8 @@
       "id": "node_ix7tq4d",
       "type": "calculation",
       "position": {
-        "x": 209.30305909890103,
-        "y": 274.0404288204809
+        "x": 224.97378386029231,
+        "y": 142.82999524404136
       },
       "data": {
         "functionName": "identity",
@@ -2517,7 +2396,7 @@
       "type": "calculation",
       "position": {
         "x": 773.3320690803539,
-        "y": 861.3223720933331
+        "y": 577.3223720933331
       },
       "data": {
         "functionName": "reverse_txid_bytes",
@@ -2538,8 +2417,8 @@
       "id": "node_sn1nlhl",
       "type": "calculation",
       "position": {
-        "x": 192.69860226772835,
-        "y": 1417.6097454393507
+        "x": 191.07859532046496,
+        "y": 1094.7295787050123
       },
       "data": {
         "functionName": "identity",
@@ -2573,8 +2452,8 @@
       "id": "node_36ej2l2",
       "type": "calculation",
       "position": {
-        "x": 595.6021022259238,
-        "y": 1376.7883487559163
+        "x": 593.9820952786595,
+        "y": 1053.908182021578
       },
       "data": {
         "functionName": "date_to_unix_timestamp",
@@ -2606,8 +2485,8 @@
       "id": "node_x11d06h",
       "type": "calculation",
       "position": {
-        "x": 1042.8965280389775,
-        "y": 1377.238226385587
+        "x": 1041.276521091715,
+        "y": 1054.358059651249
       },
       "data": {
         "functionName": "int_to_script_bytes",
@@ -2625,6 +2504,120 @@
               "label": "Integer value:",
               "rows": 1,
               "placeholder": "e.g. 4404774"
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_header_target",
+      "extent": "parent"
+    },
+    {
+      "id": "node_5rrkv9o",
+      "type": "calculation",
+      "position": {
+        "x": 132.09995698676903,
+        "y": 1442.3748926208893
+      },
+      "data": {
+        "functionName": "identity",
+        "title": "Target",
+        "showField": true,
+        "numInputs": 0,
+        "value": "00ffff0000000000000000000000000000000000000000000000000000000000",
+        "version": 0,
+        "inputs": {
+          "val": "00ffff0000000000000000000000000000000000000000000000000000000000"
+        },
+        "result": "00ffff0000000000000000000000000000000000000000000000000000000000",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "INPUT VALUE:",
+              "rows": 1,
+              "unconnectable": true
+            }
+          ]
+        },
+        "groupInstances": {},
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_header_target",
+      "extent": "parent"
+    },
+    {
+      "id": "node_u852imw",
+      "type": "calculation",
+      "position": {
+        "x": 476.72315358792366,
+        "y": 1379.4809068813531
+      },
+      "data": {
+        "functionName": "target_to_bits",
+        "title": "Target → Compact nBits",
+        "paramExtraction": "multi_val",
+        "numInputs": 1,
+        "inputs": {
+          "vals": {
+            "0": "00ffff0000000000000000000000000000000000000000000000000000000000"
+          }
+        },
+        "outputPorts": [
+          {
+            "label": "compact nBits (display order)",
+            "handleId": ""
+          }
+        ],
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "TARGET[32] (big-endian hex):",
+              "placeholder": "64-hex proof-of-work target",
+              "rows": 3,
+              "comment": "Numeric/display order. Compact encoding can discard low-order bytes; decode the result with Bits → Target before mining. Reverse the four result bytes before writing nBits into a block header."
+            }
+          ],
+          "groups": [],
+          "afterGroups": []
+        },
+        "groupInstances": {},
+        "result": "2000ffff",
+        "totalInputs": 1,
+        "unwiredCount": 0,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_header_target",
+      "extent": "parent"
+    },
+    {
+      "id": "node_aa6o6ch",
+      "type": "calculation",
+      "position": {
+        "x": 940.0600125648798,
+        "y": 1294.2298599285184
+      },
+      "data": {
+        "functionName": "reverse_bytes_4",
+        "title": "4-Byte → Reversed",
+        "numInputs": 1,
+        "version": 0,
+        "inputs": {
+          "val": "2000ffff"
+        },
+        "result": "ffff0020",
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "4-byte hex:",
+              "rows": 1,
+              "placeholder": "e.g., fffffffd"
             }
           ]
         },
@@ -2932,27 +2925,6 @@
       "selected": false
     },
     {
-      "id": "edge_block_bits_le",
-      "source": "node_block_bits",
-      "target": "node_block_bits_le",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "id": "edge_bits_target",
-      "source": "node_block_bits",
-      "target": "node_bits_target",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "id": "edge_prefix_bits",
-      "source": "node_block_bits_le",
-      "target": "node_header_prefix",
-      "targetHandle": "input-40",
-      "selected": false
-    },
-    {
       "id": "edge_header_nonce",
       "source": "node_mine_nonce",
       "sourceHandle": "output-0",
@@ -3049,6 +3021,27 @@
       "source": "node_wcs3dpp",
       "target": "node_header_prefix",
       "targetHandle": "input-20",
+      "selected": false
+    },
+    {
+      "id": "edge_f2w6al1",
+      "source": "node_5rrkv9o",
+      "target": "node_u852imw",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_dr8wbih",
+      "source": "node_u852imw",
+      "target": "node_aa6o6ch",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "id": "edge_hl6iday",
+      "source": "node_aa6o6ch",
+      "target": "node_header_prefix",
+      "targetHandle": "input-40",
       "selected": false
     }
   ],

@@ -68,6 +68,7 @@ describe("sidebar node templates", () => {
     );
 
     expect(miningTemplates.map((template) => template.label)).toEqual([
+      "Target → Compact nBits",
       "Bits → Target",
       "Bitcoin Block Merkle Tree",
       "Mine Nonce Range",
@@ -75,6 +76,21 @@ describe("sidebar node templates", () => {
       "Block Header Builder",
       "Raw Block Builder",
     ]);
+
+    const targetToBits = templateByTitle("Target → Compact nBits");
+    expect(targetToBits.nodeData?.inputs?.vals).toEqual({
+      0: "00ffff0000000000000000000000000000000000000000000000000000000000",
+    });
+    expect(targetToBits.nodeData?.outputPorts).toEqual([
+      { label: "compact nBits (display order)", handleId: "" },
+    ]);
+    expect(
+      targetToBits.nodeData?.inputStructure?.ungrouped?.[0]
+    ).toMatchObject({
+      index: 0,
+      label: "TARGET[32] (big-endian hex):",
+      rows: 3,
+    });
 
     const merkleTree = templateByTitle("Bitcoin Block Merkle Tree");
     expect(merkleTree.nodeData?.outputPorts).toEqual([

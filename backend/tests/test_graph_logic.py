@@ -30,6 +30,9 @@ GENESIS_TARGET = (
 GENESIS_BLOCK_HASH = (
     "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"
 )
+TEACHING_TARGET = (
+    "00ffff0000000000000000000000000000000000000000000000000000000000"
+)
 
 
 def test_validate_inputs_required_and_numeric_rules():
@@ -701,6 +704,60 @@ def test_bulk_calculate_logic_exposes_mining_node_output_ports():
     assert data["pow"]["outputValues"] == {
         "output-1": GENESIS_BLOCK_HASH
     }
+
+
+def test_target_to_bits_graph_round_trip_feeds_serialization_and_decoder():
+    nodes = [
+        {
+            "id": "compact",
+            "type": "calculation",
+            "data": {
+                "functionName": "target_to_bits",
+                "inputStructure": {"ungrouped": [{"index": 0}]},
+                "inputs": {"vals": {"0": TEACHING_TARGET}},
+                "dirty": True,
+            },
+        },
+        {
+            "id": "header-order",
+            "type": "calculation",
+            "data": {
+                "functionName": "reverse_bytes_4",
+                "dirty": True,
+            },
+        },
+        {
+            "id": "effective-target",
+            "type": "calculation",
+            "data": {
+                "functionName": "bits_to_target",
+                "inputStructure": {"ungrouped": [{"index": 0}]},
+                "dirty": True,
+            },
+        },
+    ]
+    edges = [
+        {
+            "source": "compact",
+            "target": "header-order",
+            "targetHandle": "input-0",
+        },
+        {
+            "source": "compact",
+            "target": "effective-target",
+            "targetHandle": "input-0",
+        },
+    ]
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic(
+        copy.deepcopy(nodes), edges
+    )
+    data = {node["id"]: node["data"] for node in updated_nodes}
+
+    assert errors == []
+    assert data["compact"]["result"] == "2000ffff"
+    assert data["header-order"]["result"] == "ffff0020"
+    assert data["effective-target"]["result"] == TEACHING_TARGET
 
 
 def test_miner_nonce_output_propagates_and_clears_across_result_transitions():

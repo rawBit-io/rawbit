@@ -31,6 +31,7 @@ from calc_functions.calc_func import (
     satoshi_to_8_le,
 
     double_sha256_hex,
+    target_to_bits,
     bits_to_target,
     mine_nonce_range,
     check_pow,
@@ -129,6 +130,7 @@ CALC_FUNCTIONS = {
     "satoshi_to_8_le": satoshi_to_8_le,
 
     "double_sha256_hex": double_sha256_hex,
+    "target_to_bits": target_to_bits,
     "bits_to_target": bits_to_target,
     "mine_nonce_range": mine_nonce_range,
     "check_pow": check_pow,
