@@ -257,6 +257,24 @@ FUNCTION_SPECS = {
             "val": {"type": "string", "required": True}
         }
     },
+    "bits_to_target": {
+        "paramExtraction": "multi_val",
+        "params": {
+            "vals": {"type": "any", "required": True}
+        }
+    },
+    "mine_nonce_range": {
+        "paramExtraction": "multi_val",
+        "params": {
+            "vals": {"type": "any", "required": True}
+        }
+    },
+    "check_pow": {
+        "paramExtraction": "multi_val",
+        "params": {
+            "vals": {"type": "any", "required": True}
+        }
+    },
     "sha256_hex": {
         "paramExtraction": "single_val",
         "params": {

@@ -16,6 +16,20 @@ SAMPLE_TX_HEX = (
     "02000000010000000000000000000000000000000000000000000000000000000000000000000000000151"
     "ffffffff01e803000000000000015100000000"
 )
+GENESIS_HEADER = (
+    "01000000"
+    + "00" * 32
+    + "3ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a"
+    + "29ab5f49"
+    + "ffff001d"
+    + "1dac2b7c"
+)
+GENESIS_TARGET = (
+    "00000000ffff0000000000000000000000000000000000000000000000000000"
+)
+GENESIS_BLOCK_HASH = (
+    "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"
+)
 
 
 def test_validate_inputs_required_and_numeric_rules():
@@ -612,6 +626,168 @@ def test_bulk_calculate_logic_musig2_nonce_gen_message_null_sentinel():
         "0393836bea014fdef432ebd4fa94a8e74fbbe52a081dceb9491aebca86f6fe76ad"
     )
     assert data_empty["result"] != data_null["result"]
+
+
+def test_bulk_calculate_logic_exposes_mining_node_output_ports():
+    nodes = [
+        {
+            "id": "bits",
+            "type": "calculation",
+            "data": {
+                "functionName": "bits_to_target",
+                "inputStructure": {"ungrouped": [{"index": 0}]},
+                "inputs": {"vals": {"0": "1d00ffff"}},
+                "dirty": True,
+            },
+        },
+        {
+            "id": "mine",
+            "type": "calculation",
+            "data": {
+                "functionName": "mine_nonce_range",
+                "inputStructure": {
+                    "ungrouped": [
+                        {"index": 0},
+                        {"index": 1},
+                        {"index": 2},
+                        {"index": 3},
+                    ]
+                },
+                "inputs": {
+                    "vals": {
+                        "0": GENESIS_HEADER[:-8],
+                        "1": "2083236893",
+                        "2": "1",
+                        "3": GENESIS_TARGET,
+                    }
+                },
+                "dirty": True,
+            },
+        },
+        {
+            "id": "pow",
+            "type": "calculation",
+            "data": {
+                "functionName": "check_pow",
+                "inputStructure": {
+                    "ungrouped": [{"index": 0}, {"index": 1}]
+                },
+                "inputs": {
+                    "vals": {
+                        "0": GENESIS_HEADER,
+                        "1": GENESIS_TARGET,
+                    }
+                },
+                "dirty": True,
+            },
+        },
+    ]
+
+    updated_nodes, errors = graph_logic.bulk_calculate_logic(
+        copy.deepcopy(nodes), []
+    )
+    data = {node["id"]: node["data"] for node in updated_nodes}
+
+    assert errors == []
+    assert data["bits"]["result"] == GENESIS_TARGET
+    assert data["bits"]["outputValues"] == {"output-1": "1.00"}
+    assert data["mine"]["outputValues"] == {
+        "output-0": "1dac2b7c",
+        "output-1": "true",
+        "output-2": "2083236894",
+    }
+    assert "found: true" in data["mine"]["result"]
+    assert data["pow"]["result"] == "true"
+    assert data["pow"]["outputValues"] == {
+        "output-1": GENESIS_BLOCK_HASH
+    }
+
+
+def test_miner_nonce_output_propagates_and_clears_across_result_transitions():
+    miner = {
+        "id": "mine",
+        "type": "calculation",
+        "data": {
+            "functionName": "mine_nonce_range",
+            "inputStructure": {
+                "ungrouped": [{"index": index} for index in range(4)]
+            },
+            "inputs": {
+                "vals": {
+                    "0": GENESIS_HEADER[:-8],
+                    "1": "2083236893",
+                    "2": "1",
+                    "3": GENESIS_TARGET,
+                }
+            },
+            "dirty": True,
+        },
+    }
+    sink = {
+        "id": "sink",
+        "type": "calculation",
+        "data": {
+            "functionName": "identity",
+            "value": "stale-manual-value",
+            "dirty": True,
+        },
+    }
+    edges = [
+        {
+            "source": "mine",
+            "sourceHandle": "output-0",
+            "target": "sink",
+        }
+    ]
+
+    found_nodes, found_errors = graph_logic.bulk_calculate_logic(
+        copy.deepcopy([miner, sink]), edges
+    )
+    found_nodes = list(found_nodes)
+    found_data = {node["id"]: node["data"] for node in found_nodes}
+
+    assert found_errors == []
+    assert found_data["mine"]["outputValues"]["output-0"] == "1dac2b7c"
+    assert found_data["sink"]["result"] == "1dac2b7c"
+    assert "found:" not in found_data["sink"]["result"]
+
+    not_found_nodes = copy.deepcopy(found_nodes)
+    for node in not_found_nodes:
+        node["data"]["dirty"] = True
+    next(
+        node for node in not_found_nodes if node["id"] == "mine"
+    )["data"]["inputs"]["vals"]["1"] = "2083236892"
+
+    not_found_nodes, not_found_errors = graph_logic.bulk_calculate_logic(
+        not_found_nodes, edges
+    )
+    not_found_nodes = list(not_found_nodes)
+    not_found_data = {
+        node["id"]: node["data"] for node in not_found_nodes
+    }
+
+    assert not_found_errors == []
+    assert not_found_data["mine"]["outputValues"]["output-0"] == ""
+    assert not_found_data["sink"]["result"] == ""
+
+    errored_nodes = copy.deepcopy(found_nodes)
+    for node in errored_nodes:
+        node["data"]["dirty"] = True
+    next(
+        node for node in errored_nodes if node["id"] == "mine"
+    )["data"]["inputs"]["vals"]["3"] = "00"
+
+    errored_nodes, errored_errors = graph_logic.bulk_calculate_logic(
+        errored_nodes, edges
+    )
+    errored_data = {
+        node["id"]: node["data"] for node in errored_nodes
+    }
+
+    assert any(error["nodeId"] == "mine" for error in errored_errors)
+    assert errored_data["mine"]["outputValues"] == {}
+    assert errored_data["sink"].get("result") != "1dac2b7c"
+    assert not errored_data["sink"].get("result")
 
 
 @pytest.mark.parametrize(

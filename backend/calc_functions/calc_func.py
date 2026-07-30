@@ -2732,6 +2732,222 @@ def double_sha256_hex(val: str) -> str:
     raw = _bytes_from_even_hex(val, name="input")
     return hashlib.sha256(hashlib.sha256(raw).digest()).hexdigest()
 
+
+# Bitcoin's difficulty-1 target (the target encoded by 0x1d00ffff).
+_DIFFICULTY_ONE_TARGET = 0x00000000FFFF0000000000000000000000000000000000000000000000000000
+_MAX_MINING_ATTEMPTS = 100_000
+_MAX_UINT32 = 0xFFFFFFFF
+
+
+def _fixed_hex_bytes(value: Any, *, name: str, byte_length: int) -> bytes:
+    """Decode a fixed-width hex field while retaining the shared clear errors."""
+    raw = _bytes_from_even_hex(str(value), name=name)
+    if len(raw) != byte_length:
+        raise ValueError(
+            f"{name} must be exactly {byte_length} bytes "
+            f"({byte_length * 2} hex characters)"
+        )
+    return raw
+
+
+def _decode_compact_target(bits_value: Any) -> tuple[int, int, int]:
+    """Decode Bitcoin's human/display-order compact target representation."""
+    bits_raw = _fixed_hex_bytes(bits_value, name="compact bits", byte_length=4)
+    compact = int.from_bytes(bits_raw, "big")
+    exponent = compact >> 24
+    encoded_mantissa = compact & 0x00FFFFFF
+    mantissa = encoded_mantissa & 0x007FFFFF
+
+    if (encoded_mantissa & 0x00800000) and mantissa != 0:
+        raise ValueError(
+            "Compact bits encodes a negative target: "
+            "mantissa sign bit 0x00800000 is set"
+        )
+    # Match Bitcoin Core's SetCompact overflow rules. Sizes 33 and 34 can
+    # still fit in 256 bits when the mantissa is correspondingly small.
+    overflows = mantissa != 0 and (
+        exponent > 34
+        or (mantissa > 0xFF and exponent > 33)
+        or (mantissa > 0xFFFF and exponent > 32)
+    )
+    if overflows:
+        raise ValueError(
+            f"Compact bits exponent {exponent} overflows a 256-bit target "
+            f"with mantissa 0x{mantissa:06x}"
+        )
+
+    if exponent <= 3:
+        target = mantissa >> (8 * (3 - exponent))
+    else:
+        target = mantissa << (8 * (exponent - 3))
+
+    if target == 0:
+        raise ValueError("Compact bits encodes a zero target")
+    if target.bit_length() > 256:
+        raise ValueError("Compact bits target overflows 256 bits")
+
+    return target, exponent, mantissa
+
+
+def _format_mining_difficulty(target: int) -> str:
+    """Format difficulty without rounding easy teaching targets down to 0.00."""
+    difficulty = Decimal(_DIFFICULTY_ONE_TARGET) / Decimal(target)
+    if Decimal("0.01") <= difficulty < Decimal("1000000000000"):
+        return format(difficulty, ".2f")
+    return format(difficulty, ".8g")
+
+
+def bits_to_target(vals: list[str]) -> str:
+    """
+    Expand Bitcoin compact ``nBits`` into a 256-bit target.
+
+    vals[0]: compact bits in display order (4 bytes / 8 hex characters)
+
+    The JSON bundle lets graph_logic expose the target as the main result and
+    the derived difficulty through ``output-1``.
+    """
+    if not vals or not str(vals[0]).strip():
+        raise ValueError("Need [compactBitsHex]")
+
+    target, exponent, mantissa = _decode_compact_target(vals[0])
+    target_hex = f"{target:064x}"
+    return json.dumps(
+        {
+            "target": target_hex,
+            "difficulty": _format_mining_difficulty(target),
+            "exponent": exponent,
+            "mantissa": f"{mantissa:06x}",
+        },
+        separators=(",", ":"),
+    )
+
+
+def _parse_mining_uint(value: Any, *, name: str) -> int:
+    text = str(value).strip()
+    if not _UINT_DEC_NO_LEADING_ZERO_RE.fullmatch(text):
+        raise ValueError(f"{name} must be an unsigned decimal integer")
+    return int(text, 10)
+
+
+def mine_nonce_range(vals: list[str]) -> str:
+    """
+    Double-SHA256 a deterministic contiguous range of block-header nonces.
+
+    vals[0]: 76-byte serialized header prefix (everything except nonce)
+    vals[1]: starting nonce, unsigned decimal
+    vals[2]: number of attempts, unsigned decimal (blank => 100; capped)
+    vals[3]: expanded 32-byte target, display-order hex
+    """
+    if len(vals) < 4:
+        raise ValueError(
+            "Need [headerPrefix76Hex, startNonce, attemptsPerBatch, targetHex]"
+        )
+
+    prefix = _fixed_hex_bytes(vals[0], name="header prefix", byte_length=76)
+    start = _parse_mining_uint(vals[1], name="Start nonce")
+    if start > _MAX_UINT32:
+        raise ValueError(
+            f"Start nonce must be between 0 and {_MAX_UINT32}; "
+            "the 32-bit nonce space is exhausted"
+        )
+
+    attempts_text = str(vals[2]).strip()
+    attempts_requested = (
+        100
+        if not attempts_text
+        else _parse_mining_uint(attempts_text, name="Attempts")
+    )
+    if attempts_requested < 1:
+        raise ValueError("Attempts must be at least 1")
+    attempts = min(attempts_requested, _MAX_MINING_ATTEMPTS)
+
+    target_bytes = _fixed_hex_bytes(vals[3], name="target", byte_length=32)
+    target = int.from_bytes(target_bytes, "big")
+    if target == 0:
+        raise ValueError("Target must be greater than zero")
+
+    # Do not wrap the uint32 nonce: exhausting it is the teachable point at
+    # which miners must change coinbase extraNonce/time/version.
+    stop = min(start + attempts, _MAX_UINT32 + 1)
+    found_nonce: int | None = None
+    found_hash = ""
+    last_nonce = start
+    last_hash = ""
+
+    for nonce in range(start, stop):
+        digest = hashlib.sha256(
+            hashlib.sha256(prefix + struct.pack("<I", nonce)).digest()
+        ).digest()
+        last_nonce = nonce
+        last_hash = digest[::-1].hex()
+        if int.from_bytes(digest, "little") <= target:
+            found_nonce = nonce
+            found_hash = last_hash
+            break
+
+    # ``stop`` is always greater than ``start`` because attempts >= 1 and the
+    # start nonce is constrained to uint32.
+    tried_end = found_nonce if found_nonce is not None else last_nonce
+    next_start = tried_end + 1
+    found = found_nonce is not None
+    nonce_display = str(found_nonce) if found else "-"
+    hash_display = found_hash if found else "-"
+    summary = "\n".join(
+        (
+            f"found: {'true' if found else 'false'}",
+            f"nonce: {nonce_display}",
+            f"block hash: {hash_display}",
+            f"tried: {start}\u2026{tried_end}",
+            f"next start: {next_start}",
+        )
+    )
+
+    return json.dumps(
+        {
+            "summary": summary,
+            "found": found,
+            "nonce": found_nonce,
+            "nonce_le": struct.pack("<I", found_nonce).hex() if found else "",
+            "block_hash": found_hash,
+            "last_hash": last_hash,
+            "tried_start": start,
+            "tried_end": tried_end,
+            "attempts_requested": attempts_requested,
+            "attempts": tried_end - start + 1,
+            "attempts_cap": _MAX_MINING_ATTEMPTS,
+            "next_start": next_start,
+        },
+        separators=(",", ":"),
+    )
+
+
+def check_pow(vals: list[str]) -> str:
+    """
+    Check a serialized 80-byte Bitcoin block header against an expanded target.
+
+    The digest is interpreted little-endian for the numeric comparison and
+    reversed for the conventional block-hash display.
+    """
+    if len(vals) < 2:
+        raise ValueError("Need [blockHeader80Hex, targetHex]")
+
+    header = _fixed_hex_bytes(vals[0], name="block header", byte_length=80)
+    target_bytes = _fixed_hex_bytes(vals[1], name="target", byte_length=32)
+    target = int.from_bytes(target_bytes, "big")
+    if target == 0:
+        raise ValueError("Target must be greater than zero")
+
+    digest = hashlib.sha256(hashlib.sha256(header).digest()).digest()
+    valid = int.from_bytes(digest, "little") <= target
+    return json.dumps(
+        {
+            "valid": valid,
+            "block_hash": digest[::-1].hex(),
+        },
+        separators=(",", ":"),
+    )
+
+
 def sign_as_bitcoin_core_low_r(vals: list[str]) -> str:
     """
     Return a DER-encoded ECDSA signature with low-R grinding, mimicking

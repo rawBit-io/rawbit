@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   ArrowRightLeft,
   Hash,
+  Pickaxe,
   Search,
   X,
 } from "lucide-react";
@@ -98,6 +99,12 @@ const categories = [
     label: "Transactions",
     icon: FileCode,
     nodeFilter: (node: NodeTemplate) => node.category === "Transactions",
+  },
+  {
+    id: "mining-blocks",
+    label: "Mining & Blocks",
+    icon: Pickaxe,
+    nodeFilter: (node: NodeTemplate) => node.category === "Mining & Blocks",
   },
   {
     id: "keys-addresses",

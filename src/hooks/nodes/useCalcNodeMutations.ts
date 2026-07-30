@@ -8,7 +8,7 @@ import {
   SENTINEL_NULL,
 } from "@/lib/nodes/constants";
 import type { SnapshotOptions } from "@/hooks/useSnapshotScheduler";
-import { setVal } from "@/lib/utils";
+import { getVal, setVal } from "@/lib/utils";
 import { removeScriptSteps } from "@/lib/share/scriptStepsCache";
 import {
   TX_FIELD_EXTRACT_MAX_OUTPUTS,
@@ -24,6 +24,12 @@ export interface UseCalcNodeMutationsResult {
     value: string,
     isConnected: boolean,
     allowEmpty: boolean
+  ) => void;
+  advanceFieldValue: (
+    targetField: number,
+    stepField: number,
+    isConnected: boolean,
+    nextValueOutput?: string
   ) => void;
   setTaprootLeafIndex: (index: number) => void;
   setTxFieldExtractField: (index: number, field: string) => void;
@@ -81,6 +87,61 @@ export function useCalcNodeMutations(
               }
             : node
         )
+      );
+    },
+    [id, setNodes]
+  );
+
+  const advanceFieldValue = useCallback(
+    (
+      targetField: number,
+      stepField: number,
+      isConnected: boolean,
+      nextValueOutput?: string
+    ) => {
+      if (isConnected) return;
+
+      setNodes((nodes) =>
+        nodes.map((node) => {
+          if (node.id !== id || node.data.dirty) return node;
+
+          const currentText = getVal(
+            node.data.inputs?.vals,
+            targetField
+          ).trim();
+          const stepText = getVal(node.data.inputs?.vals, stepField).trim();
+          const exactNextText = nextValueOutput
+            ? String(node.data.outputValues?.[nextValueOutput] ?? "").trim()
+            : "";
+          if (
+            !/^[+-]?\d+$/.test(currentText) ||
+            (!exactNextText && !/^[+-]?\d+$/.test(stepText)) ||
+            (exactNextText && !/^[+-]?\d+$/.test(exactNextText))
+          ) {
+            return node;
+          }
+
+          const nextValue = exactNextText
+            ? BigInt(exactNextText)
+            : BigInt(currentText) + BigInt(stepText);
+          return {
+            ...node,
+            data: {
+              ...(node.data as NodeData),
+              inputs: {
+                ...(node.data.inputs ?? {}),
+                vals: setVal(
+                  node.data.inputs?.vals,
+                  targetField,
+                  nextValue.toString()
+                ),
+              },
+              dirty: true,
+              error: false,
+              extendedError: undefined,
+            },
+          };
+        })
       );
     },
     [id, setNodes]
@@ -400,6 +461,7 @@ export function useCalcNodeMutations(
 
   return {
     setFieldValue,
+    advanceFieldValue,
     setTaprootLeafIndex,
     setTxFieldExtractField,
     resizeTxFieldExtractFields,

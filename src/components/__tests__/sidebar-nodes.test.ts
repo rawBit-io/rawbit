@@ -62,6 +62,66 @@ describe("sidebar node templates", () => {
     });
   });
 
+  it("ships the complete Mining & Blocks palette with deterministic mining defaults", () => {
+    const miningTemplates = allSidebarNodes.filter(
+      (template) => template.category === "Mining & Blocks"
+    );
+
+    expect(miningTemplates.map((template) => template.label)).toEqual([
+      "Bits → Target",
+      "Mine Nonce Range",
+      "Verify Block PoW",
+      "Block Header Builder",
+      "Raw Block Builder",
+    ]);
+
+    const miner = templateByTitle("Mine Nonce Range");
+    expect(miner.nodeData?.inputs?.vals).toEqual({
+      0: "",
+      1: "0",
+      2: "100",
+      3: "",
+    });
+    expect(miner.nodeData?.advanceButton).toEqual({
+      targetField: 1,
+      stepField: 2,
+      label: "Mine next batch",
+      nextValueOutput: "output-2",
+      disableWhenOutput: {
+        handleId: "output-1",
+        equals: "true",
+      },
+    });
+    expect(miner.nodeData?.outputPorts?.map((port) => port.handleId)).toEqual([
+      "output-0",
+      "output-1",
+      "output-2",
+    ]);
+
+    const rawBlock = templateByTitle("Raw Block Builder");
+    const transactions = rawBlock.nodeData?.inputStructure?.groups?.find(
+      (group) => group.title === "TXS[]"
+    );
+    expect(transactions).toMatchObject({
+      baseIndex: 100,
+      expandable: true,
+      minInstances: 1,
+      maxInstances: 99,
+    });
+    const keys = [...(rawBlock.nodeData?.groupInstanceKeys?.["TXS[]"] ?? [])];
+    while (keys.length < 99) {
+      expect(
+        canGrowGroup(
+          transactions?.baseIndex ?? 0,
+          keys,
+          transactions?.fields ?? []
+        )
+      ).toBe(true);
+      keys.push(getNextGapIndex(keys, transactions?.baseIndex ?? 0));
+    }
+    expect(keys.at(-1)).toBe(9_900);
+  });
+
   it.each([
     ["PUBKEYS[]", 1000],
     ["PARTIAL_SIGS[]", 2900],

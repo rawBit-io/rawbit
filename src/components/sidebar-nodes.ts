@@ -12,6 +12,7 @@ import { buildOpcodeInputState } from "@/lib/opcodeNodeData";
  * - Canvas & Inputs
  * - Encoding & Script Data
  * - Transactions
+ * - Mining & Blocks
  * - Keys & Addresses
  * - Hashes
  * - Signing & Verification
@@ -4071,7 +4072,292 @@ export const allSidebarNodes: NodeTemplate[] = [
       baseHeight: 100,
     },
   },
-  // In sidebar-nodes.ts, add this in the Utility category:
+
+  // ------------------------------------------------------------------
+  // MINING & BLOCKS
+  // ------------------------------------------------------------------
+  {
+    functionName: "bits_to_target",
+    label: "Bits → Target",
+    category: "Mining & Blocks",
+    subcategory: "General",
+    description:
+      "Expand Bitcoin compact nBits into its 256-bit proof-of-work target",
+    type: "calculation",
+    nodeData: {
+      functionName: "bits_to_target",
+      title: "Bits → Target",
+      paramExtraction: "multi_val",
+      numInputs: 1,
+      inputs: { vals: { 0: "2000ffff" } },
+      outputPorts: [
+        { label: "target", handleId: "" },
+        { label: "difficulty (mainnet diff-1)", handleId: "output-1" },
+      ],
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "BITS (compact hex):",
+            placeholder: "2000ffff",
+            rows: 1,
+            comment:
+              "Human notation, exponent first (for example 0x2000ffff). Header serialization uses these four bytes in little-endian order.",
+          },
+        ],
+        groups: [],
+        afterGroups: [],
+      },
+      groupInstances: {},
+      result: "",
+    },
+  },
+  {
+    functionName: "mine_nonce_range",
+    label: "Mine Nonce Range",
+    category: "Mining & Blocks",
+    subcategory: "General",
+    description:
+      "Try a deterministic batch of header nonces and report the first valid proof of work",
+    type: "calculation",
+    nodeData: {
+      functionName: "mine_nonce_range",
+      title: "Mine Nonce Range",
+      paramExtraction: "multi_val",
+      numInputs: 4,
+      inputs: {
+        vals: {
+          0: "",
+          1: "0",
+          2: "100",
+          3: "",
+        },
+      },
+      advanceButton: {
+        targetField: 1,
+        stepField: 2,
+        label: "Mine next batch",
+        nextValueOutput: "output-2",
+        disableWhenOutput: {
+          handleId: "output-1",
+          equals: "true",
+        },
+      },
+      outputPorts: [
+        { label: "nonce (LE-4)", handleId: "output-0" },
+        { label: "found", handleId: "output-1" },
+        { label: "next start", handleId: "output-2" },
+      ],
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "HEADER PREFIX[76]:",
+            placeholder: "Version through nBits, without nonce",
+            rows: 5,
+            comment:
+              "Exactly 76 serialized header bytes (152 hex characters). The nonce is appended as LE-4 for each attempt.",
+          },
+          {
+            index: 1,
+            label: "START NONCE (decimal):",
+            placeholder: "0",
+            rows: 1,
+            small: true,
+          },
+          {
+            index: 2,
+            label: "ATTEMPTS (decimal):",
+            placeholder: "100",
+            rows: 1,
+            small: true,
+            comment: "Number of consecutive nonces to try in this batch.",
+          },
+          {
+            index: 3,
+            label: "TARGET[32]:",
+            placeholder: "64-hex target from Bits → Target",
+            rows: 3,
+            comment:
+              "A header is valid when its double-SHA256 hash, interpreted as a little-endian integer, is at or below this target.",
+          },
+        ],
+        groups: [],
+        afterGroups: [],
+      },
+      groupInstances: {},
+      result: "",
+    },
+  },
+  {
+    functionName: "check_pow",
+    label: "Verify Block PoW",
+    category: "Mining & Blocks",
+    subcategory: "General",
+    description:
+      "Verify that an 80-byte block header hash meets the supplied target",
+    type: "calculation",
+    nodeData: {
+      functionName: "check_pow",
+      title: "Verify Block PoW",
+      paramExtraction: "multi_val",
+      numInputs: 2,
+      inputs: { vals: { 0: "", 1: "" } },
+      outputPorts: [
+        { label: "valid", handleId: "" },
+        { label: "block hash", handleId: "output-1" },
+      ],
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "BLOCK HEADER[80]:",
+            placeholder: "160 hex characters",
+            rows: 5,
+          },
+          {
+            index: 1,
+            label: "TARGET[32]:",
+            placeholder: "64-hex target from Bits → Target",
+            rows: 3,
+          },
+        ],
+        groups: [],
+        afterGroups: [],
+      },
+      groupInstances: {},
+      result: "",
+    },
+  },
+  {
+    functionName: "concat_all",
+    label: "Block Header Builder",
+    category: "Mining & Blocks",
+    subcategory: "General",
+    description:
+      "Assemble the six serialized fields of an 80-byte Bitcoin block header",
+    type: "calculation",
+    nodeData: {
+      functionName: "concat_all",
+      title: "Block Header Builder",
+      paramExtraction: "multi_val",
+      numInputs: 6,
+      inputs: { vals: [] },
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "VERSION[4]:",
+            placeholder: "4-byte LE",
+            rows: 1,
+            comment: "Block version serialized as four little-endian bytes.",
+          },
+          {
+            index: 10,
+            label: "PREV_BLOCK_HASH[32]:",
+            placeholder: "Previous block hash (internal byte order)",
+            rows: 3,
+            comment:
+              "Use internal serialized byte order—the reverse of the hash normally shown by block explorers.",
+          },
+          {
+            index: 20,
+            label: "MERKLE_ROOT[32]:",
+            placeholder: "Merkle root (internal byte order)",
+            rows: 3,
+            comment:
+              "Transaction Merkle root in the byte order serialized into the header.",
+          },
+          {
+            index: 30,
+            label: "TIMESTAMP[4]:",
+            placeholder: "Unix time, 4-byte LE",
+            rows: 1,
+          },
+          {
+            index: 40,
+            label: "BITS[4]:",
+            placeholder: "Compact target, 4-byte LE",
+            rows: 1,
+            comment:
+              "Header serialization is little-endian: compact 0x2000ffff is written ffff0020.",
+          },
+          {
+            index: 50,
+            label: "NONCE[4]:",
+            placeholder: "4-byte LE",
+            rows: 1,
+          },
+        ],
+        groups: [],
+        afterGroups: [],
+      },
+      groupInstances: {},
+      result: "",
+      baseHeight: 120,
+    },
+  },
+  {
+    functionName: "concat_all",
+    label: "Raw Block Builder",
+    category: "Mining & Blocks",
+    subcategory: "General",
+    description:
+      "Serialize a solved header, transaction count, and an expandable ordered transaction list",
+    type: "calculation",
+    nodeData: {
+      functionName: "concat_all",
+      title: "Raw Block Builder",
+      paramExtraction: "multi_val",
+      numInputs: 3,
+      inputs: { vals: [] },
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "HEADER[80]:",
+            placeholder: "Solved 80-byte block header",
+            rows: 5,
+          },
+          {
+            index: 10,
+            label: "TX_COUNT (VarInt):",
+            placeholder: "03",
+            rows: 1,
+            small: true,
+            comment:
+              "Number of serialized transactions below, including the coinbase.",
+          },
+        ],
+        groups: [
+          {
+            title: "TXS[]",
+            baseIndex: 100,
+            expandable: true,
+            fieldCountToAdd: 1,
+            minInstances: 1,
+            maxInstances: 99,
+            fields: [
+              {
+                index: 0,
+                label: "TRANSACTION:",
+                placeholder: "Raw transaction hex (coinbase first)",
+                rows: 6,
+                autoResizeMaxRows: 10,
+                comment:
+                  "Transactions are serialized in this exact order. The first must be the coinbase.",
+              },
+            ],
+          },
+        ],
+        afterGroups: [],
+      },
+      groupInstances: { "TXS[]": 1 },
+      groupInstanceKeys: { "TXS[]": [100] },
+      result: "",
+      baseHeight: 120,
+    },
+  },
 
   {
     functionName: "check_result",

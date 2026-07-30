@@ -171,6 +171,22 @@ describe("buildPorts", () => {
     ["OUTPOINT", ["input-0", "input-10"]],
     ["OUTPUTS Builder", ["input-0", "input-10", "input-20"]],
     ["scriptPubKeys", ["input-0", "input-10"]],
+    [
+      "Block Header Builder",
+      [
+        "input-0",
+        "input-10",
+        "input-20",
+        "input-30",
+        "input-40",
+        "input-50",
+      ],
+    ],
+    ["Raw Block Builder", ["input-0", "input-10", "input-100"]],
+    [
+      "Mine Nonce Range",
+      ["input-0", "input-1", "input-2", "input-3"],
+    ],
   ])(
     "does not invent phantom numInputs ports for sparse-index template %s",
     (title, expected) => {

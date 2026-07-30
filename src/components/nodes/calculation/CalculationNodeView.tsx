@@ -47,6 +47,7 @@ import {
   MessageSquare,
   Minus,
   MoreHorizontal,
+  Pickaxe,
   Plus,
   RefreshCw,
   Trash2,
@@ -610,6 +611,16 @@ export function CalculationNodeView({
   const isConcatAll = data.functionName === "concat_all";
   const isMathOperationNode = data.functionName === "math_operation";
   const isInputNode = data.functionName === "identity" && showField;
+  const advanceButton =
+    data.advanceButton &&
+    Number.isInteger(data.advanceButton.targetField) &&
+    Number.isInteger(data.advanceButton.stepField)
+      ? data.advanceButton
+      : undefined;
+  const advanceButtonStopped =
+    advanceButton?.disableWhenOutput != null &&
+    data.outputValues?.[advanceButton.disableWhenOutput.handleId] ===
+      advanceButton.disableWhenOutput.equals;
   const txExtractFields = useMemo(
     () => normalizeTxFieldExtractFields(data.txExtractFields, data.functionName),
     [data.txExtractFields, data.functionName]
@@ -1555,6 +1566,33 @@ export function CalculationNodeView({
         <div className="flex flex-shrink-0 items-center space-x-2">
           {isInputNode && <InputTypeBadge />}
           {isConcatAll && <ConcatTypeBadge />}
+
+          {advanceButton && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="nodrag flex h-8 items-center gap-1.5 px-2 text-xs"
+              disabled={
+                isInputConnected(advanceButton.targetField) ||
+                data.dirty === true ||
+                error ||
+                advanceButtonStopped
+              }
+              onPointerDownCapture={(event) => event.stopPropagation()}
+              onClick={(event) => {
+                event.stopPropagation();
+                mut.advanceFieldValue(
+                  advanceButton.targetField,
+                  advanceButton.stepField,
+                  isInputConnected(advanceButton.targetField),
+                  advanceButton.nextValueOutput
+                );
+              }}
+            >
+              <Pickaxe className="h-3.5 w-3.5" />
+              <span>{advanceButton.label || "Advance"}</span>
+            </Button>
+          )}
 
           {derived.connectionStatus.shouldShow && (
             <ConnectionStatusBadge

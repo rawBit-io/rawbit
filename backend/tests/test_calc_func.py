@@ -583,6 +583,132 @@ def test_double_and_single_sha256():
     )
 
 
+GENESIS_HEADER = (
+    "01000000"
+    + "00" * 32
+    + "3ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a"
+    + "29ab5f49"
+    + "ffff001d"
+    + "1dac2b7c"
+)
+GENESIS_TARGET = (
+    "00000000ffff0000000000000000000000000000000000000000000000000000"
+)
+GENESIS_BLOCK_HASH = (
+    "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"
+)
+
+
+def test_bits_to_target_mainnet_genesis_vector():
+    result = json.loads(calc.bits_to_target(["1d00ffff"]))
+
+    assert result["target"] == GENESIS_TARGET
+    assert result["difficulty"] == "1.00"
+    assert result["exponent"] == 0x1D
+    assert result["mantissa"] == "00ffff"
+
+
+@pytest.mark.parametrize(
+    "bits, error",
+    [
+        ("1d80ffff", "negative target"),
+        ("1d800000", "zero target"),
+        ("21010000", "overflows a 256-bit target"),
+        ("22000100", "overflows a 256-bit target"),
+        ("23000001", "overflows a 256-bit target"),
+        ("1d000000", "zero target"),
+    ],
+)
+def test_bits_to_target_rejects_invalid_compact_values(bits, error):
+    with pytest.raises(ValueError, match=error):
+        calc.bits_to_target([bits])
+
+
+@pytest.mark.parametrize(
+    "bits, target",
+    [
+        ("2100ffff", "ffff" + "00" * 30),
+        ("220000ff", "ff" + "00" * 31),
+    ],
+)
+def test_bits_to_target_accepts_compact_sizes_above_32_when_they_fit(
+    bits, target
+):
+    result = json.loads(calc.bits_to_target([bits]))
+
+    assert result["target"] == target
+
+
+def test_check_pow_accepts_genesis_and_reports_display_order_hash():
+    result = json.loads(calc.check_pow([GENESIS_HEADER, GENESIS_TARGET]))
+
+    assert result == {
+        "valid": True,
+        "block_hash": GENESIS_BLOCK_HASH,
+    }
+
+
+def test_check_pow_rejects_header_that_misses_target():
+    invalid_header = GENESIS_HEADER[:-8] + "00000000"
+    result = json.loads(calc.check_pow([invalid_header, GENESIS_TARGET]))
+
+    assert result["valid"] is False
+    assert len(result["block_hash"]) == 64
+
+
+def test_mine_nonce_range_is_deterministic_and_finds_genesis_nonce():
+    vals = [GENESIS_HEADER[:-8], "2083236893", "1", GENESIS_TARGET]
+
+    first = calc.mine_nonce_range(vals)
+    second = calc.mine_nonce_range(vals)
+    result = json.loads(first)
+
+    assert first == second
+    assert result["found"] is True
+    assert result["nonce"] == 2083236893
+    assert result["nonce_le"] == "1dac2b7c"
+    assert result["block_hash"] == GENESIS_BLOCK_HASH
+    assert result["tried_start"] == result["tried_end"] == 2083236893
+    assert result["next_start"] == 2083236894
+
+
+def test_mine_nonce_range_not_found_window_advances_to_next_nonce():
+    result = json.loads(
+        calc.mine_nonce_range(
+            [GENESIS_HEADER[:-8], "2083236892", "1", GENESIS_TARGET]
+        )
+    )
+
+    assert result["found"] is False
+    assert result["nonce"] is None
+    assert result["nonce_le"] == ""
+    assert result["tried_start"] == result["tried_end"] == 2083236892
+    assert result["attempts"] == 1
+    assert result["next_start"] == 2083236893
+
+
+def test_mine_nonce_range_defaults_and_clamps_attempt_count():
+    impossible_in_practice_target = "00" * 31 + "01"
+
+    defaulted = json.loads(
+        calc.mine_nonce_range(
+            [GENESIS_HEADER[:-8], "0", "", impossible_in_practice_target]
+        )
+    )
+    clamped = json.loads(
+        calc.mine_nonce_range(
+            [GENESIS_HEADER[:-8], "0", "100001", impossible_in_practice_target]
+        )
+    )
+
+    assert defaulted["attempts"] == 100
+    assert defaulted["next_start"] == 100
+    assert clamped["attempts_requested"] == 100001
+    assert clamped["attempts"] == 100000
+    assert clamped["tried_end"] == 99999
+    assert clamped["next_start"] == 100000
+
+
 # ──────────────────────────────────────────────────────────────────────
 # Taproot / Schnorr helpers
 # ──────────────────────────────────────────────────────────────────────

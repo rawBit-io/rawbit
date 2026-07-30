@@ -31,6 +31,9 @@ from calc_functions.calc_func import (
     satoshi_to_8_le,
 
     double_sha256_hex,
+    bits_to_target,
+    mine_nonce_range,
+    check_pow,
     sha256_hex,
     tagged_hash,
     sign_as_bitcoin_core_low_r,
@@ -125,6 +128,9 @@ CALC_FUNCTIONS = {
     "satoshi_to_8_le": satoshi_to_8_le,
 
     "double_sha256_hex": double_sha256_hex,
+    "bits_to_target": bits_to_target,
+    "mine_nonce_range": mine_nonce_range,
+    "check_pow": check_pow,
     "tagged_hash": tagged_hash,
     "sign_as_bitcoin_core_low_r": sign_as_bitcoin_core_low_r,
     "sign_tx_rfc6979": sign_tx_rfc6979,
@@ -1106,6 +1112,42 @@ def bulk_calculate_logic(nodes, edges):
                                 data["outputValues"] = {"output-1": secnonce}
                             else:
                                 data.pop("outputValues", None)
+                        except Exception:
+                            data["result"] = result
+                            data.pop("outputValues", None)
+                    elif fn_name == "bits_to_target":
+                        try:
+                            parsed = json.loads(result)
+                            data["result"] = parsed["target"]
+                            data["outputValues"] = {
+                                "output-1": str(parsed["difficulty"])
+                            }
+                        except Exception:
+                            data["result"] = result
+                            data.pop("outputValues", None)
+                    elif fn_name == "mine_nonce_range":
+                        try:
+                            parsed = json.loads(result)
+                            data["result"] = parsed["summary"]
+                            data["outputValues"] = {
+                                "output-0": str(parsed.get("nonce_le") or ""),
+                                "output-1": (
+                                    "true" if parsed.get("found") else "false"
+                                ),
+                                "output-2": str(parsed["next_start"]),
+                            }
+                        except Exception:
+                            data["result"] = result
+                            data.pop("outputValues", None)
+                    elif fn_name == "check_pow":
+                        try:
+                            parsed = json.loads(result)
+                            data["result"] = (
+                                "true" if parsed.get("valid") else "false"
+                            )
+                            data["outputValues"] = {
+                                "output-1": str(parsed["block_hash"])
+                            }
                         except Exception:
                             data["result"] = result
                             data.pop("outputValues", None)

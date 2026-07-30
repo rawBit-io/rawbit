@@ -83,6 +83,60 @@ describe("useCalcNodeMutations", () => {
     expect(nodes[0].data.inputs?.vals?.[1]).toBe(SENTINEL_EMPTY);
   });
 
+  it("advances a decimal field through the normal dirty recalculation path", () => {
+    nodes = [
+      {
+        ...baseNode(),
+        data: {
+          functionName: "mine_nonce_range",
+          inputs: { vals: { 1: "200", 2: "100" } },
+          dirty: false,
+          error: true,
+          extendedError: "old error",
+        },
+      },
+    ];
+
+    const { result } = renderHook(() =>
+      useCalcNodeMutations(nodeId, nodes[0].data, setNodes, setEdges)
+    );
+
+    act(() => {
+      result.current.advanceFieldValue(1, 2, false);
+    });
+
+    expect(nodes[0].data.inputs?.vals?.[1]).toBe("300");
+    expect(nodes[0].data.dirty).toBe(true);
+    expect(nodes[0].data.error).toBe(false);
+    expect(nodes[0].data.extendedError).toBeUndefined();
+  });
+
+  it("accepts only one advance while recalculation is pending", () => {
+    nodes = [
+      {
+        ...baseNode(),
+        data: {
+          functionName: "mine_nonce_range",
+          inputs: { vals: { 1: "0", 2: "200000" } },
+          outputValues: { "output-2": "100" },
+          dirty: false,
+        },
+      },
+    ];
+
+    const { result } = renderHook(() =>
+      useCalcNodeMutations(nodeId, nodes[0].data, setNodes, setEdges)
+    );
+
+    act(() => {
+      result.current.advanceFieldValue(1, 2, false, "output-2");
+      result.current.advanceFieldValue(1, 2, false, "output-2");
+    });
+
+    expect(nodes[0].data.inputs?.vals?.[1]).toBe("100");
+    expect(nodes[0].data.dirty).toBe(true);
+  });
+
   it("updates dynamic TX extract outputs and removes edges from deleted outputs", () => {
     nodes = [
       {

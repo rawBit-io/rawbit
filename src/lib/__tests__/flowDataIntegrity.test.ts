@@ -47,6 +47,7 @@ const allowedNodeTaxonomy = new Map<string, Set<string>>([
       "Parsing & Inspection",
     ]),
   ],
+  ["Mining & Blocks", new Set(["General"])],
   [
     "Keys & Addresses",
     new Set([

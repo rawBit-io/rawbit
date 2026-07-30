@@ -41,6 +41,7 @@ const TINY_PNG_HEX =
 function createMut() {
   return {
     setFieldValue: vi.fn(),
+    advanceFieldValue: vi.fn(),
     setTaprootLeafIndex: vi.fn(),
     setTxFieldExtractField: vi.fn(),
     resizeTxFieldExtractFields: vi.fn(),
@@ -224,6 +225,162 @@ describe("CalculationNodeView", () => {
 
     const copyIdItem = screen.getByRole("menuitem", { name: /copied ✓/i });
     expect(copyIdItem).toBeInTheDocument();
+  });
+
+  it("renders a configured advance button and advances its target field", async () => {
+    const clip = createClip();
+    const mut = createMut();
+    const user = userEvent.setup();
+
+    renderWithProviders(
+      <CalculationNodeView
+        selected={false}
+        data={{
+          ...data,
+          advanceButton: {
+            targetField: 1,
+            stepField: 2,
+            label: "Mine next batch",
+            nextValueOutput: "output-2",
+          },
+        }}
+        rawTitle="Mine Nonce Range"
+        derived={derived}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        singleValue={undefined}
+        result={undefined}
+        error={false}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: false,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: "Mine next batch" })
+    );
+
+    expect(mut.advanceFieldValue).toHaveBeenCalledWith(
+      1,
+      2,
+      false,
+      "output-2"
+    );
+  });
+
+  it("disables the advance button while dirty, errored, or stopped", () => {
+    const clip = createClip();
+    const mut = createMut();
+    const advanceButton = {
+      targetField: 1,
+      stepField: 2,
+      label: "Mine next batch",
+      disableWhenOutput: {
+        handleId: "output-1",
+        equals: "true",
+      },
+    };
+
+    const { rerender } = renderWithProviders(
+      <CalculationNodeView
+        selected={false}
+        data={{ ...data, advanceButton, dirty: true }}
+        rawTitle="Mine Nonce Range"
+        derived={derived}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        singleValue={undefined}
+        result={undefined}
+        error={false}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: false,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Mine next batch" })
+    ).toBeDisabled();
+
+    rerender(
+      <CalculationNodeView
+        selected={false}
+        data={{ ...data, advanceButton, dirty: false }}
+        rawTitle="Mine Nonce Range"
+        derived={derived}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        singleValue={undefined}
+        result={undefined}
+        error
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: false,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Mine next batch" })
+    ).toBeDisabled();
+
+    rerender(
+      <CalculationNodeView
+        selected={false}
+        data={{
+          ...data,
+          advanceButton,
+          dirty: false,
+          outputValues: { "output-1": "true" },
+        }}
+        rawTitle="Mine Nonce Range"
+        derived={derived}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        singleValue={undefined}
+        result={undefined}
+        error={false}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: false,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Mine next batch" })
+    ).toBeDisabled();
   });
 
   it("closes the node menu on canvas pointer-down dismiss events", async () => {

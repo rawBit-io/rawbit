@@ -69,6 +69,22 @@ export interface GroupBundlePortOffsets {
   targetByBundle?: Record<string, number>;
 }
 
+export interface AdvanceButtonConfig {
+  /** Input field that the button advances. */
+  targetField: number;
+  /** Input field containing the decimal increment. */
+  stepField: number;
+  /** Optional button text. */
+  label?: string;
+  /** Optional output containing the exact next field value. */
+  nextValueOutput?: string;
+  /** Optional output value that freezes the button, such as a found flag. */
+  disableWhenOutput?: {
+    handleId: string;
+    equals: string;
+  };
+}
+
 /* ------------------------------------------------------------------ */
 /*  Calculation-node-specific data                                    */
 /* ------------------------------------------------------------------ */
@@ -111,6 +127,7 @@ export interface CalculationNodeData extends Record<string, unknown> {
   customGroupTitles?: Record<string, string>;
   hasRegenerate?: boolean;
   forceRegenerate?: boolean;
+  advanceButton?: AdvanceButtonConfig;
   showField?: boolean;
   paramExtraction?: "single_val" | "multi_val";
   radioChannel?: string;
