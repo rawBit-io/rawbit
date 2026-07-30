@@ -830,6 +830,193 @@ def test_taproot_tree_builder_paths_and_root():
     assert res["paths"][2] == [tapbranch_hex(leaf_a, leaf_b)]
 
 
+def _bitcoin_merkle_reference(hashes: list[str]) -> str:
+    level = [bytes.fromhex(value) for value in hashes]
+    while len(level) > 1:
+        if len(level) % 2:
+            level.append(level[-1])
+        level = [
+            hashlib.sha256(
+                hashlib.sha256(level[index] + level[index + 1]).digest()
+            ).digest()
+            for index in range(0, len(level), 2)
+        ]
+    return level[0].hex()
+
+
+def test_bitcoin_merkle_tree_known_three_transaction_block():
+    coinbase = "91bbf2ace7ce00fc4a0115eafa16bdde5744b2ae74f274952fdd8a46aa6d9465"
+    parent = "3e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195"
+    child = "afacc7021504e4dbfaef88ae929011f02f4b9bf5097527a72addfb1932dcf264"
+
+    result = json.loads(calc.bitcoin_merkle_tree([coinbase, parent, child]))
+
+    assert result["root"] == (
+        "4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f"
+    )
+    assert result["pairs"][0]["parentHash"] == (
+        "4f2a17a4051f537cca87dd5a8e4f8d56e049e7b9636f5d24657f9a7458194bc8"
+    )
+    assert result["pairs"][1]["parentHash"] == (
+        "195a822a409b8df483bb342d8e6100ba168fa1cb6e6bf1daf79e8bd86b3db801"
+    )
+    assert result["pairs"][1]["syntheticRight"] is True
+    assert result["pairs"][1]["equal"] is True
+    assert result["pairs"][1]["mutation"] is False
+    assert result["mutated"] is False
+    assert result["duplicateCount"] == 1
+    assert result["duplicatedIndices"] == [[3], [], []]
+    assert result["levelLabels"][0] == [
+        "TX0",
+        "TX1",
+        "TX2",
+        "TX2",
+    ]
+    assert result["structure"] == "((TX0,TX1),(TX2,TX2))"
+    assert "TX2 (duplicate)" in result["display"]
+
+
+@pytest.mark.parametrize(
+    ("leaf_count", "duplicate_count", "duplicated_indices"),
+    [
+        (1, 0, [[]]),
+        (2, 0, [[], []]),
+        (3, 1, [[3], [], []]),
+        (5, 2, [[5], [3], [], []]),
+        (10, 2, [[], [5], [3], [], []]),
+    ],
+)
+def test_bitcoin_merkle_tree_sizes_and_odd_duplication(
+    leaf_count, duplicate_count, duplicated_indices
+):
+    leaves = [
+        hashlib.sha256(f"transaction-{index}".encode()).hexdigest()
+        for index in range(leaf_count)
+    ]
+
+    result = json.loads(calc.bitcoin_merkle_tree(leaves))
+
+    assert result["root"] == _bitcoin_merkle_reference(leaves)
+    assert result["leafCount"] == leaf_count
+    assert result["leafHashes"] == leaves
+    assert result["duplicateCount"] == duplicate_count
+    assert result["duplicatedIndices"] == duplicated_indices
+    assert result["mutated"] is False
+    assert result["mutatedPairs"] == []
+    assert result["levels"][-1] == [result["root"]]
+    assert result["levelLabels"][-1] == ["ROOT"]
+
+
+def test_bitcoin_merkle_tree_marks_a_higher_level_synthetic_branch():
+    leaves = [f"{index + 1:02x}" * 32 for index in range(5)]
+    result = json.loads(calc.bitcoin_merkle_tree(leaves))
+
+    # Five leaves duplicate TX4 at L0, then duplicate its H1.2 parent at L1.
+    higher_duplicate = result["tree"]["right"]["right"]
+    assert higher_duplicate == {
+        "hash": result["levels"][1][2],
+        "label": "H1.2",
+        "duplicated": True,
+        "duplicateOf": "H1.2",
+    }
+    assert result["oddDuplications"][1]["level"] == 1
+    assert result["pairs"][4]["syntheticRight"] is True
+
+
+def test_bitcoin_merkle_tree_single_leaf_is_not_hashed():
+    leaf = "ab" * 32
+    result = json.loads(calc.bitcoin_merkle_tree([leaf]))
+
+    assert result["root"] == leaf
+    assert result["levels"] == [[leaf]]
+    assert result["pairs"] == []
+    assert result["duplicateCount"] == 0
+    assert result["mutated"] is False
+    assert result["structure"] == "TX0"
+    assert result["tree"]["leafIndex"] == 0
+
+
+def test_bitcoin_merkle_tree_preserves_order_without_sorting():
+    left = "01" * 32
+    right = "02" * 32
+
+    forward = json.loads(calc.bitcoin_merkle_tree([left, right]))
+    reversed_order = json.loads(calc.bitcoin_merkle_tree([right, left]))
+
+    assert forward["root"] != reversed_order["root"]
+    assert forward["pairs"][0]["leftHash"] == left
+    assert forward["pairs"][0]["rightHash"] == right
+
+
+@pytest.mark.parametrize(
+    ("leaves", "expected_mutated", "mutation_level"),
+    [
+        (["01" * 32, "01" * 32], True, 0),
+        (["01" * 32, "02" * 32, "02" * 32], False, None),
+        (["01" * 32, "02" * 32, "02" * 32, "02" * 32], True, 0),
+        (["01" * 32, "02" * 32, "01" * 32, "02" * 32], True, 1),
+    ],
+)
+def test_bitcoin_merkle_tree_matches_core_mutation_semantics(
+    leaves, expected_mutated, mutation_level
+):
+    result = json.loads(calc.bitcoin_merkle_tree(leaves))
+
+    assert result["mutated"] is expected_mutated
+    if mutation_level is None:
+        assert result["mutatedPairs"] == []
+    else:
+        assert any(
+            pair["level"] == mutation_level
+            for pair in result["mutatedPairs"]
+        )
+
+
+def test_bitcoin_merkle_tree_mutation_collision_keeps_same_root():
+    a = "00" * 32
+    b = "11" * 32
+    c = "22" * 32
+
+    padded = json.loads(calc.bitcoin_merkle_tree([a, b, c]))
+    explicit_duplicate = json.loads(calc.bitcoin_merkle_tree([a, b, c, c]))
+
+    assert padded["root"] == explicit_duplicate["root"]
+    assert padded["mutated"] is False
+    assert padded["duplicateCount"] == 1
+    assert explicit_duplicate["mutated"] is True
+    assert explicit_duplicate["duplicateCount"] == 0
+
+
+def test_bitcoin_merkle_tree_accepts_99_transactions():
+    leaves = [
+        hashlib.sha256(f"transaction-{index}".encode()).hexdigest()
+        for index in range(99)
+    ]
+
+    result = json.loads(calc.bitcoin_merkle_tree(leaves))
+
+    assert result["leafCount"] == 99
+    assert result["root"] == _bitcoin_merkle_reference(leaves)
+
+
+@pytest.mark.parametrize(
+    ("hashes", "message"),
+    [
+        ([], "at least one"),
+        ([""], "cannot be empty"),
+        (["00"], "must be 32 bytes"),
+        (["00" * 31], "must be 32 bytes"),
+        (["00" * 33], "must be 32 bytes"),
+        (["gg" * 32], "not valid hexadecimal"),
+        (["0" * 63], "even"),
+        (["00" * 32] * 100, "at most 99"),
+    ],
+)
+def test_bitcoin_merkle_tree_rejects_invalid_inputs(hashes, message):
+    with pytest.raises(ValueError, match=message):
+        calc.bitcoin_merkle_tree(hashes)
+
+
 def test_musig2_aggregate_pubkeys():
     pk1 = calc.public_key_from_private_key(SAMPLE_PRIV_KEY)
     pk2 = calc.public_key_from_private_key("02".rjust(64, "0"))

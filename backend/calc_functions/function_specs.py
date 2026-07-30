@@ -123,6 +123,12 @@ FUNCTION_SPECS = {
             "vals": {"type": "any", "required": True}
         }
     },
+    "bitcoin_merkle_tree": {
+        "paramExtraction": "multi_val",
+        "params": {
+            "vals": {"type": "any", "required": True}
+        }
+    },
 
     "schnorr_sign_bip340": {
         "paramExtraction": "multi_val",

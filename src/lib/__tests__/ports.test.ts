@@ -187,6 +187,7 @@ describe("buildPorts", () => {
       "Mine Nonce Range",
       ["input-0", "input-1", "input-2", "input-3"],
     ],
+    ["Bitcoin Block Merkle Tree", ["input-100"]],
   ])(
     "does not invent phantom numInputs ports for sparse-index template %s",
     (title, expected) => {
@@ -307,6 +308,13 @@ describe("buildPorts", () => {
     expect(ports.outputs).toEqual([
       { label: "Q (x-only)", handleId: "" },
       { label: "parity (c0/c1)", handleId: "output-1" },
+    ]);
+  });
+
+  it("exposes the block Merkle root and mutation flag outputs", () => {
+    const ports = buildPorts(nodeFromTemplate("Bitcoin Block Merkle Tree"));
+    expect(ports.outputs).toEqual([
+      { label: "merkle root (internal)", handleId: "" },
     ]);
   });
 

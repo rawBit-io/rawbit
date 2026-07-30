@@ -69,11 +69,46 @@ describe("sidebar node templates", () => {
 
     expect(miningTemplates.map((template) => template.label)).toEqual([
       "Bits → Target",
+      "Bitcoin Block Merkle Tree",
       "Mine Nonce Range",
       "Verify Block PoW",
       "Block Header Builder",
       "Raw Block Builder",
     ]);
+
+    const merkleTree = templateByTitle("Bitcoin Block Merkle Tree");
+    expect(merkleTree.nodeData?.outputPorts).toEqual([
+      {
+        label: "merkle root (internal)",
+        handleId: "",
+        handleTop: "50%",
+        showLabel: false,
+      },
+    ]);
+    const txHashes = merkleTree.nodeData?.inputStructure?.groups?.find(
+      (group) => group.title === "TX_HASHES[]"
+    );
+    expect(txHashes).toMatchObject({
+      baseIndex: 100,
+      expandable: true,
+      minInstances: 1,
+      maxInstances: 99,
+    });
+    const txHashKeys = [
+      ...(merkleTree.nodeData?.groupInstanceKeys?.["TX_HASHES[]"] ?? []),
+    ];
+    while (txHashKeys.length < 99) {
+      expect(
+        canGrowGroup(
+          txHashes?.baseIndex ?? 0,
+          txHashKeys,
+          txHashes?.fields ?? []
+        )
+      ).toBe(true);
+      txHashKeys.push(getNextGapIndex(txHashKeys, txHashes?.baseIndex ?? 0));
+    }
+    expect(txHashKeys).toHaveLength(99);
+    expect(txHashKeys.at(-1)).toBe(9_900);
 
     const miner = templateByTitle("Mine Nonce Range");
     expect(miner.nodeData?.inputs?.vals).toEqual({

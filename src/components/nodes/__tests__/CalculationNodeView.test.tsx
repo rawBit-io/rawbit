@@ -1092,9 +1092,10 @@ describe("CalculationNodeView", () => {
   });
 
   it.each([
+    ["Bitcoin Block Merkle Tree", ["TX_HASHES[]"]],
     ["MuSig2 Partial Sign", ["PUBKEYS[]"]],
     ["MuSig2 Partial Sig Agg", ["PUBKEYS[]", "PARTIAL_SIGS[]"]],
-  ])("removes the requested MuSig2 group dividers from %s", (title, groups) => {
+  ])("removes the requested group dividers from %s", (title, groups) => {
     const mut = createMut();
     const clip = createClip();
     const template = allSidebarNodes.find((node) => node.label === title);
@@ -1195,6 +1196,150 @@ describe("CalculationNodeView", () => {
         expect.objectContaining({ title: "OUTPUTS[]" }),
         true
       );
+    }
+  );
+
+  it.each([1, 3, 5, 10])(
+    "renders the authoritative Bitcoin block Merkle tree for %i transaction hashes",
+    (leafCount) => {
+      type TestTreeNode = {
+        hash: string;
+        label: string;
+        leafIndex?: number;
+        duplicated?: boolean;
+        duplicateOf?: string;
+        left?: TestTreeNode;
+        right?: TestTreeNode;
+      };
+
+      let hashCounter = 1;
+      const nextHash = () =>
+        (hashCounter++).toString(16).padStart(64, "0");
+      let level: TestTreeNode[] = Array.from(
+        { length: leafCount },
+        (_, index) => ({
+          hash: nextHash(),
+          label: `TX${index}`,
+          leafIndex: index,
+        })
+      );
+      const levels: string[][] = [];
+      let duplicateCount = 0;
+      let depth = 0;
+
+      while (level.length > 1) {
+        if (level.length % 2 === 1) {
+          const source = level[level.length - 1];
+          level = [
+            ...level,
+            {
+              hash: source.hash,
+              label: source.label,
+              duplicated: true,
+              duplicateOf: source.label,
+            },
+          ];
+          duplicateCount += 1;
+        }
+        levels.push(level.map((node) => node.hash));
+
+        const parents: TestTreeNode[] = [];
+        for (let index = 0; index < level.length; index += 2) {
+          parents.push({
+            hash: nextHash(),
+            label: `L${depth + 1}N${index / 2}`,
+            left: level[index],
+            right: level[index + 1],
+          });
+        }
+        level = parents;
+        depth += 1;
+      }
+      levels.push([level[0].hash]);
+
+      const mut = createMut();
+      const clip = createClip({ prettyResult: level[0].hash });
+      renderWithProviders(
+        <CalculationNodeView
+          selected={false}
+          data={{
+            functionName: "bitcoin_merkle_tree",
+            title: "Bitcoin Block Merkle Tree",
+            outputLayout: "bitcoin_block_merkle_tree",
+            outputPorts: [
+              {
+                label: "merkle root (internal)",
+                handleId: "",
+                handleTop: "50%",
+                showLabel: false,
+              },
+            ],
+            blockMerkleTree: {
+              root: level[0].hash,
+              mutated: false,
+              leafCount,
+              levels,
+              duplicateCount,
+              tree: level[0],
+            },
+          } as NodeData}
+          rawTitle="Bitcoin Block Merkle Tree"
+          derived={{
+            ...derived,
+            isMultiVal: true,
+            nodeWidth: 440,
+            minHeight: 300,
+            connectionStatus: {
+              connected: leafCount,
+              total: leafCount,
+              shouldShow: true,
+            },
+          }}
+          isInputConnected={() => true}
+          mut={mut}
+          group={{ handleGroupSize: vi.fn() }}
+          clip={clip}
+          result={level[0].hash}
+          error={false}
+          hasRegenerate={false}
+          showComment={false}
+          comment=""
+          script={{
+            isScriptVerification: false,
+            scriptResult: null,
+            scriptSigInputHex: "",
+            scriptPubKeyInputHex: "",
+          }}
+        />
+      );
+
+      const tree = screen.getByTestId("block-merkle-tree");
+      const treeField = tree.querySelector("textarea");
+      const treeText = treeField?.value ?? "";
+      expect(treeText).toContain(leafCount === 1 ? "root =" : "ROOT");
+      expect(treeText).toContain("TX0 (coinbase)");
+      expect(treeText).toContain(`TX${leafCount - 1}`);
+      if (leafCount === 1) {
+        expect(treeText).toContain("root = TX0 (coinbase)");
+        expect(treeText).not.toContain("(duplicate)");
+      } else {
+        expect(treeText).toContain("(duplicate)");
+      }
+      expect(treeText.match(/\(duplicate\)/g) ?? []).toHaveLength(
+        duplicateCount
+      );
+      expect(screen.getByText(`Transactions: ${leafCount}`)).toBeInTheDocument();
+      expect(
+        screen.getByText(`Odd duplications: ${duplicateCount}`)
+      ).toBeInTheDocument();
+      expect(screen.getByText("Mutation detected:")).toBeInTheDocument();
+      expect(screen.getByTestId("block-merkle-mutated-value")).toHaveTextContent(
+        "false"
+      );
+      expect(
+        screen.getByTitle("Copy result to clipboard")
+      ).toBeInTheDocument();
+      expect(Number(treeField?.getAttribute("rows"))).toBeLessThanOrEqual(12);
     }
   );
 });

@@ -312,6 +312,7 @@ function stripNodeForBackend(
   delete dataClone.extendedError;
   delete dataClone.scriptDebugSteps;
   delete dataClone.scriptSteps;
+  delete dataClone.blockMerkleTree;
   delete dataClone.taprootTree;
   delete dataClone.banner;
   delete dataClone.tooltip;

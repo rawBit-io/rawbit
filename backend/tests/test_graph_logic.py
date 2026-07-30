@@ -878,6 +878,86 @@ def test_taproot_tree_builder_output_values_leaf_c_path():
     assert data["outputValues"]["output-1"] == expected_path
 
 
+def _bitcoin_merkle_node(hashes, node_id="tree"):
+    instance_keys = [
+        (index + 1) * 100
+        for index in range(len(hashes))
+    ]
+    return {
+        "id": node_id,
+        "type": "calculation",
+        "data": {
+            "functionName": "bitcoin_merkle_tree",
+            "inputs": {
+                "vals": {
+                    str(instance_keys[index]): value
+                    for index, value in enumerate(hashes)
+                }
+            },
+            "inputStructure": {
+                "ungrouped": [],
+                "groups": [
+                    {
+                        "title": "TX_HASHES[]",
+                        "fields": [{"index": 0}],
+                    }
+                ],
+            },
+            "groupInstanceKeys": {"TX_HASHES[]": instance_keys},
+        },
+    }
+
+
+def test_bitcoin_merkle_tree_graph_outputs_root_and_validation_bundle():
+    leaves = ["01" * 32, "02" * 32, "03" * 32]
+    node = _bitcoin_merkle_node(leaves)
+
+    nodes, errors = graph_logic.bulk_calculate_logic([node], [])
+
+    assert errors == []
+    data = list(nodes)[0]["data"]
+    expected = json.loads(calc.bitcoin_merkle_tree(leaves))
+    assert data["result"] == expected["root"]
+    assert data["blockMerkleTree"] == expected
+    assert data["outputValues"] == {}
+
+
+def test_bitcoin_merkle_tree_graph_root_output_feeds_downstream_node():
+    leaves = ["01" * 32, "01" * 32]
+    tree = _bitcoin_merkle_node(leaves)
+    root_sink = {
+        "id": "root-sink",
+        "type": "calculation",
+        "data": {"functionName": "identity"},
+    }
+    edges = [{"source": "tree", "target": "root-sink"}]
+
+    nodes, errors = graph_logic.bulk_calculate_logic(
+        [tree, root_sink], edges
+    )
+    by_id = {node["id"]: node["data"] for node in nodes}
+
+    assert errors == []
+    assert by_id["root-sink"]["result"] == by_id["tree"]["result"]
+
+
+def test_bitcoin_merkle_tree_graph_failure_clears_structured_status():
+    node = _bitcoin_merkle_node(["01" * 32, "02" * 32])
+    successful, errors = graph_logic.bulk_calculate_logic([node], [])
+    assert errors == []
+
+    failed_node = list(successful)[0]
+    failed_node["data"]["inputs"]["vals"]["100"] = "not-hex"
+    failed_node["data"]["dirty"] = True
+    failed, failed_errors = graph_logic.bulk_calculate_logic([failed_node], [])
+    data = list(failed)[0]["data"]
+
+    assert any(error["nodeId"] == "tree" for error in failed_errors)
+    assert data["result"] == ""
+    assert data["blockMerkleTree"] is None
+    assert data["outputValues"] == {}
+
+
 def test_enforce_deadline_skips_signal_when_not_main(monkeypatch):
     monkeypatch.setattr(graph_logic, "_can_use_sigalrm", lambda: False)
 

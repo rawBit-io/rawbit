@@ -514,9 +514,12 @@ function CalculationNode({ id, data, selected }: NodeProps<FlowNode>) {
 
   useEffect(() => {
     const nodeData = data as NodeData;
-    if (nodeData.outputLayout !== "taproot_tree_builder") return;
+    const isTaprootTree = nodeData.outputLayout === "taproot_tree_builder";
+    const isBlockMerkleTree =
+      nodeData.outputLayout === "bitcoin_block_merkle_tree";
+    if (!isTaprootTree && !isBlockMerkleTree) return;
 
-    const groupTitle = "LEAF_HASHES[]";
+    const groupTitle = isTaprootTree ? "LEAF_HASHES[]" : "TX_HASHES[]";
     const group = nodeData.inputStructure?.groups?.find(
       (entry) => entry.title === groupTitle
     );
@@ -534,7 +537,7 @@ function CalculationNode({ id, data, selected }: NodeProps<FlowNode>) {
     const nextLabels = { ...(nodeData.customFieldLabels ?? {}) };
     let changed = false;
 
-    const labelForIndex = (index: number) => {
+    const taprootLabelForIndex = (index: number) => {
       const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
       let label = "";
       let n = index;
@@ -547,6 +550,12 @@ function CalculationNode({ id, data, selected }: NodeProps<FlowNode>) {
       }
       return `Leaf ${label}`;
     };
+    const labelForIndex = (index: number) =>
+      isTaprootTree
+        ? taprootLabelForIndex(index)
+        : index === 0
+          ? "TX0 (coinbase) HASH[32] (internal byte order):"
+          : `TX${index} HASH[32] (internal byte order):`;
 
     bases.forEach((base, orderIndex) => {
       const fieldIndex = base + group.fields[0].index;

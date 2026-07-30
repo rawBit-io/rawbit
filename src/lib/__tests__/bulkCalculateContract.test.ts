@@ -70,6 +70,7 @@ describe("/bulk_calculate request contract", () => {
         extendedError: "old error",
         scriptDebugSteps: null,
         scriptSteps: null,
+        blockMerkleTree: { root: "cd" },
         taprootTree: { root: "ab" },
         banner: "banner",
         tooltip: "tooltip",
@@ -144,6 +145,7 @@ describe("/bulk_calculate request contract", () => {
     // Stripping must not mutate the caller's node.
     expect(node.data.extendedError).toBe("old error");
     expect(node.data.comment).toBe("a note");
+    expect(node.data.blockMerkleTree).toEqual({ root: "cd" });
 
     // Backend response passes through.
     expect(result.version).toBe(9);

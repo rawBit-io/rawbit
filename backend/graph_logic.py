@@ -58,6 +58,7 @@ from calc_functions.calc_func import (
     taproot_tweaked_privkey,
     taproot_output_pubkey_from_xonly,
     taproot_tree_builder,
+    bitcoin_merkle_tree,
     schnorr_sign_bip340,
     schnorr_verify_bip340,
     taproot_sighash_default,
@@ -155,6 +156,7 @@ CALC_FUNCTIONS = {
     "taproot_tweaked_privkey": taproot_tweaked_privkey,
     "taproot_output_pubkey_from_xonly": taproot_output_pubkey_from_xonly,
     "taproot_tree_builder": taproot_tree_builder,
+    "bitcoin_merkle_tree": bitcoin_merkle_tree,
     "schnorr_sign_bip340": schnorr_sign_bip340,
     "schnorr_verify_bip340": schnorr_verify_bip340,
     "taproot_sighash_default": taproot_sighash_default,
@@ -937,6 +939,11 @@ def bulk_calculate_logic(nodes, edges):
                 if fn_name == "taproot_tree_builder":
                     data["taprootTree"] = None
                     data.pop("outputValues", None)
+                if fn_name == "bitcoin_merkle_tree":
+                    data["blockMerkleTree"] = None
+                    # Tombstone the retired auxiliary output so merging this
+                    # response cannot resurrect a stale connectable value.
+                    data["outputValues"] = {}
                 # Pre-clear dynamic TX-field-extract outputs so a per-field
                 # raise mid-loop cannot leave the previous run's outputValues/
                 # result behind for a downstream consumer to read as current
@@ -1095,6 +1102,16 @@ def bulk_calculate_logic(nodes, edges):
                             data["outputValues"] = {"output-1": path_hex}
                         except Exception:
                             data["result"] = result
+                    elif fn_name == "bitcoin_merkle_tree":
+                        try:
+                            parsed = json.loads(result)
+                            data["result"] = parsed.get("root", result)
+                            data["blockMerkleTree"] = parsed
+                            data["outputValues"] = {}
+                        except Exception:
+                            data["result"] = result
+                            data["blockMerkleTree"] = None
+                            data["outputValues"] = {}
                     elif fn_name == "musig2_aggregate_pubkeys":
                         try:
                             parsed = json.loads(result)

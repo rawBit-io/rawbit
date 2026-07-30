@@ -4113,6 +4113,62 @@ export const allSidebarNodes: NodeTemplate[] = [
     },
   },
   {
+    functionName: "bitcoin_merkle_tree",
+    label: "Bitcoin Block Merkle Tree",
+    category: "Mining & Blocks",
+    subcategory: "General",
+    description:
+      "Build a Bitcoin block Merkle root from ordered internal transaction hashes and show each odd-leaf duplication",
+    type: "calculation",
+    nodeData: {
+      functionName: "bitcoin_merkle_tree",
+      title: "Bitcoin Block Merkle Tree",
+      paramExtraction: "multi_val",
+      numInputs: 1,
+      inputs: { vals: {} },
+      outputLayout: "bitcoin_block_merkle_tree",
+      outputPorts: [
+        {
+          label: "merkle root (internal)",
+          handleId: "",
+          handleTop: "50%",
+          showLabel: false,
+        },
+      ],
+      inputStructure: {
+        ungrouped: [],
+        groups: [
+          {
+            title: "TX_HASHES[]",
+            baseIndex: 100,
+            expandable: true,
+            fieldCountToAdd: 1,
+            minInstances: 1,
+            maxInstances: 99,
+            fields: [
+              {
+                index: 0,
+                label: "TX HASH[32] (internal byte order):",
+                rows: 2,
+                placeholder: "<32-byte SHA256d hash>",
+                comment:
+                  "Use each transaction's raw SHA256d output (txid in internal byte order), not its displayed TXID or wtxid. TX0 must be the coinbase; preserve block order and never sort.",
+              },
+            ],
+          },
+        ],
+        afterGroups: [],
+      },
+      groupInstances: { "TX_HASHES[]": 1 },
+      groupInstanceKeys: { "TX_HASHES[]": [100] },
+      customFieldLabels: {
+        100: "TX0 (coinbase) HASH[32] (internal byte order):",
+      },
+      result: "",
+      baseHeight: 140,
+    },
+  },
+  {
     functionName: "mine_nonce_range",
     label: "Mine Nonce Range",
     category: "Mining & Blocks",

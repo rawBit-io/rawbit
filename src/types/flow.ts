@@ -49,6 +49,7 @@ export interface InputStructure {
 
 export type OutputLayoutMode =
   | "default"
+  | "bitcoin_block_merkle_tree"
   | "taproot_tree_builder"
   | "taproot_tweak_xonly_pubkey"
   | "musig2_nonce_gen";
@@ -155,6 +156,7 @@ export interface CalculationNodeData extends Record<string, unknown> {
   unwiredCount?: number; // how many of those handles are currently *unwired*
   scriptDebugSteps?: ScriptExecutionResult | null;
   scriptSteps?: ScriptExecutionResult | null;
+  blockMerkleTree?: Record<string, unknown> | null;
   taprootTree?: Record<string, unknown> | null;
   taprootLeafIndex?: number;
   outputLayout?: OutputLayoutMode;

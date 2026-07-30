@@ -118,6 +118,7 @@ const NO_DIVIDER_GROUP_TITLES_BY_FUNCTION: Record<
   string,
   ReadonlySet<string>
 > = {
+  bitcoin_merkle_tree: new Set(["TX_HASHES[]"]),
   musig2_partial_sign: new Set(["PUBKEYS[]"]),
   musig2_partial_sig_agg: new Set(["PUBKEYS[]", "PARTIAL_SIGS[]"]),
 };
@@ -314,6 +315,27 @@ type AsciiTreeNode = {
   right?: AsciiTreeNode;
 };
 
+type BlockMerkleTreeNode = {
+  hash?: unknown;
+  label?: unknown;
+  left?: unknown;
+  right?: unknown;
+  leafIndex?: unknown;
+  duplicated?: unknown;
+  duplicateOf?: unknown;
+};
+
+type BlockMerkleTreeData = {
+  root?: unknown;
+  mutated?: unknown;
+  leafCount?: unknown;
+  levels?: unknown;
+  duplicateCount?: unknown;
+  structure?: unknown;
+  tree?: unknown;
+  display?: unknown;
+};
+
 const LEAF_HASH_GROUP_TITLE = "LEAF_HASHES[]";
 
 const alphaLabel = (index: number) => {
@@ -331,6 +353,71 @@ const alphaLabel = (index: number) => {
 };
 
 const defaultLeafLabel = (index: number) => `Leaf ${alphaLabel(index)}`;
+
+const shortenedTreeHash = (value: unknown) => {
+  if (typeof value !== "string") return "";
+  const hash = value.trim();
+  if (!hash) return "";
+  return hash.length > 14
+    ? `${hash.slice(0, 8)}…${hash.slice(-4)}`
+    : hash;
+};
+
+const renderBlockMerkleOutline = (value: unknown) => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return "";
+  const lines: string[] = [];
+
+  const append = (
+    rawNode: unknown,
+    prefix = "",
+    isLast = true,
+    isRoot = true
+  ) => {
+    if (
+      !rawNode ||
+      typeof rawNode !== "object" ||
+      Array.isArray(rawNode)
+    ) {
+      return;
+    }
+    const node = rawNode as BlockMerkleTreeNode;
+    const leafIndex =
+      typeof node.leafIndex === "number" && Number.isInteger(node.leafIndex)
+        ? node.leafIndex
+        : undefined;
+    const duplicateOf =
+      typeof node.duplicateOf === "string" ? node.duplicateOf.trim() : "";
+    const isDuplicate = node.duplicated === true;
+    const rawLabel =
+      typeof node.label === "string" && node.label.trim()
+        ? node.label.trim()
+        : duplicateOf || (isRoot ? "ROOT" : "branch");
+
+    let label = isRoot ? "ROOT" : rawLabel;
+    if (leafIndex === 0) {
+      label = isRoot ? "root = TX0 (coinbase)" : "TX0 (coinbase)";
+    }
+    if (isDuplicate && !label.toLowerCase().includes("(duplicate)")) {
+      label += " (duplicate)";
+    }
+
+    const connector = isRoot ? "" : isLast ? "└─ " : "├─ ";
+    const hash = shortenedTreeHash(node.hash);
+    lines.push(`${prefix}${connector}${label}${hash ? `  ${hash}` : ""}`);
+
+    const left = node.left;
+    const right = node.right;
+    if (!left && !right) return;
+    const childPrefix = isRoot
+      ? prefix
+      : `${prefix}${isLast ? "   " : "│  "}`;
+    append(left, childPrefix, false, false);
+    append(right, childPrefix, true, false);
+  };
+
+  append(value);
+  return lines.join("\n");
+};
 
 const buildTaprootTree = (labels: string[]): AsciiTreeNode | null => {
   if (!labels.length) return null;
@@ -593,6 +680,8 @@ export function CalculationNodeView({
   const showField = singleValue?.showField ?? false;
   const showHandle = singleValue?.showHandle ?? false;
   const outputLayout = data.outputLayout ?? "default";
+  const isBitcoinBlockMerkleTree =
+    outputLayout === "bitcoin_block_merkle_tree";
   const isTaprootTreeBuilder = outputLayout === "taproot_tree_builder";
   const isTaprootTweakXonly = outputLayout === "taproot_tweak_xonly_pubkey";
   const isMusig2NonceGen = outputLayout === "musig2_nonce_gen";
@@ -677,6 +766,10 @@ export function CalculationNodeView({
         display?: unknown;
       }
     | undefined;
+  const blockMerkleTree = data.blockMerkleTree as
+    | BlockMerkleTreeData
+    | null
+    | undefined;
   const parityValue =
     data.outputValues && typeof data.outputValues === "object"
       ? (data.outputValues as Record<string, unknown>)["output-1"]
@@ -685,6 +778,15 @@ export function CalculationNodeView({
     parityValue === undefined || parityValue === null || parityValue === ""
       ? "--"
       : String(parityValue);
+  const blockMerkleMutatedValue = blockMerkleTree?.mutated;
+  const blockMerkleMutatedDisplay =
+    blockMerkleMutatedValue === undefined ||
+    blockMerkleMutatedValue === null ||
+    blockMerkleMutatedValue === ""
+      ? "--"
+      : String(blockMerkleMutatedValue);
+  const blockMerkleMutationDetected =
+    blockMerkleMutatedDisplay.toLowerCase() === "true";
   const musig2Outputs =
     data.outputValues && typeof data.outputValues === "object"
       ? (data.outputValues as Record<string, unknown>)
@@ -1210,6 +1312,41 @@ export function CalculationNodeView({
     }
     tree.label = "root";
     return renderAsciiTree(tree);
+  })();
+  const blockMerkleTreeDisplay = (() => {
+    if (!isBitcoinBlockMerkleTree || !blockMerkleTree) return "";
+
+    // The back end has already applied Bitcoin's odd-node duplication at
+    // every level. Render that authoritative nested tree as a vertical
+    // outline, which remains readable with 10+ leaves. Never rebuild it with
+    // Taproot's unmatched-node carry rule.
+    const tree = renderBlockMerkleOutline(blockMerkleTree.tree);
+    if (tree) return tree;
+
+    if (
+      typeof blockMerkleTree.display === "string" &&
+      blockMerkleTree.display.trim()
+    ) {
+      return blockMerkleTree.display;
+    }
+    return typeof blockMerkleTree.structure === "string"
+      ? blockMerkleTree.structure
+      : "";
+  })();
+  const blockMerkleSummary = (() => {
+    if (!isBitcoinBlockMerkleTree || !blockMerkleTree) return null;
+    const leafCount =
+      typeof blockMerkleTree.leafCount === "number"
+        ? blockMerkleTree.leafCount
+        : 0;
+    const levelCount = Array.isArray(blockMerkleTree.levels)
+      ? blockMerkleTree.levels.length
+      : 0;
+    const duplicateCount =
+      typeof blockMerkleTree.duplicateCount === "number"
+        ? blockMerkleTree.duplicateCount
+        : 0;
+    return { leafCount, levelCount, duplicateCount };
   })();
   const taprootMerklePath = (() => {
     const paths = taprootTree?.paths;
@@ -2192,6 +2329,27 @@ export function CalculationNodeView({
               </div>
             )}
 
+            {isBitcoinBlockMerkleTree ? (
+              <div
+                className="relative mt-3 flex items-center justify-between"
+                data-testid="block-merkle-mutated-row"
+              >
+                <span className="text-xs font-medium">
+                  Mutation detected:
+                </span>
+                <div
+                  className={cn(
+                    "field-surface flex h-7 min-w-[4.5rem] items-center justify-center rounded-md border border-input bg-background px-2 text-xs font-mono",
+                    blockMerkleMutationDetected &&
+                      "border-destructive/70 bg-destructive/10 text-destructive"
+                  )}
+                  data-testid="block-merkle-mutated-value"
+                >
+                  {blockMerkleMutatedDisplay}
+                </div>
+              </div>
+            ) : null}
+
             {isTaprootTreeBuilder && taprootLeafLabels.length > 0 ? (
               <div
                 ref={pathRowRef}
@@ -2295,6 +2453,33 @@ export function CalculationNodeView({
                     12,
                     Math.max(4, taprootTreeDisplay.split("\n").length)
                   )}
+                />
+              </div>
+            ) : null}
+
+            {blockMerkleTreeDisplay ? (
+              <div className="mt-3" data-testid="block-merkle-tree">
+                {blockMerkleSummary ? (
+                  <div
+                    className="mb-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground"
+                    data-testid="block-merkle-summary"
+                  >
+                    <span>Transactions: {blockMerkleSummary.leafCount}</span>
+                    <span>Levels: {blockMerkleSummary.levelCount}</span>
+                    <span>
+                      Odd duplications: {blockMerkleSummary.duplicateCount}
+                    </span>
+                  </div>
+                ) : null}
+                <TerminalField
+                  label="Block Merkle Tree:"
+                  value={blockMerkleTreeDisplay}
+                  readOnly={true}
+                  rows={Math.min(
+                    12,
+                    Math.max(4, blockMerkleTreeDisplay.split("\n").length)
+                  )}
+                  comment="Hashes are in internal byte order. Duplicate labels are synthetic copies added for odd-width levels; they do not by themselves set mutated=true."
                 />
               </div>
             ) : null}

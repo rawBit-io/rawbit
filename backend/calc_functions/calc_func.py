@@ -1010,6 +1010,235 @@ def taproot_tree_builder(vals: list) -> str:
     )
 
 
+_MAX_BLOCK_MERKLE_LEAVES = 99
+
+
+def bitcoin_merkle_tree(vals: list) -> str:
+    """
+    Build Bitcoin's ordered transaction Merkle tree from internal hash bytes.
+
+    ``vals`` contains transaction hashes in block order. Each value is already
+    a 32-byte SHA256d digest in the byte order used internally by the block
+    header; displayed TXIDs must therefore be reversed before they are passed
+    here.
+
+    At every level, adjacent entries are paired without sorting and each parent
+    is ``SHA256d(left || right)``. If the level has an odd number of entries,
+    its final entry is duplicated before hashing.
+
+    ``mutated`` matches Bitcoin Core's ``ComputeMerkleRoot`` rule: equality is
+    checked only for aligned, caller-supplied pairs before odd-level padding.
+    A synthetic duplicate never sets the flag, while identical real pairs at
+    any level do.
+    """
+    if not vals:
+        raise ValueError("Provide at least one transaction hash")
+    if len(vals) > _MAX_BLOCK_MERKLE_LEAVES:
+        raise ValueError(
+            f"Bitcoin Block Merkle Tree supports at most "
+            f"{_MAX_BLOCK_MERKLE_LEAVES} transaction hashes"
+        )
+
+    leaf_hash_inputs = [str(value).strip() for value in vals]
+    if any(value == "" for value in leaf_hash_inputs):
+        raise ValueError("Transaction hashes cannot be empty")
+
+    leaf_hashes: list[bytes] = []
+    for index, hash_hex in enumerate(leaf_hash_inputs):
+        hash_bytes = _bytes_from_even_hex(
+            hash_hex, name=f"transaction hash {index}"
+        )
+        if len(hash_bytes) != 32:
+            raise ValueError(
+                "Transaction hashes must be 32 bytes (64 hex characters)"
+            )
+        leaf_hashes.append(hash_bytes)
+
+    def make_leaf(index: int, hash_bytes: bytes) -> dict[str, Any]:
+        label = f"TX{index}"
+        return {
+            "hash": hash_bytes,
+            "label": label,
+            "structure": label,
+            "leafIndex": index,
+        }
+
+    def make_duplicate(node: dict[str, Any]) -> dict[str, Any]:
+        # The duplicate is a copy of the hash at this level, not another input.
+        # Keep it collapsed in the structured tree so a large copied subtree is
+        # clearly represented as one synthetic node rather than repeated data.
+        return {
+            "hash": node["hash"],
+            "label": node["label"],
+            "structure": node["structure"],
+            "duplicated": True,
+            "duplicateOf": node["label"],
+        }
+
+    def serialize_node(node: dict[str, Any]) -> dict[str, Any]:
+        serialized: dict[str, Any] = {
+            "hash": node["hash"].hex(),
+            "label": node["label"],
+        }
+        for key in ("leafIndex", "duplicated", "duplicateOf"):
+            if key in node:
+                serialized[key] = node[key]
+        if "left" in node:
+            serialized["left"] = serialize_node(node["left"])
+            serialized["right"] = serialize_node(node["right"])
+        return serialized
+
+    def abbreviated(hash_bytes: bytes) -> str:
+        return f"{hash_bytes.hex()[:12]}…"
+
+    current = [
+        make_leaf(index, hash_bytes)
+        for index, hash_bytes in enumerate(leaf_hashes)
+    ]
+    levels: list[list[str]] = []
+    level_labels: list[list[str]] = []
+    duplicated_indices: list[list[int]] = []
+    odd_duplications: list[dict[str, Any]] = []
+    pairs: list[dict[str, Any]] = []
+    mutated_pairs: list[dict[str, Any]] = []
+    mutated = False
+    level_index = 0
+
+    while len(current) > 1:
+        # Bitcoin Core checks equality before adding the synthetic odd entry.
+        for pair_start in range(0, len(current) - 1, 2):
+            if current[pair_start]["hash"] == current[pair_start + 1]["hash"]:
+                mutated = True
+                mutated_pairs.append(
+                    {
+                        "level": level_index,
+                        "leftIndex": pair_start,
+                        "rightIndex": pair_start + 1,
+                        "hash": current[pair_start]["hash"].hex(),
+                    }
+                )
+
+        working = list(current)
+        duplicate_positions: list[int] = []
+        if len(working) % 2:
+            source = working[-1]
+            duplicate = make_duplicate(source)
+            working.append(duplicate)
+            duplicate_index = len(working) - 1
+            duplicate_positions.append(duplicate_index)
+            odd_duplications.append(
+                {
+                    "level": level_index,
+                    "sourceIndex": duplicate_index - 1,
+                    "duplicateIndex": duplicate_index,
+                    "hash": source["hash"].hex(),
+                    "label": source["label"],
+                }
+            )
+
+        levels.append([node["hash"].hex() for node in working])
+        level_labels.append([node["label"] for node in working])
+        duplicated_indices.append(duplicate_positions)
+
+        next_level: list[dict[str, Any]] = []
+        pair_count = len(working) // 2
+        for pair_index in range(pair_count):
+            left_index = pair_index * 2
+            right_index = left_index + 1
+            left = working[left_index]
+            right = working[right_index]
+            parent_hash = hashlib.sha256(
+                hashlib.sha256(left["hash"] + right["hash"]).digest()
+            ).digest()
+            is_root = pair_count == 1
+            parent_label = "ROOT" if is_root else f"H{level_index + 1}.{pair_index}"
+            parent = {
+                "hash": parent_hash,
+                "label": parent_label,
+                "structure": f"({left['structure']},{right['structure']})",
+                "left": left,
+                "right": right,
+            }
+            next_level.append(parent)
+
+            synthetic_right = bool(right.get("duplicated"))
+            pair_record = {
+                "level": level_index,
+                "pairIndex": pair_index,
+                "leftIndex": left_index,
+                "rightIndex": right_index,
+                "leftHash": left["hash"].hex(),
+                "rightHash": right["hash"].hex(),
+                "parentHash": parent_hash.hex(),
+                "syntheticRight": synthetic_right,
+                "equal": left["hash"] == right["hash"],
+                "mutation": (
+                    left["hash"] == right["hash"] and not synthetic_right
+                ),
+            }
+            pairs.append(pair_record)
+
+        current = next_level
+        level_index += 1
+
+    root_node = current[0]
+    root_node["label"] = "ROOT"
+    levels.append([root_node["hash"].hex()])
+    level_labels.append(["ROOT"])
+    duplicated_indices.append([])
+
+    tree = serialize_node(root_node)
+
+    display_lines = [
+        f"Transactions: {len(leaf_hashes)}",
+        f"Odd duplications: {len(odd_duplications)}",
+        f"Mutated: {'true' if mutated else 'false'}",
+        f"Merkle root (internal): {root_node['hash'].hex()}",
+        "",
+        "Tree:",
+    ]
+
+    def append_ascii(
+        node: dict[str, Any],
+        prefix: str = "",
+        is_last: bool = True,
+        is_root: bool = True,
+    ) -> None:
+        connector = "" if is_root else ("└─ " if is_last else "├─ ")
+        display_label = node["label"]
+        if node.get("duplicated"):
+            display_label = f"{display_label} (duplicate)"
+        display_lines.append(
+            f"{prefix}{connector}{display_label}  {abbreviated(node['hash'])}"
+        )
+        if "left" not in node:
+            return
+        child_prefix = prefix if is_root else prefix + ("   " if is_last else "│  ")
+        append_ascii(node["left"], child_prefix, False, False)
+        append_ascii(node["right"], child_prefix, True, False)
+
+    append_ascii(root_node)
+
+    return json.dumps(
+        {
+            "root": root_node["hash"].hex(),
+            "mutated": mutated,
+            "leafCount": len(leaf_hashes),
+            "leafHashes": [hash_bytes.hex() for hash_bytes in leaf_hashes],
+            "levels": levels,
+            "levelLabels": level_labels,
+            "duplicatedIndices": duplicated_indices,
+            "duplicateCount": len(odd_duplications),
+            "oddDuplications": odd_duplications,
+            "pairs": pairs,
+            "mutatedPairs": mutated_pairs,
+            "structure": root_node["structure"],
+            "tree": tree,
+            "display": "\n".join(display_lines),
+        }
+    )
+
+
 def _bip340_sign(seckey: bytes, msg: bytes, aux: bytes) -> bytes:
     if len(seckey) != 32 or len(msg) != 32 or len(aux) != 32:
         raise ValueError("seckey, msg, and aux must be 32 bytes each")
