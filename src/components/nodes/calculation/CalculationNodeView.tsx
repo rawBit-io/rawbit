@@ -1826,6 +1826,32 @@ export function CalculationNodeView({
             </Button>
           )}
 
+          {advanceButton && advanceButton.resetTo != null && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="nodrag flex h-8 shrink-0 items-center px-2 text-xs"
+              disabled={
+                isInputConnected(advanceButton.targetField) ||
+                data.dirty === true ||
+                error
+              }
+              onPointerDownCapture={(event) => event.stopPropagation()}
+              onClick={(event) => {
+                event.stopPropagation();
+                mut.setFieldValue(
+                  advanceButton.targetField,
+                  advanceButton.resetTo ?? "",
+                  isInputConnected(advanceButton.targetField),
+                  false
+                );
+              }}
+              title={`Reset to ${advanceButton.resetTo}`}
+            >
+              <span>{advanceButton.resetLabel || "Reset"}</span>
+            </Button>
+          )}
+
           {isMineNonceRange && (
             <Button
               variant="outline"

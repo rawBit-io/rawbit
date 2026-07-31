@@ -3463,6 +3463,7 @@ export const allSidebarNodes: NodeTemplate[] = [
         step: 1,
         label: "+1",
         placement: "field",
+        resetTo: "0",
       },
       inputStructure: {
         ungrouped: [

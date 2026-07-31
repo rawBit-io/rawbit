@@ -1823,10 +1823,10 @@
             "10": "1f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100",
             "20": "4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f",
             "30": "80e14e68",
-            "40": "ffff0020"
+            "40": "ffff0f20"
           }
         },
-        "result": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0020",
+        "result": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0f20",
         "inputStructure": {
           "ungrouped": [
             {
@@ -1915,11 +1915,11 @@
             "10": "1f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100",
             "20": "4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f",
             "30": "80e14e68",
-            "40": "ffff0020",
-            "50": "00000000"
+            "40": "ffff0f20",
+            "50": "15000000"
           }
         },
-        "result": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff002000000000",
+        "result": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0f2015000000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -1980,11 +1980,13 @@
         "showField": false,
         "groupInstances": {},
         "inputs": {
-          "val": 0
+          "val": 21
         },
-        "result": "00000000",
+        "result": "15000000",
         "dirty": false,
-        "error": false
+        "error": false,
+        "outputValues": {},
+        "outputErrors": {}
       },
       "parentId": "group_mine_verify",
       "extent": "parent"
@@ -2002,9 +2004,9 @@
         "numInputs": 1,
         "version": 0,
         "inputs": {
-          "val": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff002000000000"
+          "val": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0f2015000000"
         },
-        "result": "6860bb04c7367c1773bcd44f1e007e45992fee7f7f9d29a957783f6188661682",
+        "result": "cd9a564d2d8738e98ae66ba07b8d576f4bdce4f6e65ea1ea142d90a966e87803",
         "inputStructure": {
           "ungrouped": [
             {
@@ -2025,8 +2027,8 @@
       "id": "node_assert_pow",
       "type": "calculation",
       "position": {
-        "x": 2952.82589116712,
-        "y": 312.0150556024946
+        "x": 2964.7717586523486,
+        "y": 91.24623534665125
       },
       "data": {
         "functionName": "check_result",
@@ -2035,10 +2037,10 @@
         "numInputs": 1,
         "inputs": {
           "vals": {
-            "0": "false"
+            "0": "true"
           }
         },
-        "result": "false",
+        "result": "true",
         "inputStructure": {
           "groups": [
             {
@@ -2069,8 +2071,7 @@
         "totalInputs": 1,
         "unwiredCount": 0,
         "dirty": false,
-        "error": true,
-        "extendedError": "Check failed: at least one input is not true",
+        "error": false,
         "showComment": true,
         "comment": "node sets error if one on inputs is not true"
       },
@@ -2333,12 +2334,12 @@
         "title": "Target",
         "showField": true,
         "numInputs": 0,
-        "value": "00ffff0000000000000000000000000000000000000000000000000000000000",
+        "value": "0fffff0000000000000000000000000000000000000000000000000000000000",
         "version": 0,
         "inputs": {
-          "val": "00ffff0000000000000000000000000000000000000000000000000000000000"
+          "val": "0fffff0000000000000000000000000000000000000000000000000000000000"
         },
-        "result": "00ffff0000000000000000000000000000000000000000000000000000000000",
+        "result": "0fffff0000000000000000000000000000000000000000000000000000000000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -2370,7 +2371,7 @@
         "numInputs": 1,
         "inputs": {
           "vals": {
-            "0": "00ffff0000000000000000000000000000000000000000000000000000000000"
+            "0": "0fffff0000000000000000000000000000000000000000000000000000000000"
           }
         },
         "outputPorts": [
@@ -2393,7 +2394,7 @@
           "afterGroups": []
         },
         "groupInstances": {},
-        "result": "2000ffff",
+        "result": "200fffff",
         "totalInputs": 1,
         "unwiredCount": 0,
         "dirty": false,
@@ -2415,9 +2416,9 @@
         "numInputs": 1,
         "version": 0,
         "inputs": {
-          "val": "2000ffff"
+          "val": "200fffff"
         },
-        "result": "ffff0020",
+        "result": "ffff0f20",
         "inputStructure": {
           "ungrouped": [
             {
@@ -2470,9 +2471,9 @@
         "title": "TXID/WTXID → Reversed",
         "numInputs": 1,
         "groupInstances": {},
-        "result": "82166688613f7857a9299d7f7fee2f99457e001e4fd4bc73177c36c704bb6068",
+        "result": "0378e866a9902d14eaa15ee6f6e4dc4b6f578d7ba06be68ae938872d4d569acd",
         "inputs": {
-          "val": "6860bb04c7367c1773bcd44f1e007e45992fee7f7f9d29a957783f6188661682"
+          "val": "cd9a564d2d8738e98ae66ba07b8d576f4bdce4f6e65ea1ea142d90a966e87803"
         },
         "dirty": false,
         "error": false
@@ -2494,13 +2495,13 @@
         "numInputs": 4,
         "inputs": {
           "vals": {
-            "0": "82166688613f7857a9299d7f7fee2f99457e001e4fd4bc73177c36c704bb6068",
+            "0": "0378e866a9902d14eaa15ee6f6e4dc4b6f578d7ba06be68ae938872d4d569acd",
             "1": "<",
-            "2": "00ffff0000000000000000000000000000000000000000000000000000000000",
+            "2": "0fffff0000000000000000000000000000000000000000000000000000000000",
             "3": "hex"
           }
         },
-        "result": "false",
+        "result": "true",
         "inputStructure": {
           "ungrouped": [
             {
@@ -2559,7 +2560,7 @@
         "numInputs": 3,
         "inputs": {
           "vals": {
-            "0": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff002000000000",
+            "0": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0f2015000000",
             "10": "03",
             "100": "02000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0903a0bb0d0400000000ffffffff01a06ba012000000001976a9149128229e0b4d25a6811f6436bb4124de2c87928a88ac00000000",
             "200": "02000000017d933f4fe6261536bfdd323c5f2799669fc64bc7eaa343eaa1ae4962b06950b1010000006a47304402200ef1b4655771941c5f7cac84233d3fdbf64a90361076d5d5ff309f599cb080aa02201d0378e89a5b09bfccd725580cbbf0e07506b18ddb8253862249b20bb6e5eb24012103c996a054429c2ceea4b5b7008cc9289e0b9ef06d74f82c5bf29addeab7b404fafdffffff0198f20b0000000000232102d5e7c658ac969aea330ff6fdff09c668189d20d39d743e903a2437b76bc6b272ac00000000",
@@ -2611,7 +2612,7 @@
         "groupInstanceKeys": {
           "TXS[]": [100, 200, 300]
         },
-        "result": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0020000000000302000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0903a0bb0d0400000000ffffffff01a06ba012000000001976a9149128229e0b4d25a6811f6436bb4124de2c87928a88ac0000000002000000017d933f4fe6261536bfdd323c5f2799669fc64bc7eaa343eaa1ae4962b06950b1010000006a47304402200ef1b4655771941c5f7cac84233d3fdbf64a90361076d5d5ff309f599cb080aa02201d0378e89a5b09bfccd725580cbbf0e07506b18ddb8253862249b20bb6e5eb24012103c996a054429c2ceea4b5b7008cc9289e0b9ef06d74f82c5bf29addeab7b404fafdffffff0198f20b0000000000232102d5e7c658ac969aea330ff6fdff09c668189d20d39d743e903a2437b76bc6b272ac0000000002000000013e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195000000004847304402205b166adf445966ad45443921e7a1a5269f376fc93c4398eda993274124cc2dce022064fd0718675d59f744581186f20c74696bca7adb851ae1fd83a5e1d5c2965dc801fdffffff01c8ea0b00000000001976a9148ae448729cbc16fe51faa9adc7be14087b45e4d988ac00000000",
+        "result": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0f20150000000302000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0903a0bb0d0400000000ffffffff01a06ba012000000001976a9149128229e0b4d25a6811f6436bb4124de2c87928a88ac0000000002000000017d933f4fe6261536bfdd323c5f2799669fc64bc7eaa343eaa1ae4962b06950b1010000006a47304402200ef1b4655771941c5f7cac84233d3fdbf64a90361076d5d5ff309f599cb080aa02201d0378e89a5b09bfccd725580cbbf0e07506b18ddb8253862249b20bb6e5eb24012103c996a054429c2ceea4b5b7008cc9289e0b9ef06d74f82c5bf29addeab7b404fafdffffff0198f20b0000000000232102d5e7c658ac969aea330ff6fdff09c668189d20d39d743e903a2437b76bc6b272ac0000000002000000013e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195000000004847304402205b166adf445966ad45443921e7a1a5269f376fc93c4398eda993274124cc2dce022064fd0718675d59f744581186f20c74696bca7adb851ae1fd83a5e1d5c2965dc801fdffffff01c8ea0b00000000001976a9148ae448729cbc16fe51faa9adc7be14087b45e4d988ac00000000",
         "baseHeight": 120,
         "totalInputs": 5,
         "unwiredCount": 0,
@@ -2622,11 +2623,11 @@
       "extent": "parent"
     },
     {
-      "id": "node_palufu0",
+      "id": "node_tvhfk3w",
       "type": "calculation",
       "position": {
-        "x": 156.3272651395996,
-        "y": 965.0391511611347
+        "x": 141.7204360030596,
+        "y": 999.5246665164132
       },
       "data": {
         "functionName": "counter",
@@ -2636,14 +2637,15 @@
         "nodeWidth": 300,
         "inputs": {
           "vals": {
-            "0": "0"
+            "0": "21"
           }
         },
         "advanceButton": {
           "targetField": 0,
           "step": 1,
           "label": "+1",
-          "placement": "field"
+          "placement": "field",
+          "resetTo": "0"
         },
         "inputStructure": {
           "ungrouped": [
@@ -2660,7 +2662,7 @@
           "afterGroups": []
         },
         "groupInstances": {},
-        "result": "0",
+        "result": "21",
         "totalInputs": 0,
         "unwiredCount": 0,
         "dirty": false,
@@ -3162,11 +3164,11 @@
       "id": "xy-edge__node_ITm9RPB9-node_pcobtucinput-300"
     },
     {
-      "source": "node_palufu0",
+      "source": "node_tvhfk3w",
       "target": "node_nonce_le4",
       "targetHandle": "input-0",
       "selected": false,
-      "id": "xy-edge__node_palufu0-node_nonce_le4input-0"
+      "id": "xy-edge__node_tvhfk3w-node_nonce_le4input-0"
     }
   ],
   "virtualEdges": []

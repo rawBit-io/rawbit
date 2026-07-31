@@ -60,6 +60,7 @@ describe("sidebar node templates", () => {
       step: 1,
       label: "+1",
       placement: "field",
+      resetTo: "0",
     });
     expect(template.nodeData?.inputs?.vals).toEqual({ 0: "0" });
     expect(template.nodeData?.nodeWidth).toBe(300);

@@ -298,6 +298,7 @@ describe("CalculationNodeView", () => {
             step: 1,
             label: "+1",
             placement: "field",
+            resetTo: "0",
           },
           inputStructure: {
             ungrouped: [
@@ -342,6 +343,10 @@ describe("CalculationNodeView", () => {
       undefined,
       1
     );
+
+    await user.click(screen.getByRole("button", { name: "Reset" }));
+
+    expect(mut.setFieldValue).toHaveBeenCalledWith(0, "0", false, false);
   });
 
   it("disables the advance button while dirty, errored, or stopped", () => {

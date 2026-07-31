@@ -80,6 +80,10 @@ export interface AdvanceButtonConfig {
   step?: number;
   /** Where the button renders: node header (default) or beside the field. */
   placement?: "header" | "field";
+  /** Renders a header Reset button that writes this value into targetField. */
+  resetTo?: string;
+  /** Optional reset button text. */
+  resetLabel?: string;
   /** Optional button text. */
   label?: string;
   /** Optional output containing the exact next field value. */
