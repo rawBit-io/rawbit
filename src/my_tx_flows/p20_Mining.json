@@ -1563,7 +1563,7 @@
       "data": {
         "isGroup": true,
         "width": 2370,
-        "height": 1963,
+        "height": 2157,
         "title": "Block header fields and target",
         "fontSize": 44,
         "dirty": false,
@@ -1578,7 +1578,7 @@
         "borderColor": "#d6a500"
       },
       "width": 2370,
-      "height": 1963,
+      "height": 2157,
       "dragHandle": "[data-drag-handle]"
     },
     {
@@ -2211,7 +2211,9 @@
         "totalInputs": 1,
         "unwiredCount": 0,
         "dirty": false,
-        "error": false
+        "error": false,
+        "outputValues": {},
+        "outputErrors": {}
       },
       "parentId": "group_header_target",
       "extent": "parent"
@@ -2244,7 +2246,9 @@
         },
         "groupInstances": {},
         "dirty": false,
-        "error": false
+        "error": false,
+        "outputValues": {},
+        "outputErrors": {}
       },
       "parentId": "group_header_target",
       "extent": "parent"

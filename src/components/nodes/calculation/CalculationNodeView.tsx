@@ -631,6 +631,7 @@ export function CalculationNodeView({
   >({});
   const [mineNonceCopied, setMineNonceCopied] = useState(false);
   const [musig2SecnonceCopied, setMusig2SecnonceCopied] = useState(false);
+  const [bitsDifficultyCopied, setBitsDifficultyCopied] = useState(false);
   const [txCopiedOutputHandle, setTxCopiedOutputHandle] = useState<
     string | null
   >(null);
@@ -669,6 +670,8 @@ export function CalculationNodeView({
   const parityValueRef = useRef<HTMLDivElement | null>(null);
   const musig2PubnonceRowRef = useRef<HTMLDivElement | null>(null);
   const musig2SecnonceRowRef = useRef<HTMLDivElement | null>(null);
+  const bitsTargetRowRef = useRef<HTMLDivElement | null>(null);
+  const bitsDifficultyRowRef = useRef<HTMLDivElement | null>(null);
 
   const highlightStyles =
     data.isHighlighted && !selected
@@ -689,6 +692,7 @@ export function CalculationNodeView({
   const isTaprootTreeBuilder = outputLayout === "taproot_tree_builder";
   const isTaprootTweakXonly = outputLayout === "taproot_tweak_xonly_pubkey";
   const isMusig2NonceGen = outputLayout === "musig2_nonce_gen";
+  const isBitsToTarget = outputLayout === "bits_to_target";
   const isMineNonceRange = data.functionName === "mine_nonce_range";
   const isPictureP2shScripts =
     data.functionName === "bip110_picture_p2sh_scripts";
@@ -820,6 +824,20 @@ export function CalculationNodeView({
       : typeof musig2SecnonceValue === "object"
       ? JSON.stringify(musig2SecnonceValue, null, 2)
       : String(musig2SecnonceValue);
+  const bitsTargetDisplay =
+    result === undefined || result === null || result === ""
+      ? "--"
+      : clip.prettyResult;
+  const bitsDifficultyValue =
+    data.outputValues && typeof data.outputValues === "object"
+      ? (data.outputValues as Record<string, unknown>)["output-1"]
+      : undefined;
+  const bitsDifficultyDisplay =
+    bitsDifficultyValue === undefined ||
+    bitsDifficultyValue === null ||
+    bitsDifficultyValue === ""
+      ? "--"
+      : String(bitsDifficultyValue);
 
   const copyTextToClipboard = useCallback((text: string, onSuccess: () => void) => {
     if (navigator.clipboard?.writeText) {
@@ -855,6 +873,14 @@ export function CalculationNodeView({
     copyTextToClipboard(text, () => {
       setMusig2SecnonceCopied(true);
       window.setTimeout(() => setMusig2SecnonceCopied(false), 1000);
+    });
+  };
+
+  const copyBitsDifficulty = () => {
+    if (bitsDifficultyDisplay === "--") return;
+    copyTextToClipboard(bitsDifficultyDisplay, () => {
+      setBitsDifficultyCopied(true);
+      window.setTimeout(() => setBitsDifficultyCopied(false), 1000);
     });
   };
 
@@ -1542,6 +1568,12 @@ export function CalculationNodeView({
       if (source === "musig2-secnonce") {
         return musig2SecnonceRowRef.current;
       }
+      if (source === "bits-target") {
+        return bitsTargetRowRef.current;
+      }
+      if (source === "bits-difficulty") {
+        return bitsDifficultyRowRef.current;
+      }
       return null;
     };
 
@@ -1634,6 +1666,9 @@ export function CalculationNodeView({
     isMusig2NonceGen,
     musig2PubnonceDisplay,
     musig2SecnonceDisplay,
+    isBitsToTarget,
+    bitsTargetDisplay,
+    bitsDifficultyDisplay,
     result,
     showComment,
   ]);
@@ -2477,6 +2512,77 @@ export function CalculationNodeView({
                     }
                   >
                     {musig2SecnonceCopied ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            ) : isBitsToTarget ? (
+              <div className="space-y-3 text-sm">
+                <div
+                  ref={bitsTargetRowRef}
+                  className="flex items-start justify-between gap-2"
+                >
+                  <div className="flex-1 min-w-0" data-testid="node-result">
+                    <div className="mb-1 text-xs font-medium">
+                      Target (256-bit):
+                    </div>
+                    <span className="block whitespace-pre-wrap break-all">
+                      {bitsTargetDisplay}
+                    </span>
+                  </div>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="nodrag shrink-0 self-start"
+                    onPointerDownCapture={(event) => event.stopPropagation()}
+                    onClick={clip.copyResult}
+                    disabled={result === undefined}
+                    title={
+                      clip.resultCopied ? "Copied!" : "Copy target to clipboard"
+                    }
+                  >
+                    {clip.resultCopied ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+
+                <div
+                  ref={bitsDifficultyRowRef}
+                  className="flex items-start justify-between gap-2"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="mb-1 text-xs font-medium">
+                      Difficulty (mainnet diff-1):
+                    </div>
+                    <span
+                      className="block whitespace-pre-wrap break-all"
+                      data-testid="bits-difficulty-value"
+                    >
+                      {bitsDifficultyDisplay}
+                    </span>
+                  </div>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="nodrag shrink-0 self-start"
+                    onPointerDownCapture={(event) => event.stopPropagation()}
+                    onClick={copyBitsDifficulty}
+                    disabled={bitsDifficultyDisplay === "--"}
+                    title={
+                      bitsDifficultyCopied
+                        ? "Copied!"
+                        : "Copy difficulty to clipboard"
+                    }
+                  >
+                    {bitsDifficultyCopied ? (
                       <Check className="h-4 w-4" />
                     ) : (
                       <Copy className="h-4 w-4" />

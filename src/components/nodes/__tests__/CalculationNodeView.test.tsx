@@ -349,6 +349,62 @@ describe("CalculationNodeView", () => {
     expect(mut.setFieldValue).toHaveBeenCalledWith(0, "0", false, false);
   });
 
+  it("renders Bits → Target outputs as labeled target and difficulty sections", () => {
+    const target = "0fffff" + "00".repeat(29);
+    const clip = createClip({ prettyResult: target });
+    const mut = createMut();
+
+    renderWithProviders(
+      <CalculationNodeView
+        selected={false}
+        data={{
+          ...data,
+          functionName: "bits_to_target",
+          paramExtraction: "multi_val",
+          inputs: { vals: { 0: "200fffff" } },
+          customFieldLabels: {},
+          outputLayout: "bits_to_target",
+          outputValues: { "output-1": "0.00024414" },
+          result: target,
+          inputStructure: {
+            ungrouped: [
+              { index: 0, label: "BITS (compact hex):", rows: 1 },
+            ],
+            groups: [],
+            afterGroups: [],
+          },
+        }}
+        rawTitle="Bits → Target"
+        derived={{ ...derived, isMultiVal: true, nodeWidth: 400 }}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        singleValue={undefined}
+        result={target}
+        error={false}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: false,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    expect(screen.getByText("Target (256-bit):")).toBeInTheDocument();
+    expect(
+      screen.getByText("Difficulty (mainnet diff-1):")
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("bits-difficulty-value")).toHaveTextContent(
+      "0.00024414"
+    );
+    expect(screen.getByTestId("node-result")).toHaveTextContent(target);
+  });
+
   it("disables the advance button while dirty, errored, or stopped", () => {
     const clip = createClip();
     const mut = createMut();

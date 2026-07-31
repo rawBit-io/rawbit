@@ -4179,9 +4179,20 @@ export const allSidebarNodes: NodeTemplate[] = [
       paramExtraction: "multi_val",
       numInputs: 1,
       inputs: { vals: { 0: "2000ffff" } },
+      outputLayout: "bits_to_target",
       outputPorts: [
-        { label: "target", handleId: "" },
-        { label: "difficulty (mainnet diff-1)", handleId: "output-1" },
+        {
+          label: "target",
+          handleId: "",
+          handleTopSource: "bits-target",
+          showLabel: false,
+        },
+        {
+          label: "difficulty",
+          handleId: "output-1",
+          handleTopSource: "bits-difficulty",
+          showLabel: false,
+        },
       ],
       inputStructure: {
         ungrouped: [

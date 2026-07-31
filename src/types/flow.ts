@@ -53,7 +53,8 @@ export type OutputLayoutMode =
   | "bitcoin_block_merkle_tree"
   | "taproot_tree_builder"
   | "taproot_tweak_xonly_pubkey"
-  | "musig2_nonce_gen";
+  | "musig2_nonce_gen"
+  | "bits_to_target";
 
 export interface OutputPortDefinition {
   label: string;
