@@ -274,7 +274,73 @@ describe("CalculationNodeView", () => {
       1,
       2,
       false,
-      "output-2"
+      "output-2",
+      undefined
+    );
+  });
+
+  it("renders a field-placed advance button beside its target field with a literal step", async () => {
+    const clip = createClip();
+    const mut = createMut();
+    const user = userEvent.setup();
+
+    renderWithProviders(
+      <CalculationNodeView
+        selected={false}
+        data={{
+          ...data,
+          functionName: "counter",
+          paramExtraction: "multi_val",
+          inputs: { vals: { 0: "442" } },
+          customFieldLabels: {},
+          advanceButton: {
+            targetField: 0,
+            step: 1,
+            label: "+1",
+            placement: "field",
+          },
+          inputStructure: {
+            ungrouped: [
+              {
+                index: 0,
+                label: "NONCE (decimal):",
+                rows: 1,
+                unconnectable: true,
+              },
+            ],
+            groups: [],
+            afterGroups: [],
+          },
+        }}
+        rawTitle="Nonce"
+        derived={{ ...derived, isMultiVal: true, nodeWidth: 400 }}
+        isInputConnected={() => false}
+        mut={mut}
+        group={{ handleGroupSize: vi.fn() }}
+        clip={clip}
+        singleValue={undefined}
+        result={undefined}
+        error={false}
+        hasRegenerate={false}
+        showComment={false}
+        comment=""
+        script={{
+          isScriptVerification: false,
+          scriptResult: null,
+          scriptSigInputHex: "",
+          scriptPubKeyInputHex: "",
+        }}
+      />
+    );
+
+    await user.click(screen.getByRole("button", { name: "+1" }));
+
+    expect(mut.advanceFieldValue).toHaveBeenCalledWith(
+      0,
+      undefined,
+      false,
+      undefined,
+      1
     );
   });
 

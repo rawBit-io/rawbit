@@ -5124,12 +5124,56 @@ def _num_to_str(x):
         return str(int(x))
     return format(x.normalize(), 'f')
 
+def _parse_decimal_strict(raw: str):
+    """
+    Decimal notation only: ints ('144', '+10', '-7') and fraction/scientific
+    notation ('12.5', '1e6'). Hex is rejected — use _parse_hex_uint instead.
+    """
+    s = str(raw).strip()
+    if not s:
+        raise ValueError("empty number")
+    if _INT_DEC_RE.fullmatch(s):
+        return int(s, 10)
+    if _STRICT_DECIMAL_RE.fullmatch(s):
+        return Decimal(s)
+    raise ValueError(f"'{raw}' is not a valid decimal number")
+
+
+def _parse_hex_uint(raw: str) -> int:
+    """Unsigned hexadecimal integer, optional 0x prefix."""
+    s = str(raw).strip()
+    if s.lower().startswith("0x"):
+        s = s[2:]
+    if not s or not _HEX_RE.fullmatch(s):
+        raise ValueError(f"'{raw}' is not a valid hex number")
+    return int(s, 16)
+
+
 def compare_numbers(vals: list[str]) -> str:
+    """
+    Test a numeric relation between two values.
+
+    vals[0]: left value
+    vals[1]: operator (<, >, <=, >=)
+    vals[2]: right value
+    vals[3]: parse mode 'decimal' or 'hex' (blank/missing => 'decimal')
+
+    'decimal' accepts ints and fraction/scientific notation; 'hex' accepts
+    unsigned hex with optional 0x prefix. The mode is explicit so a value
+    like '1e8' or an all-digit hex string can never be parsed ambiguously.
+    """
     if len(vals) < 3:
         raise ValueError("Need [left, operator, right]")
-    a = _parse_numeric_exact(vals[0])
-    b = _parse_numeric_exact(vals[2])
-    a, b = _coerce_for_op(a, b)
+    mode = (str(vals[3]).strip().lower() if len(vals) > 3 else "") or "decimal"
+    if mode == "hex":
+        a = _parse_hex_uint(vals[0])
+        b = _parse_hex_uint(vals[2])
+    elif mode == "decimal":
+        a = _parse_decimal_strict(vals[0])
+        b = _parse_decimal_strict(vals[2])
+        a, b = _coerce_for_op(a, b)
+    else:
+        raise ValueError(f"Unsupported mode '{vals[3]}'")
 
     op = vals[1].strip()
     if op == "<":
@@ -5143,6 +5187,26 @@ def compare_numbers(vals: list[str]) -> str:
     else:
         raise ValueError(f"Unsupported operator '{op}'")
     return "true" if res else "false"
+
+def counter(vals: list[str]) -> str:
+    """
+    Manually stepped value: echo the current value unchanged.
+
+    vals[0]: current value, decimal integer
+
+    The canvas +1 button increments the field client-side; the backend only
+    validates and returns the canonical current value so downstream nodes
+    always consume a clean decimal integer.
+    """
+    if len(vals) < 1:
+        raise ValueError("Need [value]")
+
+    value_text = str(vals[0]).strip()
+    if not _INT_DEC_RE.fullmatch(value_text):
+        raise ValueError(f"Value must be a decimal integer, got '{vals[0]}'")
+
+    return str(int(value_text, 10))
+
 
 def math_operation(vals: list[str]) -> str:
     if len(vals) < 3:

@@ -708,7 +708,8 @@ export function CalculationNodeView({
   const advanceButton =
     data.advanceButton &&
     Number.isInteger(data.advanceButton.targetField) &&
-    Number.isInteger(data.advanceButton.stepField)
+    (Number.isInteger(data.advanceButton.stepField) ||
+      Number.isInteger(data.advanceButton.step))
       ? data.advanceButton
       : undefined;
   const advanceButtonStopped =
@@ -1064,6 +1065,41 @@ export function CalculationNodeView({
           onLabelChange={(label) => mut.updateFieldLabel(fieldIndex, label)}
         />
       );
+
+      const inlineAdvance =
+        advanceButton?.placement === "field" &&
+        advanceButton.targetField === fieldIndex;
+      if (inlineAdvance) {
+        return (
+          <div
+            key={`${scope}-${fieldIndex}`}
+            className="flex items-end gap-2"
+          >
+            <div className="min-w-0 flex-1">{fieldControl}</div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="nodrag mb-3 h-[calc(1.45em_+_1.3rem_+_4px)] w-[calc(1.45em_+_1.3rem_+_4px)] shrink-0 p-0 font-mono text-sm"
+              disabled={
+                connected || data.dirty === true || error || advanceButtonStopped
+              }
+              onPointerDownCapture={(event) => event.stopPropagation()}
+              onClick={(event) => {
+                event.stopPropagation();
+                mut.advanceFieldValue(
+                  advanceButton.targetField,
+                  advanceButton.stepField,
+                  connected,
+                  advanceButton.nextValueOutput,
+                  advanceButton.step
+                );
+              }}
+            >
+              {advanceButton.label || "+1"}
+            </Button>
+          </div>
+        );
+      }
 
       if (!hasImageFileInput) {
         return (
@@ -1762,7 +1798,7 @@ export function CalculationNodeView({
           {isInputNode && <InputTypeBadge />}
           {isConcatAll && <ConcatTypeBadge />}
 
-          {advanceButton && (
+          {advanceButton && advanceButton.placement !== "field" && (
             <Button
               variant="outline"
               size="sm"
@@ -1780,7 +1816,8 @@ export function CalculationNodeView({
                   advanceButton.targetField,
                   advanceButton.stepField,
                   isInputConnected(advanceButton.targetField),
-                  advanceButton.nextValueOutput
+                  advanceButton.nextValueOutput,
+                  advanceButton.step
                 );
               }}
             >

@@ -449,6 +449,10 @@ FUNCTION_SPECS = {
     "paramExtraction": "multi_val",
     "params": { "vals": { "type": "any", "required": True } }
 },
+"counter": {
+    "paramExtraction": "multi_val",
+    "params": { "vals": { "type": "any", "required": True } }
+},
 "math_operation": {
     "paramExtraction": "multi_val",
     "params": { "vals": { "type": "any", "required": True } }

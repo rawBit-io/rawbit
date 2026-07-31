@@ -73,7 +73,12 @@ export function useCalcNodeDerived(
     [data, isMultiVal]
   );
 
-  const nodeWidth = isMultiVal ? 400 : 250;
+  const nodeWidth =
+    typeof data.nodeWidth === "number" && data.nodeWidth > 0
+      ? data.nodeWidth
+      : isMultiVal
+        ? 400
+        : 250;
   const baseHeight = isMultiVal ? MULTI_BASE_HEIGHT : SINGLE_BASE_HEIGHT;
   const visibleOutputs = Array.isArray(data.outputPorts)
     ? data.outputPorts.filter((port) => port.showHandle !== false).length

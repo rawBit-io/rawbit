@@ -3375,14 +3375,15 @@ export const allSidebarNodes: NodeTemplate[] = [
     label: "Compare Numbers",
     category: "Logic & Checks",
     subcategory: "Comparisons",
-    description: "Tests a numeric relation (<, >, ≤, ≥) between two values",
+    description:
+      "Tests a numeric relation (<, >, ≤, ≥) between two decimal or hex values",
     type: "calculation",
     nodeData: {
       functionName: "compare_numbers",
       title: "Compare Numbers",
       paramExtraction: "multi_val",
-      numInputs: 3, // [left, operator, right]
-      inputs: { vals: ["", "<", ""] },
+      numInputs: 4, // [left, operator, right, mode]
+      inputs: { vals: ["", "<", "", "decimal"] },
       result: "",
 
       inputStructure: {
@@ -3395,6 +3396,14 @@ export const allSidebarNodes: NodeTemplate[] = [
             options: ["<", ">", "<=", ">="],
           },
           { index: 2, label: "Right value:", rows: 1, placeholder: "e.g. 10" },
+          {
+            index: 3,
+            label: "Mode:",
+            unconnectable: true, // dropdown, no cables
+            options: ["decimal", "hex"],
+            comment:
+              "How both values are parsed. 'decimal' accepts ints and fraction/scientific notation; 'hex' accepts unsigned hex with optional 0x prefix.",
+          },
         ],
       },
 
@@ -3431,6 +3440,46 @@ export const allSidebarNodes: NodeTemplate[] = [
         ],
       },
       groupInstances: {},
+    },
+  },
+
+  {
+    /* ─ Counter ─ */
+    functionName: "counter",
+    label: "Counter",
+    category: "Logic & Checks",
+    subcategory: "Math",
+    description: "Manually stepped decimal value: click +1 to increment it",
+    type: "calculation",
+    nodeData: {
+      functionName: "counter",
+      title: "Counter",
+      paramExtraction: "multi_val",
+      numInputs: 1,
+      nodeWidth: 300,
+      inputs: { vals: { 0: "0" } },
+      advanceButton: {
+        targetField: 0,
+        step: 1,
+        label: "+1",
+        placement: "field",
+      },
+      inputStructure: {
+        ungrouped: [
+          {
+            index: 0,
+            label: "VALUE (decimal):",
+            rows: 1,
+            placeholder: "0",
+            unconnectable: true,
+            comment: "Edit the value directly to jump, or click +1.",
+          },
+        ],
+        groups: [],
+        afterGroups: [],
+      },
+      groupInstances: {},
+      result: "",
     },
   },
 

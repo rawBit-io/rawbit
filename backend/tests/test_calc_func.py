@@ -755,6 +755,49 @@ def test_mine_nonce_range_defaults_and_clamps_attempt_count():
     assert clamped["next_start"] == 100
 
 
+def test_compare_numbers_hex_mode_checks_proof_of_work():
+    assert (
+        calc.compare_numbers([GENESIS_BLOCK_HASH, "<=", GENESIS_TARGET, "hex"])
+        == "true"
+    )
+    # Equality is a win: the consensus rule is hash <= target.
+    assert (
+        calc.compare_numbers([GENESIS_TARGET, "<=", GENESIS_TARGET, "hex"])
+        == "true"
+    )
+    assert (
+        calc.compare_numbers([TEACHING_TARGET, "<=", GENESIS_TARGET, "hex"])
+        == "false"
+    )
+
+
+def test_compare_numbers_mode_is_explicit_not_heuristic():
+    # '1e8' is scientific notation in decimal mode but 0x1e8 in hex mode.
+    assert calc.compare_numbers(["1e8", ">", "1000", ""]) == "true"
+    assert calc.compare_numbers(["1e8", "<", "1000", "hex"]) == "true"
+    assert calc.compare_numbers(["0xff", "<=", "FF", "hex"]) == "true"
+    # Decimal mode no longer auto-detects letters-present hex.
+    with pytest.raises(ValueError):
+        calc.compare_numbers(["deadbeef", "<", "1", "decimal"])
+    with pytest.raises(ValueError):
+        calc.compare_numbers(["12.5", "<", "ff", "hex"])
+    with pytest.raises(ValueError):
+        calc.compare_numbers(["1", "<", "2", "octal"])
+
+
+def test_counter_echoes_canonical_value_and_validates_fields():
+    assert calc.counter(["442"]) == "442"
+    assert calc.counter(["+007"]) == "7"
+    assert calc.counter(["-3"]) == "-3"
+    assert calc.counter(["0"]) == "0"
+    with pytest.raises(ValueError):
+        calc.counter(["ba010000"])
+    with pytest.raises(ValueError):
+        calc.counter(["1.5"])
+    with pytest.raises(ValueError):
+        calc.counter([])
+
+
 # ──────────────────────────────────────────────────────────────────────
 # Taproot / Schnorr helpers
 # ──────────────────────────────────────────────────────────────────────

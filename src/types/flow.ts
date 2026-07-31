@@ -74,8 +74,12 @@ export interface GroupBundlePortOffsets {
 export interface AdvanceButtonConfig {
   /** Input field that the button advances. */
   targetField: number;
-  /** Input field containing the decimal increment. */
-  stepField: number;
+  /** Input field containing the decimal increment. Omit to use `step`. */
+  stepField?: number;
+  /** Literal decimal increment used when no stepField is configured. */
+  step?: number;
+  /** Where the button renders: node header (default) or beside the field. */
+  placement?: "header" | "field";
   /** Optional button text. */
   label?: string;
   /** Optional output containing the exact next field value. */
@@ -103,6 +107,8 @@ export interface CalculationNodeData extends Record<string, unknown> {
   baseHeight?: number;
   width?: number;
   height?: number;
+  /** Fixed width override for calculation nodes (defaults per paramExtraction). */
+  nodeWidth?: number;
 
   /** single-value mode */
   value?: string;

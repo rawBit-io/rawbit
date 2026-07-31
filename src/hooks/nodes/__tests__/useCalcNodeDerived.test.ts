@@ -110,6 +110,14 @@ describe("useCalcNodeDerived", () => {
     });
   });
 
+  it("respects an explicit nodeWidth override", () => {
+    const { result } = renderHook(() =>
+      useCalcNodeDerived(nodeId, { ...data, nodeWidth: 300 }, setNodes)
+    );
+
+    expect(result.current.nodeWidth).toBe(300);
+  });
+
   it("does not count dropdown fields in connection status", async () => {
     nodes = [
       makeNode({

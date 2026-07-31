@@ -27,9 +27,10 @@ export interface UseCalcNodeMutationsResult {
   ) => void;
   advanceFieldValue: (
     targetField: number,
-    stepField: number,
+    stepField: number | undefined,
     isConnected: boolean,
-    nextValueOutput?: string
+    nextValueOutput?: string,
+    literalStep?: number
   ) => void;
   clearMiningSolution: (startField: number, resetValue?: string) => void;
   setTaprootLeafIndex: (index: number) => void;
@@ -96,9 +97,10 @@ export function useCalcNodeMutations(
   const advanceFieldValue = useCallback(
     (
       targetField: number,
-      stepField: number,
+      stepField: number | undefined,
       isConnected: boolean,
-      nextValueOutput?: string
+      nextValueOutput?: string,
+      literalStep?: number
     ) => {
       if (isConnected) return;
 
@@ -110,7 +112,10 @@ export function useCalcNodeMutations(
             node.data.inputs?.vals,
             targetField
           ).trim();
-          const stepText = getVal(node.data.inputs?.vals, stepField).trim();
+          const stepText =
+            stepField != null
+              ? getVal(node.data.inputs?.vals, stepField).trim()
+              : String(literalStep ?? "");
           const exactNextText = nextValueOutput
             ? String(node.data.outputValues?.[nextValueOutput] ?? "").trim()
             : "";

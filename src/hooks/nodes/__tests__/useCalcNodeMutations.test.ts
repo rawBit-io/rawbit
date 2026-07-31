@@ -111,6 +111,37 @@ describe("useCalcNodeMutations", () => {
     expect(nodes[0].data.extendedError).toBeUndefined();
   });
 
+  it("advances by a literal step when no step field is configured", () => {
+    nodes = [
+      {
+        ...baseNode(),
+        data: {
+          functionName: "counter",
+          inputs: { vals: { 0: "442" } },
+          dirty: false,
+        },
+      },
+    ];
+
+    const { result } = renderHook(() =>
+      useCalcNodeMutations(nodeId, nodes[0].data, setNodes, setEdges)
+    );
+
+    act(() => {
+      result.current.advanceFieldValue(0, undefined, false, undefined, 1);
+    });
+
+    expect(nodes[0].data.inputs?.vals?.[0]).toBe("443");
+    expect(nodes[0].data.dirty).toBe(true);
+
+    // Without either a step field or a literal step the click is a no-op.
+    nodes[0].data.dirty = false;
+    act(() => {
+      result.current.advanceFieldValue(0, undefined, false, undefined);
+    });
+    expect(nodes[0].data.inputs?.vals?.[0]).toBe("443");
+  });
+
   it("accepts only one advance while recalculation is pending", () => {
     nodes = [
       {

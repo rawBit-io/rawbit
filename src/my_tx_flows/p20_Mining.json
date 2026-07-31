@@ -30,18 +30,18 @@
       "id": "group_11bw3g6",
       "type": "shadcnGroup",
       "position": {
-        "x": 6628.16832450595,
-        "y": -1098.9478826841441
+        "x": -2597.279487435517,
+        "y": 1435.7538435190338
       },
       "data": {
         "isGroup": true,
         "width": 1646.9642593288559,
         "height": 1472,
-        "title": "Transaction hashes and Merkle root",
+        "title": "TX IDs and Merkle root",
         "fontSize": 44,
         "groupBundlePortOffsets": {
           "targetByBundle": {
-            "group_jgrap54->group_11bw3g6": 267.66
+            "group_jgrap54->group_11bw3g6": 523.88
           },
           "sourceByBundle": {
             "group_11bw3g6->group_mine_verify": 429.66,
@@ -59,14 +59,14 @@
       "id": "group_m23e9jt",
       "type": "shadcnGroup",
       "position": {
-        "x": 1177.9948397262617,
-        "y": 370.3278412105898
+        "x": -7744.819274441868,
+        "y": 2916.120854766717
       },
       "data": {
         "isGroup": true,
-        "width": 1327,
-        "height": 971,
-        "title": "TX to mine (from flow P2PK vs P2PKH)",
+        "width": 1483,
+        "height": 1053,
+        "title": "TX candidates to mine (from flow P2PK vs P2PKH)",
         "fontSize": 44,
         "dirty": false,
         "groupBundlePortOffsets": {
@@ -77,16 +77,16 @@
         },
         "borderColor": "#6f6a60"
       },
-      "width": 1327,
-      "height": 971,
+      "width": 1483,
+      "height": 1053,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "group_jgrap54",
       "type": "shadcnGroup",
       "position": {
-        "x": 2711.9052151142587,
-        "y": 1615.7060328665505
+        "x": -6210.908899053871,
+        "y": 4161.499046422678
       },
       "data": {
         "isGroup": true,
@@ -100,7 +100,7 @@
             "group_m23e9jt->group_jgrap54": 53.98
           },
           "sourceByBundle": {
-            "group_jgrap54->group_11bw3g6": -211.38
+            "group_jgrap54->group_11bw3g6": -403.01
           }
         },
         "dirty": false,
@@ -119,7 +119,7 @@
       },
       "data": {
         "functionName": "identity",
-        "title": "flow_2 P2PK vs P2PKH tx1",
+        "title": "copied from P2PK vs P2PKH flow tx1",
         "showField": true,
         "numInputs": 0,
         "value": "02000000017d933f4fe6261536bfdd323c5f2799669fc64bc7eaa343eaa1ae4962b06950b1010000006a47304402200ef1b4655771941c5f7cac84233d3fdbf64a90361076d5d5ff309f599cb080aa02201d0378e89a5b09bfccd725580cbbf0e07506b18ddb8253862249b20bb6e5eb24012103c996a054429c2ceea4b5b7008cc9289e0b9ef06d74f82c5bf29addeab7b404fafdffffff0198f20b0000000000232102d5e7c658ac969aea330ff6fdff09c668189d20d39d743e903a2437b76bc6b272ac00000000",
@@ -154,7 +154,7 @@
       },
       "data": {
         "functionName": "identity",
-        "title": "flow_2 P2PK vs P2PKH tx1",
+        "title": "copied from P2PK vs P2PKH flow tx2",
         "showField": true,
         "numInputs": 0,
         "value": "02000000013e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195000000004847304402205b166adf445966ad45443921e7a1a5269f376fc93c4398eda993274124cc2dce022064fd0718675d59f744581186f20c74696bca7adb851ae1fd83a5e1d5c2965dc801fdffffff01c8ea0b00000000001976a9148ae448729cbc16fe51faa9adc7be14087b45e4d988ac00000000",
@@ -480,7 +480,7 @@
           ]
         },
         "groupInstances": {},
-        "title": "Block reward ",
+        "title": "Block reward",
         "showComment": true,
         "error": false,
         "comment": "Block subsidy = 3.125 BTC"
@@ -817,7 +817,9 @@
         },
         "groupInstances": {},
         "dirty": false,
-        "error": false
+        "error": false,
+        "showComment": true,
+        "comment": "1,200 sats (TX1) + 2,000 sats (TX2)"
       },
       "parentId": "group_jgrap54",
       "extent": "parent"
@@ -879,8 +881,8 @@
       "id": "node_y4kVQeNY",
       "type": "shadcnGroup",
       "position": {
-        "x": -186.89642841243506,
-        "y": 5373.169091019882
+        "x": -9109.710542580566,
+        "y": 7918.96210457601
       },
       "data": {
         "isGroup": true,
@@ -889,7 +891,12 @@
         "title": "Locking Script P2PKH",
         "dirty": false,
         "borderColor": "#a83a32",
-        "fontSize": 44
+        "fontSize": 44,
+        "groupBundlePortOffsets": {
+          "sourceByBundle": {
+            "node_y4kVQeNY->group_jgrap54": -118.96
+          }
+        }
       },
       "width": 2478,
       "height": 1092,
@@ -1737,8 +1744,8 @@
       "id": "group_header_target",
       "type": "shadcnGroup",
       "position": {
-        "x": 9162.81411416813,
-        "y": -2200.7930135561273
+        "x": 240,
+        "y": 345
       },
       "data": {
         "isGroup": true,
@@ -1802,8 +1809,8 @@
       "id": "node_header_prefix",
       "type": "calculation",
       "position": {
-        "x": 1672.0014189916737,
-        "y": 728.9218368111879
+        "x": 1861.0859462056364,
+        "y": 609.8686159727672
       },
       "data": {
         "functionName": "concat_all",
@@ -1865,34 +1872,37 @@
       "id": "group_mine_verify",
       "type": "shadcnGroup",
       "position": {
-        "x": 12596.458299974864,
-        "y": -952.6925356711325
+        "x": 3643,
+        "y": 2013.1004778849947
       },
       "data": {
         "isGroup": true,
-        "width": 2613.997016638081,
-        "height": 2128,
+        "width": 3434,
+        "height": 1428,
         "title": "Nonce search and proof of work",
         "fontSize": 44,
         "dirty": false,
         "groupBundlePortOffsets": {
           "targetByBundle": {
-            "group_header_target->group_mine_verify": -101.99,
-            "group_11bw3g6->group_mine_verify": 777.95
+            "group_header_target->group_mine_verify": -239.79,
+            "group_11bw3g6->group_mine_verify": 81.15
+          },
+          "sourceByBundle": {
+            "group_mine_verify->group_raw_block": 608.63
           }
         },
         "borderColor": "#d6a500"
       },
-      "width": 2613.997016638081,
-      "height": 2128,
+      "width": 3434,
+      "height": 1428,
       "dragHandle": "[data-drag-handle]"
     },
     {
       "id": "node_block_header",
       "type": "calculation",
       "position": {
-        "x": 1045.2821629797763,
-        "y": 695.0223004407561
+        "x": 1068.654244494961,
+        "y": 201.06966471272835
       },
       "data": {
         "functionName": "concat_all",
@@ -1906,10 +1916,10 @@
             "20": "4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f",
             "30": "80e14e68",
             "40": "ffff0020",
-            "50": "ba010000"
+            "50": "00000000"
           }
         },
-        "result": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0020ba010000",
+        "result": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff002000000000",
         "inputStructure": {
           "ungrouped": [
             {
@@ -1957,59 +1967,56 @@
       "extent": "parent"
     },
     {
-      "id": "node_verify_pow",
+      "id": "node_nonce_le4",
       "type": "calculation",
       "position": {
-        "x": 1665.958677058461,
-        "y": 1338.7400337134243
+        "x": 662.0674213275624,
+        "y": 855.1031913970946
       },
       "data": {
-        "functionName": "check_pow",
-        "title": "Verify Block PoW",
-        "paramExtraction": "multi_val",
-        "numInputs": 2,
+        "functionName": "uint32_to_little_endian_4_bytes",
+        "title": "Uint32 → LE-4",
+        "numInputs": 1,
+        "showField": false,
+        "groupInstances": {},
         "inputs": {
-          "vals": {
-            "0": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0020ba010000",
-            "1": "00ffff0000000000000000000000000000000000000000000000000000000000"
-          }
+          "val": 0
         },
-        "outputPorts": [
-          {
-            "label": "valid",
-            "handleId": ""
-          },
-          {
-            "label": "block hash",
-            "handleId": "output-1"
-          }
-        ],
+        "result": "00000000",
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_mine_verify",
+      "extent": "parent"
+    },
+    {
+      "id": "node_header_sha256d",
+      "type": "calculation",
+      "position": {
+        "x": 1638.975539977836,
+        "y": 320.4444114811672
+      },
+      "data": {
+        "functionName": "double_sha256_hex",
+        "title": "Data → SHA-256d",
+        "numInputs": 1,
+        "version": 0,
+        "inputs": {
+          "val": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff002000000000"
+        },
+        "result": "6860bb04c7367c1773bcd44f1e007e45992fee7f7f9d29a957783f6188661682",
         "inputStructure": {
           "ungrouped": [
             {
               "index": 0,
-              "label": "BLOCK HEADER[80]:",
-              "rows": 5
-            },
-            {
-              "index": 1,
-              "label": "TARGET[32]:",
-              "rows": 3
+              "label": "Input Hex:",
+              "rows": 2
             }
-          ],
-          "groups": [],
-          "afterGroups": []
+          ]
         },
         "groupInstances": {},
-        "totalInputs": 2,
-        "unwiredCount": 0,
-        "result": "true",
-        "outputValues": {
-          "output-1": "00100b903f55ad3798ce08906e05007d3193423e4a3b186c69f7d89a4f2fe5f9"
-        },
         "dirty": false,
-        "error": false,
-        "outputErrors": {}
+        "error": false
       },
       "parentId": "group_mine_verify",
       "extent": "parent"
@@ -2018,8 +2025,8 @@
       "id": "node_assert_pow",
       "type": "calculation",
       "position": {
-        "x": 2181.997016638081,
-        "y": 1550.3871501378603
+        "x": 2952.82589116712,
+        "y": 312.0150556024946
       },
       "data": {
         "functionName": "check_result",
@@ -2028,10 +2035,10 @@
         "numInputs": 1,
         "inputs": {
           "vals": {
-            "0": "true"
+            "0": "false"
           }
         },
-        "result": "true",
+        "result": "false",
         "inputStructure": {
           "groups": [
             {
@@ -2062,7 +2069,10 @@
         "totalInputs": 1,
         "unwiredCount": 0,
         "dirty": false,
-        "error": false
+        "error": true,
+        "extendedError": "Check failed: at least one input is not true",
+        "showComment": true,
+        "comment": "node sets error if one on inputs is not true"
       },
       "parentId": "group_mine_verify",
       "extent": "parent"
@@ -2071,26 +2081,26 @@
       "id": "group_raw_block",
       "type": "shadcnGroup",
       "position": {
-        "x": 17075.202220937514,
-        "y": 2705.483463004959
+        "x": 8152.388106769384,
+        "y": 5251.276476561086
       },
       "data": {
         "isGroup": true,
-        "width": 1659,
-        "height": 1594,
+        "width": 1677,
+        "height": 1700,
         "title": "Solved block serialization",
         "fontSize": 44,
         "dirty": false,
         "groupBundlePortOffsets": {
           "targetByBundle": {
-            "group_mine_verify->group_raw_block": -669.17,
+            "group_mine_verify->group_raw_block": -699.23,
             "group_m23e9jt->group_raw_block": -213.28
           }
         },
         "borderColor": "#7a4ea3"
       },
-      "width": 1659,
-      "height": 1594,
+      "width": 1677,
+      "height": 1700,
       "dragHandle": "[data-drag-handle]"
     },
     {
@@ -2146,86 +2156,6 @@
         },
         "dirty": false,
         "error": false
-      },
-      "parentId": "group_raw_block",
-      "extent": "parent"
-    },
-    {
-      "id": "node_raw_block",
-      "type": "calculation",
-      "position": {
-        "x": 950,
-        "y": 180
-      },
-      "data": {
-        "functionName": "concat_all",
-        "title": "Raw Block Builder",
-        "paramExtraction": "multi_val",
-        "numInputs": 5,
-        "inputs": {
-          "vals": {
-            "0": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0020ba010000",
-            "10": "03",
-            "100": "02000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0903a0bb0d0400000000ffffffff01a06ba012000000001976a9149128229e0b4d25a6811f6436bb4124de2c87928a88ac00000000",
-            "200": "02000000017d933f4fe6261536bfdd323c5f2799669fc64bc7eaa343eaa1ae4962b06950b1010000006a47304402200ef1b4655771941c5f7cac84233d3fdbf64a90361076d5d5ff309f599cb080aa02201d0378e89a5b09bfccd725580cbbf0e07506b18ddb8253862249b20bb6e5eb24012103c996a054429c2ceea4b5b7008cc9289e0b9ef06d74f82c5bf29addeab7b404fafdffffff0198f20b0000000000232102d5e7c658ac969aea330ff6fdff09c668189d20d39d743e903a2437b76bc6b272ac00000000",
-            "300": "02000000013e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195000000004847304402205b166adf445966ad45443921e7a1a5269f376fc93c4398eda993274124cc2dce022064fd0718675d59f744581186f20c74696bca7adb851ae1fd83a5e1d5c2965dc801fdffffff01c8ea0b00000000001976a9148ae448729cbc16fe51faa9adc7be14087b45e4d988ac00000000"
-          }
-        },
-        "result": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0020ba0100000302000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0903a0bb0d0400000000ffffffff01a06ba012000000001976a9149128229e0b4d25a6811f6436bb4124de2c87928a88ac0000000002000000017d933f4fe6261536bfdd323c5f2799669fc64bc7eaa343eaa1ae4962b06950b1010000006a47304402200ef1b4655771941c5f7cac84233d3fdbf64a90361076d5d5ff309f599cb080aa02201d0378e89a5b09bfccd725580cbbf0e07506b18ddb8253862249b20bb6e5eb24012103c996a054429c2ceea4b5b7008cc9289e0b9ef06d74f82c5bf29addeab7b404fafdffffff0198f20b0000000000232102d5e7c658ac969aea330ff6fdff09c668189d20d39d743e903a2437b76bc6b272ac0000000002000000013e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195000000004847304402205b166adf445966ad45443921e7a1a5269f376fc93c4398eda993274124cc2dce022064fd0718675d59f744581186f20c74696bca7adb851ae1fd83a5e1d5c2965dc801fdffffff01c8ea0b00000000001976a9148ae448729cbc16fe51faa9adc7be14087b45e4d988ac00000000",
-        "inputStructure": {
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "HEADER[80]:",
-              "rows": 5
-            },
-            {
-              "index": 10,
-              "label": "TX_COUNT (VarInt):",
-              "rows": 1,
-              "small": true
-            }
-          ],
-          "groups": [
-            {
-              "title": "TXS[]",
-              "baseIndex": 100,
-              "expandable": true,
-              "fieldCountToAdd": 1,
-              "minInstances": 1,
-              "maxInstances": 99,
-              "fields": [
-                {
-                  "index": 0,
-                  "label": "TRANSACTION:",
-                  "rows": 6,
-                  "autoResizeMaxRows": 10,
-                  "comment": "Transactions are serialized in this exact order. The first must be the coinbase."
-                }
-              ]
-            }
-          ],
-          "afterGroups": []
-        },
-        "groupInstances": {
-          "TXS[]": 3
-        },
-        "groupInstanceKeys": {
-          "TXS[]": [100, 200, 300]
-        },
-        "customFieldLabels": {
-          "100": "TX0 — coinbase:",
-          "200": "TX1 — parent:",
-          "300": "TX2 — child:"
-        },
-        "totalInputs": 5,
-        "unwiredCount": 0,
-        "baseHeight": 120,
-        "dirty": false,
-        "error": false,
-        "customGroupTitles": {
-          "TXS[]": "TXS[]"
-        }
       },
       "parentId": "group_raw_block",
       "extent": "parent"
@@ -2529,102 +2459,211 @@
       "extent": "parent"
     },
     {
-      "id": "node_whvvalc",
+      "id": "node_g1zennc",
       "type": "calculation",
       "position": {
-        "x": 192.55856033695636,
-        "y": 70.70688973624635
+        "x": 1990.757164797299,
+        "y": 340.7261287608376
       },
       "data": {
-        "functionName": "mine_nonce_range",
-        "title": "Mine nonce",
+        "functionName": "reverse_txid_bytes",
+        "title": "TXID/WTXID → Reversed",
+        "numInputs": 1,
+        "groupInstances": {},
+        "result": "82166688613f7857a9299d7f7fee2f99457e001e4fd4bc73177c36c704bb6068",
+        "inputs": {
+          "val": "6860bb04c7367c1773bcd44f1e007e45992fee7f7f9d29a957783f6188661682"
+        },
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_mine_verify",
+      "extent": "parent"
+    },
+    {
+      "id": "node_qimchp6",
+      "type": "calculation",
+      "position": {
+        "x": 2414.353701070204,
+        "y": 396.31176520154213
+      },
+      "data": {
+        "functionName": "compare_numbers",
+        "title": "Compare Numbers",
         "paramExtraction": "multi_val",
         "numInputs": 4,
         "inputs": {
           "vals": {
-            "0": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0020",
-            "1": "400",
-            "2": "100",
-            "3": "00ffff0000000000000000000000000000000000000000000000000000000000"
+            "0": "82166688613f7857a9299d7f7fee2f99457e001e4fd4bc73177c36c704bb6068",
+            "1": "<",
+            "2": "00ffff0000000000000000000000000000000000000000000000000000000000",
+            "3": "hex"
           }
         },
-        "advanceButton": {
-          "targetField": 1,
-          "stepField": 2,
-          "label": "Mine",
-          "nextValueOutput": "output-2",
-          "disableWhenOutput": {
-            "handleId": "output-1",
-            "equals": "true"
-          }
-        },
-        "outputPorts": [
-          {
-            "label": "nonce (LE-4)",
-            "handleId": "output-0",
-            "handleTopSource": "mine-nonce-output",
-            "showLabel": false
-          },
-          {
-            "label": "found",
-            "handleId": "output-1",
-            "showHandle": false
-          },
-          {
-            "label": "next start",
-            "handleId": "output-2",
-            "showHandle": false
-          }
-        ],
+        "result": "false",
         "inputStructure": {
           "ungrouped": [
             {
               "index": 0,
-              "label": "HEADER PREFIX[76]:",
-              "placeholder": "Version through nBits, without nonce",
-              "rows": 5,
-              "comment": "Exactly 76 serialized header bytes (152 hex characters). The nonce is appended as LE-4 for each attempt."
+              "label": "Left value:",
+              "rows": 1,
+              "placeholder": "e.g. 5"
             },
             {
               "index": 1,
-              "label": "START NONCE (decimal):",
-              "placeholder": "0",
-              "rows": 1,
-              "small": true,
-              "unconnectable": true
+              "label": "Operator:",
+              "unconnectable": true,
+              "options": ["<", ">", "<=", ">="]
             },
             {
               "index": 2,
-              "label": "ATTEMPTS (decimal):",
-              "placeholder": "100",
+              "label": "Right value:",
               "rows": 1,
-              "small": true,
-              "maxDecimalValue": 100,
-              "unconnectable": true,
-              "comment": "Number of consecutive nonces to try in this batch (maximum 100)."
+              "placeholder": "e.g. 10"
             },
             {
               "index": 3,
-              "label": "TARGET[32]:",
-              "placeholder": "64-hex target from Bits → Target",
-              "rows": 3,
-              "comment": "A header is valid when its double-SHA256 hash, interpreted as a little-endian integer, is at or below this target."
+              "label": "Mode:",
+              "unconnectable": true,
+              "options": ["decimal", "hex"],
+              "comment": "How both values are parsed. 'decimal' accepts ints and fraction/scientific notation; 'hex' accepts unsigned hex with optional 0x prefix."
+            }
+          ]
+        },
+        "groupInstances": {},
+        "totalInputs": 2,
+        "unwiredCount": 0,
+        "dirty": false,
+        "error": false,
+        "customFieldLabels": {
+          "0": "BLOCK HASH[32] (display order):",
+          "2": "TARGET[32]:"
+        },
+        "outputValues": {},
+        "outputErrors": {}
+      },
+      "parentId": "group_mine_verify",
+      "extent": "parent"
+    },
+    {
+      "id": "node_pcobtuc",
+      "type": "calculation",
+      "position": {
+        "x": 1072.4859968815435,
+        "y": 172.22494937526426
+      },
+      "data": {
+        "functionName": "concat_all",
+        "title": "Raw Block Builder",
+        "paramExtraction": "multi_val",
+        "numInputs": 3,
+        "inputs": {
+          "vals": {
+            "0": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff002000000000",
+            "10": "03",
+            "100": "02000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0903a0bb0d0400000000ffffffff01a06ba012000000001976a9149128229e0b4d25a6811f6436bb4124de2c87928a88ac00000000",
+            "200": "02000000017d933f4fe6261536bfdd323c5f2799669fc64bc7eaa343eaa1ae4962b06950b1010000006a47304402200ef1b4655771941c5f7cac84233d3fdbf64a90361076d5d5ff309f599cb080aa02201d0378e89a5b09bfccd725580cbbf0e07506b18ddb8253862249b20bb6e5eb24012103c996a054429c2ceea4b5b7008cc9289e0b9ef06d74f82c5bf29addeab7b404fafdffffff0198f20b0000000000232102d5e7c658ac969aea330ff6fdff09c668189d20d39d743e903a2437b76bc6b272ac00000000",
+            "300": "02000000013e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195000000004847304402205b166adf445966ad45443921e7a1a5269f376fc93c4398eda993274124cc2dce022064fd0718675d59f744581186f20c74696bca7adb851ae1fd83a5e1d5c2965dc801fdffffff01c8ea0b00000000001976a9148ae448729cbc16fe51faa9adc7be14087b45e4d988ac00000000"
+          }
+        },
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "HEADER[80]:",
+              "placeholder": "Solved 80-byte block header",
+              "rows": 5
+            },
+            {
+              "index": 10,
+              "label": "TX_COUNT (VarInt):",
+              "placeholder": "03",
+              "rows": 1,
+              "small": true,
+              "comment": "Number of serialized transactions below, including the coinbase."
+            }
+          ],
+          "groups": [
+            {
+              "title": "TXS[]",
+              "baseIndex": 100,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "minInstances": 1,
+              "maxInstances": 99,
+              "fields": [
+                {
+                  "index": 0,
+                  "label": "TRANSACTION:",
+                  "placeholder": "Raw transaction hex (coinbase first)",
+                  "rows": 6,
+                  "autoResizeMaxRows": 10,
+                  "comment": "Transactions are serialized in this exact order. The first must be the coinbase."
+                }
+              ]
+            }
+          ],
+          "afterGroups": []
+        },
+        "groupInstances": {
+          "TXS[]": 3
+        },
+        "groupInstanceKeys": {
+          "TXS[]": [100, 200, 300]
+        },
+        "result": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0020000000000302000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0903a0bb0d0400000000ffffffff01a06ba012000000001976a9149128229e0b4d25a6811f6436bb4124de2c87928a88ac0000000002000000017d933f4fe6261536bfdd323c5f2799669fc64bc7eaa343eaa1ae4962b06950b1010000006a47304402200ef1b4655771941c5f7cac84233d3fdbf64a90361076d5d5ff309f599cb080aa02201d0378e89a5b09bfccd725580cbbf0e07506b18ddb8253862249b20bb6e5eb24012103c996a054429c2ceea4b5b7008cc9289e0b9ef06d74f82c5bf29addeab7b404fafdffffff0198f20b0000000000232102d5e7c658ac969aea330ff6fdff09c668189d20d39d743e903a2437b76bc6b272ac0000000002000000013e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195000000004847304402205b166adf445966ad45443921e7a1a5269f376fc93c4398eda993274124cc2dce022064fd0718675d59f744581186f20c74696bca7adb851ae1fd83a5e1d5c2965dc801fdffffff01c8ea0b00000000001976a9148ae448729cbc16fe51faa9adc7be14087b45e4d988ac00000000",
+        "baseHeight": 120,
+        "totalInputs": 5,
+        "unwiredCount": 0,
+        "dirty": false,
+        "error": false
+      },
+      "parentId": "group_raw_block",
+      "extent": "parent"
+    },
+    {
+      "id": "node_palufu0",
+      "type": "calculation",
+      "position": {
+        "x": 156.3272651395996,
+        "y": 965.0391511611347
+      },
+      "data": {
+        "functionName": "counter",
+        "title": "Counter",
+        "paramExtraction": "multi_val",
+        "numInputs": 1,
+        "nodeWidth": 300,
+        "inputs": {
+          "vals": {
+            "0": "0"
+          }
+        },
+        "advanceButton": {
+          "targetField": 0,
+          "step": 1,
+          "label": "+1",
+          "placement": "field"
+        },
+        "inputStructure": {
+          "ungrouped": [
+            {
+              "index": 0,
+              "label": "VALUE (decimal):",
+              "rows": 1,
+              "placeholder": "0",
+              "unconnectable": true,
+              "comment": "Edit the value directly to jump, or click +1."
             }
           ],
           "groups": [],
           "afterGroups": []
         },
         "groupInstances": {},
-        "result": "found: true\nnonce (decimal): 442\nblock hash: 00100b903f55ad3798ce08906e05007d3193423e4a3b186c69f7d89a4f2fe5f9\ntried: 400…442\nnext start: 443",
-        "totalInputs": 2,
+        "result": "0",
+        "totalInputs": 0,
         "unwiredCount": 0,
         "dirty": false,
-        "outputValues": {
-          "output-0": "ba010000",
-          "output-1": "true",
-          "output-2": "443"
-        },
-        "outputErrors": {},
         "error": false
       },
       "parentId": "group_mine_verify",
@@ -2927,16 +2966,9 @@
       "selected": false
     },
     {
-      "id": "edge_verify_header",
+      "id": "edge_header_sha256d",
       "source": "node_block_header",
-      "target": "node_verify_pow",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "id": "edge_assert_pow",
-      "source": "node_verify_pow",
-      "target": "node_assert_pow",
+      "target": "node_header_sha256d",
       "targetHandle": "input-0",
       "selected": false
     },
@@ -2945,13 +2977,6 @@
       "source": "node_block_tx_count",
       "target": "node_block_tx_count_varint",
       "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "id": "edge_raw_count",
-      "source": "node_block_tx_count_varint",
-      "target": "node_raw_block",
-      "targetHandle": "input-10",
       "selected": false
     },
     {
@@ -3039,45 +3064,10 @@
       "selected": false
     },
     {
-      "id": "edge_xct67f5",
-      "source": "node_5rrkv9o",
-      "target": "node_verify_pow",
-      "targetHandle": "input-1",
-      "selected": false
-    },
-    {
       "id": "edge_kbz67gi",
       "source": "node_aa6o6ch",
       "target": "node_block_header",
       "targetHandle": "input-40",
-      "selected": false
-    },
-    {
-      "id": "edge_vjbdp9n",
-      "source": "node_block_header",
-      "target": "node_raw_block",
-      "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "id": "edge_rx1bxsp",
-      "source": "node_4pm4dbx",
-      "target": "node_raw_block",
-      "targetHandle": "input-100",
-      "selected": false
-    },
-    {
-      "id": "edge_xyax9wp",
-      "source": "node_ITm9RPB9",
-      "target": "node_raw_block",
-      "targetHandle": "input-300",
-      "selected": false
-    },
-    {
-      "id": "edge_xgq6l1c",
-      "source": "node_5aujcfv",
-      "target": "node_raw_block",
-      "targetHandle": "input-200",
       "selected": false
     },
     {
@@ -3102,26 +3092,81 @@
       "id": "xy-edge__node_z0jcdtw-node_header_prefixinput-30"
     },
     {
-      "source": "node_header_prefix",
-      "target": "node_whvvalc",
+      "id": "edge_nonce_le4_header",
+      "source": "node_nonce_le4",
+      "target": "node_block_header",
+      "targetHandle": "input-50",
+      "selected": false
+    },
+    {
+      "source": "node_header_sha256d",
+      "target": "node_g1zennc",
       "targetHandle": "input-0",
       "selected": false,
-      "id": "xy-edge__node_header_prefix-node_whvvalcinput-0"
+      "id": "xy-edge__node_header_sha256d-node_g1zenncinput-0"
     },
     {
       "source": "node_5rrkv9o",
-      "target": "node_whvvalc",
-      "targetHandle": "input-3",
+      "target": "node_qimchp6",
+      "targetHandle": "input-2",
       "selected": false,
-      "id": "xy-edge__node_5rrkv9o-node_whvvalcinput-3"
+      "id": "xy-edge__node_5rrkv9o-node_qimchp6input-2"
     },
     {
-      "source": "node_whvvalc",
-      "sourceHandle": "output-0",
-      "target": "node_block_header",
-      "targetHandle": "input-50",
+      "source": "node_qimchp6",
+      "target": "node_assert_pow",
+      "targetHandle": "input-0",
       "selected": false,
-      "id": "xy-edge__node_whvvalcoutput-0-node_block_headerinput-50"
+      "id": "xy-edge__node_qimchp6-node_assert_powinput-0"
+    },
+    {
+      "id": "edge_yq301hx",
+      "source": "node_g1zennc",
+      "target": "node_qimchp6",
+      "targetHandle": "input-0",
+      "selected": false
+    },
+    {
+      "source": "node_block_header",
+      "target": "node_pcobtuc",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "xy-edge__node_block_header-node_pcobtucinput-0"
+    },
+    {
+      "source": "node_block_tx_count_varint",
+      "target": "node_pcobtuc",
+      "targetHandle": "input-10",
+      "selected": false,
+      "id": "xy-edge__node_block_tx_count_varint-node_pcobtucinput-10"
+    },
+    {
+      "source": "node_4pm4dbx",
+      "target": "node_pcobtuc",
+      "targetHandle": "input-100",
+      "selected": false,
+      "id": "xy-edge__node_4pm4dbx-node_pcobtucinput-100"
+    },
+    {
+      "source": "node_5aujcfv",
+      "target": "node_pcobtuc",
+      "targetHandle": "input-200",
+      "selected": false,
+      "id": "xy-edge__node_5aujcfv-node_pcobtucinput-200"
+    },
+    {
+      "source": "node_ITm9RPB9",
+      "target": "node_pcobtuc",
+      "targetHandle": "input-300",
+      "selected": false,
+      "id": "xy-edge__node_ITm9RPB9-node_pcobtucinput-300"
+    },
+    {
+      "source": "node_palufu0",
+      "target": "node_nonce_le4",
+      "targetHandle": "input-0",
+      "selected": false,
+      "id": "xy-edge__node_palufu0-node_nonce_le4input-0"
     }
   ],
   "virtualEdges": []

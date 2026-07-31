@@ -47,6 +47,24 @@ describe("sidebar node templates", () => {
     expect(field?.unconnectable).toBe(true);
   });
 
+  it("wires the Counter +1 button to its single manual value field", () => {
+    const template = templateByTitle("Counter");
+    // The field must stay manual: advanceFieldValue refuses to write a
+    // connected target field.
+    template.nodeData?.inputStructure?.ungrouped?.forEach((field) => {
+      expect(field.unconnectable).toBe(true);
+    });
+    expect(template.nodeData?.inputStructure?.ungrouped).toHaveLength(1);
+    expect(template.nodeData?.advanceButton).toEqual({
+      targetField: 0,
+      step: 1,
+      label: "+1",
+      placement: "field",
+    });
+    expect(template.nodeData?.inputs?.vals).toEqual({ 0: "0" });
+    expect(template.nodeData?.nodeWidth).toBe(300);
+  });
+
   it("does not prefill radio nodes with palette color", () => {
     expect(templateByTitle("Radio Send 1").nodeData?.borderColor).toBeUndefined();
     expect(
