@@ -554,8 +554,8 @@ function CalculationNode({ id, data, selected }: NodeProps<FlowNode>) {
       isTaprootTree
         ? taprootLabelForIndex(index)
         : index === 0
-          ? "TX0 (coinbase) HASH[32] (internal byte order):"
-          : `TX${index} HASH[32] (internal byte order):`;
+          ? "TX0 (coinbase) TXID[32] (internal byte order):"
+          : `TX${index} TXID[32] (internal byte order):`;
 
     bases.forEach((base, orderIndex) => {
       const fieldIndex = base + group.fields[0].index;

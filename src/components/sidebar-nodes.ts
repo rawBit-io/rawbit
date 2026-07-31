@@ -4237,11 +4237,11 @@ export const allSidebarNodes: NodeTemplate[] = [
             fields: [
               {
                 index: 0,
-                label: "TX HASH[32] (internal byte order):",
+                label: "TXID[32] (internal byte order):",
                 rows: 2,
                 placeholder: "<32-byte SHA256d hash>",
                 comment:
-                  "Use each transaction's raw SHA256d output (txid in internal byte order), not its displayed TXID or wtxid. TX0 must be the coinbase; preserve block order and never sort.",
+                  "The transaction's raw SHA256d output — the txid in internal byte order, byte-reversed from what explorers display. TX0 must be the coinbase; preserve block order and never sort.",
               },
             ],
           },
@@ -4251,7 +4251,7 @@ export const allSidebarNodes: NodeTemplate[] = [
       groupInstances: { "TX_HASHES[]": 1 },
       groupInstanceKeys: { "TX_HASHES[]": [100] },
       customFieldLabels: {
-        100: "TX0 (coinbase) HASH[32] (internal byte order):",
+        100: "TX0 (coinbase) TXID[32] (internal byte order):",
       },
       result: "",
       baseHeight: 140,

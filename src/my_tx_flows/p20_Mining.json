@@ -1461,8 +1461,8 @@
       "id": "node_05hbexr",
       "type": "calculation",
       "position": {
-        "x": 274.38941864624985,
-        "y": 1078.3813119125584
+        "x": 272.3303384793817,
+        "y": 1061.9086705776147
       },
       "data": {
         "functionName": "double_sha256_hex",
@@ -1493,8 +1493,8 @@
       "id": "node_1FtW4d0k",
       "type": "calculation",
       "position": {
-        "x": 236.74823578716223,
-        "y": 600.9687507352553
+        "x": 267.63443829018206,
+        "y": 644.2094342394837
       },
       "data": {
         "functionName": "double_sha256_hex",
@@ -1548,193 +1548,6 @@
         },
         "groupInstances": {},
         "dirty": false,
-        "error": false
-      },
-      "parentId": "group_11bw3g6",
-      "extent": "parent"
-    },
-    {
-      "id": "node_wcs3dpp",
-      "type": "calculation",
-      "position": {
-        "x": 1042.125864966442,
-        "y": 352.9855895301971
-      },
-      "data": {
-        "functionName": "bitcoin_merkle_tree",
-        "title": "Bitcoin Block Merkle Tree",
-        "paramExtraction": "multi_val",
-        "numInputs": 1,
-        "inputs": {
-          "vals": {
-            "100": "91bbf2ace7ce00fc4a0115eafa16bdde5744b2ae74f274952fdd8a46aa6d9465",
-            "200": "3e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195",
-            "300": "afacc7021504e4dbfaef88ae929011f02f4b9bf5097527a72addfb1932dcf264"
-          }
-        },
-        "outputLayout": "bitcoin_block_merkle_tree",
-        "outputPorts": [
-          {
-            "label": "merkle root (internal)",
-            "handleId": "",
-            "handleTop": "50%",
-            "showLabel": false
-          }
-        ],
-        "inputStructure": {
-          "ungrouped": [],
-          "groups": [
-            {
-              "title": "TX_HASHES[]",
-              "baseIndex": 100,
-              "expandable": true,
-              "fieldCountToAdd": 1,
-              "minInstances": 1,
-              "maxInstances": 99,
-              "fields": [
-                {
-                  "index": 0,
-                  "label": "TX HASH[32] (internal byte order):",
-                  "rows": 2,
-                  "placeholder": "<32-byte SHA256d hash>",
-                  "comment": "Use each transaction's raw SHA256d output (txid in internal byte order), not its displayed TXID or wtxid. TX0 must be the coinbase; preserve block order and never sort."
-                }
-              ]
-            }
-          ],
-          "afterGroups": []
-        },
-        "groupInstances": {
-          "TX_HASHES[]": 3
-        },
-        "groupInstanceKeys": {
-          "TX_HASHES[]": [100, 200, 300]
-        },
-        "customFieldLabels": {
-          "100": "TX0 (coinbase) HASH[32] (internal byte order):",
-          "200": "TX1 HASH[32] (internal byte order):",
-          "300": "TX2 HASH[32] (internal byte order):"
-        },
-        "result": "4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f",
-        "baseHeight": 140,
-        "totalInputs": 3,
-        "unwiredCount": 0,
-        "dirty": false,
-        "blockMerkleTree": {
-          "root": "4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f",
-          "mutated": false,
-          "leafCount": 3,
-          "leafHashes": [
-            "91bbf2ace7ce00fc4a0115eafa16bdde5744b2ae74f274952fdd8a46aa6d9465",
-            "3e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195",
-            "afacc7021504e4dbfaef88ae929011f02f4b9bf5097527a72addfb1932dcf264"
-          ],
-          "levels": [
-            [
-              "91bbf2ace7ce00fc4a0115eafa16bdde5744b2ae74f274952fdd8a46aa6d9465",
-              "3e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195",
-              "afacc7021504e4dbfaef88ae929011f02f4b9bf5097527a72addfb1932dcf264",
-              "afacc7021504e4dbfaef88ae929011f02f4b9bf5097527a72addfb1932dcf264"
-            ],
-            [
-              "4f2a17a4051f537cca87dd5a8e4f8d56e049e7b9636f5d24657f9a7458194bc8",
-              "195a822a409b8df483bb342d8e6100ba168fa1cb6e6bf1daf79e8bd86b3db801"
-            ],
-            ["4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f"]
-          ],
-          "levelLabels": [
-            ["TX0", "TX1", "TX2", "TX2"],
-            ["H1.0", "H1.1"],
-            ["ROOT"]
-          ],
-          "duplicatedIndices": [[3], [], []],
-          "duplicateCount": 1,
-          "oddDuplications": [
-            {
-              "level": 0,
-              "sourceIndex": 2,
-              "duplicateIndex": 3,
-              "hash": "afacc7021504e4dbfaef88ae929011f02f4b9bf5097527a72addfb1932dcf264",
-              "label": "TX2"
-            }
-          ],
-          "pairs": [
-            {
-              "level": 0,
-              "pairIndex": 0,
-              "leftIndex": 0,
-              "rightIndex": 1,
-              "leftHash": "91bbf2ace7ce00fc4a0115eafa16bdde5744b2ae74f274952fdd8a46aa6d9465",
-              "rightHash": "3e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195",
-              "parentHash": "4f2a17a4051f537cca87dd5a8e4f8d56e049e7b9636f5d24657f9a7458194bc8",
-              "syntheticRight": false,
-              "equal": false,
-              "mutation": false
-            },
-            {
-              "level": 0,
-              "pairIndex": 1,
-              "leftIndex": 2,
-              "rightIndex": 3,
-              "leftHash": "afacc7021504e4dbfaef88ae929011f02f4b9bf5097527a72addfb1932dcf264",
-              "rightHash": "afacc7021504e4dbfaef88ae929011f02f4b9bf5097527a72addfb1932dcf264",
-              "parentHash": "195a822a409b8df483bb342d8e6100ba168fa1cb6e6bf1daf79e8bd86b3db801",
-              "syntheticRight": true,
-              "equal": true,
-              "mutation": false
-            },
-            {
-              "level": 1,
-              "pairIndex": 0,
-              "leftIndex": 0,
-              "rightIndex": 1,
-              "leftHash": "4f2a17a4051f537cca87dd5a8e4f8d56e049e7b9636f5d24657f9a7458194bc8",
-              "rightHash": "195a822a409b8df483bb342d8e6100ba168fa1cb6e6bf1daf79e8bd86b3db801",
-              "parentHash": "4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f",
-              "syntheticRight": false,
-              "equal": false,
-              "mutation": false
-            }
-          ],
-          "mutatedPairs": [],
-          "structure": "((TX0,TX1),(TX2,TX2))",
-          "tree": {
-            "hash": "4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f",
-            "label": "ROOT",
-            "left": {
-              "hash": "4f2a17a4051f537cca87dd5a8e4f8d56e049e7b9636f5d24657f9a7458194bc8",
-              "label": "H1.0",
-              "left": {
-                "hash": "91bbf2ace7ce00fc4a0115eafa16bdde5744b2ae74f274952fdd8a46aa6d9465",
-                "label": "TX0",
-                "leafIndex": 0
-              },
-              "right": {
-                "hash": "3e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195",
-                "label": "TX1",
-                "leafIndex": 1
-              }
-            },
-            "right": {
-              "hash": "195a822a409b8df483bb342d8e6100ba168fa1cb6e6bf1daf79e8bd86b3db801",
-              "label": "H1.1",
-              "left": {
-                "hash": "afacc7021504e4dbfaef88ae929011f02f4b9bf5097527a72addfb1932dcf264",
-                "label": "TX2",
-                "leafIndex": 2
-              },
-              "right": {
-                "hash": "afacc7021504e4dbfaef88ae929011f02f4b9bf5097527a72addfb1932dcf264",
-                "label": "TX2",
-                "duplicated": true,
-                "duplicateOf": "TX2"
-              }
-            }
-          },
-          "display": "Transactions: 3\nOdd duplications: 1\nMutated: false\nMerkle root (internal): 4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f\n\nTree:\nROOT  4ed8d0af210b…\n├─ H1.0  4f2a17a4051f…\n│  ├─ TX0  91bbf2ace7ce…\n│  └─ TX1  3e8474e53990…\n└─ H1.1  195a822a409b…\n   ├─ TX2  afacc7021504…\n   └─ TX2 (duplicate)  afacc7021504…"
-        },
-        "outputValues": {},
-        "outputErrors": {},
         "error": false
       },
       "parentId": "group_11bw3g6",
@@ -2617,7 +2430,10 @@
         "totalInputs": 5,
         "unwiredCount": 0,
         "dirty": false,
-        "error": false
+        "error": false,
+        "customFieldLabels": {
+          "100": "TRANSACTION (coinbase):"
+        }
       },
       "parentId": "group_raw_block",
       "extent": "parent"
@@ -2669,6 +2485,193 @@
         "error": false
       },
       "parentId": "group_mine_verify",
+      "extent": "parent"
+    },
+    {
+      "id": "node_zihzm72",
+      "type": "calculation",
+      "position": {
+        "x": 971.3112051716435,
+        "y": 288.53586798644596
+      },
+      "data": {
+        "functionName": "bitcoin_merkle_tree",
+        "title": "Bitcoin Block Merkle Tree",
+        "paramExtraction": "multi_val",
+        "numInputs": 1,
+        "inputs": {
+          "vals": {
+            "100": "91bbf2ace7ce00fc4a0115eafa16bdde5744b2ae74f274952fdd8a46aa6d9465",
+            "200": "3e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195",
+            "300": "afacc7021504e4dbfaef88ae929011f02f4b9bf5097527a72addfb1932dcf264"
+          }
+        },
+        "outputLayout": "bitcoin_block_merkle_tree",
+        "outputPorts": [
+          {
+            "label": "merkle root (internal)",
+            "handleId": "",
+            "handleTop": "50%",
+            "showLabel": false
+          }
+        ],
+        "inputStructure": {
+          "ungrouped": [],
+          "groups": [
+            {
+              "title": "TX_HASHES[]",
+              "baseIndex": 100,
+              "expandable": true,
+              "fieldCountToAdd": 1,
+              "minInstances": 1,
+              "maxInstances": 99,
+              "fields": [
+                {
+                  "index": 0,
+                  "label": "TXID[32] (internal byte order):",
+                  "rows": 2,
+                  "placeholder": "<32-byte SHA256d hash>",
+                  "comment": "The transaction's raw SHA256d output — the txid in internal byte order, byte-reversed from what explorers display. TX0 must be the coinbase; preserve block order and never sort."
+                }
+              ]
+            }
+          ],
+          "afterGroups": []
+        },
+        "groupInstances": {
+          "TX_HASHES[]": 3
+        },
+        "groupInstanceKeys": {
+          "TX_HASHES[]": [100, 200, 300]
+        },
+        "customFieldLabels": {
+          "100": "TX0 (coinbase) TXID[32] (internal byte order):",
+          "200": "TX1 TXID[32] (internal byte order):",
+          "300": "TX2 TXID[32] (internal byte order):"
+        },
+        "result": "4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f",
+        "baseHeight": 140,
+        "totalInputs": 3,
+        "unwiredCount": 0,
+        "dirty": false,
+        "blockMerkleTree": {
+          "root": "4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f",
+          "mutated": false,
+          "leafCount": 3,
+          "leafHashes": [
+            "91bbf2ace7ce00fc4a0115eafa16bdde5744b2ae74f274952fdd8a46aa6d9465",
+            "3e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195",
+            "afacc7021504e4dbfaef88ae929011f02f4b9bf5097527a72addfb1932dcf264"
+          ],
+          "levels": [
+            [
+              "91bbf2ace7ce00fc4a0115eafa16bdde5744b2ae74f274952fdd8a46aa6d9465",
+              "3e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195",
+              "afacc7021504e4dbfaef88ae929011f02f4b9bf5097527a72addfb1932dcf264",
+              "afacc7021504e4dbfaef88ae929011f02f4b9bf5097527a72addfb1932dcf264"
+            ],
+            [
+              "4f2a17a4051f537cca87dd5a8e4f8d56e049e7b9636f5d24657f9a7458194bc8",
+              "195a822a409b8df483bb342d8e6100ba168fa1cb6e6bf1daf79e8bd86b3db801"
+            ],
+            ["4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f"]
+          ],
+          "levelLabels": [
+            ["TX0", "TX1", "TX2", "TX2"],
+            ["H1.0", "H1.1"],
+            ["ROOT"]
+          ],
+          "duplicatedIndices": [[3], [], []],
+          "duplicateCount": 1,
+          "oddDuplications": [
+            {
+              "level": 0,
+              "sourceIndex": 2,
+              "duplicateIndex": 3,
+              "hash": "afacc7021504e4dbfaef88ae929011f02f4b9bf5097527a72addfb1932dcf264",
+              "label": "TX2"
+            }
+          ],
+          "pairs": [
+            {
+              "level": 0,
+              "pairIndex": 0,
+              "leftIndex": 0,
+              "rightIndex": 1,
+              "leftHash": "91bbf2ace7ce00fc4a0115eafa16bdde5744b2ae74f274952fdd8a46aa6d9465",
+              "rightHash": "3e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195",
+              "parentHash": "4f2a17a4051f537cca87dd5a8e4f8d56e049e7b9636f5d24657f9a7458194bc8",
+              "syntheticRight": false,
+              "equal": false,
+              "mutation": false
+            },
+            {
+              "level": 0,
+              "pairIndex": 1,
+              "leftIndex": 2,
+              "rightIndex": 3,
+              "leftHash": "afacc7021504e4dbfaef88ae929011f02f4b9bf5097527a72addfb1932dcf264",
+              "rightHash": "afacc7021504e4dbfaef88ae929011f02f4b9bf5097527a72addfb1932dcf264",
+              "parentHash": "195a822a409b8df483bb342d8e6100ba168fa1cb6e6bf1daf79e8bd86b3db801",
+              "syntheticRight": true,
+              "equal": true,
+              "mutation": false
+            },
+            {
+              "level": 1,
+              "pairIndex": 0,
+              "leftIndex": 0,
+              "rightIndex": 1,
+              "leftHash": "4f2a17a4051f537cca87dd5a8e4f8d56e049e7b9636f5d24657f9a7458194bc8",
+              "rightHash": "195a822a409b8df483bb342d8e6100ba168fa1cb6e6bf1daf79e8bd86b3db801",
+              "parentHash": "4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f",
+              "syntheticRight": false,
+              "equal": false,
+              "mutation": false
+            }
+          ],
+          "mutatedPairs": [],
+          "structure": "((TX0,TX1),(TX2,TX2))",
+          "tree": {
+            "hash": "4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f",
+            "label": "ROOT",
+            "left": {
+              "hash": "4f2a17a4051f537cca87dd5a8e4f8d56e049e7b9636f5d24657f9a7458194bc8",
+              "label": "H1.0",
+              "left": {
+                "hash": "91bbf2ace7ce00fc4a0115eafa16bdde5744b2ae74f274952fdd8a46aa6d9465",
+                "label": "TX0",
+                "leafIndex": 0
+              },
+              "right": {
+                "hash": "3e8474e5399082fbee784fb8c883a8c316b8c98aed5272f27ccf2dd60785e195",
+                "label": "TX1",
+                "leafIndex": 1
+              }
+            },
+            "right": {
+              "hash": "195a822a409b8df483bb342d8e6100ba168fa1cb6e6bf1daf79e8bd86b3db801",
+              "label": "H1.1",
+              "left": {
+                "hash": "afacc7021504e4dbfaef88ae929011f02f4b9bf5097527a72addfb1932dcf264",
+                "label": "TX2",
+                "leafIndex": 2
+              },
+              "right": {
+                "hash": "afacc7021504e4dbfaef88ae929011f02f4b9bf5097527a72addfb1932dcf264",
+                "label": "TX2",
+                "duplicated": true,
+                "duplicateOf": "TX2"
+              }
+            }
+          },
+          "display": "Transactions: 3\nOdd duplications: 1\nMutated: false\nMerkle root (internal): 4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f\n\nTree:\nROOT  4ed8d0af210b…\n├─ H1.0  4f2a17a4051f…\n│  ├─ TX0  91bbf2ace7ce…\n│  └─ TX1  3e8474e53990…\n└─ H1.1  195a822a409b…\n   ├─ TX2  afacc7021504…\n   └─ TX2 (duplicate)  afacc7021504…"
+        },
+        "outputValues": {},
+        "outputErrors": {},
+        "error": false
+      },
+      "parentId": "group_11bw3g6",
       "extent": "parent"
     }
   ],
@@ -2947,27 +2950,6 @@
       "selected": false
     },
     {
-      "id": "enode_05hbexr-node_wcs3dpp-input-100",
-      "source": "node_05hbexr",
-      "target": "node_wcs3dpp",
-      "targetHandle": "input-100",
-      "selected": false
-    },
-    {
-      "id": "enode_N0gV1pzn-node_wcs3dpp-input-200",
-      "source": "node_N0gV1pzn",
-      "target": "node_wcs3dpp",
-      "targetHandle": "input-200",
-      "selected": false
-    },
-    {
-      "id": "enode_1FtW4d0k-node_wcs3dpp-input-300",
-      "source": "node_1FtW4d0k",
-      "target": "node_wcs3dpp",
-      "targetHandle": "input-300",
-      "selected": false
-    },
-    {
       "id": "edge_header_sha256d",
       "source": "node_block_header",
       "target": "node_header_sha256d",
@@ -3017,13 +2999,6 @@
       "selected": false
     },
     {
-      "id": "edge_oiuexpf",
-      "source": "node_wcs3dpp",
-      "target": "node_header_prefix",
-      "targetHandle": "input-20",
-      "selected": false
-    },
-    {
       "id": "edge_f2w6al1",
       "source": "node_5rrkv9o",
       "target": "node_u852imw",
@@ -3056,13 +3031,6 @@
       "source": "node_a60uf51",
       "target": "node_block_header",
       "targetHandle": "input-10",
-      "selected": false
-    },
-    {
-      "id": "edge_v5yb2s1",
-      "source": "node_wcs3dpp",
-      "target": "node_block_header",
-      "targetHandle": "input-20",
       "selected": false
     },
     {
@@ -3169,6 +3137,41 @@
       "targetHandle": "input-0",
       "selected": false,
       "id": "xy-edge__node_tvhfk3w-node_nonce_le4input-0"
+    },
+    {
+      "id": "enode_05hbexr-node_zihzm72-input-100",
+      "source": "node_05hbexr",
+      "target": "node_zihzm72",
+      "targetHandle": "input-100",
+      "selected": false
+    },
+    {
+      "id": "enode_N0gV1pzn-node_zihzm72-input-200",
+      "source": "node_N0gV1pzn",
+      "target": "node_zihzm72",
+      "targetHandle": "input-200",
+      "selected": false
+    },
+    {
+      "id": "enode_1FtW4d0k-node_zihzm72-input-300",
+      "source": "node_1FtW4d0k",
+      "target": "node_zihzm72",
+      "targetHandle": "input-300",
+      "selected": false
+    },
+    {
+      "source": "node_zihzm72",
+      "target": "node_block_header",
+      "targetHandle": "input-20",
+      "selected": false,
+      "id": "xy-edge__node_zihzm72-node_block_headerinput-20"
+    },
+    {
+      "source": "node_zihzm72",
+      "target": "node_header_prefix",
+      "targetHandle": "input-20",
+      "selected": false,
+      "id": "xy-edge__node_zihzm72-node_header_prefixinput-20"
     }
   ],
   "virtualEdges": []
