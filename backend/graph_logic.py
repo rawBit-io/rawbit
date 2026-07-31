@@ -1202,6 +1202,26 @@ def bulk_calculate_logic(nodes, edges):
                             }
                         )
 
+                    # A mutated tree still emits its root — the collision is
+                    # the lesson: downstream nodes keep working on a root that
+                    # is byte-identical to the honest list's. The node itself
+                    # flags the rejection (error + Mutated: true), which is
+                    # where Core's CheckBlock would stop the block.
+                    if fn_name == "bitcoin_merkle_tree":
+                        tree_info = data.get("blockMerkleTree")
+                        if isinstance(tree_info, dict) and tree_info.get("mutated"):
+                            colliding_root = str(data.get("result") or "")
+                            message = (
+                                "Mutated merkle tree (CVE-2012-2459): identical "
+                                "adjacent hashes are supplied, so this list "
+                                "collides with a shorter one — the root "
+                                f"{colliding_root} is the same as without the "
+                                "duplicate. Bitcoin Core rejects such blocks as "
+                                "mutated; remove the duplicated entry."
+                            )
+                            data.update({"error": True, "extendedError": message})
+                            errors.append({"nodeId": nid, "error": message})
+
                     # propagate per-row errors from wallet_rpc_general nodes
                     if mode == "multi_val_with_network":
                         errs = [ln for ln in str(result).split("\n") if "(error=" in ln]

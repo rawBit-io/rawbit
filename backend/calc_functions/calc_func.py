@@ -1029,7 +1029,9 @@ def bitcoin_merkle_tree(vals: list) -> str:
     ``mutated`` matches Bitcoin Core's ``ComputeMerkleRoot`` rule: equality is
     checked only for aligned, caller-supplied pairs before odd-level padding.
     A synthetic duplicate never sets the flag, while identical real pairs at
-    any level do.
+    any level do (CVE-2012-2459). Like Core, this function only *reports* the
+    mutation — the graph layer plays CheckBlock and refuses to hand the
+    colliding root to downstream nodes.
     """
     if not vals:
         raise ValueError("Provide at least one transaction hash")

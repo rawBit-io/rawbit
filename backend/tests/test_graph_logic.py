@@ -980,7 +980,7 @@ def test_bitcoin_merkle_tree_graph_outputs_root_and_validation_bundle():
 
 
 def test_bitcoin_merkle_tree_graph_root_output_feeds_downstream_node():
-    leaves = ["01" * 32, "01" * 32]
+    leaves = ["01" * 32, "02" * 32]
     tree = _bitcoin_merkle_node(leaves)
     root_sink = {
         "id": "root-sink",
@@ -996,6 +996,37 @@ def test_bitcoin_merkle_tree_graph_root_output_feeds_downstream_node():
 
     assert errors == []
     assert by_id["root-sink"]["result"] == by_id["tree"]["result"]
+
+
+def test_bitcoin_merkle_tree_graph_flags_mutated_tree_but_emits_root():
+    # [01, 02, 02, 02] collides with [01, 02, 02]: same root either way.
+    leaves = ["01" * 32, "02" * 32, "02" * 32, "02" * 32]
+    tree = _bitcoin_merkle_node(leaves)
+    root_sink = {
+        "id": "root-sink",
+        "type": "calculation",
+        "data": {"functionName": "identity"},
+    }
+    edges = [{"source": "tree", "target": "root-sink"}]
+
+    nodes, errors = graph_logic.bulk_calculate_logic(
+        [tree, root_sink], edges
+    )
+    by_id = {node["id"]: node["data"] for node in nodes}
+    tree_data = by_id["tree"]
+
+    # The node is flagged — error plus a visible Mutated: true badge…
+    assert tree_data["error"] is True
+    assert "CVE-2012-2459" in tree_data["extendedError"]
+    assert tree_data["blockMerkleTree"]["mutated"] is True
+    assert errors and "CVE-2012-2459" in errors[0]["error"]
+    # …but the colliding root still flows downstream: the collision IS the
+    # lesson, and it matches the honest 3-leaf list's root exactly.
+    honest = json.loads(
+        calc.bitcoin_merkle_tree(["01" * 32, "02" * 32, "02" * 32])
+    )
+    assert tree_data["result"] == honest["root"]
+    assert by_id["root-sink"]["result"] == honest["root"]
 
 
 def test_bitcoin_merkle_tree_graph_failure_clears_structured_status():

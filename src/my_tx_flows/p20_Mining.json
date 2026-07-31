@@ -30,8 +30,8 @@
       "id": "group_11bw3g6",
       "type": "shadcnGroup",
       "position": {
-        "x": -2597.279487435517,
-        "y": 1435.7538435190338
+        "x": -2160.1592615408463,
+        "y": 1616.3642826904768
       },
       "data": {
         "isGroup": true,
@@ -44,7 +44,6 @@
             "group_jgrap54->group_11bw3g6": 523.88
           },
           "sourceByBundle": {
-            "group_11bw3g6->group_mine_verify": 429.66,
             "group_11bw3g6->group_header_target": -221.8
           }
         },
@@ -59,8 +58,8 @@
       "id": "group_m23e9jt",
       "type": "shadcnGroup",
       "position": {
-        "x": -7744.819274441868,
-        "y": 2916.120854766717
+        "x": -9208.854726101295,
+        "y": 1985.5315789967026
       },
       "data": {
         "isGroup": true,
@@ -72,7 +71,8 @@
         "groupBundlePortOffsets": {
           "sourceByBundle": {
             "group_m23e9jt->group_jgrap54": 157.95,
-            "group_m23e9jt->group_11bw3g6": -138.73
+            "group_m23e9jt->group_11bw3g6": -179.32,
+            "group_m23e9jt->group_raw_block": 64.35
           }
         },
         "borderColor": "#6f6a60"
@@ -85,8 +85,8 @@
       "id": "group_jgrap54",
       "type": "shadcnGroup",
       "position": {
-        "x": -6210.908899053871,
-        "y": 4161.499046422678
+        "x": -6060.395078763333,
+        "y": 3890.8364396302545
       },
       "data": {
         "isGroup": true,
@@ -882,7 +882,7 @@
       "type": "shadcnGroup",
       "position": {
         "x": -9109.710542580566,
-        "y": 7918.96210457601
+        "y": 7873.96210457601
       },
       "data": {
         "isGroup": true,
@@ -1557,28 +1557,28 @@
       "id": "group_header_target",
       "type": "shadcnGroup",
       "position": {
-        "x": 240,
-        "y": 345
+        "x": 127.19478041427874,
+        "y": 638.4156587571645
       },
       "data": {
         "isGroup": true,
-        "width": 2370,
-        "height": 2157,
-        "title": "Block header fields and target",
+        "width": 4446,
+        "height": 3291,
+        "title": "Block header fields, target and mining",
         "fontSize": 44,
         "dirty": false,
         "groupBundlePortOffsets": {
           "targetByBundle": {
-            "group_11bw3g6->group_header_target": 22.71
+            "group_11bw3g6->group_header_target": -472.46
           },
           "sourceByBundle": {
-            "group_header_target->group_mine_verify": 799.62
+            "group_header_target->group_raw_block": -34.57
           }
         },
         "borderColor": "#d6a500"
       },
-      "width": 2370,
-      "height": 2157,
+      "width": 4446,
+      "height": 3291,
       "dragHandle": "[data-drag-handle]"
     },
     {
@@ -1619,103 +1619,11 @@
       "extent": "parent"
     },
     {
-      "id": "node_header_prefix",
-      "type": "calculation",
-      "position": {
-        "x": 1861.0859462056364,
-        "y": 609.8686159727672
-      },
-      "data": {
-        "functionName": "concat_all",
-        "title": "Header Prefix Builder [76 bytes]",
-        "paramExtraction": "multi_val",
-        "numInputs": 5,
-        "inputs": {
-          "vals": {
-            "0": "00000020",
-            "10": "1f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100",
-            "20": "4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f",
-            "30": "80e14e68",
-            "40": "ffff0f20"
-          }
-        },
-        "result": "000000201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201004ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f80e14e68ffff0f20",
-        "inputStructure": {
-          "ungrouped": [
-            {
-              "index": 0,
-              "label": "VERSION[4]:",
-              "rows": 1
-            },
-            {
-              "index": 10,
-              "label": "PREV_BLOCK_HASH[32]:",
-              "rows": 3
-            },
-            {
-              "index": 20,
-              "label": "MERKLE_ROOT[32]:",
-              "rows": 3
-            },
-            {
-              "index": 30,
-              "label": "TIMESTAMP[4]:",
-              "rows": 1
-            },
-            {
-              "index": 40,
-              "label": "BITS[4]:",
-              "rows": 1
-            }
-          ],
-          "groups": [],
-          "afterGroups": []
-        },
-        "groupInstances": {},
-        "totalInputs": 5,
-        "unwiredCount": 0,
-        "baseHeight": 120,
-        "dirty": false,
-        "error": false
-      },
-      "parentId": "group_header_target",
-      "extent": "parent"
-    },
-    {
-      "id": "group_mine_verify",
-      "type": "shadcnGroup",
-      "position": {
-        "x": 3643,
-        "y": 2013.1004778849947
-      },
-      "data": {
-        "isGroup": true,
-        "width": 3434,
-        "height": 1428,
-        "title": "Nonce search and proof of work",
-        "fontSize": 44,
-        "dirty": false,
-        "groupBundlePortOffsets": {
-          "targetByBundle": {
-            "group_header_target->group_mine_verify": -239.79,
-            "group_11bw3g6->group_mine_verify": 81.15
-          },
-          "sourceByBundle": {
-            "group_mine_verify->group_raw_block": 608.63
-          }
-        },
-        "borderColor": "#d6a500"
-      },
-      "width": 3434,
-      "height": 1428,
-      "dragHandle": "[data-drag-handle]"
-    },
-    {
       "id": "node_block_header",
       "type": "calculation",
       "position": {
-        "x": 1068.654244494961,
-        "y": 201.06966471272835
+        "x": 1891.1606877998297,
+        "y": 701.8074145932501
       },
       "data": {
         "functionName": "concat_all",
@@ -1776,15 +1684,15 @@
         "dirty": false,
         "error": false
       },
-      "parentId": "group_mine_verify",
+      "parentId": "group_header_target",
       "extent": "parent"
     },
     {
       "id": "node_nonce_le4",
       "type": "calculation",
       "position": {
-        "x": 662.0674213275624,
-        "y": 855.1031913970946
+        "x": 1415.6055297156306,
+        "y": 1828.094310547413
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -1801,15 +1709,15 @@
         "outputValues": {},
         "outputErrors": {}
       },
-      "parentId": "group_mine_verify",
+      "parentId": "group_header_target",
       "extent": "parent"
     },
     {
       "id": "node_header_sha256d",
       "type": "calculation",
       "position": {
-        "x": 1638.975539977836,
-        "y": 320.4444114811672
+        "x": 2519.3869428385456,
+        "y": 982.0292712390244
       },
       "data": {
         "functionName": "double_sha256_hex",
@@ -1833,15 +1741,15 @@
         "dirty": false,
         "error": false
       },
-      "parentId": "group_mine_verify",
+      "parentId": "group_header_target",
       "extent": "parent"
     },
     {
       "id": "node_assert_pow",
       "type": "calculation",
       "position": {
-        "x": 2964.7717586523486,
-        "y": 91.24623534665125
+        "x": 3856.7453556964556,
+        "y": 1981.4320389575405
       },
       "data": {
         "functionName": "check_result",
@@ -1888,15 +1796,15 @@
         "showComment": true,
         "comment": "node sets error if one on inputs is not true"
       },
-      "parentId": "group_mine_verify",
+      "parentId": "group_header_target",
       "extent": "parent"
     },
     {
       "id": "group_raw_block",
       "type": "shadcnGroup",
       "position": {
-        "x": 8152.388106769384,
-        "y": 5251.276476561086
+        "x": 6247.570516498441,
+        "y": 4374.5955568653235
       },
       "data": {
         "isGroup": true,
@@ -1907,8 +1815,8 @@
         "dirty": false,
         "groupBundlePortOffsets": {
           "targetByBundle": {
-            "group_mine_verify->group_raw_block": -699.23,
-            "group_m23e9jt->group_raw_block": -213.28
+            "group_m23e9jt->group_raw_block": -213.28,
+            "group_header_target->group_raw_block": -692.06
           }
         },
         "borderColor": "#7a4ea3"
@@ -2071,8 +1979,8 @@
       "id": "node_sn1nlhl",
       "type": "calculation",
       "position": {
-        "x": 191.07859532046496,
-        "y": 1094.7295787050123
+        "x": 165.21152184736786,
+        "y": 1209.2837612287283
       },
       "data": {
         "functionName": "identity",
@@ -2106,8 +2014,8 @@
       "id": "node_36ej2l2",
       "type": "calculation",
       "position": {
-        "x": 593.9820952786595,
-        "y": 1053.908182021578
+        "x": 627.2397611726416,
+        "y": 1161.071772124409
       },
       "data": {
         "functionName": "date_to_unix_timestamp",
@@ -2139,8 +2047,8 @@
       "id": "node_5rrkv9o",
       "type": "calculation",
       "position": {
-        "x": 112.51933182843095,
-        "y": 1607.4115903840268
+        "x": 65.93201235004727,
+        "y": 2861.6259752041105
       },
       "data": {
         "functionName": "identity",
@@ -2174,8 +2082,8 @@
       "id": "node_u852imw",
       "type": "calculation",
       "position": {
-        "x": 476.72315358792366,
-        "y": 1379.4809068813531
+        "x": 635.9102986867066,
+        "y": 1474.4346425543113
       },
       "data": {
         "functionName": "target_to_bits",
@@ -2222,8 +2130,8 @@
       "id": "node_aa6o6ch",
       "type": "calculation",
       "position": {
-        "x": 1084.692267435108,
-        "y": 1364.479812294058
+        "x": 1104.241565956011,
+        "y": 1411.956680130537
       },
       "data": {
         "functionName": "reverse_bytes_4",
@@ -2257,8 +2165,8 @@
       "id": "node_z0jcdtw",
       "type": "calculation",
       "position": {
-        "x": 1072.5984822190803,
-        "y": 1073.4812122362393
+        "x": 1259.7131966334393,
+        "y": 1157.2639201829672
       },
       "data": {
         "functionName": "uint32_to_little_endian_4_bytes",
@@ -2280,8 +2188,8 @@
       "id": "node_g1zennc",
       "type": "calculation",
       "position": {
-        "x": 1990.757164797299,
-        "y": 340.7261287608376
+        "x": 2884.036336448196,
+        "y": 1195.3275203714973
       },
       "data": {
         "functionName": "reverse_txid_bytes",
@@ -2295,15 +2203,15 @@
         "dirty": false,
         "error": false
       },
-      "parentId": "group_mine_verify",
+      "parentId": "group_header_target",
       "extent": "parent"
     },
     {
       "id": "node_qimchp6",
       "type": "calculation",
       "position": {
-        "x": 2414.353701070204,
-        "y": 396.31176520154213
+        "x": 3258.9717236973374,
+        "y": 1520.0268038113168
       },
       "data": {
         "functionName": "compare_numbers",
@@ -2360,7 +2268,7 @@
         "outputValues": {},
         "outputErrors": {}
       },
-      "parentId": "group_mine_verify",
+      "parentId": "group_header_target",
       "extent": "parent"
     },
     {
@@ -2446,8 +2354,8 @@
       "id": "node_tvhfk3w",
       "type": "calculation",
       "position": {
-        "x": 141.7204360030596,
-        "y": 999.5246665164132
+        "x": 892.3079096497181,
+        "y": 1982.4300284496758
       },
       "data": {
         "functionName": "counter",
@@ -2486,9 +2394,10 @@
         "totalInputs": 0,
         "unwiredCount": 0,
         "dirty": false,
-        "error": false
+        "error": false,
+        "borderColor": "#008c86"
       },
-      "parentId": "group_mine_verify",
+      "parentId": "group_header_target",
       "extent": "parent"
     },
     {
@@ -2551,7 +2460,8 @@
         "customFieldLabels": {
           "100": "TX0 (coinbase) TXID[32] (internal byte order):",
           "200": "TX1 TXID[32] (internal byte order):",
-          "300": "TX2 TXID[32] (internal byte order):"
+          "300": "TX2 TXID[32] (internal byte order):",
+          "400": "TX3 TXID[32] (internal byte order):"
         },
         "result": "4ed8d0af210b993363424c89a17363d269a8a494e0d02bb9b52b04178f2b7c8f",
         "baseHeight": 140,
@@ -2677,6 +2587,163 @@
       },
       "parentId": "group_11bw3g6",
       "extent": "parent"
+    },
+    {
+      "id": "node_5oox3ot",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -10863.057294508591,
+        "y": 111.75581615705354
+      },
+      "data": {
+        "content": "# Overview — Mining a Bitcoin Block\n\nEvery ten minutes, somewhere in the world, a machine wins a lottery. This canvas plays that lottery end-to-end, by hand — at a difficulty where **you** hold a winning ticket within a few clicks.\n\nOne thing this flow is *not*: a general-purpose block builder. Real blocks hold thousands of transactions, SegWit serialization, a witness commitment, dynamic difficulty. This canvas strips all of that away to show the **workflow every miner runs**, unchanged since block 1:\n\n1. **Collect transactions** — here, the two spends from the *P2PK vs P2PKH* flow.\n2. **Write the coinbase** — the miner pays themself subsidy + fees, from nothing.\n3. **Merkle root** — compress all txids into one 32-byte commitment.\n4. **Assemble the 80-byte header** — the only thing that ever gets hashed.\n5. **Grind the nonce** — hash, compare to target, repeat. You are the ASIC.\n6. **Verify and serialize** — one hash proves the work; the block ships.\n\nHonest simplifications, so you know where the training wheels are: the **previous block hash** is synthetic (`000102…` — a real miner uses the chain tip), the **target** is ~10²² times easier than mainnet's, and all transactions are **legacy** — which is exactly why the simple txid-merkle construction here is valid (see the *Why legacy-only* note).\n",
+        "fontSize": 34,
+        "width": 1197,
+        "height": 1326,
+        "title": "Text Info Node"
+      },
+      "width": 1197,
+      "height": 1326
+    },
+    {
+      "id": "node_ie2zzk8",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -7253.949131208471,
+        "y": 3983.439188525497
+      },
+      "data": {
+        "content": "## The coinbase — the transaction that mints money\n\nEvery block's first transaction is one no wallet ever made. It has exactly one input, and that input spends **nothing**: the prevout txid is 32 zero bytes and the vout is `ffffffff` — a null pointer by convention. No signature, because there is no coin and no owner to satisfy.\n\nWhere a scriptSig would go, the miner may write almost anything (2–100 bytes). Two things live there on this canvas:\n\n- **The block height, `03 a0bb0d`** — BIP34 requires every coinbase to begin with a minimal push of the height (900,000 = `0x0DBBA0`, little-endian). Before this rule, two blocks actually produced *identical* coinbase txids; the height push makes each coinbase unique forever.\n- **An extra nonce, `04 00000000`** — spare entropy. The header's nonce field holds only 4 bytes ≈ 4.3 billion tries, which a modern ASIC exhausts in ~20 microseconds. Real miners then change *this* field: new coinbase → new txid → new merkle root → a fresh header to grind. The merkle tree is the transmission connecting this field to the header. At our difficulty the 4-byte nonce is plenty, so it rests at zero.\n\nThe single output pays the miner **312,503,200 sats**: the 3.125 BTC subsidy of the fifth era (fourth halving, block 840,000) plus **3,200 sats of fees** — 1,200 from TX1 and 2,000 from TX2, each simply *inputs − outputs*. Claim more and the block is invalid. Claim less and the difference is **burned forever** — it has happened.\n\nOne more special rule: coinbase outputs are unspendable for **100 blocks**, so a reorg can never leave someone spending coins whose minting block vanished.\n",
+        "fontSize": 28,
+        "width": 1107,
+        "height": 1256,
+        "title": "Text Info Node"
+      },
+      "width": 1107,
+      "height": 1256
+    },
+    {
+      "id": "node_txofmsf",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -9211.89426551329,
+        "y": 1174.79745637426
+      },
+      "data": {
+        "content": "## Why this construction is legacy-only \n\nAll three transactions in this block are **legacy**: no marker/flag bytes, no witnesses. That's not just a simplification — it changes what's *required* of the block, and this canvas is exact for the legacy case:\n\n- **txid = SHA256d(the whole transaction).** For a legacy tx, hashing the full serialization gives the txid directly — which is precisely what the SHA-256d nodes feed the merkle tree. For a SegWit tx this would be wrong: its txid is the hash of the tx *stripped of witnesses*, and hashing the full serialization gives the wtxid instead.\n- **No witness commitment needed.** A block containing even one SegWit transaction must add an OP_RETURN output to its coinbase committing to a second merkle tree built from **wtxids** (BIP141). All-legacy blocks — like every block before 2017, and this one — need none of that.\n\nSo the recipe on this canvas is the complete, consensus-valid recipe **for the pre-SegWit world**, and remains the skeleton of the modern one: today's blocks run the same workflow with one extra commitment bolted onto the coinbase. The point of this flow is that skeleton — not a builder for every transaction type.\n",
+        "fontSize": 28,
+        "width": 1316,
+        "height": 750,
+        "title": "Text Info Node"
+      },
+      "width": 1316,
+      "height": 750
+    },
+    {
+      "id": "node_axjh9nq",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -3460.5830805673945,
+        "y": 1342.477076100286
+      },
+      "data": {
+        "content": "## TXIDs and the merkle tree — one root to commit them all\n\nEach leaf is a transaction's **SHA256d in internal byte order** — the raw hash output, *not* the reversed form explorers display. This is the single most common mistake when rebuilding a merkle root by hand: nothing in this tree is byte-reversed.\n\nThree rules, all visible in the tree node:\n\n- **The coinbase is always leaf 0.** Its position is consensus, not convention.\n- **Order is the block's order, never sorted** — and it must be topological: TX1 sits before the TX2 that spends it.\n- **Odd counts duplicate the last hash.** With three leaves, TX2 is paired with a copy of itself: `((TX0,TX1),(TX2,TX2))`.\n\nThat duplication rule has a scar: two *different* transaction lists can hash to the same root (CVE-2012-2459), so nodes reject blocks whose tree contains such a mutation — the tree node tracks it as `Mutated: false`.\n\nThe root is 32 bytes committing to every byte of every transaction. Edit anything — a signature, an amount, the extra nonce — and the avalanche reaches the root, which sits in the header, which voids the proof of work. **This is how the nonce search seals transactions it never hashes directly.**\n",
+        "fontSize": 28,
+        "width": 1249,
+        "height": 937,
+        "title": "Text Info Node"
+      },
+      "width": 1249,
+      "height": 937
+    },
+    {
+      "id": "node_oaseiuk",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -10378.266224493113,
+        "y": 1678.2267024365074
+      },
+      "data": {
+        "content": "### Try it yourself\n- **Reset the nonce and mine from zero** — the first winner is 16, not 21. Count your clicks against the 1-in-16 odds.\n- **Reproduce CVE-2012-2459** — add a fourth leaf to the merkle tree and paste TX2's hash in again. The **root doesn't change** (two different transaction lists, one root — the collision that let attackers poison nodes with fake-invalid copies of fresh blocks in 2012), but **`Mutated` flips to true** — the exact check that fixed it, running live.\n- **Raise the difficulty** — set the target to `03ffff00…` (1 in 64). Feel the exponent; re-mine.\n- **Trigger the truncation** — type `0ffffff0…` as the target and decode the resulting nBits with a *Bits → Target* node: the fourth byte is gone. This is the shortcut the Target node's comment warns about.\n- **Move the extra nonce** — any change in the coinbase cascades: txid → root → header → your nonce no longer wins.\n\n",
+        "fontSize": 28,
+        "width": 1001,
+        "height": 763,
+        "title": "Text Info Node",
+        "borderColor": "#2d5fb3"
+      },
+      "width": 1001,
+      "height": 763
+    },
+    {
+      "id": "node_j5zoglu",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": -1408.3244937447712,
+        "y": 657.042429320944
+      },
+      "data": {
+        "content": "## The 80-byte header — the only thing miners hash\n\nMining never touches the transactions. It hashes exactly this:\n\n```\nversion    00000020    4 B   0x20000000 — BIP9 version bits, LE\nprev hash  1f1e1d…00  32 B   chain tip, byte-reversed from display\nmerkle rt  4ed8d0…8f  32 B   from the tree — internal order, NOT reversed\ntime       80e14e68    4 B   1750000000 = 2025-06-15 15:06:40 UTC, LE\nnBits      ffff0f20    4 B   compact target 0x200fffff, LE\nnonce      15000000    4 B   21 — the number you mined\n```\n\nEndianness is the trap this group defuses. Integers — version, time, nBits, nonce — serialize **little-endian**, hence the reverse nodes. The previous block *hash* flips from display order to internal order. The merkle root needs **no flip** — it arrives already internal. One reversal too many or too few, and the header hashes to garbage no nonce can save.\n\nTwo fields a real node would police that we chose freely: the **timestamp** must exceed the median of the previous 11 blocks and sit no more than 2 hours ahead of network time, and **nBits** must match what the difficulty schedule demands — a miner doesn't get to pick it. Our previous-block hash is openly synthetic; everything downstream still works, because proof of work only cares that these 80 bytes hash below target.\n",
+        "fontSize": 28,
+        "width": 1496,
+        "height": 845,
+        "title": "Text Info Node"
+      },
+      "width": 1496,
+      "height": 845
+    },
+    {
+      "id": "node_h6adni3",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 4715.03485760521,
+        "y": 794.9820745346976
+      },
+      "data": {
+        "content": "## nBits — the target squeezed into 4 bytes\n\nThe 80-byte header has no room for a 256-bit target, so it carries **nBits**: one exponent byte + three mantissa bytes — scientific notation in base 256.\n\n```\n0fffff00…00   →   nBits 200fffff   →   ffff0f20 in the header (LE)\n```\n\nOnly **three significant bytes survive**; anything below them is truncated. On the real network that's not a bug but the definition: every node derives its working target by decoding nBits from the header — the compact form *is* the target.\n\n**Our simplification:** this flow mines and checks against the 256-bit target you *type*, without decoding it back from nBits first. We chose that because the long form is the one worth teaching — you can read difficulty straight off the leading zeros and edit it freely, and a decode-back node would change nothing here: `0fffff…` fits in three bytes exactly, so typed and committed targets are identical.\n\n**What the shortcut could cost:** if you typed a target with *more* than three significant bytes, the header would commit to a slightly harder one — at most about **0.003% harder** (the truncation can never exceed one part in ~32,000, and never makes it easier). Practically invisible, but formally the canvas and the network would disagree about a razor-thin slice of hashes. \n",
+        "fontSize": 28,
+        "width": 1466,
+        "height": 871,
+        "title": "Text Info Node"
+      },
+      "width": 1466,
+      "height": 871
+    },
+    {
+      "id": "node_cp78bkh",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 1303.7788672494394,
+        "y": 2115.100551380452
+      },
+      "data": {
+        "content": "## You are the ASIC — 1 click = 1 attempt\n\nEach **+1** is one complete mining attempt, every step on canvas: the nonce enters the header little-endian, the 80 bytes are double-SHA256'd, the digest flips to display order, and one question is asked — *at or below the target?* No shortcuts exist; every click is an independent draw at **1-in-16** odds.\n\nExpect ~16 clicks — but it's a lottery, not a queue: sometimes the 3rd wins, sometimes the 40th. From zero the winners are **16, 21, 30, 33…** and this canvas sits on **21**, the *second* one. A block has no single correct nonce — mining finds *a* solution, never *the* solution, which is why two miners can solve the same height seconds apart.\n\nFor scale: a real mainnet block needs on the order of **10²³ hashes** — warehouses of machines doing exactly what your finger does here.\n\nThe payoff is the asymmetry: finding nonce 21 took clicks — **checking it takes one hash**. The compare node asks the same question the whole network would, and the green gate is the entire audit.\n",
+        "fontSize": 28,
+        "width": 1414,
+        "height": 721,
+        "title": "Text Info Node",
+        "borderColor": "#008c86"
+      },
+      "parentId": "group_header_target",
+      "extent": "parent",
+      "width": 1414,
+      "height": 721
+    },
+    {
+      "id": "node_ctnj99h",
+      "type": "shadcnTextInfo",
+      "position": {
+        "x": 6233.058076331424,
+        "y": 3691.8348457988536
+      },
+      "data": {
+        "content": "## The solved block \n\nOn the wire, a block is just: **header (80 B) · tx count (varint) · the transactions, in exactly merkle order**. No separators — a parser knows where a transaction ends only by fully parsing it. The header's root is a promise about exactly this sequence.\n\nWould mainnet accept it? No — the previous block points nowhere, and consensus *requires* at least difficulty 1: nBits may not encode an easier target than `1d00ffff`, and ours (`200fffff`) is ~268 million times easier. Fun fact: **regtest** — the developer network — allows up to `207fffff`, so this block's difficulty would be perfectly legal there. What the block *would* pass anywhere: serialization, the merkle commitment, BIP34, coinbase value ≤ subsidy + fees, and the PoW inequality against its own stated target. \n\n",
+        "fontSize": 28,
+        "width": 1396,
+        "height": 566,
+        "title": "Text Info Node"
+      },
+      "width": 1396,
+      "height": 566
     }
   ],
   "edges": [
@@ -2975,24 +3042,10 @@
       "selected": false
     },
     {
-      "source": "node_FrTZ7207",
-      "target": "node_header_prefix",
-      "targetHandle": "input-0",
-      "selected": false,
-      "id": "xy-edge__node_FrTZ7207-node_header_prefixinput-0"
-    },
-    {
       "id": "edge_iklf3mv",
       "source": "node_prev_block_display",
       "target": "node_a60uf51",
       "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "id": "edge_9ihap8r",
-      "source": "node_a60uf51",
-      "target": "node_header_prefix",
-      "targetHandle": "input-10",
       "selected": false
     },
     {
@@ -3014,13 +3067,6 @@
       "source": "node_u852imw",
       "target": "node_aa6o6ch",
       "targetHandle": "input-0",
-      "selected": false
-    },
-    {
-      "id": "edge_hl6iday",
-      "source": "node_aa6o6ch",
-      "target": "node_header_prefix",
-      "targetHandle": "input-40",
       "selected": false
     },
     {
@@ -3057,13 +3103,6 @@
       "targetHandle": "input-30",
       "selected": false,
       "id": "xy-edge__node_z0jcdtw-node_block_headerinput-30"
-    },
-    {
-      "source": "node_z0jcdtw",
-      "target": "node_header_prefix",
-      "targetHandle": "input-30",
-      "selected": false,
-      "id": "xy-edge__node_z0jcdtw-node_header_prefixinput-30"
     },
     {
       "id": "edge_nonce_le4_header",
@@ -3169,13 +3208,6 @@
       "targetHandle": "input-20",
       "selected": false,
       "id": "xy-edge__node_zihzm72-node_block_headerinput-20"
-    },
-    {
-      "source": "node_zihzm72",
-      "target": "node_header_prefix",
-      "targetHandle": "input-20",
-      "selected": false,
-      "id": "xy-edge__node_zihzm72-node_header_prefixinput-20"
     }
   ],
   "virtualEdges": []

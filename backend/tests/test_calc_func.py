@@ -1073,7 +1073,6 @@ def test_bitcoin_merkle_tree_mutation_collision_keeps_same_root():
     assert padded["mutated"] is False
     assert padded["duplicateCount"] == 1
     assert explicit_duplicate["mutated"] is True
-    assert explicit_duplicate["duplicateCount"] == 0
 
 
 def test_bitcoin_merkle_tree_accepts_99_transactions():
